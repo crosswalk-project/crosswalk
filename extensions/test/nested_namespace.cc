@@ -11,6 +11,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
+using xwalk::Runtime;
 
 namespace {
 
@@ -107,13 +108,13 @@ class XWalkExtensionsTrampolinesForNested : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
                        InstanceCreatedForInnerExtension) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("inner_outer.html"));
 
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 
   EXPECT_TRUE(g_outer_extension_loaded);
@@ -122,13 +123,13 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
                        InstanceNotCreatedForUnusedInnerExtension) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("outer.html"));
 
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 
   EXPECT_TRUE(g_outer_extension_loaded);
@@ -137,13 +138,13 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTrampolinesForNested,
                        InstanceCreatedForExtensionUsedByAnother) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("another.html"));
 
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 
   EXPECT_TRUE(g_another_extension_loaded);

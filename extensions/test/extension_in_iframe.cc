@@ -15,6 +15,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
+using xwalk::Runtime;
 
 namespace {
 
@@ -60,17 +61,17 @@ class XWalkExtensionsIFrameTest : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        ContextsAreCreatedForIFrames) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("counter_with_iframes.html"));
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(g_count == 3);
   ASSERT_EQ(g_count, 3);
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        ContextsAreNotCreatedForIFramesWithBlankPages) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("blank_iframes.html"));
 
@@ -78,10 +79,10 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
   // full of blank iframes and afterwards we navigate to another page.
   // ModuleSystems should not be created and consequentially not deleted for the
   // blank iframes.
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::TitleWatcher title_watcher1(runtime()->web_contents(), kPassString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::TitleWatcher title_watcher2(runtime()->web_contents(), kPassString);
+  xwalk_test_utils::NavigateToURL(runtime, url);
+  content::TitleWatcher title_watcher1(runtime->web_contents(), kPassString);
+  xwalk_test_utils::NavigateToURL(runtime, url);
+  content::TitleWatcher title_watcher2(runtime->web_contents(), kPassString);
 }
 
 // This test reproduces the problem found in bug
@@ -96,13 +97,13 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
 // delete it when releasing the script context.
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        IFrameUsingDocumentWriteShouldNotCrash) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("iframe_using_document_write.html"));
 
   for (int i = 0; i < 5; i++) {
-    content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
-    xwalk_test_utils::NavigateToURL(runtime(), url);
+    content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
+    xwalk_test_utils::NavigateToURL(runtime, url);
     EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 }
@@ -113,13 +114,13 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
 // iframe_keep_reference.html for more details.
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        KeepingReferenceToFunctionFromDestroyedIFrame) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("iframe_keep_reference.html"));
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   ASSERT_EQ(g_count, 1);
 }

@@ -16,6 +16,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/test/test_file_util.h"
 #include "content/public/browser/notification_service.h"
+#include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/test/browser_test_utils.h"
@@ -50,29 +51,28 @@ base::LazyInstance<xwalk::XWalkContentRendererClientTizen>::Leaky
 base::LazyInstance<XWalkContentRendererClient>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #endif
-
-}  // namespace
-
-InProcessBrowserTest::InProcessBrowserTest()
-    : runtime_(NULL) {
-  CreateTestServer(base::FilePath(FILE_PATH_LITERAL("xwalk/test/data")));
-}
-
-InProcessBrowserTest::~InProcessBrowserTest() {
-}
-
-base::CommandLine InProcessBrowserTest::GetCommandLineForRelaunch() {
+// Return a CommandLine object that is used to relaunch the browser_test
+// binary as a browser process.
+base::CommandLine GetCommandLineForRelaunch() {
   base::CommandLine new_command_line(
       base::CommandLine::ForCurrentProcess()->GetProgram());
   CommandLine::SwitchMap switches =
       CommandLine::ForCurrentProcess()->GetSwitches();
   new_command_line.AppendSwitch(content::kLaunchAsBrowser);
 
-  for (base::CommandLine::SwitchMap::const_iterator iter = switches.begin();
-        iter != switches.end(); ++iter) {
+  for (auto iter = switches.begin(); iter != switches.end(); ++iter) {
     new_command_line.AppendSwitchNative((*iter).first, (*iter).second);
   }
   return new_command_line;
+}
+
+}  // namespace
+
+InProcessBrowserTest::InProcessBrowserTest() {
+  CreateTestServer(base::FilePath(FILE_PATH_LITERAL("xwalk/test/data")));
+}
+
+InProcessBrowserTest::~InProcessBrowserTest() {
 }
 
 void InProcessBrowserTest::SetUp() {
@@ -80,7 +80,7 @@ void InProcessBrowserTest::SetUp() {
   // Allow subclasses to change the command line before running any tests.
   SetUpCommandLine(command_line);
   // Add command line arguments that are used by all InProcessBrowserTests.
-  PrepareTestCommandLine(command_line);
+  xwalk_test_utils::PrepareBrowserCommandLineForTests(command_line);
 
   // Single-process mode is not set in BrowserMain, so process it explicitly,
   // and set up renderer.
@@ -106,20 +106,8 @@ Runtime* InProcessBrowserTest::CreateRuntime(
   return runtime;
 }
 
-void InProcessBrowserTest::PrepareTestCommandLine(
-    base::CommandLine* command_line) {
-  // Propagate commandline settings from test_launcher_utils.
-  xwalk_test_utils::PrepareBrowserCommandLineForTests(command_line);
-}
-
 void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // Pump startup related events.
-  content::RunAllPendingInMessageLoop();
-  // FIXME : Unfortunately too many tests now rely on the 'runtime()'
-  // method, instead they should just create runtimes themselves
-  // when needed and thus the 'runtime()' method should be removed
-  // as well as 'runtime_' initialization below.
-  runtime_ = CreateRuntime(GURL());
   content::RunAllPendingInMessageLoop();
 
   SetUpOnMainThread();

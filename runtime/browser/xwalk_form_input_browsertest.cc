@@ -100,16 +100,16 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, DISABLED_FileSelector) {
       base::FilePath(), base::FilePath().AppendASCII("file_to_select")));
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::WaitForLoadStop(runtime()->web_contents());
+  Runtime* runtime = CreateRuntime(url);
+  content::WaitForLoadStop(runtime->web_contents());
   bool ret = content::ExecuteScript(
-      runtime()->web_contents(), "doSelectFile();");
+      runtime->web_contents(), "doSelectFile();");
   EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   base::string16 expected_title = base::ASCIIToUTF16("file selected: ");
   expected_title.append(
       base::ASCIIToUTF16(g_file_selected_path.BaseName().MaybeAsASCII()));
-  content::TitleWatcher title_watcher(runtime()->web_contents(),
+  content::TitleWatcher title_watcher(runtime->web_contents(),
                                       expected_title);
   EXPECT_EQ(title_watcher.WaitAndGetTitle(), expected_title);
 }
@@ -119,17 +119,17 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, ColorChooser) {
   SetBrowserTestColor(r, g, b);
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::WaitForLoadStop(runtime()->web_contents());
+  Runtime* runtime = CreateRuntime(url);
+  content::WaitForLoadStop(runtime->web_contents());
   bool ret = content::ExecuteScript(
-      runtime()->web_contents(), "doChooseColor();");
+      runtime->web_contents(), "doChooseColor();");
   EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   base::string16 expected_title = base::ASCIIToUTF16("color chosen: ");
   char rgb[8];
   base::snprintf(rgb, sizeof(rgb), "#%02x%02x%02x", r, g, b);
   expected_title.append(base::ASCIIToUTF16(rgb));
-  content::TitleWatcher title_watcher(runtime()->web_contents(),
+  content::TitleWatcher title_watcher(runtime->web_contents(),
                                       expected_title);
   EXPECT_EQ(title_watcher.WaitAndGetTitle(), expected_title);
 }
