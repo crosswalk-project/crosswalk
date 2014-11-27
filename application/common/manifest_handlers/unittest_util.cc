@@ -6,11 +6,11 @@
 
 #include <string>
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/manifest.h"
 
 namespace xwalk {
 
-namespace keys = application_widget_keys;
+namespace manifest_keys = application_manifest_keys;
+namespace widget_keys = application_widget_keys;
 
 namespace application {
 
@@ -33,61 +33,58 @@ std::string DotConnect(const std::string& first, const std::string& second) {
 
 }  // namespace
 
-scoped_ptr<base::DictionaryValue> CreateDefaultW3CManifest() {
+scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig() {
+  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
+
+  manifest->SetString(manifest_keys::kXWalkVersionKey, kDefaultVersion);
+  manifest->SetString(manifest_keys::kNameKey, kDefaultName);
+
+  return manifest.Pass();
+}
+
+scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
   scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
 
   // widget attributes
 
   manifest->SetString(
-      DotConnect(keys::kWidgetKey, keys::kNamespaceKey),
+      DotConnect(widget_keys::kWidgetKey, widget_keys::kNamespaceKey),
       kW3CNamespacePrefix);
-
-  manifest->SetString(keys::kVersionKey, kDefaultVersion);
-
-  manifest->SetString(keys::kNameKey, kDefaultName);
-
-  return manifest.Pass();
-}
+  manifest->SetString(widget_keys::kVersionKey, kDefaultVersion);
+  manifest->SetString(widget_keys::kNameKey, kDefaultName);
 
 #if defined(OS_TIZEN)
-
-scoped_ptr<base::DictionaryValue> CreateDefaultWGTManifest() {
-  scoped_ptr<base::DictionaryValue> manifest(CreateDefaultW3CManifest());
 
   // widget.application attributes
 
   manifest->SetString(
-      DotConnect(keys::kTizenApplicationKey,
-                 keys::kNamespaceKey),
+      DotConnect(widget_keys::kTizenApplicationKey,
+                 widget_keys::kNamespaceKey),
       kTizenNamespacePrefix);
-
   manifest->SetString(
-      DotConnect(keys::kTizenApplicationKey,
-                 keys::kTizenApplicationIdKey),
+      DotConnect(widget_keys::kTizenApplicationKey,
+                 widget_keys::kTizenApplicationIdKey),
       DotConnect(kDefaultPackageId, kDefaultApplicationName));
-
   manifest->SetString(
-      DotConnect(keys::kTizenApplicationKey,
-                 keys::kTizenApplicationPackageKey),
+      DotConnect(widget_keys::kTizenApplicationKey,
+                 widget_keys::kTizenApplicationPackageKey),
       kDefaultPackageId);
-
   manifest->SetString(
-      DotConnect(keys::kTizenApplicationKey,
-                 keys::kTizenApplicationRequiredVersionKey),
+      DotConnect(widget_keys::kTizenApplicationKey,
+                 widget_keys::kTizenApplicationRequiredVersionKey),
       kDefaultRequiredVersion);
+
+#endif
 
   return manifest.Pass();
 }
 
-#endif  // defined(OS_TIZEN)
-
-scoped_refptr<ApplicationData> CreateApplication(
+scoped_refptr<ApplicationData> CreateApplication(Manifest::Type type,
     const base::DictionaryValue& manifest) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(), std::string(), ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()),
-                                   Manifest::TYPE_WIDGET)),
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()), type)),
       &error);
   return application;
 }
