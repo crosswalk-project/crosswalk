@@ -17,6 +17,7 @@
 
 using namespace xwalk::extensions; // NOLINT
 using namespace xwalk::jsapi::test; // NOLINT
+using xwalk::Runtime;
 
 TestExtension::TestExtension() {
   set_name("test");
@@ -162,14 +163,13 @@ class InternalExtensionTest : public XWalkExtensionsTestBase {
 };
 
 IN_PROC_BROWSER_TEST_F(InternalExtensionTest, InternalExtension) {
-  content::RunAllPendingInMessageLoop();
-
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
 
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_internal_extension.html"));
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
 
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }

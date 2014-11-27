@@ -21,8 +21,6 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
-#include "content/public/browser/notification_source.h"
-#include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -67,20 +65,12 @@ Runtime::Runtime(content::WebContents* web_contents)
       observer_(nullptr),
       weak_ptr_factory_(this) {
   web_contents_->SetDelegate(this);
-  content::NotificationService::current()->Notify(
-       xwalk::NOTIFICATION_RUNTIME_OPENED,
-       content::Source<Runtime>(this),
-       content::NotificationService::NoDetails());
   registrar_.Add(this,
                  content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
                  content::Source<content::WebContents>(web_contents_.get()));
 }
 
 Runtime::~Runtime() {
-  content::NotificationService::current()->Notify(
-          xwalk::NOTIFICATION_RUNTIME_CLOSED,
-          content::Source<Runtime>(this),
-          content::NotificationService::NoDetails());
   if (ui_delegate_)
     ui_delegate_->DeleteDelegate();
 }

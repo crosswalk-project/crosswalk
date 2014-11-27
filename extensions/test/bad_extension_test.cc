@@ -12,6 +12,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
+using xwalk::Runtime;
 using xwalk::extensions::XWalkExtensionService;
 
 class BadExtensionTest : public XWalkExtensionsTestBase {
@@ -24,29 +25,29 @@ class BadExtensionTest : public XWalkExtensionsTestBase {
 };
 
 IN_PROC_BROWSER_TEST_F(BadExtensionTest, DoNotCrash) {
-  content::RunAllPendingInMessageLoop();
   LOG(WARNING) << "This test will produce a lot warnings which are expected."
                << " The goal is to not crash.";
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("bad.html"));
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
 
 IN_PROC_BROWSER_TEST_F(BadExtensionTest, NavigateDoNotCrash) {
-  content::RunAllPendingInMessageLoop();
   LOG(WARNING) << "This test will produce a lot warnings which are expected."
                << " The goal is to not crash.";
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("bad.html"));
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
 
   for (int i = 0; i < 5; i++) {
-    xwalk_test_utils::NavigateToURL(runtime(), url);
-    WaitForLoadStop(runtime()->web_contents());
+    xwalk_test_utils::NavigateToURL(runtime, url);
+    WaitForLoadStop(runtime->web_contents());
     EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 }

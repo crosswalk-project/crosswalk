@@ -65,10 +65,10 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsExportObjectTest,
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_export_object.html"));
-
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  xwalk::Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
 
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }

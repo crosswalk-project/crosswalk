@@ -16,8 +16,8 @@ IN_PROC_BROWSER_TEST_F(InProcessBrowserTest, NativeFileSystem) {
   const base::string16 passString = base::ASCIIToUTF16("Pass");
   const base::string16 failString = base::ASCIIToUTF16("Fail");
 
-  content::RunAllPendingInMessageLoop();
-  content::TitleWatcher title_watcher(runtime()->web_contents(), passString);
+  xwalk::Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), passString);
   title_watcher.AlsoWaitForTitle(failString);
 
 #if defined(OS_LINUX)
@@ -34,6 +34,6 @@ IN_PROC_BROWSER_TEST_F(InProcessBrowserTest, NativeFileSystem) {
       .Append(FILE_PATH_LITERAL("native_file_system"))
       .Append(FILE_PATH_LITERAL("native_file_system_api_browsertest.html"));
 
-  xwalk_test_utils::NavigateToURL(runtime(), net::FilePathToFileURL(test_file));
+  xwalk_test_utils::NavigateToURL(runtime, net::FilePathToFileURL(test_file));
   EXPECT_EQ(passString, title_watcher.WaitAndGetTitle());
 }

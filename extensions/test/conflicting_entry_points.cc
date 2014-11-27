@@ -12,6 +12,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
+using xwalk::Runtime;
 
 namespace {
 
@@ -106,14 +107,14 @@ class XWalkExtensionsConflictsWithEntryPointTest
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsConflictsWithNameTest,
                        OnlyCleanInstanceLoaded) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("conflicting_names.html"));
 
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 
   EXPECT_TRUE(g_clean_extension_loaded);
@@ -122,14 +123,14 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsConflictsWithNameTest,
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsConflictsWithEntryPointTest,
                        OnlyCleanInstanceLoaded) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("conflicting_names.html"));
 
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 
   EXPECT_TRUE(g_clean_extension_loaded);

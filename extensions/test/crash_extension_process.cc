@@ -13,6 +13,7 @@
 #include "content/public/test/browser_test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
+using xwalk::Runtime;
 
 class CrashExtensionTest : public XWalkExtensionsTestBase {
  public:
@@ -33,10 +34,11 @@ IN_PROC_BROWSER_TEST_F(CrashExtensionTest, CrashExtensionProcessKeepBPAlive) {
 
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("crash.html"));
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
 
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  WaitForLoadStop(runtime()->web_contents());
+  xwalk_test_utils::NavigateToURL(runtime, url);
+  WaitForLoadStop(runtime->web_contents());
 
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }

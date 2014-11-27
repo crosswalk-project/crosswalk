@@ -12,12 +12,10 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
+using xwalk::Runtime;
 
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit TestV8ToolsExtensionInstance() {
-  }
-
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
 };
 
@@ -51,13 +49,13 @@ class XWalkExtensionsV8ToolsTest : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsV8ToolsTest,
                        V8ToolsWorks) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_v8tools.html"));
 
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
 
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
