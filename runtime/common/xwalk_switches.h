@@ -22,6 +22,10 @@ extern const char kXWalkDataPath[];
 extern const char kXWalkProfileName[];
 #endif
 
+#if defined(OS_TIZEN)
+extern const char kIdUsedBySmack[];
+#endif
+
 }  // namespace switches
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_

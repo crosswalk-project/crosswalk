@@ -22,6 +22,8 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
+#include "content/public/common/content_switches.h"
+#include "net/base/filename_util.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "ppapi/host/ppapi_host.h"
@@ -38,7 +40,7 @@
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
-
+#include "xwalk/runtime/common/xwalk_switches.h"
 #if !defined(DISABLE_NACL)
 #include "components/nacl/browser/nacl_browser.h"
 #include "components/nacl/browser/nacl_host_message_filter.h"
@@ -77,6 +79,25 @@ namespace {
 
 // The application-wide singleton of ContentBrowserClient impl.
 XWalkContentBrowserClient* g_browser_client = NULL;
+
+#if defined(OS_TIZEN)
+GURL GetURLFromCommandLine(const CommandLine& command_line) {
+  const CommandLine::StringVector& args = command_line.GetArgs();
+
+  if (args.empty())
+    return GURL();
+
+  GURL url(args[0]);
+  if (url.is_valid() && url.has_scheme())
+    return url;
+
+  base::FilePath path(args[0]);
+  if (!path.IsAbsolute())
+    path = MakeAbsoluteFilePath(path);
+
+  return net::FilePathToFileURL(path);
+}
+#endif
 
 }  // namespace
 
@@ -152,6 +173,16 @@ void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
     if (browser_process_cmd_line->HasSwitch(extra_switches[i]))
       command_line->AppendSwitch(extra_switches[i]);
   }
+
+#if defined(OS_TIZEN)
+  std::string process_type =
+    command_line->GetSwitchValueASCII(switches::kProcessType);
+  if (process_type == switches::kRendererProcess) {
+    GURL url_or_appid = GetURLFromCommandLine(*command_line);
+    command_line->AppendSwitchASCII(switches::kIdUsedBySmack,
+        url_or_appid.spec());
+  }
+#endif
 }
 
 content::QuotaPermissionContext*

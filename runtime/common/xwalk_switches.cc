@@ -33,4 +33,8 @@ const char kXWalkDataPath[] = "data-path";
 const char kXWalkProfileName[] = "profile-name";
 #endif
 
+#if defined(OS_TIZEN)
+const char kIdUsedBySmack[] = "id-for-smack";
+#endif
+
 }  // namespace switches
