@@ -293,8 +293,7 @@ base::DictionaryValue* LoadXMLNode(
       DCHECK(temp->IsType(base::Value::TYPE_DICTIONARY));
       base::DictionaryValue* dict;
       temp->GetAsDictionary(&dict);
-      base::DictionaryValue* prev_value(new base::DictionaryValue());
-      prev_value = dict->DeepCopy();
+      base::DictionaryValue* prev_value = dict->DeepCopy();
 
       base::ListValue* list = new base::ListValue();
       list->Append(prev_value);
