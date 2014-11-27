@@ -7,11 +7,12 @@
 
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
+#include "base/threading/thread.h"
 
 class GURL;
 
 namespace content {
-  class WebContents;
+class WebContents;
 }
 
 namespace xwalk {
@@ -21,6 +22,7 @@ class RuntimeContext;
 class RuntimeGeolocationPermissionContext
     : public base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext> {
  public:
+  RuntimeGeolocationPermissionContext();
   // content::GeolocationPermissionContext implementation.
   virtual void RequestGeolocationPermission(
     content::WebContents* web_contents,
@@ -38,6 +40,12 @@ class RuntimeGeolocationPermissionContext
     const GURL& requesting_frame,
     base::Callback<void(bool)> result_callback,
     base::Closure* cancel_callback);
+
+#if defined(OS_TIZEN)
+  // FIXME(terriko): we may wish to refactor this for a generic cynara
+  //                 thread when more cynara checks are added.
+  scoped_ptr<base::Thread> thread_;
+#endif
 };
 
 }  // namespace xwalk

@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_RUNNER_TIZEN_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_RUNNER_TIZEN_H_
 
+#include <cynara-client.h>
 #include <string>
 
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -25,9 +26,14 @@ class XWalkRunnerTizen : public XWalkRunner {
 
   virtual void PreMainMessageLoopRun() OVERRIDE;
 
+  cynara* GetCynara();
+
  private:
   friend class XWalkRunner;
   XWalkRunnerTizen();
+
+  cynara* cynara_;
+  cynara_configuration* cynara_conf_;
 
   TizenLocaleListener tizen_locale_listener_;
 };

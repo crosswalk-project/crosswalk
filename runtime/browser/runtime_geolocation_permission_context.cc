@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "base/callback.h"
+#include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -15,12 +16,16 @@
 #endif
 
 #if defined(OS_TIZEN)
+#include <cynara-client.h>
+#include <cynara-creds-socket.h>
+// #include <sockets/SocketManager.h>
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 #endif
 
 namespace xwalk {
@@ -54,7 +59,56 @@ void CancelGeolocationPermissionRequest(
           requesting_frame));
 }
 
+#if defined(OS_TIZEN)
+void CheckCynara(base::Callback<void(bool)> result_callback) {
+  // check cynara synchrounously here
+  char* client_id;
+  char* user_id;
+  int socket_fd = 1;  // FIXME: to be replaced with appropriate socket
+  // int socket_fd = SocketManager::getSocketFromSystemD(
+  //        PathConfig::SocketPath::client);
+
+  int ret_client  = cynara_creds_socket_get_client(socket_fd,
+          CLIENT_METHOD_SMACK, &client_id);
+  if (ret_client != CYNARA_API_SUCCESS) {
+    LOG(ERROR) << "cynara failed to get client_id, error_code " + ret_client;
+    return;
+  }
+  int ret_user = cynara_creds_socket_get_user(socket_fd,
+          USER_METHOD_UID, &user_id);
+  if (ret_user != CYNARA_API_SUCCESS) {
+    LOG(ERROR) << "cynara failed to get user_id, error code " + ret_user;
+    free(client_id);
+    return;
+  }
+
+
+  XWalkRunnerTizen* runner_tizen = XWalkRunnerTizen::GetInstance();
+  int ret = cynara_check(runner_tizen->GetCynara(),
+      client_id, "", user_id,
+      "http://tizen.org/privilege/location");
+  // Note: empty string here is client_session, currently not used
+
+  switch (ret) {
+    // TODO(terriko): CYNARA_API_SUCCESS will be changed to
+    //                CYNARA_API_ACCESS_ALLOWED in new cynara
+    case CYNARA_API_SUCCESS:
+      result_callback.Run(true);
+      break;
+    case CYNARA_API_ACCESS_DENIED:
+      LOG(WARNING) << "cynara geolocation check denied";
+      break;
+    default:
+      LOG(ERROR) << "cynara geolocation check returned unexpected reponse";
+  }
+  free(client_id);
+  free(user_id);
+}
+#endif
 RuntimeGeolocationPermissionContext::~RuntimeGeolocationPermissionContext() {
+}
+
+RuntimeGeolocationPermissionContext::RuntimeGeolocationPermissionContext() {
 }
 
 void
@@ -78,6 +132,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
 
   xwalk_content->ShowGeolocationPrompt(requesting_frame, result_callback);
 #elif defined(OS_TIZEN)
+#if !defined(CYNARA)
   bool has_geolocation_permission = false;
   XWalkRunner* runner = XWalkRunner::GetInstance();
   application::ApplicationSystem* app_system = runner->app_system();
@@ -102,6 +157,15 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
   }
 
   result_callback.Run(has_geolocation_permission);
+#else
+  if (!thread_.get()) {
+    thread_.reset(new base::Thread("cynara_geolocation"));
+  }
+  thread_->message_loop()->PostTask(
+      FROM_HERE, base::Bind(CheckCynara, result_callback));
+  thread_->Start();
+#endif
+
 #endif
 
   if (cancel_callback) {
