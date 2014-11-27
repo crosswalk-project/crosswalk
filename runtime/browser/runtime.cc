@@ -226,7 +226,13 @@ content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
     SkColor initial_color,
     const std::vector<content::ColorSuggestion>& suggestions) {
+#if defined(TOOLKIT_VIEWS)
   return xwalk::ShowColorChooser(web_contents, initial_color);
+#else
+  return WebContentsDelegate::OpenColorChooser(web_contents,
+                                               initial_color,
+                                               suggestions);
+#endif
 }
 
 void Runtime::RunFileChooser(

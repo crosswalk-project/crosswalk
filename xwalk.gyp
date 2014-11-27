@@ -196,6 +196,8 @@
         'runtime/browser/ui/color_chooser_mac.cc',
         'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window.h',
+        'runtime/browser/ui/native_app_window_aura.cc',
+        'runtime/browser/ui/native_app_window_aura.h',
         'runtime/browser/ui/native_app_window_android.cc',
         'runtime/browser/ui/native_app_window_mac.h',
         'runtime/browser/ui/native_app_window_mac.mm',
@@ -383,10 +385,21 @@
             '../ui/views/views.gyp:views',
             '../ui/resources/ui_resources.gyp:ui_resources',
           ],
+          'sources/': [
+            ['exclude', 'runtime/browser/ui/native_app_window_aura.cc'],
+          ],
+        }, { # toolkit_views==0
+          'sources/': [
+            ['exclude', 'runtime/browser/ui/native_app_window_views.cc'],
+            ['exclude', 'runtime/browser/ui/xwalk_views_delegate.cc'],
+            ['exclude', 'runtime/browser/ui/color_chooser_aura.cc'],
+          ],
         }],  # toolkit_views==1
         ['use_aura==1', {
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
+            '../ui/aura/aura.gyp:aura_test_support',
+            '../ui/wm/wm.gyp:wm'
           ],
         }, {  # use_aura==0
           'sources/': [
