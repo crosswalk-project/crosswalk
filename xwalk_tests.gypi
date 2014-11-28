@@ -60,6 +60,7 @@
         ['tizen==1', {
           'sources': [
             'application/common/manifest_handlers/tizen_appwidget_handler_unittest.cc',
+            'application/common/manifest_handlers/tizen_metadata_handler_unittest.cc',
             'application/common/manifest_handlers/tizen_navigation_handler_unittest.cc',
           ],
         }],
