@@ -367,6 +367,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_inspector=0')
     # Enable QUIC by default
     args.append('-Ddisable_quic_support=0')
+    # Enable Sync compositor by default
+    args.append('-Ddisable_sync_compositor=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
