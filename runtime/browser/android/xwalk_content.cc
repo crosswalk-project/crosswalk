@@ -34,8 +34,8 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "jni/XWalkContent_jni.h"
 
@@ -283,10 +283,10 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
 
   std::string csp;
   ManifestGetString(manifest, keys::kCSPKey, keys::kDeprecatedCSPKey, &csp);
-  RuntimeContext* runtime_context =
-      XWalkRunner::GetInstance()->runtime_context();
-  CHECK(runtime_context);
-  runtime_context->SetCSPString(csp);
+  XWalkBrowserContext* browser_context =
+      XWalkRunner::GetInstance()->browser_context();
+  CHECK(browser_context);
+  browser_context->SetCSPString(csp);
 
   ScopedJavaLocalRef<jstring> url_buffer =
       base::android::ConvertUTF8ToJavaString(env, url);
@@ -408,7 +408,7 @@ jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
 static jlong Init(JNIEnv* env, jobject obj) {
   scoped_ptr<WebContents> web_contents(content::WebContents::Create(
       content::WebContents::CreateParams(
-          XWalkRunner::GetInstance()->runtime_context())));
+          XWalkRunner::GetInstance()->browser_context())));
   return reinterpret_cast<intptr_t>(new XWalkContent(web_contents.Pass()));
 }
 

@@ -15,11 +15,11 @@ class DevToolsHttpHandler;
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 
 class RemoteDebuggingServer {
  public:
-  RemoteDebuggingServer(RuntimeContext* runtime_context,
+  RemoteDebuggingServer(XWalkBrowserContext* browser_context,
                         const std::string& ip,
                         int port,
                         const std::string& frontend_url);

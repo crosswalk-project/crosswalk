@@ -13,7 +13,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/frame_navigate_params.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 
 namespace xwalk {
@@ -110,7 +110,7 @@ void XWalkRenderViewHostExt::DidNavigateAnyFrame(
     const content::FrameNavigateParams& params) {
   DCHECK(CalledOnValidThread());
 
-  RuntimeContext::FromWebContents(web_contents())
+  XWalkBrowserContext::FromWebContents(web_contents())
       ->AddVisitedURLs(params.redirects);
 }
 

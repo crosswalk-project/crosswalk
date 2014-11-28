@@ -9,8 +9,8 @@
 namespace xwalk {
 
 ApplicationComponent::ApplicationComponent(
-    RuntimeContext* runtime_context)
-    : app_system_(application::ApplicationSystem::Create(runtime_context)),
+    XWalkBrowserContext* browser_context)
+    : app_system_(application::ApplicationSystem::Create(browser_context)),
       extensions_enabled_(true) {}
 
 ApplicationComponent::~ApplicationComponent() {}

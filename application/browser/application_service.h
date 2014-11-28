@@ -17,7 +17,7 @@
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 
 namespace application {
 
@@ -37,7 +37,7 @@ class ApplicationService : public Application::Observer {
   virtual ~ApplicationService();
 
   static scoped_ptr<ApplicationService> Create(
-    RuntimeContext* runtime_context);
+    XWalkBrowserContext* browser_context);
 
   // Launch an unpacked application using path to the manifest file
   // of an unpacked application.
@@ -81,7 +81,7 @@ class ApplicationService : public Application::Observer {
       const std::string& perm_table);
 
  protected:
-  explicit ApplicationService(RuntimeContext* runtime_context);
+  explicit ApplicationService(XWalkBrowserContext* browser_context);
 
   Application* Launch(scoped_refptr<ApplicationData> application_data,
                       const Application::LaunchParams& launch_params);
@@ -90,7 +90,7 @@ class ApplicationService : public Application::Observer {
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
 
-  RuntimeContext* runtime_context_;
+  XWalkBrowserContext* browser_context_;
   ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
 

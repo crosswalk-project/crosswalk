@@ -19,9 +19,9 @@ namespace xwalk {
 
 CookieManager::CookieManager(
     const std::string& app_id,
-    RuntimeContext* runtime_context)
+    XWalkBrowserContext* browser_context)
       : app_id_(app_id),
-        runtime_context_(runtime_context) {
+        browser_context_(browser_context) {
 }
 
 void CookieManager::CookieDeleted(bool success) {
@@ -31,7 +31,7 @@ void CookieManager::CookieDeleted(bool success) {
 
 void CookieManager::DeleteSessionOnlyOriginCookies(
     const net::CookieList& cookies) {
-  net::URLRequestContext* request_context = runtime_context_->
+  net::URLRequestContext* request_context = browser_context_->
       GetURLRequestContextGetterById(
           std::string(app_id_))->GetURLRequestContext();
   if (!request_context)
@@ -50,7 +50,7 @@ void CookieManager::DeleteCookiesOnIOThread(
     const std::string& url,
     const std::string& cookie_name) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
-  net::URLRequestContext* request_context = runtime_context_->
+  net::URLRequestContext* request_context = browser_context_->
       GetURLRequestContextGetterById(app_id_)->GetURLRequestContext();
   net::CookieStore* cookie_store = request_context->cookie_store();
   cookie_store->GetCookieMonster()->GetAllCookiesAsync(

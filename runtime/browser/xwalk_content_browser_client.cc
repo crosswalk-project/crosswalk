@@ -31,9 +31,9 @@
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -90,7 +90,7 @@ XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
     : xwalk_runner_(xwalk_runner),
       url_request_context_getter_(NULL),
       main_parts_(NULL),
-      runtime_context_(NULL) {
+      browser_context_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
@@ -119,8 +119,8 @@ net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  runtime_context_ = static_cast<RuntimeContext*>(browser_context);
-  url_request_context_getter_ = runtime_context_->
+  browser_context_ = static_cast<XWalkBrowserContext*>(browser_context);
+  url_request_context_getter_ = browser_context_->
       CreateRequestContext(protocol_handlers, request_interceptors.Pass());
   return url_request_context_getter_;
 }
@@ -132,7 +132,7 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
     bool in_memory,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  return static_cast<RuntimeContext*>(browser_context)->
+  return static_cast<XWalkBrowserContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers,
           request_interceptors.Pass());
@@ -420,7 +420,7 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
 
 content::DevToolsManagerDelegate*
   XWalkContentBrowserClient::GetDevToolsManagerDelegate() {
-  return new XWalkDevToolsDelegate(runtime_context_);
+  return new XWalkDevToolsDelegate(browser_context_);
 }
 
 }  // namespace xwalk

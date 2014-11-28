@@ -22,7 +22,7 @@ class RenderProcessHost;
 }
 
 namespace xwalk {
-class RuntimeContext;
+class XWalkBrowserContext;
 }
 
 namespace xwalk {
@@ -33,12 +33,13 @@ class ApplicationService;
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
 // There's one-to-one correspondence between ApplicationSystem and
-// RuntimeContext.
+// XWalkBrowserContext.
 class ApplicationSystem {
  public:
   virtual ~ApplicationSystem();
 
-  static scoped_ptr<ApplicationSystem> Create(RuntimeContext* runtime_context);
+  static scoped_ptr<ApplicationSystem> Create(
+      XWalkBrowserContext* browser_context);
 
   // The ApplicationService is created at startup.
   ApplicationService* application_service() {
@@ -67,11 +68,11 @@ class ApplicationSystem {
                         extensions::XWalkExtensionVector* extensions);
 
  protected:
-  explicit ApplicationSystem(RuntimeContext* runtime_context);
+  explicit ApplicationSystem(XWalkBrowserContext* browser_context);
 
  private:
   // Note: initialization order matters.
-  RuntimeContext* runtime_context_;
+  XWalkBrowserContext* browser_context_;
   scoped_ptr<ApplicationService> application_service_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);

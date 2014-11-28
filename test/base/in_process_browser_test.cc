@@ -95,7 +95,7 @@ void InProcessBrowserTest::SetUp() {
 Runtime* InProcessBrowserTest::CreateRuntime(
     const GURL& url, const NativeAppWindow::CreateParams& params) {
   Runtime* runtime = Runtime::Create(
-      XWalkRunner::GetInstance()->runtime_context());
+      XWalkRunner::GetInstance()->browser_context());
   runtime->set_observer(this);
   runtimes_.push_back(runtime);
   runtime->LoadURL(url);

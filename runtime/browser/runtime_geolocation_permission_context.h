@@ -11,12 +11,12 @@
 class GURL;
 
 namespace content {
-  class WebContents;
+class WebContents;
 }
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 
 class RuntimeGeolocationPermissionContext
     : public base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext> {

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 
 #include <string>
 #include <utility>
@@ -41,7 +41,8 @@ using content::DownloadManager;
 
 namespace xwalk {
 
-class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
+class XWalkBrowserContext::RuntimeResourceContext :
+    public content::ResourceContext {
  public:
   RuntimeResourceContext() : getter_(NULL) {}
   virtual ~RuntimeResourceContext() {}
@@ -66,7 +67,7 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceContext);
 };
 
-RuntimeContext::RuntimeContext()
+XWalkBrowserContext::XWalkBrowserContext()
   : resource_context_(new RuntimeResourceContext) {
   InitWhileIOAllowed();
 #if defined(OS_ANDROID)
@@ -74,7 +75,7 @@ RuntimeContext::RuntimeContext()
 #endif
 }
 
-RuntimeContext::~RuntimeContext() {
+XWalkBrowserContext::~XWalkBrowserContext() {
   if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
@@ -82,23 +83,24 @@ RuntimeContext::~RuntimeContext() {
 }
 
 // static
-RuntimeContext* RuntimeContext::FromWebContents(
+XWalkBrowserContext* XWalkBrowserContext::FromWebContents(
     content::WebContents* web_contents) {
   // This is safe; this is the only implementation of the browser context.
-  return static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
+  return static_cast<XWalkBrowserContext*>(
+      web_contents->GetBrowserContext());
 }
 
-void RuntimeContext::InitWhileIOAllowed() {
+void XWalkBrowserContext::InitWhileIOAllowed() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
     base::FilePath path =
         cmd_line->GetSwitchValuePath(switches::kXWalkDataPath);
     PathService::OverrideAndCreateIfNeeded(
-        xwalk::DIR_DATA_PATH, path, false, true);
+        DIR_DATA_PATH, path, false, true);
   }
 }
 
-base::FilePath RuntimeContext::GetPath() const {
+base::FilePath XWalkBrowserContext::GetPath() const {
   base::FilePath result;
 #if defined(OS_ANDROID)
   CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &result));
@@ -107,17 +109,18 @@ base::FilePath RuntimeContext::GetPath() const {
     result = result.Append(
         cmd_line->GetSwitchValuePath(switches::kXWalkProfileName));
 #else
-  CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &result));
+  CHECK(PathService::Get(DIR_DATA_PATH, &result));
 #endif
   return result;
 }
 
-bool RuntimeContext::IsOffTheRecord() const {
+bool XWalkBrowserContext::IsOffTheRecord() const {
   // We don't consider off the record scenario.
   return false;
 }
 
-content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
+content::DownloadManagerDelegate*
+XWalkBrowserContext::GetDownloadManagerDelegate() {
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
 
   if (!download_manager_delegate_.get()) {
@@ -128,12 +131,12 @@ content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
   return download_manager_delegate_.get();
 }
 
-net::URLRequestContextGetter* RuntimeContext::GetRequestContext() {
+net::URLRequestContextGetter* XWalkBrowserContext::GetRequestContext() {
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
 }
 
 net::URLRequestContextGetter*
-    RuntimeContext::GetRequestContextForRenderProcess(
+    XWalkBrowserContext::GetRequestContextForRenderProcess(
         int renderer_child_id) {
 #if defined(OS_ANDROID)
   return GetRequestContext();
@@ -144,12 +147,12 @@ net::URLRequestContextGetter*
 #endif
 }
 
-net::URLRequestContextGetter* RuntimeContext::GetMediaRequestContext() {
+net::URLRequestContextGetter* XWalkBrowserContext::GetMediaRequestContext() {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
-    RuntimeContext::GetMediaRequestContextForRenderProcess(
+    XWalkBrowserContext::GetMediaRequestContextForRenderProcess(
         int renderer_child_id) {
 #if defined(OS_ANDROID)
   return GetRequestContext();
@@ -161,7 +164,7 @@ net::URLRequestContextGetter*
 }
 
 net::URLRequestContextGetter*
-    RuntimeContext::GetMediaRequestContextForStoragePartition(
+    XWalkBrowserContext::GetMediaRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory) {
 #if defined(OS_ANDROID)
@@ -174,28 +177,29 @@ net::URLRequestContextGetter*
 #endif
 }
 
-content::ResourceContext* RuntimeContext::GetResourceContext()  {
+content::ResourceContext* XWalkBrowserContext::GetResourceContext()  {
   return resource_context_.get();
 }
 
 content::BrowserPluginGuestManager*
-RuntimeContext::GetGuestManager() {
+XWalkBrowserContext::GetGuestManager() {
   return NULL;
 }
 
-storage::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
+storage::SpecialStoragePolicy* XWalkBrowserContext::GetSpecialStoragePolicy() {
   return NULL;
 }
 
-content::PushMessagingService* RuntimeContext::GetPushMessagingService() {
+content::PushMessagingService* XWalkBrowserContext::GetPushMessagingService() {
   return NULL;
 }
 
-content::SSLHostStateDelegate* RuntimeContext::GetSSLHostStateDelegate() {
+content::SSLHostStateDelegate* XWalkBrowserContext::GetSSLHostStateDelegate() {
   return NULL;
 }
 
-RuntimeURLRequestContextGetter* RuntimeContext::GetURLRequestContextGetterById(
+RuntimeURLRequestContextGetter*
+XWalkBrowserContext::GetURLRequestContextGetterById(
     const std::string& pkg_id) {
   for (PartitionPathContextGetterMap::iterator it = context_getters_.begin();
        it != context_getters_.end(); ++it) {
@@ -205,7 +209,7 @@ RuntimeURLRequestContextGetter* RuntimeContext::GetURLRequestContextGetterById(
   return 0;
 }
 
-net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
+net::URLRequestContextGetter* XWalkBrowserContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
   DCHECK(!url_request_getter_.get());
@@ -228,7 +232,7 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-  RuntimeContext::CreateRequestContextForStoragePartition(
+  XWalkBrowserContext::CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
@@ -269,7 +273,7 @@ net::URLRequestContextGetter*
 }
 
 #if defined(OS_ANDROID)
-void RuntimeContext::SetCSPString(const std::string& csp) {
+void XWalkBrowserContext::SetCSPString(const std::string& csp) {
   // Check format of csp string.
   std::vector<std::string> policies;
   base::SplitString(csp, ';', &policies);
@@ -283,22 +287,22 @@ void RuntimeContext::SetCSPString(const std::string& csp) {
   csp_ = csp;
 }
 
-std::string RuntimeContext::GetCSPString() const {
+std::string XWalkBrowserContext::GetCSPString() const {
   return csp_;
 }
 
-void RuntimeContext::InitVisitedLinkMaster() {
+void XWalkBrowserContext::InitVisitedLinkMaster() {
   visitedlink_master_.reset(
       new visitedlink::VisitedLinkMaster(this, this, false));
   visitedlink_master_->Init();
 }
 
-void RuntimeContext::AddVisitedURLs(const std::vector<GURL>& urls) {
+void XWalkBrowserContext::AddVisitedURLs(const std::vector<GURL>& urls) {
   DCHECK(visitedlink_master_.get());
   visitedlink_master_->AddURLs(urls);
 }
 
-void RuntimeContext::RebuildTable(
+void XWalkBrowserContext::RebuildTable(
     const scoped_refptr<URLEnumerator>& enumerator) {
   // XWalkView rebuilds from XWalkWebChromeClient.getVisitedHistory. The client
   // can change in the lifetime of this XWalkView and may not yet be set here.

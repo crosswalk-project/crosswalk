@@ -29,7 +29,7 @@ class WebContents;
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 class RuntimeUIDelegate;
 
 // Runtime represents the running environment for a web page. It is responsible
@@ -69,7 +69,7 @@ class Runtime : public content::WebContentsDelegate,
   void set_observer(Observer* observer) { observer_ = observer; }
 
   // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(RuntimeContext* context,
+  static Runtime* Create(XWalkBrowserContext* context,
                          content::SiteInstance* site = nullptr);
 
   void LoadURL(const GURL& url);
