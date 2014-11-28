@@ -8,6 +8,7 @@
         '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
         '../../../build/system.gyp:gio',
         '../../../build/system.gyp:tizen',
+        '../../../build/system.gyp:tizen_tzplatform_config',
       ],
       'include_dirs': [
         '../../../..',
