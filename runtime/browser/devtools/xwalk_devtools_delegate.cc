@@ -123,9 +123,9 @@ namespace xwalk {
 
 namespace {
 Runtime* CreateWithDefaultWindow(
-    RuntimeContext* runtime_context, const GURL& url,
+    XWalkBrowserContext* browser_context, const GURL& url,
     Runtime::Observer* observer) {
-  Runtime* runtime = Runtime::Create(runtime_context);
+  Runtime* runtime = Runtime::Create(browser_context);
   runtime->set_observer(observer);
   runtime->LoadURL(url);
 #if !defined(OS_ANDROID)
@@ -171,8 +171,8 @@ XWalkDevToolsHttpHandlerDelegate::CreateSocketForTethering(
   return scoped_ptr<net::StreamListenSocket>();
 }
 
-XWalkDevToolsDelegate::XWalkDevToolsDelegate(RuntimeContext* runtime_context)
-    : runtime_context_(runtime_context),
+XWalkDevToolsDelegate::XWalkDevToolsDelegate(XWalkBrowserContext* context)
+    : browser_context_(context),
       weak_factory_(this) {
 }
 
@@ -216,7 +216,7 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
   Runtime* runtime = CreateWithDefaultWindow(
-      runtime_context_, GURL(url::kAboutBlankURL), this);
+      browser_context_, GURL(url::kAboutBlankURL), this);
   return scoped_ptr<content::DevToolsTarget>(
       new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }

@@ -22,8 +22,8 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_TIZEN)
@@ -34,17 +34,17 @@ namespace xwalk {
 
 namespace application {
 
-ApplicationService::ApplicationService(RuntimeContext* runtime_context)
-  : runtime_context_(runtime_context) {
+ApplicationService::ApplicationService(XWalkBrowserContext* browser_context)
+  : browser_context_(browser_context) {
 }
 
 scoped_ptr<ApplicationService> ApplicationService::Create(
-    RuntimeContext* runtime_context) {
+    XWalkBrowserContext* browser_context) {
 #if defined(OS_TIZEN)
   return make_scoped_ptr<ApplicationService>(
-    new ApplicationServiceTizen(runtime_context));
+    new ApplicationServiceTizen(browser_context));
 #else
-  return make_scoped_ptr(new ApplicationService(runtime_context));
+  return make_scoped_ptr(new ApplicationService(browser_context));
 #endif
 }
 
@@ -63,7 +63,7 @@ Application* ApplicationService::Launch(
   }
 
   Application* application = Application::Create(application_data,
-    runtime_context_).release();
+    browser_context_).release();
   ScopedVector<Application>::iterator app_iter =
       applications_.insert(applications_.end(), application);
 
@@ -244,7 +244,7 @@ void ApplicationService::OnApplicationTerminated(
       // FIXME: So far we simply clean up all the app persistent data,
       // further we need to add an appropriate logic to handle it.
       content::BrowserContext::GarbageCollectStoragePartitions(
-          runtime_context_,
+          browser_context_,
           make_scoped_ptr(new base::hash_set<base::FilePath>()),
           base::Bind(&base::DoNothing));
   }

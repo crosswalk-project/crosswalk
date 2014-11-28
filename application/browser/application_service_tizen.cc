@@ -10,7 +10,7 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/tizen/application_storage.h"
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 
 namespace xwalk {
 
@@ -26,7 +26,7 @@ base::FilePath GetStoragePartitionPath(
   return base_path.Append(kApplicationDataDirName).Append(app_id);
 }
 
-void CollectUnusedStoragePartitions(RuntimeContext* context,
+void CollectUnusedStoragePartitions(XWalkBrowserContext* context,
                                     ApplicationStorage* storage) {
   std::vector<std::string> app_ids;
   if (!storage->GetInstalledApplicationIDs(app_ids))
@@ -47,10 +47,10 @@ void CollectUnusedStoragePartitions(RuntimeContext* context,
 }  // namespace
 
 ApplicationServiceTizen::ApplicationServiceTizen(
-    RuntimeContext* runtime_context)
-  : ApplicationService(runtime_context),
-    application_storage_(new ApplicationStorage(runtime_context->GetPath())) {
-  CollectUnusedStoragePartitions(runtime_context, application_storage_.get());
+    XWalkBrowserContext* browser_context)
+  : ApplicationService(browser_context),
+    application_storage_(new ApplicationStorage(browser_context->GetPath())) {
+  CollectUnusedStoragePartitions(browser_context, application_storage_.get());
 }
 
 ApplicationServiceTizen::~ApplicationServiceTizen() {

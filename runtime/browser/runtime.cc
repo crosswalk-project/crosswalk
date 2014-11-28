@@ -10,14 +10,6 @@
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/runtime/browser/image_util.h"
-#include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
-#include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/runtime_file_select_helper.h"
-#include "xwalk/runtime/browser/ui/color_chooser.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
-#include "xwalk/runtime/common/xwalk_notification_types.h"
-#include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
@@ -29,6 +21,14 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/native_widget_types.h"
+#include "xwalk/runtime/browser/image_util.h"
+#include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/runtime_file_select_helper.h"
+#include "xwalk/runtime/browser/ui/color_chooser.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_notification_types.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 #if defined(OS_TIZEN)
 #include "content/public/browser/site_instance.h"
@@ -47,9 +47,9 @@ using content::WebContents;
 namespace xwalk {
 
 // static
-Runtime* Runtime::Create(RuntimeContext* runtime_context,
+Runtime* Runtime::Create(XWalkBrowserContext* browser_context,
                          content::SiteInstance* site) {
-  WebContents::CreateParams params(runtime_context, site);
+  WebContents::CreateParams params(browser_context, site);
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 

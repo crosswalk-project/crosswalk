@@ -10,7 +10,7 @@
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 
 namespace application {
 class ApplicationSystem;
@@ -21,7 +21,7 @@ class ApplicationSystem;
 // Applications being launched.
 class ApplicationComponent : public XWalkComponent {
  public:
-  explicit ApplicationComponent(RuntimeContext* runtime_context);
+  explicit ApplicationComponent(XWalkBrowserContext* browser_context);
   virtual ~ApplicationComponent();
 
   // Used by Android since extensions for Application are not supported there.

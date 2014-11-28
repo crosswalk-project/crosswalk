@@ -16,10 +16,10 @@
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/storage_component.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -69,7 +69,7 @@ application::ApplicationSystem* XWalkRunner::app_system() {
 }
 
 void XWalkRunner::PreMainMessageLoopRun() {
-  runtime_context_.reset(new RuntimeContext);
+  browser_context_.reset(new XWalkBrowserContext);
   app_extension_bridge_.reset(new XWalkAppExtensionBridge());
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -84,7 +84,7 @@ void XWalkRunner::PreMainMessageLoopRun() {
 void XWalkRunner::PostMainMessageLoopRun() {
   DestroyComponents();
   extension_service_.reset();
-  runtime_context_.reset();
+  browser_context_.reset();
   DisableRemoteDebugging();
 }
 
@@ -115,7 +115,7 @@ void XWalkRunner::AddComponent(scoped_ptr<XWalkComponent> component) {
 }
 
 scoped_ptr<ApplicationComponent> XWalkRunner::CreateAppComponent() {
-  return make_scoped_ptr(new ApplicationComponent(runtime_context_.get()));
+  return make_scoped_ptr(new ApplicationComponent(browser_context_.get()));
 }
 
 scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
@@ -176,7 +176,7 @@ void XWalkRunner::EnableRemoteDebugging(int port) {
   const char* local_ip = "0.0.0.0";
   if (port > 0 && port < 65535) {
     remote_debugging_server_.reset(
-        new RemoteDebuggingServer(runtime_context(),
+        new RemoteDebuggingServer(browser_context(),
             local_ip, port, std::string()));
   }
 }

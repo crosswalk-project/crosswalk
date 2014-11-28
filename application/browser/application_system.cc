@@ -16,7 +16,7 @@
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/application/extension/application_widget_extension.h"
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 #if defined(OS_LINUX)
@@ -30,22 +30,22 @@
 namespace xwalk {
 namespace application {
 
-ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
-  : runtime_context_(runtime_context),
+ApplicationSystem::ApplicationSystem(XWalkBrowserContext* browser_context)
+  : browser_context_(browser_context),
     application_service_(ApplicationService::Create(
-        runtime_context)) {}
+        browser_context)) {}
 
 ApplicationSystem::~ApplicationSystem() {
 }
 
 // static
 scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
-    RuntimeContext* runtime_context) {
+    XWalkBrowserContext* browser_context) {
   scoped_ptr<ApplicationSystem> app_system;
 #if defined(OS_LINUX)
-  app_system.reset(new ApplicationSystemLinux(runtime_context));
+  app_system.reset(new ApplicationSystemLinux(browser_context));
 #else
-  app_system.reset(new ApplicationSystem(runtime_context));
+  app_system.reset(new ApplicationSystem(browser_context));
 #endif
   return app_system.Pass();
 }

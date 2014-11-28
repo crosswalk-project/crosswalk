@@ -24,7 +24,7 @@ class DevToolsHttpHandler;
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 
 class XWalkDevToolsHttpHandlerDelegate :
     public content::DevToolsHttpHandlerDelegate {
@@ -47,7 +47,7 @@ class XWalkDevToolsHttpHandlerDelegate :
 class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
                               public Runtime::Observer {
  public:
-  explicit XWalkDevToolsDelegate(RuntimeContext* runtime_context);
+  explicit XWalkDevToolsDelegate(XWalkBrowserContext* browser_context);
   virtual ~XWalkDevToolsDelegate();
 
   virtual void Inspect(
@@ -73,7 +73,7 @@ class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
 
   using ThumbnailMap = std::map<GURL, std::string>;
   ThumbnailMap thumbnail_map_;
-  RuntimeContext* runtime_context_;
+  XWalkBrowserContext* browser_context_;
   base::WeakPtrFactory<XWalkDevToolsDelegate> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsDelegate);
 };
