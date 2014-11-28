@@ -26,7 +26,7 @@ class ApplicationServiceTizen : public ApplicationService {
 
  private:
   friend class ApplicationService;
-  explicit ApplicationServiceTizen(RuntimeContext* runtime_context);
+  explicit ApplicationServiceTizen(XWalkBrowserContext* browser_context);
   // Note : do not export app storage from this class! We need consider
   // making ApplicationSystemTizen (owning the storage) instead.
   scoped_ptr<ApplicationStorage> application_storage_;

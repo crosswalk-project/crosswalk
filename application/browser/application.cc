@@ -22,8 +22,8 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_TIZEN)
@@ -74,7 +74,7 @@ namespace application {
 
 scoped_ptr<Application> Application::Create(
     scoped_refptr<ApplicationData> data,
-    RuntimeContext* context) {
+    XWalkBrowserContext* context) {
 #if defined(OS_TIZEN)
   return make_scoped_ptr<Application>(new ApplicationTizen(data, context));
 #else
@@ -84,16 +84,16 @@ scoped_ptr<Application> Application::Create(
 
 Application::Application(
     scoped_refptr<ApplicationData> data,
-    RuntimeContext* runtime_context)
+    XWalkBrowserContext* browser_context)
     : data_(data),
       render_process_host_(NULL),
       web_contents_(NULL),
       security_mode_enabled_(false),
-      runtime_context_(runtime_context),
+      browser_context_(browser_context),
       observer_(NULL),
       remote_debugging_enabled_(false),
       weak_factory_(this) {
-  DCHECK(runtime_context_);
+  DCHECK(browser_context_);
   DCHECK(data_.get());
 }
 
@@ -219,8 +219,8 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
 
   remote_debugging_enabled_ = launch_params.remote_debugging;
-  auto site = content::SiteInstance::CreateForURL(runtime_context_, url);
-  Runtime* runtime = Runtime::Create(runtime_context_, site);
+  auto site = content::SiteInstance::CreateForURL(browser_context_, url);
+  Runtime* runtime = Runtime::Create(browser_context_, site);
   runtime->set_observer(this);
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();

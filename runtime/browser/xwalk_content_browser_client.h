@@ -29,7 +29,7 @@ class URLRequestContextGetter;
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 class XWalkBrowserMainParts;
 class XWalkRunner;
 
@@ -141,6 +141,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 #endif
 
+  virtual content::LocationProvider* OverrideSystemLocationProvider() override;
+
   virtual void GetStoragePartitionConfigForSite(
       content::BrowserContext* browser_context,
       const GURL& site,
@@ -166,7 +168,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   scoped_refptr<RuntimeGeolocationPermissionContext>
     geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;
-  RuntimeContext* runtime_context_;
+  XWalkBrowserContext* browser_context_;
 
   scoped_ptr<RuntimeResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;

@@ -16,7 +16,7 @@
 #include "content/public/browser/screen_orientation_dispatcher_host.h"
 #include "content/public/browser/screen_orientation_provider.h"
 
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
@@ -137,8 +137,8 @@ class ScreenOrientationProviderTizen :
 
 ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
-    RuntimeContext* runtime_context)
-    : Application(data, runtime_context),
+    XWalkBrowserContext* browser_context)
+    : Application(data, browser_context),
 #if defined(OS_TIZEN_MOBILE)
       root_window_(NULL),
 #endif
@@ -147,7 +147,7 @@ ApplicationTizen::ApplicationTizen(
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
 #endif
   cookie_manager_ = scoped_ptr<CookieManager>(
-      new CookieManager(id(), runtime_context_));
+      new CookieManager(id(), browser_context_));
 }
 
 ApplicationTizen::~ApplicationTizen() {

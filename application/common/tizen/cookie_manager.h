@@ -9,13 +9,14 @@
 
 #include "net/cookies/canonical_cookie.h"
 
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 
 namespace xwalk {
 
 class CookieManager {
  public:
-  CookieManager(const std::string& app_id, RuntimeContext* runtime_context);
+  CookieManager(const std::string& app_id,
+                XWalkBrowserContext* browser_context);
   void RemoveAllCookies();
   void SetUserAgentString(content::RenderProcessHost* render_process_host,
                           const std::string& user_agent_string);
@@ -26,7 +27,7 @@ class CookieManager {
                                const std::string& cookie_name);
 
   const std::string app_id_;
-  RuntimeContext* runtime_context_;
+  XWalkBrowserContext* browser_context_;
 };
 
 }  // namespace xwalk

@@ -4,10 +4,10 @@
 
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 
-#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "net/socket/tcp_server_socket.h"
+#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 
 namespace xwalk {
 
@@ -29,7 +29,7 @@ class TCPServerSocketFactory
 };
 
 RemoteDebuggingServer::RemoteDebuggingServer(
-    RuntimeContext* runtime_context,
+    XWalkBrowserContext* browser_context,
     const std::string& ip,
     int port,
     const std::string& frontend_url) {

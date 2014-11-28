@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_CONTEXT_H_
-#define XWALK_RUNTIME_BROWSER_RUNTIME_CONTEXT_H_
+#ifndef XWALK_RUNTIME_BROWSER_XWALK_BROWSER_CONTEXT_H_
+#define XWALK_RUNTIME_BROWSER_XWALK_BROWSER_CONTEXT_H_
 
 #if defined(OS_ANDROID)
 #include <string>
@@ -38,19 +38,20 @@ namespace xwalk {
 class RuntimeDownloadManagerDelegate;
 class RuntimeURLRequestContextGetter;
 
-class RuntimeContext
+class XWalkBrowserContext
     : public content::BrowserContext
 #if defined(OS_ANDROID)
       , public visitedlink::VisitedLinkDelegate
 #endif
 {
  public:
-  RuntimeContext();
-  virtual ~RuntimeContext();
+  XWalkBrowserContext();
+  virtual ~XWalkBrowserContext();
 
-  // Convenience method to returns the RuntimeContext corresponding to the
+  // Convenience method to returns the XWalkBrowserContext corresponding to the
   // given WebContents.
-  static RuntimeContext* FromWebContents(content::WebContents* web_contents);
+  static XWalkBrowserContext* FromWebContents(
+      content::WebContents* web_contents);
 
   // BrowserContext implementation.
   virtual base::FilePath GetPath() const OVERRIDE;
@@ -97,7 +98,7 @@ class RuntimeContext
  private:
   class RuntimeResourceContext;
 
-  // Performs initialization of the RuntimeContext while IO is still
+  // Performs initialization of the XWalkBrowserContext while IO is still
   // allowed on the current thread.
   void InitWhileIOAllowed();
 
@@ -119,9 +120,9 @@ class RuntimeContext
       PartitionPathContextGetterMap;
   PartitionPathContextGetterMap context_getters_;
 
-  DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
+  DISALLOW_COPY_AND_ASSIGN(XWalkBrowserContext);
 };
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_CONTEXT_H_
+#endif  // XWALK_RUNTIME_BROWSER_XWALK_BROWSER_CONTEXT_H_

@@ -29,7 +29,7 @@ class RenderProcessHost;
 
 namespace xwalk {
 
-class RuntimeContext;
+class XWalkBrowserContext;
 class XWalkAppExtensionBridge;
 
 namespace application {
@@ -117,7 +117,8 @@ class Application : public Runtime::Observer,
   }
 
  protected:
-  Application(scoped_refptr<ApplicationData> data, RuntimeContext* context);
+  Application(scoped_refptr<ApplicationData> data,
+              XWalkBrowserContext* context);
   virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
 
@@ -129,7 +130,7 @@ class Application : public Runtime::Observer,
   // Sub class can override it to return a specific path.
   virtual base::FilePath GetSplashScreenPath();
 
-  RuntimeContext* runtime_context_;
+  XWalkBrowserContext* browser_context_;
   ScopedVector<Runtime> runtimes_;
   scoped_refptr<ApplicationData> const data_;
   // The application's render process host.
@@ -145,7 +146,7 @@ class Application : public Runtime::Observer,
   // XWalkAppExtensionBridge gives notifications.
   friend class xwalk::XWalkAppExtensionBridge;
   static scoped_ptr<Application> Create(scoped_refptr<ApplicationData> data,
-      RuntimeContext* context);
+      XWalkBrowserContext* context);
 
   // content::RenderProcessHostObserver implementation.
   virtual void RenderProcessExited(content::RenderProcessHost* host,

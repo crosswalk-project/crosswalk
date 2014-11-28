@@ -153,8 +153,6 @@
         'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h',
         'runtime/browser/runtime.cc',
         'runtime/browser/runtime.h',
-        'runtime/browser/runtime_context.cc',
-        'runtime/browser/runtime_context.h',
         'runtime/browser/runtime_download_manager_delegate.cc',
         'runtime/browser/runtime_download_manager_delegate.h',
         'runtime/browser/runtime_file_select_helper.cc',
@@ -218,6 +216,8 @@
         'runtime/browser/xwalk_app_extension_bridge.h',
         'runtime/browser/xwalk_application_mac.h',
         'runtime/browser/xwalk_application_mac.mm',
+        'runtime/browser/xwalk_browser_context.cc',
+        'runtime/browser/xwalk_browser_context.h',
         'runtime/browser/xwalk_browser_main_parts.cc',
         'runtime/browser/xwalk_browser_main_parts.h',
         'runtime/browser/xwalk_browser_main_parts_android.cc',
@@ -383,7 +383,6 @@
           ],
         }, { # toolkit_views==0
           'sources/': [
-            ['exclude', 'runtime/browser/ui/native_app_window_views.cc'],
             ['exclude', 'runtime/browser/ui/xwalk_views_delegate.cc'],
             ['exclude', 'runtime/browser/ui/color_chooser_aura.cc'],
           ],
@@ -391,12 +390,6 @@
         ['use_aura==1', {
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
-            '../ui/aura/aura.gyp:aura_test_support',
-            '../ui/wm/wm.gyp:wm'
-          ],
-        }, {  # use_aura==0
-          'sources/': [
-            ['exclude', '_aura\\.cc$'],
           ],
         }],
         ['disable_nacl==0', {

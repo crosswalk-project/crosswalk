@@ -18,7 +18,7 @@ class ApplicationServiceProviderLinux;
 
 class ApplicationSystemLinux : public ApplicationSystem {
  public:
-  explicit ApplicationSystemLinux(RuntimeContext* runtime_context);
+  explicit ApplicationSystemLinux(XWalkBrowserContext* browser_context);
   virtual ~ApplicationSystemLinux();
 
   DBusManager& dbus_manager();
