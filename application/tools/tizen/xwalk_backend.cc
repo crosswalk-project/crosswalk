@@ -38,13 +38,13 @@ GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
     "Path of the application to be installed/updated", "PATH" },
   { "uninstall", 'd', 0, G_OPTION_ARG_STRING, &uninstall_id,
-    "Uninstall the application with this appid/pkgid", "ID" },
+    "Uninstall the application with this pkgid", "ID" },
   { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
-    "Continue the previous unfinished tasks.", NULL},
+    "Continue the previous unfinished tasks", NULL},
   { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_id,
     "Reinstall the application with this pkgid "
     "(This option is ONLY for SDK to support RDS mode"
-    " (Rapid Development Support).", "ID" },
+    " (Rapid Development Support)", "ID" },
   { "key", 'k', 0, G_OPTION_ARG_STRING, &operation_key,
     "Unique operation key", "KEY" },
   { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet,
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     const base::FilePath& path =
         base::MakeAbsoluteFilePath(base::FilePath(install_path));
     success = installer->Install(path, &app_id);
-    if (!success && storage->Contains(app_id)) {
+    if (!success && !app_id.empty() && storage->Contains(app_id)) {
       g_print("trying to update %s\n", app_id.c_str());
       success = installer->Update(app_id, path);
     }
