@@ -4,21 +4,24 @@
 
 #include "xwalk/application/browser/application_system_linux.h"
 
+#include "base/command_line.h"
 #include "dbus/bus.h"
 #include "xwalk/application/browser/application_service_provider_linux.h"
 #include "xwalk/dbus/dbus_manager.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
 namespace application {
 
 ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
     : ApplicationSystem(runtime_context) {
-#if defined(SHARED_PROCESS_MODE)
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (!cmd_line->HasSwitch(switches::kXWalkDisableSharedProcessMode)) {
     service_provider_.reset(
         new ApplicationServiceProviderLinux(application_service(),
                                             dbus_manager().session_bus()));
-#endif
+  }
 }
 
 ApplicationSystemLinux::~ApplicationSystemLinux() {}
