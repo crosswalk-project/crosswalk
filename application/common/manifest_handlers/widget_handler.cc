@@ -159,6 +159,20 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
   return true;
 }
 
+bool WidgetHandler::Validate(
+    scoped_refptr<const ApplicationData> application,
+    std::string* error) const {
+  const Manifest* manifest = application->GetManifest();
+  DCHECK(manifest);
+  std::string ns_value;
+  manifest->GetString(kW3CNamespaceKey, &ns_value);
+  if (base::strcasecmp(kW3CNamespacePrefix, ns_value.c_str()) != 0) {
+    *error = std::string("The widget namespace is invalid.");
+    return false;
+  }
+  return true;
+}
+
 bool WidgetHandler::AlwaysParseForType(Manifest::Type type) const {
   return true;
 }

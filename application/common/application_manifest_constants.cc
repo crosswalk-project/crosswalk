@@ -161,6 +161,7 @@ const char kTizenApplicationAppControlChildNameAttrKey[] = "@name";
 
 }  // namespace application_widget_keys
 
+const char kW3CNamespaceKey[] = "widget.@namespace";
 const char kW3CNamespacePrefix[] = "http://www.w3.org/ns/widgets";
 #if defined(OS_TIZEN)
 const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";

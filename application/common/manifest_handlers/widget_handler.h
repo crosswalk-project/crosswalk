@@ -46,6 +46,9 @@ class WidgetHandler : public ManifestHandler {
   virtual bool AlwaysParseForType(Manifest::Type type) const OVERRIDE;
   virtual std::vector<std::string> Keys() const OVERRIDE;
 
+  virtual bool Validate(scoped_refptr<const ApplicationData> application,
+                        std::string* error) const OVERRIDE;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(WidgetHandler);
 };
