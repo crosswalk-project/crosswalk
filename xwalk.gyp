@@ -383,7 +383,6 @@
           ],
         }, { # toolkit_views==0
           'sources/': [
-            ['exclude', 'runtime/browser/ui/native_app_window_views.cc'],
             ['exclude', 'runtime/browser/ui/xwalk_views_delegate.cc'],
             ['exclude', 'runtime/browser/ui/color_chooser_aura.cc'],
           ],
@@ -391,12 +390,6 @@
         ['use_aura==1', {
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
-            '../ui/aura/aura.gyp:aura_test_support',
-            '../ui/wm/wm.gyp:wm'
-          ],
-        }, {  # use_aura==0
-          'sources/': [
-            ['exclude', '_aura\\.cc$'],
           ],
         }],
         ['disable_nacl==0', {
