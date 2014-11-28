@@ -66,6 +66,7 @@
 
 #if defined(OS_TIZEN)
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/runtime/browser/geolocation/tizen/location_provider_tizen.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/tizen/xwalk_web_contents_view_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
@@ -400,6 +401,14 @@ bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,
 }
 #endif
 
+content::LocationProvider*
+XWalkContentBrowserClient::OverrideSystemLocationProvider() {
+#if defined(OS_TIZEN)
+  return new LocationProviderTizen();
+#else
+  return nullptr;
+#endif
+}
 
 void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
     content::BrowserContext* browser_context,

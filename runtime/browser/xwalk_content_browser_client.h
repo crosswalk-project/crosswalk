@@ -141,6 +141,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
 #endif
 
+  virtual content::LocationProvider* OverrideSystemLocationProvider() override;
+
   virtual void GetStoragePartitionConfigForSite(
       content::BrowserContext* browser_context,
       const GURL& site,

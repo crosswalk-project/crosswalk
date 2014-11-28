@@ -131,11 +131,3 @@ void LocationProviderTizen::OnStateChanged(location_service_state_e state,
 }
 
 }  // namespace xwalk
-
-namespace content {
-__attribute__((visibility("default"))) content::LocationProvider*
-    NewSystemLocationProvider() {
-  return new xwalk::LocationProviderTizen;
-}
-
-}  // namespace content
