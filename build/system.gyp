@@ -193,6 +193,23 @@
             ],
           },
         },
+        {
+          'target_name': 'xmlsec',
+          'type': 'none',
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags xmlsec1)',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other xmlsec1)',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l xmlsec1)',
+            ],
+          },
+        }
       ],  # targets
     }],
   ],  # conditions
