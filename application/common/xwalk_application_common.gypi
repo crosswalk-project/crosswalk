@@ -13,7 +13,6 @@
         '../../../sql/sql.gyp:sql',
         '../../../url/url.gyp:url_lib',
         '../../../third_party/libxml/libxml.gyp:libxml',
-        '../../../third_party/re2/re2.gyp:re2',
         '../../../third_party/zlib/google/zip.gyp:zip',
       ],
       'sources': [
