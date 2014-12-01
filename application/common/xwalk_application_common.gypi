@@ -6,7 +6,6 @@
       'dependencies': [
         '../../../base/base.gyp:base',
         '../../../base/base.gyp:base_i18n',
-        '../../../base/base.gyp:xdg_mime',
         '../../../content/content.gyp:content_common',
         '../../../crypto/crypto.gyp:crypto',
         '../../../net/net.gyp:net',
@@ -54,6 +53,7 @@
       'conditions': [
         ['tizen==1', {
           'dependencies': [
+            '../../../base/base.gyp:xdg_mime',
             '../../build/system.gyp:tizen',
             '../../build/system.gyp:xmlsec',
             '../../tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
