@@ -16,7 +16,8 @@
 #include "content/public/test/browser_test_base.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/page_transition_types.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_ui_delegate.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 
 namespace base {
 class CommandLine;
@@ -37,9 +38,9 @@ class RuleBasedHostResolverProc;
 // about how to write a InProcessBrowserTest.
 //
 class InProcessBrowserTest : public content::BrowserTestBase,
-                             public xwalk::Runtime::Observer {
+                             public xwalk::XWalkContent::Observer {
  public:
-  using RuntimeList = std::vector<xwalk::Runtime*>;
+  using RuntimeList = std::vector<xwalk::XWalkContent*>;
 
   InProcessBrowserTest();
   virtual ~InProcessBrowserTest();
@@ -51,7 +52,7 @@ class InProcessBrowserTest : public content::BrowserTestBase,
  protected:
   const RuntimeList& runtimes() const { return runtimes_.get(); }
 
-  xwalk::Runtime* CreateRuntime(
+  xwalk::XWalkContent* CreateContent(
       const GURL& url = GURL(),
       const xwalk::NativeAppWindow::CreateParams& params =
         xwalk::NativeAppWindow::CreateParams());
@@ -64,16 +65,16 @@ class InProcessBrowserTest : public content::BrowserTestBase,
   virtual void RunTestOnMainThreadLoop() override;
 
  private:
-  // xwalk::Runtime::Observer
-  virtual void OnNewRuntimeAdded(xwalk::Runtime* runtime) override;
-  virtual void OnRuntimeClosed(xwalk::Runtime* runtime) override;
+  // xwalk::XWalkContent::Observer
+  virtual void OnContentCreated(xwalk::XWalkContent* runtime) override;
+  virtual void OnContentClosed(xwalk::XWalkContent* runtime) override;
 
   void CloseAll();
   // Create data path directory for this test to avoid pollution in default
   // data path. Return true if success.
   bool CreateDataPathDir();
 
-  ScopedVector<xwalk::Runtime> runtimes_;
+  ScopedVector<xwalk::XWalkContent> runtimes_;
 
   // Temporary data path directory. Used only when a data path directory is not
   // specified in the command line.

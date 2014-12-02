@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_H_
-#define XWALK_RUNTIME_BROWSER_RUNTIME_H_
+#ifndef XWALK_RUNTIME_BROWSER_XWALK_CONTENT_H_
+#define XWALK_RUNTIME_BROWSER_XWALK_CONTENT_H_
 
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
-#include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
@@ -29,25 +28,25 @@ class WebContents;
 
 namespace xwalk {
 
+class NativeAppWindow;
 class XWalkBrowserContext;
 class RuntimeUIDelegate;
 
-// Runtime represents the running environment for a web page. It is responsible
-// for maintaning its owned WebContents.
-class Runtime : public content::WebContentsDelegate,
-                public content::WebContentsObserver,
-                public content::NotificationObserver {
+// XWalkContent is responsible for maintaning its owned WebContents.
+class XWalkContent : public content::WebContentsDelegate,
+                     public content::WebContentsObserver,
+                     public content::NotificationObserver {
  public:
-  // New "Runtimes" are also created from Runtime::WebContentsCreated which
+  // New "contents" are also created from XWalkContent::WebContentsCreated which
   // is overridden WebContentsDelegate method. The "observer" is needed to
-  // observe appearance and removal of such Runtime instances.
+  // observe appearance of such XWalkContent instances.
   class Observer {
    public:
-      // Called when a new Runtime instance is added.
-      virtual void OnNewRuntimeAdded(Runtime* new_runtime) = 0;
+    // Called when a new XWalkContent instance is added.
+    virtual void OnContentCreated(XWalkContent* content) = 0;
 
-      // Called when a Runtime instance is removed.
-      virtual void OnRuntimeClosed(Runtime* runtime) = 0;
+    // Called when a XWalkContent instance is closed.
+    virtual void OnContentClosed(XWalkContent* content) = 0;
 
    protected:
       virtual ~Observer() {}
@@ -61,15 +60,15 @@ class Runtime : public content::WebContentsDelegate,
     // Fullscreen entered by HTML requestFullscreen.
     FULLSCREEN_FOR_TAB = 1 << 1,
   };
-  virtual ~Runtime();
+  virtual ~XWalkContent();
 
   void set_ui_delegate(RuntimeUIDelegate* ui_delegate) {
     ui_delegate_ = ui_delegate;
   }
   void set_observer(Observer* observer) { observer_ = observer; }
 
-  // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(XWalkBrowserContext* context,
+  // Create a new XWalkContent instance with the given browsing context.
+  static XWalkContent* Create(XWalkBrowserContext* context,
                          content::SiteInstance* site = nullptr);
 
   void LoadURL(const GURL& url);
@@ -93,7 +92,7 @@ class Runtime : public content::WebContentsDelegate,
   bool remote_debugging_enabled() const { return remote_debugging_enabled_; }
 
  protected:
-  explicit Runtime(content::WebContents* web_contents);
+  explicit XWalkContent(content::WebContents* web_contents);
 
     // Overridden from content::WebContentsDelegate:
   virtual content::WebContents* OpenURLFromTab(
@@ -171,9 +170,9 @@ class Runtime : public content::WebContentsDelegate,
   bool remote_debugging_enabled_;
   RuntimeUIDelegate* ui_delegate_;
   Observer* observer_;
-  base::WeakPtrFactory<Runtime> weak_ptr_factory_;
+  base::WeakPtrFactory<XWalkContent> weak_ptr_factory_;
 };
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_H_
+#endif  // XWALK_RUNTIME_BROWSER_XWALK_CONTENT_H_

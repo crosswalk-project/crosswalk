@@ -76,7 +76,7 @@ class XWalkExtensionService : public content::NotificationObserver,
       scoped_ptr<base::ValueMap> runtime_variables);
 
   // To be called when a RenderProcess died, so we can gracefully shutdown the
-  // associated ExtensionProcess. See Runtime::RenderProcessGone() and
+  // associated ExtensionProcess. See XWalkContent::RenderProcessGone() and
   // XWalkContentBrowserClient::RenderProcessHostGone().
   void OnRenderProcessDied(content::RenderProcessHost* host);
 

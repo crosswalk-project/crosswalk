@@ -21,7 +21,8 @@
 #include "ui/base/ui_base_types.h"
 #include "xwalk/application/browser/application_security_policy.h"
 #include "xwalk/application/common/application_data.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/ui/native_app_window.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 
 namespace content {
 class RenderProcessHost;
@@ -43,15 +44,15 @@ class ApplicationSecurityPolicy;
 // ApplicationService will delete an Application instance when it is
 // terminated.
 // There's one-to-one correspondence between Application and Render Process
-// Host, obtained from its "runtimes" (pages).
-class Application : public Runtime::Observer,
+// Host, obtained from its "contents" (pages).
+class Application : public XWalkContent::Observer,
                     public content::RenderProcessHostObserver {
  public:
   virtual ~Application();
 
   class Observer {
    public:
-    // Invoked when application is terminated - all its pages (runtimes)
+    // Invoked when application is terminated - all its pages (contents)
     // are closed.
     virtual void OnApplicationTerminated(Application* app) {}
 
@@ -68,7 +69,7 @@ class Application : public Runtime::Observer,
     bool remote_debugging;
   };
 
-  // Closes all the application's runtimes (application pages).
+  // Closes all the application's pages (application pages).
   // NOTE: Application is terminated asynchronously.
   // Please use ApplicationService::Observer::WillDestroyApplication()
   // interface to be notified about actual app termination.
@@ -77,7 +78,7 @@ class Application : public Runtime::Observer,
   // immediately after its termination.
   void Terminate();
 
-  const std::vector<Runtime*>& runtimes() const { return runtimes_.get(); }
+  const std::vector<XWalkContent*>& pages() const { return pages_.get(); }
 
   // Returns the unique application id which is used to distinguish the
   // application amoung both running applications and installed ones
@@ -93,7 +94,7 @@ class Application : public Runtime::Observer,
   // Tells whether the application use the specified extension.
   bool UseExtension(const std::string& extension_name) const;
 
-  // The runtime permission mapping is registered by extension which
+  // The content permission mapping is registered by extension which
   // implements some specific API, for example:
   // "bluetooth" -> "bluetooth.read, bluetooth.write, bluetooth.management"
   // Whenever there comes a API permission request, we can tell whether
@@ -122,16 +123,16 @@ class Application : public Runtime::Observer,
   virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
 
-  // Runtime::Observer implementation.
-  virtual void OnNewRuntimeAdded(Runtime* runtime) override;
-  virtual void OnRuntimeClosed(Runtime* runtime) override;
+  // XWalkContent::Observer implementation.
+  virtual void OnContentCreated(XWalkContent* content) override;
+  virtual void OnContentClosed(XWalkContent* content) override;
 
   // Get the path of splash screen image. Return empty path by default.
   // Sub class can override it to return a specific path.
   virtual base::FilePath GetSplashScreenPath();
 
   XWalkBrowserContext* browser_context_;
-  ScopedVector<Runtime> runtimes_;
+  ScopedVector<XWalkContent> pages_;
   scoped_refptr<ApplicationData> const data_;
   // The application's render process host.
   content::RenderProcessHost* render_process_host_;

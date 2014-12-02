@@ -11,7 +11,7 @@
 #include "base/path_service.h"
 #include "base/run_loop.h"
 #include "base/strings/string_number_conversions.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/navigation_controller.h"
@@ -62,7 +62,7 @@ GURL GetTestURL(const base::FilePath& dir, const base::FilePath& file) {
 
 // Navigate a specified URL in the given Runtime. It will block until the
 // navigation completes.
-void NavigateToURL(xwalk::Runtime* runtime, const GURL& url) {
+void NavigateToURL(xwalk::XWalkContent* runtime, const GURL& url) {
   if (runtime->web_contents()->IsLoading())
     content::WaitForLoadStop(runtime->web_contents());
 

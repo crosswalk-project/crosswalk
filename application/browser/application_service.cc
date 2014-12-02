@@ -22,7 +22,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 

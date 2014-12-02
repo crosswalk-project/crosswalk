@@ -4,7 +4,7 @@
 
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -16,7 +16,7 @@
 #include "ui/shell_dialogs/select_file_dialog.h"
 #include "ui/shell_dialogs/select_file_dialog_factory.h"
 
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 namespace {
 
@@ -100,7 +100,7 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, DISABLED_FileSelector) {
       base::FilePath(), base::FilePath().AppendASCII("file_to_select")));
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
-  Runtime* runtime = CreateRuntime(url);
+  XWalkContent* runtime = CreateContent(url);
   content::WaitForLoadStop(runtime->web_contents());
   bool ret = content::ExecuteScript(
       runtime->web_contents(), "doSelectFile();");
@@ -119,7 +119,7 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, ColorChooser) {
   SetBrowserTestColor(r, g, b);
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
-  Runtime* runtime = CreateRuntime(url);
+  XWalkContent* runtime = CreateContent(url);
   content::WaitForLoadStop(runtime->web_contents());
   bool ret = content::ExecuteScript(
       runtime->web_contents(), "doChooseColor();");

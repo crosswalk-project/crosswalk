@@ -9,7 +9,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image.h"
 #include "xwalk/runtime/browser/image_util.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
@@ -22,7 +22,7 @@ const int kDefaultWidth = 840;
 const int kDefaultHeight = 600;
 
 NativeAppWindow* RuntimeCreateWindow(
-    Runtime* runtime, const NativeAppWindow::CreateParams& params) {
+    XWalkContent* content, const NativeAppWindow::CreateParams& params) {
   NativeAppWindow* window = NativeAppWindow::Create(params);
   // FIXME : Pass an App icon in params.
   // Set the app icon if it is passed from command line.
@@ -40,12 +40,12 @@ NativeAppWindow* RuntimeCreateWindow(
 
   window->UpdateIcon(app_icon);
 
-  unsigned int fullscreen_options = runtime->fullscreen_options();
+  unsigned int fullscreen_options = content->fullscreen_options();
   if (params.state == ui::SHOW_STATE_FULLSCREEN)
-    fullscreen_options |= Runtime::FULLSCREEN_FOR_LAUNCH;
+    fullscreen_options |= XWalkContent::FULLSCREEN_FOR_LAUNCH;
   else
-    fullscreen_options &= ~Runtime::FULLSCREEN_FOR_LAUNCH;
-  runtime->set_fullscreen_options(fullscreen_options);
+    fullscreen_options &= ~XWalkContent::FULLSCREEN_FOR_LAUNCH;
+  content->set_fullscreen_options(fullscreen_options);
 
   return window;
 }
@@ -54,16 +54,16 @@ NativeAppWindow* RuntimeCreateWindow(
 #endif
 
 RuntimeUIDelegate* DefaultRuntimeUIDelegate::Create(
-    Runtime* runtime, const NativeAppWindow::CreateParams& params) {
-  return new DefaultRuntimeUIDelegate(runtime, params);
+    XWalkContent* content, const NativeAppWindow::CreateParams& params) {
+  return new DefaultRuntimeUIDelegate(content, params);
 }
 
 DefaultRuntimeUIDelegate::DefaultRuntimeUIDelegate(
-    Runtime* runtime, const NativeAppWindow::CreateParams& params)
-  : runtime_(runtime),
+    XWalkContent* content, const NativeAppWindow::CreateParams& params)
+  : content_(content),
     window_params_(params),
     window_(nullptr) {
-  DCHECK(runtime_);
+  DCHECK(content_);
 }
 
 DefaultRuntimeUIDelegate::~DefaultRuntimeUIDelegate() {
@@ -75,8 +75,8 @@ void DefaultRuntimeUIDelegate::Show() {
     if (window_params_.bounds.IsEmpty())
       window_params_.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
     window_params_.delegate = this;
-    window_params_.web_contents = runtime_->web_contents();
-    window_ = RuntimeCreateWindow(runtime_, window_params_);
+    window_params_.web_contents = content_->web_contents();
+    window_ = RuntimeCreateWindow(content_, window_params_);
   }
   window_->Show();
 #else
@@ -105,7 +105,7 @@ void DefaultRuntimeUIDelegate::Close() {
 }
 
 void DefaultRuntimeUIDelegate::DeleteDelegate() {
-  runtime_ = nullptr;
+  content_ = nullptr;
   if (window_) {
     window_->Close();
     return;
@@ -115,8 +115,8 @@ void DefaultRuntimeUIDelegate::DeleteDelegate() {
 
 void DefaultRuntimeUIDelegate::OnWindowDestroyed() {
   window_ = nullptr;
-  if (runtime_) {
-    runtime_->Close();
+  if (content_) {
+    content_->Close();
     return;
   }
   delete this;

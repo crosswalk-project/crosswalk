@@ -9,7 +9,7 @@
 #include "xwalk/runtime/browser/ui/native_app_window.h"
 
 namespace xwalk {
-class Runtime;
+class XWalkContent;
 
 class RuntimeUIDelegate {
  public:
@@ -27,7 +27,7 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
                                  public NativeAppWindowDelegate {
  public:
   static RuntimeUIDelegate* Create(
-      Runtime* runtime,
+      XWalkContent* content,
       const NativeAppWindow::CreateParams& params =
           NativeAppWindow::CreateParams());
   virtual ~DefaultRuntimeUIDelegate();
@@ -35,7 +35,7 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
   NativeAppWindow* window() { return window_; }
 
  private:
-  DefaultRuntimeUIDelegate(Runtime* runtime,
+  DefaultRuntimeUIDelegate(XWalkContent* content,
                            const NativeAppWindow::CreateParams& params);
   // RuntimeUIDelegate
   virtual void Show() override;
@@ -48,7 +48,7 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
   virtual void OnWindowDestroyed() override;
 
  private:
-  Runtime* runtime_;
+  XWalkContent* content_;
   NativeAppWindow::CreateParams window_params_;
   NativeAppWindow* window_;
 };

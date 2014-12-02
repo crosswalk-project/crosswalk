@@ -7,7 +7,7 @@
 #include "base/files/file_path.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/test/base/in_process_browser_test.h"
@@ -20,7 +20,7 @@
 #include "content/public/test/download_test_observer.h"
 #include "content/public/test/test_utils.h"
 
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 using xwalk::RuntimeDownloadManagerDelegate;
 using content::DownloadItem;
 using content::DownloadManager;
@@ -31,7 +31,7 @@ using content::BrowserContext;
 
 namespace {
 
-static DownloadManagerImpl* DownloadManagerForXWalk(Runtime* runtime) {
+static DownloadManagerImpl* DownloadManagerForXWalk(XWalkContent* runtime) {
   return static_cast<DownloadManagerImpl*>(
       BrowserContext::GetDownloadManager(
           runtime->web_contents()->GetBrowserContext()));
@@ -45,7 +45,7 @@ class XWalkDownloadBrowserTest : public InProcessBrowserTest {
 
   virtual void SetUpOnMainThread() OVERRIDE {
     ASSERT_TRUE(downloads_directory_.CreateUniqueTempDir());
-    runtime_ = CreateRuntime(GURL());
+    runtime_ = CreateContent(GURL());
 
     DownloadManagerImpl* manager = DownloadManagerForXWalk(runtime_);
     RuntimeDownloadManagerDelegate* delegate =
@@ -55,14 +55,14 @@ class XWalkDownloadBrowserTest : public InProcessBrowserTest {
 
   // Create a DownloadTestObserverTerminal that will wait for the
   // specified number of downloads to finish.
-  DownloadTestObserver* CreateWaiter(Runtime* runtime, int num_downloads) {
+  DownloadTestObserver* CreateWaiter(XWalkContent* runtime, int num_downloads) {
     DownloadManager* download_manager = DownloadManagerForXWalk(runtime);
     return new DownloadTestObserverTerminal(download_manager, num_downloads,
         DownloadTestObserver::ON_DANGEROUS_DOWNLOAD_FAIL);
   }
 
  protected:
-  Runtime* runtime_;
+  XWalkContent* runtime_;
 
  private:
   // Location of the downloads directory for these tests

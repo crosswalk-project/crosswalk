@@ -7,12 +7,12 @@
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 using xwalk::extensions::XWalkExtensionService;
 
 class BadExtensionTest : public XWalkExtensionsTestBase {
@@ -29,7 +29,7 @@ IN_PROC_BROWSER_TEST_F(BadExtensionTest, DoNotCrash) {
                << " The goal is to not crash.";
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("bad.html"));
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime, url);
@@ -41,7 +41,7 @@ IN_PROC_BROWSER_TEST_F(BadExtensionTest, NavigateDoNotCrash) {
                << " The goal is to not crash.";
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("bad.html"));
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
 
