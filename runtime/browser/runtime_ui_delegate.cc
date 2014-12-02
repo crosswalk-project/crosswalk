@@ -21,7 +21,7 @@ namespace {
 const int kDefaultWidth = 840;
 const int kDefaultHeight = 600;
 
-NativeAppWindow* CreateWindow(
+NativeAppWindow* RuntimeCreateWindow(
     Runtime* runtime, const NativeAppWindow::CreateParams& params) {
   NativeAppWindow* window = NativeAppWindow::Create(params);
   // FIXME : Pass an App icon in params.
@@ -76,7 +76,7 @@ void DefaultRuntimeUIDelegate::Show() {
       window_params_.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
     window_params_.delegate = this;
     window_params_.web_contents = runtime_->web_contents();
-    window_ = CreateWindow(runtime_, window_params_);
+    window_ = RuntimeCreateWindow(runtime_, window_params_);
   }
   window_->Show();
 #else
