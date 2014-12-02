@@ -645,7 +645,7 @@ bool PackageInstaller::Uninstall(const std::string& id) {
   std::string app_id = PrepareUninstallationID(id);
 
   if (!xwalk::application::IsValidApplicationID(app_id)) {
-    LOG(ERROR) << "The given application id " << app_id << " is invalid.";
+    LOG(ERROR) << "The given application id '" << app_id << "' is invalid.";
     return false;
   }
 
@@ -673,8 +673,12 @@ bool PackageInstaller::Uninstall(const std::string& id) {
 }
 
 bool PackageInstaller::Reinstall(const std::string& pkgid) {
-  base::FilePath app_dir = xwalk::application::GetPackagePath(pkgid);
+  if (!xwalk::application::IsValidPkgID(pkgid)) {
+    LOG(ERROR) << "The given package id '" << pkgid << "' is invalid.";
+    return false;
+  }
 
+  base::FilePath app_dir = xwalk::application::GetPackagePath(pkgid);
   if (!base::DirectoryExists(app_dir)) {
     LOG(ERROR) << "Application directory " << app_dir.value()
                << " does not exist!";
