@@ -291,7 +291,7 @@ bool ParseLabel(const base::DictionaryValue& dict,
     const std::string& key, TizenAppWidget* app_widget, base::string16* error) {
   DCHECK(app_widget);
 
-  if (!VerifyElementNamespace(dict, key, kTizenNamespacePrefix, error))
+  if (!VerifyElementNamespace(dict, key, keys::kTizenNamespacePrefix, error))
     return false;
 
   std::string lang;
@@ -322,7 +322,7 @@ bool ParseIcon(const base::DictionaryValue& dict,
     const std::string& key, TizenAppWidget* app_widget, base::string16* error) {
   DCHECK(app_widget);
 
-  if (!VerifyElementNamespace(dict, key, kTizenNamespacePrefix, error))
+  if (!VerifyElementNamespace(dict, key, keys::kTizenNamespacePrefix, error))
     return false;
 
   if (!app_widget->icon_src.empty()) {
@@ -360,7 +360,7 @@ bool ParseContentSizes(const base::DictionaryValue& dict,
     const std::string& key, TizenAppWidget* app_widget, base::string16* error) {
   DCHECK(app_widget);
 
-  if (!VerifyElementNamespace(dict, key, kTizenNamespacePrefix, error))
+  if (!VerifyElementNamespace(dict, key, keys::kTizenNamespacePrefix, error))
     return false;
 
   TizenAppWidgetSize size;
@@ -397,7 +397,7 @@ bool ParseContentDropView(const base::DictionaryValue& dict,
     const std::string& key, TizenAppWidget* app_widget, base::string16* error) {
   DCHECK(app_widget);
 
-  if (!VerifyElementNamespace(dict, key, kTizenNamespacePrefix, error))
+  if (!VerifyElementNamespace(dict, key, keys::kTizenNamespacePrefix, error))
     return false;
 
   if (!app_widget->content_drop_view.empty()) {
@@ -431,7 +431,7 @@ bool ParseContent(const base::DictionaryValue& dict,
     const std::string& key, TizenAppWidget* app_widget, base::string16* error) {
   DCHECK(app_widget);
 
-  if (!VerifyElementNamespace(dict, key, kTizenNamespacePrefix, error))
+  if (!VerifyElementNamespace(dict, key, keys::kTizenNamespacePrefix, error))
     return false;
 
   if (!app_widget->content_src.empty()) {
@@ -467,7 +467,7 @@ bool ParseAppWidget(const base::DictionaryValue& dict,
     base::string16* error) {
   DCHECK(app_widgets);
 
-  if (!VerifyElementNamespace(dict, key, kTizenNamespacePrefix, error))
+  if (!VerifyElementNamespace(dict, key, keys::kTizenNamespacePrefix, error))
     return false;
 
   TizenAppWidget app_widget;

@@ -46,7 +46,7 @@ bool TizenApplicationHandler::Parse(scoped_refptr<ApplicationData> application,
   if (app_value && app_value->IsType(base::Value::TYPE_DICTIONARY)) {
     app_value->GetAsDictionary(&app_dict);
     find = app_dict->GetString(keys::kNamespaceKey, &value);
-    find = find && (value == kTizenNamespacePrefix);
+    find = find && (value == keys::kTizenNamespacePrefix);
   } else if (app_value && app_value->IsType(base::Value::TYPE_LIST)) {
     base::ListValue* list;
     app_value->GetAsList(&list);
@@ -54,7 +54,7 @@ bool TizenApplicationHandler::Parse(scoped_refptr<ApplicationData> application,
          it != list->end(); ++it) {
       (*it)->GetAsDictionary(&app_dict);
       find = app_dict->GetString(keys::kNamespaceKey, &value);
-      find = find && (value == kTizenNamespacePrefix);
+      find = find && (value == keys::kTizenNamespacePrefix);
       if (find)
         break;
     }

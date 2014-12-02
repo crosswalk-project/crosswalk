@@ -49,7 +49,7 @@ scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
 
   manifest->SetString(
       DotConnect(widget_keys::kWidgetKey, widget_keys::kNamespaceKey),
-      kW3CNamespacePrefix);
+      widget_keys::kWidgetNamespacePrefix);
   manifest->SetString(widget_keys::kVersionKey, kDefaultVersion);
   manifest->SetString(widget_keys::kNameKey, kDefaultName);
 
@@ -60,7 +60,7 @@ scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
   manifest->SetString(
       DotConnect(widget_keys::kTizenApplicationKey,
                  widget_keys::kNamespaceKey),
-      kTizenNamespacePrefix);
+      widget_keys::kTizenNamespacePrefix);
   manifest->SetString(
       DotConnect(widget_keys::kTizenApplicationKey,
                  widget_keys::kTizenApplicationIdKey),

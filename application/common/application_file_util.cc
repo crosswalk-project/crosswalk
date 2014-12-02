@@ -276,7 +276,7 @@ base::DictionaryValue* LoadXMLNode(
       current_value->GetString(kNamespaceKey, &current_namespace);
       sub_value->GetString(kNamespaceKey, &new_namespace);
       if (current_namespace != new_namespace &&
-          new_namespace == kTizenNamespacePrefix)
+          new_namespace == widget_keys::kTizenNamespacePrefix)
         value->Set(sub_node_name, sub_value);
       continue;
 #endif
