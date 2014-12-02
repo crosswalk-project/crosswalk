@@ -203,7 +203,11 @@ XWalkBrowserContext::GetURLRequestContextGetterById(
     const std::string& pkg_id) {
   for (PartitionPathContextGetterMap::iterator it = context_getters_.begin();
        it != context_getters_.end(); ++it) {
+#if defined(OS_WIN)
+    if (it->first.find(base::UTF8ToWide(pkg_id)))
+#else
     if (it->first.find(pkg_id))
+#endif
       return it->second.get();
   }
   return 0;
