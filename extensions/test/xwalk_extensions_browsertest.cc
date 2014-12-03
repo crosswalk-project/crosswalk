@@ -5,7 +5,7 @@
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
@@ -14,7 +14,7 @@
 #include "base/time/time.h"
 
 using namespace xwalk::extensions;  // NOLINT
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 namespace {
 
@@ -169,7 +169,7 @@ class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_extension.html"));
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime, url);
@@ -177,7 +177,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, ExtensionWithInvalidNameIgnored) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_extension.html"));
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
@@ -190,7 +190,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, ExtensionWithInvalidNameIgnored) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtensionSync) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII(
                                       "sync_echo.html"));
@@ -201,7 +201,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtensionSync) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsDelayedTest, EchoExtensionSync) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII(
                                       "sync_echo.html"));
@@ -212,7 +212,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsDelayedTest, EchoExtensionSync) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, BulkDataExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("bulk_data_transmission.html"));
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);

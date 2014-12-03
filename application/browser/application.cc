@@ -21,7 +21,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -204,7 +204,7 @@ ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_MANIFEST>(
 }
 
 bool Application::Launch(const LaunchParams& launch_params) {
-  if (!runtimes_.empty()) {
+  if (!pages_.empty()) {
     LOG(ERROR) << "Attempt to launch app with id " << id()
                << ", but it is already running.";
     return false;
@@ -220,14 +220,14 @@ bool Application::Launch(const LaunchParams& launch_params) {
 
   remote_debugging_enabled_ = launch_params.remote_debugging;
   auto site = content::SiteInstance::CreateForURL(browser_context_, url);
-  Runtime* runtime = Runtime::Create(browser_context_, site);
-  runtime->set_observer(this);
-  runtimes_.push_back(runtime);
-  render_process_host_ = runtime->GetRenderProcessHost();
+  XWalkContent* page = XWalkContent::Create(browser_context_, site);
+  page->set_observer(this);
+  pages_.push_back(page);
+  render_process_host_ = page->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
-  web_contents_ = runtime->web_contents();
+  web_contents_ = page->web_contents();
   InitSecurityPolicy();
-  runtime->LoadURL(url);
+  page->LoadURL(url);
 
   NativeAppWindow::CreateParams params;
   params.net_wm_pid = launch_params.launcher_pid;
@@ -236,9 +236,9 @@ bool Application::Launch(const LaunchParams& launch_params) {
       GetWindowShowState<Manifest::TYPE_MANIFEST>(launch_params);
 
   window_show_params_ = params;
-  // Only the first runtime can have a launch screen.
+  // Only the first page can have a launch screen.
   params.splash_screen_path = GetSplashScreenPath();
-  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime, params));
+  page->set_ui_delegate(DefaultRuntimeUIDelegate::Create(page, params));
   // We call "Show" after RP is initialized to reduce
   // the application start up time.
 
@@ -256,9 +256,9 @@ GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
 }
 
 void Application::Terminate() {
-  std::vector<Runtime*> to_be_closed(runtimes_.get());
-  for (Runtime* runtime : to_be_closed)
-    runtime->Close();
+  std::vector<XWalkContent*> to_be_closed(pages_.get());
+  for (XWalkContent* content : to_be_closed)
+    content->Close();
 }
 
 int Application::GetRenderProcessHostID() const {
@@ -266,22 +266,21 @@ int Application::GetRenderProcessHostID() const {
   return render_process_host_->GetID();
 }
 
-void Application::OnNewRuntimeAdded(Runtime* runtime) {
-  runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
-  runtime->set_observer(this);
-  runtime->set_ui_delegate(
-      DefaultRuntimeUIDelegate::Create(runtime, window_show_params_));
-  runtime->Show();
-  runtimes_.push_back(runtime);
+void Application::OnContentCreated(XWalkContent* page) {
+  page->set_remote_debugging_enabled(remote_debugging_enabled_);
+  page->set_observer(this);
+  page->set_ui_delegate(
+      DefaultRuntimeUIDelegate::Create(page, window_show_params_));
+  page->Show();
+  pages_.push_back(page);
 }
 
-void Application::OnRuntimeClosed(Runtime* runtime) {
-  auto found = std::find(runtimes_.begin(), runtimes_.end(), runtime);
-  CHECK(found != runtimes_.end());
-  LOG(INFO) << "Application::OnRuntimeClosed " << runtime;
-  runtimes_.erase(found);
+void Application::OnContentClosed(XWalkContent* page) {
+  auto found = std::find(pages_.begin(), pages_.end(), page);
+  CHECK(found != pages_.end());
+  pages_.erase(found);
 
-  if (runtimes_.empty())
+  if (pages_.empty())
     base::MessageLoop::current()->PostTask(FROM_HERE,
         base::Bind(&Application::NotifyTermination,
                    weak_factory_.GetWeakPtr()));
@@ -309,8 +308,8 @@ void Application::NotifyTermination() {
 }
 
 void Application::RenderChannelCreated() {
-  CHECK(!runtimes_.empty());
-  runtimes_.front()->Show();
+  CHECK(!pages_.empty());
+  pages_.front()->Show();
 }
 
 bool Application::UseExtension(const std::string& extension_name) const {

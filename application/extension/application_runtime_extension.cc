@@ -12,7 +12,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_data.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 
 using content::BrowserThread;
 

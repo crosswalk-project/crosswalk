@@ -4,7 +4,7 @@
 
 #include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/common/content_switches.h"
@@ -15,7 +15,7 @@
 #include "net/base/net_util.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 class XWalkDevToolsTest : public InProcessBrowserTest {
  public:
@@ -30,7 +30,7 @@ class XWalkDevToolsTest : public InProcessBrowserTest {
 
 IN_PROC_BROWSER_TEST_F(XWalkDevToolsTest, RemoteDebugging) {
   GURL localhost_url("http://127.0.0.1:9222");
-  Runtime* debugging_host = CreateRuntime(localhost_url);
+  XWalkContent* debugging_host = CreateContent(localhost_url);
   content::WaitForLoadStop(debugging_host->web_contents());
   base::string16 real_title = debugging_host->web_contents()->GetTitle();
   base::string16 expected_title = base::ASCIIToUTF16("XWalk Remote Debugging");

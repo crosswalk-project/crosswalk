@@ -16,7 +16,9 @@
 #include "content/public/browser/devtools_http_handler_delegate.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "url/gurl.h"
-#include "xwalk/runtime/browser/runtime.h"
+#if !defined(OS_ANDROID)
+#include "xwalk/runtime/browser/xwalk_content.h"
+#endif
 
 namespace content {
 class DevToolsHttpHandler;
@@ -44,8 +46,11 @@ class XWalkDevToolsHttpHandlerDelegate :
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsHttpHandlerDelegate);
 };
 
-class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
-                              public Runtime::Observer {
+class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate
+#if !defined(OS_ANDROID)
+                            , public XWalkContent::Observer
+#endif
+                            {
  public:
   explicit XWalkDevToolsDelegate(XWalkBrowserContext* browser_context);
   virtual ~XWalkDevToolsDelegate();
@@ -67,10 +72,11 @@ class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
                                scoped_refptr<base::RefCountedBytes> png);
 
  private:
-  // Runtime::Observer
-  virtual void OnNewRuntimeAdded(Runtime* runtime) override;
-  virtual void OnRuntimeClosed(Runtime* runtime) override;
-
+#if !defined(OS_ANDROID)
+  // XWalkContent::Observer
+  virtual void OnContentCreated(XWalkContent* content) override;
+  virtual void OnContentClosed(XWalkContent* content) override;
+#endif
   using ThumbnailMap = std::map<GURL, std::string>;
   ThumbnailMap thumbnail_map_;
   XWalkBrowserContext* browser_context_;

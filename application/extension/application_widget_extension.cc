@@ -19,7 +19,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
 #include "xwalk/application/extension/application_widget_storage.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"

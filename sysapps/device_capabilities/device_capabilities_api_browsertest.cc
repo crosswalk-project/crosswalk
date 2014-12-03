@@ -7,7 +7,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "net/base/filename_util.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
@@ -15,7 +15,7 @@ IN_PROC_BROWSER_TEST_F(InProcessBrowserTest, SysAppsDeviceCapabilities) {
   const base::string16 passString = base::ASCIIToUTF16("Pass");
   const base::string16 failString = base::ASCIIToUTF16("Fail");
 
-  xwalk::Runtime* runtime = CreateRuntime();
+  xwalk::XWalkContent* runtime = CreateContent();
   content::TitleWatcher title_watcher(runtime->web_contents(), passString);
   title_watcher.AlsoWaitForTitle(failString);
 

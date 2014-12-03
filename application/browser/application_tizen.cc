@@ -44,25 +44,25 @@ namespace application {
 const char kDefaultMediaAppClass[] = "player";
 namespace {
 #if defined(OS_TIZEN_MOBILE)
-void ApplyRootWindowParams(Runtime* runtime,
+void ApplyRootWindowParams(XWalkContent* content,
                            NativeAppWindow::CreateParams* params) {
   if (!params->delegate)
-    params->delegate = runtime;
+    params->delegate = content;
   if (params->bounds.IsEmpty())
     params->bounds = gfx::Rect(0, 0, 840, 600);
 
-  unsigned int fullscreen_options = runtime->fullscreen_options();
+  unsigned int fullscreen_options = content->fullscreen_options();
   if (params->state == ui::SHOW_STATE_FULLSCREEN)
-    fullscreen_options |= Runtime::FULLSCREEN_FOR_LAUNCH;
+    fullscreen_options |= XWalkContent::FULLSCREEN_FOR_LAUNCH;
   else
     fullscreen_options &= ~Runtime::FULLSCREEN_FOR_LAUNCH;
-  runtime->set_fullscreen_options(fullscreen_options);
+  content->set_fullscreen_options(fullscreen_options);
 }
 
-NativeAppWindow* CreateRootWindow(Runtime* runtime,
+NativeAppWindow* CreateRootWindow(XWalkContent* content,
                                   const NativeAppWindow::CreateParams& params) {
   NativeAppWindow::CreateParams effective_params(params);
-  ApplyRootWindowParams(runtime, &effective_params);
+  ApplyRootWindowParams(content, &effective_params);
   return NativeAppWindow::Create(effective_params);
 }
 #endif
@@ -109,11 +109,11 @@ class ScreenOrientationProviderTizen :
       return;
     }
     request_id_ = request_id;
-    const std::vector<Runtime*>& runtimes = app_->runtimes();
-    DCHECK(!runtimes.empty());
+    const std::vector<XWalkContent*>& pages = app_->pages();
+    DCHECK(!pages.empty());
     // FIXME: Probably need better alignment with
     // https://w3c.github.io/screen-orientation/#screen-orientation-lock-lifetime
-    for (auto it = runtimes.begin(); it != runtimes.end(); ++it) {
+    for (auto it = pages.begin(); it != pages.end(); ++it) {
       NativeAppWindow* window = (*it)->window();
       if (window && window->IsActive()) {
         ToNativeAppWindowTizen(window)->LockOrientation(lock);
@@ -157,17 +157,17 @@ ApplicationTizen::~ApplicationTizen() {
 }
 
 void ApplicationTizen::Hide() {
-  DCHECK(!runtimes_.empty());
-  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
-    if ((*it)->window())
-      (*it)->window()->Minimize();
+  DCHECK(!pages_.empty());
+  for (XWalkContent* page : pages_) {
+    if (auto window = page->window())
+      window->Minimize();
   }
 }
 
 void ApplicationTizen::Show() {
-  DCHECK(!runtimes_.empty());
-  for (Runtime* runtime : runtimes_) {
-    if (auto window = runtime->window())
+  DCHECK(!pages_.empty());
+  for (XWalkContent* page : pages_) {
+    if (auto window = page->window())
       window->Restore();
   }
 }
@@ -175,8 +175,8 @@ void ApplicationTizen::Show() {
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
 #if defined(OS_TIZEN_MOBILE)
-    if (!runtimes_.empty()) {
-      root_window_ = CreateRootWindow(*(runtimes_.begin()),
+    if (!pages_.empty()) {
+      root_window_ = CreateRootWindow(*(pages_.begin()),
                                       window_show_params_);
       window_show_params_.parent = root_window_->GetNativeWindow();
       root_window_->Show();
@@ -234,10 +234,9 @@ void ApplicationTizen::Suspend() {
   DCHECK(render_process_host_);
   render_process_host_->Send(new ViewMsg_SuspendJSEngine(true));
 
-  DCHECK(!runtimes_.empty());
-  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
-    if ((*it)->web_contents())
-      (*it)->web_contents()->WasHidden();
+  DCHECK(!pages_.empty());
+  for (XWalkContent* page : pages_) {
+    page->web_contents()->WasHidden();
   }
   is_suspended_ = true;
 }
@@ -249,10 +248,9 @@ void ApplicationTizen::Resume() {
   DCHECK(render_process_host_);
   render_process_host_->Send(new ViewMsg_SuspendJSEngine(false));
 
-  DCHECK(!runtimes_.empty());
-  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
-    if ((*it)->web_contents())
-      (*it)->web_contents()->WasShown();
+  DCHECK(!pages_.empty());
+  for (XWalkContent* page : pages_) {
+    page->web_contents()->WasShown();
   }
   is_suspended_ = false;
 }
@@ -282,10 +280,9 @@ void ApplicationTizen::DidProcessEvent(
   if (info && !info->hwkey_enabled())
     return;
 
-  for (auto it = runtimes_.begin();
-      it != runtimes_.end(); ++it) {
-    (*it)->web_contents()->GetRenderViewHost()->Send(new ViewMsg_HWKeyPressed(
-        (*it)->web_contents()->GetRoutingID(), key_event->key_code()));
+  for (XWalkContent* page : pages_) {
+    page->web_contents()->GetRenderViewHost()->Send(new ViewMsg_HWKeyPressed(
+        page->web_contents()->GetRoutingID(), key_event->key_code()));
   }
 }
 #endif
@@ -299,20 +296,20 @@ void ApplicationTizen::SetUserAgentString(
   cookie_manager_->SetUserAgentString(render_process_host_, user_agent_string);
 }
 
-void ApplicationTizen::OnNewRuntimeAdded(Runtime* runtime) {
-  DCHECK(runtime);
-  Application::OnNewRuntimeAdded(runtime);
+void ApplicationTizen::OnContentCreated(XWalkContent* content) {
+  DCHECK(content);
+  Application::OnContentCreated(content);
 #if defined(OS_TIZEN_MOBILE)
-  if (root_window_ && runtimes_.size() > 1)
+  if (root_window_ && pages_.size() > 1)
       root_window_->Show();
 #endif
 }
 
-void ApplicationTizen::OnRuntimeClosed(Runtime* runtime) {
-  DCHECK(runtime);
-  Application::OnRuntimeClosed(runtime);
+void ApplicationTizen::OnContentClosed(XWalkContent* content) {
+  DCHECK(content);
+  Application::OnContentClosed(content);
 #if defined(OS_TIZEN_MOBILE)
-  if (runtimes_.empty() && root_window_) {
+  if (pages_.empty() && root_window_) {
     root_window_->Close();
     root_window_ = NULL;
   }

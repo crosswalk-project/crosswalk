@@ -7,7 +7,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
@@ -65,7 +65,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsExportObjectTest,
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_export_object.html"));
-  xwalk::Runtime* runtime = CreateRuntime();
+  xwalk::XWalkContent* runtime = CreateContent();
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime, url);

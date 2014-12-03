@@ -10,12 +10,12 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 namespace {
 
@@ -61,7 +61,7 @@ class XWalkExtensionsIFrameTest : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        ContextsAreCreatedForIFrames) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("counter_with_iframes.html"));
   xwalk_test_utils::NavigateToURL(runtime, url);
@@ -71,7 +71,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        ContextsAreNotCreatedForIFramesWithBlankPages) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("blank_iframes.html"));
 
@@ -97,7 +97,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
 // delete it when releasing the script context.
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        IFrameUsingDocumentWriteShouldNotCrash) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("iframe_using_document_write.html"));
 
@@ -114,7 +114,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
 // iframe_keep_reference.html for more details.
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
                        KeepingReferenceToFunctionFromDestroyedIFrame) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("iframe_keep_reference.html"));

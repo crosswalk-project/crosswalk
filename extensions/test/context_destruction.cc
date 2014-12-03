@@ -10,12 +10,12 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 namespace {
 
@@ -86,7 +86,7 @@ class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsContextDestructionTest,
                        ContextIsDestroyedWhenNavigating) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("context_destruction.html"));
 

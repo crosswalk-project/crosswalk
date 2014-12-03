@@ -36,7 +36,7 @@
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
 
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 using xwalk::XWalkContentRendererClient;
 using xwalk::XWalkRunner;
 using xwalk::NativeAppWindow;
@@ -92,18 +92,18 @@ void InProcessBrowserTest::SetUp() {
   BrowserTestBase::SetUp();
 }
 
-Runtime* InProcessBrowserTest::CreateRuntime(
+XWalkContent* InProcessBrowserTest::CreateContent(
     const GURL& url, const NativeAppWindow::CreateParams& params) {
-  Runtime* runtime = Runtime::Create(
+  XWalkContent* content = XWalkContent::Create(
       XWalkRunner::GetInstance()->browser_context());
-  runtime->set_observer(this);
-  runtimes_.push_back(runtime);
-  runtime->LoadURL(url);
-  content::WaitForLoadStop(runtime->web_contents());
-  runtime->set_ui_delegate(
-      xwalk::DefaultRuntimeUIDelegate::Create(runtime, params));
-  runtime->Show();
-  return runtime;
+  content->set_observer(this);
+  runtimes_.push_back(content);
+  content->LoadURL(url);
+  content::WaitForLoadStop(content->web_contents());
+  content->set_ui_delegate(
+      xwalk::DefaultRuntimeUIDelegate::Create(content, params));
+  content->Show();
+  return content;
 }
 
 void InProcessBrowserTest::RunTestOnMainThreadLoop() {
@@ -122,18 +122,18 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   CloseAll();
 }
 
-void InProcessBrowserTest::OnNewRuntimeAdded(Runtime* runtime) {
-  DCHECK(runtime);
-  runtimes_.push_back(runtime);
-  runtime->set_observer(this);
-  runtime->set_ui_delegate(
-      xwalk::DefaultRuntimeUIDelegate::Create(runtime));
-  runtime->Show();
+void InProcessBrowserTest::OnContentCreated(XWalkContent* content) {
+  DCHECK(content);
+  runtimes_.push_back(content);
+  content->set_observer(this);
+  content->set_ui_delegate(
+      xwalk::DefaultRuntimeUIDelegate::Create(content));
+  content->Show();
 }
 
-void InProcessBrowserTest::OnRuntimeClosed(Runtime* runtime) {
-  DCHECK(runtime);
-  auto it = std::find(runtimes_.begin(), runtimes_.end(), runtime);
+void InProcessBrowserTest::OnContentClosed(XWalkContent* content) {
+  DCHECK(content);
+  auto it = std::find(runtimes_.begin(), runtimes_.end(), content);
   DCHECK(it != runtimes_.end());
   runtimes_.erase(it);
 
@@ -147,8 +147,8 @@ void InProcessBrowserTest::CloseAll() {
     return;
 
   RuntimeList to_be_closed(runtimes_.get());
-  for (Runtime* runtime : to_be_closed)
-    runtime->Close();
+  for (XWalkContent* content : to_be_closed)
+    content->Close();
   // Wait until all windows are closed.
   content::RunAllPendingInMessageLoop();
   DCHECK(runtimes_.empty()) << runtimes_.size();

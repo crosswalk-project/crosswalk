@@ -42,9 +42,9 @@ class ApplicationTizen :  // NOLINT
 
   virtual base::FilePath GetSplashScreenPath() OVERRIDE;
 
-  // Runtime::Observer implementation.
-  virtual void OnNewRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeClosed(Runtime* runtime) OVERRIDE;
+  // XWalkContent::Observer implementation.
+  virtual void OnContentCreated(XWalkContent* content) OVERRIDE;
+  virtual void OnContentClosed(XWalkContent* content) OVERRIDE;
 
 #if defined(USE_OZONE)
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;

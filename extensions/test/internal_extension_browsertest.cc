@@ -12,12 +12,12 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/test/test.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions; // NOLINT
 using namespace xwalk::jsapi::test; // NOLINT
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 TestExtension::TestExtension() {
   set_name("test");
@@ -163,7 +163,7 @@ class InternalExtensionTest : public XWalkExtensionsTestBase {
 };
 
 IN_PROC_BROWSER_TEST_F(InternalExtensionTest, InternalExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
 

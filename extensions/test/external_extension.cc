@@ -7,13 +7,13 @@
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 class ExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
@@ -44,7 +44,7 @@ class MultipleEntryPointsExtension : public XWalkExtensionsTestBase {
 };
 
 IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
@@ -54,7 +54,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
 }
 
 IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, NavigateWithExternalExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
@@ -68,7 +68,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, NavigateWithExternalExtension) {
 }
 
 IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("sync_echo.html"));
@@ -79,7 +79,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
 }
 
 IN_PROC_BROWSER_TEST_F(RuntimeInterfaceTest, GetRuntimeVariable) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("get_runtime_variable.html"));
@@ -90,7 +90,7 @@ IN_PROC_BROWSER_TEST_F(RuntimeInterfaceTest, GetRuntimeVariable) {
 }
 
 IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, MultipleEntryPoints) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("entry_points.html"));
@@ -101,7 +101,7 @@ IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, MultipleEntryPoints) {
 }
 
 IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, SetterLoadsExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("setter_callback_entry_point.html"));
@@ -112,7 +112,7 @@ IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, SetterLoadsExtension) {
 }
 
 IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, ReplacementObjectIsUsed) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII(

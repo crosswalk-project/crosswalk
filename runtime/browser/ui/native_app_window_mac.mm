@@ -7,7 +7,7 @@
 #include "base/mac/mac_util.h"
 #include "base/strings/sys_string_conversions.h"
 #include "base/values.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/web_contents.h"

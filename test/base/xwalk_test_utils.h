@@ -16,7 +16,7 @@ class CommandLine;
 }
 
 namespace xwalk {
-class Runtime;
+class XWalkContent;
 }
 
 // A set of utilities for test code that launches separate processes.
@@ -40,7 +40,7 @@ base::FilePath GetTestFilePath(const base::FilePath& dir,
 
 // Navigate a specified URL in the given Runtime. It will block until the
 // navigation completes.
-void NavigateToURL(xwalk::Runtime* runtime, const GURL& url);
+void NavigateToURL(xwalk::XWalkContent* runtime, const GURL& url);
 
 }  // namespace xwalk_test_utils
 

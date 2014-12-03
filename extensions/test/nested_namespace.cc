@@ -7,11 +7,11 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_content.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
-using xwalk::Runtime;
+using xwalk::XWalkContent;
 
 namespace {
 
@@ -108,7 +108,7 @@ class XWalkExtensionsTrampolinesForNested : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
                        InstanceCreatedForInnerExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("inner_outer.html"));
 
@@ -123,7 +123,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
                        InstanceNotCreatedForUnusedInnerExtension) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("outer.html"));
 
@@ -138,7 +138,7 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTrampolinesForNested,
                        InstanceCreatedForExtensionUsedByAnother) {
-  Runtime* runtime = CreateRuntime();
+  XWalkContent* runtime = CreateContent();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("another.html"));
 

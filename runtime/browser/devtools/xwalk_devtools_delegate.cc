@@ -23,6 +23,11 @@
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/snapshot/snapshot.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
+
+#if !defined(OS_ANDROID)
+#include "xwalk/runtime/browser/runtime_ui_delegate.h"
+#endif
 
 using content::DevToolsAgentHost;
 using content::RenderViewHost;
@@ -94,19 +99,23 @@ Target::Target(scoped_refptr<content::DevToolsAgentHost> agent_host)
 }
 
 GURL Target::GetFaviconDataURL(WebContents* web_contents) const {
+#if !defined(OS_ANDROID)
   // Convert icon image to "data:" url.
-  xwalk::Runtime* runtime =
-      static_cast<xwalk::Runtime*>(web_contents->GetDelegate());
-  if (!runtime || runtime->app_icon().IsEmpty())
+  xwalk::XWalkContent* content =
+      static_cast<xwalk::XWalkContent*>(web_contents->GetDelegate());
+  if (!content || content->app_icon().IsEmpty())
     return GURL();
   scoped_refptr<base::RefCountedMemory> icon_bytes =
-      runtime->app_icon().Copy1xPNGBytes();
+      content->app_icon().Copy1xPNGBytes();
   std::string str_url;
   str_url.append(reinterpret_cast<const char*>(icon_bytes->front()),
                  icon_bytes->size());
   base::Base64Encode(str_url, &str_url);
   str_url.insert(0, "data:image/png;base64,");
   return GURL(str_url);
+#else
+  return GURL();
+#endif
 }
 
 bool Target::Activate() const {
@@ -120,21 +129,6 @@ bool Target::Close() const {
 }  // namespace
 
 namespace xwalk {
-
-namespace {
-Runtime* CreateWithDefaultWindow(
-    XWalkBrowserContext* browser_context, const GURL& url,
-    Runtime::Observer* observer) {
-  Runtime* runtime = Runtime::Create(browser_context);
-  runtime->set_observer(observer);
-  runtime->LoadURL(url);
-#if !defined(OS_ANDROID)
-  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime));
-  runtime->Show();
-#endif
-  return runtime;
-}
-}  // namespace
 
 XWalkDevToolsHttpHandlerDelegate::XWalkDevToolsHttpHandlerDelegate() {
 }
@@ -215,10 +209,29 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 
 scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
-  Runtime* runtime = CreateWithDefaultWindow(
-      browser_context_, GURL(url::kAboutBlankURL), this);
+  using content::WebContents;
+#if !defined(OS_ANDROID)
+  XWalkContent* content = XWalkContent::Create(browser_context_);
+  content->set_observer(this);
+  content->set_ui_delegate(DefaultRuntimeUIDelegate::Create(content));
+  content->LoadURL(GURL(url::kAboutBlankURL));
+  content->Show();
+  WebContents* web_contents = content->web_contents();
+#else
+  // FIXME : this is just repeating of the previously existed code path.
+  // However the implementation for Android MUST be reconsidered.
+  WebContents::CreateParams params(browser_context_);
+  params.routing_id = MSG_ROUTING_NONE;
+  WebContents* web_contents = WebContents::Create(params);
+  content::NavigationController::LoadURLParams load_params(
+      GURL(url::kAboutBlankURL));
+  load_params.transition_type = ui::PageTransitionFromInt(
+      ui::PAGE_TRANSITION_TYPED | ui::PAGE_TRANSITION_FROM_ADDRESS_BAR);
+  web_contents->GetController().LoadURLWithParams(load_params);
+  web_contents->Focus();
+#endif
   return scoped_ptr<content::DevToolsTarget>(
-      new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
+      new Target(DevToolsAgentHost::GetOrCreateFor(web_contents)));
 }
 
 void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
@@ -228,23 +241,24 @@ void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   for (content::DevToolsAgentHost::List::iterator it = agents.begin();
        it != agents.end(); ++it) {
 #if !defined(OS_ANDROID)
-    Runtime* runtime =
-        static_cast<Runtime*>((*it)->GetWebContents()->GetDelegate());
-    if (runtime && runtime->remote_debugging_enabled())
+    XWalkContent* content =
+        static_cast<XWalkContent*>((*it)->GetWebContents()->GetDelegate());
+    if (content && content->remote_debugging_enabled())
 #endif
       targets.push_back(new Target(*it));
   }
   callback.Run(targets);
 }
-
-void XWalkDevToolsDelegate::OnNewRuntimeAdded(Runtime* runtime) {
-  runtime->set_observer(this);
-  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime));
-  runtime->Show();
+#if !defined(OS_ANDROID)
+void XWalkDevToolsDelegate::OnContentCreated(XWalkContent* content) {
+  content->set_observer(this);
+  content->set_ui_delegate(DefaultRuntimeUIDelegate::Create(content));
+  content->Show();
 }
 
-void XWalkDevToolsDelegate::OnRuntimeClosed(Runtime* runtime) {
-  delete runtime;
+void XWalkDevToolsDelegate::OnContentClosed(XWalkContent* content) {
+  delete content;
 }
+#endif
 
 }  // namespace xwalk
