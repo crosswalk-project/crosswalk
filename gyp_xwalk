@@ -363,6 +363,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_webp=0')
     # Enable Angle by default
     args.append('-Ddisable_angle=0')
+    # Enable QUIC by default
+    args.append('-Ddisable_quic_support=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
