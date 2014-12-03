@@ -361,6 +361,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_xslt=0')
     # Enable WebP by default
     args.append('-Ddisable_webp=0')
+    # Enable Angle by default
+    args.append('-Ddisable_angle=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
