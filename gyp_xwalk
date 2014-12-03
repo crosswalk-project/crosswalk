@@ -348,6 +348,7 @@ if __name__ == '__main__':
     args.append('-Ddisable_webp=1')
     args.append('-Ddisable_angle=1')
     args.append('-Ddisable_inspector=1')
+    args.append('-Ddisable_quic_support=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
