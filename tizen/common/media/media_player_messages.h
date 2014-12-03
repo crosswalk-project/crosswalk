@@ -26,7 +26,7 @@ IPC_MESSAGE_ROUTED1(MediaPlayerMsg_MediaPlayerPlay,  // NOLINT(*)
 IPC_MESSAGE_ROUTED1(MediaPlayerMsg_MediaPlayerPause,  // NOLINT(*)
                     int /* player_id */)
 
-// Messages for controllering the media playback in browser process ----------
+// Messages for controlling the media playback in browser process ----------
 
 // Destroy the media player object.
 IPC_MESSAGE_ROUTED1(MediaPlayerHostMsg_DestroyMediaPlayer,  // NOLINT(*)
