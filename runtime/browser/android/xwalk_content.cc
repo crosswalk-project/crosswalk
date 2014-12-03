@@ -293,13 +293,14 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
 
   if (manifest.HasPath(kDisplay)) {
     std::string display_string;
-    manifest.GetString(kDisplay, &display_string);
-    // TODO(David): update the handling process of the display strings
-    // including fullscreen etc.
-    bool display_as_fullscreen = (
-        display_string.find("fullscreen") != std::string::npos);
-    Java_XWalkContent_onGetFullscreenFlagFromManifest(
-        env, obj, display_as_fullscreen ? JNI_TRUE : JNI_FALSE);
+    if (manifest.GetString(kDisplay, &display_string)) {
+      // TODO(David): update the handling process of the display strings
+      // including fullscreen etc.
+      bool display_as_fullscreen =
+          LowerCaseEqualsASCII(display_string, "fullscreen");
+      Java_XWalkContent_onGetFullscreenFlagFromManifest(
+          env, obj, display_as_fullscreen ? JNI_TRUE : JNI_FALSE);
+    }
   }
 
   // Check whether need to display launch screen. (Read from manifest.json)
