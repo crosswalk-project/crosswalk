@@ -21,6 +21,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 #endif
 
 namespace xwalk {
@@ -87,17 +88,15 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
       app_service->GetApplicationByRenderHostID(render_view_id);
 
   if (application) {
-    DCHECK(application->data());
-    application::PermissionsInfo* info =
-      static_cast<application::PermissionsInfo*>(
-      application->data()->GetManifestData(
-          application_manifest_keys::kPermissionsKey));
-
-    if (info) {
-      const application::PermissionSet& permissions = info->GetAPIPermissions();
-      application::PermissionSet::const_iterator it =
-          std::find(permissions.begin(), permissions.end(), "geolocation");
-      has_geolocation_permission = it != permissions.end();
+    application::StoredPermission per = application->GetPermission(
+        application::SESSION_PERMISSION,
+        application_manifest_permissions::kPermissionGeolocation);
+    switch (per) {
+      case application::StoredPermission::ALLOW:
+        has_geolocation_permission = true;
+        break;
+      default:
+        break;
     }
   }
 

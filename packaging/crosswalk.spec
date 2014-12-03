@@ -59,6 +59,8 @@ BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-location-manager)
+BuildRequires:  pkgconfig(cynara-client)
+BuildRequires:  pkgconfig(cynara-creds-socket)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(freetype2)
@@ -230,6 +232,7 @@ ${GYP_EXTRA_FLAGS} \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
 -Duse_cups=0 \
+-Duse_cynara=1 \
 -Duse_gconf=0 \
 -Duse_gnome_keyring=0 \
 -Duse_kerberos=0 \

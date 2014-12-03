@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 
+#include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
 #include "crypto/nss_util.h"
 #include "xwalk/application/browser/application_service.h"
@@ -15,9 +16,20 @@
 
 namespace xwalk {
 
-XWalkRunnerTizen::XWalkRunnerTizen() {}
+XWalkRunnerTizen::XWalkRunnerTizen() {
+  // Initialize Cynara
+  if (cynara_initialize(&cynara_handler_, cynara_conf_) != CYNARA_API_SUCCESS) {
+    // TODO(terriko): Handle degrading/exit-with-error if cynara fails
+    //       to initialize.
+    //       For now, log an error.
+    LOG(ERROR) << "Cynara failed to initialize.";
+  }
+}
 
-XWalkRunnerTizen::~XWalkRunnerTizen() {}
+XWalkRunnerTizen::~XWalkRunnerTizen() {
+  // Finish with cynara
+  cynara_finish(cynara_handler_);
+}
 
 // static
 XWalkRunnerTizen* XWalkRunnerTizen::GetInstance() {

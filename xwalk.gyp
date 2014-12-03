@@ -320,6 +320,14 @@
             'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
             'runtime/browser/android/xwalk_web_contents_view_delegate.h',
           ],
+          'cflags': [
+            '<!@(pkg-config --cflags cynara-client)',
+          ],
+          'link_settings': {
+            'libraries': [
+              '<!@(pkg-config --libs cynara-client)',
+            ],
+          },
         }],
         ['OS=="android"',{
           'dependencies':[

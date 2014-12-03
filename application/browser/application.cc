@@ -27,7 +27,11 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_TIZEN)
+#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 #include "xwalk/application/browser/application_tizen.h"
+#if defined(USE_CYNARA)
+#include "xwalk/application/browser/tizen/tizen_cynara_checker.h"
+#endif
 #endif
 
 using content::RenderProcessHost;
@@ -67,6 +71,24 @@ GURL GetDefaultWidgetEntryPage(
 
   return source.empty() ? GURL() : data->GetResourceURL(source);
 }
+
+#if defined(USE_CYNARA)
+  namespace permissions = application_manifest_permissions;
+  namespace privileges = application_tizen_privileges;
+
+const base::DictionaryValue* GetPermissionNameMap() {
+  static base::DictionaryValue* g_permissions_name_map = NULL;
+  if (g_permissions_name_map)
+    return g_permissions_name_map;
+
+  g_permissions_name_map = new base::DictionaryValue();
+  // Mapping betwwen W3C System Applications permissions and tizen privileges
+  g_permissions_name_map->SetString(permissions::kPermissionGeolocation,
+            privileges::kTizenAppPrivilegeLocation);
+
+  return g_permissions_name_map;
+}
+#endif
 
 }  // namespace
 
@@ -222,6 +244,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
   auto site = content::SiteInstance::CreateForURL(browser_context_, url);
   Runtime* runtime = Runtime::Create(browser_context_, site);
   runtime->set_observer(this);
+
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
@@ -320,6 +343,10 @@ bool Application::UseExtension(const std::string& extension_name) const {
 
 bool Application::RegisterPermissions(const std::string& extension_name,
                                       const std::string& perm_table) {
+#if defined(USE_CYNARA)
+  NOTREACHED();
+  return false;
+#else
   // TODO(Bai): Parse the permission table and fill in the name_perm_map_
   // The perm_table format is a simple JSON string, like
   // [{"permission_name":"echo","apis":["add","remove","get"]}]
@@ -361,20 +388,47 @@ bool Application::RegisterPermissions(const std::string& extension_name,
   }
 
   return true;
+#endif
 }
 
 std::string Application::GetRegisteredPermissionName(
     const std::string& extension_name,
     const std::string& api_name) const {
+#if defined(USE_CYNARA)
+  NOTREACHED();
+  return std::string("");
+#else
   std::map<std::string, std::string>::const_iterator iter =
       name_perm_map_.find(api_name);
   if (iter == name_perm_map_.end())
     return std::string("");
   return iter->second;
+#endif
 }
 
 StoredPermission Application::GetPermission(PermissionType type,
                                const std::string& permission_name) const {
+#if defined(USE_CYNARA)
+  // permissions is stored in cynara
+  int fd = render_process_host_->GetChannel()->GetClientFileDescriptor();
+  XWalkRunnerTizen* runner = XWalkRunnerTizen::GetInstance();
+  TizenCynaraChecker checker;
+
+  if (!checker.Init(runner->cynara_handler(), fd))
+    return UNDEFINED_STORED_PERM;
+
+  std::string privilege_name;
+  const base::DictionaryValue* pMap = GetPermissionNameMap();
+  pMap->GetString(permission_name, &privilege_name);
+
+  int ret = checker.CheckCynaraSync("", privilege_name.c_str());
+  switch (ret) {
+    case CYNARA_API_SUCCESS:
+      return ALLOW;
+    default:
+      return DENY;
+  }
+#else
   if (type == SESSION_PERMISSION) {
     StoredPermissionMap::const_iterator iter =
         permission_map_.find(permission_name);
@@ -385,6 +439,7 @@ StoredPermission Application::GetPermission(PermissionType type,
   if (type == PERSISTENT_PERMISSION) {
     return data_->GetPermission(permission_name);
   }
+#endif
   NOTREACHED();
   return UNDEFINED_STORED_PERM;
 }
@@ -392,13 +447,15 @@ StoredPermission Application::GetPermission(PermissionType type,
 bool Application::SetPermission(PermissionType type,
                                 const std::string& permission_name,
                                 StoredPermission perm) {
+#if defined(USE_CYNARA)
+#else
   if (type == SESSION_PERMISSION) {
     permission_map_[permission_name] = perm;
     return true;
   }
   if (type == PERSISTENT_PERMISSION)
     return data_->SetPermission(permission_name, perm);
-
+#endif
   NOTREACHED();
   return false;
 }
