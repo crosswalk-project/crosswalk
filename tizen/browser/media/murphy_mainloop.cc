@@ -48,7 +48,7 @@
 //
 // 2) FileDescriptorWatchers don't have HUP events.
 //
-//    As a POSIX-specific hack we MSG_PEEK and generate a syntetic HUP event
+//    As a POSIX-specific hack we MSG_PEEK and generate a synthetic HUP event
 //    if we got 0 bytes.
 //
 // 3) You can't cancel a PostTask'd or PostDelayedTask'd task.
@@ -59,7 +59,7 @@
 //    cancelled if only there was a mechanism for it. The fingerprint in simply
 //    a monotonically increasing integer which is stored in the timer and also
 //    associated with a pending timeout. Whenever the timer is reconfigured
-//    (delay updated, or timer disabled) the fingerpring is updated. Timeout
+//    (delay updated, or timer disabled) the fingerprint is updated. Timeout
 //    callbacks with mismatching fingerprints are ignored.
 //
 // Originally we simply scheduled a task from the I/O thread to the UI thread
@@ -71,8 +71,8 @@
 // hairier than I'm comfortable with... I think it'd be a better idea to run
 // the mainloop fully in the I/O thread, have the resource sets live in the I/O
 // thread also and have proxy object for them attached to the media backend
-// obejcts which would send requests and receive notifications to/from the
-// resource sets. We could avoid most of the threading related compliations
+// objects which would send requests and receive notifications to/from the
+// resource sets. We could avoid most of the threading related compilations
 // for pumping the mainloop...
 //
 // Additionally to the basic mainloop adaptation we also set up the Murphy
@@ -631,7 +631,7 @@ void MurphyMainloop::ModDefer(void* glue_data, void* id, int enabled) {
 void MurphyMainloop::Unregister(void* data) {
   MRP_UNUSED(data);
 
-  mrp_debug("unrgistering mainloop with data %p", data);
+  mrp_debug("unregistering mainloop with data %p", data);
 }
 
 bool MurphyMainloop::setupMainloop() {

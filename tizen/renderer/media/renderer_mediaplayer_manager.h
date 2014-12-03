@@ -36,7 +36,7 @@ class RendererMediaPlayerManager : public content::RenderFrameObserver {
   // Starts the player.
   void Start(MediaPlayerID player_id);
 
-  // Pausees the player.
+  // Pauses the player.
   void Pause(MediaPlayerID player_id);
 
   // Destroy the player in the browser process
