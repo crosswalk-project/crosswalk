@@ -222,6 +222,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
   auto site = content::SiteInstance::CreateForURL(browser_context_, url);
   Runtime* runtime = Runtime::Create(browser_context_, site);
   runtime->set_observer(this);
+  runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
