@@ -86,6 +86,8 @@ namespace application_widget_keys {
   extern const char kPreferencesNameKey[];
   extern const char kPreferencesValueKey[];
   extern const char kPreferencesReadonlyKey[];
+  extern const char kWidgetNamespaceKey[];
+  extern const char kWidgetNamespacePrefix[];
 #if defined(OS_TIZEN)
   extern const char kTizenWidgetKey[];
   extern const char kTizenApplicationKey[];
@@ -137,14 +139,10 @@ namespace application_widget_keys {
   extern const char kTizenApplicationAppControlUriKey[];
   extern const char kTizenApplicationAppControlMimeKey[];
   extern const char kTizenApplicationAppControlChildNameAttrKey[];
+  extern const char kTizenNamespacePrefix[];
 #endif
 }  // namespace application_widget_keys
 
-extern const char kW3CNamespaceKey[];
-extern const char kW3CNamespacePrefix[];
-#if defined(OS_TIZEN)
-extern const char kTizenNamespacePrefix[];
-#endif
 
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];

@@ -108,7 +108,7 @@ bool ApplicationData::IsHostedApp() const {
   if (manifest_->HasPath(widget_keys::kContentNamespace)) {
     std::string ns;
     if (manifest_->GetString(widget_keys::kContentNamespace, &ns) &&
-        ns == kTizenNamespacePrefix)
+        ns == widget_keys::kTizenNamespacePrefix)
       hosted = true;
   }
 #endif

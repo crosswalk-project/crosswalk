@@ -97,6 +97,9 @@ const char kPreferencesNameKey[] = "@name";
 const char kPreferencesValueKey[] = "@value";
 const char kPreferencesReadonlyKey[] = "@readonly";
 
+const char kWidgetNamespaceKey[] = "widget.@namespace";
+const char kWidgetNamespacePrefix[] = "http://www.w3.org/ns/widgets";
+
 // Child keys inside 'kAccessKey'.
 const char kAccessOriginKey[] = "@origin";
 const char kAccessSubdomainsKey[] = "@subdomains";
@@ -157,15 +160,10 @@ const char kTizenApplicationAppControlOperationKey[] = "operation";
 const char kTizenApplicationAppControlUriKey[] = "uri";
 const char kTizenApplicationAppControlMimeKey[] = "mime";
 const char kTizenApplicationAppControlChildNameAttrKey[] = "@name";
+const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
 #endif
 
 }  // namespace application_widget_keys
-
-const char kW3CNamespaceKey[] = "widget.@namespace";
-const char kW3CNamespacePrefix[] = "http://www.w3.org/ns/widgets";
-#if defined(OS_TIZEN)
-const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
-#endif
 
 namespace application_manifest_errors {
 const char kInvalidDescription[] =

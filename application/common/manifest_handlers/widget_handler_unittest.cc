@@ -93,7 +93,8 @@ class WidgetHandlerTest: public testing::Test {
   // No Preferences and full other information
   void SetAllInfoToManifest(base::DictionaryValue* manifest) {
     // Insert some key-value pairs into manifest use full key
-    manifest->SetString(kW3CNamespaceKey,      kW3CNamespacePrefix);
+    manifest->SetString(keys::kWidgetNamespaceKey,
+                        keys::kWidgetNamespacePrefix);
     manifest->SetString(keys::kAuthorKey,      author);
     manifest->SetString(keys::kDescriptionKey, decription);
     manifest->SetString(keys::kNameKey,        name);
@@ -124,7 +125,7 @@ class WidgetHandlerTest: public testing::Test {
 
 TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
   base::DictionaryValue manifest;
-  manifest.SetString(kW3CNamespaceKey, kW3CNamespacePrefix);
+  manifest.SetString(keys::kWidgetNamespaceKey, keys::kWidgetNamespacePrefix);
   manifest.SetString(keys::kNameKey, "no name");
   manifest.SetString(keys::kVersionKey, "0");
 
