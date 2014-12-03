@@ -146,7 +146,8 @@ bool AppWidgetStorage::InitStorageTable() {
   }
 
   sql::Transaction transaction(sqlite_db_.get());
-  transaction.Begin();
+  if (!transaction.Begin())
+    return false;
   if (!sqlite_db_->Execute(kCreateStorageTableOp))
     return false;
   if (!transaction.Commit())
@@ -260,7 +261,8 @@ bool AppWidgetStorage::Clear() {
     return false;
 
   sql::Transaction transaction(sqlite_db_.get());
-  transaction.Begin();
+  if (!transaction.Begin())
+    return false;
 
   sql::Statement stmt(sqlite_db_->GetUniqueStatement(
       kClearStorageTableWithBindOp));
