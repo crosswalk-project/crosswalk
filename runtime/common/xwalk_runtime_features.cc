@@ -22,8 +22,6 @@ struct MatchRuntimeFeature
   const std::string name;
 };
 
-XWalkRuntimeFeatures::RuntimeFeature::RuntimeFeature() {}
-
 // static
 XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
   return Singleton<XWalkRuntimeFeatures>::get();
