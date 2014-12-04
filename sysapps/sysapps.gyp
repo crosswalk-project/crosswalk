@@ -48,7 +48,6 @@
         'device_capabilities/device_capabilities_object.h',
         'device_capabilities/display_info_provider.cc',
         'device_capabilities/display_info_provider.h',
-        'device_capabilities/display_info_provider_android.cc',
         'device_capabilities/memory_info_provider.cc',
         'device_capabilities/memory_info_provider.h',
         'device_capabilities/storage_info_provider.cc',

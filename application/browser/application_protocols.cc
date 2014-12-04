@@ -40,7 +40,7 @@
 #if defined(OS_TIZEN)
 #include <ss_manager.h>
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/task_runner.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
@@ -130,7 +130,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
         weak_factory_(this) {
   }
 
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
+  void GetResponseInfo(net::HttpResponseInfo* info) override {
     std::string mime_type;
     GetMimeType(&mime_type);
     std::string method = request()->method();
@@ -140,7 +140,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
     *info = response_info_;
   }
 
-  virtual void Start() OVERRIDE {
+  void Start() override {
     base::FilePath* read_file_path = new base::FilePath;
 
     resource_.SetLocales(locales_);
@@ -364,13 +364,13 @@ class ApplicationDataCache : public ApplicationService::Observer {
     return NULL;
   }
 
-  virtual void DidLaunchApplication(Application* app) OVERRIDE {
+  void DidLaunchApplication(Application* app) override {
     base::AutoLock lock(lock_);
     cache_.insert(std::pair<std::string, scoped_refptr<ApplicationData> >(
         app->id(), app->data()));
   }
 
-  virtual void WillDestroyApplication(Application* app) OVERRIDE {
+  void WillDestroyApplication(Application* app) override {
     base::AutoLock lock(lock_);
     cache_.erase(app->id());
   }
@@ -394,9 +394,9 @@ class ApplicationProtocolHandler
 
   virtual ~ApplicationProtocolHandler() {}
 
-  virtual net::URLRequestJob* MaybeCreateJob(
+  net::URLRequestJob* MaybeCreateJob(
       net::URLRequest* request,
-      net::NetworkDelegate* network_delegate) const OVERRIDE;
+      net::NetworkDelegate* network_delegate) const override;
 
  private:
   ApplicationDataCache cache_;

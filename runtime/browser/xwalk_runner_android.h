@@ -25,8 +25,8 @@ class XWalkRunnerAndroid : public XWalkRunner {
   XWalkRunnerAndroid();
 
   // XWalkRunner implementation.
-  virtual scoped_ptr<ApplicationComponent> CreateAppComponent() OVERRIDE;
-  virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent() OVERRIDE;
+  scoped_ptr<ApplicationComponent> CreateAppComponent() override;
+  scoped_ptr<SysAppsComponent> CreateSysAppsComponent() override;
 };
 
 }  // namespace xwalk

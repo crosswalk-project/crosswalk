@@ -21,7 +21,7 @@ class TizenLocaleListener : public base::SimpleThread {
   TizenLocaleListener();
   virtual ~TizenLocaleListener();
 
-  virtual void Run() OVERRIDE;
+  void Run() override;
 
   // Get the latest application locale from system.
   // locale is a langtag defined in [BCP47]

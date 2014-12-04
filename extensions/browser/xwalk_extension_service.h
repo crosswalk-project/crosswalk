@@ -98,26 +98,26 @@ class XWalkExtensionService : public content::NotificationObserver,
       scoped_ptr<base::ValueMap> runtime_variables);
 
   // XWalkExtensionProcessHost::Delegate implementation.
-  virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
-      int render_process_id) OVERRIDE;
+  void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
+      int render_process_id) override;
 
-  virtual void OnExtensionProcessCreated(
+  void OnExtensionProcessCreated(
       int render_process_id,
-      const IPC::ChannelHandle handle) OVERRIDE;
-  virtual void OnRenderChannelCreated(int render_process_id) OVERRIDE;
+      const IPC::ChannelHandle handle) override;
+  void OnRenderChannelCreated(int render_process_id) override;
 
-  virtual void OnCheckAPIAccessControl(
+  void OnCheckAPIAccessControl(
       int render_process_id,
       const std::string& extension_name,
       const std::string& api_name,
-      const PermissionCallback& callback) OVERRIDE;
-  virtual bool OnRegisterPermissions(int render_process_id,
-                                     const std::string& extension_name,
-                                     const std::string& perm_table) OVERRIDE;
+      const PermissionCallback& callback) override;
+  bool OnRegisterPermissions(int render_process_id,
+                             const std::string& extension_name,
+                             const std::string& perm_table) override;
 
   // NotificationObserver implementation.
-  virtual void Observe(int type, const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
+  void Observe(int type, const content::NotificationSource& source,
+               const content::NotificationDetails& details) override;
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 

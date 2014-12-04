@@ -63,22 +63,22 @@ class XWalkAndroidDevToolsHttpHandlerDelegate
   XWalkAndroidDevToolsHttpHandlerDelegate() {
   }
 
-  virtual std::string GetDiscoveryPageHTML() OVERRIDE {
+  std::string GetDiscoveryPageHTML() override {
     return ResourceBundle::GetSharedInstance().GetRawDataResource(
         IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
   }
 
-  virtual bool BundlesFrontendResources() OVERRIDE {
+  bool BundlesFrontendResources() override {
     return false;
   }
 
-  virtual base::FilePath GetDebugFrontendDir() OVERRIDE {
+  base::FilePath GetDebugFrontendDir() override {
     return base::FilePath();
   }
 
-  virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
+  scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
-      std::string* name) OVERRIDE {
+      std::string* name) override {
     return scoped_ptr<net::StreamListenSocket>();
   }
  private:
@@ -97,7 +97,7 @@ class UnixDomainServerSocketFactory
 
  private:
   // content::DevToolsHttpHandler::ServerSocketFactory.
-  virtual scoped_ptr<net::ServerSocket> Create() const OVERRIDE {
+  scoped_ptr<net::ServerSocket> Create() const override {
     return scoped_ptr<net::ServerSocket>(
         new net::UnixDomainServerSocket(
             auth_callback_,

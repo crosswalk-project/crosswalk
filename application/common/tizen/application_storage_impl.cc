@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "base/macros.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "third_party/re2/re2/re2.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/id_util.h"

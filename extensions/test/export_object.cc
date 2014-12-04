@@ -17,7 +17,7 @@ class TestExportObjectExtensionInstance : public XWalkExtensionInstance {
  public:
   TestExportObjectExtensionInstance() {}
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class TestExportObjectExtension : public XWalkExtension {
@@ -29,7 +29,7 @@ class TestExportObjectExtension : public XWalkExtension {
         "exports.data = 54321");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new TestExportObjectExtensionInstance();
   }
 };
@@ -46,15 +46,15 @@ class TestExportCustomObjectExtension : public XWalkExtension {
         "exports = new ExportObject(12345)");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new TestExportObjectExtensionInstance();
   }
 };
 
 class XWalkExtensionsExportObjectTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new TestExportObjectExtension);
     extensions->push_back(new TestExportCustomObjectExtension);
   }

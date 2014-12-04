@@ -31,12 +31,12 @@ class ApplicationComponent : public XWalkComponent {
 
  private:
   // XWalkComponent implementation.
-  virtual void CreateUIThreadExtensions(
+  void CreateUIThreadExtensions(
       content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
-  virtual void CreateExtensionThreadExtensions(
+      extensions::XWalkExtensionVector* extensions) override;
+  void CreateExtensionThreadExtensions(
       content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
+      extensions::XWalkExtensionVector* extensions) override;
 
   scoped_ptr<application::ApplicationSystem> app_system_;
   bool extensions_enabled_;

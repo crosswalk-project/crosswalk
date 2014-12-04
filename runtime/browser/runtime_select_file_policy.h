@@ -22,8 +22,8 @@ class RuntimeSelectFilePolicy : public ui::SelectFilePolicy {
   virtual ~RuntimeSelectFilePolicy();
 
   // Overridden from ui::SelectFilePolicy:
-  virtual bool CanOpenSelectFileDialog() OVERRIDE;
-  virtual void SelectFileDenied() OVERRIDE;
+  bool CanOpenSelectFileDialog() override;
+  void SelectFileDenied() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RuntimeSelectFilePolicy);

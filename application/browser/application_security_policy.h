@@ -53,7 +53,7 @@ class ApplicationSecurityPolicyWARP : public ApplicationSecurityPolicy {
   explicit ApplicationSecurityPolicyWARP(Application* app);
   virtual ~ApplicationSecurityPolicyWARP();
 
-  virtual void Enforce() OVERRIDE;
+  void Enforce() override;
 };
 
 class ApplicationSecurityPolicyCSP : public ApplicationSecurityPolicy {
@@ -61,7 +61,7 @@ class ApplicationSecurityPolicyCSP : public ApplicationSecurityPolicy {
   explicit ApplicationSecurityPolicyCSP(Application* app);
   virtual ~ApplicationSecurityPolicyCSP();
 
-  virtual void Enforce() OVERRIDE;
+  void Enforce() override;
 };
 
 }  // namespace application

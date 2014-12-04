@@ -36,9 +36,9 @@ class TizenMetaDataHandler : public ManifestHandler {
   TizenMetaDataHandler();
   virtual ~TizenMetaDataHandler();
 
-  virtual bool Parse(scoped_refptr<ApplicationData> application,
-                     base::string16* error) OVERRIDE;
-  virtual std::vector<std::string> Keys() const OVERRIDE;
+  bool Parse(scoped_refptr<ApplicationData> application,
+             base::string16* error) override;
+  std::vector<std::string> Keys() const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(TizenMetaDataHandler);

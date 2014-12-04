@@ -17,8 +17,8 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
           const content::MainFunctionParams& parameters);
   virtual ~XWalkBrowserMainPartsTizen() {}
 
-  virtual void PreMainMessageLoopStart() OVERRIDE;
-  virtual void PreMainMessageLoopRun() OVERRIDE;
+  void PreMainMessageLoopStart() override;
+  void PreMainMessageLoopRun() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsTizen);

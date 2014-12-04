@@ -20,12 +20,12 @@ class SysAppsComponent : public XWalkComponent {
 
  private:
   // XWalkComponent implementation.
-  virtual void CreateUIThreadExtensions(
+  void CreateUIThreadExtensions(
       content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
-  virtual void CreateExtensionThreadExtensions(
+      extensions::XWalkExtensionVector* extensions) override;
+  void CreateExtensionThreadExtensions(
       content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
+      extensions::XWalkExtensionVector* extensions) override;
 
   sysapps::SysAppsManager manager_;
 };

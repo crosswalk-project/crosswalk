@@ -23,7 +23,7 @@ class RawSocketExtension : public XWalkExtension {
   virtual ~RawSocketExtension();
 
   // XWalkExtension implementation.
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 };
 
 class RawSocketInstance : public XWalkExtensionInstance {
@@ -31,7 +31,7 @@ class RawSocketInstance : public XWalkExtensionInstance {
   RawSocketInstance();
 
   // XWalkExtensionInstance implementation.
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
 
   void AddBindingObject(const std::string& object_id,
                         scoped_ptr<BindingObject> obj);

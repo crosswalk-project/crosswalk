@@ -54,26 +54,23 @@ class XWalkBrowserContext
       content::WebContents* web_contents);
 
   // BrowserContext implementation.
-  virtual base::FilePath GetPath() const OVERRIDE;
-  virtual bool IsOffTheRecord() const OVERRIDE;
-  virtual content::DownloadManagerDelegate*
-      GetDownloadManagerDelegate() OVERRIDE;
-  virtual net::URLRequestContextGetter* GetRequestContext() OVERRIDE;
-  virtual net::URLRequestContextGetter* GetRequestContextForRenderProcess(
-      int renderer_child_id) OVERRIDE;
-  virtual net::URLRequestContextGetter* GetMediaRequestContext() OVERRIDE;
-  virtual net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
-      int renderer_child_id) OVERRIDE;
-  virtual net::URLRequestContextGetter*
-      GetMediaRequestContextForStoragePartition(
+  base::FilePath GetPath() const override;
+  bool IsOffTheRecord() const override;
+  content::DownloadManagerDelegate* GetDownloadManagerDelegate() override;
+  net::URLRequestContextGetter* GetRequestContext() override;
+  net::URLRequestContextGetter* GetRequestContextForRenderProcess(
+      int renderer_child_id) override;
+  net::URLRequestContextGetter* GetMediaRequestContext() override;
+  net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
+      int renderer_child_id) override;
+  net::URLRequestContextGetter* GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
-          bool in_memory) OVERRIDE;
-  virtual content::ResourceContext* GetResourceContext() OVERRIDE;
-  virtual content::BrowserPluginGuestManager*
-      GetGuestManager() OVERRIDE;
-  virtual storage::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
-  virtual content::PushMessagingService* GetPushMessagingService() OVERRIDE;
-  virtual content::SSLHostStateDelegate* GetSSLHostStateDelegate() OVERRIDE;
+          bool in_memory) override;
+  content::ResourceContext* GetResourceContext() override;
+  content::BrowserPluginGuestManager* GetGuestManager() override;
+  storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
+  content::PushMessagingService* GetPushMessagingService() override;
+  content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
 
   RuntimeURLRequestContextGetter* GetURLRequestContextGetterById(
       const std::string& pkg_id);
@@ -91,8 +88,8 @@ class XWalkBrowserContext
   // These methods map to Add methods in visitedlink::VisitedLinkMaster.
   void AddVisitedURLs(const std::vector<GURL>& urls);
   // visitedlink::VisitedLinkDelegate implementation.
-  virtual void RebuildTable(
-      const scoped_refptr<URLEnumerator>& enumerator) OVERRIDE;
+  void RebuildTable(
+      const scoped_refptr<URLEnumerator>& enumerator) override;
 #endif
 
  private:

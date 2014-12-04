@@ -114,7 +114,7 @@ TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
   msg->AppendString("storeFunctionInfo");  // Function name.
   msg->AppendString("id");  // Callback ID.
 
-  handler->HandleMessage(msg.PassAs<base::Value>());
+  handler->HandleMessage(msg.Pass());
   handler.reset();
 
   // Posting a result after deleting the handler should not

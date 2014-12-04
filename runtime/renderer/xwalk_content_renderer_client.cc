@@ -70,15 +70,15 @@ class XWalkFrameHelper
   virtual ~XWalkFrameHelper() {}
 
   // RenderFrameObserver implementation.
-  virtual void WillReleaseScriptContext(v8::Handle<v8::Context> context,
-                                        int world_id) OVERRIDE {
+  void WillReleaseScriptContext(v8::Handle<v8::Context> context,
+                                int world_id) override {
     if (extension_controller_)
       extension_controller_->WillReleaseScriptContext(
           render_frame()->GetWebFrame(), context);
   }
 
 #if defined(OS_TIZEN)
-  virtual void DidCommitProvisionalLoad(bool is_new_navigation) OVERRIDE {
+  void DidCommitProvisionalLoad(bool is_new_navigation) override {
     blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
     GURL url(frame->document().url());
     if (url.SchemeIs(application::kApplicationScheme)) {

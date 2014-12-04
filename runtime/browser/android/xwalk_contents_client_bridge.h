@@ -50,48 +50,36 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   virtual ~XWalkContentsClientBridge();
 
   // XWalkContentsClientBridgeBase implementation
-  virtual void AllowCertificateError(int cert_error,
-                                     net::X509Certificate* cert,
-                                     const GURL& request_url,
-                                     const base::Callback<void(bool)>& callback, // NOLINT
-                                     bool* cancel_request) OVERRIDE;
+  void AllowCertificateError(int cert_error,
+                             net::X509Certificate* cert,
+                             const GURL& request_url,
+                             const base::Callback<void(bool)>& callback, // NOLINT
+                             bool* cancel_request) override;
 
-  virtual void RunJavaScriptDialog(
+  void RunJavaScriptDialog(
       content::JavaScriptMessageType message_type,
       const GURL& origin_url,
       const base::string16& message_text,
       const base::string16& default_prompt_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
-      OVERRIDE;
-  virtual void RunBeforeUnloadDialog(
+      override;
+  void RunBeforeUnloadDialog(
       const GURL& origin_url,
       const base::string16& message_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
-      OVERRIDE;
-  virtual void ShowNotification(
+      override;
+  void ShowNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
-      content::RenderFrameHost* render_frame_host,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
-      OVERRIDE;
-  virtual void UpdateNotificationIcon(
-      int notification_id,
-      const SkBitmap& icon)
-      OVERRIDE;
-  virtual void OnWebLayoutPageScaleFactorChanged(
+      override;
+  void OnWebLayoutPageScaleFactorChanged(
       float page_scale_factor)
-      OVERRIDE;
+      override;
 
   bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
                                  const std::string& host,
                                  const std::string& realm);
-
-  void OnNotificationIconDownloaded(
-      int id,
-      int http_status_code,
-      const GURL& image_url,
-      const std::vector<SkBitmap>& bitmaps,
-      const std::vector<gfx::Size>& original_bitmap_sizes);
 
   // Methods called from Java.
   void ProceedSslError(JNIEnv* env, jobject obj, jboolean proceed, jint id);
@@ -99,7 +87,6 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   void CancelJsResult(JNIEnv*, jobject, int id);
   void ExitFullscreen(JNIEnv*, jobject, jlong web_contents);
   void NotificationDisplayed(JNIEnv*, jobject, jint id);
-  void NotificationError(JNIEnv*, jobject, jint id);
   void NotificationClicked(JNIEnv*, jobject, jint id);
   void NotificationClosed(JNIEnv*, jobject, jint id, bool by_user);
   void OnFilesSelected(
@@ -123,9 +110,6 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
 
   typedef std::pair<int, content::RenderFrameHost*>
     NotificationDownloadRequestInfos;
-  typedef std::map<int, NotificationDownloadRequestInfos >
-    NotificationDownloadRequestIdMap;
-  NotificationDownloadRequestIdMap downloading_icon_notifications_;
 
   scoped_ptr<XWalkIconHelper> icon_helper_;
 };

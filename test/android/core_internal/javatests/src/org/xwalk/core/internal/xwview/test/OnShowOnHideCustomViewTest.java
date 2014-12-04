@@ -54,7 +54,7 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
         doOnShowAndHideCustomViewTest(new Runnable() {
             @Override
             public void run() {
-                DOMUtils.exitFullscreen(mContentViewCore);
+                DOMUtils.exitFullscreen(mContentViewCore.getWebContents());
             }
         });
     }
@@ -63,17 +63,17 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
     @Feature({"onShow/onHideCustomView"})
     public void testOnShowCustomViewAndPlayWithHtmlControl() throws Throwable {
         doOnShowCustomViewTest();
-        Assert.assertFalse(DOMUtils.hasVideoEnded(mContentViewCore, VideoTestWebServer.VIDEO_ID));
+        Assert.assertTrue(DOMUtils.isVideoPaused(mContentViewCore.getWebContents(),
+                                                 VideoTestWebServer.VIDEO_ID));
 
         // Click the html play button that is rendered above the video right in the middle
         // of the custom view. Note that we're not able to get the precise location of the
         // control since it is a shadow element, so this test might break if the location
         // ever moves.
-        TouchCommon touchCommon = new TouchCommon(OnShowOnHideCustomViewTest.this);
-        touchCommon.singleClickView(mWebChromeClient.getCustomView());
+        TouchCommon.singleClickView(mWebChromeClient.getCustomView());
 
-        Assert.assertTrue(DOMUtils.waitForEndOfVideo(
-                mContentViewCore, VideoTestWebServer.VIDEO_ID));
+        Assert.assertTrue(DOMUtils.waitForVideoPlay(
+                mContentViewCore.getWebContents(), VideoTestWebServer.VIDEO_ID));
     }
 
     private void doOnShowAndHideCustomViewTest(final Runnable existFullscreen) throws Throwable {
@@ -91,7 +91,6 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
         loadUrlSync(mWebServer.getFullScreenVideoTestURL());
 
         // Click the button in full_screen_video_test.html to enter fullscreen.
-        TouchCommon touchCommon = new TouchCommon(this);
-        touchCommon.singleClickView(getXWalkView());
+        TouchCommon.singleClickView(getXWalkView());
     }
 }

@@ -37,7 +37,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
     g_contexts_destroyed++;
   }
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleMessage(scoped_ptr<base::Value> msg) override {
     std::string answer;
     if (answered_) {
       answer = "Fail";
@@ -65,7 +65,7 @@ class OnceExtension : public XWalkExtension {
         "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     g_contexts_created++;
     return new OnceExtensionInstance();
   }
@@ -73,12 +73,12 @@ class OnceExtension : public XWalkExtension {
 
 class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new OnceExtension);
   }
 
-  virtual void TearDown() OVERRIDE {
+  void TearDown() override {
     SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(g_contexts_destroyed >= 2);
     ASSERT_EQ(g_contexts_destroyed, 2);
   }

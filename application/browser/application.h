@@ -109,6 +109,8 @@ class Application : public Runtime::Observer,
                      const std::string& permission_name,
                      StoredPermission perm);
   bool CanRequestURL(const GURL& url) const;
+  bool IsFullScreenRequired() const {
+      return window_show_params_.state == ui::SHOW_STATE_FULLSCREEN; }
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
@@ -149,12 +151,11 @@ class Application : public Runtime::Observer,
       XWalkBrowserContext* context);
 
   // content::RenderProcessHostObserver implementation.
-  virtual void RenderProcessExited(content::RenderProcessHost* host,
-                                   base::ProcessHandle handle,
-                                   base::TerminationStatus status,
-                                   int exit_code) OVERRIDE;
-  virtual void RenderProcessHostDestroyed(
-      content::RenderProcessHost* host) OVERRIDE;
+  void RenderProcessExited(content::RenderProcessHost* host,
+                           base::TerminationStatus status,
+                           int exit_code) override;
+  void RenderProcessHostDestroyed(
+      content::RenderProcessHost* host) override;
 
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.

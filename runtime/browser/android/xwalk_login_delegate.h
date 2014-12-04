@@ -29,7 +29,7 @@ class XWalkLoginDelegate
   virtual void Cancel();
 
   // from ResourceDispatcherHostLoginDelegate
-  virtual void OnRequestCancelled() OVERRIDE;
+  void OnRequestCancelled() override;
 
  private:
   virtual ~XWalkLoginDelegate();

@@ -16,6 +16,8 @@
 #include "content/public/browser/child_process_data.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_widget_host.h"
+#include "content/public/browser/render_widget_host_iterator.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/browser/storage_partition.h"
@@ -271,12 +273,6 @@ void XWalkContentBrowserClient::AllowCertificateError(
 #endif
 }
 
-void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
-    const GURL& source_origin,
-    content::RenderFrameHost* render_frame_host,
-    const base::Callback<void(blink::WebNotificationPermission)>& callback) {
-}
-
 blink::WebNotificationPermission
 XWalkContentBrowserClient::CheckDesktopNotificationPermission(
     const GURL& source_url,
@@ -291,37 +287,73 @@ XWalkContentBrowserClient::CheckDesktopNotificationPermission(
 
 void XWalkContentBrowserClient::ShowDesktopNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
-    content::RenderFrameHost* render_frame_host,
+    content::BrowserContext* browser_context,
+    int render_process_id,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
-  XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
-  bridge->ShowNotification(params, render_frame_host,
-      delegate.Pass(), cancel_callback);
+  scoped_ptr<content::RenderWidgetHostIterator> widgets(
+      content::RenderWidgetHost::GetRenderWidgetHosts());
+  while (content::RenderWidgetHost* rwh = widgets->GetNextHost()) {
+    if (!rwh->GetProcess() || rwh->GetProcess()->GetID() != render_process_id)
+      continue;
+    content::RenderViewHost* rvh = content::RenderViewHost::From(rwh);
+    if (!rvh)
+      continue;
+    content::WebContents* web_contents =
+        content::WebContents::FromRenderViewHost(rvh);
+    if (!web_contents)
+      continue;
+    XWalkContentsClientBridgeBase* bridge =
+        XWalkContentsClientBridgeBase::FromWebContents(web_contents);
+    bridge->ShowNotification(params, delegate.Pass(), cancel_callback);
+    return;
+  }
 #endif
 }
 
-void XWalkContentBrowserClient::RequestGeolocationPermission(
+void XWalkContentBrowserClient::RequestPermission(
+    content::PermissionType permission,
     content::WebContents* web_contents,
     int bridge_id,
     const GURL& requesting_frame,
     bool user_gesture,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback) {
+    const base::Callback<void(bool)>& result_callback) {
+  switch (permission) {
+    case content::PERMISSION_GEOLOCATION:
 #if defined(OS_ANDROID) || defined(OS_TIZEN)
-  if (!geolocation_permission_context_.get()) {
-    geolocation_permission_context_ =
-      new RuntimeGeolocationPermissionContext();
-  }
-  geolocation_permission_context_->RequestGeolocationPermission(
-    web_contents,
-    requesting_frame,
-    result_callback,
-    cancel_callback);
+    if (!geolocation_permission_context_.get()) {
+      geolocation_permission_context_ =
+        new RuntimeGeolocationPermissionContext();
+    }
+    geolocation_permission_context_->RequestGeolocationPermission(
+        web_contents, requesting_frame, result_callback);
 #else
-  result_callback.Run(false);
+    result_callback.Run(false);
 #endif
+      break;
+    case content::PERMISSION_NOTIFICATIONS:
+    default:
+      break;
+    }
+}
+
+void XWalkContentBrowserClient::CancelPermissionRequest(
+    content::PermissionType permission,
+    content::WebContents* web_contents,
+    int bridge_id,
+    const GURL& requesting_frame) {
+  switch (permission) {
+    case content::PERMISSION_GEOLOCATION:
+#if defined(OS_ANDROID) || defined(OS_TIZEN)
+      geolocation_permission_context_->CancelGeolocationPermissionRequest(
+          web_contents, requesting_frame);
+#endif
+      break;
+    case content::PERMISSION_NOTIFICATIONS:
+    default:
+      break;
+  }
 }
 
 void XWalkContentBrowserClient::DidCreatePpapiPlugin(

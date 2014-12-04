@@ -17,7 +17,7 @@ using xwalk::Runtime;
 
 class NamespaceReadOnlyExtensionTest : public XWalkExtensionsTestBase {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
         GetExternalExtensionTestPath(FILE_PATH_LITERAL("multiple_extension")));
     XWalkExtensionsTestBase::SetUp();

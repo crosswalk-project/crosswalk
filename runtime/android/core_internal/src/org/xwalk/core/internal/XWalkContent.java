@@ -286,7 +286,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                 }
             };
         }
-        mContentViewCore.evaluateJavaScript(script, coreCallback);
+        mContentViewCore.getWebContents().evaluateJavaScript(script, coreCallback);
     }
 
     public void setUIClient(XWalkUIClientInternal client) {

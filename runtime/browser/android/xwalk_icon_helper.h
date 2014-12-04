@@ -42,8 +42,8 @@ class XWalkIconHelper : public content::WebContentsObserver {
   void DownloadIcon(const GURL& icon_url);
 
   // From WebContentsObserver
-  virtual void DidUpdateFaviconURL(
-      const std::vector<content::FaviconURL>& candidates) OVERRIDE;
+  void DidUpdateFaviconURL(
+      const std::vector<content::FaviconURL>& candidates) override;
 
   void DownloadFaviconCallback(
       int id,

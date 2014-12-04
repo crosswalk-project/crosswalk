@@ -33,7 +33,7 @@ class ApiTestExtensionInstance : public XWalkExtensionInstance {
 
   explicit ApiTestExtensionInstance(Observer* observer = NULL);
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
 
  private:
   void OnNotifyPass(scoped_ptr<XWalkExtensionFunctionInfo> info);
@@ -48,7 +48,7 @@ class ApiTestExtension : public XWalkExtension {
  public:
   ApiTestExtension();
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 
   void SetObserver(ApiTestExtensionInstance::Observer* observer);
 
@@ -74,9 +74,9 @@ class ApiTestRunner : public ApiTestExtensionInstance::Observer {
   bool WaitForTestNotification();
 
   // Implement ApiTestExtensionInstance::Observer.
-  virtual void OnTestNotificationReceived(
+  void OnTestNotificationReceived(
       scoped_ptr<XWalkExtensionFunctionInfo> info,
-      const std::string& result_str) OVERRIDE;
+      const std::string& result_str) override;
 
   void PostResultToNotificationCallback();
 

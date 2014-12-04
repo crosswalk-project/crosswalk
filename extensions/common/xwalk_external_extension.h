@@ -51,7 +51,7 @@ class XWalkExternalExtension : public XWalkExtension {
   base::ValueMap runtime_variables_;
 
   // XWalkExtension implementation.
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
   void CoreSetExtensionName(const char* name);

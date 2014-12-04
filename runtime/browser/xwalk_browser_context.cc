@@ -48,11 +48,11 @@ class XWalkBrowserContext::RuntimeResourceContext :
   virtual ~RuntimeResourceContext() {}
 
   // ResourceContext implementation:
-  virtual net::HostResolver* GetHostResolver() OVERRIDE {
+  net::HostResolver* GetHostResolver() override {
     CHECK(getter_);
     return getter_->host_resolver();
   }
-  virtual net::URLRequestContext* GetRequestContext() OVERRIDE {
+  net::URLRequestContext* GetRequestContext() override {
     CHECK(getter_);
     return getter_->GetURLRequestContext();
   }

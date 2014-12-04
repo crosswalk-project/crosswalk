@@ -36,17 +36,17 @@ class SplashScreenTizen : public content::WebContentsObserver,
   void Stop();
 
   // Overridden from content::WebContentsObserver.
-  virtual void DidFinishLoad(content::RenderFrameHost* render_frame_host,
-                             const GURL& validated_url) OVERRIDE;
+  void DidFinishLoad(content::RenderFrameHost* render_frame_host,
+                     const GURL& validated_url) override;
 
-  virtual void DidFailLoad(content::RenderFrameHost* render_frame_host,
-                           const GURL& validated_url,
-                           int error_code,
-                           const base::string16& error_description) OVERRIDE;
+  void DidFailLoad(content::RenderFrameHost* render_frame_host,
+                   const GURL& validated_url,
+                   int error_code,
+                   const base::string16& error_description) override;
 
 
   // ui::ImplicitAnimationObserver overrides:
-  virtual void OnImplicitAnimationsCompleted() OVERRIDE;
+  void OnImplicitAnimationsCompleted() override;
 
  private:
   views::Widget* widget_host_;

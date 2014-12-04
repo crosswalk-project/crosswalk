@@ -19,25 +19,25 @@ class NativeAppWindowMac : public NativeAppWindow {
   virtual ~NativeAppWindowMac();
 
   // NativeAppWindow implementation.
-  virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
-  virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
-  virtual void UpdateTitle(const base::string16& title) OVERRIDE;
-  virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
-  virtual gfx::Rect GetBounds() const OVERRIDE;
-  virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
-  virtual void Focus() OVERRIDE;
-  virtual void Show() OVERRIDE;
-  virtual void Hide() OVERRIDE;
-  virtual void Maximize() OVERRIDE;
-  virtual void Minimize() OVERRIDE;
-  virtual void SetFullscreen(bool fullscreen) OVERRIDE;
-  virtual void Restore() OVERRIDE;
-  virtual void FlashFrame(bool flash) OVERRIDE;
-  virtual void Close() OVERRIDE;
-  virtual bool IsActive() const OVERRIDE;
-  virtual bool IsMaximized() const OVERRIDE;
-  virtual bool IsMinimized() const OVERRIDE;
-  virtual bool IsFullscreen() const OVERRIDE;
+  gfx::NativeWindow GetNativeWindow() const override;
+  void UpdateIcon(const gfx::Image& icon) override;
+  void UpdateTitle(const base::string16& title) override;
+  gfx::Rect GetRestoredBounds() const override;
+  gfx::Rect GetBounds() const override;
+  void SetBounds(const gfx::Rect& bounds) override;
+  void Focus() override;
+  void Show() override;
+  void Hide() override;
+  void Maximize() override;
+  void Minimize() override;
+  void SetFullscreen(bool fullscreen) override;
+  void Restore() override;
+  void FlashFrame(bool flash) override;
+  void Close() override;
+  bool IsActive() const override;
+  bool IsMaximized() const override;
+  bool IsMinimized() const override;
+  bool IsFullscreen() const override;
 
  protected:
   content::WebContents* web_contents_;

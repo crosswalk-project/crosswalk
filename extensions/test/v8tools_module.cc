@@ -16,7 +16,7 @@ using xwalk::Runtime;
 
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class TestV8ToolsExtension : public XWalkExtension {
@@ -34,15 +34,15 @@ class TestV8ToolsExtension : public XWalkExtension {
         "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new TestV8ToolsExtensionInstance();
   }
 };
 
 class XWalkExtensionsV8ToolsTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new TestV8ToolsExtension);
   }
 };

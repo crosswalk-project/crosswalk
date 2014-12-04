@@ -36,13 +36,13 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   virtual ~XWalkBrowserMainParts();
 
   // BrowserMainParts overrides.
-  virtual void PreEarlyInitialization() OVERRIDE;
-  virtual int PreCreateThreads() OVERRIDE;
-  virtual void PreMainMessageLoopStart() OVERRIDE;
-  virtual void PostMainMessageLoopStart() OVERRIDE;
-  virtual void PreMainMessageLoopRun() OVERRIDE;
-  virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
-  virtual void PostMainMessageLoopRun() OVERRIDE;
+  void PreEarlyInitialization() override;
+  int PreCreateThreads() override;
+  void PreMainMessageLoopStart() override;
+  void PostMainMessageLoopStart() override;
+  void PreMainMessageLoopRun() override;
+  bool MainMessageLoopRun(int* result_code) override;
+  void PostMainMessageLoopRun() override;
 
   // Create all the extensions to be hooked into a new
   // RenderProcessHost. Base class implementation should be called by

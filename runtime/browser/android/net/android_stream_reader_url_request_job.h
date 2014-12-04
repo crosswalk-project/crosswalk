@@ -80,17 +80,17 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
       const std::string& content_security_policy);
 
   // URLRequestJob:
-  virtual void Start() OVERRIDE;
-  virtual void Kill() OVERRIDE;
-  virtual bool ReadRawData(net::IOBuffer* buf,
-                           int buf_size,
-                           int* bytes_read) OVERRIDE;
-  virtual void SetExtraRequestHeaders(
-      const net::HttpRequestHeaders& headers) OVERRIDE;
-  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE;
-  virtual bool GetCharset(std::string* charset) OVERRIDE;
-  virtual int GetResponseCode() const OVERRIDE;
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE;
+  void Start() override;
+  void Kill() override;
+  bool ReadRawData(net::IOBuffer* buf,
+                   int buf_size,
+                   int* bytes_read) override;
+  void SetExtraRequestHeaders(
+      const net::HttpRequestHeaders& headers) override;
+  bool GetMimeType(std::string* mime_type) const override;
+  bool GetCharset(std::string* charset) override;
+  int GetResponseCode() const override;
+  void GetResponseInfo(net::HttpResponseInfo* info) override;
 
  protected:
   virtual ~AndroidStreamReaderURLRequestJob();

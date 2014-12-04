@@ -17,7 +17,7 @@ using xwalk::extensions::XWalkExtensionService;
 
 class BadExtensionTest : public XWalkExtensionsTestBase {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
         GetExternalExtensionTestPath(FILE_PATH_LITERAL("bad_extension")));
     XWalkExtensionsTestBase::SetUp();

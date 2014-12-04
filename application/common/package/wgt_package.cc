@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/files/scoped_file.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/id_util.h"

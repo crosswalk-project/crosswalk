@@ -17,9 +17,9 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '0bbff352135bacf2e6a17b5ffebd387f3c2d085f'
-v8_crosswalk_rev = '05d1cf41ef1b6e73079f69492d9e942ec19cc61a'
-ozone_wayland_rev = 'a4ca3163fc5faaa32c01e23b5ec621c360254326'
+chromium_crosswalk_rev = 'e36755cc26d8a8fcb4f4c3cca52c242297326917'
+v8_crosswalk_rev = '3bfc597ddeff886cbf767579ba05191d4007b570'
+ozone_wayland_rev = '53938023b8346fe313cafbb9a44e01f0a83afade'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
 # we want to point to, very much like the variables above.
@@ -27,7 +27,7 @@ ozone_wayland_rev = 'a4ca3163fc5faaa32c01e23b5ec621c360254326'
 # the blink-crosswalk repository, so that the devtools code can use it to fetch
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = 'dc24b658e6b89accb1e21a14bc06dc72bfc00c41'
+blink_crosswalk_rev = 'ef7455cd2a78bb7f85f5d8356047daf658b1ce5a'
 blink_upstream_rev = '185310'
 
 crosswalk_git = 'https://github.com/crosswalk-project'

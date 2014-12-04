@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "content/renderer/render_thread_impl.h"
-#include "content/renderer/renderer_webkitplatformsupport_impl.h"
+#include "content/renderer/renderer_blink_platform_impl.h"
 #include "ipc/ipc_message_macros.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -46,7 +46,7 @@ void AddAccessWhiteListEntry(
 }  // namespace
 
 XWalkRenderProcessObserver::XWalkRenderProcessObserver()
-    : is_webkit_initialized_(false),
+    : is_blink_initialized_(false),
       is_suspended_(false),
       security_mode_(application::ApplicationSecurityPolicy::NoSecurity) {
 }
@@ -70,7 +70,7 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
 }
 
 void XWalkRenderProcessObserver::WebKitInitialized() {
-  is_webkit_initialized_ = true;
+  is_blink_initialized_ = true;
   for (std::vector<AccessWhitelistItem>::iterator it = access_whitelist.begin();
        it != access_whitelist.end(); ++it)
     AddAccessWhiteListEntry(it->source_, it->dest_, it->allow_subdomains_);
@@ -79,13 +79,13 @@ void XWalkRenderProcessObserver::WebKitInitialized() {
 }
 
 void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
-  is_webkit_initialized_ = false;
+  is_blink_initialized_ = false;
 }
 
 void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
                                                       const GURL& dest,
                                                       bool allow_subdomains) {
-  if (is_webkit_initialized_)
+  if (is_blink_initialized_)
     AddAccessWhiteListEntry(source, dest, allow_subdomains);
   else
     access_whitelist.push_back(
@@ -105,9 +105,9 @@ void XWalkRenderProcessObserver::OnSuspendJSEngine(bool is_suspend) {
   content::RenderThreadImpl* thread = content::RenderThreadImpl::current();
   thread->EnsureWebKitInitialized();
   if (is_suspend)
-    thread->webkit_platform_support()->SuspendSharedTimer();
+    thread->blink_platform_impl()->SuspendSharedTimer();
   else
-    thread->webkit_platform_support()->ResumeSharedTimer();
+    thread->blink_platform_impl()->ResumeSharedTimer();
   is_suspended_ = is_suspend;
 }
 

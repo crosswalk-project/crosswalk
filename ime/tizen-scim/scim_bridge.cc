@@ -2,14 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "scim_bridge.h"
-
-#include "base/logging.h"
-#include "base/message_loop/message_loop.h"
-#include "base/message_loop/message_pump_libevent.h"
-#include "content/public/browser/browser_thread.h"
-#include "ui/base/x/x11_util.h"
-#include "ui/gfx/x/x11_types.h"
+#include "xwalk/ime/tizen-scim/scim_bridge.h"
 
 #define Uses_SCIM_BACKEND
 #define Uses_SCIM_IMENGINE_MODULE
@@ -24,7 +17,17 @@
 #include <X11/XKBlib.h>
 #include <X11/Xlibint.h>
 
-using namespace scim;
+#include <string>
+#include <vector>
+
+#include "base/logging.h"
+#include "base/message_loop/message_loop.h"
+#include "base/message_loop/message_pump_libevent.h"
+#include "content/public/browser/browser_thread.h"
+#include "ui/base/x/x11_util.h"
+#include "ui/gfx/x/x11_types.h"
+
+using scim;
 
 const String kScimFrontendSocketIpc = "socket";
 const String kScimDummyConfig = "dummy";
@@ -53,9 +56,7 @@ typedef struct {
 namespace ui {
 
 class SCIMBridgeImpl : base::MessageLoopForIO::Watcher {
-
-public:
-
+ public:
   SCIMBridgeImpl();
   ~SCIMBridgeImpl();
 
@@ -63,9 +64,9 @@ public:
   bool IsInitialized() {return is_initialized_;}
   void ShowInputMethodPanel();
   void HideInputMethodPanel();
-  void SetFocusedWindow(unsigned long xid);
+  void SetFocusedWindow(uint32_t xid);
 
-private:
+ private:
   bool IsDaemonRunning();
   void StartDaemon();
   void InitConfigModule();
@@ -89,12 +90,12 @@ private:
   void SendXKeyEvent(const KeyEvent &key);
   void SetInputMethodActiveWindow();
 
-  void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
-  void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE {}
+  void OnFileCanReadWithoutBlocking(int fd) override;
+  void OnFileCanWriteWithoutBlocking(int fd) override {}
   void WatchSCIMFd();
   void HandleScimEvent();
 
-private:
+ private:
   bool is_initialized_;
   std::string language_code_;
   String config_module_name_;
@@ -138,12 +139,12 @@ void SCIMBridge::Init() {
   }
 }
 
-void SCIMBridge::SetFocusedWindow(unsigned long xid) {
+void SCIMBridge::SetFocusedWindow(uint32_t xid) {
   impl_->SetFocusedWindow(xid);
 }
 
 void SCIMBridge::TextInputChanged(ui::TextInputType type) {
-  // TODO: set proper ise_context_ fields according to type
+  // TODO(shalamov): set proper ise_context_ fields according to type
   if (type == ui::TEXT_INPUT_TYPE_NONE) {
     content::BrowserThread::PostTask(content::BrowserThread::IO,
                             FROM_HERE,
@@ -166,10 +167,9 @@ SCIMBridgeImpl::SCIMBridgeImpl()
     im_context_id_(getpid() % 50000),
     im_engine_instance_count_(0),
     display_(gfx::GetXDisplay()),
-    root_window_(GetX11RootWindow())
-{
+    root_window_(GetX11RootWindow()) {
   // Create input system engine context data that would be sent to the daemon.
-  // TODO: Add SCIM enums.
+  // TODO(shalamov): Add SCIM enums.
   ise_context_.language = 0;
   ise_context_.layout = 0;
   ise_context_.return_key_type = 0;
@@ -204,7 +204,8 @@ void SCIMBridgeImpl::Init() {
 void SCIMBridgeImpl::ShowInputMethodPanel() {
   int ise_packet_length = sizeof(ise_context_);
   void* ise_packet = calloc(1, ise_packet_length);
-  memcpy(ise_packet, (void *)&ise_context_, ise_packet_length);
+  memcpy(ise_packet, reinterpret_cast<void *>(&ise_context_),
+         ise_packet_length);
 
   panel_client_->prepare(im_context_id_);
   panel_client_->focus_in(im_context_id_,
@@ -260,9 +261,9 @@ void SCIMBridgeImpl::StartDaemon() {
     const String engines =
         (scim_modules_.size() > 0 ? scim_combine_string_list(scim_modules_, ',')
                                   : "none");
-    const char *argv [] = { "--no-stay", 0 };
+    const char *argv[] = { "--no-stay", 0 };
     scim_launch(true, config_module_name_, engines, kScimFrontendSocketIpc,
-        (char **)argv);
+        reinterpret_cast<char **>(argv));
   }
 }
 
@@ -309,7 +310,7 @@ void SCIMBridgeImpl::InitPanelClient() {
 }
 
 void SCIMBridgeImpl::ConnectPanelClientSignals() {
-  // FIXME: attach rest of the signals
+  // FIXME(shalamov):  attach rest of the signals
   panel_client_->signal_connect_update_client_id(
       slot(this, &SCIMBridgeImpl::OnUpdateClientId));
   panel_client_->signal_connect_process_helper_event(
@@ -345,7 +346,7 @@ void SCIMBridgeImpl::InitIMEngineFactory() {
      return;
   }
 
-  // TODO: connect im_engine_instance_ signals
+  // TODO(shalamov): connect im_engine_instance_ signals.
 }
 
 void SCIMBridgeImpl::OnUpdateClientId(int, int client_id) {
@@ -364,12 +365,12 @@ void SCIMBridgeImpl::OnProcessHelperEvent(int context,
 }
 
 void SCIMBridgeImpl::OnResetKeyboardIse(int context) {
-  // TODO: implement
+  // TODO(shalamov): implement.
   LOG(INFO) << "SCIMBridgeImpl::OnResetKeyboardIse - not implemented";
 }
 
 void SCIMBridgeImpl::OnHidePreeditString(int context) {
-  // TODO: implement
+  // TODO(shalamov): implement.
   LOG(INFO) << "SCIMBridgeImpl::OnHidePreeditString - not implemented";
 }
 
@@ -381,7 +382,7 @@ void SCIMBridgeImpl::OnProcessKeyEvent(int context, const KeyEvent &key) {
 }
 
 void SCIMBridgeImpl::OnCommitString(int context, const WideString &wstr) {
-  // TODO: implement
+  // TODO(shalamov): implement.
   LOG(INFO) << "SCIMBridgeImpl::OnCommitString - not implemented";
 }
 
@@ -397,14 +398,15 @@ void SCIMBridgeImpl::SendXKeyEvent(const KeyEvent &key) {
   keycode = XKeysymToKeycode(display_, keysym);
   if (XkbKeycodeToKeysym(display_, keycode, 0, 1) == keysym)
     event.state |= ShiftMask;
-  XSendEvent(display_, window_, True, event.type, (XEvent *)&event);
+  XSendEvent(display_, window_, True, event.type,
+    reinterpret_cast<XEvent *>(&event));
 }
 
 void SCIMBridgeImpl::SetInputMethodActiveWindow() {
   SetIntProperty(root_window_, kISFActiveWindowAtom, kWindowAtomType, window_);
 }
 
-void SCIMBridgeImpl::SetFocusedWindow(unsigned long xid) {
+void SCIMBridgeImpl::SetFocusedWindow(uint32_t xid) {
   window_ = xid;
   ise_context_.client_window = xid;
   SetInputMethodActiveWindow();
@@ -421,7 +423,7 @@ void SCIMBridgeImpl::HandleScimEvent() {
         LOG(INFO) << "Reconnecting scim PanelClient";
         DisconnectPanelClient();
         InitPanelClient();
-   }
+  }
 }
 
 void SCIMBridgeImpl::WatchSCIMFd() {
@@ -430,4 +432,4 @@ void SCIMBridgeImpl::WatchSCIMFd() {
           &read_fd_controller_, this);
 }
 
-}
+}  // namespace ui

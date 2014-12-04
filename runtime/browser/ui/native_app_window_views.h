@@ -31,28 +31,28 @@ class NativeAppWindowViews : public NativeAppWindow,
   virtual void Initialize();
 
   // NativeAppWindow implementation.
-  virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
-  virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
-  virtual void UpdateTitle(const base::string16& title) OVERRIDE;
-  virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
-  virtual gfx::Rect GetBounds() const OVERRIDE;
-  virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
-  virtual void Focus() OVERRIDE;
-  virtual void Show() OVERRIDE;
-  virtual void Hide() OVERRIDE;
-  virtual void Maximize() OVERRIDE;
-  virtual void Minimize() OVERRIDE;
-  virtual void SetFullscreen(bool fullscreen) OVERRIDE;
-  virtual void Restore() OVERRIDE;
-  virtual void FlashFrame(bool flash) OVERRIDE;
-  virtual void Close() OVERRIDE;
-  virtual bool IsActive() const OVERRIDE;
-  virtual bool IsMaximized() const OVERRIDE;
-  virtual bool IsMinimized() const OVERRIDE;
-  virtual bool IsFullscreen() const OVERRIDE;
+  gfx::NativeWindow GetNativeWindow() const override;
+  void UpdateIcon(const gfx::Image& icon) override;
+  void UpdateTitle(const base::string16& title) override;
+  gfx::Rect GetRestoredBounds() const override;
+  gfx::Rect GetBounds() const override;
+  void SetBounds(const gfx::Rect& bounds) override;
+  void Focus() override;
+  void Show() override;
+  void Hide() override;
+  void Maximize() override;
+  void Minimize() override;
+  void SetFullscreen(bool fullscreen) override;
+  void Restore() override;
+  void FlashFrame(bool flash) override;
+  void Close() override;
+  bool IsActive() const override;
+  bool IsMaximized() const override;
+  bool IsMinimized() const override;
+  bool IsFullscreen() const override;
 
-  virtual views::Widget* GetWidget() OVERRIDE;
-  virtual const views::Widget* GetWidget() const OVERRIDE;
+  views::Widget* GetWidget() override;
+  const views::Widget* GetWidget() const override;
 
  protected:
   TopViewLayout* top_view_layout();
@@ -60,42 +60,42 @@ class NativeAppWindowViews : public NativeAppWindow,
     return create_params_;
   }
 
-  virtual void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) OVERRIDE;
+  void ViewHierarchyChanged(
+      const ViewHierarchyChangedDetails& details) override;
 
  private:
   // WidgetDelegate implementation.
-  virtual views::View* GetInitiallyFocusedView() OVERRIDE;
-  virtual views::View* GetContentsView() OVERRIDE;
-  virtual base::string16 GetWindowTitle() const OVERRIDE;
-  virtual void DeleteDelegate() OVERRIDE;
-  virtual gfx::ImageSkia GetWindowAppIcon() OVERRIDE;
-  virtual gfx::ImageSkia GetWindowIcon() OVERRIDE;
-  virtual bool ShouldShowWindowTitle() const OVERRIDE;
-  virtual void SaveWindowPlacement(
-      const gfx::Rect& bounds, ui::WindowShowState show_state) OVERRIDE;
-  virtual bool GetSavedWindowPlacement(const views::Widget* widget,
-      gfx::Rect* bounds, ui::WindowShowState* show_state) const OVERRIDE;
-  virtual bool CanResize() const OVERRIDE;
-  virtual bool CanMaximize() const OVERRIDE;
-  virtual bool CanMinimize() const OVERRIDE;
+  views::View* GetInitiallyFocusedView() override;
+  views::View* GetContentsView() override;
+  base::string16 GetWindowTitle() const override;
+  void DeleteDelegate() override;
+  gfx::ImageSkia GetWindowAppIcon() override;
+  gfx::ImageSkia GetWindowIcon() override;
+  bool ShouldShowWindowTitle() const override;
+  void SaveWindowPlacement(
+      const gfx::Rect& bounds, ui::WindowShowState show_state) override;
+  bool GetSavedWindowPlacement(const views::Widget* widget,
+      gfx::Rect* bounds, ui::WindowShowState* show_state) const override;
+  bool CanResize() const override;
+  bool CanMaximize() const override;
+  bool CanMinimize() const override;
 #if defined(OS_WIN)
-  virtual views::NonClientFrameView* CreateNonClientFrameView(
-      views::Widget* widget) OVERRIDE;
+  views::NonClientFrameView* CreateNonClientFrameView(
+      views::Widget* widget) override;
 #endif
   // views::View implementation.
-  virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
-  virtual void OnFocus() OVERRIDE;
-  virtual gfx::Size GetMaximumSize() const OVERRIDE;
-  virtual gfx::Size GetMinimumSize() const OVERRIDE;
+  void ChildPreferredSizeChanged(views::View* child) override;
+  void OnFocus() override;
+  gfx::Size GetMaximumSize() const override;
+  gfx::Size GetMinimumSize() const override;
 
   // views::WidgetObserver implementation.
-  virtual void OnWidgetClosing(views::Widget* widget) OVERRIDE;
-  virtual void OnWidgetCreated(views::Widget* widget) OVERRIDE;
-  virtual void OnWidgetDestroying(views::Widget* widget) OVERRIDE;
-  virtual void OnWidgetDestroyed(views::Widget* widget) OVERRIDE;
-  virtual void OnWidgetBoundsChanged(
-      views::Widget* widget, const gfx::Rect& new_bounds) OVERRIDE;
+  void OnWidgetClosing(views::Widget* widget) override;
+  void OnWidgetCreated(views::Widget* widget) override;
+  void OnWidgetDestroying(views::Widget* widget) override;
+  void OnWidgetDestroyed(views::Widget* widget) override;
+  void OnWidgetBoundsChanged(
+      views::Widget* widget, const gfx::Rect& new_bounds) override;
 
   NativeAppWindow::CreateParams create_params_;
 

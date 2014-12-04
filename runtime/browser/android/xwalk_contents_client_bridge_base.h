@@ -66,13 +66,8 @@ class XWalkContentsClientBridgeBase {
       = 0;
   virtual void ShowNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
-      content::RenderFrameHost* render_frame_host,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
-      = 0;
-  virtual void UpdateNotificationIcon(
-      int notification_id,
-      const SkBitmap& icon)
       = 0;
   virtual void OnWebLayoutPageScaleFactorChanged(float page_scale_factor) = 0;
 };

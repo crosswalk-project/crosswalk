@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef UI_BASE_IME_INPUT_METHOD_SCIM_H_
-#define UI_BASE_IME_INPUT_METHOD_SCIM_H_
+#ifndef XWALK_IME_TIZEN_SCIM_INPUT_METHOD_SCIM_H_
+#define XWALK_IME_TIZEN_SCIM_INPUT_METHOD_SCIM_H_
 
 #include <string>
 
@@ -30,32 +30,32 @@ class UI_BASE_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
   virtual ~InputMethodSCIM();
 
   // Overriden from InputMethod.
-  virtual void SetDelegate(internal::InputMethodDelegate* delegate) OVERRIDE;
-  virtual void Init(bool focused) OVERRIDE;
-  virtual void OnFocus() OVERRIDE;
-  virtual void OnBlur() OVERRIDE;
-  virtual bool OnUntranslatedIMEMessage(const base::NativeEvent& event,
-                                        NativeEventResult* result) OVERRIDE;
-  virtual void SetFocusedTextInputClient(TextInputClient* client) OVERRIDE;
-  virtual TextInputClient* GetTextInputClient() const OVERRIDE;
-  virtual bool DispatchKeyEvent(const ui::KeyEvent& event) OVERRIDE;
-  virtual bool DispatchFabricatedKeyEvent(const ui::KeyEvent& event) OVERRIDE;
-  virtual void OnTextInputTypeChanged(const TextInputClient* client) OVERRIDE;
-  virtual void OnCaretBoundsChanged(const TextInputClient* client) OVERRIDE;
-  virtual void CancelComposition(const TextInputClient* client) OVERRIDE;
-  virtual void OnInputLocaleChanged() OVERRIDE;
-  virtual std::string GetInputLocale() OVERRIDE;
-  virtual bool IsActive() OVERRIDE;
-  virtual ui::TextInputType GetTextInputType() const OVERRIDE;
-  virtual bool CanComposeInline() const OVERRIDE;
-  virtual bool IsCandidatePopupOpen() const OVERRIDE;
-  virtual void ShowImeIfNeeded() OVERRIDE;
-  virtual void AddObserver(InputMethodObserver* observer) OVERRIDE;
-  virtual void RemoveObserver(InputMethodObserver* observer) OVERRIDE;
+  void SetDelegate(internal::InputMethodDelegate* delegate) override;
+  void Init(bool focused) override;
+  void OnFocus() override;
+  void OnBlur() override;
+  bool OnUntranslatedIMEMessage(const base::NativeEvent& event,
+                                NativeEventResult* result) override;
+  void SetFocusedTextInputClient(TextInputClient* client) override;
+  TextInputClient* GetTextInputClient() const override;
+  bool DispatchKeyEvent(const ui::KeyEvent& event) override;
+  bool DispatchFabricatedKeyEvent(const ui::KeyEvent& event) override;
+  void OnTextInputTypeChanged(const TextInputClient* client) override;
+  void OnCaretBoundsChanged(const TextInputClient* client) override;
+  void CancelComposition(const TextInputClient* client) override;
+  void OnInputLocaleChanged() override;
+  std::string GetInputLocale() override;
+  bool IsActive() override;
+  ui::TextInputType GetTextInputType() const override;
+  bool CanComposeInline() const override;
+  bool IsCandidatePopupOpen() const override;
+  void ShowImeIfNeeded() override;
+  void AddObserver(InputMethodObserver* observer) override;
+  void RemoveObserver(InputMethodObserver* observer) override;
 
-  virtual void SetStickyFocusedTextInputClient(ui::TextInputClient*) OVERRIDE;
-  virtual void DetachTextInputClient(ui::TextInputClient*) OVERRIDE;
-  virtual ui::TextInputMode GetTextInputMode() const OVERRIDE;
+  void SetStickyFocusedTextInputClient(ui::TextInputClient*) override;
+  void DetachTextInputClient(ui::TextInputClient*) override;
+  ui::TextInputMode GetTextInputMode() const override;
 
 
  private:
@@ -69,4 +69,4 @@ class UI_BASE_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
 
 }  // namespace ui
 
-#endif  // UI_BASE_IME_INPUT_METHOD_SCIM_H_
+#endif  // XWALK_IME_TIZEN_SCIM_INPUT_METHOD_SCIM_H_

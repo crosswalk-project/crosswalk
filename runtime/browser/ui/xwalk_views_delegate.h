@@ -20,42 +20,42 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
   virtual ~XWalkViewsDelegate();
 
   // views::ViewsDelegate implementation.
-  virtual void SaveWindowPlacement(const views::Widget* widget,
-                                   const std::string& window_name,
-                                   const gfx::Rect& bounds,
-                                   ui::WindowShowState show_state) OVERRIDE {}
-  virtual bool GetSavedWindowPlacement(
+  void SaveWindowPlacement(const views::Widget* widget,
+                           const std::string& window_name,
+                           const gfx::Rect& bounds,
+                           ui::WindowShowState show_state) override {}
+  bool GetSavedWindowPlacement(
       const views::Widget* widget,
       const std::string& window_name,
       gfx::Rect* bounds,
-      ui::WindowShowState* show_state) const OVERRIDE;
-  virtual void NotifyAccessibilityEvent(
+      ui::WindowShowState* show_state) const override;
+  void NotifyAccessibilityEvent(
       views::View* view,
-      ui::AXEvent event_type) OVERRIDE {}
-  virtual void NotifyMenuItemFocused(const base::string16& menu_name,
-                                     const base::string16& menu_item_name,
-                                     int item_index,
-                                     int item_count,
-                                     bool has_submenu) OVERRIDE {}
-  virtual views::NonClientFrameView* CreateDefaultNonClientFrameView(
-      views::Widget* widget) OVERRIDE;
-  virtual void AddRef() OVERRIDE {}
-  virtual void ReleaseRef() OVERRIDE {}
-  virtual content::WebContents* CreateWebContents(
+      ui::AXEvent event_type) override {}
+  void NotifyMenuItemFocused(const base::string16& menu_name,
+                             const base::string16& menu_item_name,
+                             int item_index,
+                             int item_count,
+                             bool has_submenu) override {}
+  views::NonClientFrameView* CreateDefaultNonClientFrameView(
+      views::Widget* widget) override;
+  void AddRef() override {}
+  void ReleaseRef() override {}
+  content::WebContents* CreateWebContents(
       content::BrowserContext* browser_context,
-      content::SiteInstance* site_instance) OVERRIDE;
-  virtual void OnBeforeWidgetInit(
+      content::SiteInstance* site_instance) override;
+  void OnBeforeWidgetInit(
       views::Widget::InitParams* params,
-      views::internal::NativeWidgetDelegate* delegate) OVERRIDE;
-  virtual base::TimeDelta GetDefaultTextfieldObscuredRevealDuration() OVERRIDE;
+      views::internal::NativeWidgetDelegate* delegate) override;
+  base::TimeDelta GetDefaultTextfieldObscuredRevealDuration() override;
 #if defined(OS_WIN)
   // Retrieves the default window icon to use for windows if none is specified.
-  virtual HICON GetDefaultWindowIcon() const OVERRIDE;
-  virtual bool IsWindowInMetro(gfx::NativeWindow window) const OVERRIDE {
+  HICON GetDefaultWindowIcon() const override;
+  bool IsWindowInMetro(gfx::NativeWindow window) const override {
     return false;
   }
 #elif defined(OS_LINUX) && !defined(OS_CHROMEOS)
-  virtual gfx::ImageSkia* GetDefaultWindowIcon() const OVERRIDE;
+  gfx::ImageSkia* GetDefaultWindowIcon() const override;
 #endif
 
  private:

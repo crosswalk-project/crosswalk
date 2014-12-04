@@ -88,7 +88,7 @@ class ApplicationService : public Application::Observer {
 
  private:
   // Implementation of Application::Observer.
-  virtual void OnApplicationTerminated(Application* app) OVERRIDE;
+  void OnApplicationTerminated(Application* app) override;
 
   XWalkBrowserContext* browser_context_;
   ScopedVector<Application> applications_;
