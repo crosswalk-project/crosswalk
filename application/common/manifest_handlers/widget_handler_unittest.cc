@@ -221,5 +221,23 @@ TEST_F(WidgetHandlerTest,
   EXPECT_TRUE(widget->Equals(widget_parsed_from_manifest));
 }
 
+TEST_F(WidgetHandlerTest,
+       ParseManifestWithInvalidAuthorHrefValue) {
+  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue);
+  SetAllInfoToManifest(manifest.get());
+  manifest->SetString(keys::kAuthorHrefKey, "INVALID_HREF");
+
+  // Create an application use this manifest,
+  scoped_refptr<ApplicationData> application;
+  application = CreateApplication(*(manifest.get()));
+  EXPECT_TRUE(application.get());
+  EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
+  // Get widget info from this application.
+  WidgetInfo* info = GetWidgetInfo(application);
+  EXPECT_TRUE(info);
+  std::string authorhref;
+  info->GetWidgetInfo()->GetString(keys::kAuthorHrefKey, &authorhref);
+  EXPECT_TRUE(authorhref.empty());
+}
 }  // namespace application
 }  // namespace xwalk
