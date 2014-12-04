@@ -23,8 +23,8 @@ class TestObserver : public StorageInfoProvider::Observer {
   TestObserver() {}
 
  private:
-  virtual void OnStorageAttached(const StorageUnit& storage) OVERRIDE {}
-  virtual void OnStorageDetached(const StorageUnit& storage) OVERRIDE {}
+  void OnStorageAttached(const StorageUnit& storage) override {}
+  void OnStorageDetached(const StorageUnit& storage) override {}
 };
 
 void TestClosure() {

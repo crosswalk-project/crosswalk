@@ -46,7 +46,7 @@ class XWalkExtensionModule : public XWalkExtensionClient::InstanceHandler {
 
  private:
   // XWalkExtensionClient::InstanceHandler implementation.
-  virtual void HandleMessageFromNative(const base::Value& msg) OVERRIDE;
+  void HandleMessageFromNative(const base::Value& msg) override;
 
   // Callbacks for JS functions available in 'extension' object.
   static void PostMessageCallback(

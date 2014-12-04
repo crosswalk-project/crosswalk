@@ -35,10 +35,10 @@ class PermissionsHandler: public ManifestHandler {
   PermissionsHandler();
   virtual ~PermissionsHandler();
 
-  virtual bool Parse(scoped_refptr<ApplicationData> application,
-                     base::string16* error) OVERRIDE;
-  virtual bool AlwaysParseForType(Manifest::Type type) const OVERRIDE;
-  virtual std::vector<std::string> Keys() const OVERRIDE;
+  bool Parse(scoped_refptr<ApplicationData> application,
+             base::string16* error) override;
+  bool AlwaysParseForType(Manifest::Type type) const override;
+  std::vector<std::string> Keys() const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PermissionsHandler);

@@ -21,14 +21,14 @@ class SysAppsTestExtension : public XWalkExtension {
  public:
   SysAppsTestExtension();
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 };
 
 class SysAppsTestExtensionInstance : public XWalkExtensionInstance {
  public:
   SysAppsTestExtensionInstance();
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
 
  private:
   void OnSysAppsTestObjectContructor(
@@ -45,8 +45,8 @@ class SysAppsTestObject : public EventTarget {
 
  private:
   // EventTarget implementation.
-  virtual void StartEvent(const std::string& type) OVERRIDE;
-  virtual void StopEvent(const std::string& type) OVERRIDE;
+  void StartEvent(const std::string& type) override;
+  void StopEvent(const std::string& type) override;
 
   // JavaScript function handlers.
   void OnIsTestEventActive(scoped_ptr<XWalkExtensionFunctionInfo> info);

@@ -92,18 +92,18 @@ class ManifestHandlerTest : public testing::Test {
 
     virtual ~TestManifestHandler() {}
 
-    virtual bool Parse(
+    bool Parse(
         scoped_refptr<ApplicationData> application,
-        base::string16* error) OVERRIDE {
+        base::string16* error) override {
       watcher_->Record(name_);
       return true;
     }
 
-    virtual std::vector<std::string> PrerequisiteKeys() const OVERRIDE {
+    std::vector<std::string> PrerequisiteKeys() const override {
       return prereqs_;
     }
 
-    virtual std::vector<std::string> Keys() const OVERRIDE {
+    std::vector<std::string> Keys() const override {
       return keys_;
     }
 
@@ -122,9 +122,9 @@ class ManifestHandlerTest : public testing::Test {
                                ParsingWatcher* watcher)
         : TestManifestHandler(name, keys, prereqs, watcher) {
     }
-    virtual bool Parse(
+    bool Parse(
         scoped_refptr<ApplicationData> application,
-        base::string16* error) OVERRIDE {
+        base::string16* error) override {
       *error = base::ASCIIToUTF16(name_);
       return false;
     }
@@ -139,7 +139,7 @@ class ManifestHandlerTest : public testing::Test {
         : TestManifestHandler(name, keys, prereqs, watcher) {
     }
 
-    virtual bool AlwaysParseForType(Manifest::Type type) const OVERRIDE {
+    bool AlwaysParseForType(Manifest::Type type) const override {
       return true;
     }
   };
@@ -154,23 +154,23 @@ class ManifestHandlerTest : public testing::Test {
           keys_(keys) {
     }
 
-    virtual bool Parse(
+    bool Parse(
         scoped_refptr<ApplicationData> application,
-        base::string16* error) OVERRIDE {
+        base::string16* error) override {
       return true;
     }
 
-    virtual bool Validate(
+    bool Validate(
         scoped_refptr<const ApplicationData> application,
-        std::string* error) const OVERRIDE {
+        std::string* error) const override {
       return return_value_;
     }
 
-    virtual bool AlwaysValidateForType(Manifest::Type type) const OVERRIDE {
+    bool AlwaysValidateForType(Manifest::Type type) const override {
       return always_validate_;
     }
 
-    virtual std::vector<std::string> Keys() const OVERRIDE {
+    std::vector<std::string> Keys() const override {
       return keys_;
     }
 

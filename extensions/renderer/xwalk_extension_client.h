@@ -55,7 +55,7 @@ class XWalkExtensionClient : public IPC::Listener {
   void Initialize(IPC::Sender* sender);
 
   // IPC::Listener Implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   struct ExtensionCodePoints {
     ExtensionCodePoints();

@@ -289,7 +289,6 @@ void Application::OnRuntimeClosed(Runtime* runtime) {
 }
 
 void Application::RenderProcessExited(RenderProcessHost* host,
-                                      base::ProcessHandle,
                                       base::TerminationStatus,
                                       int) {
   DCHECK(render_process_host_ == host);

@@ -15,7 +15,7 @@ class XWalkBrowserMainPartsMac : public XWalkBrowserMainParts {
       const content::MainFunctionParams& parameters);
   virtual ~XWalkBrowserMainPartsMac() {}
 
-  virtual void PreMainMessageLoopStart() OVERRIDE;
+  void PreMainMessageLoopStart() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsMac);

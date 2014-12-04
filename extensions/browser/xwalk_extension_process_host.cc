@@ -53,7 +53,7 @@ class XWalkExtensionProcessHost::RenderProcessMessageFilter
 
  private:
   // IPC::ChannelProxy::MessageFilter implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
+  bool OnMessageReceived(const IPC::Message& message) override {
     bool handled = true;
     IPC_BEGIN_MESSAGE_MAP(RenderProcessMessageFilter, message)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(
@@ -87,18 +87,18 @@ class ExtensionSandboxedProcessLauncherDelegate
   virtual ~ExtensionSandboxedProcessLauncherDelegate() {}
 
 #if defined(OS_WIN)
-  virtual bool ShouldSandbox() OVERRIDE {
+  bool ShouldSandbox() override {
     return false;
   }
 #elif defined(OS_POSIX)
-  virtual int GetIpcFd() OVERRIDE {
-    return ipc_fd_;
+  base::ScopedFD TakeIpcFd() override {
+    return ipc_fd_.Pass();
   }
 #endif
 
  private:
 #if defined(OS_POSIX)
-  int ipc_fd_;
+  base::ScopedFD ipc_fd_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionSandboxedProcessLauncherDelegate);

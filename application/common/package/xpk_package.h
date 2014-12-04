@@ -27,7 +27,7 @@ class XPKPackage : public Package {
   };
   virtual ~XPKPackage();
   explicit XPKPackage(const base::FilePath& path);
-  virtual bool ExtractToTemporaryDir(base::FilePath* target_path) OVERRIDE;
+  bool ExtractToTemporaryDir(base::FilePath* target_path) override;
 
  private:
   // verify the signature in the xpk package

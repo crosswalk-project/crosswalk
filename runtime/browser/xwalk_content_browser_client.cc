@@ -291,7 +291,8 @@ XWalkContentBrowserClient::CheckDesktopNotificationPermission(
 
 void XWalkContentBrowserClient::ShowDesktopNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
-    content::RenderFrameHost* render_frame_host,
+    BrowserContext* browser_context,
+    int render_process_id,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)

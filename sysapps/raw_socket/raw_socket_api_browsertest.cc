@@ -22,7 +22,7 @@ class SysAppsRawSocketTestInstance : public XWalkExtensionInstance {
  public:
   SysAppsRawSocketTestInstance() {}
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class SysAppsRawSocketTestExtension : public XWalkExtension {
@@ -33,7 +33,7 @@ class SysAppsRawSocketTestExtension : public XWalkExtension {
         "exports.v8tools = requireNative('v8tools');");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new SysAppsRawSocketTestInstance();
   }
 };

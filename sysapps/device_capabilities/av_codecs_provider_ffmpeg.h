@@ -16,7 +16,7 @@ class AVCodecsProviderFFmpeg : public AVCodecsProvider {
   AVCodecsProviderFFmpeg();
   virtual ~AVCodecsProviderFFmpeg();
 
-  virtual scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const OVERRIDE;
+  scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(AVCodecsProviderFFmpeg);

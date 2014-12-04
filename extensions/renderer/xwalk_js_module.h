@@ -25,7 +25,7 @@ class XWalkJSModule : public XWalkNativeModule {
 
  private:
   // XWalkNativeModule implementation.
-  virtual v8::Handle<v8::Object> NewInstance() OVERRIDE;
+  v8::Handle<v8::Object> NewInstance() override;
 
   bool Compile(v8::Isolate* isolate, std::string* error);
 

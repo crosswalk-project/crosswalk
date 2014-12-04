@@ -23,13 +23,13 @@ class XWalkSpeechRecognitionManagerDelegate
 
  protected:
   // SpeechRecognitionManagerDelegate methods.
-  virtual void GetDiagnosticInformation(bool* can_report_metrics,
-                                        std::string* hardware_info) OVERRIDE;
-  virtual void CheckRecognitionIsAllowed(
+  void GetDiagnosticInformation(bool* can_report_metrics,
+                                        std::string* hardware_info) override;
+  void CheckRecognitionIsAllowed(
       int session_id,
-      base::Callback<void(bool ask_user, bool is_allowed)> callback) OVERRIDE;
-  virtual content::SpeechRecognitionEventListener* GetEventListener() OVERRIDE;
-  virtual bool FilterProfanities(int render_process_id) OVERRIDE;
+      base::Callback<void(bool ask_user, bool is_allowed)> callback) override;
+  content::SpeechRecognitionEventListener* GetEventListener() override;
+  bool FilterProfanities(int render_process_id) override;
 
  private:
   // Checks for VIEW_TYPE_TAB_CONTENTS host in the UI thread and notifies back

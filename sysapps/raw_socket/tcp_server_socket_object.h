@@ -25,8 +25,8 @@ class TCPServerSocketObject : public RawSocketObject {
   void DoAccept();
 
   // EventTarget implementation.
-  virtual void StartEvent(const std::string& type) OVERRIDE;
-  virtual void StopEvent(const std::string& type) OVERRIDE;
+  void StartEvent(const std::string& type) override;
+  void StopEvent(const std::string& type) override;
 
   // JavaScript function handlers.
   void OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info);
