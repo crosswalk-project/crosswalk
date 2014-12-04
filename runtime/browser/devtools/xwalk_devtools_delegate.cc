@@ -95,6 +95,12 @@ Target::Target(scoped_refptr<content::DevToolsAgentHost> agent_host)
 
 GURL Target::GetFaviconDataURL(WebContents* web_contents) const {
   // Convert icon image to "data:" url.
+#if defined(OS_ANDROID)
+  // TODO(YangangHan): Add a new base parent class of WebContents
+  // for both Tizen and Android, so we can remove the current macro
+  // in the future.
+  return GURL();
+#endif
   xwalk::Runtime* runtime =
       static_cast<xwalk::Runtime*>(web_contents->GetDelegate());
   if (!runtime || runtime->app_icon().IsEmpty())
