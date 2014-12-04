@@ -24,7 +24,7 @@ class ApplicationWidgetExtension : public XWalkExtension {
   explicit ApplicationWidgetExtension(Application* application);
 
   // XWalkExtension implementation.
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 
  private:
   Application* application_;
@@ -35,8 +35,8 @@ class AppWidgetExtensionInstance : public XWalkExtensionInstance {
   explicit AppWidgetExtensionInstance(Application* application);
   virtual ~AppWidgetExtensionInstance();
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleSyncMessage(scoped_ptr<base::Value> msg) override;
 
  private:
   scoped_ptr<base::StringValue> GetWidgetInfo(scoped_ptr<base::Value> msg);

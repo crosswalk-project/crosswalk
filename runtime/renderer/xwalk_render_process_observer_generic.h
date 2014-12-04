@@ -30,9 +30,9 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   virtual ~XWalkRenderProcessObserver();
 
   // content::RenderProcessObserver implementation.
-  virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void WebKitInitialized() OVERRIDE;
-  virtual void OnRenderProcessShutdown() OVERRIDE;
+  bool OnControlMessageReceived(const IPC::Message& message) override;
+  void WebKitInitialized() override;
+  void OnRenderProcessShutdown() override;
 
   bool IsWarpMode() const {
     return security_mode_ == application::ApplicationSecurityPolicy::WARP;

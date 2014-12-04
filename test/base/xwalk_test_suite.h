@@ -13,7 +13,7 @@ class XWalkTestSuite : public content::ContentTestSuiteBase {
   virtual ~XWalkTestSuite();
 
  protected:
-  virtual void Initialize() OVERRIDE;
+  void Initialize() override;
 };
 
 #endif  // XWALK_TEST_BASE_XWALK_TEST_SUITE_H_

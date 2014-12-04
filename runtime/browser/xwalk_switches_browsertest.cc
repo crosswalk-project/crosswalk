@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/path_service.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -13,7 +13,7 @@
 
 class XWalkSwitchesTest : public InProcessBrowserTest {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     base::ScopedTempDir temp_dir;
     if (temp_dir.CreateUniqueTempDir() && temp_dir.IsValid()) {
       data_path_ = temp_dir.path();
@@ -30,7 +30,7 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
     // it doesn't exist.
   }
 
-  virtual void TearDown() OVERRIDE {
+  void TearDown() override {
     InProcessBrowserTest::TearDown();
     // Since Runtime instance creates its own data path directory
     // for testing, we need to clean up it finally.
@@ -38,7 +38,7 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
       base::DeleteFile(data_path_, true);
   }
 
-  virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
+  virtual void SetUpCommandLine(CommandLine* command_line) override {
     command_line->AppendSwitchPath(switches::kXWalkDataPath, data_path_);
   }
 

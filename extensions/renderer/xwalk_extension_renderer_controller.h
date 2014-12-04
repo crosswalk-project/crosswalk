@@ -58,8 +58,8 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
                                 v8::Handle<v8::Context> context);
 
   // RenderProcessObserver implementation.
-  virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void OnRenderProcessShutdown() OVERRIDE;
+  bool OnControlMessageReceived(const IPC::Message& message) override;
+  void OnRenderProcessShutdown() override;
 
  private:
   void SetupBrowserProcessClient(IPC::SyncChannel* browser_channel);

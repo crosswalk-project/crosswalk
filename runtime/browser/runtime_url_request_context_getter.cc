@@ -234,7 +234,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // The chain of responsibility will execute the handlers in reverse to the
     // order in which the elements of the chain are created.
     scoped_ptr<net::URLRequestJobFactory> job_factory(
-        job_factory_impl.PassAs<net::URLRequestJobFactory>());
+        job_factory_impl.Pass());
     for (URLRequestInterceptorVector::reverse_iterator
              i = request_interceptors.rbegin();
          i != request_interceptors.rend();
@@ -245,7 +245,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
-        job_factory.PassAs<net::URLRequestJobFactory>();
+        job_factory.Pass();
     for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
              request_interceptors_.rbegin();
          i != request_interceptors_.rend();

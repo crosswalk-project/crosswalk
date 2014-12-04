@@ -58,9 +58,9 @@ class RuntimeFileSelectHelper
         : parent_(parent),
           id_(id) {}
     virtual ~DirectoryListerDispatchDelegate() {}
-    virtual void OnListFile(
-        const net::DirectoryLister::DirectoryListerData& data) OVERRIDE;
-    virtual void OnListDone(int error) OVERRIDE;
+    void OnListFile(
+        const net::DirectoryLister::DirectoryListerData& data) override;
+    void OnListDone(int error) override;
    private:
     // This RuntimeFileSelectHelper owns this object.
     RuntimeFileSelectHelper* parent_;
@@ -82,23 +82,23 @@ class RuntimeFileSelectHelper
   void RunFileChooserEnd();
 
   // SelectFileDialog::Listener overrides.
-  virtual void FileSelected(
-      const base::FilePath& path, int index, void* params) OVERRIDE;
-  virtual void FileSelectedWithExtraInfo(
+  void FileSelected(
+      const base::FilePath& path, int index, void* params) override;
+  void FileSelectedWithExtraInfo(
       const ui::SelectedFileInfo& file,
       int index,
-      void* params) OVERRIDE;
-  virtual void MultiFilesSelected(const std::vector<base::FilePath>& files,
-                                  void* params) OVERRIDE;
-  virtual void MultiFilesSelectedWithExtraInfo(
+      void* params) override;
+  void MultiFilesSelected(const std::vector<base::FilePath>& files,
+                          void* params) override;
+  void MultiFilesSelectedWithExtraInfo(
       const std::vector<ui::SelectedFileInfo>& files,
-      void* params) OVERRIDE;
-  virtual void FileSelectionCanceled(void* params) OVERRIDE;
+      void* params) override;
+  void FileSelectionCanceled(void* params) override;
 
   // content::NotificationObserver overrides.
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
+  void Observe(int type,
+               const content::NotificationSource& source,
+               const content::NotificationDetails& details) override;
 
   void EnumerateDirectory(int request_id,
                           content::RenderViewHost* render_view_host,

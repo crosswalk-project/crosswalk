@@ -69,7 +69,7 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
   }
 
   // IPC::Sender implementation.
-  virtual bool Send(IPC::Message* msg_ptr) OVERRIDE {
+  bool Send(IPC::Message* msg_ptr) override {
     scoped_ptr<IPC::Message> msg(msg_ptr);
 
     if (!sender_)
@@ -151,23 +151,23 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
   }
 
   // IPC::ChannelProxy::MessageFilter implementation.
-  virtual void OnFilterAdded(IPC::Sender* sender) OVERRIDE {
+  void OnFilterAdded(IPC::Sender* sender) override {
     sender_ = sender;
   }
 
-  virtual void OnFilterRemoved() OVERRIDE {
+  void OnFilterRemoved() override {
     sender_ = NULL;
   }
 
-  virtual void OnChannelClosing() OVERRIDE {
+  void OnChannelClosing() override {
     sender_ = NULL;
   }
 
-  virtual void OnChannelError() OVERRIDE {
+  void OnChannelError() override {
     sender_ = NULL;
   }
 
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
+  bool OnMessageReceived(const IPC::Message& message) override {
     if (IPC_MESSAGE_CLASS(message) != XWalkExtensionClientServerMsgStart)
       return false;
 

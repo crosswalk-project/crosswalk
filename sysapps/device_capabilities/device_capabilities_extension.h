@@ -27,7 +27,7 @@ class DeviceCapabilitiesExtension : public XWalkExtension {
   virtual ~DeviceCapabilitiesExtension();
 
   // XWalkExtension implementation.
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 };
 
 class DeviceCapabilitiesInstance : public XWalkExtensionInstance {
@@ -35,7 +35,7 @@ class DeviceCapabilitiesInstance : public XWalkExtensionInstance {
   DeviceCapabilitiesInstance();
 
   // XWalkExtensionInstance implementation.
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
 
  private:
   void OnDeviceCapabilitiesConstructor(

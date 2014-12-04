@@ -19,11 +19,11 @@ class XWalkBrowserPepperHostFactory : public ppapi::host::HostFactory {
   explicit XWalkBrowserPepperHostFactory(content::BrowserPpapiHost* host);
   virtual ~XWalkBrowserPepperHostFactory();
 
-  virtual scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
+  scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
       ppapi::host::PpapiHost* host,
       const ppapi::proxy::ResourceMessageCallParams& params,
       PP_Instance instance,
-      const IPC::Message& message) OVERRIDE;
+      const IPC::Message& message) override;
 
  private:
   // Non-owning pointer.

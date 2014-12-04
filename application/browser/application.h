@@ -149,12 +149,11 @@ class Application : public Runtime::Observer,
       XWalkBrowserContext* context);
 
   // content::RenderProcessHostObserver implementation.
-  virtual void RenderProcessExited(content::RenderProcessHost* host,
-                                   base::ProcessHandle handle,
-                                   base::TerminationStatus status,
-                                   int exit_code) OVERRIDE;
-  virtual void RenderProcessHostDestroyed(
-      content::RenderProcessHost* host) OVERRIDE;
+  void RenderProcessExited(content::RenderProcessHost* host,
+                           base::TerminationStatus status,
+                           int exit_code) override;
+  void RenderProcessHostDestroyed(
+      content::RenderProcessHost* host) override;
 
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.

@@ -113,7 +113,7 @@ void XWalkExtensionFunctionHandler::DispatchResult(
   result->Insert(0, new base::StringValue(callback_id));
 
   if (handler)
-    handler->PostMessageToInstance(result.PassAs<base::Value>());
+    handler->PostMessageToInstance(result.Pass());
 }
 
 void XWalkExtensionFunctionHandler::PostMessageToInstance(

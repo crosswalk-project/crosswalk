@@ -18,9 +18,9 @@ class ApplicationBrowserTest: public InProcessBrowserTest {
   ApplicationBrowserTest();
   virtual ~ApplicationBrowserTest();
 
-  virtual void SetUp() OVERRIDE;
+  void SetUp() override;
 
-  virtual void ProperMainThreadCleanup() OVERRIDE;
+  void ProperMainThreadCleanup() override;
 
   xwalk::application::ApplicationService* application_sevice() const;
 

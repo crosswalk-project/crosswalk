@@ -58,7 +58,7 @@ class EventTargetTest : public EventTarget {
   }
 
  private:
-  virtual void StartEvent(const std::string& type) OVERRIDE {
+  void StartEvent(const std::string& type) override {
     if (type == "event1")
       event1_count_++;
     if (type == "event2")
@@ -72,7 +72,7 @@ class EventTargetTest : public EventTarget {
     EXPECT_TRUE(event2_count_ == 0 || event2_count_ == 1);
   }
 
-  virtual void StopEvent(const std::string& type) OVERRIDE {
+  void StopEvent(const std::string& type) override {
     if (type == "event1")
       event1_count_--;
     if (type == "event2")

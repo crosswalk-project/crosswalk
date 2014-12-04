@@ -33,14 +33,14 @@ class TestSelectFileDialog : public ui::SelectFileDialog {
       ui::SelectFilePolicy* policy) {
     return new TestSelectFileDialog(listener, policy);
   }
-  virtual bool IsRunning(gfx::NativeWindow owning_window) const OVERRIDE {
+  bool IsRunning(gfx::NativeWindow owning_window) const override {
     return false;
   }
-  virtual void ListenerDestroyed() OVERRIDE {}
+  void ListenerDestroyed() override {}
 
  protected:
   virtual ~TestSelectFileDialog() {}
-  virtual void SelectFileImpl(
+  void SelectFileImpl(
       Type type,
       const base::string16& title,
       const base::FilePath& default_path,
@@ -48,12 +48,12 @@ class TestSelectFileDialog : public ui::SelectFileDialog {
       int file_type_index,
       const base::FilePath::StringType& default_extension,
       gfx::NativeWindow owning_window,
-      void* params) OVERRIDE {
+      void* params) override {
     listener_->FileSelected(g_file_selected_path, 1, NULL);
   }
 
  private:
-  virtual bool HasMultipleFileTypeChoicesImpl() OVERRIDE {
+  bool HasMultipleFileTypeChoicesImpl() override {
     return false;
   }
   TestSelectFileDialog(Listener* listener, ui::SelectFilePolicy* policy) :
@@ -65,9 +65,9 @@ class TestSelectFileDialog : public ui::SelectFileDialog {
 
 class TestSelectFileDialogFactory : public ui::SelectFileDialogFactory {
  public:
-  virtual ui::SelectFileDialog* Create(
+  ui::SelectFileDialog* Create(
       ui::SelectFileDialog::Listener* listener,
-      ui::SelectFilePolicy* policy) OVERRIDE {
+      ui::SelectFilePolicy* policy) override {
     return TestSelectFileDialog::Create(listener, policy);
   }
 };

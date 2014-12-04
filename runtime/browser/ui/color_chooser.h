@@ -22,8 +22,8 @@ class ColorChooser : public content::ColorChooser {
   ColorChooser() : content::ColorChooser() {}
 
   // content::ColorChooser implementation.
-  virtual void End() OVERRIDE {}
-  virtual void SetSelectedColor(SkColor color) OVERRIDE {}
+  void End() override {}
+  void SetSelectedColor(SkColor color) override {}
 
   static bool IsTesting();
   static SkColor GetColorForBrowserTest();

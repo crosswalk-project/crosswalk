@@ -22,17 +22,16 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   virtual ~XWalkMainDelegate();
 
   // ContentMainDelegate implementation:
-  virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
-  virtual void PreSandboxStartup() OVERRIDE;
-  virtual int RunProcess(const std::string& process_type,
-      const content::MainFunctionParams& main_function_params) OVERRIDE;
+  bool BasicStartupComplete(int* exit_code) override;
+  void PreSandboxStartup() override;
+  int RunProcess(const std::string& process_type,
+      const content::MainFunctionParams& main_function_params) override;
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
-  virtual void ZygoteStarting(
-      ScopedVector<content::ZygoteForkDelegate>* delegates) OVERRIDE;
+  void ZygoteStarting(
+      ScopedVector<content::ZygoteForkDelegate>* delegates) override;
 #endif
-  virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
-  virtual content::ContentRendererClient*
-      CreateContentRendererClient() OVERRIDE;
+  content::ContentBrowserClient* CreateContentBrowserClient() override;
+  content::ContentRendererClient* CreateContentRendererClient() override;
 
   static void InitializeResourceBundle();
 

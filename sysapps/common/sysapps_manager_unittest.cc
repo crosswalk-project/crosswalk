@@ -5,8 +5,8 @@
 #include "xwalk/sysapps/common/sysapps_manager.h"
 
 #include "base/command_line.h"
-#include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/files/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
@@ -48,7 +48,7 @@ class DummyExtension : public XWalkExtension {
  public:
   DummyExtension() {}
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return NULL;
   }
 };

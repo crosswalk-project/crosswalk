@@ -15,10 +15,10 @@ class RuntimeQuotaPermissionContext : public content::QuotaPermissionContext {
   RuntimeQuotaPermissionContext();
 
   // The callback will be dispatched on the IO thread.
-  virtual void RequestQuotaPermission(
+  void RequestQuotaPermission(
       const content::StorageQuotaParams& params,
       int render_process_id,
-      const PermissionCallback& callback) OVERRIDE;
+      const PermissionCallback& callback) override;
 
  private:
   virtual ~RuntimeQuotaPermissionContext();

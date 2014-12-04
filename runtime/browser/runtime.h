@@ -96,56 +96,56 @@ class Runtime : public content::WebContentsDelegate,
   explicit Runtime(content::WebContents* web_contents);
 
     // Overridden from content::WebContentsDelegate:
-  virtual content::WebContents* OpenURLFromTab(
+  content::WebContents* OpenURLFromTab(
       content::WebContents* source,
-      const content::OpenURLParams& params) OVERRIDE;
-  virtual void LoadingStateChanged(content::WebContents* source,
-                                   bool to_different_document) OVERRIDE;
-  virtual void ToggleFullscreenModeForTab(content::WebContents* web_contents,
-                                          bool enter_fullscreen) OVERRIDE;
-  virtual bool IsFullscreenForTabOrPending(
-      const content::WebContents* web_contents) const OVERRIDE;
-  virtual void RequestToLockMouse(content::WebContents* web_contents,
-                                  bool user_gesture,
-                                  bool last_unlocked_by_target) OVERRIDE;
-  virtual void CloseContents(content::WebContents* source) OVERRIDE;
-  virtual void WebContentsCreated(content::WebContents* source_contents,
-                                  int opener_render_frame_id,
-                                  const base::string16& frame_name,
-                                  const GURL& target_url,
-                                  content::WebContents* new_contents) OVERRIDE;
-  virtual void DidNavigateMainFramePostCommit(
-      content::WebContents* web_contents) OVERRIDE;
-  virtual content::JavaScriptDialogManager*
-      GetJavaScriptDialogManager() OVERRIDE;
-  virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
-  virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;
-  virtual bool CanOverscrollContent() const OVERRIDE;
-  virtual bool PreHandleKeyboardEvent(
+      const content::OpenURLParams& params) override;
+  void LoadingStateChanged(content::WebContents* source,
+                           bool to_different_document) override;
+  void ToggleFullscreenModeForTab(content::WebContents* web_contents,
+                                  bool enter_fullscreen) override;
+  bool IsFullscreenForTabOrPending(
+      const content::WebContents* web_contents) const override;
+  void RequestToLockMouse(content::WebContents* web_contents,
+                          bool user_gesture,
+                          bool last_unlocked_by_target) override;
+  void CloseContents(content::WebContents* source) override;
+  void WebContentsCreated(content::WebContents* source_contents,
+                          int opener_render_frame_id,
+                          const base::string16& frame_name,
+                          const GURL& target_url,
+                          content::WebContents* new_contents) override;
+  void DidNavigateMainFramePostCommit(
+      content::WebContents* web_contents) override;
+  content::JavaScriptDialogManager*
+      GetJavaScriptDialogManager() override;
+  void ActivateContents(content::WebContents* contents) override;
+  void DeactivateContents(content::WebContents* contents) override;
+  bool CanOverscrollContent() const override;
+  bool PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event,
-      bool* is_keyboard_shortcut) OVERRIDE;
-  virtual void HandleKeyboardEvent(
+      bool* is_keyboard_shortcut) override;
+  void HandleKeyboardEvent(
       content::WebContents* source,
-      const content::NativeWebKeyboardEvent& event) OVERRIDE;
-  virtual content::ColorChooser* OpenColorChooser(
+      const content::NativeWebKeyboardEvent& event) override;
+  content::ColorChooser* OpenColorChooser(
       content::WebContents* web_contents,
       SkColor initial_color,
-      const std::vector<content::ColorSuggestion>& suggestions) OVERRIDE;
-  virtual void RunFileChooser(
+      const std::vector<content::ColorSuggestion>& suggestions) override;
+  void RunFileChooser(
       content::WebContents* web_contents,
-      const content::FileChooserParams& params) OVERRIDE;
-  virtual void EnumerateDirectory(content::WebContents* web_contents,
-                                  int request_id,
-                                  const base::FilePath& path) OVERRIDE;
-  virtual void RequestMediaAccessPermission(
+      const content::FileChooserParams& params) override;
+  void EnumerateDirectory(content::WebContents* web_contents,
+                          int request_id,
+                          const base::FilePath& path) override;
+  void RequestMediaAccessPermission(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
-      const content::MediaResponseCallback& callback) OVERRIDE;
+      const content::MediaResponseCallback& callback) override;
 
   // Overridden from content::WebContentsObserver.
-  virtual void DidUpdateFaviconURL(
-      const std::vector<content::FaviconURL>& candidates) OVERRIDE;
+  void DidUpdateFaviconURL(
+      const std::vector<content::FaviconURL>& candidates) override;
 
   // Callback method for WebContents::DownloadImage.
   void DidDownloadFavicon(int id,
@@ -155,9 +155,9 @@ class Runtime : public content::WebContentsDelegate,
                           const std::vector<gfx::Size>& sizes);
 
   // NotificationObserver
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
+  void Observe(int type,
+               const content::NotificationSource& source,
+               const content::NotificationDetails& details) override;
 
   // Notification manager.
   content::NotificationRegistrar registrar_;

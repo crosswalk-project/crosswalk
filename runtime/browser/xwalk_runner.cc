@@ -93,12 +93,12 @@ void XWalkRunner::CreateComponents() {
   // Keep a reference as some code still needs to call
   // XWalkRunner::app_system().
   app_component_ = app_component.get();
-  AddComponent(app_component.PassAs<XWalkComponent>());
+  AddComponent(app_component.Pass());
 
   if (XWalkRuntimeFeatures::isSysAppsEnabled())
-    AddComponent(CreateSysAppsComponent().PassAs<XWalkComponent>());
+    AddComponent(CreateSysAppsComponent().Pass());
   if (XWalkRuntimeFeatures::isStorageAPIEnabled())
-    AddComponent(CreateStorageComponent().PassAs<XWalkComponent>());
+    AddComponent(CreateStorageComponent().Pass());
 }
 
 void XWalkRunner::DestroyComponents() {

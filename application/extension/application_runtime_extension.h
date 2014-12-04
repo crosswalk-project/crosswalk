@@ -24,7 +24,7 @@ class ApplicationRuntimeExtension : public XWalkExtension {
   explicit ApplicationRuntimeExtension(Application* application);
 
   // XWalkExtension implementation.
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  XWalkExtensionInstance* CreateInstance() override;
 
  private:
   Application* application_;
@@ -34,7 +34,7 @@ class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
  public:
   explicit AppRuntimeExtensionInstance(Application* application);
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
 
  private:
   void OnGetManifest(scoped_ptr<XWalkExtensionFunctionInfo> info);
