@@ -140,7 +140,7 @@ void RunningApplicationObject::OnTerminate(
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Not permitted");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
 
@@ -172,7 +172,7 @@ void RunningApplicationObject::OnHide(
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Not permitted");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
 
@@ -191,7 +191,7 @@ void RunningApplicationObject::OnSuspend(
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Not permitted");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
 
@@ -210,7 +210,7 @@ void RunningApplicationObject::OnResume(
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Not permitted");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
 
@@ -229,7 +229,7 @@ void RunningApplicationObject::OnRemoveAllCookies(dbus::MethodCall* method_call,
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Not permitted");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
 
@@ -254,7 +254,7 @@ void RunningApplicationObject::OnSetUserAgentString(
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Not permitted");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
   dbus::MessageReader reader(method_call);

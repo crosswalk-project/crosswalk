@@ -14,7 +14,7 @@ namespace {
 
 class TopViewLayoutTest : public testing::Test {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     host_.reset(new View);
   }
 
@@ -32,7 +32,7 @@ class ViewWithPreferredSize : public View {
   }
 
   // View implementation.
-  virtual gfx::Size GetPreferredSize() const OVERRIDE {
+  gfx::Size GetPreferredSize() const override {
     return preferred_size_;
   }
 

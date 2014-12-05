@@ -102,7 +102,7 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
     scoped_ptr<dbus::ErrorResponse> error_response =
         dbus::ErrorResponse::FromMethodCall(
             method_call, kRunningManagerDBusError, message);
-    return error_response.PassAs<dbus::Response>();
+    return error_response.Pass();
 }
 
 }  // namespace
@@ -247,7 +247,7 @@ dbus::ObjectPath RunningApplicationsManager::AddObject(
 
   dbus::ObjectPath path = running_application->path();
 
-  adaptor_.AddManagedObject(running_application.PassAs<dbus::ManagedObject>());
+  adaptor_.AddManagedObject(running_application.Pass());
 
   return path;
 }

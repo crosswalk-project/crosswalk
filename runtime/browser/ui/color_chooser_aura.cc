@@ -27,12 +27,12 @@ class ColorChooserAura : public xwalk::ColorChooser,
   static ColorChooserAura* current_color_chooser_;
 
   // content::ColorChooser overrides:
-  virtual void End() OVERRIDE;
-  virtual void SetSelectedColor(SkColor color) OVERRIDE;
+  void End() override;
+  void SetSelectedColor(SkColor color) override;
 
   // views::ColorChooserListener overrides:
-  virtual void OnColorChosen(SkColor color) OVERRIDE;
-  virtual void OnColorChooserDialogClosed() OVERRIDE;
+  void OnColorChosen(SkColor color) override;
+  void OnColorChooserDialogClosed() override;
 
   void DidEndColorChooser();
 
