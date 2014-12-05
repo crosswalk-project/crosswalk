@@ -22,8 +22,8 @@ class ExternalExtensionMultiProcessTest : public XWalkExtensionsTestBase {
     : register_extensions_count_(0) {}
 
   // This will be called everytime a new RenderProcess has been created.
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     register_extensions_count_++;
   }
 

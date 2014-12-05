@@ -17,7 +17,7 @@ using xwalk::Runtime;
 
 class ExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
         GetExternalExtensionTestPath(FILE_PATH_LITERAL("echo_extension")));
     XWalkExtensionsTestBase::SetUp();
@@ -26,7 +26,7 @@ class ExternalExtensionTest : public XWalkExtensionsTestBase {
 
 class RuntimeInterfaceTest : public XWalkExtensionsTestBase {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
         GetExternalExtensionTestPath(
             FILE_PATH_LITERAL("get_runtime_variable")));
@@ -36,7 +36,7 @@ class RuntimeInterfaceTest : public XWalkExtensionsTestBase {
 
 class MultipleEntryPointsExtension : public XWalkExtensionsTestBase {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
         GetExternalExtensionTestPath(FILE_PATH_LITERAL("multiple_extension")));
     XWalkExtensionsTestBase::SetUp();

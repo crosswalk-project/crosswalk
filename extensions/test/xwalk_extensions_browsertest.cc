@@ -37,20 +37,20 @@ class EchoContext : public XWalkExtensionInstance {
  public:
   EchoContext() {
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleMessage(scoped_ptr<base::Value> msg) override {
     PostMessageToJS(msg.Pass());
   }
-  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleSyncMessage(scoped_ptr<base::Value> msg) override {
     SendSyncReplyToJS(msg.Pass());
   }
 };
 
 class DelayedEchoContext : public XWalkExtensionInstance {
  public:
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleMessage(scoped_ptr<base::Value> msg) override {
     PostMessageToJS(msg.Pass());
   }
-  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleSyncMessage(scoped_ptr<base::Value> msg) override {
     base::MessageLoop::current()->PostDelayedTask(
         FROM_HERE, base::Bind(&DelayedEchoContext::DelayedReply,
                               base::Unretained(this), base::Passed(&msg)),
@@ -69,7 +69,7 @@ class EchoExtension : public XWalkExtension {
     set_javascript_api(kEchoAPI);
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     s_instance_was_created = true;
     return new EchoContext();
   }
@@ -86,7 +86,7 @@ class DelayedEchoExtension : public XWalkExtension {
     set_javascript_api(kEchoAPI);
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new DelayedEchoContext();
   }
 };
@@ -97,7 +97,7 @@ class ExtensionWithInvalidName : public XWalkExtension {
     set_name("invalid name with spaces");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     s_instance_was_created = true;
     return NULL;
   }
@@ -124,7 +124,7 @@ class BulkDataContext : public XWalkExtensionInstance {
  public:
   BulkDataContext() {
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleMessage(scoped_ptr<base::Value> msg) override {
     std::string message;
     msg->GetAsString(&message);
     int size = atoi(message.c_str());
@@ -141,7 +141,7 @@ class BulkDataExtension : public XWalkExtension {
     set_javascript_api(kBulkDataAPI);
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new BulkDataContext();
   }
 };
@@ -150,8 +150,8 @@ class BulkDataExtension : public XWalkExtension {
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new EchoExtension);
     extensions->push_back(new ExtensionWithInvalidName);
     extensions->push_back(new BulkDataExtension);
@@ -160,8 +160,8 @@ class XWalkExtensionsTest : public XWalkExtensionsTestBase {
 
 class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new DelayedEchoExtension);
   }
 };

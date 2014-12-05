@@ -43,14 +43,9 @@ namespace {
 const int kFileSelectEnumerationId = -1;
 
 void NotifyRenderViewHost(RenderViewHost* render_view_host,
-                          const std::vector<content::FileChooserFileInfo>& files,
+                          const std::vector<ui::SelectedFileInfo>& files,
                           FileChooserParams::Mode dialog_mode) {
-  render_view_host->FilesSelectedInChooser(files, dialog_mode);
-}
 
-// Converts a list of FilePaths to a list of ui::SelectedFileInfo.
-std::vector<content::FileChooserFileInfo> FilePathListToSelectedFileInfoList(
-    const std::vector<base::FilePath>& paths) {
   std::vector<content::FileChooserFileInfo> chooser_files;
   for (const auto& file : files) {
     content::FileChooserFileInfo chooser_file;
@@ -58,7 +53,18 @@ std::vector<content::FileChooserFileInfo> FilePathListToSelectedFileInfoList(
     chooser_file.display_name = file.display_name;
     chooser_files.push_back(chooser_file);
   }
-  return chooser_files;
+  render_view_host->FilesSelectedInChooser(chooser_files, dialog_mode);
+}
+
+// Converts a list of FilePaths to a list of ui::SelectedFileInfo.
+std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
+    const std::vector<base::FilePath>& paths) {
+  std::vector<ui::SelectedFileInfo> selected_files;
+  for (size_t i = 0; i < paths.size(); ++i) {
+    selected_files.push_back(
+        ui::SelectedFileInfo(paths[i], paths[i]));
+  }
+  return selected_files;
 }
 
 }  // namespace

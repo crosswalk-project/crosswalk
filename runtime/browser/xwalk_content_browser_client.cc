@@ -271,12 +271,6 @@ void XWalkContentBrowserClient::AllowCertificateError(
 #endif
 }
 
-void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
-    const GURL& source_origin,
-    content::RenderFrameHost* render_frame_host,
-    const base::Callback<void(blink::WebNotificationPermission)>& callback) {
-}
-
 blink::WebNotificationPermission
 XWalkContentBrowserClient::CheckDesktopNotificationPermission(
     const GURL& source_url,
@@ -291,7 +285,7 @@ XWalkContentBrowserClient::CheckDesktopNotificationPermission(
 
 void XWalkContentBrowserClient::ShowDesktopNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
-    BrowserContext* browser_context,
+    content::BrowserContext* browser_context,
     int render_process_id,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
@@ -303,26 +297,33 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
 #endif
 }
 
-void XWalkContentBrowserClient::RequestGeolocationPermission(
+void XWalkContentBrowserClient::RequestPermission(
+    content::PermissionType permission,
     content::WebContents* web_contents,
     int bridge_id,
     const GURL& requesting_frame,
     bool user_gesture,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback) {
+    const base::Callback<void(bool)>& result_callback) {
+  switch (permission) {
+    case content::PERMISSION_GEOLOCATION:
 #if defined(OS_ANDROID) || defined(OS_TIZEN)
-  if (!geolocation_permission_context_.get()) {
-    geolocation_permission_context_ =
-      new RuntimeGeolocationPermissionContext();
-  }
-  geolocation_permission_context_->RequestGeolocationPermission(
-    web_contents,
-    requesting_frame,
-    result_callback,
-    cancel_callback);
+    if (!geolocation_permission_context_.get()) {
+      geolocation_permission_context_ =
+        new RuntimeGeolocationPermissionContext();
+    }
+    geolocation_permission_context_->RequestGeolocationPermission(
+      web_contents,
+      requesting_frame,
+      result_callback,
+      cancel_callback);
 #else
-  result_callback.Run(false);
+    result_callback.Run(false);
 #endif
+      break;
+    case content::PERMISSION_NOTIFICATIONS:
+    default:
+      break;
+    }
 }
 
 void XWalkContentBrowserClient::DidCreatePpapiPlugin(

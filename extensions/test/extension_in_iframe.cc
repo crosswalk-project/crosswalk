@@ -29,7 +29,7 @@ class CounterExtensionContext : public XWalkExtensionInstance {
   CounterExtensionContext() {
   }
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleMessage(scoped_ptr<base::Value> msg) override {
     base::AutoLock lock(g_count_lock);
     g_count++;
   }
@@ -46,15 +46,15 @@ class CounterExtension : public XWalkExtension {
         "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new CounterExtensionContext();
   }
 };
 
 class XWalkExtensionsIFrameTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new CounterExtension);
   }
 };

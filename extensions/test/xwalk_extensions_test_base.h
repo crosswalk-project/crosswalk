@@ -12,7 +12,7 @@
 
 class XWalkExtensionsTestBase : public InProcessBrowserTest {
  public:
-  virtual void SetUp() OVERRIDE;
+  void SetUp() override;
 
   virtual void CreateExtensionsForUIThread(
       xwalk::extensions::XWalkExtensionVector* extensions);

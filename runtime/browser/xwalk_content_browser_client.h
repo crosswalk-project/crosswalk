@@ -94,10 +94,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   content::SpeechRecognitionManagerDelegate*
       GetSpeechRecognitionManagerDelegate() override;
 
-  void RequestDesktopNotificationPermission(
-      const GURL& source_origin,
-      content::RenderFrameHost* render_frame_host,
-      const base::Callback<void(blink::WebNotificationPermission)>& callback) override; // NOLINT
   blink::WebNotificationPermission
   CheckDesktopNotificationPermission(
       const GURL& source_url,
@@ -105,17 +101,17 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       int render_process_id) override;
   void ShowDesktopNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
-      BrowserContext* browser_context,
+      content::BrowserContext* browser_context,
       int render_process_id,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback) override;
-  void RequestGeolocationPermission(
+  void RequestPermission(
+      content::PermissionType permission,
       content::WebContents* web_contents,
       int bridge_id,
       const GURL& requesting_frame,
       bool user_gesture,
-      base::Callback<void(bool)> result_callback,
-      base::Closure* cancel_callback) override;
+      const base::Callback<void(bool)>& result_callback) override;
 #if !defined(OS_ANDROID)
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
