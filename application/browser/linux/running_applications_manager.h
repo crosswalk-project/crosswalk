@@ -49,7 +49,7 @@ class RunningApplicationsManager : public ApplicationService::Observer {
   void OnRemoteDebuggingEnabled(dbus::MethodCall* method_call,
                                 dbus::ExportedObject::ResponseSender sender);
 
-  void virtual WillDestroyApplication(Application* app) OVERRIDE;
+  void WillDestroyApplication(Application* app) override;
 
   dbus::ObjectPath AddObject(const std::string& app_id,
                              const std::string& launcher_name,
