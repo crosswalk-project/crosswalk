@@ -156,8 +156,8 @@ void TestExtensionInstance::DispatchHeartbeat() {
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new TestExtension);
   }
 };

@@ -29,14 +29,14 @@ class InProcessExtensionInstance : public XWalkExtensionInstance {
     scoped_ptr<base::ListValue> reply(new base::ListValue);
     reply->AppendBoolean(is_on_ui_thread);
 
-    return reply.PassAs<base::Value>();
+    return reply.Pass();
   }
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleMessage(scoped_ptr<base::Value> msg) override {
     PostMessageToJS(InRunningOnUIThread());
   }
 
-  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+  void HandleSyncMessage(scoped_ptr<base::Value> msg) override {
     SendSyncReplyToJS(InRunningOnUIThread());
   }
 };
@@ -59,20 +59,20 @@ class InProcessExtension : public XWalkExtension {
       "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new InProcessExtensionInstance();
   }
 };
 
 class InProcessThreadsTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new InProcessExtension(kInProcessUIThread));
   }
 
-  virtual void CreateExtensionsForExtensionThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForExtensionThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new InProcessExtension(kInProcessExtensionThread));
   }
 };
