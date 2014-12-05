@@ -87,7 +87,7 @@ void AppendVariantOfValue(MessageWriter* writer, const base::Value& value) {
 scoped_ptr<Response> CreateParseError(MethodCall* method_call) {
   scoped_ptr<ErrorResponse> error_response = ErrorResponse::FromMethodCall(
       method_call, kErrorName, "Error parsing arguments.");
-  return error_response.PassAs<Response>();
+  return error_response.Pass();
 }
 
 scoped_ptr<Response> CreateInterfaceNotFoundError(
@@ -97,7 +97,7 @@ scoped_ptr<Response> CreateInterfaceNotFoundError(
       method_call, kErrorName,
       "Interface '" + interface + "' not found for object '"
       + path.value() + "'.");
-  return error_response.PassAs<Response>();
+  return error_response.Pass();
 }
 
 }  // namespace
@@ -161,7 +161,7 @@ void PropertyExporter::OnGet(
         method_call, kErrorName,
         "Property '" + property + "' of interface '" + interface
         + "' not found for object '" + path_.value() + "'.");
-    response_sender.Run(error_response.PassAs<Response>());
+    response_sender.Run(error_response.Pass());
     return;
   }
 
