@@ -22,6 +22,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
 #include "grit/xwalk_resources.h"
 #include "net/base/mime_util.h"
@@ -42,20 +43,22 @@ namespace {
 const int kFileSelectEnumerationId = -1;
 
 void NotifyRenderViewHost(RenderViewHost* render_view_host,
-                          const std::vector<ui::SelectedFileInfo>& files,
+                          const std::vector<content::FileChooserFileInfo>& files,
                           FileChooserParams::Mode dialog_mode) {
   render_view_host->FilesSelectedInChooser(files, dialog_mode);
 }
 
 // Converts a list of FilePaths to a list of ui::SelectedFileInfo.
-std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
+std::vector<content::FileChooserFileInfo> FilePathListToSelectedFileInfoList(
     const std::vector<base::FilePath>& paths) {
-  std::vector<ui::SelectedFileInfo> selected_files;
-  for (size_t i = 0; i < paths.size(); ++i) {
-    selected_files.push_back(
-        ui::SelectedFileInfo(paths[i], paths[i]));
+  std::vector<content::FileChooserFileInfo> chooser_files;
+  for (const auto& file : files) {
+    content::FileChooserFileInfo chooser_file;
+    chooser_file.file_path = file.local_path;
+    chooser_file.display_name = file.display_name;
+    chooser_files.push_back(chooser_file);
   }
-  return selected_files;
+  return chooser_files;
 }
 
 }  // namespace

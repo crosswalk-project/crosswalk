@@ -108,8 +108,7 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
     // TakeClientFileDescriptor() instead of GetClientFileDescriptor()
     // since the client-side channel will take ownership of the fd.
     rp_channel_handle_.socket =
-       base::FileDescriptor(render_process_channel_->TakeClientFileDescriptor(),
-          true);
+       base::FileDescriptor(render_process_channel_->TakeClientFileDescriptor());
 #endif
 
   extensions_server_.Initialize(render_process_channel_.get());

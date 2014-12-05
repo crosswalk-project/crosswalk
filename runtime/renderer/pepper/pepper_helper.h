@@ -16,7 +16,7 @@ class PepperHelper : public content::RenderFrameObserver {
   virtual ~PepperHelper();
 
   // RenderFrameObserver.
-  virtual void DidCreatePepperPlugin(content::RendererPpapiHost* host) OVERRIDE;
+  void DidCreatePepperPlugin(content::RendererPpapiHost* host) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PepperHelper);
