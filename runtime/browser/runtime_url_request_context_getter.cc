@@ -40,6 +40,7 @@
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/cookie_manager.h"
@@ -113,8 +114,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_channel_id_service(new net::ChannelIDService(
         new net::DefaultChannelIDStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
-    storage_->set_http_user_agent_settings(
-        new net::StaticHttpUserAgentSettings("en-us,en", base::EmptyString()));
+    storage_->set_http_user_agent_settings(new net::StaticHttpUserAgentSettings(
+        "en-us,en", xwalk::GetUserAgent()));
 
     scoped_ptr<net::HostResolver> host_resolver(
         net::HostResolver::CreateDefaultResolver(NULL));
