@@ -31,6 +31,7 @@ class AppWidgetStorage {
   bool Clear();
   bool GetAllEntries(base::DictionaryValue* result);
   bool EntryExists(const std::string& key) const;
+  bool GetValueByKey(const std::string& key, std::string* value);
 
  private:
   bool Init();
