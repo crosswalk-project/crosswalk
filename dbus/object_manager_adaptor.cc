@@ -168,7 +168,7 @@ ManagedObject::~ManagedObject() {}
 
 ObjectPath ManagedObject::path() const {
   return path_;
-};
+}
 
 void ManagedObject::AppendAllPropertiesToWriter(MessageWriter* writer) const {
   MessageWriter interfaces_writer(NULL);

@@ -37,7 +37,7 @@ class XWalkExtensionFunctionInfo {
   // be called from any thread.
   void PostResult(scoped_ptr<base::ListValue> result) const {
     post_result_cb_.Run(result.Pass());
-  };
+  }
 
   std::string name() const {
     return name_;
