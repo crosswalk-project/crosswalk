@@ -23,7 +23,7 @@ using extensions::XWalkExtensionInstance;
 
 class DeviceCapabilitiesExtension : public XWalkExtension {
  public:
-  explicit DeviceCapabilitiesExtension();
+  DeviceCapabilitiesExtension();
   virtual ~DeviceCapabilitiesExtension();
 
   // XWalkExtension implementation.
