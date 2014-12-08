@@ -87,6 +87,7 @@
               'pkgmgr-installer',
               'pkgmgr',
               'secure-storage',
+              'security-manager',
               'vconf',
             ],
           },
