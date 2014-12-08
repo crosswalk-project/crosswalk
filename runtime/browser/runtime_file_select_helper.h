@@ -46,7 +46,7 @@ class RuntimeFileSelectHelper
  private:
   friend class base::RefCountedThreadSafe<RuntimeFileSelectHelper>;
   FRIEND_TEST_ALL_PREFIXES(RuntimeFileSelectHelperTest, IsAcceptTypeValid);
-  explicit RuntimeFileSelectHelper();
+  RuntimeFileSelectHelper();
   virtual ~RuntimeFileSelectHelper();
 
   // Utility class which can listen for directory lister events and relay
