@@ -61,6 +61,8 @@
             '../tizen/xwalk_tizen_user.h',
             '../../../runtime/common/xwalk_paths.cc',
             '../../../runtime/common/xwalk_paths.h',
+            '../../../runtime/common/xwalk_switches.cc',
+            '../../../runtime/common/xwalk_switches.h',
             '../../../runtime/common/xwalk_system_locale.cc',
             '../../../runtime/common/xwalk_system_locale.h',
           ],

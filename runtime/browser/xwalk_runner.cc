@@ -40,7 +40,8 @@ XWalkRunner* g_xwalk_runner = NULL;
 
 }  // namespace
 
-XWalkRunner::XWalkRunner() {
+XWalkRunner::XWalkRunner()
+    : shared_process_mode_enabled_(false) {
   VLOG(1) << "Creating XWalkRunner object.";
   DCHECK(!g_xwalk_runner);
   g_xwalk_runner = this;

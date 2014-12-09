@@ -24,6 +24,7 @@
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_TIZEN)
@@ -249,12 +250,12 @@ void ApplicationService::OnApplicationTerminated(
           base::Bind(&base::DoNothing));
   }
 
-#if !defined(SHARED_PROCESS_MODE)
-  if (applications_.empty()) {
-    base::MessageLoop::current()->PostTask(
+  if (!XWalkRunner::GetInstance()->shared_process_mode_enabled()) {
+    if (applications_.empty()) {
+      base::MessageLoop::current()->PostTask(
             FROM_HERE, base::MessageLoop::QuitClosure());
+    }
   }
-#endif
 }
 
 void ApplicationService::CheckAPIAccessControl(const std::string& app_id,

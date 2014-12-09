@@ -237,7 +237,6 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_libexif=1 \
 -Duse_system_libxml=1 \
 -Duse_system_yasm=1 \
--Dshared_process_mode=1 \
 -Denable_hidpi=1
 
 ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_tools

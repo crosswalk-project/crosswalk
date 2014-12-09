@@ -21,6 +21,7 @@
 #include "ipc/message_filter.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 using content::BrowserThread;
@@ -153,7 +154,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   CHECK(!process_ || !channel_);
 
-#if defined(SHARED_PROCESS_MODE)
+  if (XWalkRunner::GetInstance()->shared_process_mode_enabled()) {
 #if defined(OS_LINUX)
     std::string channel_id =
         IPC::Channel::GenerateVerifiedChannelID(std::string());
@@ -171,7 +172,7 @@ void XWalkExtensionProcessHost::StartProcess() {
 #else
     NOTIMPLEMENTED();
 #endif  // #if defined(OS_LINUX)
-#else
+  } else {
     process_.reset(content::BrowserChildProcessHost::Create(
         content::PROCESS_TYPE_CONTENT_END, this));
 
@@ -207,7 +208,7 @@ void XWalkExtensionProcessHost::StartProcess() {
     process_->Launch(
         new ExtensionSandboxedProcessLauncherDelegate(process_->GetHost()),
         cmd_line.release());
-#endif  // #if defined(SHARED_PROCESS_MODE)
+  }
 
   base::ListValue runtime_variables_lv;
   ToListValue(&const_cast<base::ValueMap&>(*runtime_variables_),
