@@ -169,7 +169,10 @@ bool WidgetHandler::Validate(
   const Manifest* manifest = application->GetManifest();
   DCHECK(manifest);
   std::string ns_value;
-  manifest->GetString(keys::kWidgetNamespaceKey, &ns_value);
+  if (!manifest->GetString(keys::kWidgetNamespaceKey, &ns_value)) {
+    *error = std::string("Failed to retrieve the widget's namespace.");
+    return false;
+  }
   if (base::strcasecmp(keys::kWidgetNamespacePrefix, ns_value.c_str()) != 0) {
     *error = std::string("The widget namespace is invalid.");
     return false;
