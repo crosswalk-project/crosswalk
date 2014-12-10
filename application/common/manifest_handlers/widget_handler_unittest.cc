@@ -1,11 +1,13 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/manifest_handlers/widget_handler.h"
-
-#include "xwalk/application/common/application_manifest_constants.h"
+#include "base/memory/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/unittest_util.h"
+#include "xwalk/application/common/manifest_handlers/widget_handler.h"
 
 namespace xwalk {
 
@@ -47,89 +49,90 @@ const char width[] = "480";
 const char* preferencesName[] = {"pname0", "pname1", "pname2"};
 const char* preferencesValue[] = {"pvalue0", "pvalue1", "pvalue2"};
 const char* preferencesReadonly[] = {"true", "false", "false"};
+
+WidgetInfo* GetWidgetInfo(scoped_refptr<ApplicationData> application) {
+  WidgetInfo* info = static_cast<WidgetInfo*>(
+    application->GetManifestData(keys::kWidgetKey));
+  return info;
+}
+
+template <Manifest::Type type>
+base::DictionaryValue* GetPreferencesItem(int id) {
+  NOTREACHED() << "Use one of already defined template specializations"
+                  " or define a new one.";
+  return nullptr;
+}
+
+template <>
+base::DictionaryValue* GetPreferencesItem<Manifest::TYPE_MANIFEST>(int id) {
+  base::DictionaryValue* preferences = new base::DictionaryValue;
+
+  preferences->SetString(keys::kPreferencesNameKey,
+                         preferencesName[id]);
+  preferences->SetString(keys::kPreferencesValueKey,
+                         preferencesValue[id]);
+  // PreferencesReadonly is string on manifest and bool on widgetInfo
+  preferences->SetString(keys::kPreferencesReadonlyKey,
+                         preferencesReadonly[id]);
+
+  return preferences;
+}
+
+template <>
+base::DictionaryValue* GetPreferencesItem<Manifest::TYPE_WIDGET>(int id) {
+  base::DictionaryValue* preferences = new base::DictionaryValue;
+
+  preferences->SetString(kWidgetPreferencesName,
+                         preferencesName[id]);
+  preferences->SetString(kWidgetPreferencesValue,
+                         preferencesValue[id]);
+  preferences->SetBoolean(kWidgetPreferencesReadonly,
+                          strncmp(preferencesReadonly[id], "true", 4) == 0);
+  return preferences;
+}
+
+// No Preferences and full other information
+void SetAllInfoToManifest(base::DictionaryValue* manifest) {
+  // Insert some key-value pairs into manifest use full key
+  manifest->SetString(keys::kWidgetNamespaceKey,
+                      keys::kWidgetNamespacePrefix);
+  manifest->SetString(keys::kAuthorKey,      author);
+  manifest->SetString(keys::kDescriptionKey, decription);
+  manifest->SetString(keys::kNameKey,        name);
+  manifest->SetString(keys::kShortNameKey,   shortName);
+  manifest->SetString(keys::kVersionKey,     version);
+  manifest->SetString(keys::kIDKey,          ID);
+  manifest->SetString(keys::kAuthorEmailKey, authorEmail);
+  manifest->SetString(keys::kAuthorHrefKey,  authorHref);
+  manifest->SetString(keys::kHeightKey,      height);
+  manifest->SetString(keys::kWidthKey,       width);
+}
+
+// No Preferences and full other information
+void SetAllInfoToWidget(base::DictionaryValue* widget) {
+  // Insert some key-value pairs into widget use widget key;
+  widget->SetString(kWidgetAuthor,      author);
+  widget->SetString(kWidgetDecription,  decription);
+  widget->SetString(kWidgetName,        name);
+  widget->SetString(kWidgetShortName,   shortName);
+  widget->SetString(kWidgetVersion,     version);
+  widget->SetString(kWidgetID,          ID);
+  widget->SetString(kWidgetAuthorEmail, authorEmail);
+  widget->SetString(kWidgetAuthorHref,  authorHref);
+  widget->SetString(kWidgetHeight,      height);
+  widget->SetString(kWidgetWidth,       width);
+}
+
 }  // namespace
 
 class WidgetHandlerTest: public testing::Test {
- public:
-  scoped_refptr<ApplicationData> CreateApplication(
-    const base::DictionaryValue& manifest) {
-    std::string error;
-    scoped_refptr<ApplicationData> application = ApplicationData::Create(
-        base::FilePath(), std::string(), ApplicationData::LOCAL_DIRECTORY,
-        make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()),
-                                     Manifest::TYPE_WIDGET)),
-        &error);
-    return application;
-  }
-
-  WidgetInfo* GetWidgetInfo(scoped_refptr<ApplicationData> application) {
-    WidgetInfo* info = static_cast<WidgetInfo*>(
-      application->GetManifestData(keys::kWidgetKey));
-    return info;
-  }
-
-  base::DictionaryValue* GetPreferencesItem(int id,
-                                            bool is_parsed_manifest_key) {
-    base::DictionaryValue* preferences = new base::DictionaryValue;
-    if (is_parsed_manifest_key) {
-      preferences->SetString(keys::kPreferencesNameKey,
-                             preferencesName[id]);
-      preferences->SetString(keys::kPreferencesValueKey,
-                             preferencesValue[id]);
-      // PreferencesReadonly is string on manifest and bool on widgetInfo
-      preferences->SetString(keys::kPreferencesReadonlyKey,
-                             preferencesReadonly[id]);
-    } else {
-      preferences->SetString(kWidgetPreferencesName,
-                             preferencesName[id]);
-      preferences->SetString(kWidgetPreferencesValue,
-                             preferencesValue[id]);
-      preferences->SetBoolean(kWidgetPreferencesReadonly,
-                              strncmp(preferencesReadonly[id], "true", 4) == 0);
-    }
-    return preferences;
-  }
-
-  // No Preferences and full other information
-  void SetAllInfoToManifest(base::DictionaryValue* manifest) {
-    // Insert some key-value pairs into manifest use full key
-    manifest->SetString(keys::kWidgetNamespaceKey,
-                        keys::kWidgetNamespacePrefix);
-    manifest->SetString(keys::kAuthorKey,      author);
-    manifest->SetString(keys::kDescriptionKey, decription);
-    manifest->SetString(keys::kNameKey,        name);
-    manifest->SetString(keys::kShortNameKey,   shortName);
-    manifest->SetString(keys::kVersionKey,     version);
-    manifest->SetString(keys::kIDKey,          ID);
-    manifest->SetString(keys::kAuthorEmailKey, authorEmail);
-    manifest->SetString(keys::kAuthorHrefKey,  authorHref);
-    manifest->SetString(keys::kHeightKey,      height);
-    manifest->SetString(keys::kWidthKey,       width);
-  }
-
-  // No Preferences and full other information
-  void SetAllInfoToWidget(base::DictionaryValue* widget) {
-    // Insert some key-value pairs into widget use widget key;
-    widget->SetString(kWidgetAuthor,      author);
-    widget->SetString(kWidgetDecription,  decription);
-    widget->SetString(kWidgetName,        name);
-    widget->SetString(kWidgetShortName,   shortName);
-    widget->SetString(kWidgetVersion,     version);
-    widget->SetString(kWidgetID,          ID);
-    widget->SetString(kWidgetAuthorEmail, authorEmail);
-    widget->SetString(kWidgetAuthorHref,  authorHref);
-    widget->SetString(kWidgetHeight,      height);
-    widget->SetString(kWidgetWidth,       width);
-  }
 };
 
 TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
-  base::DictionaryValue manifest;
-  manifest.SetString(keys::kWidgetNamespaceKey, keys::kWidgetNamespacePrefix);
-  manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
-
-  scoped_refptr<ApplicationData> application = CreateApplication(manifest);
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  manifest->SetString(keys::kWidgetNamespaceKey, keys::kWidgetNamespacePrefix);
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
 
   WidgetInfo* info = GetWidgetInfo(application);
@@ -160,26 +163,28 @@ TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
 TEST_F(WidgetHandlerTest,
        ParseManifestWithAllOfOtherItemsAndOnePreferenceItem) {
   // Create a manifest with one preference item.
-  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue);
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
-  manifest->Set(keys::kPreferencesKey, GetPreferencesItem(0, true));
+  manifest->Set(keys::kPreferencesKey,
+                GetPreferencesItem<Manifest::TYPE_MANIFEST>(0));
   // Create an application use this manifest.
-  scoped_refptr<ApplicationData> application;
-  application = CreateApplication(*(manifest.get()));
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
   EXPECT_TRUE(info);
-  scoped_ptr<base::DictionaryValue> Copy(info->GetWidgetInfo()->DeepCopy());
+  scoped_ptr<base::DictionaryValue>
+      deep_copy(info->GetWidgetInfo()->DeepCopy());
   base::DictionaryValue* widget_parsed_from_manifest;
-  Copy->GetAsDictionary(&widget_parsed_from_manifest);
-  EXPECT_TRUE(widget_parsed_from_manifest);
+  EXPECT_TRUE(deep_copy->GetAsDictionary(&widget_parsed_from_manifest));
 
   // Create a widget with one preference item manually.
   scoped_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
   SetAllInfoToWidget(widget.get());
-  widget->Set(kWidgetPreferences, GetPreferencesItem(0, false));
+  widget->Set(kWidgetPreferences,
+              GetPreferencesItem<Manifest::TYPE_WIDGET>(0));
 
   // Compare the widget parsed from manifest with
   // the widget create manually.
@@ -189,31 +194,32 @@ TEST_F(WidgetHandlerTest,
 TEST_F(WidgetHandlerTest,
        ParseManifestWithAllOfOtherItemsAndThreePreferenceItemsList) {
   // Create a manifest with three preference items.
-  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue);
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
   base::ListValue* manifestPreferences = new base::ListValue;
   for (int i = 0; i < 3; i++) {
-    manifestPreferences->Append(GetPreferencesItem(i, true));
+    manifestPreferences->Append(GetPreferencesItem<Manifest::TYPE_MANIFEST>(i));
   }
+  // TODO(aszafranek): Set manifestPreferences to manifest and test it below
   // Create an application use this manifest,
-  scoped_refptr<ApplicationData> application;
-  application = CreateApplication(*(manifest.get()));
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
   EXPECT_TRUE(info);
-  scoped_ptr<base::DictionaryValue> Copy(info->GetWidgetInfo()->DeepCopy());
+  scoped_ptr<base::DictionaryValue>
+      deep_copy(info->GetWidgetInfo()->DeepCopy());
   base::DictionaryValue* widget_parsed_from_manifest;
-  Copy->GetAsDictionary(&widget_parsed_from_manifest);
-  EXPECT_TRUE(widget_parsed_from_manifest);
+  EXPECT_TRUE(deep_copy->GetAsDictionary(&widget_parsed_from_manifest));
 
   // Create a widget with three preference items manually.
   scoped_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
   SetAllInfoToWidget(widget.get());
-  base::ListValue* widgetPreferences   = new base::ListValue;
+  base::ListValue* widgetPreferences = new base::ListValue;
   for (int i = 0; i < 3; i++) {
-    widgetPreferences->Append(GetPreferencesItem(i, false));
+    widgetPreferences->Append(GetPreferencesItem<Manifest::TYPE_WIDGET>(i));
   }
 
   // Compare the widget parsed from manifest with
@@ -223,13 +229,13 @@ TEST_F(WidgetHandlerTest,
 
 TEST_F(WidgetHandlerTest,
        ParseManifestWithInvalidAuthorHrefValue) {
-  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue);
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
   manifest->SetString(keys::kAuthorHrefKey, "INVALID_HREF");
 
   // Create an application use this manifest,
-  scoped_refptr<ApplicationData> application;
-  application = CreateApplication(*(manifest.get()));
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
@@ -239,5 +245,6 @@ TEST_F(WidgetHandlerTest,
   info->GetWidgetInfo()->GetString(keys::kAuthorHrefKey, &authorhref);
   EXPECT_TRUE(authorhref.empty());
 }
+
 }  // namespace application
 }  // namespace xwalk
