@@ -8,8 +8,8 @@
 
 #include "base/command_line.h"
 #include "base/cpu.h"
-#include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/base_paths_android.h"

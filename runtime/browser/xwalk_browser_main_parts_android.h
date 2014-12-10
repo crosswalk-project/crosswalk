@@ -21,15 +21,15 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
       const content::MainFunctionParams& parameters);
   virtual ~XWalkBrowserMainPartsAndroid();
 
-  virtual void PreEarlyInitialization() OVERRIDE;
-  virtual void PreMainMessageLoopStart() OVERRIDE;
-  virtual void PostMainMessageLoopStart() OVERRIDE;
-  virtual void PreMainMessageLoopRun() OVERRIDE;
-  virtual void PostMainMessageLoopRun() OVERRIDE;
+  void PreEarlyInitialization() override;
+  void PreMainMessageLoopStart() override;
+  void PostMainMessageLoopStart() override;
+  void PreMainMessageLoopRun() override;
+  void PostMainMessageLoopRun() override;
 
-  virtual void CreateInternalExtensionsForExtensionThread(
+  void CreateInternalExtensionsForExtensionThread(
       content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
+      extensions::XWalkExtensionVector* extensions) override;
 
   // XWalkExtensionAndroid needs to register its extensions on
   // XWalkBrowserMainParts so they get correctly registered on-demand

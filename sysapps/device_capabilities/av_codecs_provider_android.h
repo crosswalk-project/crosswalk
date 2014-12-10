@@ -15,7 +15,7 @@ class AVCodecsProviderAndroid : public AVCodecsProvider {
   AVCodecsProviderAndroid();
   virtual ~AVCodecsProviderAndroid();
 
-  virtual scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const OVERRIDE;
+  scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(AVCodecsProviderAndroid);

@@ -23,8 +23,8 @@ class XWalkDownloadResourceThrottle : public content::ResourceThrottle {
                                 int request_id);
   virtual ~XWalkDownloadResourceThrottle();
 
-  virtual void WillStartRequest(bool* defer) OVERRIDE;
-  virtual void WillProcessResponse(bool* defer) OVERRIDE;
+  void WillStartRequest(bool* defer) override;
+  void WillProcessResponse(bool* defer) override;
 
  private:
   const net::URLRequest* request_;

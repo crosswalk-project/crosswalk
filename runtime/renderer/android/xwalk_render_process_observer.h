@@ -21,8 +21,8 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   virtual ~XWalkRenderProcessObserver();
 
   // content::RenderProcessObserver implementation.
-  virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void WebKitInitialized() OVERRIDE;
+  bool OnControlMessageReceived(const IPC::Message& message) override;
+  void WebKitInitialized() override;
 
  private:
   void OnSetJsOnlineProperty(bool network_up);
