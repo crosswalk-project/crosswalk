@@ -106,6 +106,7 @@ void XWalkRenderViewHostExt::RenderProcessGone(base::TerminationStatus status) {
 }
 
 void XWalkRenderViewHostExt::DidNavigateAnyFrame(
+    content::RenderFrameHost* render_frame_host,
     const content::LoadCommittedDetails& details,
     const content::FrameNavigateParams& params) {
   DCHECK(CalledOnValidThread());

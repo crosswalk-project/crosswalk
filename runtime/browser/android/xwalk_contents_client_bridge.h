@@ -50,37 +50,37 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   virtual ~XWalkContentsClientBridge();
 
   // XWalkContentsClientBridgeBase implementation
-  virtual void AllowCertificateError(int cert_error,
-                                     net::X509Certificate* cert,
-                                     const GURL& request_url,
-                                     const base::Callback<void(bool)>& callback, // NOLINT
-                                     bool* cancel_request) OVERRIDE;
+  void AllowCertificateError(int cert_error,
+                             net::X509Certificate* cert,
+                             const GURL& request_url,
+                             const base::Callback<void(bool)>& callback, // NOLINT
+                             bool* cancel_request) override;
 
-  virtual void RunJavaScriptDialog(
+  void RunJavaScriptDialog(
       content::JavaScriptMessageType message_type,
       const GURL& origin_url,
       const base::string16& message_text,
       const base::string16& default_prompt_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
-      OVERRIDE;
-  virtual void RunBeforeUnloadDialog(
+      override;
+  void RunBeforeUnloadDialog(
       const GURL& origin_url,
       const base::string16& message_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
-      OVERRIDE;
-  virtual void ShowNotification(
+      override;
+  void ShowNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
       content::RenderFrameHost* render_frame_host,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
-      OVERRIDE;
-  virtual void UpdateNotificationIcon(
+      override;
+  void UpdateNotificationIcon(
       int notification_id,
       const SkBitmap& icon)
-      OVERRIDE;
-  virtual void OnWebLayoutPageScaleFactorChanged(
+      override;
+  void OnWebLayoutPageScaleFactorChanged(
       float page_scale_factor)
-      OVERRIDE;
+      override;
 
   bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
                                  const std::string& host,

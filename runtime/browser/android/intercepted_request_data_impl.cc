@@ -32,33 +32,33 @@ class StreamReaderJobDelegateImpl
       DCHECK(intercepted_request_data_impl_);
     }
 
-    virtual scoped_ptr<InputStream> OpenInputStream(
+    scoped_ptr<InputStream> OpenInputStream(
         JNIEnv* env,
-        const GURL& url) OVERRIDE {
+        const GURL& url) override {
       return intercepted_request_data_impl_->GetInputStream(env).Pass();
     }
 
-    virtual void OnInputStreamOpenFailed(net::URLRequest* request,
-                                         bool* restart) OVERRIDE {
+    void OnInputStreamOpenFailed(net::URLRequest* request,
+                                 bool* restart) override {
       *restart = false;
     }
 
-    virtual bool GetMimeType(JNIEnv* env,
-                             net::URLRequest* request,
-                             xwalk::InputStream* stream,
-                             std::string* mime_type) OVERRIDE {
+    bool GetMimeType(JNIEnv* env,
+                     net::URLRequest* request,
+                     xwalk::InputStream* stream,
+                     std::string* mime_type) override {
       return intercepted_request_data_impl_->GetMimeType(env, mime_type);
     }
 
-    virtual bool GetCharset(JNIEnv* env,
-                            net::URLRequest* request,
-                            xwalk::InputStream* stream,
-                            std::string* charset) OVERRIDE {
+    bool GetCharset(JNIEnv* env,
+                    net::URLRequest* request,
+                    xwalk::InputStream* stream,
+                    std::string* charset) override {
       return intercepted_request_data_impl_->GetCharset(env, charset);
     }
 
-    virtual bool GetPackageName(JNIEnv* env,
-                                std::string* name) OVERRIDE {
+    bool GetPackageName(JNIEnv* env,
+                        std::string* name) override {
       return intercepted_request_data_impl_->GetPackageName(env, name);
     }
 

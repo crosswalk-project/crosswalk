@@ -32,9 +32,9 @@ class InputStreamImpl : public InputStream {
   const jobject jobj() const { return jobject_.obj(); }
 
   // InputStream implementation.
-  virtual bool BytesAvailable(int* bytes_available) const OVERRIDE;
-  virtual bool Skip(int64_t n, int64_t* bytes_skipped) OVERRIDE;
-  virtual bool Read(net::IOBuffer* dest, int length, int* bytes_read) OVERRIDE;
+  bool BytesAvailable(int* bytes_available) const override;
+  bool Skip(int64_t n, int64_t* bytes_skipped) override;
+  bool Read(net::IOBuffer* dest, int length, int* bytes_read) override;
 
  protected:
   // Parameterless constructor exposed for testing.
