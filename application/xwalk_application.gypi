@@ -48,8 +48,6 @@
           'sources': [
             'browser/application_service_provider_linux.cc',
             'browser/application_service_provider_linux.h',
-            'browser/application_system_linux.cc',
-            'browser/application_system_linux.h',
             'browser/linux/running_application_object.cc',
             'browser/linux/running_application_object.h',
             'browser/linux/running_applications_manager.cc',
@@ -59,6 +57,7 @@
         ['tizen==1', {
           'dependencies': [
             'build/system.gyp:tizen',
+            'build/system.gyp:tizen_appcore_common',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '<(DEPTH)/ui/events/platform/events_platform.gyp:events_platform',
           ],
@@ -67,6 +66,8 @@
             'browser/application_tizen.h',
             'browser/application_service_tizen.cc',
             'browser/application_service_tizen.h',
+            'browser/application_system_tizen.cc',
+            'browser/application_system_tizen.h',
           ],
         }],
       ],
@@ -118,12 +119,6 @@
       'type': 'none',
       'defines': ['XWALK_VERSION="<(xwalk_version)"'],
       'conditions': [
-        ['OS=="linux"', {
-          'dependencies': [
-            'application/tools/linux/xwalk_application_tools.gyp:xwalk_launcher',
-            'application/tools/linux/xwalk_application_tools.gyp:xwalkctl',
-          ],
-        }],
         ['tizen == 1', {
           'dependencies': [
             'application/tools/tizen/xwalk_tizen_tools.gyp:xwalk_backend',

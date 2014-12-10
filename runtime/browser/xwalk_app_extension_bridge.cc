@@ -12,12 +12,6 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 
-#if defined(OS_LINUX)
-#include "xwalk/application/browser/application_system_linux.h"
-#include "xwalk/application/browser/application_service_provider_linux.h"
-#include "xwalk/application/browser/linux/running_application_object.h"
-#endif
-
 namespace xwalk {
 
 using application::Application;
@@ -64,22 +58,6 @@ bool XWalkAppExtensionBridge::RegisterPermissions(
     return false;
 
   return service->RegisterPermissions(app->id(), extension_name, perm_table);
-}
-
-void XWalkAppExtensionBridge::ExtensionProcessCreated(
-    int render_process_id,
-    const IPC::ChannelHandle& channel_handle) {
-#if defined(OS_LINUX)
-  Application* app = GetApplication(render_process_id);
-  CHECK(app);
-
-  application::ApplicationSystemLinux* app_system =
-      static_cast<application::ApplicationSystemLinux*>(app_system_);
-  application::RunningApplicationObject* running_app_object =
-      app_system->service_provider()->GetRunningApplicationObject(app);
-  CHECK(running_app_object);
-  running_app_object->ExtensionProcessCreated(channel_handle);
-#endif
 }
 
 void XWalkAppExtensionBridge::RenderChannelCreated(

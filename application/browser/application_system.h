@@ -50,7 +50,6 @@ class ApplicationSystem {
   // different ways to inform which application should be launched
   //
   // (1) app_id from the binary name (used in Tizen);
-  // (2) app_id passed in the command line (used in Tizen);
   // (3) launching a directory that contains an extracted package.
   // (4) launching from the path to the packaged application file.
   //
@@ -60,9 +59,8 @@ class ApplicationSystem {
   //
   // A return value of true indicates that ApplicationSystem handled the command
   // line, so the caller shouldn't try to load the url by itself.
-  bool LaunchFromCommandLine(const base::CommandLine& cmd_line,
-                             const GURL& url,
-                             bool& run_default_message_loop_);  // NOLINT
+  virtual bool LaunchFromCommandLine(const base::CommandLine& cmd_line,
+                                     const GURL& url);
 
   void CreateExtensions(content::RenderProcessHost* host,
                         extensions::XWalkExtensionVector* extensions);
@@ -70,7 +68,6 @@ class ApplicationSystem {
  protected:
   explicit ApplicationSystem(XWalkBrowserContext* browser_context);
 
- private:
   // Note: initialization order matters.
   XWalkBrowserContext* browser_context_;
   scoped_ptr<ApplicationService> application_service_;

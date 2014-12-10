@@ -62,12 +62,18 @@ const base::FilePath::CharType kUpdateTempDir[] =
 
 namespace widget_keys = xwalk::application_widget_keys;
 
-const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
+inline base::FilePath GetXWalkBinaryPath() {
+#if defined(__x86_64__)
+  return base::FilePath("/usr/lib64/xwalk/xwalk");
+#else
+  return base::FilePath("/usr/lib/xwalk/xwalk");
+#endif
+}
 
 const base::FilePath kDefaultIcon(
     "/usr/share/icons/default/small/crosswalk.png");
 
-const std::string kServicePrefix("xwalk-service.");
+const std::string kServicePrefix("xwalk.");
 const std::string kAppIdPrefix("xwalk.");
 
 bool CopyDirectoryContents(const base::FilePath& from,
@@ -208,7 +214,7 @@ bool CreateAppSymbolicLink(const base::FilePath& app_dir,
     return false;
   }
 
-  if (!base::CreateSymbolicLink(kXWalkLauncherBinary, execute_path)) {
+  if (!base::CreateSymbolicLink(GetXWalkBinaryPath(), execute_path)) {
     LOG(ERROR) << "Could not create symbolic link to launcher from '"
                << execute_path.value() << "'.";
     return false;

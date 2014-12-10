@@ -25,9 +25,8 @@ namespace {
 
 typedef int (*PkgParser)(const char*, char* const*);
 
-const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 const char kIconDir[] = "/default/small/";
-const std::string kServicePrefix("xwalk-service.");
+const std::string kServicePrefix("xwalk.");
 const std::string kXmlFileExt(".xml");
 const std::string kPngFileExt(".png");
 

@@ -216,19 +216,17 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (!xwalk_runner_->shared_process_mode_enabled()) {
-    application::ApplicationSystem* app_system = xwalk_runner_->app_system();
-    app_system->LaunchFromCommandLine(*command_line, startup_url_,
-                                      run_default_message_loop_);
-    // If the |ui_task| is specified in main function parameter, it indicates
-    // that we will run this UI task instead of running the the default main
-    // message loop. See |content::BrowserTestBase::SetUp| for |ui_task| usage
-    // case.
-    if (parameters_.ui_task) {
-      parameters_.ui_task->Run();
-      delete parameters_.ui_task;
-      run_default_message_loop_ = false;
-    }
+  application::ApplicationSystem* app_system = xwalk_runner_->app_system();
+  run_default_message_loop_ = app_system->LaunchFromCommandLine(
+      *command_line, startup_url_);
+  // If the |ui_task| is specified in main function parameter, it indicates
+  // that we will run this UI task instead of running the the default main
+  // message loop. See |content::BrowserTestBase::SetUp| for |ui_task| usage
+  // case.
+  if (parameters_.ui_task) {
+    parameters_.ui_task->Run();
+    delete parameters_.ui_task;
+    run_default_message_loop_ = false;
   }
 }
 

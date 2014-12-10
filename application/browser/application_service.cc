@@ -250,11 +250,9 @@ void ApplicationService::OnApplicationTerminated(
           base::Bind(&base::DoNothing));
   }
 
-  if (!XWalkRunner::GetInstance()->shared_process_mode_enabled()) {
-    if (applications_.empty()) {
-      base::MessageLoop::current()->PostTask(
-            FROM_HERE, base::MessageLoop::QuitClosure());
-    }
+  if (applications_.empty()) {
+    base::MessageLoop::current()->PostTask(
+          FROM_HERE, base::MessageLoop::QuitClosure());
   }
 }
 

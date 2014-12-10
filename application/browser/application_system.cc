@@ -19,12 +19,8 @@
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
-#if defined(OS_LINUX)
-#include "xwalk/application/browser/application_system_linux.h"
-#endif
-
 #if defined(OS_TIZEN)
-#include "xwalk/application/browser/application_service_tizen.h"
+#include "xwalk/application/browser/application_system_tizen.h"
 #endif
 
 namespace xwalk {
@@ -42,8 +38,8 @@ ApplicationSystem::~ApplicationSystem() {
 scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
     XWalkBrowserContext* browser_context) {
   scoped_ptr<ApplicationSystem> app_system;
-#if defined(OS_LINUX)
-  app_system.reset(new ApplicationSystemLinux(browser_context));
+#if defined(OS_TIZEN)
+  app_system.reset(new ApplicationSystemTizen(browser_context));
 #else
   app_system.reset(new ApplicationSystem(browser_context));
 #endif
@@ -64,32 +60,17 @@ Application::LaunchParams launch_params(
 }  // namespace
 
 bool ApplicationSystem::LaunchFromCommandLine(
-    const base::CommandLine& cmd_line, const GURL& url,
-    bool& run_default_message_loop) { // NOLINT
-
-#if defined(OS_TIZEN)
-  // Handles raw app_id passed as first non-switch argument.
-  const base::CommandLine::StringVector& args = cmd_line.GetArgs();
-  if (!args.empty()) {
-    std::string app_id = std::string(args[0].begin(), args[0].end());
-    if (IsValidApplicationID(app_id)) {
-      ApplicationServiceTizen* app_service_tizen =
-          ToApplicationServiceTizen(application_service_.get());
-      run_default_message_loop = app_service_tizen->LaunchFromAppID(
-          app_id, launch_params(cmd_line));
-      return true;
-    }
-  }
-#endif
+    const base::CommandLine& cmd_line, const GURL& url) {
   if (!url.is_valid())
     return false;
 
   base::FilePath path;
+  Application* app = nullptr;
   bool is_local = url.SchemeIsFile() && net::FileURLToFilePath(url, &path);
   if (!is_local) {  // Handles external URL.
-    run_default_message_loop = application_service_->LaunchHostedURL(
+    app = application_service_->LaunchHostedURL(
         url, launch_params(cmd_line));
-    return true;
+    return !!app;
   }
 
   if (!base::PathExists(path))
@@ -97,21 +78,21 @@ bool ApplicationSystem::LaunchFromCommandLine(
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".xpk")) ||
       path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
-    run_default_message_loop = application_service_->LaunchFromPackagePath(
+    app = application_service_->LaunchFromPackagePath(
         path, launch_params(cmd_line));
-    return true;
+    return !!app;
   }
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".json"))) {
-    run_default_message_loop = application_service_->LaunchFromManifestPath(
+    app = application_service_->LaunchFromManifestPath(
         path, Manifest::TYPE_MANIFEST, launch_params(cmd_line));
-    return true;
+    return !!app;
   }
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".xml"))) {
-    run_default_message_loop = application_service_->LaunchFromManifestPath(
+    app = application_service_->LaunchFromManifestPath(
         path, Manifest::TYPE_WIDGET, launch_params(cmd_line));
-    return true;
+    return !!app;
   }
 
   return false;
