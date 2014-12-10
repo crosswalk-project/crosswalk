@@ -18,6 +18,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
@@ -373,15 +374,6 @@ void XWalkContentsClientBridge::NotificationDisplayed(
     notification_delegate->NotificationDisplayed();
 }
 
-void XWalkContentsClientBridge::NotificationError(
-    JNIEnv* env, jobject, jint notification_id) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  content::DesktopNotificationDelegate* notification_delegate =
-      g_notification_map_.get(notification_id);
-  if (notification_delegate)
-    notification_delegate->NotificationError();
-}
-
 void XWalkContentsClientBridge::NotificationClicked(
     JNIEnv*, jobject, jint id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -412,12 +404,12 @@ void XWalkContentsClientBridge::OnFilesSelected(
   std::string file_name =
       base::android::ConvertJavaStringToUTF8(env, display_name);
   base::FilePath file_path = base::FilePath(path);
-  ui::SelectedFileInfo file_info;
+  content::FileChooserFileInfo file_info;
+  //ui::SelectedFileInfo file_info;
   file_info.file_path = file_path;
-  file_info.local_path = file_path;
   if (!file_name.empty())
     file_info.display_name = file_name;
-  std::vector<ui::SelectedFileInfo> files;
+  std::vector<content::FileChooserFileInfo> files;
   files.push_back(file_info);
 
   rvh->FilesSelectedInChooser(
@@ -431,7 +423,7 @@ void XWalkContentsClientBridge::OnFilesNotSelected(
   if (!rvh)
     return;
 
-  std::vector<ui::SelectedFileInfo> files;
+  std::vector<content::FileChooserFileInfo> files;
 
   rvh->FilesSelectedInChooser(
       files, static_cast<content::FileChooserParams::Mode>(mode));

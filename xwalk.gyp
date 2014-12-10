@@ -7,6 +7,9 @@
       ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
       }],
+      ['OS=="android"', {
+        'enable_extensions': 1,
+      }],
     ], # conditions
   },
   'includes' : [
