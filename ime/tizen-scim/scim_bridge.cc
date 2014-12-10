@@ -89,8 +89,8 @@ private:
   void SendXKeyEvent(const KeyEvent &key);
   void SetInputMethodActiveWindow();
 
-  void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
-  void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE {}
+  void OnFileCanReadWithoutBlocking(int fd) override;
+  void OnFileCanWriteWithoutBlocking(int fd) override {}
   void WatchSCIMFd();
   void HandleScimEvent();
 

@@ -219,7 +219,7 @@ class IoWatch : public base::MessagePumpLibevent::Watcher {
 
   // Watch readability event handler. Run in I/O thread. Relays dispatching
   // to UI thread.
-  virtual void OnFileCanReadWithoutBlocking(int fd) OVERRIDE {
+  void OnFileCanReadWithoutBlocking(int fd) override {
     if (dead_)
       return;
 
@@ -232,7 +232,7 @@ class IoWatch : public base::MessagePumpLibevent::Watcher {
 
   // Watch writability event handler. Run in I/O thread. Relays dispatching
   // to UI thread.
-  virtual void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE {
+  void OnFileCanWriteWithoutBlocking(int fd) override {
     if (dead_)
       return;
 

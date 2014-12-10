@@ -16,22 +16,22 @@ class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
  public:
   XWalkContentRendererClientTizen() : XWalkContentRendererClient() {}
 
-  virtual bool WillSendRequest(blink::WebFrame* frame,
-                               ui::PageTransition transition_type,
-                               const GURL& url,
-                               const GURL& first_party_for_cookies,
-                               GURL* new_url) OVERRIDE;
+  bool WillSendRequest(blink::WebFrame* frame,
+                       ui::PageTransition transition_type,
+                       const GURL& url,
+                       const GURL& first_party_for_cookies,
+                       GURL* new_url) override;
 
-  virtual bool HasErrorPage(int http_status_code,
-                            std::string* error_domain) OVERRIDE;
+  bool HasErrorPage(int http_status_code,
+                    std::string* error_domain) override;
 
-  virtual void GetNavigationErrorStrings(
+  void GetNavigationErrorStrings(
       content::RenderView* render_view,
       blink::WebFrame* frame,
       const blink::WebURLRequest& failed_request,
       const blink::WebURLError& error,
       std::string* error_html,
-      base::string16* error_description) OVERRIDE;
+      base::string16* error_description) override;
   std::string GetOverridenUserAgent() const;
 
  private:

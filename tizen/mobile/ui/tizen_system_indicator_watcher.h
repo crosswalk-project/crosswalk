@@ -37,8 +37,8 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   virtual ~TizenSystemIndicatorWatcher();
 
   // base::MessagePumpLibevent::Watcher implementation.
-  void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
-  void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE;
+  void OnFileCanReadWithoutBlocking(int fd) override;
+  void OnFileCanWriteWithoutBlocking(int fd) override;
 
   void StartWatching();
   void StopWatching();

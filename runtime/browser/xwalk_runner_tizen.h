@@ -23,7 +23,7 @@ class XWalkRunnerTizen : public XWalkRunner {
 
   virtual ~XWalkRunnerTizen();
 
-  virtual void PreMainMessageLoopRun() OVERRIDE;
+  void PreMainMessageLoopRun() override;
 
  private:
   friend class XWalkRunner;

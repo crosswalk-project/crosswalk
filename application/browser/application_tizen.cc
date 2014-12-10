@@ -99,9 +99,9 @@ class ScreenOrientationProviderTizen :
     DCHECK(dispatcher_);
   }
 
-  virtual void LockOrientation(
+  void LockOrientation(
       int request_id,
-      blink::WebScreenOrientationLockType lock) OVERRIDE {
+      blink::WebScreenOrientationLockType lock) override {
     if (!app_) {
       dispatcher_->NotifyLockError(
           request_id,
@@ -123,11 +123,11 @@ class ScreenOrientationProviderTizen :
     dispatcher_->NotifyLockSuccess(request_id);
   }
 
-  virtual void UnlockOrientation() OVERRIDE {
+  void UnlockOrientation() override {
     LockOrientation(request_id_, GetDefaultOrientation(app_));
   }
 
-  virtual void OnOrientationChange() OVERRIDE {}
+  void OnOrientationChange() override {}
 
  private:
   base::WeakPtr<Application> app_;

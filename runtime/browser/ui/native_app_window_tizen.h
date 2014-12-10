@@ -38,25 +38,25 @@ class NativeAppWindowTizen
   void SetDisplayRotation(gfx::Display);
 
   // SensorProvider::Observer overrides:
-  virtual void OnScreenOrientationChanged(
-      blink::WebScreenOrientationType orientation) OVERRIDE;
-  virtual void OnSensorConnected() OVERRIDE;
+  void OnScreenOrientationChanged(
+      blink::WebScreenOrientationType orientation) override;
+  void OnSensorConnected() override;
 
   // NativeAppWindowViews overrides:
-  virtual void Initialize() OVERRIDE;
+  void Initialize() override;
 
   // WindowObserver overrides:
-  virtual void OnWindowVisibilityChanging(
-      aura::Window* window, bool visible) OVERRIDE;
-  virtual void OnWindowBoundsChanged(
+  void OnWindowVisibilityChanging(
+      aura::Window* window, bool visible) override;
+  void OnWindowBoundsChanged(
       aura::Window* window,
       const gfx::Rect& old_bounds,
-      const gfx::Rect& new_bounds) OVERRIDE;
-  virtual void OnWindowDestroying(aura::Window* window) OVERRIDE;
+      const gfx::Rect& new_bounds) override;
+  void OnWindowDestroying(aura::Window* window) override;
 
   // views::View overrides:
-  virtual void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) OVERRIDE;
+  void ViewHierarchyChanged(
+      const ViewHierarchyChangedDetails& details) override;
 
 #if defined(OS_TIZEN_MOBILE)
   // The system indicator is implemented as a widget because it needs to

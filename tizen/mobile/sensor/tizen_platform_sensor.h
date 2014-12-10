@@ -30,8 +30,8 @@ class TizenPlatformSensor : public SensorProvider {
   TizenPlatformSensor();
   virtual ~TizenPlatformSensor();
 
-  virtual bool Initialize() OVERRIDE;
-  virtual void Finish() OVERRIDE;
+  bool Initialize() override;
+  void Finish() override;
 
  private:
   bool auto_rotation_enabled_;

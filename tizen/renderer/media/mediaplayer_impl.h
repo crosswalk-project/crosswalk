@@ -26,9 +26,9 @@ class MediaPlayerImpl : public media::WebMediaPlayerImpl {
   virtual ~MediaPlayerImpl();
 
   // WebMediaPlayerImpl method.
-  virtual void load(LoadType load_type,
-                    const blink::WebURL& url,
-                    CORSMode cors_mode) OVERRIDE;
+  void load(LoadType load_type,
+            const blink::WebURL& url,
+            CORSMode cors_mode) override;
 
   // Playback controls.
   virtual void play();
