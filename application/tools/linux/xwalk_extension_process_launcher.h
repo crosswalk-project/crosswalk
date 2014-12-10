@@ -25,7 +25,7 @@ class XWalkExtensionProcessLauncher: public base::Thread {
   ~XWalkExtensionProcessLauncher();
 
   // Implement base::Thread.
-  virtual void CleanUp() OVERRIDE;
+  void CleanUp() override;
 
   // Will be called in launcher's main thread.
   void Launch(const std::string& channel_id, int channel_fd);

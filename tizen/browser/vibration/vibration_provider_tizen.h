@@ -21,8 +21,8 @@ class VibrationProviderTizen : public content::VibrationProvider {
   void InitializeHapticDevice();
 
   // VibrationProvider
-  virtual void Vibrate(int64 milliseconds) OVERRIDE;
-  virtual void CancelVibration() OVERRIDE;
+  void Vibrate(int64 milliseconds) override;
+  void CancelVibration() override;
 
   haptic_device_h handle_;
 };

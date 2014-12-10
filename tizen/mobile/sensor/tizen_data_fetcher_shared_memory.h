@@ -20,18 +20,18 @@ class TizenDataFetcherSharedMemory : public content::DataFetcherSharedMemory,
 
  private:
   // From content::DataFetcherSharedMemory
-  virtual bool Start(content::ConsumerType type, void* buffer) OVERRIDE;
-  virtual bool Stop(content::ConsumerType type) OVERRIDE;
+  bool Start(content::ConsumerType type, void* buffer) override;
+  bool Stop(content::ConsumerType type) override;
 
   // From SensorProvider::Observer
-  virtual void OnOrientationChanged(float alpha,
-                                    float beta,
-                                    float roll) OVERRIDE;
-  virtual void OnAccelerationChanged(float raw_x, float raw_y, float raw_z,
-                                     float x, float y, float z) OVERRIDE;
-  virtual void OnRotationRateChanged(float alpha,
-                                     float beta,
-                                     float roll) OVERRIDE;
+  void OnOrientationChanged(float alpha,
+                            float beta,
+                            float roll) override;
+  void OnAccelerationChanged(float raw_x, float raw_y, float raw_z,
+                             float x, float y, float z) override;
+  void OnRotationRateChanged(float alpha,
+                             float beta,
+                             float roll) override;
 
   content::DeviceMotionHardwareBuffer* motion_buffer_;
   content::DeviceOrientationHardwareBuffer* orientation_buffer_;
