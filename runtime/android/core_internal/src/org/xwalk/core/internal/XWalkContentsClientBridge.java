@@ -378,7 +378,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @Override
     public boolean onCreateWindow(boolean isDialog, boolean isUserGesture) {
         if (isDialog) return false;
-        
+
         XWalkUIClientInternal.InitiateByInternal initiator =
                 XWalkUIClientInternal.InitiateByInternal.BY_JAVASCRIPT;
         if (isUserGesture) {
@@ -685,11 +685,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         nativeNotificationDisplayed(mNativeContentsClientBridge, id);
     }
 
-    public void notificationError(int id) {
-        if (mNativeContentsClientBridge == 0) return;
-        nativeNotificationError(mNativeContentsClientBridge, id);
-    }
-
     public void notificationClicked(int id) {
         if (mNativeContentsClientBridge == 0) return;
         nativeNotificationClicked(mNativeContentsClientBridge, id);
@@ -749,7 +744,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private native void nativeCancelJsResult(long nativeXWalkContentsClientBridge, int id);
     private native void nativeExitFullscreen(long nativeXWalkContentsClientBridge, long nativeWebContents);
     private native void nativeNotificationDisplayed(long nativeXWalkContentsClientBridge, int id);
-    private native void nativeNotificationError(long nativeXWalkContentsClientBridge, int id);
     private native void nativeNotificationClicked(long nativeXWalkContentsClientBridge, int id);
     private native void nativeNotificationClosed(long nativeXWalkContentsClientBridge, int id, boolean byUser);
     private native void nativeOnFilesSelected(long nativeXWalkContentsClientBridge,

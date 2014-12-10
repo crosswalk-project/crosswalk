@@ -20,8 +20,8 @@ class XWalkPermissionClient : public content::RenderFrameObserver,
   virtual ~XWalkPermissionClient();
 
   // blink::WebPermissionClient implementation.
-  virtual bool allowImage(bool enabledPerSettings,
-                          const blink::WebURL& imageURL) OVERRIDE;
+  bool allowImage(bool enabledPerSettings,
+                          const blink::WebURL& imageURL) override;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionClient);
 };

@@ -93,7 +93,7 @@ class AndroidRequestInterceptorBase : public net::URLRequestInterceptor {
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate) const override;
 
-  bool ShouldHandleRequest(const net::URLRequest* request) const = 0;
+  virtual bool ShouldHandleRequest(const net::URLRequest* request) const = 0;
 };
 
 class AssetFileRequestInterceptor : public AndroidRequestInterceptorBase {
