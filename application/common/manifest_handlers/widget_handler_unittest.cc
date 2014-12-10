@@ -133,7 +133,7 @@ TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
   manifest->SetString(keys::kWidgetNamespaceKey, keys::kWidgetNamespacePrefix);
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
-  EXPECT_TRUE(application.get());
+  EXPECT_NE(nullptr, application.get());
 
   WidgetInfo* info = GetWidgetInfo(application);
   int size = info->GetWidgetInfo()->size();
@@ -170,11 +170,11 @@ TEST_F(WidgetHandlerTest,
   // Create an application use this manifest.
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
-  EXPECT_TRUE(application.get());
+  EXPECT_NE(nullptr, application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
-  EXPECT_TRUE(info);
+  EXPECT_NE(nullptr, info);
   scoped_ptr<base::DictionaryValue>
       deep_copy(info->GetWidgetInfo()->DeepCopy());
   base::DictionaryValue* widget_parsed_from_manifest;
@@ -196,19 +196,20 @@ TEST_F(WidgetHandlerTest,
   // Create a manifest with three preference items.
   scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
-  base::ListValue* manifestPreferences = new base::ListValue;
+  scoped_ptr<base::ListValue> manifestPreferences(new base::ListValue);
   for (int i = 0; i < 3; i++) {
     manifestPreferences->Append(GetPreferencesItem<Manifest::TYPE_MANIFEST>(i));
   }
-  // TODO(aszafranek): Set manifestPreferences to manifest and test it below
+  manifest->Set(keys::kPreferencesKey, manifestPreferences.release());
+
   // Create an application use this manifest,
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
-  EXPECT_TRUE(application.get());
+  EXPECT_NE(nullptr, application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
-  EXPECT_TRUE(info);
+  EXPECT_NE(nullptr, info);
   scoped_ptr<base::DictionaryValue>
       deep_copy(info->GetWidgetInfo()->DeepCopy());
   base::DictionaryValue* widget_parsed_from_manifest;
@@ -217,10 +218,11 @@ TEST_F(WidgetHandlerTest,
   // Create a widget with three preference items manually.
   scoped_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
   SetAllInfoToWidget(widget.get());
-  base::ListValue* widgetPreferences = new base::ListValue;
+  scoped_ptr<base::ListValue> widgetPreferences(new base::ListValue);
   for (int i = 0; i < 3; i++) {
     widgetPreferences->Append(GetPreferencesItem<Manifest::TYPE_WIDGET>(i));
   }
+  widget->Set(kWidgetPreferences, widgetPreferences.release());
 
   // Compare the widget parsed from manifest with
   // the widget create manually.
@@ -236,11 +238,11 @@ TEST_F(WidgetHandlerTest,
   // Create an application use this manifest,
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
-  EXPECT_TRUE(application.get());
+  EXPECT_NE(nullptr, application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
-  EXPECT_TRUE(info);
+  EXPECT_NE(nullptr, info);
   std::string authorhref;
   info->GetWidgetInfo()->GetString(keys::kAuthorHrefKey, &authorhref);
   EXPECT_TRUE(authorhref.empty());
