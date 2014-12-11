@@ -4,13 +4,11 @@
 
 #include "xwalk/runtime/common/xwalk_paths.h"
 
-#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
-#include "xwalk/runtime/common/xwalk_switches.h"
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"
@@ -87,11 +85,11 @@ base::FilePath GetConfigPath() {
 
 bool GetXWalkDataPath(base::FilePath* path) {
   base::FilePath::StringType xwalk_suffix;
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kXWalkDisableSharedProcessMode))
-    xwalk_suffix = FILE_PATH_LITERAL("xwalk");
-  else
-    xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
+#if defined(OS_TIZEN)
+  xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
+#else
+  xwalk_suffix = FILE_PATH_LITERAL("xwalk");
+#endif
   base::FilePath cur;
 
 #if defined(OS_WIN)
