@@ -16,7 +16,7 @@ MediaPlayerImpl::MediaPlayerImpl(
     base::WeakPtr<media::WebMediaPlayerDelegate> delegate,
     RendererMediaPlayerManager* manager,
     const media::WebMediaPlayerParams& params)
-    : WebMediaPlayerImpl(frame, client, delegate, params),
+    : WebMediaPlayerImpl(frame, client, delegate, nullptr, params),
       client_(client),
       manager_(manager) {
   DCHECK(manager_);
