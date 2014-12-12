@@ -161,7 +161,7 @@ void XWalkExtensionProcessHost::StartProcess() {
     if (!channel_->Connect())
       NOTREACHED();
     IPC::ChannelHandle channel_handle(channel_id,
-        base::FileDescriptor(channel_->TakeClientFileDescriptor(), true));
+        base::FileDescriptor(channel_->TakeClientFileDescriptor()));
     BrowserThread::PostTask(
         BrowserThread::UI, FROM_HERE,
         base::Bind(
