@@ -314,8 +314,7 @@ void XWalkContentBrowserClient::RequestPermission(
     geolocation_permission_context_->RequestGeolocationPermission(
       web_contents,
       requesting_frame,
-      result_callback,
-      cancel_callback);
+      result_callback);
 #else
     result_callback.Run(false);
 #endif

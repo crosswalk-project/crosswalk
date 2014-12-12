@@ -61,14 +61,13 @@ void
 RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback) {
+    base::Callback<void(bool)> result_callback) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
 
-  int render_process_id = web_contents->GetRenderProcessHost()->GetID();
   int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
 
 #if defined(OS_ANDROID)
+  int render_process_id = web_contents->GetRenderProcessHost()->GetID();
   XWalkContent* xwalk_content =
       XWalkContent::FromID(render_process_id, render_view_id);
   if (!xwalk_content) {
@@ -104,14 +103,6 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
   result_callback.Run(has_geolocation_permission);
 #endif
 
-  if (cancel_callback) {
-     *cancel_callback = base::Bind(
-         CancelGeolocationPermissionRequest,
-         render_process_id,
-         render_view_id,
-         requesting_frame);
-  }
-
   // TODO(yongsheng): Handle this for other platforms.
 }
 
@@ -119,8 +110,7 @@ void
 RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback) {
+    base::Callback<void(bool)> result_callback) {
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(
@@ -129,8 +119,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
           this,
           web_contents,
           requesting_frame,
-          result_callback,
-          cancel_callback));
+          result_callback));
 }
 
 }  // namespace xwalk

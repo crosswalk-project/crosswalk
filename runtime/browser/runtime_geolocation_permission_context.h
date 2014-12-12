@@ -25,8 +25,7 @@ class RuntimeGeolocationPermissionContext
   virtual void RequestGeolocationPermission(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback);
+    base::Callback<void(bool)> result_callback);
 
  protected:
   virtual ~RuntimeGeolocationPermissionContext();
@@ -36,8 +35,7 @@ class RuntimeGeolocationPermissionContext
   void RequestGeolocationPermissionOnUIThread(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback);
+    base::Callback<void(bool)> result_callback);
 };
 
 }  // namespace xwalk
