@@ -63,10 +63,8 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
     const GURL& requesting_frame,
     base::Callback<void(bool)> result_callback) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
-
-  int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
-
 #if defined(OS_ANDROID)
+  int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
   int render_process_id = web_contents->GetRenderProcessHost()->GetID();
   XWalkContent* xwalk_content =
       XWalkContent::FromID(render_process_id, render_view_id);
@@ -77,6 +75,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
 
   xwalk_content->ShowGeolocationPrompt(requesting_frame, result_callback);
 #elif defined(OS_TIZEN)
+  int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
   bool has_geolocation_permission = false;
   XWalkRunner* runner = XWalkRunner::GetInstance();
   application::ApplicationSystem* app_system = runner->app_system();
