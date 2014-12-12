@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit current_release="1" latest_public_release="0">
+  <release allow_pseudo="false" seq="1">
+    <messages fallback_to_english="true">
+      <message desc="Market Progress Message [CHAR-LIMIT=100]" name="IDS_MARKET_PROGRESS_MESSAGE">
+        Please wait until Crosswalk installed
+      </message>
+      <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
+        Downloading Crosswalk
+      </message>
+      <message desc="Download Failed Title [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_TITLE">
+        Crosswalk Download Failed
+      </message>
+      <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
+        Please retry or cancel
+      </message>
+      <message desc="Download Failed Not Found [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_DEVICE_NOT_FOUND">
+        Storage device not found
+      </message>
+      <message desc="Download Failed Insufficient space [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_INSUFFICIENT_SPACE">
+        Insufficient storage space
+      </message>
+      <message desc="Download Failed Time Out [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_TIME_OUT">
+        Timed out
+      </message>
+      <message desc="Startup Not Found Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_TITLE">
+        Crosswalk Not Found
+      </message>
+      <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
+        Please get Crosswalk Runtime Library
+      </message>
+      <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
+        Crosswalk Version Too Old
+      </message>
+      <message desc="Startup Older Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_MESSAGE">
+        Please update Crosswalk or continue
+      </message>
+      <message desc="Startup Newer Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_TITLE">
+        Crosswalk Version Too New
+      </message>
+      <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
+        The application is using outdated Crosswalk SDK
+      </message>
+      <message desc="Runtime Older Version Title [CHAR-LIMIT=100]" name="IDS_RUNTIME_OLDER_VERSION_TITLE">
+        Crosswalk Version Too Old
+      </message>
+      <message desc="Runtime Older Version Message [CHAR-LIMIT=100]" name="IDS_RUNTIME_OLDER_VERSION_MESSAGE">
+        Next operation may not be supported
+      </message>
+      <message desc="Runtime Newer Version Title [CHAR-LIMIT=100]" name="IDS_RUNTIME_NEWER_VERSION_TITLE">
+        Crosswalk Version Too New
+      </message>
+      <message desc="Runtime Newer Version Message [CHAR-LIMIT=100]" name="IDS_RUNTIME_NEWER_VERSION_MESSAGE">
+        Next operation may not be supported
+      </message>
+      <message desc="Market Open Failed Title [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_TITLE">
+        Market Open Failed
+      </message>
+      <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
+        Please set up your app market
+      </message>
+      <message desc="Label of Cancel [CHAR-LIMIT=100]" name="IDS_XWALK_CANCEL">
+        Cancel
+      </message>
+      <message desc="Label of Continue [CHAR-LIMIT=100]" name="IDS_XWALK_CONTINUE">
+        Continue
+      </message>
+      <message desc="Label of Terminate [CHAR-LIMIT=100]" name="IDS_XWALK_TERMINATE">
+        Terminate
+      </message>
+      <message desc="Label of Retry [CHAR-LIMIT=100]" name="IDS_XWALK_RETRY">
+        Retry
+      </message>
+      <message desc="Get Crosswalk [CHAR-LIMIT=100]" name="IDS_GET_CROSSWALK">
+        Get Crosswalk
+      </message>
+    </messages>
+  </release>
+  <translations>
+  </translations>
+  <outputs>
+    <output filename="values/xwalk_app_strings.xml" lang="en" type="android" />
+  </outputs>
+</grit>

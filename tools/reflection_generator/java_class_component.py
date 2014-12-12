@@ -48,6 +48,9 @@ class Enum:
   def enum_doc(self):
     return self._enum_doc
 
+  def EnumWrapperName(self):
+    return self._enum_name.replace('Internal', '')
+
   def EnumClassName(self):
     # return the variable name of the class<?> object for this enum
     # type in parent class.
