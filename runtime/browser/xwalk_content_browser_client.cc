@@ -16,6 +16,8 @@
 #include "content/public/browser/child_process_data.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_widget_host.h"
+#include "content/public/browser/render_widget_host_iterator.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/browser/storage_partition.h"
@@ -290,10 +292,23 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
-  XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
-  bridge->ShowNotification(params, render_frame_host,
-      delegate.Pass(), cancel_callback);
+  scoped_ptr<content::RenderWidgetHostIterator> widgets(
+      content::RenderWidgetHost::GetRenderWidgetHosts());
+  while (content::RenderWidgetHost* rwh = widgets->GetNextHost()) {
+    if (!rwh->GetProcess() || rwh->GetProcess()->GetID() != render_process_id)
+      continue;
+    content::RenderViewHost* rvh = content::RenderViewHost::From(rwh);
+    if (!rvh)
+      continue;
+    content::WebContents* web_contents =
+        content::WebContents::FromRenderViewHost(rvh);
+    if (!web_contents)
+      continue;
+    XWalkContentsClientBridgeBase* bridge =
+        XWalkContentsClientBridgeBase::FromWebContents(web_contents);
+    bridge->ShowNotification(params, delegate.Pass(), cancel_callback);
+    return;
+  }
 #endif
 }
 
@@ -312,9 +327,7 @@ void XWalkContentBrowserClient::RequestPermission(
         new RuntimeGeolocationPermissionContext();
     }
     geolocation_permission_context_->RequestGeolocationPermission(
-      web_contents,
-      requesting_frame,
-      result_callback);
+        web_contents, requesting_frame, result_callback);
 #else
     result_callback.Run(false);
 #endif
@@ -323,6 +336,24 @@ void XWalkContentBrowserClient::RequestPermission(
     default:
       break;
     }
+}
+
+void XWalkContentBrowserClient::CancelPermissionRequest(
+    content::PermissionType permission,
+    content::WebContents* web_contents,
+    int bridge_id,
+    const GURL& requesting_frame) {
+  switch (permission) {
+    case content::PERMISSION_GEOLOCATION:
+#if defined(OS_ANDROID) || defined(OS_TIZEN)
+      geolocation_permission_context_->CancelGeolocationPermissionRequest(
+          web_contents, requesting_frame);
+#endif
+      break;
+    case content::PERMISSION_NOTIFICATIONS:
+    default:
+      break;
+  }
 }
 
 void XWalkContentBrowserClient::DidCreatePpapiPlugin(

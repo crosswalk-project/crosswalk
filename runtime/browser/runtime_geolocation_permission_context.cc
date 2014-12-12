@@ -25,15 +25,15 @@
 
 namespace xwalk {
 
-void CancelGeolocationPermissionRequestOnUIThread(
-        int render_process_id,
-        int render_view_id,
-        const GURL& requesting_frame) {
+void RuntimeGeolocationPermissionContext::
+CancelGeolocationPermissionRequestOnUIThread(
+    content::WebContents* web_contents,
+    const GURL& requesting_frame) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
 
 #if defined(OS_ANDROID)
   XWalkContent* xwalk_content =
-      XWalkContent::FromID(render_process_id, render_view_id);
+      XWalkContent::FromWebContents(web_contents);
   if (xwalk_content) {
       xwalk_content->HideGeolocationPrompt(requesting_frame);
   }
@@ -41,16 +41,16 @@ void CancelGeolocationPermissionRequestOnUIThread(
   // TODO(yongsheng): Handle this for other platforms.
 }
 
-void CancelGeolocationPermissionRequest(
-    int render_process_id,
-    int render_view_id,
+void RuntimeGeolocationPermissionContext::CancelGeolocationPermissionRequest(
+    content::WebContents* web_contents,
     const GURL& requesting_frame) {
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &CancelGeolocationPermissionRequestOnUIThread,
-          render_process_id,
-          render_view_id,
+          &RuntimeGeolocationPermissionContext::
+              CancelGeolocationPermissionRequestOnUIThread,
+          this,
+          web_contents,
           requesting_frame));
 }
 
@@ -63,11 +63,10 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
     const GURL& requesting_frame,
     base::Callback<void(bool)> result_callback) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+
 #if defined(OS_ANDROID)
-  int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
-  int render_process_id = web_contents->GetRenderProcessHost()->GetID();
   XWalkContent* xwalk_content =
-      XWalkContent::FromID(render_process_id, render_view_id);
+      XWalkContent::FromWebContents(web_contents);
   if (!xwalk_content) {
     result_callback.Run(false);
     return;

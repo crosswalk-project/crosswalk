@@ -17,6 +17,7 @@ import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.content_public.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
+import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageFinishedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 import org.chromium.net.test.util.TestWebServer;
@@ -32,12 +33,14 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
     private static final String REDIRECT_TARGET_PATH = "/redirect_target.html";
     private static final String TITLE = "TITLE";
     private TestHelperBridge.ShouldOverrideUrlLoadingHelper mShouldOverrideUrlLoadingHelper;
+    private OnPageFinishedHelper mOnPageFinishedHelper;
     private TestWebServer mWebServer;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         mShouldOverrideUrlLoadingHelper = mTestHelperBridge.getShouldOverrideUrlLoadingHelper();
+        mOnPageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         mWebServer = TestWebServer.start();
     }
 
@@ -339,6 +342,8 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
         // callback causing the navigation caused by calling clickOnElementId to be ignored.
         // We validate this by checking which pages were loaded on the server.
         mShouldOverrideUrlLoadingHelper.waitForCallback(callCount);
+        mOnPageFinishedHelper.waitForCallback(
+                mOnPageFinishedHelper.getCallCount(), 1, 15, TimeUnit.SECONDS);
 
         setShouldOverrideUrlLoadingReturnValueOnUiThread(false);
 

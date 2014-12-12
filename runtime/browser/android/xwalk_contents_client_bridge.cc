@@ -44,16 +44,6 @@ namespace xwalk {
 
 namespace {
 
-void RunUpdateNotificationIconOnUIThread(
-    int notification_id,
-    content::RenderFrameHost* render_frame_host,
-    const SkBitmap& icon) {
-  XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
-  if (bridge)
-    bridge->UpdateNotificationIcon(notification_id, icon);
-}
-
 int g_next_notification_id_ = 1;
 
 ScopedPtrHashMap<int, content::DesktopNotificationDelegate> g_notification_map_;
@@ -213,52 +203,6 @@ bool XWalkContentsClientBridge::OnReceivedHttpAuthRequest(
   return true;
 }
 
-void XWalkContentsClientBridge::OnNotificationIconDownloaded(
-    int id,
-    int http_status_code,
-    const GURL& icon_url,
-    const std::vector<SkBitmap>& bitmaps,
-    const std::vector<gfx::Size>& original_bitmap_sizes) {
-  if (bitmaps.empty() && http_status_code == 404) {
-    LOG(WARNING) << "Failed to download notification icon from "
-                 << icon_url.spec();
-  } else {
-    NotificationDownloadRequestIdMap::iterator iter =
-        downloading_icon_notifications_.find(id);
-    if (iter == downloading_icon_notifications_.end())
-      return;
-
-    int notification_id = iter->second.first;
-    content::RenderFrameHost* render_frame_host = iter->second.second;
-    // This will lead to a second call of ShowNotification for the
-    // same notification id to update the icon. On Android, when
-    // the notification which is already shown is fired again, it will
-    // silently update the content only.
-    BrowserThread::PostTask(
-        BrowserThread::UI,
-        FROM_HERE,
-        base::Bind(&RunUpdateNotificationIconOnUIThread,
-                   notification_id,
-                   render_frame_host,
-                   bitmaps[0]));
-  }
-  downloading_icon_notifications_.erase(id);
-}
-
-void XWalkContentsClientBridge::UpdateNotificationIcon(
-    int notification_id, const SkBitmap& icon) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  JNIEnv* env = AttachCurrentThread();
-
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null())
-    return;
-
-  ScopedJavaLocalRef<jobject> jicon = gfx::ConvertToJavaBitmap(&icon);
-  Java_XWalkContentsClientBridge_updateNotificationIcon(
-      env, obj.obj(), notification_id, jicon.obj());
-}
-
 static void CancelNotification(
     JavaObjectWeakGlobalRef java_ref, int notification_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -273,7 +217,6 @@ static void CancelNotification(
 
 void XWalkContentsClientBridge::ShowNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
-    content::RenderFrameHost* render_frame_host,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -289,33 +232,17 @@ void XWalkContentsClientBridge::ShowNotification(
     ConvertUTF16ToJavaString(env, params.body));
   ScopedJavaLocalRef<jstring> jreplace_id(
     ConvertUTF16ToJavaString(env, params.replace_id));
+  ScopedJavaLocalRef<jobject> jicon = gfx::ConvertToJavaBitmap(&params.icon);
 
   int notification_id = g_next_notification_id_++;
   g_notification_map_.set(notification_id, delegate.Pass());
   Java_XWalkContentsClientBridge_showNotification(
       env, obj.obj(), jtitle.obj(), jbody.obj(),
-      jreplace_id.obj(), notification_id);
+      jreplace_id.obj(), jicon.obj(), notification_id);
 
   if (cancel_callback)
     *cancel_callback = base::Bind(
         &CancelNotification, java_ref_, notification_id);
-
-  if (params.icon_url.is_valid()) {
-    WebContents* web_contents =
-      WebContents::FromRenderFrameHost(render_frame_host);
-    if (web_contents) {
-      int download_request_id = web_contents->DownloadImage(
-          params.icon_url,
-          false,
-          0,
-          base::Bind(
-              &XWalkContentsClientBridge::OnNotificationIconDownloaded,
-              base::Unretained(this)));
-      NotificationDownloadRequestInfos info =
-          std::make_pair(notification_id, render_frame_host);
-      downloading_icon_notifications_[download_request_id] = info;
-    }
-  }
 }
 
 void XWalkContentsClientBridge::OnWebLayoutPageScaleFactorChanged(

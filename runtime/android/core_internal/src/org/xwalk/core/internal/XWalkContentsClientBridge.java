@@ -649,15 +649,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @CalledByNative
-    private void updateNotificationIcon(int notificationId, Bitmap icon) {
-        mNotificationService.updateNotificationIcon(notificationId, icon);
-    }
-
-    @CalledByNative
     private void showNotification(String title, String message, String replaceId,
-            int notificationId) {
+            Bitmap icon, int notificationId) {
         mNotificationService.showNotification(
-                title, message, replaceId, notificationId);
+                title, message, replaceId, icon, notificationId);
     }
 
     @CalledByNative
