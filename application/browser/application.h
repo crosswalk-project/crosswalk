@@ -109,6 +109,8 @@ class Application : public Runtime::Observer,
                      const std::string& permission_name,
                      StoredPermission perm);
   bool CanRequestURL(const GURL& url) const;
+  bool IsFullScreenRequired() const {
+      return window_show_params_.state == ui::SHOW_STATE_FULLSCREEN; }
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
