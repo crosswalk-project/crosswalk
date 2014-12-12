@@ -40,7 +40,7 @@
 #if defined(OS_TIZEN)
 #include <ss_manager.h>
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/task_runner.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"

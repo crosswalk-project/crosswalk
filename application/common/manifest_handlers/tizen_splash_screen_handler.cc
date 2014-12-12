@@ -7,7 +7,7 @@
 #include <map>
 #include <utility>
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
