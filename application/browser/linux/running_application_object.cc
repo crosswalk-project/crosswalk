@@ -272,7 +272,7 @@ void RunningApplicationObject::OnSetUserAgentString(
         dbus::ErrorResponse::FromMethodCall(method_call,
                                             kRunningApplicationDBusError,
                                             "Wrong user agent string");
-    response_sender.Run(error_response.PassAs<dbus::Response>());
+    response_sender.Run(error_response.Pass());
   }
 }
 #endif
