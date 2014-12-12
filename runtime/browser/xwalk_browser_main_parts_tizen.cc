@@ -4,7 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/files/file_path.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"

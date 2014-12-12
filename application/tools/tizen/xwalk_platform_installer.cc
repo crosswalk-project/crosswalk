@@ -17,7 +17,7 @@
 #include <string>
 
 #include "base/files/file_path.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "xwalk/application/common/id_util.h"
 
