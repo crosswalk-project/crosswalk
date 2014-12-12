@@ -47,7 +47,7 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
   virtual ~XWalkContentsIoThreadClientImpl();
 
   // Implementation of XWalkContentsIoThreadClient.
-   bool PendingAssociation() const override;
+  bool PendingAssociation() const override;
   CacheMode GetCacheMode() const override;
   scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
       const GURL& location,

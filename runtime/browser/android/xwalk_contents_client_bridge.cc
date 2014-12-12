@@ -405,7 +405,6 @@ void XWalkContentsClientBridge::OnFilesSelected(
       base::android::ConvertJavaStringToUTF8(env, display_name);
   base::FilePath file_path = base::FilePath(path);
   content::FileChooserFileInfo file_info;
-  //ui::SelectedFileInfo file_info;
   file_info.file_path = file_path;
   if (!file_name.empty())
     file_info.display_name = file_name;

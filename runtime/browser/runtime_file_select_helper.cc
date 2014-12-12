@@ -45,7 +45,6 @@ const int kFileSelectEnumerationId = -1;
 void NotifyRenderViewHost(RenderViewHost* render_view_host,
                           const std::vector<ui::SelectedFileInfo>& files,
                           FileChooserParams::Mode dialog_mode) {
-
   std::vector<content::FileChooserFileInfo> chooser_files;
   for (const auto& file : files) {
     content::FileChooserFileInfo chooser_file;
