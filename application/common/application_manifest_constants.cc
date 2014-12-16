@@ -160,6 +160,16 @@ const char kTizenApplicationAppControlOperationKey[] = "operation";
 const char kTizenApplicationAppControlUriKey[] = "uri";
 const char kTizenApplicationAppControlMimeKey[] = "mime";
 const char kTizenApplicationAppControlChildNameAttrKey[] = "@name";
+// IME
+const char kTizenImeKey[] = "widget.ime";
+const char kTizenImeUuidKey[] = "uuid";
+const char kTizenImeUuidTextKey[] = "#text";
+const char kTizenImeLanguagesKey[] = "languages";
+const char kTizenImeLanguageKey[] = "language";
+const char kTizenImeLanguageTextKey[] = "#text";
+// category
+const char kTizenCategoryKey[] = "widget.category";
+const char kTizenCategoryNameKey[] = "@name";
 const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
 #endif
 
