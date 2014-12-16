@@ -26,6 +26,7 @@ XPKPackage::~XPKPackage() {
 
 XPKPackage::XPKPackage(const base::FilePath& path)
     : Package(path, Manifest::TYPE_MANIFEST),
+      header_(),
       zip_addr_(0) {
   if (!base::PathExists(path))
     return;

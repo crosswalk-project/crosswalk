@@ -41,7 +41,10 @@ void XWalkExternalInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   }
 
   std::string string_msg;
-  msg->GetAsString(&string_msg);
+  if (!msg->GetAsString(&string_msg)) {
+    LOG(WARNING) << "Failed to retrieve the message's value.";
+    return;
+  }
   callback(xw_instance_, string_msg.c_str());
 }
 
@@ -54,7 +57,10 @@ void XWalkExternalInstance::HandleSyncMessage(scoped_ptr<base::Value> msg) {
   }
 
   std::string string_msg;
-  msg->GetAsString(&string_msg);
+  if (!msg->GetAsString(&string_msg)) {
+    LOG(WARNING) << "Failed to retrieve the sync message's value.";
+    return;
+  }
 
   callback(xw_instance_, string_msg.c_str());
 }
