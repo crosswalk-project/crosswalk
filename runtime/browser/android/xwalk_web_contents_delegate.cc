@@ -15,12 +15,12 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
-#include "ui/shell_dialogs/selected_file_info.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF16ToJavaString;
@@ -112,7 +112,7 @@ void XWalkWebContentsDelegate::RunFileChooser(
   if (params.mode == FileChooserParams::Save) {
     // Save not supported, so cancel it.
     web_contents->GetRenderViewHost()->FilesSelectedInChooser(
-         std::vector<ui::SelectedFileInfo>(),
+         std::vector<content::FileChooserFileInfo>(),
          params.mode);
     return;
   }

@@ -38,17 +38,17 @@ class ApplicationTizen :  // NOLINT
   friend class Application;
   ApplicationTizen(scoped_refptr<ApplicationData> data,
                    XWalkBrowserContext* context);
-  virtual bool Launch(const LaunchParams& launch_params) OVERRIDE;
+  bool Launch(const LaunchParams& launch_params) override;
 
-  virtual base::FilePath GetSplashScreenPath() OVERRIDE;
+  base::FilePath GetSplashScreenPath() override;
 
   // Runtime::Observer implementation.
-  virtual void OnNewRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeClosed(Runtime* runtime) OVERRIDE;
+  void OnNewRuntimeAdded(Runtime* runtime) override;
+  void OnRuntimeClosed(Runtime* runtime) override;
 
 #if defined(USE_OZONE)
-  virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
-  virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
+  void WillProcessEvent(const ui::PlatformEvent& event) override;
+  void DidProcessEvent(const ui::PlatformEvent& event) override;
 #endif
   bool CanBeSuspended() const;
 

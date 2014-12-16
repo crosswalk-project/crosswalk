@@ -4,8 +4,8 @@
 
 #include "xwalk/application/common/package/package.h"
 
-#include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "third_party/zlib/google/zip.h"

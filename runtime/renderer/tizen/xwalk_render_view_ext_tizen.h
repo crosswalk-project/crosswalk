@@ -21,8 +21,8 @@ class XWalkRenderViewExtTizen : public content::RenderViewObserver {
   virtual ~XWalkRenderViewExtTizen();
 
   // RenderView::Observer:
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void DidStartProvisionalLoad(blink::WebLocalFrame* frame) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& message) override;
+  void DidStartProvisionalLoad(blink::WebLocalFrame* frame) override;
 
   void OnHWKeyPressed(int keycode);
 

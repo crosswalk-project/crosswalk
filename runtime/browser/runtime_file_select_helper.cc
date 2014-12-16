@@ -8,8 +8,8 @@
 #include <utility>
 
 #include "base/bind.h"
-#include "base/file_util.h"
 #include "base/files/file.h"
+#include "base/files/file_util.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -22,6 +22,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
 #include "grit/xwalk_resources.h"
 #include "net/base/mime_util.h"
@@ -44,7 +45,14 @@ const int kFileSelectEnumerationId = -1;
 void NotifyRenderViewHost(RenderViewHost* render_view_host,
                           const std::vector<ui::SelectedFileInfo>& files,
                           FileChooserParams::Mode dialog_mode) {
-  render_view_host->FilesSelectedInChooser(files, dialog_mode);
+  std::vector<content::FileChooserFileInfo> chooser_files;
+  for (const auto& file : files) {
+    content::FileChooserFileInfo chooser_file;
+    chooser_file.file_path = file.local_path;
+    chooser_file.display_name = file.display_name;
+    chooser_files.push_back(chooser_file);
+  }
+  render_view_host->FilesSelectedInChooser(chooser_files, dialog_mode);
 }
 
 // Converts a list of FilePaths to a list of ui::SelectedFileInfo.

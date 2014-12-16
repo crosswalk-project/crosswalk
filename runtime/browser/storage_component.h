@@ -17,9 +17,9 @@ class StorageComponent : public XWalkComponent {
 
  private:
   // XWalkComponent implementation.
-  virtual void CreateExtensionThreadExtensions(
+  void CreateExtensionThreadExtensions(
       content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
+      extensions::XWalkExtensionVector* extensions) override;
 
   experimental::NativeFileSystemExtension* native_file_system_extension_;
 };

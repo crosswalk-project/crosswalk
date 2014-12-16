@@ -22,7 +22,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 import org.chromium.content.browser.ContentViewClient;
-import org.chromium.content.browser.WebContentsObserverAndroid;
+import org.chromium.content.browser.WebContentsObserver;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.net.NetError;
 
@@ -45,7 +45,7 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     private double mDIPScale;
 
-    public class XWalkWebContentsObserver extends WebContentsObserverAndroid {
+    public class XWalkWebContentsObserver extends WebContentsObserver {
         public XWalkWebContentsObserver(WebContents webContents) {
             super(webContents);
         }

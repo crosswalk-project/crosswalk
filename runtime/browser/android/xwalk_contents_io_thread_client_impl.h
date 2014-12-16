@@ -44,25 +44,25 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
   XWalkContentsIoThreadClientImpl(
       bool pending_associate,
       const base::android::JavaRef<jobject>& jclient);
-  virtual ~XWalkContentsIoThreadClientImpl() OVERRIDE;
+  virtual ~XWalkContentsIoThreadClientImpl();
 
   // Implementation of XWalkContentsIoThreadClient.
-  virtual bool PendingAssociation() const OVERRIDE;
-  virtual CacheMode GetCacheMode() const OVERRIDE;
-  virtual scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
+  bool PendingAssociation() const override;
+  CacheMode GetCacheMode() const override;
+  scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
       const GURL& location,
-      const net::URLRequest* request) OVERRIDE;
-  virtual bool ShouldBlockContentUrls() const OVERRIDE;
-  virtual bool ShouldBlockFileUrls() const OVERRIDE;
-  virtual bool ShouldBlockNetworkLoads() const OVERRIDE;
-  virtual void NewDownload(const GURL& url,
-                           const std::string& user_agent,
-                           const std::string& content_disposition,
-                           const std::string& mime_type,
-                           int64 content_length) OVERRIDE;
-  virtual void NewLoginRequest(const std::string& realm,
-                               const std::string& account,
-                               const std::string& args) OVERRIDE;
+      const net::URLRequest* request) override;
+  bool ShouldBlockContentUrls() const override;
+  bool ShouldBlockFileUrls() const override;
+  bool ShouldBlockNetworkLoads() const override;
+  void NewDownload(const GURL& url,
+                   const std::string& user_agent,
+                   const std::string& content_disposition,
+                   const std::string& mime_type,
+                   int64 content_length) override;
+  void NewLoginRequest(const std::string& realm,
+                       const std::string& account,
+                       const std::string& args) override;
 
  private:
   bool pending_association_;

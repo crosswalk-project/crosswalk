@@ -30,8 +30,8 @@ class TestObserver : public DisplayInfoProvider::Observer {
   TestObserver() {}
 
  private:
-  virtual void OnDisplayConnected(const DisplayUnit& display) OVERRIDE {}
-  virtual void OnDisplayDisconnected(const DisplayUnit& display) OVERRIDE {}
+  void OnDisplayConnected(const DisplayUnit& display) override {}
+  void OnDisplayDisconnected(const DisplayUnit& display) override {}
 };
 
 }  // namespace

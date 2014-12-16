@@ -19,7 +19,7 @@ class TestExtension : public xwalk::extensions::XWalkExtension {
  public:
   TestExtension();
 
-  virtual xwalk::extensions::XWalkExtensionInstance* CreateInstance() OVERRIDE;
+  xwalk::extensions::XWalkExtensionInstance* CreateInstance() override;
 };
 
 class TestExtensionInstance
@@ -30,7 +30,7 @@ class TestExtensionInstance
   TestExtensionInstance();
   virtual ~TestExtensionInstance();
 
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  void HandleMessage(scoped_ptr<base::Value> msg) override;
 
   Database* database() { return &database_; }
 

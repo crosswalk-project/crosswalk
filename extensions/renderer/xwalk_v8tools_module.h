@@ -18,7 +18,7 @@ class XWalkV8ToolsModule : public XWalkNativeModule {
   virtual ~XWalkV8ToolsModule();
 
  private:
-  virtual v8::Handle<v8::Object> NewInstance() OVERRIDE;
+  v8::Handle<v8::Object> NewInstance() override;
 
   v8::Persistent<v8::ObjectTemplate> object_template_;
 };

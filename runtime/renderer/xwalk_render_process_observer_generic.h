@@ -30,9 +30,9 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   virtual ~XWalkRenderProcessObserver();
 
   // content::RenderProcessObserver implementation.
-  virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void WebKitInitialized() OVERRIDE;
-  virtual void OnRenderProcessShutdown() OVERRIDE;
+  bool OnControlMessageReceived(const IPC::Message& message) override;
+  void WebKitInitialized() override;
+  void OnRenderProcessShutdown() override;
 
   bool IsWarpMode() const {
     return security_mode_ == application::ApplicationSecurityPolicy::WARP;
@@ -58,7 +58,7 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   std::string overriden_user_agent_;
 #endif
 
-  bool is_webkit_initialized_;
+  bool is_blink_initialized_;
   bool is_suspended_;
   application::ApplicationSecurityPolicy::SecurityMode security_mode_;
   GURL app_url_;

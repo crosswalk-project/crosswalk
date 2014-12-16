@@ -37,8 +37,8 @@ class XWalkSettings : public content::WebContentsObserver {
   void UpdatePreferredSizeMode();
 
   // WebContentsObserver overrides:
-  virtual void RenderViewCreated(
-      content::RenderViewHost* render_view_host) OVERRIDE;
+  void RenderViewCreated(
+      content::RenderViewHost* render_view_host) override;
 
   // Java field references for accessing the values in the Java object.
   scoped_ptr<FieldIds> field_ids_;

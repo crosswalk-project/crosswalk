@@ -20,14 +20,14 @@ class RuntimeDownloadManagerDelegate
 
   void SetDownloadManager(content::DownloadManager* manager);
 
-  virtual void Shutdown() OVERRIDE;
-  virtual bool DetermineDownloadTarget(
+  void Shutdown() override;
+  bool DetermineDownloadTarget(
       content::DownloadItem* download,
-      const content::DownloadTargetCallback& callback) OVERRIDE;
-  virtual bool ShouldOpenDownload(
+      const content::DownloadTargetCallback& callback) override;
+  bool ShouldOpenDownload(
       content::DownloadItem* item,
-      const content::DownloadOpenDelayedCallback& callback) OVERRIDE;
-  virtual void GetNextId(const content::DownloadIdCallback& callback) OVERRIDE;
+      const content::DownloadOpenDelayedCallback& callback) override;
+  void GetNextId(const content::DownloadIdCallback& callback) override;
 
   // Inhibits prompting and sets the default download path.
   void SetDownloadBehaviorForTesting(

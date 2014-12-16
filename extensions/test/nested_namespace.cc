@@ -26,7 +26,7 @@ class OuterInstance : public XWalkExtensionInstance {
   OuterInstance() {
     g_outer_extension_loaded = true;
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class OuterExtension : public XWalkExtension {
@@ -36,7 +36,7 @@ class OuterExtension : public XWalkExtension {
     set_javascript_api("exports.value = true");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new OuterInstance;
   }
 };
@@ -46,7 +46,7 @@ class InnerInstance : public XWalkExtensionInstance {
   InnerInstance() {
     g_inner_extension_loaded = true;
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class InnerExtension : public XWalkExtension {
@@ -56,7 +56,7 @@ class InnerExtension : public XWalkExtension {
     set_javascript_api("exports.value = true;");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new InnerInstance;
   }
 };
@@ -66,7 +66,7 @@ class AnotherInstance : public XWalkExtensionInstance {
   AnotherInstance() {
     g_another_extension_loaded = true;
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class AnotherExtension : public XWalkExtension {
@@ -82,15 +82,15 @@ class AnotherExtension : public XWalkExtension {
                        "}");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new AnotherInstance;
   }
 };
 
 class XWalkExtensionsNestedNamespaceTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new OuterExtension);
     extensions->push_back(new InnerExtension);
   }
@@ -98,8 +98,8 @@ class XWalkExtensionsNestedNamespaceTest : public XWalkExtensionsTestBase {
 
 class XWalkExtensionsTrampolinesForNested : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new OuterExtension);
     extensions->push_back(new InnerExtension);
     extensions->push_back(new AnotherExtension);

@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/strings/string_util.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/image/image_util.h"

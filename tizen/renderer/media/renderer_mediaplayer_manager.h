@@ -26,7 +26,7 @@ class RendererMediaPlayerManager : public content::RenderFrameObserver {
   virtual ~RendererMediaPlayerManager();
 
   // RenderViewObserver overrides.
-  virtual bool OnMessageReceived(const IPC::Message& msg) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& msg) override;
 
   // Initializes a BrowserMediaPlayerManager object in browser process.
   void Initialize(MediaPlayerID player_id,

@@ -35,7 +35,7 @@ class XWalkHttpAuthHandler : public XWalkHttpAuthHandlerBase {
   virtual ~XWalkHttpAuthHandler();
 
   // from XWalkHttpAuthHandler
-  virtual bool HandleOnUIThread(content::WebContents* web_contents) OVERRIDE;
+  bool HandleOnUIThread(content::WebContents* web_contents) override;
 
   void Proceed(JNIEnv* env, jobject obj, jstring username, jstring password);
   void Cancel(JNIEnv* env, jobject obj);

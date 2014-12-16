@@ -28,10 +28,10 @@ class CONTENT_EXPORT MediaWebContentsObserver :
   virtual ~MediaWebContentsObserver();
 
   // WebContentsObserver implementations.
-  virtual void RenderFrameDeleted(
-      content::RenderFrameHost* render_frame_host) OVERRIDE;
-  virtual bool OnMessageReceived(const IPC::Message& message,
-      content::RenderFrameHost* render_frame_host) OVERRIDE;
+  void RenderFrameDeleted(
+      content::RenderFrameHost* render_frame_host) override;
+  bool OnMessageReceived(const IPC::Message& message,
+      content::RenderFrameHost* render_frame_host) override;
 
   // Gets the media player manager associated with |render_frame_host|. Creates
   // a new one if it doesn't exist. The caller doesn't own the returned pointer.

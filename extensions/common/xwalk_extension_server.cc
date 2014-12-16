@@ -4,9 +4,9 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
-#include "base/file_util.h"
 #include "base/files/file_enumerator.h"
 #include "base/files/file_path.h"
+#include "base/files/file_util.h"
 #include "base/memory/shared_memory.h"
 #include "base/strings/string16.h"
 #include "base/strings/utf_string_conversions.h"
@@ -406,7 +406,7 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
       extension->set_permissions_delegate(server->permissions_delegate());
     if (extension->Initialize()) {
       registered_extensions.push_back(extension->name());
-      server->RegisterExtension(extension.PassAs<XWalkExtension>());
+      server->RegisterExtension(extension.Pass());
     } else {
       LOG(WARNING) << "Failed to initialize extension: "
                    << extension_path.AsUTF8Unsafe();

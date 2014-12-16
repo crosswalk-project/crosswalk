@@ -106,18 +106,11 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         return false;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void updateNotificationIcon(int notificationId, Bitmap icon) {
-        WebNotification webNotification = mExistNotificationIds.get(notificationId);
-        if (webNotification == null) {
-            return;
-        }
-
+    public Bitmap getNotificationIcon(Bitmap icon) {
         int originalWidth  = icon.getWidth();
         int originalHeight = icon.getHeight();
         if (originalWidth == 0 || originalHeight == 0) {
-            return;
+            return icon;
         }
 
         int targetWidth = mContext.getResources().getDimensionPixelSize(
@@ -133,17 +126,13 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
             }
         }
 
-        Notification.Builder builder = webNotification.mBuilder;
-        builder.setLargeIcon(Bitmap.createScaledBitmap(icon, targetWidth, targetHeight, true));
-
-        doShowNotification(notificationId, 
-                VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN ? builder.build() : builder.getNotification());
+        return Bitmap.createScaledBitmap(icon, targetWidth, targetHeight, true);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void showNotification(String title, String message, String replaceId,
-            int notificationId) {
+            Bitmap icon, int notificationId) {
         Notification.Builder builder;
 
         if (!replaceId.isEmpty() && mExistReplaceIds.containsKey(replaceId)) {
@@ -174,6 +163,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
             iconRes = android.R.drawable.sym_def_app_icon;
         }
         builder.setSmallIcon(iconRes);
+        builder.setLargeIcon(getNotificationIcon(icon));
 
         Context activity = mView.getActivity();
         String category = getCategoryFromNotificationId(notificationId);

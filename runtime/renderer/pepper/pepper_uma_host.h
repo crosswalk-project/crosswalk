@@ -32,9 +32,9 @@ class PepperUMAHost : public ppapi::host::ResourceHost {
   virtual ~PepperUMAHost();
 
   // ppapi::host::ResourceMessageHandler implementation.
-  virtual int32_t OnResourceMessageReceived(
+  int32_t OnResourceMessageReceived(
       const IPC::Message& msg,
-      ppapi::host::HostMessageContext* context) OVERRIDE;
+      ppapi::host::HostMessageContext* context) override;
 
  private:
   bool IsHistogramAllowed(const std::string& histogram);

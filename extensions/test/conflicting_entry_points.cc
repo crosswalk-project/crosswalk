@@ -33,7 +33,7 @@ class CleanInstance : public XWalkExtensionInstance {
   CleanInstance() {
     g_clean_extension_loaded = true;
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class DirtyInstance : public XWalkExtensionInstance {
@@ -41,7 +41,7 @@ class DirtyInstance : public XWalkExtensionInstance {
   DirtyInstance() {
     g_dirty_extension_loaded = true;
   }
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  void HandleMessage(scoped_ptr<base::Value> msg) override {}
 };
 
 class CleanExtension : public XWalkExtension {
@@ -53,7 +53,7 @@ class CleanExtension : public XWalkExtension {
                        "window.FromClean = true;");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new CleanInstance;
   }
 };
@@ -66,7 +66,7 @@ class ConflictsWithNameExtension : public XWalkExtension {
     set_javascript_api("window.clean = 'fail';");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new DirtyInstance;
   }
 };
@@ -81,15 +81,15 @@ class ConflictsWithEntryPointExtension
     set_javascript_api("window.FromClean = 'fail';");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+  XWalkExtensionInstance* CreateInstance() override {
     return new DirtyInstance;
   }
 };
 
 class XWalkExtensionsConflictsWithNameTest : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new CleanExtension);
     extensions->push_back(new ConflictsWithNameExtension);
   }
@@ -98,8 +98,8 @@ class XWalkExtensionsConflictsWithNameTest : public XWalkExtensionsTestBase {
 class XWalkExtensionsConflictsWithEntryPointTest
     : public XWalkExtensionsTestBase {
  public:
-  virtual void CreateExtensionsForUIThread(
-      XWalkExtensionVector* extensions) OVERRIDE {
+  void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) override {
     extensions->push_back(new CleanExtension);
     extensions->push_back(new ConflictsWithEntryPointExtension);
   }

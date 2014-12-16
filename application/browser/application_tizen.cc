@@ -14,6 +14,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/screen_orientation_dispatcher_host.h"
+#include "content/public/browser/screen_orientation_delegate.h"
 #include "content/public/browser/screen_orientation_provider.h"
 
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
@@ -87,28 +88,31 @@ blink::WebScreenOrientationLockType GetDefaultOrientation(
   }
 }
 
-class ScreenOrientationProviderTizen :
-    public content::ScreenOrientationProvider {
+class ScreenOrientationDelegateTizen :
+    public content::ScreenOrientationDelegate {
  public:
-  ScreenOrientationProviderTizen(
+  ScreenOrientationDelegateTizen(
       const base::WeakPtr<Application>& app,
       content::ScreenOrientationDispatcherHost* dispatcher)
       : app_(app),
-        dispatcher_(dispatcher),
-        request_id_(0) {
+        dispatcher_(dispatcher) {
     DCHECK(dispatcher_);
   }
 
-  virtual void LockOrientation(
-      int request_id,
-      blink::WebScreenOrientationLockType lock) OVERRIDE {
+  bool FullScreenRequired(
+      content::WebContents* web_contents) override {
     if (!app_) {
-      dispatcher_->NotifyLockError(
-          request_id,
-          blink::WebLockOrientationError::WebLockOrientationErrorNotAvailable);
+      LOG(ERROR) << "Invalid app error";
+      return false;
+    }
+    return app_->IsFullScreenRequired();
+  }
+
+  void Lock(blink::WebScreenOrientationLockType lock) override {
+    if (!app_) {
+      LOG(ERROR) << "Invalid app error";
       return;
     }
-    request_id_ = request_id;
     const std::vector<Runtime*>& runtimes = app_->runtimes();
     DCHECK(!runtimes.empty());
     // FIXME: Probably need better alignment with
@@ -120,19 +124,21 @@ class ScreenOrientationProviderTizen :
         break;
       }
     }
+    int request_id = app_->GetRenderProcessHostID();
     dispatcher_->NotifyLockSuccess(request_id);
   }
 
-  virtual void UnlockOrientation() OVERRIDE {
-    LockOrientation(request_id_, GetDefaultOrientation(app_));
+  bool ScreenOrientationProviderSupported() override {
+    return true;
   }
 
-  virtual void OnOrientationChange() OVERRIDE {}
+  void Unlock() override {
+    Lock(GetDefaultOrientation(app_));
+  }
 
  private:
   base::WeakPtr<Application> app_;
   content::ScreenOrientationDispatcherHost* dispatcher_;
-  int request_id_;
 };
 
 ApplicationTizen::ApplicationTizen(
@@ -201,11 +207,10 @@ bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
 
     content::ScreenOrientationDispatcherHost* host =
         web_contents_->GetScreenOrientationDispatcherHost();
-    content::ScreenOrientationProvider* provider =
-        new ScreenOrientationProviderTizen(GetWeakPtr(), host);
-    host->SetProvider(provider);
-
-    provider->LockOrientation(0, GetDefaultOrientation(GetWeakPtr()));
+    content::ScreenOrientationDelegate* delegate =
+        new ScreenOrientationDelegateTizen(GetWeakPtr(), host);
+    content::ScreenOrientationProvider::SetDelegate(delegate);
+    delegate->Lock(GetDefaultOrientation(GetWeakPtr()));
     return true;
   }
   return false;

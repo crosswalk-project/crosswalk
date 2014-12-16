@@ -8,6 +8,15 @@
 
 #include "components/renderer_context_menu/render_view_context_menu_base.h"
 
+#include "content/public/browser/render_widget_host_view.h"
+#include "ui/aura/client/screen_position_client.h"
+#include "ui/aura/window.h"
+#include "ui/views/widget/widget.h"
+
+namespace aura {
+class Window;
+}
+
 namespace views {
 class Widget;
 }
@@ -28,6 +37,8 @@ class RenderViewContextMenuImpl : public RenderViewContextMenuBase {
                  const gfx::Point& point,
                  ui::MenuSourceType type);
 
+  void Show() override;
+
  private:
   // RenderViewContextMenuBase:
   void InitMenu() override;
@@ -45,6 +56,9 @@ class RenderViewContextMenuImpl : public RenderViewContextMenuBase {
   bool IsCommandIdChecked(int command_id) const override;
   bool IsCommandIdEnabled(int command_id) const override;
   void ExecuteCommand(int command_id, int event_flags) override;
+
+  aura::Window* GetActiveNativeView();
+  views::Widget* GetTopLevelWidget();
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewContextMenuImpl);
 };

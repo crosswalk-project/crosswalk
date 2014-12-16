@@ -11,7 +11,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
-#include "chrome/common/net/net_error_info.h"
+#include "components/error_page/common/net_error_info.h"
 #include "grit/xwalk_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"

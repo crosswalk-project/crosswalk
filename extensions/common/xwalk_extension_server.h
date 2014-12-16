@@ -51,8 +51,8 @@ class XWalkExtensionServer : public IPC::Listener,
   virtual ~XWalkExtensionServer();
 
   // IPC::Listener Implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void OnChannelConnected(int32 peer_pid) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& message) override;
+  void OnChannelConnected(int32 peer_pid) override;
 
   // Different types of ExtensionServers are initialized with different
   // permission delegates: For out-of-process extensions the extension

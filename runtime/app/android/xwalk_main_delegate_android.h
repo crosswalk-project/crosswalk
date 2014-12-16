@@ -24,10 +24,10 @@ class XWalkMainDelegateAndroid : public XWalkMainDelegate {
   virtual ~XWalkMainDelegateAndroid();
 
   // ContentMainDelegate implementation:
-  virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
-  virtual void PreSandboxStartup() OVERRIDE;
-  virtual int RunProcess(const std::string& process_type,
-      const content::MainFunctionParams& main_function_params) OVERRIDE;
+  bool BasicStartupComplete(int* exit_code) override;
+  void PreSandboxStartup() override;
+  int RunProcess(const std::string& process_type,
+      const content::MainFunctionParams& main_function_params) override;
 
   void InitResourceBundle();
 

@@ -42,8 +42,8 @@ class TopViewLayout : public views::LayoutManager {
   bool IsUsingOverlay() const;
 
   // views::LayoutManager implementation.
-  virtual void Layout(views::View* host) OVERRIDE;
-  virtual gfx::Size GetPreferredSize(const views::View* host) const OVERRIDE;
+  void Layout(views::View* host) override;
+  gfx::Size GetPreferredSize(const views::View* host) const override;
 
  private:
   views::View* top_view_;

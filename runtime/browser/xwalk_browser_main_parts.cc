@@ -10,8 +10,8 @@
 
 #include "base/bind.h"
 #include "base/command_line.h"
-#include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/files/file_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "cc/base/switches.h"
@@ -38,7 +38,7 @@
 #endif
 
 #if defined(USE_AURA) && defined(USE_X11)
-#include "ui/events/x/touch_factory_x11.h"
+#include "ui/events/devices/x11/touch_factory_x11.h"
 #endif
 
 #if !defined(OS_CHROMEOS) && defined(USE_AURA) && defined(OS_LINUX)
@@ -111,13 +111,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
   // Enable SIMD.JS API by default.
-  std::string js_flags("--simd_object");
+  /*std::string js_flags("--simd_object");
   if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
     js_flags += " ";
     js_flags +=
         command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
   }
-  command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
+  command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);*/
 
   startup_url_ = GetURLFromCommandLine(*command_line);
 }

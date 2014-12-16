@@ -17,7 +17,7 @@ using xwalk::Runtime;
 
 class CrashExtensionTest : public XWalkExtensionsTestBase {
  public:
-  virtual void SetUp() OVERRIDE {
+  void SetUp() override {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
         GetExternalExtensionTestPath(FILE_PATH_LITERAL("crash_extension")));
     XWalkExtensionsTestBase::SetUp();

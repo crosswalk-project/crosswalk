@@ -21,16 +21,16 @@ class DeviceCapabilitiesObject : public EventTarget,
   virtual ~DeviceCapabilitiesObject();
 
   // EventTarget implementation.
-  virtual void StartEvent(const std::string& type) OVERRIDE;
-  virtual void StopEvent(const std::string& type) OVERRIDE;
+  void StartEvent(const std::string& type) override;
+  void StopEvent(const std::string& type) override;
 
   // DisplayInfoProvider::Observer implementation.
-  virtual void OnDisplayConnected(const DisplayUnit& display) OVERRIDE;
-  virtual void OnDisplayDisconnected(const DisplayUnit& display) OVERRIDE;
+  void OnDisplayConnected(const DisplayUnit& display) override;
+  void OnDisplayDisconnected(const DisplayUnit& display) override;
 
   // StorageInfoProvider::Observer implementation.
-  virtual void OnStorageAttached(const StorageUnit& storage) OVERRIDE;
-  virtual void OnStorageDetached(const StorageUnit& storage) OVERRIDE;
+  void OnStorageAttached(const StorageUnit& storage) override;
+  void OnStorageDetached(const StorageUnit& storage) override;
 
  private:
   void OnGetAVCodecs(scoped_ptr<XWalkExtensionFunctionInfo> info);
