@@ -56,13 +56,15 @@ GURL GetDefaultWidgetEntryPage(
   std::string source;
 
   for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
-    for (size_t i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
-      if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i] &&
-          i < priority) {
+    for (size_t i = 0; i < priority; ++i) {
+      if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i]) {
         source = kDefaultWidgetEntryPage[i];
         priority = i;
+        break;
       }
     }
+    if (!priority)
+      break;
   }
 
   return source.empty() ? GURL() : data->GetResourceURL(source);
@@ -336,7 +338,7 @@ bool Application::RegisterPermissions(const std::string& extension_name,
   for (base::ListValue::const_iterator iter = permission_list->begin();
       iter != permission_list->end(); ++iter) {
     if (!(*iter)->IsType(base::Value::TYPE_DICTIONARY))
-        return false;
+      return false;
 
     base::DictionaryValue* dict_val =
         static_cast<base::DictionaryValue*>(*iter);
@@ -370,12 +372,12 @@ std::string Application::GetRegisteredPermissionName(
   std::map<std::string, std::string>::const_iterator iter =
       name_perm_map_.find(api_name);
   if (iter == name_perm_map_.end())
-    return std::string("");
+    return std::string();
   return iter->second;
 }
 
 StoredPermission Application::GetPermission(PermissionType type,
-                               const std::string& permission_name) const {
+    const std::string& permission_name) const {
   if (type == SESSION_PERMISSION) {
     StoredPermissionMap::const_iterator iter =
         permission_map_.find(permission_name);
