@@ -11,7 +11,6 @@
 #include "base/values.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
-
 namespace xwalk {
 
 namespace keys = application_widget_keys;
@@ -26,7 +25,6 @@ MetaDataPair ParseMetaDataItem(const base::DictionaryValue* dict,
                                base::string16* error) {
   DCHECK(dict && dict->IsType(base::Value::TYPE_DICTIONARY));
   MetaDataPair result;
-  std::string value;
   if (!dict->GetString(keys::kTizenMetaDataNameKey, &result.first) ||
       !dict->GetString(keys::kTizenMetaDataValueKey, &result.second)) {
     *error = base::ASCIIToUTF16("Invalid key/value of tizen metaData.");
@@ -58,8 +56,7 @@ void TizenMetaDataInfo::SetValue(const std::string& key,
   metadata_.insert(MetaDataPair(key, value));
 }
 
-TizenMetaDataHandler::TizenMetaDataHandler() {
-}
+TizenMetaDataHandler::TizenMetaDataHandler() {}
 
 TizenMetaDataHandler::~TizenMetaDataHandler() {}
 
