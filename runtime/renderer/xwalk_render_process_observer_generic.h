@@ -9,6 +9,8 @@
 #include <string>
 
 #include "base/compiler_specific.h"
+#include "base/memory/scoped_vector.h"
+#include "base/synchronization/lock.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "url/gurl.h"
 #include "v8/include/v8.h"
@@ -19,6 +21,7 @@ class WebFrame;
 }  // namespace blink
 
 namespace xwalk {
+struct AccessWhitelistItem;
 
 // FIXME: Using filename "xwalk_render_process_observer_generic.cc(h)" temporary
 // , due to the conflict filename with Android port.
@@ -45,6 +48,7 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
 #if defined(OS_TIZEN)
   std::string GetOverridenUserAgent() const;
 #endif
+  bool CanRequest(const GURL& orig, const GURL& dest) const;
 
  private:
   void OnSetAccessWhiteList(
@@ -57,11 +61,16 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   void OnUserAgentChanged(const std::string& userAgentString);
   std::string overriden_user_agent_;
 #endif
+  void AddAccessWhiteListEntry(const GURL& source,
+                               const GURL& dest,
+                               bool allow_subdomains);
 
   bool is_blink_initialized_;
   bool is_suspended_;
   application::ApplicationSecurityPolicy::SecurityMode security_mode_;
   GURL app_url_;
+  ScopedVector<AccessWhitelistItem> access_whitelist_;
+  mutable base::Lock lock_;
 };
 }  // namespace xwalk
 

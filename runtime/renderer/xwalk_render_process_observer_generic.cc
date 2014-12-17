@@ -5,11 +5,10 @@
 
 #include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
 
-#include <vector>
-
 #include "content/renderer/render_thread_impl.h"
 #include "content/renderer/renderer_blink_platform_impl.h"
 #include "ipc/ipc_message_macros.h"
+#include "third_party/WebKit/public/web/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
@@ -17,10 +16,10 @@
 
 
 namespace xwalk {
-namespace {
 struct AccessWhitelistItem {
-  AccessWhitelistItem(
-      const GURL& source, const GURL& dest, bool allow_subdomains);
+  AccessWhitelistItem(const GURL& source,
+                      const GURL& dest,
+                      bool allow_subdomains);
   GURL source_;
   GURL dest_;
   bool allow_subdomains_;
@@ -33,9 +32,8 @@ AccessWhitelistItem::AccessWhitelistItem(
       allow_subdomains_(allow_subdomains) {
 }
 
-std::vector<AccessWhitelistItem> access_whitelist;
 
-void AddAccessWhiteListEntry(
+void XWalkRenderProcessObserver::AddAccessWhiteListEntry(
     const GURL& source, const GURL& dest, bool allow_subdomains) {
   blink::WebSecurityPolicy::addOriginAccessWhitelistEntry(
       source.GetOrigin(),
@@ -43,7 +41,6 @@ void AddAccessWhiteListEntry(
       blink::WebString::fromUTF8(dest.HostNoBrackets()),
       allow_subdomains);
 }
-}  // namespace
 
 XWalkRenderProcessObserver::XWalkRenderProcessObserver()
     : is_blink_initialized_(false),
@@ -70,12 +67,10 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
 }
 
 void XWalkRenderProcessObserver::WebKitInitialized() {
+  base::AutoLock lock(lock_);
   is_blink_initialized_ = true;
-  for (std::vector<AccessWhitelistItem>::iterator it = access_whitelist.begin();
-       it != access_whitelist.end(); ++it)
+  for (const auto& it : access_whitelist_)
     AddAccessWhiteListEntry(it->source_, it->dest_, it->allow_subdomains_);
-
-  access_whitelist.clear();
 }
 
 void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
@@ -85,11 +80,12 @@ void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
 void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
                                                       const GURL& dest,
                                                       bool allow_subdomains) {
+  base::AutoLock lock(lock_);
   if (is_blink_initialized_)
     AddAccessWhiteListEntry(source, dest, allow_subdomains);
-  else
-    access_whitelist.push_back(
-        AccessWhitelistItem(source, dest, allow_subdomains));
+
+  access_whitelist_.push_back(
+      new AccessWhitelistItem(source, dest, allow_subdomains));
 }
 
 void XWalkRenderProcessObserver::OnEnableSecurityMode(
@@ -121,5 +117,31 @@ std::string XWalkRenderProcessObserver::GetOverridenUserAgent() const {
   return overriden_user_agent_;
 }
 #endif
+
+bool XWalkRenderProcessObserver::CanRequest(const GURL& orig,
+                                            const GURL& dest) const {
+  if (!blink::WebSecurityOrigin::create(orig.GetOrigin()).canRequest(dest))
+    return false;
+
+  // Need to check the port.
+  base::AutoLock lock(lock_);
+  for (const auto& whitelist_entry : access_whitelist_) {
+    if (whitelist_entry->source_.GetOrigin() != orig.GetOrigin())
+      continue;
+
+    if (!whitelist_entry->allow_subdomains_ &&
+        whitelist_entry->dest_.GetOrigin() == dest.GetOrigin())
+      return true;
+
+    const GURL& rule = whitelist_entry->dest_;
+    if (whitelist_entry->allow_subdomains_ &&
+        dest.scheme() == rule.scheme() &&
+        dest.DomainIs(rule.host().c_str()) &&
+        dest.port() == rule.port())
+      return true;
+  }
+
+  return false;
+}
 
 }  // namespace xwalk
