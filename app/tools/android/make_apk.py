@@ -35,6 +35,7 @@ NATIVE_LIBRARY = 'libxwalkcore.so'
 def ConvertArchNameToArchFolder(arch):
   arch_dict = {
       'x86': 'x86',
+      'x86_64': 'x86_64',
       'arm': 'armeabi-v7a'
   }
   return arch_dict.get(arch, None)
@@ -156,6 +157,8 @@ def MakeVersionCode(options):
     abi = '2'
   if options.arch == 'x86':
     abi = '6'
+  if options.arch == 'x86_64':
+    abi = '7'
   b = '0'
   if options.app_versionCodeBase:
     b = str(options.app_versionCodeBase)
@@ -449,19 +452,19 @@ def MakeApk(options, app_info, manifest):
     else:
       # If the arch option is unspecified, all of available platform APKs
       # will be generated.
-      valid_archs = ['x86', 'armeabi-v7a']
+      valid_archs = ['x86', 'x86_64', 'armeabi-v7a']
       for arch in valid_archs:
         if arch in available_archs:
-          if arch.find('x86') != -1:
-            options.arch = 'x86'
-          elif arch.find('arm') != -1:
+          if arch.find('arm') != -1:
             options.arch = 'arm'
+          else:
+            options.arch = arch
+          print "options.arch:", options.arch
           Execution(options, name)
           packaged_archs.append(options.arch)
         else:
           print('Warning: failed to create package for arch "%s" '
                 'due to missing native library' % arch)
-
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
         sys.exit(13)
@@ -504,8 +507,8 @@ def main(argv):
   parser.add_option('--mode', choices=('embedded', 'shared'),
                     default='embedded', help=info)
   info = ('The target architecture of the embedded runtime. Supported values '
-          'are \'x86\' and \'arm\'. Note, if undefined, APKs for all possible '
-          'architestures will be generated.')
+          'are \'x86\' \'x86_64\' and \'arm\'. Note, if undefined, APKs for '
+          'all possible architestures will be generated.')
   parser.add_option('--arch', choices=AllArchitectures(), help=info)
   group = optparse.OptionGroup(parser, 'Application Source Options',
       'This packaging tool supports 3 kinds of web application source: '
