@@ -222,7 +222,8 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
   Runtime* runtime = CreateWithDefaultWindow(
-      browser_context_, GURL(url::kAboutBlankURL), this);
+      browser_context_, url, this);
+  runtime->set_remote_debugging_enabled(true);
   return scoped_ptr<content::DevToolsTarget>(
       new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }
