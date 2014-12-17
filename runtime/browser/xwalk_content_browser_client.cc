@@ -79,7 +79,7 @@ namespace xwalk {
 namespace {
 
 // The application-wide singleton of ContentBrowserClient impl.
-XWalkContentBrowserClient* g_browser_client = NULL;
+XWalkContentBrowserClient* g_browser_client = nullptr;
 
 }  // namespace
 
@@ -91,16 +91,16 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
 
 XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
     : xwalk_runner_(xwalk_runner),
-      url_request_context_getter_(NULL),
-      main_parts_(NULL),
-      browser_context_(NULL) {
+      url_request_context_getter_(nullptr),
+      main_parts_(nullptr),
+      browser_context_(xwalk_runner->browser_context()) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
 
 XWalkContentBrowserClient::~XWalkContentBrowserClient() {
   DCHECK(g_browser_client);
-  g_browser_client = NULL;
+  g_browser_client = nullptr;
 }
 
 content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
@@ -122,10 +122,8 @@ net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  browser_context_ = static_cast<XWalkBrowserContext*>(browser_context);
-  url_request_context_getter_ = browser_context_->
+  return static_cast<XWalkBrowserContext*>(browser_context)->
       CreateRequestContext(protocol_handlers, request_interceptors.Pass());
-  return url_request_context_getter_;
 }
 
 net::URLRequestContextGetter*
@@ -175,7 +173,7 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
   return new XWalkWebContentsViewDelegate(
       web_contents, xwalk_runner_->app_system()->application_service());
 #else
-  return NULL;
+  return nullptr;
 #endif
 }
 
@@ -381,7 +379,7 @@ content::BrowserPpapiHost*
     ++iter;
   }
 #endif
-  return NULL;
+  return nullptr;
 }
 
 #if defined(OS_ANDROID) || defined(OS_TIZEN)  || defined(OS_LINUX)
