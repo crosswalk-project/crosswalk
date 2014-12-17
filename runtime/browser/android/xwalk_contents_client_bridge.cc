@@ -98,7 +98,9 @@ void XWalkContentsClientBridge::AllowCertificateError(
     return;
 
   std::string der_string;
-  net::X509Certificate::GetDEREncoded(cert->os_cert_handle(), &der_string);
+  if (!net::X509Certificate::GetDEREncoded(cert->os_cert_handle(),
+      &der_string))
+    return;
   ScopedJavaLocalRef<jbyteArray> jcert = base::android::ToJavaByteArray(
       env,
       reinterpret_cast<const uint8*>(der_string.data()),
