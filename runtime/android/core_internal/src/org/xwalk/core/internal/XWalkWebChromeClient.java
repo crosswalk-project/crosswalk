@@ -125,7 +125,7 @@ public class XWalkWebChromeClient {
         if (mCustomXWalkView == null || activity == null) return;
 
         if (mContentsClient != null) {
-            mContentsClient.onToggleFullscreen(true);
+            mContentsClient.onToggleFullscreen(false);
         }
 
         // Remove video view from activity's ContentView.
