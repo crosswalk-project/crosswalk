@@ -30,7 +30,7 @@ Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
-Source:         %{name}.tar
+Source:         %{name}.tar.gz
 Source1:        xwalk.in
 Source2:        org.crosswalkproject.Runtime1.service
 Source3:        xwalk.service.in

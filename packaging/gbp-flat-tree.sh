@@ -28,7 +28,7 @@
 # Fail early to avoid bigger problems later in the process.
 set -e
 
-TAR_FILE="${GBP_TMP_DIR}/crosswalk.tar"
+TAR_FILE="${GBP_TMP_DIR}/crosswalk.tar.gz"
 
 if [ ! -f "${TAR_FILE}" ]; then
     echo "${TAR_FILE} does not exist. Aborting."
