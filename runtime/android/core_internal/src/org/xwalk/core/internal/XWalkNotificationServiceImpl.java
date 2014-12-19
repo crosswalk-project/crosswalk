@@ -107,6 +107,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     }
 
     public Bitmap getNotificationIcon(Bitmap icon) {
+        if (icon == null) return null;
         int originalWidth  = icon.getWidth();
         int originalHeight = icon.getHeight();
         if (originalWidth == 0 || originalHeight == 0) {
@@ -163,7 +164,8 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
             iconRes = android.R.drawable.sym_def_app_icon;
         }
         builder.setSmallIcon(iconRes);
-        builder.setLargeIcon(getNotificationIcon(icon));
+        Bitmap bigIcon = getNotificationIcon(icon);
+        if (bigIcon != null) builder.setLargeIcon(bigIcon);
 
         Context activity = mView.getActivity();
         String category = getCategoryFromNotificationId(notificationId);

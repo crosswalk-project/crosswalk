@@ -424,7 +424,7 @@ public class XWalkViewInternalTestBase
         int currentCallCount = getTitleHelper.getCallCount();
         String fileContent = getFileContent(fileName);
 
-        loadDataSync(fileName, fileContent, "text/html", false);
+        loadDataAsync(fileName, fileContent, "text/html", false);
 
         getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
