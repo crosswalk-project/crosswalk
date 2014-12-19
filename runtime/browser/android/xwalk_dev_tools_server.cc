@@ -17,6 +17,7 @@
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "blink_upstream_version.h"  // NOLINT
 #include "content/public/browser/android/devtools_auth.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
@@ -28,7 +29,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
-#include "content/public/common/user_agent.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_listen_socket_posix.h"
@@ -45,9 +45,6 @@ namespace {
 // Currently, the chrome version is hardcoded because of this dependancy.
 const char kFrontEndURL[] =
     "http://chrome-devtools-frontend.appspot.com/serve_rev/%s/devtools.html";
-const char kTargetTypePage[] = "page";
-const char kTargetTypeServiceWorker[] = "service_worker";
-const char kTargetTypeOther[] = "other";
 
 bool AuthorizeSocketAccessWithDebugPermission(
      const net::UnixDomainServerSocket::Credentials& credentials) {
@@ -58,79 +55,12 @@ bool AuthorizeSocketAccessWithDebugPermission(
       content::CanUserConnectToDevTools(credentials);
 }
 
-class Target : public content::DevToolsTarget {
- public:
-  explicit Target(scoped_refptr<content::DevToolsAgentHost> agent_host);
-
-  virtual std::string GetId() const OVERRIDE { return agent_host_->GetId(); }
-  virtual std::string GetType() const OVERRIDE {
-      switch (agent_host_->GetType()) {
-        case content::DevToolsAgentHost::TYPE_WEB_CONTENTS:
-           return kTargetTypePage;
-         case content::DevToolsAgentHost::TYPE_SERVICE_WORKER:
-           return kTargetTypeServiceWorker;
-         default:
-           break;
-       }
-       return kTargetTypeOther;
-     }
-  virtual std::string GetTitle() const OVERRIDE {
-    return agent_host_->GetTitle();
-  }
-
-  // TODO(hmin): Get the description about web contents view.
-  virtual std::string GetDescription() const OVERRIDE { return std::string(); }
-  virtual GURL GetURL() const OVERRIDE { return url_; }
-  virtual GURL GetFaviconURL() const OVERRIDE { return GURL(); }
-  virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
-    return last_activity_time_;
-  }
-  virtual std::string GetParentId() const OVERRIDE { return std::string(); }
-  virtual bool IsAttached() const OVERRIDE {
-    return agent_host_->IsAttached();
-  }
-  virtual scoped_refptr<DevToolsAgentHost> GetAgentHost() const OVERRIDE {
-    return agent_host_;
-  }
-
-  virtual bool Activate() const OVERRIDE {
-    WebContents* web_contents = agent_host_->GetWebContents();
-    if (!web_contents)
-      return false;
-    web_contents->GetDelegate()->ActivateContents(web_contents);
-    return true;
-  }
-
-  virtual bool Close() const OVERRIDE { return false; }
-
- private:
-  scoped_refptr<DevToolsAgentHost> agent_host_;
-  std::string id_;
-  std::string title_;
-  GURL url_;
-  GURL favicon_url_;
-  base::TimeTicks last_activity_time_;
-};
-
-Target::Target(scoped_refptr<content::DevToolsAgentHost> agent_host)
-    : agent_host_(agent_host) {
-  if (content::WebContents* web_contents = agent_host_->GetWebContents()) {
-    content::NavigationController& controller = web_contents->GetController();
-    content::NavigationEntry* entry = controller.GetActiveEntry();
-    if (entry != NULL && entry->GetURL().is_valid())
-      favicon_url_ = entry->GetFavicon().url;
-    last_activity_time_ = web_contents->GetLastActiveTime();
-  }
-}
-
 // Delegate implementation for the devtools http handler on android. A new
 // instance of this gets created each time devtools is enabled.
-class XWalkDevToolsHttpHandlerDelegate
+class XWalkAndroidDevToolsHttpHandlerDelegate
   : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit XWalkDevToolsHttpHandlerDelegate(
-    const net::UnixDomainServerSocket::AuthCallback& auth_callback)
-    : auth_callback_(auth_callback) {
+  XWalkAndroidDevToolsHttpHandlerDelegate() {
   }
 
   virtual std::string GetDiscoveryPageHTML() OVERRIDE {
@@ -152,49 +82,29 @@ class XWalkDevToolsHttpHandlerDelegate
     return scoped_ptr<net::StreamListenSocket>();
   }
  private:
-  const net::UnixDomainServerSocket::AuthCallback auth_callback_;
-  DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsHttpHandlerDelegate);
-};
-
-class XWalkDevToolsDelegate
-  : public content::DevToolsManagerDelegate {
- public:
-  virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE {
-    return std::string();
-  }
-
-  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(
-      const GURL&) OVERRIDE {
-    return scoped_ptr<content::DevToolsTarget>();
-  }
-  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE {
-    TargetList targets;
-    content::DevToolsAgentHost::List agents =
-        content::DevToolsAgentHost::GetOrCreateAll();
-    for (content::DevToolsAgentHost::List::iterator it = agents.begin();
-         it != agents.end(); ++it) {
-      targets.push_back(new Target(*it));
-    }
-    callback.Run(targets);
-  }
+  DISALLOW_COPY_AND_ASSIGN(XWalkAndroidDevToolsHttpHandlerDelegate);
 };
 
 // Factory for UnixDomainServerSocket.
 class UnixDomainServerSocketFactory
     : public content::DevToolsHttpHandler::ServerSocketFactory {
  public:
-  explicit UnixDomainServerSocketFactory(const std::string& socket_name)
-      : content::DevToolsHttpHandler::ServerSocketFactory(socket_name, 0, 1) {}
+  explicit UnixDomainServerSocketFactory(
+      const std::string& socket_name,
+      const net::UnixDomainServerSocket::AuthCallback& auth_callback)
+      : content::DevToolsHttpHandler::ServerSocketFactory(socket_name, 0, 1),
+      auth_callback_(auth_callback) {}
 
  private:
   // content::DevToolsHttpHandler::ServerSocketFactory.
   virtual scoped_ptr<net::ServerSocket> Create() const OVERRIDE {
     return scoped_ptr<net::ServerSocket>(
         new net::UnixDomainServerSocket(
-            base::Bind(&content::CanUserConnectToDevTools),
+            auth_callback_,
             true /* use_abstract_namespace */));
   }
 
+  const net::UnixDomainServerSocket::AuthCallback auth_callback_;
   DISALLOW_COPY_AND_ASSIGN(UnixDomainServerSocketFactory);
 };
 
@@ -233,11 +143,11 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission) {
               base::Unretained(this));
 
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
-      new UnixDomainServerSocketFactory(socket_name_));
+      new UnixDomainServerSocketFactory(socket_name_, auth_callback));
   protocol_handler_ = content::DevToolsHttpHandler::Start(
       factory.Pass(),
-      base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),
-      new XWalkDevToolsHttpHandlerDelegate(auth_callback), base::FilePath());
+      base::StringPrintf(kFrontEndURL, BLINK_UPSTREAM_REVISION),
+      new XWalkAndroidDevToolsHttpHandlerDelegate(), base::FilePath());
 }
 
 void XWalkDevToolsServer::Stop() {
