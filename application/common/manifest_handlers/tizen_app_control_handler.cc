@@ -125,13 +125,6 @@ bool TizenAppControlHandler::Validate(
       return false;
     }
 
-    const std::string& uri = item.uri();
-    if (!uri.empty() && GURL(uri).spec().empty()) {
-      *error =
-          "The url child element of app-control element is not valid url";
-      return false;
-    }
-
     const std::string& mime = item.mime();
     if (!mime.empty() && !xdg_mime_is_valid_mime_type(mime.c_str())) {
       *error =
