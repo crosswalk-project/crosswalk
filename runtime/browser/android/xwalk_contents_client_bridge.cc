@@ -234,7 +234,9 @@ void XWalkContentsClientBridge::ShowNotification(
     ConvertUTF16ToJavaString(env, params.body));
   ScopedJavaLocalRef<jstring> jreplace_id(
     ConvertUTF16ToJavaString(env, params.replace_id));
-  ScopedJavaLocalRef<jobject> jicon = gfx::ConvertToJavaBitmap(&params.icon);
+  ScopedJavaLocalRef<jobject> jicon;
+  if (!params.icon.empty())
+    jicon = gfx::ConvertToJavaBitmap(&params.icon);
 
   int notification_id = g_next_notification_id_++;
   g_notification_map_.set(notification_id, delegate.Pass());
