@@ -459,7 +459,7 @@ def MakeApk(options, app_info, manifest):
             options.arch = 'arm'
           else:
             options.arch = arch
-          print "options.arch:", options.arch
+          print("options.arch:", options.arch)
           Execution(options, name)
           packaged_archs.append(options.arch)
         else:
