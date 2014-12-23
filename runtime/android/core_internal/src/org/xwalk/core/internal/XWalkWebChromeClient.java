@@ -90,8 +90,9 @@ public class XWalkWebChromeClient {
             mContentsClient.onToggleFullscreen(true);
         }
 
-        // Add the video view to the activity's ContentView.
-        activity.getWindow().addContentView(view,
+        // Add the video view to the activity's DecorView.
+        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
+        decor.addView(mCustomXWalkView, 0,
                 new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
