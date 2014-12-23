@@ -21,6 +21,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
@@ -848,6 +850,15 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (wsUrl == null || wsUrl.isEmpty()) return null;
 
         return Uri.parse(wsUrl);
+    }
+
+    /**
+     * This method is to deliver the callback to XWalkView
+     * so that users can overload it
+     */
+    @XWalkAPI
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return mContent.onCreateInputConnection(outAttrs);
     }
 
     /**
