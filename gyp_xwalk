@@ -346,10 +346,12 @@ if __name__ == '__main__':
     args.append('-Ddisable_media_stream=1')
     args.append('-Ddisable_quic_support=1')
     args.append('-Ddisable_sync_compositor=1')
+    args.append('-Ddisable_webaudio_hrtf=1')
     args.append('-Ddisable_webp=1')
     args.append('-Ddisable_xslt=1')
     args.append('-Denable_webrtc=0')
     args.append('-Duse_icu_alternatives_on_android=1')
+    args.append('-Duse_minimum_resources=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
