@@ -369,6 +369,10 @@ if __name__ == '__main__':
     args.append('-Ddisable_quic_support=0')
     # Enable Sync compositor by default
     args.append('-Ddisable_sync_compositor=0')
+    # Enable webaudio by default
+    args.append('-Ddisable_webaudio_hrtf=0')
+    # Disable use_minimum_resources by default
+    args.append('-Duse_minimum_resources=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
