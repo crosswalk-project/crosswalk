@@ -68,36 +68,26 @@ def GenerateBindingForJavaClass(
 
 def GenerateBindingForJavaDirectory(input_dir, bridge_output, wrap_output):
   java_class_loader = JavaClassLoader(input_dir, CLASSES_TO_BE_PROCESS)
-  for input_file in os.listdir(input_dir):
-    input_class_name = input_file.replace('.java', '')
-    if java_class_loader.IsInternalClass(input_class_name):
-      # Load all java classes in first.
-      java_data = java_class_loader.LoadJavaClass(input_class_name)
-      print 'Generate bridge and wrapper code for %s' % input_class_name
-      GenerateBindingForJavaClass(
-          java_data, bridge_output, wrap_output, java_class_loader)
-
+  for input_class in CLASSES_TO_BE_PROCESS:
+    print 'Generate bridge and wrapper code for %s' % input_class
+    GenerateBindingForJavaClass(java_class_loader.GetJavaData(input_class),
+        bridge_output, wrap_output, java_class_loader)
 
 def CopyReflectionHelperJava(helper_class, wrap_output):
-  if helper_class is None:
-    return
-  f = open(helper_class, 'r')
-  output = os.path.join(FormatPackagePath(wrap_output, WRAPPER_PACKAGE),
-                        os.path.basename(helper_class))
-  if not os.path.isdir(os.path.dirname(output)):
-    os.makedirs(os.path.dirname(output))
-  fo = open(output, 'w')
-  for line in f.read().split('\n'):
-    if line.startswith('package '):
-      fo.write('package org.xwalk.core;\n')
-    else:
-      if 'Wrapper Only' in line:
-        pass
+  for helper in helper_class.split(','):
+    f = open(helper, 'r')
+    output = os.path.join(FormatPackagePath(wrap_output, WRAPPER_PACKAGE),
+                          os.path.basename(helper))
+    if not os.path.isdir(os.path.dirname(output)):
+      os.makedirs(os.path.dirname(output))
+    fo = open(output, 'w')
+    for line in f.read().split('\n'):
+      if line.startswith('package '):
+        fo.write('package org.xwalk.core;\n')
       else:
         fo.write(line + '\n')
-  fo.close()
-  f.close()
-
+    fo.close()
+    f.close()
 
 def Touch(path):
   if not os.path.isdir(os.path.dirname(path)):

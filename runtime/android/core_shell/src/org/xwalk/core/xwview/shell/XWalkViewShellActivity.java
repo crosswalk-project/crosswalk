@@ -41,6 +41,7 @@ import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkCoreWrapper;
 
 public class XWalkViewShellActivity extends FragmentActivity
         implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener {
@@ -109,6 +110,7 @@ public class XWalkViewShellActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        XWalkCoreWrapper.initEmbeddedMode();
 
         registerTracingReceiverWhenIdle();
 

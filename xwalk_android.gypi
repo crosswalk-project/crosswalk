@@ -1,6 +1,7 @@
 {
   'variables': {
     'reflection_java_dir': '<(PRODUCT_DIR)/gen/xwalk_core_reflection_layer',
+    'internal_dir': 'runtime/android/core_internal/src/org/xwalk/core/internal',
   },
   'targets': [
     {
@@ -108,7 +109,7 @@
             '--input_dir', '<(internal_src)',
             '--bridge_output', '<(reflection_java_dir)/bridge',
             '--wrap_output', '<(reflection_java_dir)/wrapper',
-            '--helper_class', 'runtime/android/core_internal/src/org/xwalk/core/internal/ReflectionHelper.java',
+            '--helper_class', '<(internal_dir)/ReflectConstructor.java,<(internal_dir)/ReflectMethod.java',
             '--stamp', '<(timestamp)',
           ],
         },
