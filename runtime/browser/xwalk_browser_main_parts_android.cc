@@ -50,6 +50,31 @@ base::StringPiece PlatformResourceProvider(int key) {
   return base::StringPiece();
 }
 
+void MoveUserDataDirIfNecessary(const base::FilePath& user_data_dir,
+                                const base::FilePath& profile) {
+  if (base::DirectoryExists(profile))
+    return;
+
+  if (!base::CreateDirectory(profile))
+    return;
+
+  const char* possible_data_dir_names[] = {
+      "Cache",
+      "Cookies",
+      "Cookies-journal",
+      "Local Storage",
+  };
+  for (int i = 0; i < 4; i++) {
+    base::FilePath dir = user_data_dir.Append(possible_data_dir_names[i]);
+    if (base::PathExists(dir)) {
+      if (!base::Move(dir, profile.Append(possible_data_dir_names[i]))) {
+        NOTREACHED() << "Failed to import previous user data: "
+                     << possible_data_dir_names[i];
+      }
+    }
+  }
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -133,9 +158,12 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
     NOTREACHED() << "Failed to get app data directory for Crosswalk";
   }
   CommandLine* command_line = CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kXWalkProfileName))
-    user_data_dir = user_data_dir.Append(
+  if (command_line->HasSwitch(switches::kXWalkProfileName)) {
+    base::FilePath profile = user_data_dir.Append(
         command_line->GetSwitchValuePath(switches::kXWalkProfileName));
+    MoveUserDataDirIfNecessary(user_data_dir, profile);
+    user_data_dir = profile;
+  }
 
   base::FilePath cookie_store_path = user_data_dir.Append(
       FILE_PATH_LITERAL("Cookies"));
