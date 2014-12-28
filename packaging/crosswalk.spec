@@ -156,6 +156,12 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 # does not expect -Wall to be passed to the compiler (see webrtc issue 3307).
 export CXXFLAGS=`echo $CXXFLAGS | sed s,-Wall,,g`
 
+# Do not use -finline-functions: it breaks the build because it causes -Wall to
+# warn about some conditions that cannot really be reached (ie. variables that
+# may be used uninitialized while in fact thay cannot be uninitialized). See
+# TC-2299.
+export CXXFLAGS=`echo $CXXFLAGS | sed s,-finline-functions,,g`
+
 # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
 # src/third_party/ffmpeg already pass -O2 -fomit-frame-pointer, but Tizen's
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
