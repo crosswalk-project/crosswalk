@@ -248,7 +248,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
   // if under WARP mode.
   if (url.GetOrigin() == app_url.GetOrigin() ||
       blink::WebSecurityOrigin::create(app_url).canRequest(url)) {
-    LOG(INFO) << "[PASS] " << origin_url.spec() << " request " << url.spec();
+    DLOG(INFO) << "[PASS] " << origin_url.spec() << " request " << url.spec();
     return false;
   }
 
