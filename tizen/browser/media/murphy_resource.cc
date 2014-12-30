@@ -53,7 +53,7 @@ MurphyResource::MurphyResource(
   if (attr)
     mrp_res_set_attribute_string(attr, app_class.c_str());
 
-  attr = mrp_res_get_attribute_by_name(resource, "resource.set.appid");
+  attr = mrp_res_get_attribute_by_name(resource, "name");
   if (attr)
     mrp_res_set_attribute_string(attr, app_id.c_str());
 
