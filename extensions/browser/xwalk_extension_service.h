@@ -51,7 +51,6 @@ class XWalkExtensionService : public content::NotificationObserver,
     virtual void ExtensionProcessCreated(
         int render_process_id,
         const IPC::ChannelHandle& channel_handle) {}
-    virtual void RenderChannelCreated(int render_process_id) {}
 
    protected:
     ~Delegate() {}
@@ -104,7 +103,6 @@ class XWalkExtensionService : public content::NotificationObserver,
   void OnExtensionProcessCreated(
       int render_process_id,
       const IPC::ChannelHandle handle) override;
-  void OnRenderChannelCreated(int render_process_id) override;
 
   void OnCheckAPIAccessControl(
       int render_process_id,

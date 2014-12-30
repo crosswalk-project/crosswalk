@@ -12,6 +12,7 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "ui/gl/gl_switches.h"
@@ -44,6 +45,10 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
       gl_name = gfx::kGLImplementationEGLName;
     command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
   }
+
+  // Disable ExtensionProcess for Tizen.
+  // External extensions will run in the BrowserProcess (in process mode).
+  command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
 
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 }

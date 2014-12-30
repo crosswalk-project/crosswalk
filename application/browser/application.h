@@ -30,7 +30,6 @@ class RenderProcessHost;
 namespace xwalk {
 
 class XWalkBrowserContext;
-class XWalkAppExtensionBridge;
 
 namespace application {
 
@@ -136,8 +135,6 @@ class Application : public Runtime::Observer,
  private:
   // We enforce ApplicationService ownership.
   friend class ApplicationService;
-  // XWalkAppExtensionBridge gives notifications.
-  friend class xwalk::XWalkAppExtensionBridge;
   static scoped_ptr<Application> Create(scoped_refptr<ApplicationData> data,
       XWalkBrowserContext* context);
 
@@ -157,8 +154,6 @@ class Application : public Runtime::Observer,
   GURL GetAbsoluteURLFromKey(const std::string& key);
 
   void NotifyTermination();
-  // Notification from XWalkAppExtensionBridge.
-  void RenderChannelCreated();
 
   Observer* observer_;
 
