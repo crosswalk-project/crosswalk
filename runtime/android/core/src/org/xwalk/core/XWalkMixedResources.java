@@ -33,7 +33,7 @@ import android.util.TypedValue;
  * But the only place use this R.attr and R.style is "select" tag
  * which is verified working well with this MixedResources.
  */
-class XWalkMixedResources extends Resources {
+public class XWalkMixedResources extends Resources {
     public static String MARKET_PROGRESS_MESSAGE = "Please wait until library installed";
     public static String DOWNLOAD_PROGRESS_MESSAGE = "Downloading Crosswalk Runtime Library";
     public static String DOWNLOAD_FAILED_TITLE = "Crosswalk Runtime Library download failed";
@@ -51,7 +51,8 @@ class XWalkMixedResources extends Resources {
     public static String RUNTIME_OLDER_VERSION_MESSAGE = "Next operation may not be supported";
     public static String RUNTIME_NEWER_VERSION_TITLE = "Crosswalk Runtime Library is too new";
     public static String RUNTIME_NEWER_VERSION_MESSAGE = "Next operation may not be supported";
-    
+    public static String DECOMPRESS_LIBRARY_MESSAGE = "Runtime is preparing...";
+
     public static String CANCEL = "Cancel";
     public static String CONTINUE = "Continue";
     public static String TERMINATE = "Terminate";

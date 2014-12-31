@@ -60,7 +60,8 @@ public abstract class XWalkActivity extends Activity
         MATCHED,
         NOT_FOUND,
         NEWER_VERSION,
-        OLDER_VERSION
+        OLDER_VERSION,
+        COMPRESSED,
     }
 
     private static XWalkLibraryStatus convertXWalkCoreStatus(XWalkCoreStatus status) {
@@ -166,7 +167,10 @@ public abstract class XWalkActivity extends Activity
             dialog = new StartupOlderVersionDialog(this);
         } else if (status == XWalkLibraryStatus.NEWER_VERSION) {
             dialog = new StartupNewerVersionDialog(this);
+        } else if  (status == XWalkLibraryStatus.COMPRESSED) {
+            dialog = new StartupDecompressDialog(this);
         }
+
         dialog.show();
     }
 
@@ -350,6 +354,46 @@ public abstract class XWalkActivity extends Activity
         }
     }
     
+    private static class DecompressTask extends AsyncTask<Void, Integer, Void> {
+        XWalkActivity mXWalkActivity;
+        AlertDialog mDialog;
+
+        DecompressTask(XWalkActivity activity, AlertDialog dialog) {
+            super();
+            mXWalkActivity = activity;
+            mDialog = dialog;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                XWalkCoreWrapper.decompressXWalkLibrary();
+                // TODO: use publishProgress to update percentage.
+            } catch (Exception e) {
+                Log.w("XWalkActivity", "Decompress library failed: " + e.getMessage());
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            // TODO: update percentage.
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            mXWalkActivity.onXWalkCoreReady();
+            mDialog.dismiss();
+        }
+
+        @Override
+        protected void onCancelled(Void v) {
+            Log.d("XWalkActivity", "Decompress cancelled");
+            mXWalkActivity.finish();
+        }
+    }
+
     private static class DownloadProgressDialog extends ProgressDialog {
         XWalkActivity mXWalkActivity;
         
@@ -656,6 +700,32 @@ public abstract class XWalkActivity extends Activity
             setButton(DialogInterface.BUTTON_NEGATIVE,
                     XWalkMixedResources.CONTINUE, negativeListener);
             setCancelable(false);
+        }
+    }
+
+    private static class StartupDecompressDialog extends AlertDialog {
+        XWalkActivity mXWalkActivity;
+
+        StartupDecompressDialog(XWalkActivity activity) {
+            super(activity);
+            mXWalkActivity = activity;
+
+            final DecompressTask decompressTask = new DecompressTask(mXWalkActivity, this);
+
+            OnClickListener positiveListener = new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    decompressTask.cancel(true);
+                }
+            };
+
+            setIcon(android.R.drawable.ic_dialog_alert);
+            setMessage(XWalkMixedResources.DECOMPRESS_LIBRARY_MESSAGE);
+            setButton(DialogInterface.BUTTON_POSITIVE,
+                    XWalkMixedResources.TERMINATE, positiveListener);
+            setCancelable(false);
+            setCanceledOnTouchOutside(false);
+            decompressTask.execute();
         }
     }
 }

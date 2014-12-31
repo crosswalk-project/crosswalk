@@ -100,18 +100,34 @@
       'target_name': 'xwalk_core_internal_empty_embedder_apk',
       'type': 'none',
       'dependencies': [
-        'libxwalkcore',
         'generate_resource_maps',
       ],
       'variables': {
         'apk_name': '<(core_internal_empty_embedder_apk_name)',
         'java_in_dir': 'runtime/android/core_internal_empty',
-        'native_lib_target': 'libxwalkcore',
         'is_test_apk': 1,
         'generated_src_dirs': [
            '<(PRODUCT_DIR)/resource_map',
         ],
+        'conditions': [
+          ['use_lzma==1', {
+            'native_lib_target': 'libxwalkdummy',
+          },{
+            'native_lib_target': 'libxwalkcore',
+          }],
+        ],
       },
+      'conditions': [
+        ['use_lzma==1', {
+          'dependencies': [
+            'libxwalkdummy',
+          ],
+        },{
+          'dependencies': [
+            'libxwalkcore',
+          ],
+        }],
+      ],
       'includes': [ '../build/java_apk.gypi' ],
       'all_dependent_settings': {
         'variables': {
@@ -231,6 +247,15 @@
             'icu_data_param': '',
           },
         }],
+        ['use_lzma==1', {
+          'variables': {
+            'use_lzma_param': '--use-lzma',
+          },
+        }, {
+          'variables': {
+            'use_lzma_param': '',
+          },
+        }],
       ],
       'actions': [
         {
@@ -245,9 +270,10 @@
           ],
           'action': [
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
-            '-s',  '<(DEPTH)',
+            '-s', '<(DEPTH)',
             '-t', '<(PRODUCT_DIR)',
             '<(icu_data_param)',
+            '<(use_lzma_param)',
           ],
         },
       ],
