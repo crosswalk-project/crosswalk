@@ -34,14 +34,14 @@ class XWalkRuntimeFeatures {
     Experimental
   };
 
-
   struct RuntimeFeature {
     std::string name;
     std::string description;
     std::string command_line_switch;
     RuntimeFeatureStatus status;
     bool enabled;
-    RuntimeFeature() = default;
+
+    RuntimeFeature();
   };
 
  private:
