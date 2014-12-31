@@ -41,7 +41,7 @@ class XWalkRuntimeFeatures {
     std::string command_line_switch;
     RuntimeFeatureStatus status;
     bool enabled;
-    RuntimeFeature();
+    RuntimeFeature() = default;
   };
 
  private:
