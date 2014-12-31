@@ -22,7 +22,10 @@ struct MatchRuntimeFeature
   const std::string name;
 };
 
-XWalkRuntimeFeatures::RuntimeFeature::RuntimeFeature() {}
+XWalkRuntimeFeatures::RuntimeFeature::RuntimeFeature()
+    : status(Experimental),
+      enabled(false) {
+}
 
 // static
 XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
