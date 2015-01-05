@@ -147,6 +147,9 @@ public class XWalkNavigationHandlerImpl implements XWalkNavigationHandler {
         // Other types (text/*, video/*, image/*, audio/*) are not handled
         // by intent actions.
         if (mimeType != null && mimeType.startsWith("application/")) {
+            // "application/xhtml+xml" should not be handled by intent actions. See XWALK-2912.
+            if (mimeType == "application/xhtml+xml" || mimeType == "application/xml")
+                return false;
             return true;
         }
         return false;
