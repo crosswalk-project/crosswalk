@@ -39,8 +39,8 @@ namespace widget_keys = application_widget_keys;
 
 namespace {
 const char* kDefaultWidgetEntryPage[] = {
-"index.html",
 "index.htm",
+"index.html",
 "index.svg",
 "index.xhtml",
 "index.xht"};
