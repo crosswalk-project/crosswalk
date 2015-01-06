@@ -36,13 +36,14 @@ class RuntimeGeolocationPermissionContext
 
  private:
   void RequestGeolocationPermissionOnUIThread(
-      content::WebContents* web_contents,
-      const GURL& requesting_frame,
-      base::Callback<void(bool)> result_callback);
-
-  void CancelGeolocationPermissionRequestOnUIThread(
-      content::WebContents* web_contents,
-      const GURL& requesting_frame);
+    content::WebContents* web_contents,
+    const GURL& requesting_frame,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback);
+    // Make sure the result_callback is invoked in UI Thread
+    void ResponseGeolocationPermissionOnUIThread(
+      base::Callback<void(bool)> result_callback,
+      bool permission);
 };
 
 }  // namespace xwalk

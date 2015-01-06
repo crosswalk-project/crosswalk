@@ -68,6 +68,11 @@ const char kXWalkMediaAppClass[] = "xwalk_media_app_class";
 
 }  // namespace application_manifest_keys
 
+namespace application_manifest_permissions {
+const char kPermissionGeolocation[] = "geolocation";
+}  // namespace application_manifest_permissions
+
+
 // manifest keys for widget applications.
 namespace application_widget_keys {
 
@@ -164,6 +169,14 @@ const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
 #endif
 
 }  // namespace application_widget_keys
+
+#if defined(OS_TIZEN)
+namespace application_tizen_privileges {
+const char kTizenAppPrivilegeLocation[] =
+    "http://tizen.org/privilege/location";
+}  // namespace application_tizen_privileges
+
+#endif
 
 namespace application_manifest_errors {
 const char kInvalidDescription[] =

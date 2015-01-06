@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 
 #include "base/command_line.h"
+#include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
 #include "crypto/nss_util.h"
 #include "xwalk/application/browser/application_service.h"
@@ -21,9 +22,23 @@ XWalkRunnerTizen::XWalkRunnerTizen() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   shared_process_mode_enabled_ =
       !(cmd_line->HasSwitch(switches::kXWalkDisableSharedProcessMode));
+#if defined(USE_CYNARA)
+  // Initialize Cynara
+  if (cynara_initialize(&cynara_handler_, cynara_conf_) != CYNARA_API_SUCCESS) {
+    // TODO(Peter Wang): Handle degrading/exit-with-error if cynara fails
+    //       to initialize.
+    //       For now, log an error.
+    LOG(ERROR) << "Cynara failed to initialize.";
+  }
+#endif
 }
 
-XWalkRunnerTizen::~XWalkRunnerTizen() {}
+XWalkRunnerTizen::~XWalkRunnerTizen() {
+#if defined(USE_CYNARA)
+  // Finish with cynara
+  cynara_finish(cynara_handler_);
+#endif
+}
 
 // static
 XWalkRunnerTizen* XWalkRunnerTizen::GetInstance() {

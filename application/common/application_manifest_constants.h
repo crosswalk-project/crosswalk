@@ -60,6 +60,10 @@ namespace application_manifest_keys {
 #endif
 }  // namespace application_manifest_keys
 
+namespace application_manifest_permissions {
+  extern const char kPermissionGeolocation[];
+}  // namespace application_manifest_permissions
+
 namespace application_widget_keys {
   extern const char kNamespaceKey[];
   extern const char kXmlLangKey[];
@@ -143,6 +147,11 @@ namespace application_widget_keys {
 #endif
 }  // namespace application_widget_keys
 
+#if defined(OS_TIZEN)
+namespace application_tizen_privileges {
+  extern const char kTizenAppPrivilegeLocation[];
+}  // namespace application_tizen_privileges
+#endif
 
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];

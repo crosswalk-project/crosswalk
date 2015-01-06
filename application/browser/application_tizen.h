@@ -9,6 +9,9 @@
 
 #include "base/event_types.h"
 #include "xwalk/application/browser/application.h"
+#if defined(USE_CYNARA)
+#include "xwalk/application/browser/tizen/tizen_cynara_checker.h"
+#endif
 #include "xwalk/application/common/tizen/cookie_manager.h"
 
 #if defined(USE_OZONE)
@@ -33,7 +36,14 @@ class ApplicationTizen :  // NOLINT
 
   void RemoveAllCookies();
   void SetUserAgentString(const std::string& user_agent_string);
-
+#if defined(USE_CYNARA)
+  virtual void GetPermissionAsync(PermissionType type,
+                const std::string& permission_name,
+                const TizenCynaraChecker::ResultCallback& callback) override;
+#endif
+  virtual bool SetPermission(PermissionType type,
+                             const std::string& permission_name,
+                             StoredPermission perm) override;
  private:
   friend class Application;
   ApplicationTizen(scoped_refptr<ApplicationData> data,
@@ -57,6 +67,9 @@ class ApplicationTizen :  // NOLINT
 #endif
   scoped_ptr<CookieManager> cookie_manager_;
   bool is_suspended_;
+#if defined(USE_CYNARA)
+  TizenCynaraChecker checker_;
+#endif
 };
 
 inline ApplicationTizen* ToApplicationTizen(Application* app) {
