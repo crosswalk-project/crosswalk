@@ -21,7 +21,11 @@
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
+#if defined(USE_CYNARA)
+#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
+#endif
 #include "xwalk/runtime/common/xwalk_common_messages.h"
+
 
 #if defined(USE_OZONE)
 #include "content/public/browser/render_view_host.h"
@@ -34,6 +38,10 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_splash_screen_handler.h"
+
+#if defined(USE_CYNARA)
+#include "xwalk/application/browser/tizen/tizen_cynara_checker.h"
+#endif
 
 namespace xwalk {
 
@@ -67,6 +75,26 @@ NativeAppWindow* CreateRootWindow(Runtime* runtime,
   return NativeAppWindow::Create(effective_params);
 }
 #endif
+
+#if defined(USE_CYNARA)
+  namespace permissions = application_manifest_permissions;
+  namespace privileges = application_tizen_privileges;
+
+const base::DictionaryValue* GetPermissionNameMap() {
+  static base::DictionaryValue* g_permissions_name_map = NULL;
+  if (g_permissions_name_map)
+    return g_permissions_name_map;
+
+  g_permissions_name_map = new base::DictionaryValue();
+  // Mapping betwwen W3C System Applications permissions and tizen privileges
+  g_permissions_name_map->SetString(permissions::kPermissionGeolocation,
+            privileges::kTizenAppPrivilegeLocation);
+  // TODO(Peter Wang): Set more mappings here
+
+  return g_permissions_name_map;
+}
+#endif
+
 }  // namespace
 
 blink::WebScreenOrientationLockType GetDefaultOrientation(
@@ -303,6 +331,36 @@ void ApplicationTizen::SetUserAgentString(
     const std::string& user_agent_string) {
   cookie_manager_->SetUserAgentString(render_process_host_, user_agent_string);
 }
+
+bool ApplicationTizen::SetPermission(PermissionType type,
+                                const std::string& permission_name,
+                                StoredPermission perm) {
+#if !defined(USE_CYNARA)
+  return ApplicationTizen::SetPermission(type, permission_name, perm);
+#endif
+  NOTREACHED();
+  return false;
+}
+
+#if defined(USE_CYNARA)
+void ApplicationTizen::GetPermissionAsync(PermissionType type,
+                   const std::string& permission_name,
+                   const TizenCynaraChecker::ResultCallback& callback) {
+  if (!checker_.Initialized()) {
+    int fd = render_process_host_->GetChannel()->GetClientFileDescriptor();
+    XWalkRunnerTizen* runner = XWalkRunnerTizen::GetInstance();
+
+    if (!checker_.Init(runner->cynara_handler(), fd))
+      return;
+  }
+
+  std::string privilege_name;
+  const base::DictionaryValue* pMap = GetPermissionNameMap();
+  pMap->GetString(permission_name, &privilege_name);
+
+  checker_.CheckCynaraASync("", privilege_name.c_str(), callback);
+}
+#endif
 
 void ApplicationTizen::OnNewRuntimeAdded(Runtime* runtime) {
   DCHECK(runtime);

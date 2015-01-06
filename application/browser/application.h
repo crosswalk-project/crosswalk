@@ -103,11 +103,11 @@ class Application : public Runtime::Observer,
   std::string GetRegisteredPermissionName(const std::string& extension_name,
                                           const std::string& api_name) const;
 
-  StoredPermission GetPermission(PermissionType type,
-                                 const std::string& permission_name) const;
-  bool SetPermission(PermissionType type,
-                     const std::string& permission_name,
-                     StoredPermission perm);
+  virtual StoredPermission GetPermission(PermissionType type,
+                                     const std::string& permission_name) const;
+  virtual bool SetPermission(PermissionType type,
+                             const std::string& permission_name,
+                             StoredPermission perm);
   bool CanRequestURL(const GURL& url) const;
   bool IsFullScreenRequired() const {
       return window_show_params_.state == ui::SHOW_STATE_FULLSCREEN; }

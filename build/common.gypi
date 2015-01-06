@@ -2,6 +2,8 @@
   'variables': {
     'tizen%': 0,
     'tizen_mobile%': 0,
+    'shared_process_mode%': 0,
+    'use_cynara%': 0,
     'enable_murphy%': 0,
   },
   'target_defaults': {
@@ -12,7 +14,13 @@
     },
     'conditions': [
       ['tizen==1', {
-        'defines': ['OS_TIZEN=1'],
+        'conditions': [
+          ['use_cynara==1', {
+            'defines': ['OS_TIZEN=1', 'USE_CYNARA=1']
+          },{
+            'defines': ['OS_TIZEN=1', 'USE_CYNARA=0']
+          }]
+        ]
       }],
       ['tizen_mobile==1', {
         'defines': ['OS_TIZEN_MOBILE=1', 'OS_TIZEN=1'],

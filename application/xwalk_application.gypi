@@ -62,11 +62,23 @@
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '<(DEPTH)/ui/events/platform/events_platform.gyp:events_platform',
           ],
+          'cflags': [
+            '<!@(pkg-config --cflags cynara-client)',
+            '<!@(pkg-config --cflags cynara-creds-socket)',
+          ],
+          'link_settings': {
+            'libraries': [
+              '<!@(pkg-config --libs cynara-client)',
+              '<!@(pkg-config --libs cynara-creds-socket)',
+            ],
+          },
           'sources': [
             'browser/application_tizen.cc',
             'browser/application_tizen.h',
             'browser/application_service_tizen.cc',
             'browser/application_service_tizen.h',
+            'browser/tizen/tizen_cynara_checker.cc',
+            'browser/tizen/tizen_cynara_checker.h',
           ],
         }],
       ],
