@@ -85,11 +85,7 @@ base::FilePath GetConfigPath() {
 
 bool GetXWalkDataPath(base::FilePath* path) {
   base::FilePath::StringType xwalk_suffix;
-#if defined(OS_TIZEN)
-  xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
-#else
   xwalk_suffix = FILE_PATH_LITERAL("xwalk");
-#endif
   base::FilePath cur;
 
 #if defined(OS_WIN)

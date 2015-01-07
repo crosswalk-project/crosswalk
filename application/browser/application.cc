@@ -281,7 +281,6 @@ void Application::OnNewRuntimeAdded(Runtime* runtime) {
 void Application::OnRuntimeClosed(Runtime* runtime) {
   auto found = std::find(runtimes_.begin(), runtimes_.end(), runtime);
   CHECK(found != runtimes_.end());
-  LOG(INFO) << "Application::OnRuntimeClosed " << runtime;
   runtimes_.erase(found);
 
   if (runtimes_.empty())

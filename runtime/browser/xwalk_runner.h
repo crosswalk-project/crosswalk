@@ -81,9 +81,6 @@ class XWalkRunner {
   void EnableRemoteDebugging(int port);
   void DisableRemoteDebugging();
 
-  bool shared_process_mode_enabled() const
-      { return shared_process_mode_enabled_; }
-
  protected:
   XWalkRunner();
 
@@ -100,8 +97,6 @@ class XWalkRunner {
   virtual scoped_ptr<ApplicationComponent> CreateAppComponent();
   virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent();
   virtual scoped_ptr<StorageComponent> CreateStorageComponent();
-
-  bool shared_process_mode_enabled_;
 
  private:
   friend class XWalkMainDelegate;

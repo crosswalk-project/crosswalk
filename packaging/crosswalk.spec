@@ -31,9 +31,6 @@ License:        (BSD-3-Clause and LGPL-2.1+)
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}.tar
-Source1:        xwalk.in
-Source2:        org.crosswalkproject.Runtime1.service
-Source3:        xwalk.service.in
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
@@ -129,14 +126,10 @@ Crosswalk is an app runtime based on Chromium. It is an open source project star
 %prep
 %setup -q -n crosswalk
 
-cp %{SOURCE1} .
-cp %{SOURCE3} .
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
 cp %{SOURCE1003} .
 sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
-sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.in > xwalk
-sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.service.in > xwalk.service
 
 cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
@@ -247,18 +240,14 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_yasm=1 \
 -Denable_hidpi=1
 
-ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_tools
+ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_application_tools
 
 %install
 # Binaries.
 install -m 0755 -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
-install -m 0755 -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
-install -m 0755 -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
 install -m 0755 -p -D src/out/Release/xwalk_backend %{buildroot}%{_libdir}/xwalk/xwalk_backend
 
 # Supporting libraries and resources.
-install -m 0644 -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
-install -m 0644 -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
 install -m 0644 -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/libxwalk_backend_lib.so
 install -m 0644 -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
 install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
@@ -301,8 +290,6 @@ fi
 %files
 %manifest %{name}.manifest
 %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
-%{_bindir}/xwalkctl
-%{_bindir}/xwalk-launcher
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/libffmpegsumo.so
 %if ! %{_disable_nacl}
@@ -318,6 +305,4 @@ fi
 %{_libdir}/xwalk/xwalk_backend
 %{_manifestdir}/%{name}.xml
 %{_desktop_icondir}/%{name}.png
-%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
-%{_systemduserservicedir}/xwalk.service
 %{_datadir}/xwalk/*

@@ -18,9 +18,6 @@
 namespace xwalk {
 
 XWalkRunnerTizen::XWalkRunnerTizen() {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  shared_process_mode_enabled_ =
-      !(cmd_line->HasSwitch(switches::kXWalkDisableSharedProcessMode));
 }
 
 XWalkRunnerTizen::~XWalkRunnerTizen() {}
@@ -36,12 +33,10 @@ void XWalkRunnerTizen::PreMainMessageLoopRun() {
   // NSSInitSingleton is a costly operation (up to 100ms on VTC-1010),
   // resulting in postponing the parsing and composition steps of the render
   // process at cold start. Therefore, move the initialization logic here.
-  if (shared_process_mode_enabled()) {
-    content::BrowserThread::PostTask(
-        content::BrowserThread::IO,
-        FROM_HERE,
-        base::Bind(&crypto::EnsureNSSInit));
-  }
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO,
+      FROM_HERE,
+      base::Bind(&crypto::EnsureNSSInit));
 }
 
 }  // namespace xwalk
