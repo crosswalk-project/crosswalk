@@ -1,10 +1,9 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "xwalk/application/common/package/wgt_package.h"
-
-#include <string>
 
 #include "base/files/file_util.h"
 #include "base/files/scoped_file.h"
@@ -77,6 +76,20 @@ WGTPackage::WGTPackage(const base::FilePath& path)
       new base::ScopedFILE(base::OpenFile(path, "rb")));
 
   file_ = file.Pass();
+}
+
+// static
+const std::vector<std::string>& WGTPackage::GetDefaultWidgetEntryPages() {
+  static std::vector<std::string> entry_pages;
+  if (entry_pages.empty()) {
+    entry_pages.push_back("index.html");
+    entry_pages.push_back("index.htm");
+    entry_pages.push_back("index.svg");
+    entry_pages.push_back("index.xhtml");
+    entry_pages.push_back("index.xht");
+  }
+
+  return entry_pages;
 }
 
 }  // namespace application
