@@ -19,7 +19,7 @@
 
 chromium_crosswalk_rev = '5557d5159b3ed591f53887db1de564d2c07725b9'
 v8_crosswalk_rev = '11bb7b400ff9e0179ecf6fe358b9d9452d297234'
-ozone_wayland_rev = 'a64feb172408adac51228ace3fc19c47bc0d978a'
+ozone_wayland_rev = '5d7baa9bc3b8c88e9b7e476e3d6bc8cd44a887fe'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
 # we want to point to, very much like the variables above.
