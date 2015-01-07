@@ -36,6 +36,7 @@
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/common/tizen/encryption.h"
 #include "xwalk/application/common/tizen/package_query.h"
+#include "xwalk/application/common/package/wgt_package.h"
 #include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
 #include "xwalk/application/tools/tizen/xwalk_platform_installer.h"
 #include "xwalk/application/tools/tizen/xwalk_rds_delta_parser.h"
@@ -220,6 +221,16 @@ bool CreateAppSymbolicLink(const base::FilePath& app_dir,
     return false;
   }
   return true;
+}
+
+bool ContainsWidgetStartFile(const base::FilePath& path) {
+  for (std::string fname :
+      xwalk::application::WGTPackage::GetDefaultWidgetEntryPages()) {
+    if (base::PathExists(path.AppendASCII(fname.c_str())))
+      return true;
+  }
+  LOG(ERROR) << "Default start widget file does not exist.";
+  return false;
 }
 
 }  // namespace
@@ -407,6 +418,11 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     app_id = package->Id();
   } else {
     unpacked_dir = path;
+  }
+
+  if (package->manifest_type() == Manifest::TYPE_WIDGET &&
+      !ContainsWidgetStartFile(unpacked_dir)) {
+    return false;
   }
 
   base::FilePath app_dir = data_dir.AppendASCII(app_id);
