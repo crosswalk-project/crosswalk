@@ -353,6 +353,14 @@ void ApplicationData::ClearPermissions() {
 
 PermissionSet ApplicationData::GetManifestPermissions() const {
   PermissionSet permissions;
+#if defined(OS_TIZEN)
+  if (manifest_type() == Manifest::TYPE_WIDGET &&
+      manifest_->HasPath(widget_keys::kTizenPermissionsKey)) {
+    const PermissionsInfo* perm_info = static_cast<PermissionsInfo*>(
+        GetManifestData(widget_keys::kTizenPermissionsKey));
+    permissions = perm_info->GetAPIPermissions();
+  }
+#endif
   if (manifest_->value()->HasKey(keys::kPermissionsKey)) {
     const PermissionsInfo* perm_info = static_cast<PermissionsInfo*>(
                            GetManifestData(keys::kPermissionsKey));

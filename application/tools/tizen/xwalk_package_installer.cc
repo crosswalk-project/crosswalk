@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include <pkgmgr/pkgmgr_parser.h>
+#include <security-manager.h>
 
 #include <algorithm>
 #include <cctype>
@@ -32,7 +33,7 @@
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
-#include "xwalk/application/common/permission_policy_manager.h"
+#include "xwalk/application/common/permission_types.h"
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/common/tizen/encryption.h"
 #include "xwalk/application/common/tizen/package_query.h"
@@ -213,6 +214,101 @@ bool CreateAppSymbolicLink(const base::FilePath& app_dir,
                << execute_path.value() << "'.";
     return false;
   }
+  return true;
+}
+
+bool RegisterPermissions(
+    xwalk::application::ApplicationData* app_data,
+    const base::FilePath& app_dir) {
+  app_inst_req* req = NULL;
+  int error_code = security_manager_app_inst_req_new(&req);
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "security_manager_app_inst_req_new failed (error code: "
+               << error_code << ").";
+    return false;
+  }
+
+  const char* app_id = app_data->ID().c_str();
+  error_code = security_manager_app_inst_req_set_app_id(req, app_id);
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "security_manager_app_inst_req_set_app_id failed "
+               << "(error code: " << error_code << ").";
+    return false;
+  }
+
+  const char* pkg_id = xwalk::application::AppIdToPkgId(app_id).c_str();
+  error_code = security_manager_app_inst_req_set_pkg_id(req, pkg_id);
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "security_manager_app_inst_req_set_pkg_id failed "
+               << "(error code: " <<  error_code << ").";
+
+    return false;
+  }
+
+  xwalk::application::PermissionSet permissions =
+      app_data->GetManifestPermissions();
+  for (xwalk::application::PermissionSet::const_iterator
+      iter = permissions.begin(); iter != permissions.end(); ++iter) {
+    LOG(INFO) << "Permission: " << *iter;
+    error_code =
+        security_manager_app_inst_req_add_privilege(req, iter->c_str());
+    if (error_code != SECURITY_MANAGER_SUCCESS) {
+      LOG(ERROR) << "security_manager_app_inst_req_add_privilege failed "
+                 << "(error code: " << error_code << ").";
+      return false;
+    }
+  }
+
+  base::FileEnumerator it(app_dir, true, base::FileEnumerator::FILES);
+  base::FilePath file_path = it.Next();
+  for (; !file_path.empty(); file_path = it.Next()) {
+    error_code = security_manager_app_inst_req_add_path(
+        req, file_path.MaybeAsASCII().c_str(), SECURITY_MANAGER_PATH_PRIVATE);
+    if (error_code != SECURITY_MANAGER_SUCCESS) {
+      LOG(INFO) << "security_manager_app_inst_req_add_path failed "
+                << "(error code: " << error_code << ").";
+      return false;
+    }
+  }
+
+  error_code = security_manager_app_install(req);
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "security_manager_app_install failed (error code: "
+               << error_code << ").";
+    security_manager_app_inst_req_free(req);
+    return false;
+  }
+
+  security_manager_app_inst_req_free(req);
+  LOG(INFO) << "Register permission to cynara successfully";
+  return true;
+}
+
+bool RevokePermissions(const std::string& app_id) {
+  app_inst_req* req = NULL;
+
+  int error_code = security_manager_app_inst_req_new(&req);
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "security_manager_app_inst_req_new failed (error code: "
+               << error_code << ").";
+    return false;
+  }
+
+  error_code = security_manager_app_inst_req_set_app_id(req, app_id.c_str());
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "security_manager_app_inst_req_set_app_id failed "
+               << "(error code: " << error_code << ").";
+    return false;
+  }
+
+  error_code = security_manager_app_uninstall(req);
+  if (error_code != SECURITY_MANAGER_SUCCESS) {
+    LOG(ERROR) << "failure in uninstalling application:"
+               << "security_manager_app_uninstall returned " << error_code;
+    return false;
+  }
+
+  security_manager_app_inst_req_free(req);
   return true;
 }
 
@@ -425,14 +521,6 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  // FIXME: Probably should be removed, as we should not handle permissions
-  // inside XWalk.
-  xwalk::application::PermissionPolicyManager permission_policy_handler;
-  if (!permission_policy_handler.
-      InitApplicationPermission(app_data.get())) {
-    LOG(ERROR) << "Application permission data is invalid";
-    return false;
-  }
 
   if (storage_->Contains(app_data->ID())) {
     *id = app_data->ID();
@@ -454,6 +542,10 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
       return false;
   }
 
+  if (!RegisterPermissions(app_data.get(), app_dir)) {
+    LOG(ERROR) << "Register permission error";
+    return false;
+  }
   xwalk::application::TizenSettingInfo* info =
       static_cast<xwalk::application::TizenSettingInfo*>(
           app_data->GetManifestData(widget_keys::kTizenSettingKey));
@@ -636,6 +728,16 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
+  // Update permissions in Cynara policy
+  if (!RevokePermissions(app_id)) {
+    return false;
+  }
+
+  if (!RegisterPermissions(new_app_data.get(), app_dir)) {
+    LOG(ERROR) << "Register permission error";
+    return false;
+  }
+
   base::DeleteFile(tmp_dir, true);
 
   return true;
@@ -664,6 +766,10 @@ bool PackageInstaller::Uninstall(const std::string& id) {
     LOG(ERROR) << "Error occurred while trying to remove application with id "
                << app_id << "; Cannot remove all resources.";
     result = false;
+  }
+
+  if (!RevokePermissions(app_id)) {
+    return false;
   }
 
   if (!PlatformUninstall(app_id))

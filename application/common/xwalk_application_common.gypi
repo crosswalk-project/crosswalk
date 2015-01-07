@@ -71,6 +71,8 @@
             'manifest_handlers/tizen_metadata_handler.h',
             'manifest_handlers/tizen_navigation_handler.cc',
             'manifest_handlers/tizen_navigation_handler.h',
+            'manifest_handlers/tizen_permissions_handler.cc',
+            'manifest_handlers/tizen_permissions_handler.h',
             'manifest_handlers/tizen_setting_handler.cc',
             'manifest_handlers/tizen_setting_handler.h',
             'manifest_handlers/tizen_splash_screen_handler.cc',

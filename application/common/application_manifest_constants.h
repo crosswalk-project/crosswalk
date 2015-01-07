@@ -106,6 +106,8 @@ namespace application_widget_keys {
   extern const char kTizenMetaDataKey[];
   extern const char kTizenMetaDataNameKey[];
   extern const char kTizenMetaDataValueKey[];
+  extern const char kTizenPermissionsKey[];
+  extern const char kTizenPermissionsNameKey[];
   extern const char kTizenSplashScreenKey[];
   extern const char kTizenSplashScreenSrcKey[];
   extern const char kContentNamespace[];

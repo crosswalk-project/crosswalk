@@ -126,6 +126,8 @@ const char kTizenMetaDataKey[] = "widget.metadata";
 // Child keys inside 'kTizenMetaDataKey'
 const char kTizenMetaDataNameKey[] = "@key";
 const char kTizenMetaDataValueKey[] = "@value";
+const char kTizenPermissionsKey[] = "widget.privilege";
+const char kTizenPermissionsNameKey[] = "@name";
 const char kTizenSplashScreenKey[] = "widget.splash-screen";
 const char kTizenSplashScreenSrcKey[] = "@src";
 const char kContentNamespace[] = "widget.content.@namespace";
@@ -218,6 +220,7 @@ const char* GetIcon128Key(Manifest::Type manifest_type) {
 
   return application_manifest_keys::kIcon128Key;
 }
+
 #endif
 }  // namespace application
 }  // namespace xwalk
