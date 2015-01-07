@@ -124,3 +124,8 @@ int xwalk_change_cmdline(int argc, char** argv, const char* app_id) {
   pkgmgrinfo_appinfo_destroy_appinfo(handle);
   return 0;
 }
+
+int xwalk_is_debugging_port_request_by_env() {
+  char* tizen_debugging_port = getenv("TIZEN_DEBUGGING_PORT");
+  return !!tizen_debugging_port;
+}
