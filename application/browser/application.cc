@@ -21,6 +21,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
+#include "xwalk/application/common/package/wgt_package.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
@@ -38,12 +39,6 @@ namespace keys = application_manifest_keys;
 namespace widget_keys = application_widget_keys;
 
 namespace {
-const char* kDefaultWidgetEntryPage[] = {
-"index.htm",
-"index.html",
-"index.svg",
-"index.xhtml",
-"index.xht"};
 
 GURL GetDefaultWidgetEntryPage(
     scoped_refptr<xwalk::application::ApplicationData> data) {
@@ -52,13 +47,15 @@ GURL GetDefaultWidgetEntryPage(
       data->path(), true,
       base::FileEnumerator::FILES,
       FILE_PATH_LITERAL("index.*"));
-  size_t priority = arraysize(kDefaultWidgetEntryPage);
+  const std::vector<std::string>& defaultWidgetEntryPages =
+      application::WGTPackage::GetDefaultWidgetEntryPages();
+  size_t priority = defaultWidgetEntryPages.size();
   std::string source;
 
   for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
     for (size_t i = 0; i < priority; ++i) {
-      if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i]) {
-        source = kDefaultWidgetEntryPage[i];
+      if (file.BaseName().MaybeAsASCII() == defaultWidgetEntryPages[i]) {
+        source = defaultWidgetEntryPages[i];
         priority = i;
         break;
       }
