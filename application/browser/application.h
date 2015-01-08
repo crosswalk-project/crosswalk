@@ -63,8 +63,6 @@ class Application : public Runtime::Observer,
     // Used only when running as service. Specifies the PID of the launcher
     // process.
     int32 launcher_pid;
-
-    bool force_fullscreen;
     bool remote_debugging;
   };
 
@@ -161,8 +159,7 @@ class Application : public Runtime::Observer,
   // manifest, returns it and the entry point used.
   template <Manifest::Type> GURL GetStartURL();
 
-  template <Manifest::Type>
-  ui::WindowShowState GetWindowShowState(const LaunchParams& params);
+  template <Manifest::Type> ui::WindowShowState GetWindowShowState();
 
   GURL GetAbsoluteURLFromKey(const std::string& key);
 

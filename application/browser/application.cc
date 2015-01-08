@@ -164,11 +164,7 @@ GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() {
 
 
 template<>
-ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>(
-    const LaunchParams& params) {
-  if (params.force_fullscreen)
-    return ui::SHOW_STATE_FULLSCREEN;
-
+ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>() {
   const Manifest* manifest = data_->GetManifest();
   std::string view_modes_string;
   if (manifest->GetString(widget_keys::kViewModesKey, &view_modes_string)) {
@@ -185,11 +181,7 @@ ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>(
 }
 
 template<>
-ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_MANIFEST>(
-    const LaunchParams& params) {
-  if (params.force_fullscreen)
-    return ui::SHOW_STATE_FULLSCREEN;
-
+ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_MANIFEST>() {
   const Manifest* manifest = data_->GetManifest();
   std::string display_string;
   if (manifest->GetString(keys::kDisplay, &display_string)) {
@@ -232,8 +224,8 @@ bool Application::Launch(const LaunchParams& launch_params) {
   NativeAppWindow::CreateParams params;
   params.net_wm_pid = launch_params.launcher_pid;
   params.state = is_wgt ?
-      GetWindowShowState<Manifest::TYPE_WIDGET>(launch_params) :
-      GetWindowShowState<Manifest::TYPE_MANIFEST>(launch_params);
+      GetWindowShowState<Manifest::TYPE_WIDGET>() :
+      GetWindowShowState<Manifest::TYPE_MANIFEST>();
 
   window_show_params_ = params;
   // Only the first runtime can have a launch screen.

@@ -158,7 +158,6 @@ void RunningApplicationsManager::OnLaunch(
 
   Application::LaunchParams params;
   params.launcher_pid = launcher_pid;
-  params.force_fullscreen = fullscreen;
   params.remote_debugging = remote_debugging;
 
   Application* application = NULL;

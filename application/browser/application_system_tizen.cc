@@ -59,7 +59,6 @@ Application::LaunchParams launch_params(
     const base::CommandLine& cmd_line) {
   Application::LaunchParams params = {
       0,
-      cmd_line.HasSwitch(switches::kFullscreen),
       cmd_line.HasSwitch(switches::kRemoteDebuggingPort)
   };
   return params;

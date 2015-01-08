@@ -13,7 +13,6 @@ namespace switches {
 extern const char kAppIcon[];
 extern const char kDisablePnacl[];
 extern const char kExperimentalFeatures[];
-extern const char kFullscreen[];
 extern const char kListFeaturesFlags[];
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
