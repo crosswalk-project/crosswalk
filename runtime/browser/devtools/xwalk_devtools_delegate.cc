@@ -225,7 +225,6 @@ scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
   Runtime* runtime = CreateWithDefaultWindow(
       browser_context_, url, this);
-  runtime->set_remote_debugging_enabled(true);
   return scoped_ptr<content::DevToolsTarget>(
       new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }
@@ -234,14 +233,8 @@ void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
   content::DevToolsAgentHost::List agents =
       content::DevToolsAgentHost::GetOrCreateAll();
-  for (content::DevToolsAgentHost::List::iterator it = agents.begin();
-       it != agents.end(); ++it) {
-#if !defined(OS_ANDROID)
-    Runtime* runtime =
-        static_cast<Runtime*>((*it)->GetWebContents()->GetDelegate());
-    if (runtime && runtime->remote_debugging_enabled())
-#endif
-      targets.push_back(new Target(*it));
+  for (auto& it : agents) {
+    targets.push_back(new Target(it));
   }
   callback.Run(targets);
 }

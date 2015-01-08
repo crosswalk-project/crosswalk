@@ -90,7 +90,6 @@ Application::Application(
       security_mode_enabled_(false),
       browser_context_(browser_context),
       observer_(NULL),
-      remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(browser_context_);
   DCHECK(data_.get());
@@ -194,7 +193,7 @@ ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_MANIFEST>() {
   return ui::SHOW_STATE_DEFAULT;
 }
 
-bool Application::Launch(const LaunchParams& launch_params) {
+bool Application::Launch() {
   if (!runtimes_.empty()) {
     LOG(ERROR) << "Attempt to launch app with id " << id()
                << ", but it is already running.";
@@ -209,11 +208,9 @@ bool Application::Launch(const LaunchParams& launch_params) {
   if (!url.is_valid())
     return false;
 
-  remote_debugging_enabled_ = launch_params.remote_debugging;
   auto site = content::SiteInstance::CreateForURL(browser_context_, url);
   Runtime* runtime = Runtime::Create(browser_context_, site);
   runtime->set_observer(this);
-  runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
@@ -222,7 +219,6 @@ bool Application::Launch(const LaunchParams& launch_params) {
   runtime->LoadURL(url);
 
   NativeAppWindow::CreateParams params;
-  params.net_wm_pid = launch_params.launcher_pid;
   params.state = is_wgt ?
       GetWindowShowState<Manifest::TYPE_WIDGET>() :
       GetWindowShowState<Manifest::TYPE_MANIFEST>();
@@ -259,7 +255,6 @@ int Application::GetRenderProcessHostID() const {
 }
 
 void Application::OnNewRuntimeAdded(Runtime* runtime) {
-  runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
   runtime->set_observer(this);
   runtime->set_ui_delegate(
       DefaultRuntimeUIDelegate::Create(runtime, window_show_params_));

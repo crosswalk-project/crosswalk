@@ -53,8 +53,7 @@ ApplicationService::~ApplicationService() {
 }
 
 Application* ApplicationService::Launch(
-    scoped_refptr<ApplicationData> application_data,
-    const Application::LaunchParams& launch_params) {
+    scoped_refptr<ApplicationData> application_data) {
   if (GetApplicationByID(application_data->ID()) != NULL) {
     LOG(INFO) << "Application with id: " << application_data->ID()
               << " is already running.";
@@ -68,7 +67,7 @@ Application* ApplicationService::Launch(
   ScopedVector<Application>::iterator app_iter =
       applications_.insert(applications_.end(), application);
 
-  if (!application->Launch(launch_params)) {
+  if (!application->Launch()) {
     applications_.erase(app_iter);
     return NULL;
   }
@@ -82,8 +81,7 @@ Application* ApplicationService::Launch(
 }
 
 Application* ApplicationService::LaunchFromManifestPath(
-    const base::FilePath& path, Manifest::Type manifest_type,
-        const Application::LaunchParams& params) {
+    const base::FilePath& path, Manifest::Type manifest_type) {
   std::string error;
   scoped_ptr<Manifest> manifest = LoadManifest(path, manifest_type, &error);
   if (!manifest) {
@@ -103,11 +101,11 @@ Application* ApplicationService::LaunchFromManifestPath(
     return NULL;
   }
 
-  return Launch(application_data, params);
+  return Launch(application_data);
 }
 
 Application* ApplicationService::LaunchFromPackagePath(
-    const base::FilePath& path, const Application::LaunchParams& params) {
+    const base::FilePath& path) {
   scoped_ptr<Package> package = Package::Create(path);
   if (!package || !package->IsValid()) {
     LOG(ERROR) << "Failed to obtain valid package from "
@@ -143,14 +141,13 @@ Application* ApplicationService::LaunchFromPackagePath(
     return NULL;
   }
 
-  return Launch(application_data, params);
+  return Launch(application_data);
 }
 
 // Launch an application created from arbitrary url.
 // FIXME: This application should have the same strict permissions
 // as common browser apps.
-Application* ApplicationService::LaunchHostedURL(
-    const GURL& url, const Application::LaunchParams& params) {
+Application* ApplicationService::LaunchHostedURL(const GURL& url) {
   const std::string& url_spec = url.spec();
   if (url_spec.empty()) {
       LOG(ERROR) << "Failed to launch application from the URL: " << url;
@@ -175,7 +172,7 @@ Application* ApplicationService::LaunchHostedURL(
         ApplicationData::EXTERNAL_URL, manifest.Pass(), &error);
   DCHECK(app_data.get());
 
-  return Launch(app_data, params);
+  return Launch(app_data);
 }
 
 namespace {

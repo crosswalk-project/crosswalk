@@ -156,19 +156,15 @@ void RunningApplicationsManager::OnLaunch(
     return;
   }
 
-  Application::LaunchParams params;
-  params.launcher_pid = launcher_pid;
-  params.remote_debugging = remote_debugging;
-
   Application* application = NULL;
   GURL url(app_id_or_url);
   if (!url.spec().empty())
-    application = application_service_->LaunchHostedURL(url, params);
+    application = application_service_->LaunchHostedURL(url);
 
 #if defined(OS_TIZEN)
   if (!application)
     application = ToApplicationServiceTizen(
-        application_service_)->LaunchFromAppID(app_id_or_url, params);
+        application_service_)->LaunchFromAppID(app_id_or_url);
 #endif
 
   if (!application) {

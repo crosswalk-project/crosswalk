@@ -55,15 +55,6 @@ ApplicationSystemTizen::~ApplicationSystemTizen() {
 
 namespace {
 
-Application::LaunchParams launch_params(
-    const base::CommandLine& cmd_line) {
-  Application::LaunchParams params = {
-      0,
-      cmd_line.HasSwitch(switches::kRemoteDebuggingPort)
-  };
-  return params;
-}
-
 void application_event_cb(app_event event, void* data, bundle* b) {
   LOG(INFO) << "Received Tizen appcore event: " << event;
   ApplicationTizen* app = reinterpret_cast<ApplicationTizen*>(data);
@@ -107,8 +98,7 @@ bool ApplicationSystemTizen::LaunchFromCommandLine(
   ApplicationServiceTizen* app_service_tizen =
       ToApplicationServiceTizen(application_service_.get());
 
-  Application* app = app_service_tizen->LaunchFromAppID(
-      app_id, launch_params(cmd_line));
+  Application* app = app_service_tizen->LaunchFromAppID(app_id);
 
   if (!app)
     return false;

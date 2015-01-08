@@ -178,8 +178,8 @@ void ApplicationTizen::Show() {
   }
 }
 
-bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
-  if (Application::Launch(launch_params)) {
+bool ApplicationTizen::Launch() {
+  if (Application::Launch()) {
 #if defined(OS_TIZEN_MOBILE)
     if (!runtimes_.empty()) {
       root_window_ = CreateRootWindow(*(runtimes_.begin()),

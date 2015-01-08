@@ -59,13 +59,6 @@ class Application : public Runtime::Observer,
     virtual ~Observer() {}
   };
 
-  struct LaunchParams {
-    // Used only when running as service. Specifies the PID of the launcher
-    // process.
-    int32 launcher_pid;
-    bool remote_debugging;
-  };
-
   // Closes all the application's runtimes (application pages).
   // NOTE: Application is terminated asynchronously.
   // Please use ApplicationService::Observer::WillDestroyApplication()
@@ -119,7 +112,7 @@ class Application : public Runtime::Observer,
  protected:
   Application(scoped_refptr<ApplicationData> data,
               XWalkBrowserContext* context);
-  virtual bool Launch(const LaunchParams& launch_params);
+  virtual bool Launch();
   virtual void InitSecurityPolicy();
 
   // Runtime::Observer implementation.
@@ -174,8 +167,6 @@ class Application : public Runtime::Observer,
   StoredPermissionMap permission_map_;
   // Security policy.
   scoped_ptr<ApplicationSecurityPolicy> security_policy_;
-  // Remote debugging enabled or not for this Application
-  bool remote_debugging_enabled_;
   // WeakPtrFactory should be always declared the last.
   base::WeakPtrFactory<Application> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(Application);
