@@ -15,9 +15,6 @@ const char kDisablePnacl[] = "disable-pnacl";
 // Enable all the experimental features in XWalk.
 const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 
-// Specifies the window whether launched with fullscreen mode.
-const char kFullscreen[] = "fullscreen";
-
 // List the command lines feature flags.
 const char kListFeaturesFlags[] = "list-features-flags";
 
