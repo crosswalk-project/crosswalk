@@ -192,7 +192,10 @@ content::PushMessagingService* RuntimeContext::GetPushMessagingService() {
 }
 
 content::SSLHostStateDelegate* RuntimeContext::GetSSLHostStateDelegate() {
-  return NULL;
+  if (!ssl_host_state_delegate_.get()) {
+    ssl_host_state_delegate_.reset(new XWalkSSLHostStateDelegate());
+  }
+  return ssl_host_state_delegate_.get();
 }
 
 RuntimeURLRequestContextGetter* RuntimeContext::GetURLRequestContextGetterById(
