@@ -240,6 +240,8 @@
         'runtime/browser/xwalk_runner_android.h',
         'runtime/browser/xwalk_runner_tizen.cc',
         'runtime/browser/xwalk_runner_tizen.h',
+        'runtime/browser/xwalk_ssl_host_state_delegate.cc',
+        'runtime/browser/xwalk_ssl_host_state_delegate.h',
         'runtime/common/android/xwalk_globals_android.cc',
         'runtime/common/android/xwalk_globals_android.h',
         'runtime/common/android/xwalk_hit_test_data.cc',
