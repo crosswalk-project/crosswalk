@@ -5,7 +5,10 @@
 #ifndef XWALK_APPLICATION_BROWSER_APPLICATION_SYSTEM_TIZEN_H_
 #define XWALK_APPLICATION_BROWSER_APPLICATION_SYSTEM_TIZEN_H_
 
+#include "base/command_line.h"
+
 #include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_tizen.h"
 
 namespace xwalk {
 namespace application {
@@ -16,7 +19,6 @@ class ApplicationSystemTizen : public ApplicationSystem {
   virtual ~ApplicationSystemTizen();
   virtual bool LaunchFromCommandLine(const base::CommandLine& cmd_line,
                                      const GURL& url) override;
-
  private:
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystemTizen);
 };

@@ -72,6 +72,7 @@ class ApplicationSystem {
   XWalkBrowserContext* browser_context_;
   scoped_ptr<ApplicationService> application_service_;
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };
 

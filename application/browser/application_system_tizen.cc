@@ -15,7 +15,6 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/filename_util.h"
-#include "xwalk/application/browser/application_tizen.h"
 #include "xwalk/application/browser/application_service_tizen.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/id_util.h"
@@ -49,7 +48,7 @@ namespace xwalk {
 namespace application {
 
 ApplicationSystemTizen::ApplicationSystemTizen(XWalkBrowserContext* context)
-  : ApplicationSystem(context) {
+    : ApplicationSystem(context) {
 }
 
 ApplicationSystemTizen::~ApplicationSystemTizen() {
@@ -57,25 +56,57 @@ ApplicationSystemTizen::~ApplicationSystemTizen() {
 
 namespace {
 
+struct AppcoreHandlerData {
+  ApplicationSystemTizen* app_system;
+  std::string app_id;
+  ApplicationTizen* current_app;
+
+  AppcoreHandlerData(ApplicationSystemTizen* system,
+      const std::string& id)
+      : app_system(system),
+        app_id(id),
+        current_app(nullptr) {
+  }
+};
+
 void application_event_cb(app_event event, void* data, bundle* b) {
   LOG(INFO) << "Received Tizen appcore event: " << event;
-  ApplicationTizen* app = reinterpret_cast<ApplicationTizen*>(data);
-  CHECK(app);
+  AppcoreHandlerData* handler_data =
+      reinterpret_cast<AppcoreHandlerData*>(data);
+  ApplicationSystemTizen* app_system = handler_data->app_system;
+  CHECK(app_system);
 
   switch (event) {
     case AE_UNKNOWN:
     case AE_CREATE:
       break;
     case AE_TERMINATE:
-      app->Terminate();
+      if (handler_data->current_app) {
+        handler_data->current_app->Terminate();
+        delete handler_data;
+      }
       break;
     case AE_PAUSE:
-      app->Suspend();
+      if (handler_data->current_app)
+        handler_data->current_app->Suspend();
       break;
     case AE_RESUME:
-      app->Resume();
+      if (handler_data->current_app)
+        handler_data->current_app->Resume();
       break;
-    case AE_RESET:
+    case AE_RESET: {
+      const std::string& app_id = handler_data->app_id;
+      LOG(INFO) << "Attempting to launch the app with id: " << app_id;
+      if (!IsValidApplicationID(app_id))
+        break;
+
+      ApplicationServiceTizen* app_service_tizen =
+          ToApplicationServiceTizen(app_system->application_service());
+      Application* app = app_service_tizen->LaunchFromAppID(app_id);
+      LOG(INFO) << "Application launched with id: " << app->id();
+      handler_data->current_app = static_cast<ApplicationTizen*>(app);
+      break;
+    }
     case AE_LOWMEM_POST:
     case AE_MEM_FLUSH:
     case AE_MAX:
@@ -93,21 +124,10 @@ bool ApplicationSystemTizen::LaunchFromCommandLine(
   base::FilePath exec_path(args[0]);
 
   std::string app_id = exec_path.BaseName().MaybeAsASCII();
-  LOG(INFO) << "Attempting to launch the app with id: " << app_id;
-  if (!IsValidApplicationID(app_id))
-    return false;
-
-  ApplicationServiceTizen* app_service_tizen =
-      ToApplicationServiceTizen(application_service_.get());
-
-  Application* app = app_service_tizen->LaunchFromAppID(app_id);
-
-  if (!app)
-    return false;
 
   const std::string& name = std::string("xwalk-") + app_id;
   appcore_ops.cb_app = application_event_cb;
-  appcore_ops.data = app;
+  appcore_ops.data = new AppcoreHandlerData(this, app_id);
 
   // pass only positional arguments to appcore (possible aul parameters)
   // skip chromium flags
@@ -122,10 +142,8 @@ bool ApplicationSystemTizen::LaunchFromCommandLine(
 
   if (appcore_init(name.c_str(), &appcore_ops, positionals, argv.get())) {
     LOG(ERROR) << "Failed to initialize appcore";
-    app->Terminate();
     return false;
   }
-
   return true;
 }
 
