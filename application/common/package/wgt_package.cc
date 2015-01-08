@@ -82,8 +82,8 @@ WGTPackage::WGTPackage(const base::FilePath& path)
 const std::vector<std::string>& WGTPackage::GetDefaultWidgetEntryPages() {
   static std::vector<std::string> entry_pages;
   if (entry_pages.empty()) {
-    entry_pages.push_back("index.html");
     entry_pages.push_back("index.htm");
+    entry_pages.push_back("index.html");
     entry_pages.push_back("index.svg");
     entry_pages.push_back("index.xhtml");
     entry_pages.push_back("index.xht");
