@@ -3,6 +3,12 @@
 # found in the LICENSE file.
 
 {
+  'variables': {
+    # If we are not building the crosswalk-bin package (ie. we are only
+    # building crosswalk-libs), we do not need to really add the dependencies
+    # and call pkg-config.
+    'building_crosswalk_bin%': 1,
+  },
   'targets' : [
     {
       'target_name': 'gio',
@@ -10,19 +16,24 @@
       'variables': {
         'glib_packages': 'glib-2.0 gio-unix-2.0',
       },
-      'direct_dependent_settings': {
-        'cflags': [
-          '<!@(pkg-config --cflags <(glib_packages))',
-        ],
-      },
-      'link_settings': {
-        'ldflags': [
-          '<!@(pkg-config --libs-only-L --libs-only-other <(glib_packages))',
-        ],
-        'libraries': [
-          '<!@(pkg-config --libs-only-l <(glib_packages))',
-        ],
-      },
+      'conditions': [
+        ['building_crosswalk_bin==1', {
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <(glib_packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other <(glib_packages))',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l <(glib_packages))',
+            ],
+          },
+        },
+       ],
+      ],
     },
   ],  # targets
   'conditions': [
@@ -36,19 +47,24 @@
               'libtzplatform-config',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'tizen_geolocation',
@@ -59,19 +75,24 @@
               'vconf',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'tizen',
@@ -90,19 +111,24 @@
               'vconf',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'tizen_sensor',
@@ -113,19 +139,24 @@
               'vconf',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'tizen_sysapps',
@@ -135,19 +166,24 @@
               'vconf',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'tizen_appcore_common',
@@ -157,19 +193,24 @@
               'appcore-common',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'tizen_vibration',
@@ -179,36 +220,46 @@
               'haptic',
             ],
           },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <@(packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <@(packages))',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags <@(packages))',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l <@(packages))',
+                ],
+              },
+            },
+           ],
+          ],
         },
         {
           'target_name': 'xmlsec',
           'type': 'none',
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags xmlsec1)',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other xmlsec1)',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l xmlsec1)',
-            ],
-          },
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(pkg-config --cflags xmlsec1)',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other xmlsec1)',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l xmlsec1)',
+                ],
+              },
+            },
+           ],
+          ],
         }
       ],  # targets
     }],
