@@ -20,6 +20,11 @@
       ['enable_murphy==1', {
         'defines': ['ENABLE_MURPHY=1'],
       }],
+      ['OS=="android"', {
+        'defines': [
+           'NOTIMPLEMENTED_POLICY=0'
+        ],
+      }],
     ],
     'includes': [
       'xwalk_filename_rules.gypi',
