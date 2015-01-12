@@ -139,6 +139,14 @@ namespace application_widget_keys {
   extern const char kTizenApplicationAppControlUriKey[];
   extern const char kTizenApplicationAppControlMimeKey[];
   extern const char kTizenApplicationAppControlChildNameAttrKey[];
+  extern const char kTizenImeKey[];
+  extern const char kTizenImeUuidKey[];
+  extern const char kTizenImeUuidTextKey[];
+  extern const char kTizenImeLanguagesKey[];
+  extern const char kTizenImeLanguageKey[];
+  extern const char kTizenImeLanguageTextKey[];
+  extern const char kTizenCategoryKey[];
+  extern const char kTizenCategoryNameKey[];
   extern const char kTizenNamespacePrefix[];
 #endif
 }  // namespace application_widget_keys
