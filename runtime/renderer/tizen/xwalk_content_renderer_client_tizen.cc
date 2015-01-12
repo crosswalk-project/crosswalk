@@ -9,6 +9,7 @@
 
 #include "base/files/file_path.h"
 #include "base/strings/stringprintf.h"
+#include "base/strings/utf_string_conversions.h"
 #include "net/base/filename_util.h"
 #include "net/base/net_errors.h"
 #include "url/gurl.h"
@@ -16,6 +17,8 @@
 #include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
+#include "third_party/WebKit/public/web/WebScriptSource.h"
 
 namespace xwalk {
 
@@ -110,6 +113,30 @@ void XWalkContentRendererClientTizen::GetNavigationErrorStrings(
                            "<h1>NET ERROR : %s</h1></body></html>",
                            net::ErrorToString(error.reason).c_str());
   }
+}
+
+void XWalkContentRendererClientTizen::DidCreateScriptContext(
+    blink::WebFrame* frame,
+    v8::Handle<v8::Context> context,
+    int extension_group,
+    int world_id) {
+  XWalkContentRendererClient::DidCreateScriptContext(
+      frame, context, extension_group, world_id);
+  std::string code =
+      "(function() {"
+      "  window.eventListenerList = [];"
+      "  window._addEventListener = window.addEventListener;"
+      "  window.addEventListener = function(event, callback, useCapture) {"
+      "    if (event == 'storage') {"
+      "      window.eventListenerList.push(callback);"
+      "    }"
+      "    window._addEventListener(event, callback, useCapture);"
+      "  }"
+      "})();";
+
+  blink::WebScriptSource source =
+      blink::WebScriptSource(base::ASCIIToUTF16(code));
+  frame->executeScript(source);
 }
 
 std::string XWalkContentRendererClientTizen::GetOverridenUserAgent() const {
