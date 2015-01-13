@@ -39,21 +39,6 @@
         'renderer/application_native_module.h',
       ],
       'conditions': [
-        [ 'OS == "linux"', {
-          'dependencies': [
-            '../build/linux/system.gyp:dbus',
-            '../dbus/dbus.gyp:dbus',
-            'dbus/xwalk_dbus.gyp:xwalk_dbus',
-          ],
-          'sources': [
-            'browser/application_service_provider_linux.cc',
-            'browser/application_service_provider_linux.h',
-            'browser/linux/running_application_object.cc',
-            'browser/linux/running_application_object.h',
-            'browser/linux/running_applications_manager.cc',
-            'browser/linux/running_applications_manager.h',
-          ],
-        }],
         ['tizen==1', {
           'dependencies': [
             'build/system.gyp:tizen',

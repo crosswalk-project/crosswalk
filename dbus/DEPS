@@ -1,6 +1,0 @@
-include_rules = [
-  "-xwalk",
-  "+xwalk/dbus",
-  "+dbus",
-  "+base",
-]
