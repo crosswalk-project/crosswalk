@@ -41,22 +41,17 @@ class ApplicationService : public Application::Observer {
 
   // Launch an unpacked application using path to the manifest file
   // of an unpacked application.
-  Application* LaunchFromManifestPath(
-      const base::FilePath& path, Manifest::Type manifest_type,
-      const Application::LaunchParams& params = Application::LaunchParams());
+  Application* LaunchFromManifestPath(const base::FilePath& path,
+                                      Manifest::Type manifest_type);
 
   // Launch an application using path to its package file.
   // Note: the given package is unpacked to a temporary folder,
   // which is deleted after the application terminates.
-  Application* LaunchFromPackagePath(
-      const base::FilePath& path,
-      const Application::LaunchParams& params = Application::LaunchParams());
+  Application* LaunchFromPackagePath(const base::FilePath& path);
 
   // Launch an application from an arbitrary URL.
   // Creates a "dummy" application.
-  Application* LaunchHostedURL(
-      const GURL& url,
-      const Application::LaunchParams& params = Application::LaunchParams());
+  Application* LaunchHostedURL(const GURL& url);
 
   Application* GetApplicationByRenderHostID(int id) const;
   Application* GetApplicationByID(const std::string& app_id) const;
@@ -83,8 +78,7 @@ class ApplicationService : public Application::Observer {
  protected:
   explicit ApplicationService(XWalkBrowserContext* browser_context);
 
-  Application* Launch(scoped_refptr<ApplicationData> application_data,
-                      const Application::LaunchParams& launch_params);
+  Application* Launch(scoped_refptr<ApplicationData> application_data);
 
  private:
   // Implementation of Application::Observer.

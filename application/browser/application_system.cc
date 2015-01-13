@@ -46,18 +46,6 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
   return app_system.Pass();
 }
 
-namespace {
-
-Application::LaunchParams launch_params(
-    const base::CommandLine& cmd_line) {
-  Application::LaunchParams params = {
-      0,
-      cmd_line.HasSwitch(switches::kRemoteDebuggingPort)};
-  return params;
-}
-
-}  // namespace
-
 bool ApplicationSystem::LaunchFromCommandLine(
     const base::CommandLine& cmd_line, const GURL& url) {
   if (!url.is_valid())
@@ -67,8 +55,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   Application* app = nullptr;
   bool is_local = url.SchemeIsFile() && net::FileURLToFilePath(url, &path);
   if (!is_local) {  // Handles external URL.
-    app = application_service_->LaunchHostedURL(
-        url, launch_params(cmd_line));
+    app = application_service_->LaunchHostedURL(url);
     return !!app;
   }
 
@@ -77,20 +64,19 @@ bool ApplicationSystem::LaunchFromCommandLine(
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".xpk")) ||
       path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
-    app = application_service_->LaunchFromPackagePath(
-        path, launch_params(cmd_line));
+    app = application_service_->LaunchFromPackagePath(path);
     return !!app;
   }
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".json"))) {
     app = application_service_->LaunchFromManifestPath(
-        path, Manifest::TYPE_MANIFEST, launch_params(cmd_line));
+        path, Manifest::TYPE_MANIFEST);
     return !!app;
   }
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".xml"))) {
     app = application_service_->LaunchFromManifestPath(
-        path, Manifest::TYPE_WIDGET, launch_params(cmd_line));
+        path, Manifest::TYPE_WIDGET);
     return !!app;
   }
 

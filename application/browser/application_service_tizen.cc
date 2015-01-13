@@ -56,8 +56,7 @@ ApplicationServiceTizen::ApplicationServiceTizen(
 ApplicationServiceTizen::~ApplicationServiceTizen() {
 }
 
-Application* ApplicationServiceTizen::LaunchFromAppID(
-    const std::string& id, const Application::LaunchParams& params) {
+Application* ApplicationServiceTizen::LaunchFromAppID(const std::string& id) {
   if (!IsValidApplicationID(id)) {
      LOG(ERROR) << "The input parameter is not a valid app id: " << id;
      return NULL;
@@ -70,7 +69,7 @@ Application* ApplicationServiceTizen::LaunchFromAppID(
     return NULL;
   }
 
-  return Launch(app_data, params);
+  return Launch(app_data);
 }
 
 }  // namespace application

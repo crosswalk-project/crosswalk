@@ -97,9 +97,6 @@ Runtime* InProcessBrowserTest::CreateRuntime(
   Runtime* runtime = Runtime::Create(
       XWalkRunner::GetInstance()->browser_context());
   runtime->set_observer(this);
-  runtime->set_remote_debugging_enabled(
-      base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kRemoteDebuggingPort));
   runtimes_.push_back(runtime);
   runtime->LoadURL(url);
   content::WaitForLoadStop(runtime->web_contents());

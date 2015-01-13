@@ -38,7 +38,7 @@ class ApplicationTizen :  // NOLINT
   friend class Application;
   ApplicationTizen(scoped_refptr<ApplicationData> data,
                    XWalkBrowserContext* context);
-  bool Launch(const LaunchParams& launch_params) override;
+  bool Launch() override;
 
   base::FilePath GetSplashScreenPath() override;
 

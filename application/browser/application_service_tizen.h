@@ -20,9 +20,7 @@ class ApplicationServiceTizen : public ApplicationService {
  public:
   virtual ~ApplicationServiceTizen();
   // Launch an installed application using application id.
-  Application* LaunchFromAppID(
-      const std::string& id,
-      const Application::LaunchParams& params = Application::LaunchParams());
+  Application* LaunchFromAppID(const std::string& id);
 
  private:
   friend class ApplicationService;

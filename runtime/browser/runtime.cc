@@ -60,7 +60,6 @@ Runtime::Runtime(content::WebContents* web_contents)
     : WebContentsObserver(web_contents),
       web_contents_(web_contents),
       fullscreen_options_(NO_FULLSCREEN),
-      remote_debugging_enabled_(false),
       ui_delegate_(nullptr),
       observer_(nullptr),
       weak_ptr_factory_(this) {

@@ -87,11 +87,6 @@ class Runtime : public content::WebContentsDelegate,
 
   content::RenderProcessHost* GetRenderProcessHost();
 
-  void set_remote_debugging_enabled(bool enable) {
-    remote_debugging_enabled_ = enable;
-  }
-  bool remote_debugging_enabled() const { return remote_debugging_enabled_; }
-
  protected:
   explicit Runtime(content::WebContents* web_contents);
 
