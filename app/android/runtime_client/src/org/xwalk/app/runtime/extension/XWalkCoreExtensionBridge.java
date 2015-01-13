@@ -16,7 +16,7 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExt
     private XWalkExtensionClient mExtension;
 
     public XWalkCoreExtensionBridge(XWalkExtensionClient extension) {
-        super(extension.getExtensionName(), extension.getJsApi(), null);
+        super(extension.getExtensionName(), extension.getJsApi(), extension.getEntryPoints());
         mExtension = extension;
     }
 
