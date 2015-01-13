@@ -156,6 +156,8 @@ std::string XWalkDevToolsHttpHandlerDelegate::GetDiscoveryPageHTML() {
 void XWalkDevToolsDelegate::ProcessAndSaveThumbnail(
     const GURL& url,
     scoped_refptr<base::RefCountedBytes> png) {
+  if (!png.get())
+    return;
   const std::vector<unsigned char>& png_data = png->data();
   std::string png_string_data(reinterpret_cast<const char*>(&png_data[0]),
                               png_data.size());
