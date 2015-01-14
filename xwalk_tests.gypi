@@ -11,13 +11,6 @@
         'sysapps/sysapps_tests.gyp:xwalk_sysapps_browsertest',
         'sysapps/sysapps_tests.gyp:xwalk_sysapps_unittest',
       ],
-      'conditions': [
-        ['OS=="linux"', {
-          'dependencies': [
-            'dbus/xwalk_dbus.gyp:xwalk_dbus_unittests',
-          ],
-        }],
-      ],
     },
     {
       'target_name': 'xwalk_unittest',
