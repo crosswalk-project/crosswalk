@@ -4,12 +4,14 @@
 
 #include "xwalk/application/browser/application_system_tizen.h"
 
+#include <cstdio>
 #include <string>
 
 #include <appcore/appcore-common.h>  // NOLINT
 #include <pkgmgr-info.h> // NOLINT
 
 #include "base/command_line.h"
+#include "base/strings/string_util.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/filename_util.h"
@@ -117,12 +119,18 @@ bool ApplicationSystemTizen::LaunchFromCommandLine(
   appcore_ops.cb_app = application_event_cb;
   appcore_ops.data = app;
 
-  scoped_ptr<char*[]> argv(new char*[args.size()]);
-  for (size_t i = 0; i < args.size(); ++i) {
-    argv[i] = const_cast<char*>(args[i].c_str());
+  // pass only positional arguments to appcore (possible aul parameters)
+  // skip chromium flags
+  size_t positionals = 0;
+  size_t size = args.size() + 1;
+  scoped_ptr<char*[]> argv(new char*[size]);
+  memset(argv.get(), 0x0, size);
+  for (size_t i = 0; i < size - 1; ++i) {
+    if (!StartsWithASCII(args[i], "--", false))
+      argv[positionals++] = const_cast<char*>(args[i].c_str());
   }
 
-  if (appcore_init(name.c_str(), &appcore_ops, args.size(), argv.get())) {
+  if (appcore_init(name.c_str(), &appcore_ops, positionals, argv.get())) {
     LOG(ERROR) << "Failed to initialize appcore";
     app->Terminate();
     return false;
