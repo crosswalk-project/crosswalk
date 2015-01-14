@@ -34,6 +34,11 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 
+  // switches::kInProcessGPU is not being used here because it
+  // doesn't have the CONTENT_EXPORT macro despite the fact it is exposed by
+  // content_switches.h.
+  command_line->AppendSwitch("in-process-gpu");
+
   // Enable Accelerated 2D Canvas.
   command_line->AppendSwitch(switches::kGpuNoContextLost);
 
