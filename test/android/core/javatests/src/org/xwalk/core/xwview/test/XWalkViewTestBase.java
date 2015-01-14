@@ -89,6 +89,13 @@ public class XWalkViewTestBase
         }
 
         @Override
+        public boolean onConsoleMessage(XWalkView view, String message,
+                int lineNumber, String sourceId, ConsoleMessageType messageType) {
+            return mInnerContentsClient.onConsoleMessage(message,lineNumber,sourceId,
+                    messageType);
+        }
+
+        @Override
         public void openFileChooser(XWalkView view, ValueCallback<Uri> uploadFile,
                 String acceptType, String capture) {
             mInnerContentsClient.openFileChooser(uploadFile);

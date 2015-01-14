@@ -162,6 +162,50 @@ void XWalkWebContentsDelegate::RendererResponsive(WebContents* source) {
   Java_XWalkWebContentsDelegate_rendererResponsive(env, obj.obj());
 }
 
+bool XWalkWebContentsDelegate::AddMessageToConsole(
+    content::WebContents* source,
+    int32 level,
+    const base::string16& message,
+    int32 line_no,
+    const base::string16& source_id) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return WebContentsDelegate::AddMessageToConsole(
+        source, level, message, line_no, source_id);
+  ScopedJavaLocalRef<jstring> jmessage(ConvertUTF16ToJavaString(env, message));
+  ScopedJavaLocalRef<jstring> jsource_id(
+      ConvertUTF16ToJavaString(env, source_id));
+  int jlevel =
+      web_contents_delegate_android::WEB_CONTENTS_DELEGATE_LOG_LEVEL_DEBUG;
+  switch (level) {
+    case logging::LOG_VERBOSE:
+      jlevel =
+        web_contents_delegate_android::WEB_CONTENTS_DELEGATE_LOG_LEVEL_DEBUG;
+      break;
+    case logging::LOG_INFO:
+      jlevel =
+        web_contents_delegate_android::WEB_CONTENTS_DELEGATE_LOG_LEVEL_LOG;
+      break;
+    case logging::LOG_WARNING:
+      jlevel =
+        web_contents_delegate_android::WEB_CONTENTS_DELEGATE_LOG_LEVEL_WARNING;
+      break;
+    case logging::LOG_ERROR:
+      jlevel =
+        web_contents_delegate_android::WEB_CONTENTS_DELEGATE_LOG_LEVEL_ERROR;
+      break;
+    default:
+      NOTREACHED();
+  }
+  return Java_XWalkWebContentsDelegate_addMessageToConsole(env,
+      GetJavaDelegate(env).obj(),
+      jlevel,
+      jmessage.obj(),
+      line_no,
+      jsource_id.obj());
+}
+
 void XWalkWebContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
@@ -174,7 +218,6 @@ void XWalkWebContentsDelegate::HandleKeyboardEvent(
     return;
   Java_XWalkWebContentsDelegate_handleKeyboardEvent(env, obj.obj(), key_event);
 }
-
 
 void XWalkWebContentsDelegate::ToggleFullscreenModeForTab(
     content::WebContents* web_contents,

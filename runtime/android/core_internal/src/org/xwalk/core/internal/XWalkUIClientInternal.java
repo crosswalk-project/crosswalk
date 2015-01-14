@@ -303,6 +303,35 @@ public class XWalkUIClientInternal {
     }
 
     /**
+     * Initiator
+     * @since 5.0
+     */
+    @XWalkAPI
+    public enum ConsoleMessageType {
+        DEBUG,
+        ERROR,
+        LOG,
+        INFO,
+        WARNING
+    }
+
+    /**
+     * Notify the host application of console message.
+     * @param view The XWalkViewInternal that initiated the callback.
+     * @param message A String containing the console message.
+     * @param lineNumber The line number of JavaScript.
+     * @param sourceId The link which print log.
+     * @param messageType The type of console message.
+     * @return Not applicable here. For future use.
+     * @since 5.0
+     */
+    @XWalkAPI
+    public boolean onConsoleMessage(XWalkViewInternal view, String message,
+            int lineNumber, String sourceId, ConsoleMessageType messageType) {
+        return false;
+    }
+
+    /**
      * Notify the host application of a change in the document title.
      * @param view The XWalkViewInternal that initiated the callback.
      * @param title A String containing the new title of the document.
