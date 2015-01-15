@@ -313,8 +313,6 @@
             '../components/components.gyp:renderer_context_menu',
           ],
           'sources': [
-            'runtime/browser/tizen/tizen_locale_listener.cc',
-            'runtime/browser/tizen/tizen_locale_listener.h',
             'runtime/browser/tizen/xwalk_web_contents_view_delegate.cc',
             'runtime/browser/tizen/xwalk_web_contents_view_delegate.h',
             'runtime/browser/tizen/render_view_context_menu_impl.cc',
