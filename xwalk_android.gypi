@@ -1,6 +1,7 @@
 {
   'variables': {
     'reflection_java_dir': '<(PRODUCT_DIR)/gen/xwalk_core_reflection_layer',
+    'internal_dir': 'runtime/android/core_internal/src/org/xwalk/core/internal',
   },
   'targets': [
     {
@@ -108,7 +109,7 @@
             '--input_dir', '<(internal_src)',
             '--bridge_output', '<(reflection_java_dir)/bridge',
             '--wrap_output', '<(reflection_java_dir)/wrapper',
-            '--helper_class', 'runtime/android/core_internal/src/org/xwalk/core/internal/ReflectionHelper.java',
+            '--helper_class', '<(internal_dir)/ReflectConstructor.java,<(internal_dir)/ReflectMethod.java',
             '--stamp', '<(timestamp)',
           ],
         },
@@ -122,6 +123,7 @@
         '../components/components.gyp:web_contents_delegate_android_java',
         '../content/content.gyp:content_java',
         '../ui/android/ui_android.gyp:ui_java',
+        'third_party/lzma_sdk/lzma_sdk_android.gyp:lzma_sdk_java',
         'xwalk_core_extensions_java',
         'xwalk_core_strings',
         'xwalk_core_reflection_layer_java_gen',

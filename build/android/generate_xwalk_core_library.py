@@ -28,6 +28,10 @@ def AddGeneratorOptions(option_parser):
                            default=False,
                            help='Exclude icudtl.dat when specified')
 
+  option_parser.add_option('--use-lzma', action='store_true',
+                           default=False,
+                           help='Use LZMA compress native library when specified')
+
 
 def CleanLibraryProject(out_dir):
   out_project_path = os.path.join(out_dir, LIBRARY_PROJECT_NAME)
@@ -92,10 +96,12 @@ def CopyJSBindingFiles(project_source, out_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, no_icu_data):
+def CopyBinaries(out_dir, no_icu_data, use_lzma):
   """cp out/Release/<pak> out/Release/xwalk_core_library/res/raw/<pak>
      cp out/Release/lib.java/<lib> out/Release/xwalk_core_library/libs/<lib>
-     cp out/Release/xwalk_core_shell_apk/libs/*
+     cp out/Release/xwalk_core_shell_apk/libs/*.lzma
+        out/Release/xwalk_core_library/res/raw
+     cp out/Release/xwalk_core_shell_apk/libs/*.so
         out/Release/xwalk_core_library/libs
   """
 
@@ -151,8 +157,16 @@ def CopyBinaries(out_dir, no_icu_data):
 
   # Copy native libraries.
   source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
-  target_dir = libs_dir
-  distutils.dir_util.copy_tree(source_dir, target_dir)
+  distutils.dir_util.copy_tree(source_dir, libs_dir)
+
+  if use_lzma:
+    for arch in ['x86', 'armeabi-v7a']:
+      arch_dir = os.path.join(libs_dir, arch)
+      lib = os.path.join(arch_dir, 'libxwalkcore.so.lzma')
+      if os.path.isfile(lib):
+        shutil.move(lib, os.path.join(res_raw_dir, "libxwalkcore.so." + arch))
+  else:
+    shutil.rmtree(os.path.join(res_raw_dir, "libxwalkcore.so.*"), ignore_errors = True)
 
 
 def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix):
@@ -311,7 +325,7 @@ def main(argv):
   CopyProjectFiles(options.source, out_dir)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir)
-  CopyBinaries(out_dir, options.no_icu_data)
+  CopyBinaries(out_dir, options.no_icu_data, options.use_lzma)
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_dir)
   # Post copy library project.

@@ -79,24 +79,44 @@ class XWalkViewDelegate {
         }
     }
 
-    public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
-        if (sLibraryLoaded) return;
+    public static boolean XWalkLibraryCompressed(Context context) {
+        if (context == null) return false;
 
-        // If context is null, it's called from wrapper's ReflectionHelper to try
-        // loading native library within the package. No need to try load from library
-        // package in this case.
-        // If context's applicationContext is not the same package with itself,
-        // It's a cross package invoking, load core library from library apk.
-        // Only load the native library from /data/data if the Android version is
-        // lower than 4.2. Android enables a system path /data/app-lib to store native
-        // libraries starting from 4.2 and load them automatically.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null &&
-                !context.getApplicationContext().getPackageName().equals(context.getPackageName())) {
-            for (String library : MANDATORY_LIBRARIES) {
-                System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
+        return XWalkCompressUtil.XWalkLibraryCompressed(context, MANDATORY_LIBRARIES);
+    }
+
+    public static void decompressXWalkLibrary(Context context) throws Exception {
+        if (context == null) return;
+
+        String lib = PathUtils.getDataDirectory(context.getApplicationContext());
+        long start = System.currentTimeMillis();
+        XWalkCompressUtil.decompressXWalkLibrary(context, MANDATORY_LIBRARIES, lib);
+        long end = System.currentTimeMillis();
+        Log.d(TAG, "decompress library cost: " + (end - start) + " milliseconds.");
+    }
+
+    public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
+        if (sLibraryLoaded || (context == null)) return;
+
+        if (XWalkLibraryCompressed(context)) {
+            String lib = PathUtils.getDataDirectory(context.getApplicationContext());
+            if (lib != null) {
+                for (String library : MANDATORY_LIBRARIES) {
+                    System.load(lib + "/" + library);
+                }
             }
+        } else {
+            // Only load the native library from /data/data if the Android version is
+            // lower than 4.2. Android enables a system path /data/app-lib to store native
+            // libraries starting from 4.2 and load them automatically.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                for (String library : MANDATORY_LIBRARIES) {
+                    System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
+                }
+            }
+
+            loadLibrary(context);
         }
-        loadLibrary(context);
 
         if (sRunningOnIA && !nativeIsLibraryBuiltForIA()) {
             throw new UnsatisfiedLinkError();
@@ -205,7 +225,6 @@ class XWalkViewDelegate {
     }
 
     private static void loadLibrary(Context context) {
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         try {
             LibraryLoader.loadNow(context, true);
         } catch (ProcessInitException e) {
@@ -260,5 +279,7 @@ class XWalkViewDelegate {
                 Log.w(TAG, Log.getStackTraceString(e));
             }
         }
+
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
     }
 }

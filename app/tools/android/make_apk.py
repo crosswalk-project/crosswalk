@@ -30,6 +30,7 @@ from manifest_json_parser import ManifestJsonParser
 
 
 NATIVE_LIBRARY = 'libxwalkcore.so'
+DUMMY_LIBRARY = 'libxwalkdummy.so'
 
 
 def ConvertArchNameToArchFolder(arch):
@@ -74,7 +75,7 @@ def GetAndroidApiLevel(android_path):
 
 
 def ContainsNativeLibrary(path):
-  return os.path.isfile(os.path.join(path, NATIVE_LIBRARY))
+  return os.path.isfile(os.path.join(path, NATIVE_LIBRARY)) or os.path.isfile(os.path.join(path, DUMMY_LIBRARY))
 
 
 def ParseManifest(options):

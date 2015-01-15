@@ -8,12 +8,16 @@ import java.util.HashMap;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.graphics.drawable.ClipDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.MessageQueue;
@@ -36,14 +40,20 @@ import org.chromium.base.BaseSwitches;
 import org.chromium.base.CommandLine;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.content.browser.TracingControllerAndroid;
+
+import org.xwalk.core.ReflectMethod;
+import org.xwalk.core.XWalkMixedResources;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkCoreWrapper;
+import org.xwalk.core.XWalkCoreWrapper.XWalkCoreStatus;
 
 public class XWalkViewShellActivity extends FragmentActivity
-        implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener {
+        implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener,
+                   XWalkCoreWrapper.XWalkCoreListener {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
     private static final String TAG = XWalkViewShellActivity.class.getName();
     public static final String COMMAND_LINE_ARGS_KEY = "commandLineArgs";
@@ -109,6 +119,7 @@ public class XWalkViewShellActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        XWalkCoreWrapper.initEmbeddedMode(this);
 
         registerTracingReceiverWhenIdle();
 
@@ -121,58 +132,12 @@ public class XWalkViewShellActivity extends FragmentActivity
         }
 
         waitForDebuggerIfNeeded();
-
-        setContentView(R.layout.testshell_activity);
-
-        mActionBar = getActionBar();
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), mActionBar);
-
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                mActionBar.setSelectedNavigationItem(position);
-            }
-        });
-
-        mProgressMap = new HashMap<XWalkView, Integer>();
-        // Add two tabs.
-        mActionBar.addTab(
-                mActionBar.newTab()
-                        .setText(mSectionsPagerAdapter.getPageTitle(0))
-                        .setTabListener(this));
-        mActionBar.addTab(
-                mActionBar.newTab()
-                        .setText(mSectionsPagerAdapter.getPageTitle(1))
-                        .setTabListener(this));
-
-        mToolbar = (LinearLayout) findViewById(R.id.toolbar);
-        mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
-
-        IntentFilter intentFilter = new IntentFilter(ACTION_LAUNCH_URL);
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Bundle bundle = intent.getExtras();
-                if (bundle == null)
-                    return;
-
-                if (bundle.containsKey("url")) {
-                    String extra = bundle.getString("url");
-                    if (mActiveView != null)
-                        mActiveView.load(sanitizeUrl(extra), null);
-                }
-            }
-        };
-        registerReceiver(mReceiver, intentFilter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mReceiver);
+        if (mReceiver != null) unregisterReceiver(mReceiver);
         unregisterTracingReceiver();
     }
 
@@ -358,5 +323,133 @@ public class XWalkViewShellActivity extends FragmentActivity
         initializeXWalkViewClients(view);
         mProgressMap.put(view, 0);
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+    }
+
+    @Override
+    public void onXWalkCoreReady() {
+        setContentView(R.layout.testshell_activity);
+
+        mActionBar = getActionBar();
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), mActionBar);
+
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                mActionBar.setSelectedNavigationItem(position);
+            }
+        });
+
+        mProgressMap = new HashMap<XWalkView, Integer>();
+        // Add two tabs.
+        mActionBar.addTab(
+                mActionBar.newTab()
+                        .setText(mSectionsPagerAdapter.getPageTitle(0))
+                        .setTabListener(this));
+        mActionBar.addTab(
+                mActionBar.newTab()
+                        .setText(mSectionsPagerAdapter.getPageTitle(1))
+                        .setTabListener(this));
+
+        mToolbar = (LinearLayout) findViewById(R.id.toolbar);
+        mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
+
+        IntentFilter intentFilter = new IntentFilter(ACTION_LAUNCH_URL);
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                if (bundle == null)
+                    return;
+
+                if (bundle.containsKey("url")) {
+                    String extra = bundle.getString("url");
+                    if (mActiveView != null)
+                        mActiveView.load(sanitizeUrl(extra), null);
+                }
+            }
+        };
+        registerReceiver(mReceiver, intentFilter);
+    }
+
+    @Override
+    public void onXWalkCoreStartupError(Throwable e, XWalkCoreStatus status) {
+        if (status == XWalkCoreStatus.COMPRESSED) {
+            Dialog dialog = new StartupDecompressDialog(this);
+            dialog.show();
+        }
+    }
+
+    @Override
+    public void onXWalkCoreRuntimeError(Throwable e, XWalkCoreStatus status) {
+    }
+
+    @Override
+    public void reserveReflectObject(Object object) {
+    }
+
+    @Override
+    public void reserveReflectMethod(ReflectMethod method) {
+    }
+
+    private static class StartupDecompressDialog extends AlertDialog {
+        XWalkViewShellActivity mActivity;
+
+        StartupDecompressDialog(XWalkViewShellActivity activity) {
+            super(activity);
+            mActivity = activity;
+
+            OnClickListener positiveListener = new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    mActivity.finish();
+                }
+            };
+
+            setIcon(android.R.drawable.ic_dialog_alert);
+            setMessage(XWalkMixedResources.DECOMPRESS_LIBRARY_MESSAGE);
+            setButton(DialogInterface.BUTTON_POSITIVE,
+                    XWalkMixedResources.TERMINATE, positiveListener);
+            setCancelable(false);
+            setCanceledOnTouchOutside(false);
+            DecompressTask decompressTask = new DecompressTask(mActivity, this);
+            decompressTask.execute();
+        }
+    }
+
+    private static class DecompressTask extends AsyncTask<Void, Integer, Void> {
+        XWalkViewShellActivity mActivity;
+        AlertDialog mDialog;
+
+        DecompressTask(XWalkViewShellActivity activity, AlertDialog dialog) {
+            super();
+            mActivity = activity;
+            mDialog = dialog;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                XWalkCoreWrapper.decompressXWalkLibrary();
+                // TODO: use publishProgress to update percentage.
+            } catch (Exception e) {
+                Log.w(TAG, "decompress library failed: " + e.getMessage());
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            // TODO: update percentage.
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            mActivity.onXWalkCoreReady();
+            mDialog.dismiss();
+        }
     }
 }
