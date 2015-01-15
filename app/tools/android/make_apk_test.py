@@ -273,6 +273,34 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('versionName') != -1)
     self.checkApks('Example', '1.0.0')
 
+  def testAppVersionCodeFromVersionName(self):
+    if self._mode.find('embedded') == -1:
+      return
+    if 'x86' in self.archs():
+      arch = '--arch=x86'
+      versionCode = 'versionCode="60100000"'
+    elif 'x86_64' in self.archs():
+      arch = '--arch=x86_64'
+      versionCode = 'versionCode="70100000"'
+    else:
+      arch = '--arch=arm'
+      versionCode = 'versionCode="20100000"'
+    cmd = ['python', 'make_apk.py', '--name=Example',
+           '--package=org.xwalk.example', '--app-version=1.0.0',
+           '--description=a sample application',
+           arch,
+           '--app-url=http://www.intel.com',
+           '--project-dir=.',
+           self._mode]
+    RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find(versionCode) != -1)
+    self.checkApks('Example', '1.0.0')
+
   def testAppVersionCode(self):
     cmd = ['python', 'make_apk.py', '--name=Example',
            '--package=org.xwalk.example', '--app-version=1.0.0',
@@ -1220,6 +1248,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testAppBigVersionCodeBase'))
   test_suite.addTest(TestMakeApk('testAppVersionCode'))
   test_suite.addTest(TestMakeApk('testAppVersionCodeBase'))
+  test_suite.addTest(TestMakeApk('testAppVersionCodeFromVersionName'))
   test_suite.addTest(TestMakeApk('testAppDescriptionAndVersion'))
   test_suite.addTest(TestMakeApk('testArch'))
   test_suite.addTest(TestMakeApk('testEnableRemoteDebugging'))
