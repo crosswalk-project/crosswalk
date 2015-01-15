@@ -17,7 +17,7 @@ namespace application {
 class PermissionsInfo: public ApplicationData::ManifestData {
  public:
   PermissionsInfo();
-  virtual ~PermissionsInfo();
+  ~PermissionsInfo() override;
 
   const PermissionSet& GetAPIPermissions() const {
     return api_permissions_;}
@@ -33,7 +33,7 @@ class PermissionsInfo: public ApplicationData::ManifestData {
 class PermissionsHandler: public ManifestHandler {
  public:
   PermissionsHandler();
-  virtual ~PermissionsHandler();
+  ~PermissionsHandler() override;
 
   bool Parse(scoped_refptr<ApplicationData> application,
              base::string16* error) override;

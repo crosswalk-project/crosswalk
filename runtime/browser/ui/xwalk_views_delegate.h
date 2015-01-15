@@ -17,7 +17,7 @@ namespace xwalk {
 class XWalkViewsDelegate : public views::ViewsDelegate {
  public:
   XWalkViewsDelegate();
-  virtual ~XWalkViewsDelegate();
+  ~XWalkViewsDelegate() override;
 
   // views::ViewsDelegate implementation.
   void SaveWindowPlacement(const views::Widget* widget,

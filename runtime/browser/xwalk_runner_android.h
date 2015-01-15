@@ -18,7 +18,7 @@ class XWalkRunnerAndroid : public XWalkRunner {
   // to change and harder to reason about.
   static XWalkRunnerAndroid* GetInstance();
 
-  virtual ~XWalkRunnerAndroid();
+  ~XWalkRunnerAndroid() override;
 
  private:
   friend class XWalkRunner;

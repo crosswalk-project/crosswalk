@@ -55,7 +55,7 @@ class XWalkExtensionProcessHost
                             const base::FilePath& external_extensions_path,
                             XWalkExtensionProcessHost::Delegate* delegate,
                             scoped_ptr<base::ValueMap> runtime_variables);
-  virtual ~XWalkExtensionProcessHost();
+  ~XWalkExtensionProcessHost() override;
 
   // IPC::Sender implementation
   bool Send(IPC::Message* msg) override;

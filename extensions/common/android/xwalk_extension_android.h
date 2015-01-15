@@ -48,7 +48,7 @@ class XWalkExtensionAndroid : public XWalkExtension {
  public:
   XWalkExtensionAndroid(JNIEnv* env, jobject obj, jstring name,
                         jstring js_api, jobjectArray js_entry_ports);
-  virtual ~XWalkExtensionAndroid();
+  ~XWalkExtensionAndroid() override;
 
   // JNI interface to post message from Java to JS
   void PostMessage(JNIEnv* env, jobject obj, jint instance, jstring msg);

@@ -9,14 +9,14 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "net/base/network_delegate.h"
+#include "net/base/network_delegate_impl.h"
 
 namespace xwalk {
 
-class RuntimeNetworkDelegate : public net::NetworkDelegate {
+class RuntimeNetworkDelegate : public net::NetworkDelegateImpl {
  public:
   RuntimeNetworkDelegate();
-  virtual ~RuntimeNetworkDelegate();
+  ~RuntimeNetworkDelegate() override;
 
  private:
   // net::NetworkDelegate implementation.
@@ -57,9 +57,6 @@ class RuntimeNetworkDelegate : public net::NetworkDelegate {
                        const base::FilePath& path) const override;
   bool OnCanThrottleRequest(
       const net::URLRequest& request) const override;
-  int OnBeforeSocketStreamConnect(
-      net::SocketStream* stream,
-      const net::CompletionCallback& callback) override;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeNetworkDelegate);
 };

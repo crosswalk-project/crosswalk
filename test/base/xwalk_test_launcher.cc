@@ -22,18 +22,19 @@
 class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
  public:
   XWalkTestLauncherDelegate() {}
-  virtual ~XWalkTestLauncherDelegate() {}
+  ~XWalkTestLauncherDelegate() override {}
 
   int RunTestSuite(int argc, char** argv) override {
     return XWalkTestSuite(argc, argv).Run();
   }
 
   bool AdjustChildProcessCommandLine(
-      CommandLine* command_line, const base::FilePath& temp_data_dir) override {
-    CommandLine new_command_line(command_line->GetProgram());
-    CommandLine::SwitchMap switches = command_line->GetSwitches();
+      base::CommandLine* command_line,
+      const base::FilePath& temp_data_dir) override {
+    base::CommandLine new_command_line(command_line->GetProgram());
+    base::CommandLine::SwitchMap switches = command_line->GetSwitches();
 
-    for (CommandLine::SwitchMap::const_iterator iter = switches.begin();
+    for (base::CommandLine::SwitchMap::const_iterator iter = switches.begin();
          iter != switches.end(); ++iter) {
       new_command_line.AppendSwitchNative((*iter).first, (*iter).second);
     }

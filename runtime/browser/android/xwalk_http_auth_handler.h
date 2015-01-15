@@ -32,7 +32,7 @@ class XWalkHttpAuthHandler : public XWalkHttpAuthHandlerBase {
   XWalkHttpAuthHandler(XWalkLoginDelegate* login_delegate,
                        net::AuthChallengeInfo* auth_info,
                        bool first_auth_attempt);
-  virtual ~XWalkHttpAuthHandler();
+  ~XWalkHttpAuthHandler() override;
 
   // from XWalkHttpAuthHandler
   bool HandleOnUIThread(content::WebContents* web_contents) override;

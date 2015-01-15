@@ -90,7 +90,7 @@ class ManifestHandlerTest : public testing::Test {
         : name_(name), keys_(keys), prereqs_(prereqs), watcher_(watcher) {
     }
 
-    virtual ~TestManifestHandler() {}
+    ~TestManifestHandler() override {}
 
     bool Parse(
         scoped_refptr<ApplicationData> application,

@@ -209,6 +209,12 @@
               '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
             ],
           }],
+          ['v8_use_external_startup_data==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/natives_blob.bin',
+              '<(PRODUCT_DIR)/snapshot_blob.bin',
+            ],
+          }],
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
         'app_manifest_version_name': '<(xwalk_version)',
@@ -232,6 +238,12 @@
             ['icu_use_data_file_flag==1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+            ['v8_use_external_startup_data==1', {
+              'files': [
+                '<(PRODUCT_DIR)/natives_blob.bin',
+                '<(PRODUCT_DIR)/snapshot_blob.bin',
               ],
             }],
           ],

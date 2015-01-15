@@ -44,7 +44,7 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
   XWalkContentsIoThreadClientImpl(
       bool pending_associate,
       const base::android::JavaRef<jobject>& jclient);
-  virtual ~XWalkContentsIoThreadClientImpl();
+  ~XWalkContentsIoThreadClientImpl() override;
 
   // Implementation of XWalkContentsIoThreadClient.
   bool PendingAssociation() const override;

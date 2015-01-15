@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/memory/scoped_ptr.h"
 
 namespace content {
 class DevToolsHttpHandler;
@@ -26,12 +27,8 @@ class RemoteDebuggingServer {
 
   virtual ~RemoteDebuggingServer();
 
-  content::DevToolsHttpHandler* devtools_http_handler() const {
-    return devtools_http_handler_;
-  }
-
  private:
-  content::DevToolsHttpHandler* devtools_http_handler_;
+  scoped_ptr<content::DevToolsHttpHandler> devtools_http_handler_;
   DISALLOW_COPY_AND_ASSIGN(RemoteDebuggingServer);
 };
 

@@ -105,6 +105,8 @@ def CopyBinaries(out_dir, out_project_dir, src_package):
 
   paks_to_copy = [
       'icudtl.dat',
+      'natives_blob.bin',
+      'snapshot_blob.bin',
       'xwalk.pak',
   ]
 
@@ -133,7 +135,6 @@ def CopyBinaries(out_dir, out_project_dir, src_package):
   # Copy jar files to libs.
   if src_package:
     libs_to_copy = [
-        'eyesfree_java.jar',
         'jsr_305_javalib.jar',
     ]
   else:

@@ -30,14 +30,13 @@ class XWalkDevToolsHttpHandlerDelegate :
     public content::DevToolsHttpHandlerDelegate {
  public:
   XWalkDevToolsHttpHandlerDelegate();
-  virtual ~XWalkDevToolsHttpHandlerDelegate();
+  ~XWalkDevToolsHttpHandlerDelegate() override;
 
   // DevToolsHttpHandlerDelegate implementation.
   std::string GetDiscoveryPageHTML() override;
   bool BundlesFrontendResources() override;
   base::FilePath GetDebugFrontendDir() override;
-  scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
-      net::StreamListenSocket::Delegate* delegate,
+  scoped_ptr<net::ServerSocket> CreateSocketForTethering(
       std::string* name) override;
 
  private:
@@ -48,7 +47,7 @@ class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
                               public Runtime::Observer {
  public:
   explicit XWalkDevToolsDelegate(XWalkBrowserContext* browser_context);
-  virtual ~XWalkDevToolsDelegate();
+  ~XWalkDevToolsDelegate() override;
 
   void Inspect(
       content::BrowserContext* browser_context,
@@ -68,8 +67,8 @@ class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
 
  private:
   // Runtime::Observer
-  virtual void OnNewRuntimeAdded(Runtime* runtime) override;
-  virtual void OnRuntimeClosed(Runtime* runtime) override;
+  void OnNewRuntimeAdded(Runtime* runtime) override;
+  void OnRuntimeClosed(Runtime* runtime) override;
 
   using ThumbnailMap = std::map<GURL, std::string>;
   ThumbnailMap thumbnail_map_;

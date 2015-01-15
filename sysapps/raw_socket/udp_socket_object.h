@@ -19,7 +19,7 @@ namespace sysapps {
 class UDPSocketObject : public RawSocketObject {
  public:
   UDPSocketObject();
-  virtual ~UDPSocketObject();
+  ~UDPSocketObject() override;
 
  private:
   void DoRead();

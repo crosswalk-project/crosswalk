@@ -48,8 +48,8 @@
 namespace {
 
 // FIXME: Compare with method in startup_browser_creator.cc.
-GURL GetURLFromCommandLine(const CommandLine& command_line) {
-  const CommandLine::StringVector& args = command_line.GetArgs();
+GURL GetURLFromCommandLine(const base::CommandLine& command_line) {
+  const base::CommandLine::StringVector& args = command_line.GetArgs();
 
   if (args.empty())
     return GURL();
@@ -90,7 +90,8 @@ XWalkBrowserMainParts::XWalkBrowserMainParts(
   // switches::kDisableSetuidSandbox is not being used here because it
   // doesn't have the CONTENT_EXPORT macro despite the fact it is exposed by
   // content_switches.h.
-  CommandLine::ForCurrentProcess()->AppendSwitch("disable-setuid-sandbox");
+  base::CommandLine::ForCurrentProcess()->AppendSwitch(
+      "disable-setuid-sandbox");
 #endif
 }
 
@@ -98,7 +99,7 @@ XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   command_line->AppendSwitch(switches::kEnableViewport);
 
   command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
@@ -136,7 +137,7 @@ int XWalkBrowserMainParts::PreCreateThreads() {
 }
 
 void XWalkBrowserMainParts::RegisterExternalExtensions() {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
 
 #if defined(OS_TIZEN)
   std::string value = cmd_line->GetSwitchValueASCII(
@@ -199,7 +200,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       base::Bind(nacl::NaClProcessHost::EarlyStartup));
 #endif
 
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
     std::string port_str =
         command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);

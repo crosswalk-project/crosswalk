@@ -28,7 +28,7 @@ class XWalkRequestInterceptor
     : public net::URLRequestInterceptor {
  public:
   XWalkRequestInterceptor();
-  virtual ~XWalkRequestInterceptor();
+  ~XWalkRequestInterceptor() override;
 
   // net::URLRequestInterceptor override -----------------------
   net::URLRequestJob* MaybeInterceptRequest(

@@ -28,7 +28,7 @@ class RuntimeResourceDispatcherHostDelegateAndroid
     : public RuntimeResourceDispatcherHostDelegate {
  public:
   RuntimeResourceDispatcherHostDelegateAndroid();
-  virtual ~RuntimeResourceDispatcherHostDelegateAndroid();
+  ~RuntimeResourceDispatcherHostDelegateAndroid() override;
 
   void RequestBeginning(
       net::URLRequest* request,

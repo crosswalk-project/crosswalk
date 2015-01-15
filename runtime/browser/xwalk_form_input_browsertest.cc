@@ -39,7 +39,7 @@ class TestSelectFileDialog : public ui::SelectFileDialog {
   void ListenerDestroyed() override {}
 
  protected:
-  virtual ~TestSelectFileDialog() {}
+  ~TestSelectFileDialog() override {}
   void SelectFileImpl(
       Type type,
       const base::string16& title,
@@ -80,7 +80,7 @@ class XWalkFormInputTest : public InProcessBrowserTest {
     ui::SelectFileDialog::SetFactory(&factory_);
   }
 
-  virtual ~XWalkFormInputTest() {
+  ~XWalkFormInputTest() override {
   }
 
   void SetBrowserTestColor(unsigned int r, unsigned int g, unsigned int b) {

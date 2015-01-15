@@ -13,8 +13,8 @@
 #include "base/memory/weak_ptr.h"
 #include "base/message_loop/message_pump_libevent.h"
 #include "ui/gfx/display.h"
+#include "ui/gfx/geometry/size.h"
 #include "ui/gfx/image/image_skia.h"
-#include "ui/gfx/size.h"
 #include "xwalk/tizen/mobile/ui/tizen_plug_message_writer.h"
 
 namespace xwalk {
@@ -34,7 +34,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
 
   TizenSystemIndicatorWatcher(WatcherClient* client,
                               const gfx::Display& display);
-  virtual ~TizenSystemIndicatorWatcher();
+  ~TizenSystemIndicatorWatcher() override;
 
   // base::MessagePumpLibevent::Watcher implementation.
   void OnFileCanReadWithoutBlocking(int fd) override;

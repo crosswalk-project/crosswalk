@@ -38,7 +38,7 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
       base::DeleteFile(data_path_, true);
   }
 
-  virtual void SetUpCommandLine(CommandLine* command_line) override {
+  void SetUpCommandLine(base::CommandLine* command_line) override {
     command_line->AppendSwitchPath(switches::kXWalkDataPath, data_path_);
   }
 

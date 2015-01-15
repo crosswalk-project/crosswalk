@@ -26,7 +26,7 @@ class NativeAppWindowTizen
       public SensorProvider::Observer {
  public:
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
-  virtual ~NativeAppWindowTizen();
+  ~NativeAppWindowTizen() override;
 
   void LockOrientation(
       blink::WebScreenOrientationLockType orientations);

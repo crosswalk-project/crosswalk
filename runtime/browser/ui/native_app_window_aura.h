@@ -38,7 +38,7 @@ class TopViewLayout;
 class NativeAppWindowAura : public NativeAppWindow {
  public:
   explicit NativeAppWindowAura(const NativeAppWindow::CreateParams& params);
-  virtual ~NativeAppWindowAura();
+  ~NativeAppWindowAura() override;
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const override;

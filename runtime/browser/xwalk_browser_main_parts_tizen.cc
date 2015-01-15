@@ -31,7 +31,7 @@ XWalkBrowserMainPartsTizen::XWalkBrowserMainPartsTizen(
 }
 
 void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 
   // Enable Accelerated 2D Canvas.

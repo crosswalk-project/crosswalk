@@ -172,11 +172,10 @@ base::FilePath XWalkDevToolsHttpHandlerDelegate::GetDebugFrontendDir() {
   return base::FilePath();
 }
 
-scoped_ptr<net::StreamListenSocket>
+scoped_ptr<net::ServerSocket>
 XWalkDevToolsHttpHandlerDelegate::CreateSocketForTethering(
-    net::StreamListenSocket::Delegate* delegate,
     std::string* name) {
-  return scoped_ptr<net::StreamListenSocket>();
+  return scoped_ptr<net::ServerSocket>();
 }
 
 XWalkDevToolsDelegate::XWalkDevToolsDelegate(XWalkBrowserContext* context)

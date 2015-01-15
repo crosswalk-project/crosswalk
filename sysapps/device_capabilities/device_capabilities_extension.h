@@ -24,7 +24,7 @@ using extensions::XWalkExtensionInstance;
 class DeviceCapabilitiesExtension : public XWalkExtension {
  public:
   DeviceCapabilitiesExtension();
-  virtual ~DeviceCapabilitiesExtension();
+  ~DeviceCapabilitiesExtension() override;
 
   // XWalkExtension implementation.
   XWalkExtensionInstance* CreateInstance() override;

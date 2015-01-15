@@ -15,7 +15,7 @@ namespace xwalk {
 class XWalkWebContentsViewDelegate : public content::WebContentsViewDelegate {
  public:
   explicit XWalkWebContentsViewDelegate(content::WebContents* web_contents);
-  virtual ~XWalkWebContentsViewDelegate();
+  ~XWalkWebContentsViewDelegate() override;
 
   // Overridden from WebContentsViewDelegate:
   void ShowContextMenu(content::RenderFrameHost* render_frame_host,

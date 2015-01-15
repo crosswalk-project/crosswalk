@@ -25,7 +25,7 @@ class ApplicationTizen :  // NOLINT
 #endif
   public Application {
  public:
-  virtual ~ApplicationTizen();
+  ~ApplicationTizen() override;
   void Hide();
   void Show();
   void Suspend();

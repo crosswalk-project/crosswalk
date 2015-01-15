@@ -14,7 +14,7 @@ namespace xwalk {
 class RuntimeJavaScriptDialogManager : public content::JavaScriptDialogManager {
  public:
   RuntimeJavaScriptDialogManager();
-  virtual ~RuntimeJavaScriptDialogManager();
+  ~RuntimeJavaScriptDialogManager() override;
 
   void RunJavaScriptDialog(
       content::WebContents* web_contents,

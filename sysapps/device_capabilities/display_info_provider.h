@@ -20,7 +20,7 @@ using jsapi::device_capabilities::SystemDisplay;
 class DisplayInfoProvider : public gfx::DisplayObserver {
  public:
   DisplayInfoProvider();
-  virtual ~DisplayInfoProvider();
+  ~DisplayInfoProvider() override;
 
   static scoped_ptr<SystemDisplay> display_info();
 

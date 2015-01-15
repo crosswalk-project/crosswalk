@@ -29,7 +29,7 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
 
  private:
   explicit XWalkRenderViewExt(content::RenderView* render_view);
-  virtual ~XWalkRenderViewExt();
+  ~XWalkRenderViewExt() override;
 
   // RenderView::Observer:
   bool OnMessageReceived(const IPC::Message& message) override;

@@ -46,7 +46,7 @@ class ApplicationSecurityPolicy;
 class Application : public Runtime::Observer,
                     public content::RenderProcessHostObserver {
  public:
-  virtual ~Application();
+  ~Application() override;
 
   class Observer {
    public:
@@ -115,8 +115,8 @@ class Application : public Runtime::Observer,
   virtual void InitSecurityPolicy();
 
   // Runtime::Observer implementation.
-  virtual void OnNewRuntimeAdded(Runtime* runtime) override;
-  virtual void OnRuntimeClosed(Runtime* runtime) override;
+  void OnNewRuntimeAdded(Runtime* runtime) override;
+  void OnRuntimeClosed(Runtime* runtime) override;
 
   // Get the path of splash screen image. Return empty path by default.
   // Sub class can override it to return a specific path.

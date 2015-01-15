@@ -30,7 +30,7 @@ struct AccessWhitelistItem;
 class XWalkRenderProcessObserver : public content::RenderProcessObserver {
  public:
   XWalkRenderProcessObserver();
-  virtual ~XWalkRenderProcessObserver();
+  ~XWalkRenderProcessObserver() override;
 
   // content::RenderProcessObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;

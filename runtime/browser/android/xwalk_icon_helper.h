@@ -35,7 +35,7 @@ class XWalkIconHelper : public content::WebContentsObserver {
   };
 
   explicit XWalkIconHelper(content::WebContents* web_contents);
-  virtual ~XWalkIconHelper();
+  ~XWalkIconHelper() override;
 
   void SetListener(Listener* listener);
 

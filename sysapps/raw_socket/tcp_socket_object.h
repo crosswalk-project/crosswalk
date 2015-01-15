@@ -18,7 +18,7 @@ class TCPSocketObject : public RawSocketObject {
  public:
   TCPSocketObject();
   explicit TCPSocketObject(scoped_ptr<net::StreamSocket> socket);
-  virtual ~TCPSocketObject();
+  ~TCPSocketObject() override;
 
  private:
   void RegisterHandlers();

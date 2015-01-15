@@ -18,7 +18,7 @@ std::string GetUserAgent();
 class XWalkContentClient : public content::ContentClient {
  public:
   XWalkContentClient();
-  virtual ~XWalkContentClient();
+  ~XWalkContentClient() override;
 
   static const char* const kNaClPluginName;
 

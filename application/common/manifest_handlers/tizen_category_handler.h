@@ -22,7 +22,7 @@ struct CategoryInfoList : public ApplicationData::ManifestData {
 class TizenCategoryHandler : public ManifestHandler {
  public:
   TizenCategoryHandler();
-  virtual ~TizenCategoryHandler();
+  ~TizenCategoryHandler() override;
   bool Parse(scoped_refptr<ApplicationData> application,
       base::string16* error) override;
   bool Validate(scoped_refptr<const ApplicationData> application,

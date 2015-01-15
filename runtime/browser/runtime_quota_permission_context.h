@@ -21,7 +21,7 @@ class RuntimeQuotaPermissionContext : public content::QuotaPermissionContext {
       const PermissionCallback& callback) override;
 
  private:
-  virtual ~RuntimeQuotaPermissionContext();
+  ~RuntimeQuotaPermissionContext() override;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeQuotaPermissionContext);
 };

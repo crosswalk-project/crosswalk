@@ -25,7 +25,7 @@ class CONTENT_EXPORT MediaWebContentsObserver :
     public content::WebContentsObserver {
  public:
   explicit MediaWebContentsObserver(content::RenderViewHost* render_view_host);
-  virtual ~MediaWebContentsObserver();
+  ~MediaWebContentsObserver() override;
 
   // WebContentsObserver implementations.
   void RenderFrameDeleted(

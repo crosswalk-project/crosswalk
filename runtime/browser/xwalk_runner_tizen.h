@@ -20,7 +20,7 @@ class XWalkRunnerTizen : public XWalkRunner {
   // to change and harder to reason about.
   static XWalkRunnerTizen* GetInstance();
 
-  virtual ~XWalkRunnerTizen();
+  ~XWalkRunnerTizen() override;
 
   void PreMainMessageLoopRun() override;
 

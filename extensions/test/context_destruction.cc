@@ -32,7 +32,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
       : answered_(false) {
   }
 
-  virtual ~OnceExtensionInstance() {
+  ~OnceExtensionInstance() override {
     base::AutoLock lock(g_contexts_destroyed_lock);
     g_contexts_destroyed++;
   }

@@ -156,7 +156,7 @@ void SysAppsTestObject::OnMakeRejectedPromise(
 
 class SysAppsCommonTest : public InProcessBrowserTest {
  public:
-  virtual void SetUp() {
+  void SetUp() override {
     XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
         base::Bind(&SysAppsCommonTest::CreateExtensions,
                    base::Unretained(this)));

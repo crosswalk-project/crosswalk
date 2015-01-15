@@ -34,7 +34,7 @@ class ApplicationService : public Application::Observer {
     virtual ~Observer() {}
   };
 
-  virtual ~ApplicationService();
+  ~ApplicationService() override;
 
   static scoped_ptr<ApplicationService> Create(
     XWalkBrowserContext* browser_context);

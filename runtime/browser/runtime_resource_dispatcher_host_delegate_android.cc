@@ -59,7 +59,7 @@ class IoThreadClientThrottle : public content::ResourceThrottle {
   IoThreadClientThrottle(int render_process_id,
                          int render_frame_id,
                          net::URLRequest* request);
-  virtual ~IoThreadClientThrottle();
+  ~IoThreadClientThrottle() override;
 
   // From content::ResourceThrottle
   void WillStartRequest(bool* defer) override;

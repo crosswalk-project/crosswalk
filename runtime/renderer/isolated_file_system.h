@@ -15,7 +15,7 @@ class XWalkModuleSystem;
 class IsolatedFileSystem: public xwalk::extensions::XWalkNativeModule {
  public:
   IsolatedFileSystem();
-  virtual ~IsolatedFileSystem();
+  ~IsolatedFileSystem() override;
 
  private:
   v8::Handle<v8::Object> NewInstance() override;

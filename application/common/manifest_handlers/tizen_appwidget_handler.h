@@ -101,7 +101,7 @@ typedef std::vector<TizenAppWidget> TizenAppWidgetVector;
 class TizenAppWidgetInfo : public ApplicationData::ManifestData {
  public:
   explicit TizenAppWidgetInfo(const TizenAppWidgetVector& app_widgets);
-  virtual ~TizenAppWidgetInfo();
+  ~TizenAppWidgetInfo() override;
 
   const TizenAppWidgetVector& app_widgets() const {
     return app_widgets_;
@@ -115,7 +115,7 @@ class TizenAppWidgetInfo : public ApplicationData::ManifestData {
 class TizenAppWidgetHandler : public ManifestHandler {
  public:
   TizenAppWidgetHandler();
-  virtual ~TizenAppWidgetHandler();
+  ~TizenAppWidgetHandler() override;
 
   bool Parse(scoped_refptr<ApplicationData> application,
              base::string16* error) override;

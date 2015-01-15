@@ -16,7 +16,7 @@ namespace xwalk {
 class WidgetContainerView : public views::View, public views::WidgetObserver {
  public:
   explicit WidgetContainerView(views::Widget* widget);
-  virtual ~WidgetContainerView();
+  ~WidgetContainerView() override;
 
   // View implementation.
   gfx::Size GetPreferredSize() const override {

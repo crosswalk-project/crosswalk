@@ -82,7 +82,7 @@ void XWalkExtensionProcess::CreateBrowserProcessChannel(
     const IPC::ChannelHandle& channel_handle) {
   if (channel_handle.name.empty()) {
     std::string channel_id =
-        CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+        base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
             switches::kProcessChannelID);
     browser_process_channel_ = IPC::SyncChannel::Create(
         channel_id, IPC::Channel::MODE_CLIENT, this,

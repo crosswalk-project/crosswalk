@@ -42,7 +42,7 @@ class BindingObjectTest : public BindingObject {
         base::Bind(&BindingObjectTest::OnTest, base::Unretained(this)));
   }
 
-  virtual ~BindingObjectTest() {
+  ~BindingObjectTest() override {
     instance_count_--;
   }
 

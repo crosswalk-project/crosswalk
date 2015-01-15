@@ -28,7 +28,7 @@ class TestExtensionInstance
   typedef std::vector<std::pair<std::string, int> > Database;
 
   TestExtensionInstance();
-  virtual ~TestExtensionInstance();
+  ~TestExtensionInstance() override;
 
   void HandleMessage(scoped_ptr<base::Value> msg) override;
 

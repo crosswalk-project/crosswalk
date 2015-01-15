@@ -18,7 +18,7 @@ namespace application {
 class TizenMetaDataInfo : public ApplicationData::ManifestData {
  public:
   TizenMetaDataInfo();
-  virtual ~TizenMetaDataInfo();
+  ~TizenMetaDataInfo() override;
 
   bool HasKey(const std::string& key) const;
   std::string GetValue(const std::string& key) const;
@@ -34,7 +34,7 @@ class TizenMetaDataInfo : public ApplicationData::ManifestData {
 class TizenMetaDataHandler : public ManifestHandler {
  public:
   TizenMetaDataHandler();
-  virtual ~TizenMetaDataHandler();
+  ~TizenMetaDataHandler() override;
 
   bool Parse(scoped_refptr<ApplicationData> application,
              base::string16* error) override;

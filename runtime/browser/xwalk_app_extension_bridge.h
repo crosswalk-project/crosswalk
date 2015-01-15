@@ -28,7 +28,7 @@ class XWalkAppExtensionBridge
     : public extensions::XWalkExtensionService::Delegate {
  public:
   XWalkAppExtensionBridge();
-  virtual ~XWalkAppExtensionBridge();
+  ~XWalkAppExtensionBridge() override;
 
   void SetApplicationSystem(application::ApplicationSystem* app_system) {
     app_system_ = app_system;

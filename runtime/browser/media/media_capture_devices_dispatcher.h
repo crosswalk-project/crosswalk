@@ -88,7 +88,7 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   friend struct DefaultSingletonTraits<XWalkMediaCaptureDevicesDispatcher>;
 
   XWalkMediaCaptureDevicesDispatcher();
-  virtual ~XWalkMediaCaptureDevicesDispatcher();
+  ~XWalkMediaCaptureDevicesDispatcher() override;
 
   // Called by the MediaObserver() functions, executed on UI thread.
   void NotifyAudioDevicesChangedOnUIThread();

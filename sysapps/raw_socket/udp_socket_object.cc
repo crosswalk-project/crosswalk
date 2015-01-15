@@ -94,10 +94,18 @@ void UDPSocketObject::OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info) {
       return;
     }
 
+    const net::IPEndPoint end_point(ip_number, params->options->local_port);
+
+    if (socket_->Open(end_point.GetFamily()) != net::OK) {
+      LOG(WARNING) << "Cannot open UDP socket";
+      setReadyState(READY_STATE_CLOSED);
+      DispatchEvent("error");
+      return;
+    }
+
     if (params->options->address_reuse)
       socket_->AllowAddressReuse();
 
-    net::IPEndPoint end_point(ip_number, params->options->local_port);
     if (socket_->Bind(end_point) != net::OK) {
       LOG(WARNING) << "Can't bind to " << end_point.ToString();
       setReadyState(READY_STATE_CLOSED);
@@ -243,9 +251,11 @@ void UDPSocketObject::OnSend(int status) {
   }
 
   if (!socket_->is_connected()) {
-    // If we are waiting for reads and the socket is not connect,
+    // If we are waiting for reads and the socket is not connected,
     // it means the connection was closed.
-    if (is_reading_ || socket_->Connect(addresses_[0]) != net::OK) {
+    if (is_reading_ ||
+        socket_->Open(addresses_[0].GetFamily()) != net::OK ||
+        socket_->Connect(addresses_[0]) != net::OK) {
       setReadyState(READY_STATE_CLOSED);
       DispatchEvent("error");
       return;

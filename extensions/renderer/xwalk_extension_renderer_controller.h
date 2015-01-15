@@ -48,7 +48,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   };
 
   explicit XWalkExtensionRendererController(Delegate* delegate);
-  virtual ~XWalkExtensionRendererController();
+  ~XWalkExtensionRendererController() override;
 
   // To be called in XWalkContentRendererClient so we can create and
   // destroy extensions contexts appropriatedly.

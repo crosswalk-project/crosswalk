@@ -97,7 +97,7 @@ void XWalkBrowserMainPartsAndroid::PreEarlyInitialization() {
   // Android. So increase the limit to 4096 explicitly.
   base::SetFdLimit(4096);
 
-  CommandLine::ForCurrentProcess()->AppendSwitch(
+  base::CommandLine::ForCurrentProcess()->AppendSwitch(
       cc::switches::kCompositeToMailbox);
 
   // Initialize the Compositor.
@@ -107,7 +107,7 @@ void XWalkBrowserMainPartsAndroid::PreEarlyInitialization() {
 }
 
 void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   // Disable ExtensionProcess for Android.
   // External extensions will run in the BrowserProcess (in process mode).
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
@@ -156,7 +156,7 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   if (!PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir)) {
     NOTREACHED() << "Failed to get app data directory for Crosswalk";
   }
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kXWalkProfileName)) {
     base::FilePath profile = user_data_dir.Append(
         command_line->GetSwitchValuePath(switches::kXWalkProfileName));

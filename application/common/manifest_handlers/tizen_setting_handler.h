@@ -18,7 +18,7 @@ namespace application {
 class TizenSettingInfo : public ApplicationData::ManifestData {
  public:
   TizenSettingInfo();
-  virtual ~TizenSettingInfo();
+  ~TizenSettingInfo() override;
 
   enum ScreenOrientation {
     PORTRAIT,
@@ -61,7 +61,7 @@ class TizenSettingInfo : public ApplicationData::ManifestData {
 class TizenSettingHandler : public ManifestHandler {
  public:
   TizenSettingHandler();
-  virtual ~TizenSettingHandler();
+  ~TizenSettingHandler() override;
 
   bool Parse(scoped_refptr<ApplicationData> application,
                      base::string16* error) override;

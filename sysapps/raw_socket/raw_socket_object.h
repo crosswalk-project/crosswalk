@@ -16,7 +16,7 @@ namespace sysapps {
 // Base class for the objects of the RawSocket API.
 class RawSocketObject : public EventTarget {
  public:
-  virtual ~RawSocketObject();
+  ~RawSocketObject() override;
 
  protected:
   RawSocketObject();

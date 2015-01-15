@@ -35,7 +35,7 @@ class RuntimeDownloadManagerDelegate
 
  protected:
   // To allow subclasses for testing.
-  virtual ~RuntimeDownloadManagerDelegate();
+  ~RuntimeDownloadManagerDelegate() override;
 
  private:
   friend class base::RefCountedThreadSafe<RuntimeDownloadManagerDelegate>;

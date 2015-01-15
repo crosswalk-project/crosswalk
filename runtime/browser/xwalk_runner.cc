@@ -47,7 +47,7 @@ XWalkRunner::XWalkRunner()
   g_xwalk_runner = this;
 
   XWalkRuntimeFeatures::GetInstance()->Initialize(
-      CommandLine::ForCurrentProcess());
+      base::CommandLine::ForCurrentProcess());
 
   // Initializing after the g_xwalk_runner is set to ensure
   // XWalkRunner::GetInstance() can be used in all sub objects if needed.
@@ -73,7 +73,7 @@ void XWalkRunner::PreMainMessageLoopRun() {
   browser_context_.reset(new XWalkBrowserContext);
   app_extension_bridge_.reset(new XWalkAppExtensionBridge());
 
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
     extension_service_.reset(new extensions::XWalkExtensionService(
         app_extension_bridge_.get()));

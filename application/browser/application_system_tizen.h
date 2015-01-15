@@ -13,7 +13,7 @@ namespace application {
 class ApplicationSystemTizen : public ApplicationSystem {
  public:
   explicit ApplicationSystemTizen(XWalkBrowserContext* browser_context);
-  virtual ~ApplicationSystemTizen();
+  ~ApplicationSystemTizen() override;
   virtual bool LaunchFromCommandLine(const base::CommandLine& cmd_line,
                                      const GURL& url) override;
 

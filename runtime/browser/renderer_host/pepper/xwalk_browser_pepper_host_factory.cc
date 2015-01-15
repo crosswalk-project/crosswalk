@@ -22,7 +22,7 @@ XWalkBrowserPepperHostFactory::~XWalkBrowserPepperHostFactory() {
 
 scoped_ptr<ResourceHost> XWalkBrowserPepperHostFactory::CreateResourceHost(
     ppapi::host::PpapiHost* host,
-    const ppapi::proxy::ResourceMessageCallParams& params,
+    PP_Resource resource,
     PP_Instance instance,
     const IPC::Message& message) {
   DCHECK(host == host_->GetPpapiHost());

@@ -53,11 +53,11 @@ class XWalkExtensionService : public content::NotificationObserver,
         const IPC::ChannelHandle& channel_handle) {}
 
    protected:
-    ~Delegate() {}
+    virtual ~Delegate() {}
   };
 
   explicit XWalkExtensionService(Delegate* delegate);
-  virtual ~XWalkExtensionService();
+  ~XWalkExtensionService() override;
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
 

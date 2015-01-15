@@ -33,7 +33,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   explicit XWalkBrowserMainParts(
       const content::MainFunctionParams& parameters);
 
-  virtual ~XWalkBrowserMainParts();
+  ~XWalkBrowserMainParts() override;
 
   // BrowserMainParts overrides.
   void PreEarlyInitialization() override;

@@ -131,7 +131,7 @@ void XWalkWebContentsDelegate::RunFileChooser(
 }
 
 content::JavaScriptDialogManager*
-XWalkWebContentsDelegate::GetJavaScriptDialogManager() {
+XWalkWebContentsDelegate::GetJavaScriptDialogManager(WebContents* source) {
   if (!javascript_dialog_manager_.get()) {
     javascript_dialog_manager_.reset(new RuntimeJavaScriptDialogManager);
   }
@@ -242,6 +242,7 @@ bool XWalkWebContentsDelegate::IsFullscreenForTabOrPending(
 bool XWalkWebContentsDelegate::ShouldCreateWebContents(
     content::WebContents* web_contents,
     int route_id,
+    int main_frame_route_id,
     WindowContainerType window_container_type,
     const base::string16& frame_name,
     const GURL& target_url,

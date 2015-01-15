@@ -20,7 +20,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
-#include "content/public/common/show_desktop_notification_params.h"
+#include "content/public/common/platform_notification_data.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "net/cert/x509_certificate.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -218,7 +218,8 @@ static void CancelNotification(
 }
 
 void XWalkContentsClientBridge::ShowNotification(
-    const content::ShowDesktopNotificationHostMsgParams& params,
+    const content::PlatformNotificationData& notification_data,
+    const SkBitmap& icon,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -229,14 +230,14 @@ void XWalkContentsClientBridge::ShowNotification(
     return;
 
   ScopedJavaLocalRef<jstring> jtitle(
-    ConvertUTF16ToJavaString(env, params.title));
+    ConvertUTF16ToJavaString(env, notification_data.title));
   ScopedJavaLocalRef<jstring> jbody(
-    ConvertUTF16ToJavaString(env, params.body));
+    ConvertUTF16ToJavaString(env, notification_data.body));
   ScopedJavaLocalRef<jstring> jreplace_id(
-    ConvertUTF16ToJavaString(env, params.replace_id));
+    ConvertUTF16ToJavaString(env, notification_data.tag));
   ScopedJavaLocalRef<jobject> jicon;
-  if (!params.icon.empty())
-    jicon = gfx::ConvertToJavaBitmap(&params.icon);
+  if (!icon.empty())
+     jicon = gfx::ConvertToJavaBitmap(&icon);
 
   int notification_id = g_next_notification_id_++;
   g_notification_map_.set(notification_id, delegate.Pass());

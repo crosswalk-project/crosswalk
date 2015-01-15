@@ -15,7 +15,7 @@ namespace extensions {
 class XWalkV8ToolsModule : public XWalkNativeModule {
  public:
   XWalkV8ToolsModule();
-  virtual ~XWalkV8ToolsModule();
+  ~XWalkV8ToolsModule() override;
 
  private:
   v8::Handle<v8::Object> NewInstance() override;

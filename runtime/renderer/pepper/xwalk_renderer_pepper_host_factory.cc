@@ -21,7 +21,7 @@ XWalkRendererPepperHostFactory::~XWalkRendererPepperHostFactory() {
 scoped_ptr<ResourceHost>
 XWalkRendererPepperHostFactory::CreateResourceHost(
     ppapi::host::PpapiHost* host,
-    const ppapi::proxy::ResourceMessageCallParams& params,
+    PP_Resource resource,
     PP_Instance instance,
     const IPC::Message& message) {
   DCHECK(host == host_->GetPpapiHost());
@@ -36,7 +36,7 @@ XWalkRendererPepperHostFactory::CreateResourceHost(
   // access to the other private interfaces.
   if (message.type() == PpapiHostMsg_UMA_Create::ID) {
     return scoped_ptr<ResourceHost>(new PepperUMAHost(
-        host_, instance, params.pp_resource()));
+        host_, instance, resource));
   }
 
   return scoped_ptr<ResourceHost>();

@@ -20,7 +20,7 @@ using xwalk::Runtime;
 class XWalkDevToolsTest : public InProcessBrowserTest {
  public:
   XWalkDevToolsTest() {}
-  void SetUpCommandLine(CommandLine* command_line) override {
+  void SetUpCommandLine(base::CommandLine* command_line) override {
     command_line->AppendSwitchASCII(switches::kRemoteDebuggingPort, "9222");
     GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("test.html"));

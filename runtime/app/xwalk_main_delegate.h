@@ -19,7 +19,7 @@ class XWalkRunner;
 class XWalkMainDelegate : public content::ContentMainDelegate {
  public:
   XWalkMainDelegate();
-  virtual ~XWalkMainDelegate();
+  ~XWalkMainDelegate() override;
 
   // ContentMainDelegate implementation:
   bool BasicStartupComplete(int* exit_code) override;

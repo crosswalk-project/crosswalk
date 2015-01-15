@@ -44,7 +44,7 @@ class CertPolicy {
 class XWalkSSLHostStateDelegate : public content::SSLHostStateDelegate {
  public:
   XWalkSSLHostStateDelegate();
-  virtual ~XWalkSSLHostStateDelegate();
+  ~XWalkSSLHostStateDelegate() override;
 
   // Records that |cert| is permitted to be used for |host| in the future, for
   // a specified |error| type.

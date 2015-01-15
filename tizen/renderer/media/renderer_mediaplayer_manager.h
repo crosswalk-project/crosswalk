@@ -23,7 +23,7 @@ class RendererMediaPlayerManager : public content::RenderFrameObserver {
  public:
   // Constructs a RendererMediaPlayerManager object for the |render_view|.
   explicit RendererMediaPlayerManager(content::RenderFrame* render_frame);
-  virtual ~RendererMediaPlayerManager();
+  ~RendererMediaPlayerManager() override;
 
   // RenderViewObserver overrides.
   bool OnMessageReceived(const IPC::Message& msg) override;

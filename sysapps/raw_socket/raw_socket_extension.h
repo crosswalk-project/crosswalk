@@ -20,7 +20,7 @@ using extensions::XWalkExtensionInstance;
 class RawSocketExtension : public XWalkExtension {
  public:
   RawSocketExtension();
-  virtual ~RawSocketExtension();
+  ~RawSocketExtension() override;
 
   // XWalkExtension implementation.
   XWalkExtensionInstance* CreateInstance() override;

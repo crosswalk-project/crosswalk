@@ -16,7 +16,7 @@ class ApiTestRunner;
 class ApplicationBrowserTest: public InProcessBrowserTest {
  protected:
   ApplicationBrowserTest();
-  virtual ~ApplicationBrowserTest();
+  ~ApplicationBrowserTest() override;
 
   void SetUp() override;
 

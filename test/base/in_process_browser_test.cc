@@ -56,8 +56,8 @@ base::LazyInstance<XWalkContentRendererClient>::Leaky
 base::CommandLine GetCommandLineForRelaunch() {
   base::CommandLine new_command_line(
       base::CommandLine::ForCurrentProcess()->GetProgram());
-  CommandLine::SwitchMap switches =
-      CommandLine::ForCurrentProcess()->GetSwitches();
+  base::CommandLine::SwitchMap switches =
+      base::CommandLine::ForCurrentProcess()->GetSwitches();
   new_command_line.AppendSwitch(content::kLaunchAsBrowser);
 
   for (auto iter = switches.begin(); iter != switches.end(); ++iter) {

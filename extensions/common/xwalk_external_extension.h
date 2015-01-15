@@ -34,7 +34,7 @@ class XWalkExternalExtension : public XWalkExtension {
  public:
   explicit XWalkExternalExtension(const base::FilePath& path);
 
-  virtual ~XWalkExternalExtension();
+  ~XWalkExternalExtension() override;
 
   bool Initialize();
 

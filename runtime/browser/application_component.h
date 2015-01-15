@@ -22,7 +22,7 @@ class ApplicationSystem;
 class ApplicationComponent : public XWalkComponent {
  public:
   explicit ApplicationComponent(XWalkBrowserContext* browser_context);
-  virtual ~ApplicationComponent();
+  ~ApplicationComponent() override;
 
   // Used by Android since extensions for Application are not supported there.
   void DisableExtensions() { extensions_enabled_ = false; }
