@@ -479,10 +479,5 @@ bool XWalkExtensionService::OnRegisterPermissions(
                                         extension_name, perm_table);
 }
 
-void XWalkExtensionService::OnRenderChannelCreated(int render_process_id) {
-  CHECK(delegate_);
-  delegate_->RenderChannelCreated(render_process_id);
-}
-
 }  // namespace extensions
 }  // namespace xwalk

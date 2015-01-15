@@ -227,8 +227,7 @@ bool Application::Launch() {
   // Only the first runtime can have a launch screen.
   params.splash_screen_path = GetSplashScreenPath();
   runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime, params));
-  // We call "Show" after RP is initialized to reduce
-  // the application start up time.
+  runtime->Show();
 
   return true;
 }
@@ -291,11 +290,6 @@ void Application::NotifyTermination() {
   CHECK(!render_process_host_);
   if (observer_)
     observer_->OnApplicationTerminated(this);
-}
-
-void Application::RenderChannelCreated() {
-  CHECK(!runtimes_.empty());
-  runtimes_.front()->Show();
 }
 
 bool Application::UseExtension(const std::string& extension_name) const {

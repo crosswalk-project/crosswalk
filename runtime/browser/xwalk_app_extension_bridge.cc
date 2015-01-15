@@ -60,15 +60,6 @@ bool XWalkAppExtensionBridge::RegisterPermissions(
   return service->RegisterPermissions(app->id(), extension_name, perm_table);
 }
 
-void XWalkAppExtensionBridge::RenderChannelCreated(
-    int render_process_id) {
-  Application* app = GetApplication(render_process_id);
-  if (!app)
-    return;
-  content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
-      base::Bind(&Application::RenderChannelCreated, app->GetWeakPtr()));
-}
-
 Application* XWalkAppExtensionBridge::GetApplication(int render_process_id) {
   CHECK(app_system_);
   ApplicationService* service =
