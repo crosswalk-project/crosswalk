@@ -225,6 +225,13 @@ DEPENDENCIES=`python %{SOURCE1002} dump.json ${NINJA_TARGETS}`
 
 ninja %{?_smp_mflags} -C src/out/Release ${DEPENDENCIES}
 
+# In '%files' section below there are added all built libraries, which satisfy
+# pattern: 'xwalk/lib/lib*.so'. During build crosswalk-bin.spec generates new
+# library - libxwalk_backend_lib.so, which should not be packaged into
+# crosswalk-libs, but then after incremental build it will also satisfy
+# pattern, which was mentioned above.
+rm -f src/out/Release/lib/libxwalk_backend_lib.so
+
 %install
 # Supporting libraries and resources.
 install -d %{buildroot}%{_libdir}/xwalk/lib
