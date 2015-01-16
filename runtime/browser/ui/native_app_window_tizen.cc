@@ -121,6 +121,9 @@ void NativeAppWindowTizen::Initialize() {
     OnScreenOrientationChanged(
         SensorProvider::GetInstance()->GetScreenOrientation());
   }
+
+  // Allow CSS animations to stop/play according to VisibilityChange event.
+  GetWidget()->SetVisibilityChangedAnimationsEnabled(true);
 }
 
 NativeAppWindowTizen::~NativeAppWindowTizen() {
