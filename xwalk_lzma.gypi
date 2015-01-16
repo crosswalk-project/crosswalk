@@ -10,6 +10,9 @@
     'additional_bundled_libs': [
       '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
     ],
+    'additional_input_paths': [
+      '<(resource_dir)/raw/libxwalkcore.>(android_product_extension).<(android_app_abi)',
+    ],
   },
   'actions': [
     {
