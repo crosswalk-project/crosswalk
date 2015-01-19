@@ -215,7 +215,6 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_libxml=1 \
 -Duse_system_protobuf=1 \
 -Duse_system_yasm=1 \
--Dshared_process_mode=1 \
 -Denable_hidpi=1
 
 # We are not interested in building ${NINJA_TARGETS} themselves, since that is
