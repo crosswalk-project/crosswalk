@@ -260,7 +260,30 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        return false;
+        if (mXWalkClient == null || mXWalkView == null) return false;
+        XWalkUIClientInternal.ConsoleMessageType consoleMessageType =
+            XWalkUIClientInternal.ConsoleMessageType.DEBUG;
+        ConsoleMessage.MessageLevel messageLevel = consoleMessage.messageLevel();
+        switch (messageLevel) {
+            case TIP:
+                consoleMessageType = XWalkUIClientInternal.ConsoleMessageType.INFO;
+                break;
+            case LOG:
+                consoleMessageType = XWalkUIClientInternal.ConsoleMessageType.LOG;
+                break;
+            case WARNING:
+                consoleMessageType = XWalkUIClientInternal.ConsoleMessageType.WARNING;
+                break;
+            case ERROR:
+                consoleMessageType = XWalkUIClientInternal.ConsoleMessageType.ERROR;
+                break;
+            default:
+                Log.w(TAG, "Unknown message level, defaulting to DEBUG");
+                break;
+        }
+        return mXWalkUIClient.onConsoleMessage(mXWalkView, consoleMessage.message(),
+                consoleMessage.lineNumber(), consoleMessage.sourceId(),
+                consoleMessageType);
     }
 
     @CalledByNative

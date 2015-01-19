@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.webkit.ConsoleMessage;
 import org.chromium.content.browser.ContentVideoView;
 
 class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
+    private static final String TAG = XWalkWebContentsDelegateAdapter.class.getName();
 
     private XWalkContentsClient mXWalkContentsClient;
 
@@ -60,6 +62,32 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
     public void handleKeyboardEvent(KeyEvent event) {
         // Handle the event here when necessary and return if so.
         if (mXWalkContentsClient != null) mXWalkContentsClient.onUnhandledKeyEvent(event);
+    }
+
+    @Override
+    public boolean addMessageToConsole(int level, String message, int lineNumber,
+            String sourceId) {
+        if (mXWalkContentsClient == null) return false;
+        ConsoleMessage.MessageLevel messageLevel = ConsoleMessage.MessageLevel.DEBUG;
+        switch(level) {
+            case LOG_LEVEL_TIP:
+                messageLevel = ConsoleMessage.MessageLevel.TIP;
+                break;
+            case LOG_LEVEL_LOG:
+                messageLevel = ConsoleMessage.MessageLevel.LOG;
+                break;
+            case LOG_LEVEL_WARNING:
+                messageLevel = ConsoleMessage.MessageLevel.WARNING;
+                break;
+            case LOG_LEVEL_ERROR:
+                messageLevel = ConsoleMessage.MessageLevel.ERROR;
+                break;
+            default:
+                Log.w(TAG, "Unknown message level, defaulting to DEBUG");
+                break;
+        }
+        return mXWalkContentsClient.onConsoleMessage(
+                new ConsoleMessage(message, sourceId, lineNumber, messageLevel));
     }
 
     @Override

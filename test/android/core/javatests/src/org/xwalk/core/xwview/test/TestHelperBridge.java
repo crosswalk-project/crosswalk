@@ -25,6 +25,7 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPage
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
+import org.xwalk.core.XWalkUIClient.ConsoleMessageType;
 import org.xwalk.core.XWalkUIClient.LoadStatus;
 import org.xwalk.core.XWalkView;
 
@@ -294,6 +295,32 @@ class TestHelperBridge {
         }
     }
 
+    public class OnConsoleMessageHelper extends CallbackHelper {
+        private String mMessage;
+        private int mLineNumber;
+        private String mSourceId;
+        private ConsoleMessageType mMessageType;
+
+        public String getMessage() {
+            assert getCallCount() > 0;
+            return mMessage;
+        }
+
+        public ConsoleMessageType getMessageType() {
+            assert getCallCount() > 0;
+            return mMessageType;
+        }
+
+        public void notifyCalled(String message,
+                int lineNumber, String sourceId, ConsoleMessageType messageType) {
+            mMessage = message;
+            mLineNumber = lineNumber;
+            mSourceId = sourceId;
+            mMessageType = messageType;
+            notifyCalled();
+        }
+    }
+
     public class OnReceivedIconHelper extends CallbackHelper {
         private Bitmap mIcon;
 
@@ -329,6 +356,7 @@ class TestHelperBridge {
     private final OnFullscreenToggledHelper mOnFullscreenToggledHelper;
     private final OverrideOrUnhandledKeyEventHelper mOverrideOrUnhandledKeyEventHelper;
     private final OnCreateWindowRequestedHelper mOnCreateWindowRequestedHelper;
+    private final OnConsoleMessageHelper mOnConsoleMessageHelper;
     private final OnReceivedIconHelper mOnReceivedIconHelper;
 
     public TestHelperBridge() {
@@ -349,6 +377,7 @@ class TestHelperBridge {
         mOnFullscreenToggledHelper = new OnFullscreenToggledHelper();
         mOverrideOrUnhandledKeyEventHelper = new OverrideOrUnhandledKeyEventHelper();
         mOnCreateWindowRequestedHelper = new OnCreateWindowRequestedHelper();
+        mOnConsoleMessageHelper = new OnConsoleMessageHelper();
         mOnReceivedIconHelper = new OnReceivedIconHelper();
     }
 
@@ -420,6 +449,10 @@ class TestHelperBridge {
         return mOnCreateWindowRequestedHelper;
     }
 
+    public OnConsoleMessageHelper getOnConsoleMessageHelper() {
+        return mOnConsoleMessageHelper;
+    }
+
     public OnReceivedIconHelper getOnReceivedIconHelper() {
         return mOnReceivedIconHelper;
     }
@@ -485,6 +518,12 @@ class TestHelperBridge {
 
     public boolean onJavascriptModalDialog(String message) {
         mOnJavascriptModalDialogHelper.notifyCalled(message);
+        return true;
+    }
+
+    public boolean onConsoleMessage(String message, int lineNumber,
+            String sourceId, ConsoleMessageType messageType) {
+        mOnConsoleMessageHelper.notifyCalled(message, lineNumber, sourceId, messageType);
         return true;
     }
 
