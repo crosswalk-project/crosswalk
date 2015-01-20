@@ -19,6 +19,7 @@
 #include "base/path_service.h"
 #include "base/strings/string16.h"
 #include "base/strings/stringprintf.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "net/base/escape.h"
@@ -51,9 +52,16 @@ const xmlChar kNameNodeKey[] = "name";
 const xmlChar kDescriptionNodeKey[] = "description";
 const xmlChar kAuthorNodeKey[] = "author";
 const xmlChar kLicenseNodeKey[] = "license";
+const xmlChar kIconNodeKey[] = "icon";
+
 const xmlChar kVersionAttributeKey[] = "version";
 const xmlChar kShortAttributeKey[] = "short";
 const xmlChar kDirAttributeKey[] = "dir";
+const xmlChar kEmailAttributeKey[] = "email";
+const xmlChar kHrefAttributeKey[] = "href";
+const xmlChar kIdAttributeKey[] = "id";
+const xmlChar kDefaultLocaleAttributeKey[] = "defaultlocale";
+const xmlChar kPathAttributeKey[] = "path";
 
 const char kDirLTRKey[] = "ltr";
 const char kDirRTLKey[] = "rtl";
@@ -178,6 +186,47 @@ bool IsSingletonElement(const std::string& name) {
   return false;
 }
 
+// According to spec 'name' and 'author' should be result of applying the rule
+// for getting text content with normalized white space to this element.
+// http://www.w3.org/TR/widgets/#rule-for-getting-text-content-with-normalized-white-space-0
+inline bool IsTrimRequiredForElement(xmlNode* root) {
+  if (xmlStrEqual(root->name, kNameNodeKey) ||
+      xmlStrEqual(root->name, kAuthorNodeKey)) {
+    return true;
+  }
+  return false;
+}
+
+// According to spec some attributes requaire applying the rule for getting
+// a single attribute value.
+// http://www.w3.org/TR/widgets/#rule-for-getting-a-single-attribute-value-0
+inline bool IsTrimRequiredForProp(xmlNode* root, xmlAttr* prop) {
+  if (xmlStrEqual(root->name, kWidgetNodeKey) &&
+      (xmlStrEqual(prop->name, kIdAttributeKey) ||
+      xmlStrEqual(prop->name, kVersionAttributeKey) ||
+      xmlStrEqual(prop->name, kDefaultLocaleAttributeKey))) {
+    return true;
+  }
+  if (xmlStrEqual(root->name, kNameNodeKey) &&
+      xmlStrEqual(prop->name, kShortAttributeKey)) {
+    return true;
+  }
+  if (xmlStrEqual(root->name, kAuthorNodeKey) &&
+      (xmlStrEqual(prop->name, kEmailAttributeKey) ||
+      xmlStrEqual(prop->name, kHrefAttributeKey))) {
+    return true;
+  }
+  if (xmlStrEqual(root->name, kLicenseNodeKey) &&
+      xmlStrEqual(prop->name, kHrefAttributeKey)) {
+    return true;
+  }
+  if (xmlStrEqual(root->name, kIconNodeKey) &&
+      xmlStrEqual(prop->name, kPathAttributeKey)) {
+    return true;
+  }
+  return false;
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -248,6 +297,9 @@ base::DictionaryValue* LoadXMLNode(
     if (IsPropSupportDir(root, prop))
       prop_value = GetDirText(prop_value, current_dir);
 
+    if (IsTrimRequiredForProp(root, prop))
+      prop_value = base::CollapseWhitespace(prop_value, false);
+
     value->SetString(
         std::string(kAttributePrefix) + ToConstCharPointer(prop->name),
         prop_value);
@@ -313,6 +365,9 @@ base::DictionaryValue* LoadXMLNode(
       xmlFree(text_ptr);
     }
   }
+
+  if (IsTrimRequiredForElement(root))
+    text = base::CollapseWhitespace(text, false);
 
   if (!text.empty())
     value->SetString(kTextKey, text);
