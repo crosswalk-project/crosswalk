@@ -9,6 +9,16 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/media_stream_request.h"
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/permissions_handler.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
+#endif
+
+
 using content::BrowserThread;
 using content::MediaCaptureDevices;
 using content::MediaStreamDevices;
@@ -33,6 +43,7 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
 
 }  // namespace
 
+namespace xwalk {
 
 XWalkMediaCaptureDevicesDispatcher*
     XWalkMediaCaptureDevicesDispatcher::GetInstance() {
@@ -43,6 +54,19 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
+#if defined(OS_TIZEN)
+  application::Application* application = XWalkRunner::GetInstance()->
+      app_system()->application_service()->GetApplicationByRenderHostID(
+          web_contents->GetRenderProcessHost()->GetID());
+
+  if (application && !application->HasPermission("MediaStream")) {
+    callback.Run(content::MediaStreamDevices(),
+             content::MEDIA_DEVICE_PERMISSION_DENIED,
+             scoped_ptr<content::MediaStreamUI>());
+    return;
+  }
+#endif
+
   content::MediaStreamDevices devices;
   // Based on chrome/browser/media/media_stream_devices_controller.cc.
   bool microphone_requested =
@@ -67,7 +91,8 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
     }
   }
   callback.Run(devices,
-               content::MEDIA_DEVICE_OK,
+               devices.empty() ? content::MEDIA_DEVICE_INVALID_STATE :
+                       content::MEDIA_DEVICE_OK,
                scoped_ptr<content::MediaStreamUI>());
 }
 
@@ -198,3 +223,5 @@ void XWalkMediaCaptureDevicesDispatcher::SetTestVideoCaptureDevices(
     const MediaStreamDevices& devices) {
   test_video_devices_ = devices;
 }
+
+}  // namespace xwalk

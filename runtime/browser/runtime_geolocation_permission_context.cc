@@ -84,18 +84,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
       app_service->GetApplicationByRenderHostID(render_view_id);
 
   if (application) {
-    DCHECK(application->data());
-    application::PermissionsInfo* info =
-      static_cast<application::PermissionsInfo*>(
-      application->data()->GetManifestData(
-          application_manifest_keys::kPermissionsKey));
-
-    if (info) {
-      const application::PermissionSet& permissions = info->GetAPIPermissions();
-      application::PermissionSet::const_iterator it =
-          std::find(permissions.begin(), permissions.end(), "geolocation");
-      has_geolocation_permission = it != permissions.end();
-    }
+    has_geolocation_permission = application->HasPermission("geolocation");
   }
 
   result_callback.Run(has_geolocation_permission);

@@ -98,6 +98,7 @@ class Application : public Runtime::Observer,
   bool SetPermission(PermissionType type,
                      const std::string& permission_name,
                      StoredPermission perm);
+  bool HasPermission(const std::string& permission_name) const;
   bool CanRequestURL(const GURL& url) const;
   bool IsFullScreenRequired() const {
       return window_show_params_.state == ui::SHOW_STATE_FULLSCREEN; }
