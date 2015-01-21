@@ -211,6 +211,32 @@ def CustomizeThemeXML(name, fullscreen, manifest):
   theme_file.close()
 
 
+# Customize manifest
+def CustomizeManifest(app_info):
+  app_versionCode = app_info.app_versionCode
+  app_dir = GetBuildDir(app_info.android_name)
+  app_name = EncodingUnicodeValue(app_info.app_name)
+  if app_name.startswith('@') or app_name.startswith('?'):
+    app_name = ' ' + app_name
+
+  manifest_path = os.path.join(app_dir, 'AndroidManifest.xml')
+  if not os.path.isfile(manifest_path):
+    print('Please make sure AndroidManifest.xml'
+          ' exists under template folder.')
+    sys.exit(6)
+
+  xmldoc = minidom.parse(manifest_path)
+  if app_versionCode:
+    EditElementAttribute(xmldoc, 'manifest', 'android:versionCode',
+                         str(app_versionCode))
+  EditElementAttribute(xmldoc, 'application', 'android:label', app_name)
+  EditElementAttribute(xmldoc, 'activity', 'android:label', app_name)
+
+  file_handle = open(os.path.join(app_dir, 'AndroidManifest.xml'), 'w')
+  xmldoc.writexml(file_handle, encoding='utf-8')
+  file_handle.close()
+
+
 def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   app_version = app_info.app_version
   app_versionCode = app_info.app_versionCode

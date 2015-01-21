@@ -20,7 +20,7 @@ sys.path.append(xwalk_dir)
 
 from app_info import AppInfo
 from customize import VerifyPackageName, CustomizeAll, \
-                      ParseParameterForCompressor
+                      ParseParameterForCompressor, CustomizeManifest
 from extension_manager import GetExtensionList, GetExtensionStatus
 from handle_permissions import permission_mapping_table
 from util import AllArchitectures, CleanDir, GetVersion, RunCommand, \
@@ -84,8 +84,6 @@ def ParseManifest(options):
     options.name = parser.GetAppName()
   if not options.app_version:
     options.app_version = parser.GetVersion()
-  if not options.app_versionCode and not options.app_versionCodeBase:
-    options.app_versionCode = 1
   if parser.GetDescription():
     options.description = parser.GetDescription()
   if parser.GetPermissions():
@@ -143,11 +141,42 @@ def FindExtensionJars(root_path):
   return extension_jars
 
 
+# Try to parse out suitable app_versionCodeBase based on app_version,
+# app_version "xx.xx.xxx" will generate app_versionCodeBase "xxxxxxx"
+# For example,  "1.2.3" will generate app_versionCodeBase "0102003"
+# "1.2" will generate "0102000"
+# If app_version does not match
+# r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
+# notify user the failure
+def TryCodeBaseFromVersionName(app_version):
+  m = re.match(r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
+               app_version)
+  if not m:
+    print('Can not parse out app_versionCodeBase from app_version, '
+          'please specify --app-versionCode or --app-versionCodeBase : '
+          'app_version=%s' % (app_version))
+    sys.exit(12)
+
+  versionList = []
+  for item in m.groups():
+    if (item and len(item) > 0):
+      versionList.append(item.strip('.'))
+  n = len(versionList)
+  while n < 3:
+    versionList.append('0')
+    n = n + 1
+  versionCodeBase = versionList[0].zfill(2)
+  versionCodeBase = versionCodeBase + versionList[1].zfill(2)
+  versionCodeBase = versionCodeBase + versionList[2].zfill(3)
+  return versionCodeBase
+
+
 # Follows the recommendation from
 # http://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-
 # your-apps-on-google-play-for-x86-based-android-devices-using
-def MakeVersionCode(options):
+def MakeVersionCode(options, app_version):
   ''' Construct a version code'''
+  # If user specified --app-versionCode, use it forcely
   if options.app_versionCode:
     return options.app_versionCode
 
@@ -160,12 +189,17 @@ def MakeVersionCode(options):
   if options.arch == 'x86_64':
     abi = '7'
   b = '0'
+  # If user specified --app-versionCodeBase,add ABI prefix to it as versionCode
   if options.app_versionCodeBase:
     b = str(options.app_versionCodeBase)
     if len(b) > 7:
       print('Version code base must be 7 digits or less: '
             'versionCodeBase=%s' % (b))
       sys.exit(12)
+  # If both --app-versionCode and --app-versionCodeBase not specified,
+  # try to parse out versionCodeBase based on app_version
+  else:
+    b = TryCodeBaseFromVersionName(app_version)
   # zero pad to 7 digits, middle digits can be used for other
   # features, according to recommendation in URL
   return '%s%s' % (abi, b.zfill(7))
@@ -206,7 +240,6 @@ def Customize(options, app_info, manifest):
   app_info.android_name = ''.join([i.capitalize() for i in android_name if i])
   if options.app_version:
     app_info.app_version = options.app_version
-  app_info.app_versionCode = MakeVersionCode(options)
   if options.app_root:
     app_info.app_root = os.path.expanduser(options.app_root)
   if options.enable_remote_debugging:
@@ -240,7 +273,16 @@ def Customize(options, app_info, manifest):
                options.xwalk_command_line, options.compressor)
 
 
-def Execution(options, name):
+def Execution(options, app_info):
+  # Now we've got correct app_version and correct ABI value,
+  # start to generate suitable versionCode
+  app_info.app_versionCode = MakeVersionCode(options, app_info.app_version)
+  # Write generated versionCode into AndroidManifest.xml.
+  # Later if we have other customization, 
+  # we can put them together into CustomizeManifest func.
+  CustomizeManifest(app_info)
+  name = app_info.android_name
+
   arch_string = (' ('+options.arch+')' if options.arch else '')
   print('\nStarting application build' + arch_string)
   app_dir = GetBuildDir(name)
@@ -428,7 +470,7 @@ def MakeApk(options, app_info, manifest):
     java_app_part_jar = os.path.join(xwalk_dir, 'xwalk_core_library', 'libs',
                                      'xwalk_core_library_java_app_part.jar')
     shutil.copy(java_app_part_jar, os.path.join(app_dir, 'libs'))
-    Execution(options, name)
+    Execution(options, app_info)
   elif options.mode == 'embedded':
     # Copy xwalk_core_library into app folder and move the native libraries
     # out.
@@ -447,7 +489,7 @@ def MakeApk(options, app_info, manifest):
         shutil.move(lib_dir, os.path.join(native_lib_path, dir_name))
         available_archs.append(dir_name)
     if options.arch:
-      Execution(options, name)
+      Execution(options, app_info)
       packaged_archs.append(options.arch)
     else:
       # If the arch option is unspecified, all of available platform APKs
@@ -460,7 +502,7 @@ def MakeApk(options, app_info, manifest):
           else:
             options.arch = arch
           print("options.arch:", options.arch)
-          Execution(options, name)
+          Execution(options, app_info)
           packaged_archs.append(options.arch)
         else:
           print('Warning: failed to create package for arch "%s" '
