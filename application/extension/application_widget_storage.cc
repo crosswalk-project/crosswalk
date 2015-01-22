@@ -100,11 +100,13 @@ bool AppWidgetStorage::SaveConfigInfoItem(base::DictionaryValue* dict) {
   DCHECK(dict);
   std::string key;
   std::string value;
-  bool read_only = false;
   if (dict->GetString(kPreferencesName, &key) &&
-      dict->GetString(kPreferencesValue, &value) &&
-      dict->GetBoolean(kPreferencesReadonly, &read_only))
+      dict->GetString(kPreferencesValue, &value)) {
+    bool read_only = false;
+    // read_only column can be NULL.
+    dict->GetBoolean(kPreferencesReadonly, &read_only);
     return AddEntry(key, value, read_only);
+  }
   return false;
 }
 
