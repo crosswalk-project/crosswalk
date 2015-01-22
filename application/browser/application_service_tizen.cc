@@ -4,6 +4,7 @@
 
 #include "xwalk/application/browser/application_service_tizen.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -22,7 +23,8 @@ const base::FilePath::CharType kApplicationDataDirName[] =
     FILE_PATH_LITERAL("Storage/ext");
 
 base::FilePath GetStoragePartitionPath(
-    const base::FilePath& base_path, const std::string& app_id) {
+    const base::FilePath& base_path, std::string app_id) {
+  std::transform(app_id.begin(), app_id.end(), app_id.begin(), ::tolower);
   return base_path.Append(kApplicationDataDirName).Append(app_id);
 }
 
