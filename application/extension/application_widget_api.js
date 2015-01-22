@@ -39,10 +39,6 @@ function defineReadOnlyProperty(object, key, value) {
   });
 }
 
-for (var key in widgetStringInfo) {
-  defineReadOnlyProperty(exports, key, widgetStringInfo[key]);
-}
-
 var WidgetStorage = function() {
   var _SetItem = function(itemKey, itemValue) {
     var result = extension.internal.sendSyncMessage({
@@ -124,17 +120,26 @@ var WidgetStorage = function() {
   this.init();
 };
 
-var widgetStorage = new WidgetStorage();
-exports.preferences = widgetStorage;
+var Widget = function() {
+  for (var key in widgetStringInfo) {
+    defineReadOnlyProperty(this, key, widgetStringInfo[key]);
+  }
 
-exports.toString = function() {
-  return '[object Widget]';
+  this.preferences = new WidgetStorage();
+
+  Object.defineProperty(this, 'preferences', {
+    configurable: false,
+    enumerable: false,
+    get: function() {
+      return this;
+    }
+  });
+
+  this.toString = function() {
+    return '[object Widget]';
+  }
 }
 
-Object.defineProperty(exports, 'preferences', {
-  configurable: false,
-  enumerable: false,
-  get: function() {
-    return widgetStorage;
-  }
-});
+window.Widget = Widget;
+
+exports = new Widget();
