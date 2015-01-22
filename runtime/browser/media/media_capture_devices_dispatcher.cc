@@ -67,7 +67,9 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
     }
   }
   callback.Run(devices,
-               content::MEDIA_DEVICE_OK,
+               devices.empty() ?
+                   content::MEDIA_DEVICE_NO_HARDWARE :
+                   content::MEDIA_DEVICE_OK,
                scoped_ptr<content::MediaStreamUI>());
 }
 
