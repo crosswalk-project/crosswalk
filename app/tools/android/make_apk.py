@@ -307,10 +307,14 @@ def Execution(options, name):
       print ('Invalid CPU arch: %s.' % arch)
       sys.exit(10)
     library_lib_path = os.path.join(app_dir, 'xwalk_core_library', 'libs')
+    raw_path = os.path.join(app_dir, 'xwalk_core_library', 'res', 'raw')
     for dir_name in os.listdir(library_lib_path):
       lib_dir = os.path.join(library_lib_path, dir_name)
       if ContainsNativeLibrary(lib_dir):
         shutil.rmtree(lib_dir)
+      other_lib = os.path.join(raw_path, NATIVE_LIBRARY + '.' + dir_name)
+      if (os.path.isfile(other_lib)):
+        os.remove(other_lib)
     native_lib_path = os.path.join(app_dir, 'native_libs', arch)
     if ContainsNativeLibrary(native_lib_path):
       shutil.copytree(native_lib_path, os.path.join(library_lib_path, arch))
@@ -318,6 +322,10 @@ def Execution(options, name):
       print('No %s native library has been found for creating a Crosswalk '
             'embedded APK.' % arch)
       sys.exit(10)
+
+    compressed_lib = os.path.join(app_dir, 'native_libs',
+                                  NATIVE_LIBRARY + '.' + arch)
+    shutil.copy(compressed_lib, raw_path)
 
   if options.project_only:
     print (' (Skipping apk package creation)')
@@ -443,6 +451,10 @@ def MakeApk(options, app_info, manifest):
       lib_dir = os.path.join(library_lib_path, dir_name)
       if ContainsNativeLibrary(lib_dir):
         shutil.move(lib_dir, os.path.join(native_lib_path, dir_name))
+        compressed_lib = os.path.join(target_library_path, 'res', 'raw',
+                                      NATIVE_LIBRARY + '.' + dir_name)
+        if (os.path.isfile(compressed_lib)):
+          shutil.move(compressed_lib, native_lib_path)
         available_archs.append(dir_name)
     if options.arch:
       Execution(options, name)
