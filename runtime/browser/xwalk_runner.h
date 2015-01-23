@@ -98,6 +98,13 @@ class XWalkRunner {
   virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent();
   virtual scoped_ptr<StorageComponent> CreateStorageComponent();
 
+ protected:
+  // These variables are used to export some values from the browser process
+  // side to the extension side, such as application IDs and whatnot.
+  virtual void InitializeRuntimeVariablesForExtensions(
+      const content::RenderProcessHost* host,
+      base::ValueMap* runtime_variables);
+
  private:
   friend class XWalkMainDelegate;
   friend class ::XWalkTestSuiteInitializer;
@@ -138,12 +145,6 @@ class XWalkRunner {
 
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
-
-  // These variables are used to export some values from the browser process
-  // side to the extension side, such as application IDs and whatnot.
-  void InitializeRuntimeVariablesForExtensions(
-      const content::RenderProcessHost* host,
-      base::ValueMap* runtime_variables);
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

@@ -9,6 +9,7 @@
 #include "base/third_party/xdg_mime/xdgmime.h"
 #include "base/values.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/tizen/app_control_info.h"
 
 namespace xwalk {
 

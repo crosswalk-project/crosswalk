@@ -33,6 +33,7 @@
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
+#include "xwalk/application/common/tizen/app_control_info.h"
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/common/tizen/encryption.h"
 #include "xwalk/application/common/tizen/package_query.h"
@@ -156,21 +157,17 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
       xml_writer.AddAttribute("name", item.operation());
       xml_writer.EndElement();
 
-      xml_writer.StartElement("uri");
       if (!item.uri().empty()) {
+        xml_writer.StartElement("uri");
         xml_writer.AddAttribute("name", item.uri());
-      } else {
-        xml_writer.AddAttribute("name", "*/*");
+        xml_writer.EndElement();
       }
-      xml_writer.EndElement();
 
-      xml_writer.StartElement("mime");
       if (!item.mime().empty()) {
+        xml_writer.StartElement("mime");
         xml_writer.AddAttribute("name", item.mime());
-      } else {
-        xml_writer.AddAttribute("name", "*/*");
+        xml_writer.EndElement();
       }
-      xml_writer.EndElement();
 
       xml_writer.EndElement();
     }

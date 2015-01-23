@@ -53,9 +53,12 @@ BuildRequires:  libelf-devel
 BuildRequires:  ninja
 BuildRequires:  perl
 BuildRequires:  pkgconfig(ail)
+BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
+BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(cairo)
+BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(capi-location-manager)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)

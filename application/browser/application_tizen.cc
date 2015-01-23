@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
+
 #include "content/browser/renderer_host/media/audio_renderer_host.h"
 #include "content/browser/renderer_host/render_process_host_impl.h"
 #include "content/public/browser/web_contents.h"
@@ -215,6 +217,47 @@ bool ApplicationTizen::Launch() {
     return true;
   }
   return false;
+}
+
+GURL ApplicationTizen::GetStartURL(Manifest::Type type) const {
+  const std::string& bundle = data_->bundle();
+  if (bundle.empty()) {
+    return Application::GetStartURL(type);
+  }
+
+  auto app_control = AppControlInfo::CreateFromBundle(bundle);
+  if (!app_control) {
+    return Application::GetStartURL(type);
+  }
+
+  GURL app_control_url = GetAppControlStartURL(*app_control);
+  if (!app_control_url.is_valid()) {
+    return Application::GetStartURL(type);
+  }
+
+  return app_control_url;
+}
+
+GURL ApplicationTizen::GetAppControlStartURL(
+    const AppControlInfo& app_control) const {
+  const AppControlInfoList* app_controls =
+      static_cast<const AppControlInfoList*>(
+          data()->GetManifestData(
+              widget_keys::kTizenApplicationAppControlsKey));
+  if (app_controls) {
+    for (const auto& item : app_controls->controls) {
+      if (item.Covers(app_control)) {
+        LOG(INFO) << "Start URL by appcontrol: "
+                  << " operation: " << item.operation()
+                  << " mime: " << item.mime()
+                  << " uri: " << item.uri()
+                  << " src: " << item.src();
+        return data()->GetResourceURL(item.src());
+      }
+    }
+  }
+
+  return GURL();
 }
 
 base::FilePath ApplicationTizen::GetSplashScreenPath() {
