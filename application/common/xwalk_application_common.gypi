@@ -81,8 +81,6 @@
             'manifest_handlers/tizen_splash_screen_handler.h',
             'tizen/application_storage.cc',
             'tizen/application_storage.h',
-            'tizen/application_storage_impl.cc',
-            'tizen/application_storage_impl.h',
             'tizen/cookie_manager.cc',
             'tizen/cookie_manager.h',
             'tizen/encryption.cc',
