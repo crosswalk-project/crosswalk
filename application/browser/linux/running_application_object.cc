@@ -119,6 +119,9 @@ RunningApplicationObject::~RunningApplicationObject() {
 
 void RunningApplicationObject::TerminateApplication() {
   application_->Terminate();
+
+  if (ep_bp_channel_.socket.fd != -1)
+    close(ep_bp_channel_.socket.fd);
 }
 
 void RunningApplicationObject::OnExported(const std::string& interface_name,
