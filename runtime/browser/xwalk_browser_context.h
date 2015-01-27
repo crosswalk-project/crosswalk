@@ -20,6 +20,7 @@
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_ssl_host_state_delegate.h"
 
 namespace net {
 class URLRequestContextGetter;
@@ -116,6 +117,7 @@ class XWalkBrowserContext
       scoped_refptr<RuntimeURLRequestContextGetter> >
       PartitionPathContextGetterMap;
   PartitionPathContextGetterMap context_getters_;
+  scoped_ptr<XWalkSSLHostStateDelegate> ssl_host_state_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserContext);
 };
