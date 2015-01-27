@@ -36,7 +36,7 @@ def GenerateGClientXWalk(options):
   with open(os.path.join(CROSSWALK_ROOT, 'DEPS.xwalk')) as deps_file:
     deps_contents = deps_file.read()
 
-  if 'XWALK_OS_ANDROID' in os.environ:
+  if os.environ.get('XWALK_OS_ANDROID') == '1':
     deps_contents += 'target_os = [\'android\']\n'
 
   gclient_config = ParseGClientConfig()
