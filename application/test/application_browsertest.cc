@@ -44,9 +44,9 @@ void ApplicationBrowserTest::SetUp() {
 void ApplicationBrowserTest::ProperMainThreadCleanup() {
   const ScopedVector<Application>& apps =
     application_sevice()->active_applications();
-
   std::for_each(apps.begin(), apps.end(),
     std::mem_fun(&Application::Terminate));
+  content::RunAllPendingInMessageLoop();
 }
 
 ApplicationService* ApplicationBrowserTest::application_sevice() const {
