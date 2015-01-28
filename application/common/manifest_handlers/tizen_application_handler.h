@@ -18,7 +18,7 @@ namespace application {
 class TizenApplicationInfo : public ApplicationData::ManifestData {
  public:
   TizenApplicationInfo();
-  virtual ~TizenApplicationInfo();
+  virtual ~TizenApplicationInfo() override;
 
   void set_id(const std::string& id) {
     id_ = id;
@@ -49,7 +49,7 @@ class TizenApplicationInfo : public ApplicationData::ManifestData {
 class TizenApplicationHandler : public ManifestHandler {
  public:
   TizenApplicationHandler();
-  virtual ~TizenApplicationHandler();
+  virtual ~TizenApplicationHandler() override;
 
   bool Parse(scoped_refptr<ApplicationData> application,
              base::string16* error) override;
