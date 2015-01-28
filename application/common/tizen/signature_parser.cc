@@ -12,11 +12,14 @@
 #include <vector>
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "libxml/parser.h"
 #include "libxml/xmlschemas.h"
 #include "libxml/xpathInternals.h"
 #include "libxml/xmlreader.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
+#include "url/url_util.h"
 
 namespace {
 const char kExpectedXmlns[] = "http://www.w3.org/2000/09/xmldsig#";
@@ -111,6 +114,7 @@ xmlNsPtr GetNamespace(const xmlNodePtr node, const char* expected_href) {
 
 namespace xwalk {
 namespace application {
+
 bool ParseSignedInfoElement(
     const xmlNodePtr node, const xmlNsPtr signature_ns, SignatureData* data) {
   xmlNodePtr signed_info_node =
@@ -159,6 +163,18 @@ bool ParseSignedInfoElement(
     if (uri.empty()) {
       LOG(ERROR) << "Missing URI attribute.";
       return false;
+    }
+    url::RawCanonOutputW<1024> decoded_uri;
+    url::DecodeURLEscapeSequences(uri.c_str(),
+                                  uri.length(),
+                                  &decoded_uri);
+    base::string16 uri16(decoded_uri.data(),
+                         decoded_uri.length());
+    std::string uri8 = base::UTF16ToUTF8(uri16);
+    if (!uri8.empty()) {
+      uri = uri8;
+    } else {
+      LOG(WARNING) << "Failing to decode URI.";
     }
     reference_set.insert(uri);
   }
