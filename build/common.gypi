@@ -52,6 +52,7 @@
     'variables': {
       # Whether to enable WebCL.
       'enable_webcl%': '<(enable_webcl)',
+      'disable_builtin_extensions%': '<(disable_builtin_extensions)',
     },
     'conditions': [
       ['disable_accessibility==1', {

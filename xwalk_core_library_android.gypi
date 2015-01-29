@@ -308,6 +308,15 @@
             'icu_data_param': '',
           },
         }],
+        ['disable_builtin_extensions==1', {
+          'variables': {
+            'disable_builtin_ext_param': '--disable-builtin-ext',
+          },
+        }, {
+          'variables': {
+            'disable_builtin_ext_param': '',
+          },
+        }],
       ],
       'actions': [
         {
@@ -324,7 +333,8 @@
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
             '-s', '<(DEPTH)',
             '-t', '<(PRODUCT_DIR)',
-            '<(icu_data_param)'
+            '<(icu_data_param)',
+            '<(disable_builtin_ext_param)',
           ],
         },
       ],
