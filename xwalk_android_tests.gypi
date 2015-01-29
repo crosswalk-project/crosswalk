@@ -46,13 +46,17 @@
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame1.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/contacts_api.js',
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/device_capabilities_api.js',
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/launch_screen_api.js',
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/messaging_api.js',
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/presentation_api.js',
         ],
         'conditions': [
+          ['disable_builtin_extensions == 0',{
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/contacts_api.js',
+              '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/device_capabilities_api.js',
+              '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/launch_screen_api.js',
+              '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/messaging_api.js',
+              '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/presentation_api.js',
+            ],
+          }],
           ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
             'additional_input_paths': [
               '<(PRODUCT_DIR)/xwalk_xwview/assets/icudtl.dat',
@@ -80,9 +84,9 @@
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
+            'runtime/android/core_internal/extension/api/contacts/contacts_api.js',
+            'runtime/android/core_internal/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core_internal/extension/api/messaging/messaging_api.js',
           ],
         },
       ],
@@ -378,9 +382,9 @@
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
+            'runtime/android/core_internal/extension/api/contacts/contacts_api.js',
+            'runtime/android/core_internal/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core_internal/extension/api/messaging/messaging_api.js',
           ],
         },
         {
@@ -452,6 +456,13 @@
       'variables': {
         'apk_name': 'XWalkRuntimeClientTest',
         'java_in_dir': 'test/android/runtime_client/javatests',
+        'conditions': [
+          ['disable_builtin_extensions == 0',{
+              'additional_src_dirs': [
+                'test/android/runtime_client/javatests/extension_tests',
+              ]
+          }],
+        ],
         'is_test_apk': 1,
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_test/assets/contacts.html',
@@ -507,6 +518,13 @@
       'variables': {
         'apk_name': 'XWalkRuntimeClientEmbeddedTest',
         'java_in_dir': 'test/android/runtime_client_embedded/javatests',
+        'conditions': [
+          ['disable_builtin_extensions == 0',{
+              'additional_src_dirs': [
+                'test/android/runtime_client_embedded/javatests/extension_tests',
+              ]
+          }],
+        ],
         'is_test_apk': 1,
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/contacts.html',

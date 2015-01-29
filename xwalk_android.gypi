@@ -157,6 +157,13 @@
         'generated_src_dirs': [
           '<(reflection_java_dir)/bridge',
         ],
+        'conditions': [
+          ['disable_builtin_extensions == 0', {
+            'additional_src_dirs': [
+              'runtime/android/core_internal/extension',
+            ]
+          }],
+        ],
       },
       'includes': ['../build/java.gypi'],
     },
@@ -315,9 +322,9 @@
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
+            'runtime/android/core_internal/extension/api/contacts/contacts_api.js',
+            'runtime/android/core_internal/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core_internal/extension/api/messaging/messaging_api.js',
           ],
         },
       ],

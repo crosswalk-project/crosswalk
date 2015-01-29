@@ -37,6 +37,9 @@ def AddGeneratorOptions(option_parser):
                            default=False,
                            help='Exclude icudtl.dat when specified')
 
+  option_parser.add_option('--disable-builtin-ext', action='store_true',
+                           default=False,
+                           help='Disable builtin extensions.')
 
 def CleanLibraryProject(out_project_dir):
   if os.path.exists(out_project_dir):
@@ -83,12 +86,12 @@ def CopyJSBindingFiles(project_source, out_project_dir):
   jsfiles_to_copy = [
       'xwalk/experimental/launch_screen/launch_screen_api.js',
       'xwalk/experimental/presentation/presentation_api.js',
-      'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
-      + 'internal/extension/api/contacts/contacts_api.js',
-      'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
-      + 'internal/extension/api/device_capabilities/device_capabilities_api.js',
-      'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
-      + 'internal/extension/api/messaging/messaging_api.js'
+      'xwalk/runtime/android/core_internal/extension/api/'
+      + 'contacts/contacts_api.js',
+      'xwalk/runtime/android/core_internal/extension/api/'
+      + 'device_capabilities/device_capabilities_api.js',
+      'xwalk/runtime/android/core_internal/extension/api/'
+      + 'messaging/messaging_api.js'
   ]
 
   # Copy JS binding file to assets/jsapi folder.
@@ -334,7 +337,7 @@ def main(argv):
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
   CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared, options.use_lzma, options.no_icu_data)
   # Copy JS API binding files.
-  if not options.shared:
+  if not options.shared and not options.disable_builtin_ext:
     CopyJSBindingFiles(options.source, out_project_dir)
   # Remove unused files.
   mode = os.path.basename(os.path.normpath(out_dir))

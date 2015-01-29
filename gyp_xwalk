@@ -373,6 +373,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_webaudio_hrtf=0')
     # Disable use_minimum_resources by default
     args.append('-Duse_minimum_resources=0')
+    # Enable buildin extension by default.
+    args.append('-Ddisable_builtin_extensions=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
