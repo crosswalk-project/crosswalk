@@ -4,12 +4,14 @@
     'tizen_mobile%': 0,
     'shared_process_mode%': 0,
     'enable_murphy%': 0,
+    'disable_builtin_extensions%': 0,
   },
   'target_defaults': {
     'variables': {
       'tizen%': '<(tizen)',
       'tizen_mobile%': '<(tizen_mobile)',
       'enable_murphy%': '<(enable_murphy)',
+      'disable_builtin_extensions%': '<(disable_builtin_extensions)',
     },
     'conditions': [
       ['tizen==1', {
