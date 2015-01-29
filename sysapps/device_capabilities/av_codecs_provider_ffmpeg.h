@@ -14,7 +14,7 @@ namespace sysapps {
 class AVCodecsProviderFFmpeg : public AVCodecsProvider {
  public:
   AVCodecsProviderFFmpeg();
-  virtual ~AVCodecsProviderFFmpeg();
+  ~AVCodecsProviderFFmpeg() override;
 
   scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const override;
 

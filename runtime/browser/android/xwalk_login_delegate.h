@@ -32,7 +32,7 @@ class XWalkLoginDelegate
   void OnRequestCancelled() override;
 
  private:
-  virtual ~XWalkLoginDelegate();
+  ~XWalkLoginDelegate() override;
   void HandleHttpAuthRequestOnUIThread(bool first_auth_attempt);
   void CancelOnIOThread();
   void ProceedOnIOThread(const base::string16& user,

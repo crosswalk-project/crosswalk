@@ -199,7 +199,8 @@ void Runtime::DidNavigateMainFramePostCommit(
     content::WebContents* web_contents) {
 }
 
-content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager() {
+content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager(
+    content::WebContents* web_contents) {
   return NULL;
 }
 

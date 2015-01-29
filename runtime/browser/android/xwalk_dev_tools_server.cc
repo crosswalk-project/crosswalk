@@ -76,10 +76,9 @@ class XWalkAndroidDevToolsHttpHandlerDelegate
     return base::FilePath();
   }
 
-  scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
-      net::StreamListenSocket::Delegate* delegate,
+  scoped_ptr<net::ServerSocket> CreateSocketForTethering(
       std::string* name) override {
-    return scoped_ptr<net::StreamListenSocket>();
+    return scoped_ptr<net::ServerSocket>();
   }
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkAndroidDevToolsHttpHandlerDelegate);
@@ -114,7 +113,6 @@ namespace xwalk {
 
 XWalkDevToolsServer::XWalkDevToolsServer(const std::string& socket_name)
     : socket_name_(socket_name),
-      protocol_handler_(NULL),
       allow_debug_permission_(false),
       allow_socket_access_(false) {
 }
@@ -148,19 +146,14 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission,
 
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
       new UnixDomainServerSocketFactory(socket_name_, auth_callback));
-  protocol_handler_ = content::DevToolsHttpHandler::Start(
+  protocol_handler_.reset(content::DevToolsHttpHandler::Start(
       factory.Pass(),
       base::StringPrintf(kFrontEndURL, BLINK_UPSTREAM_REVISION),
-      new XWalkAndroidDevToolsHttpHandlerDelegate(), base::FilePath());
+      new XWalkAndroidDevToolsHttpHandlerDelegate(), base::FilePath()));
 }
 
 void XWalkDevToolsServer::Stop() {
-  if (!protocol_handler_)
-    return;
-  // Note that the call to Stop() below takes care of |protocol_handler_|
-  // deletion.
-  protocol_handler_->Stop();
-  protocol_handler_ = NULL;
+  protocol_handler_.reset();
   allow_socket_access_ = false;
   allow_debug_permission_ = false;
 }

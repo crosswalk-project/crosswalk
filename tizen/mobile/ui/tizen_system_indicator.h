@@ -17,7 +17,7 @@ namespace xwalk {
 class TizenSystemIndicator : public views::ImageView {
  public:
   TizenSystemIndicator();
-  virtual ~TizenSystemIndicator();
+  ~TizenSystemIndicator() override;
 
   bool IsConnected() const;
 

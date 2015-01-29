@@ -60,7 +60,7 @@ std::string GetUserAgent() {
 #else
   product += " Crosswalk/" XWALK_VERSION;
 #endif
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
   return content::BuildUserAgentFromProduct(product);
@@ -93,7 +93,7 @@ void XWalkContentClient::AddPepperPlugins(
                                               kNaClPluginExtension,
                                               kNaClPluginDescription);
     nacl.mime_types.push_back(nacl_mime_type);
-    if (!CommandLine::ForCurrentProcess()->HasSwitch(
+    if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
         switches::kDisablePnacl)) {
       content::WebPluginMimeType pnacl_mime_type(kPnaclPluginMimeType,
                                                  kPnaclPluginExtension,

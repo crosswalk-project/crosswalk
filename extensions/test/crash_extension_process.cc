@@ -25,7 +25,7 @@ class CrashExtensionTest : public XWalkExtensionsTestBase {
 };
 
 IN_PROC_BROWSER_TEST_F(CrashExtensionTest, CrashExtensionProcessKeepBPAlive) {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess)) {
     LOG(INFO) << "--disable-extension-process not supported by " \
                  "CrashExtensionProcessKeepBPAlive. Skipping test.";

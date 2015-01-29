@@ -45,7 +45,7 @@ class XWalkBrowserContext::RuntimeResourceContext :
     public content::ResourceContext {
  public:
   RuntimeResourceContext() : getter_(NULL) {}
-  virtual ~RuntimeResourceContext() {}
+  ~RuntimeResourceContext() override {}
 
   // ResourceContext implementation:
   net::HostResolver* GetHostResolver() override {
@@ -91,7 +91,7 @@ XWalkBrowserContext* XWalkBrowserContext::FromWebContents(
 }
 
 void XWalkBrowserContext::InitWhileIOAllowed() {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
     base::FilePath path =
         cmd_line->GetSwitchValuePath(switches::kXWalkDataPath);
@@ -100,11 +100,17 @@ void XWalkBrowserContext::InitWhileIOAllowed() {
   }
 }
 
+scoped_ptr<content::ZoomLevelDelegate>
+XWalkBrowserContext::CreateZoomLevelDelegate(
+    const base::FilePath& partition_path) {
+  return nullptr;
+}
+
 base::FilePath XWalkBrowserContext::GetPath() const {
   base::FilePath result;
 #if defined(OS_ANDROID)
   CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &result));
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkProfileName))
     result = result.Append(
         cmd_line->GetSwitchValuePath(switches::kXWalkProfileName));

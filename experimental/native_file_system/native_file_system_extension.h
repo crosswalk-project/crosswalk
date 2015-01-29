@@ -23,7 +23,7 @@ using extensions::XWalkExtensionInstance;
 class NativeFileSystemExtension : public XWalkExtension {
  public:
   explicit NativeFileSystemExtension(content::RenderProcessHost* host);
-  virtual ~NativeFileSystemExtension();
+  ~NativeFileSystemExtension() override;
 
   // XWalkExtension implementation.
   XWalkExtensionInstance* CreateInstance() override;

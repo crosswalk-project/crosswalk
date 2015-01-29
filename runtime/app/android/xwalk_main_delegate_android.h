@@ -21,7 +21,7 @@ namespace xwalk {
 class XWalkMainDelegateAndroid : public XWalkMainDelegate {
  public:
   XWalkMainDelegateAndroid();
-  virtual ~XWalkMainDelegateAndroid();
+  ~XWalkMainDelegateAndroid() override;
 
   // ContentMainDelegate implementation:
   bool BasicStartupComplete(int* exit_code) override;

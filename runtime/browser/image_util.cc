@@ -8,9 +8,9 @@
 
 #include "base/files/file_util.h"
 #include "base/strings/string_util.h"
+#include "ui/gfx/geometry/size.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/image/image_util.h"
-#include "ui/gfx/size.h"
 
 #if defined(OS_WIN)
 #include "ui/gfx/icon_util.h"

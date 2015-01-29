@@ -48,7 +48,7 @@ class XWalkExtensionServer : public IPC::Listener,
     public base::SupportsWeakPtr<XWalkExtensionServer> {
  public:
   XWalkExtensionServer();
-  virtual ~XWalkExtensionServer();
+  ~XWalkExtensionServer() override;
 
   // IPC::Listener Implementation.
   bool OnMessageReceived(const IPC::Message& message) override;

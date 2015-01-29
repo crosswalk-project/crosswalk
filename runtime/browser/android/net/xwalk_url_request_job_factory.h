@@ -26,7 +26,7 @@ namespace xwalk {
 class XWalkURLRequestJobFactory : public net::URLRequestJobFactory {
  public:
   XWalkURLRequestJobFactory();
-  virtual ~XWalkURLRequestJobFactory();
+  ~XWalkURLRequestJobFactory() override;
 
   bool SetProtocolHandler(const std::string& scheme,
                           ProtocolHandler* protocol_handler);

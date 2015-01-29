@@ -17,7 +17,7 @@ class VibrationProviderTizen : public content::VibrationProvider {
   VibrationProviderTizen();
 
  private:
-  virtual ~VibrationProviderTizen();
+  ~VibrationProviderTizen() override;
   void InitializeHapticDevice();
 
   // VibrationProvider

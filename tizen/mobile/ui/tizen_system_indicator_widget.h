@@ -19,7 +19,7 @@ class TizenSystemIndicatorWidget : public views::Widget,
     public TizenSystemIndicatorWatcher::WatcherClient {
  public:
   TizenSystemIndicatorWidget();
-  virtual ~TizenSystemIndicatorWidget();
+  ~TizenSystemIndicatorWidget() override;
 
   void Initialize(aura::Window* parent);
 

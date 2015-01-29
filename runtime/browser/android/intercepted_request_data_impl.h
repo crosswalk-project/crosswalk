@@ -21,7 +21,7 @@ class InterceptedRequestDataImpl : public InterceptedRequestData {
  public:
   explicit InterceptedRequestDataImpl(
       const base::android::JavaRef<jobject>& obj);
-  virtual ~InterceptedRequestDataImpl();
+  ~InterceptedRequestDataImpl() override;
 
   virtual scoped_ptr<InputStream> GetInputStream(JNIEnv* env) const;
   virtual bool GetMimeType(JNIEnv* env, std::string* mime_type) const;

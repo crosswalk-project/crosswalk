@@ -156,7 +156,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   }
 
  protected:
-  virtual ~URLRequestApplicationJob() {}
+  ~URLRequestApplicationJob() override {}
 
   std::string content_security_policy_;
   std::list<std::string> locales_;
@@ -392,7 +392,7 @@ class ApplicationProtocolHandler
     service->AddObserver(&cache_);
   }
 
-  virtual ~ApplicationProtocolHandler() {}
+  ~ApplicationProtocolHandler() override {}
 
   net::URLRequestJob* MaybeCreateJob(
       net::URLRequest* request,

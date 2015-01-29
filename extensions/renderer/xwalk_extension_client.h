@@ -38,11 +38,11 @@ class XWalkExtensionClient : public IPC::Listener {
   struct InstanceHandler {
     virtual void HandleMessageFromNative(const base::Value& msg) = 0;
    protected:
-    ~InstanceHandler() {}
+    virtual ~InstanceHandler() {}
   };
 
   XWalkExtensionClient();
-  virtual ~XWalkExtensionClient();
+  ~XWalkExtensionClient() override;
 
   int64_t CreateInstance(const std::string& extension_name,
                          InstanceHandler* handler);

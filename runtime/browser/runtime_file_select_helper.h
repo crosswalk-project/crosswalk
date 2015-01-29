@@ -47,7 +47,7 @@ class RuntimeFileSelectHelper
   friend class base::RefCountedThreadSafe<RuntimeFileSelectHelper>;
   FRIEND_TEST_ALL_PREFIXES(RuntimeFileSelectHelperTest, IsAcceptTypeValid);
   RuntimeFileSelectHelper();
-  virtual ~RuntimeFileSelectHelper();
+  ~RuntimeFileSelectHelper() override;
 
   // Utility class which can listen for directory lister events and relay
   // them to the main object with the correct tracking id.
@@ -57,7 +57,7 @@ class RuntimeFileSelectHelper
     DirectoryListerDispatchDelegate(RuntimeFileSelectHelper* parent, int id)
         : parent_(parent),
           id_(id) {}
-    virtual ~DirectoryListerDispatchDelegate() {}
+    ~DirectoryListerDispatchDelegate() override {}
     void OnListFile(
         const net::DirectoryLister::DirectoryListerData& data) override;
     void OnListDone(int error) override;

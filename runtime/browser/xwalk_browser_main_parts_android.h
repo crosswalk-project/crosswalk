@@ -20,7 +20,7 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
  public:
   explicit XWalkBrowserMainPartsAndroid(
       const content::MainFunctionParams& parameters);
-  virtual ~XWalkBrowserMainPartsAndroid();
+  ~XWalkBrowserMainPartsAndroid() override;
 
   void PreEarlyInitialization() override;
   void PreMainMessageLoopStart() override;

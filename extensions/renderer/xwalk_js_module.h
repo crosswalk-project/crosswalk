@@ -21,7 +21,7 @@ scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id);
 class XWalkJSModule : public XWalkNativeModule {
  public:
   explicit XWalkJSModule(const std::string& js_code);
-  virtual ~XWalkJSModule();
+  ~XWalkJSModule() override;
 
  private:
   // XWalkNativeModule implementation.

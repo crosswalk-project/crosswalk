@@ -47,7 +47,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
  public:
   XWalkContentsClientBridge(JNIEnv* env, jobject obj,
                             content::WebContents* web_contents);
-  virtual ~XWalkContentsClientBridge();
+  ~XWalkContentsClientBridge() override;
 
   // XWalkContentsClientBridgeBase implementation
   void AllowCertificateError(int cert_error,
@@ -69,7 +69,8 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       override;
   void ShowNotification(
-      const content::ShowDesktopNotificationHostMsgParams& params,
+      const content::PlatformNotificationData& notification_data,
+      const SkBitmap& icon,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
       override;

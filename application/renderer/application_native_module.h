@@ -13,7 +13,7 @@ namespace application {
 class ApplicationNativeModule : public xwalk::extensions::XWalkNativeModule {
  public:
   ApplicationNativeModule();
-  virtual ~ApplicationNativeModule();
+  ~ApplicationNativeModule() override;
 
  private:
   v8::Handle<v8::Object> NewInstance() override;

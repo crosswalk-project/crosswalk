@@ -18,7 +18,7 @@ namespace application {
 class WGTPackage : public Package {
  public:
   explicit WGTPackage(const base::FilePath& path);
-  virtual ~WGTPackage();
+  ~WGTPackage() override;
   // Returns allowed names of default widget start file.
   static const std::vector<std::string>& GetDefaultWidgetEntryPages();
 };

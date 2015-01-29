@@ -36,15 +36,14 @@ RemoteDebuggingServer::RemoteDebuggingServer(
   base::FilePath output_dir;
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
       new TCPServerSocketFactory(ip, port, 1));
-  devtools_http_handler_ = content::DevToolsHttpHandler::Start(
+  devtools_http_handler_.reset(content::DevToolsHttpHandler::Start(
       factory.Pass(),
       frontend_url,
       new XWalkDevToolsHttpHandlerDelegate(),
-      output_dir);
+      output_dir));
 }
 
 RemoteDebuggingServer::~RemoteDebuggingServer() {
-  devtools_http_handler_->Stop();
 }
 
 }  // namespace xwalk

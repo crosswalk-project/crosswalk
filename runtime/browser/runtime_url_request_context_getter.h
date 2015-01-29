@@ -46,7 +46,7 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   net::HostResolver* host_resolver();
 
  private:
-  virtual ~RuntimeURLRequestContextGetter();
+  ~RuntimeURLRequestContextGetter() override;
 
   bool ignore_certificate_errors_;
   base::FilePath base_path_;

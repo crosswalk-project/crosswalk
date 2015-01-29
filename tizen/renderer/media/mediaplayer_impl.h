@@ -23,7 +23,7 @@ class MediaPlayerImpl : public media::WebMediaPlayerImpl {
       base::WeakPtr<media::WebMediaPlayerDelegate> delegate,
       RendererMediaPlayerManager* manager,
       const media::WebMediaPlayerParams& params);
-  virtual ~MediaPlayerImpl();
+  ~MediaPlayerImpl() override;
 
   // WebMediaPlayerImpl method.
   void load(LoadType load_type,

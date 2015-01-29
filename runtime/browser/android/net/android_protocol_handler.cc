@@ -84,7 +84,7 @@ class AndroidStreamReaderURLRequestJobDelegateImpl
   bool GetPackageName(JNIEnv* env,
                       std::string* name) override;
 
-  virtual ~AndroidStreamReaderURLRequestJobDelegateImpl();
+  ~AndroidStreamReaderURLRequestJobDelegateImpl() override;
 };
 
 class AndroidRequestInterceptorBase : public net::URLRequestInterceptor {
@@ -100,7 +100,7 @@ class AssetFileRequestInterceptor : public AndroidRequestInterceptorBase {
  public:
   AssetFileRequestInterceptor();
 
-  virtual ~AssetFileRequestInterceptor();
+  ~AssetFileRequestInterceptor() override;
   bool ShouldHandleRequest(
       const net::URLRequest* request) const override;
 

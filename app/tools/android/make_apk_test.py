@@ -219,6 +219,8 @@ class TestMakeApk(unittest.TestCase):
     if self._mode.find('embedded') != -1:
       embedded_related_files = ['icudtl.dat',
                                 'xwalk.pak',
+                                'natives_blob.bin',
+                                'snapshot_blob.bin',
                                 'device_capabilities_api.js',
                                 'launch_screen_api.js',
                                 'presentation_api.js']

@@ -61,7 +61,7 @@ class Runtime : public content::WebContentsDelegate,
     // Fullscreen entered by HTML requestFullscreen.
     FULLSCREEN_FOR_TAB = 1 << 1,
   };
-  virtual ~Runtime();
+  ~Runtime() override;
 
   void set_ui_delegate(RuntimeUIDelegate* ui_delegate) {
     ui_delegate_ = ui_delegate;
@@ -111,8 +111,8 @@ class Runtime : public content::WebContentsDelegate,
                           content::WebContents* new_contents) override;
   void DidNavigateMainFramePostCommit(
       content::WebContents* web_contents) override;
-  content::JavaScriptDialogManager*
-      GetJavaScriptDialogManager() override;
+  content::JavaScriptDialogManager* GetJavaScriptDialogManager(
+      content::WebContents* contents) override;
   void ActivateContents(content::WebContents* contents) override;
   void DeactivateContents(content::WebContents* contents) override;
   bool CanOverscrollContent() const override;

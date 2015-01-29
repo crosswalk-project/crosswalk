@@ -21,7 +21,7 @@ class StorageInfoProviderChromium
       public storage_monitor::RemovableStorageObserver {
  public:
   StorageInfoProviderChromium();
-  virtual ~StorageInfoProviderChromium();
+  ~StorageInfoProviderChromium() override;
 
   scoped_ptr<SystemStorage> storage_info() const override;
 

@@ -29,7 +29,7 @@ class PepperUMAHost : public ppapi::host::ResourceHost {
                 PP_Instance instance,
                 PP_Resource resource);
 
-  virtual ~PepperUMAHost();
+  ~PepperUMAHost() override;
 
   // ppapi::host::ResourceMessageHandler implementation.
   int32_t OnResourceMessageReceived(

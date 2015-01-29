@@ -25,7 +25,7 @@ class XPKPackage : public Package {
     uint32 key_size;
     uint32 signature_size;
   };
-  virtual ~XPKPackage();
+  ~XPKPackage() override;
   explicit XPKPackage(const base::FilePath& path);
   bool ExtractToTemporaryDir(base::FilePath* target_path) override;
 

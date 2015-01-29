@@ -20,7 +20,7 @@ using extensions::XWalkExtensionFunctionInfo;
 class EventTarget : public BindingObject {
  public:
   EventTarget();
-  virtual ~EventTarget();
+  ~EventTarget() override;
 
  protected:
   // [Start|Stop]Event is called when a listener is added to the EventTarget or

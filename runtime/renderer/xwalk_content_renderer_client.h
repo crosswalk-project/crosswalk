@@ -38,7 +38,7 @@ class XWalkContentRendererClient
   static XWalkContentRendererClient* Get();
 
   XWalkContentRendererClient();
-  virtual ~XWalkContentRendererClient();
+  ~XWalkContentRendererClient() override;
 
   // ContentRendererClient implementation.
   void RenderThreadStarted() override;

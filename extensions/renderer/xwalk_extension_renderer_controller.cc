@@ -42,7 +42,7 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
   IPC::SyncChannel* browser_channel = thread->GetChannel();
   SetupBrowserProcessClient(browser_channel);
 
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
     LOG(INFO) << "EXTENSION PROCESS DISABLED.";
   else

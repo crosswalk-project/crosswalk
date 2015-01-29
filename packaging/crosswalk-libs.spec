@@ -24,7 +24,7 @@
 %define _binary_payload w3.gzdio
 
 Name:           crosswalk-libs
-Version:        12.40.295.0
+Version:        12.41.295.0
 Release:        0
 Summary:        Chromium-based app runtime, private libraries
 License:        (BSD-3-Clause and LGPL-2.1+)
@@ -163,7 +163,7 @@ if [ -n "${BUILDDIR_NAME}" ]; then
 fi
 
 %if %{with wayland}
-GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Duse_xkbcommon=1"
 %endif
 
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
@@ -231,6 +231,8 @@ install -d %{buildroot}%{_libdir}/xwalk/lib
 install -m 0644 -p -D src/out/Release/lib/*.so %{buildroot}%{_libdir}/xwalk/lib/
 install -m 0644 -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
 install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -m 0644 -p -D src/out/Release/natives_blob.bin %{buildroot}%{_libdir}/xwalk/natives_blob.bin
+install -m 0644 -p -D src/out/Release/snapshot_blob.bin %{buildroot}%{_libdir}/xwalk/snapshot_blob.bin
 
 %files
 %manifest crosswalk-libs.manifest
@@ -244,3 +246,5 @@ install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xw
 %{_libdir}/xwalk/nacl_irt_*.nexe
 %{_libdir}/xwalk/pnacl/*
 %endif
+%{_libdir}/xwalk/natives_blob.bin
+%{_libdir}/xwalk/snapshot_blob.bin

@@ -26,7 +26,7 @@ class InputStreamImpl : public InputStream {
   // |stream| should be an instance of the InputStream Java class.
   // |stream| can't be null.
   explicit InputStreamImpl(const base::android::JavaRef<jobject>& stream);
-  virtual ~InputStreamImpl();
+  ~InputStreamImpl() override;
 
   // Gets the underlying Java object. Guaranteed non-NULL.
   const jobject jobj() const { return jobject_.obj(); }

@@ -27,7 +27,7 @@ class XWalkExternalInstance : public XWalkExtensionInstance {
  public:
   XWalkExternalInstance(XWalkExternalExtension* extension,
                         XW_Instance xw_instance);
-  virtual ~XWalkExternalInstance();
+  ~XWalkExternalInstance() override;
 
  private:
   friend class XWalkExternalAdapter;

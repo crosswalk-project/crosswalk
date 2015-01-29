@@ -300,6 +300,13 @@ if __name__ == '__main__':
     print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
     sys.exit(1)
 
+  # We explicitly don't support the native msvs gyp generator. Be nice and
+  # fail here, rather than generating broken projects.
+  if re.search(r'(^|,|\s)msvs($|,|\s)', os.environ.get('GYP_GENERATORS', '')):
+    print 'Error: msvs gyp generator not supported (check GYP_GENERATORS).'
+    print 'Did you mean to use the `msvs-ninja` generator?'
+    sys.exit(1)
+
   # If CHROMIUM_GYP_SYNTAX_CHECK is set to 1, it will invoke gyp with --check
   # to enfore syntax checking.
   syntax_check = os.environ.get('CHROMIUM_GYP_SYNTAX_CHECK')

@@ -21,7 +21,7 @@ class XWalkWebContentsViewDelegate : public content::WebContentsViewDelegate {
   XWalkWebContentsViewDelegate(
       content::WebContents* web_contents,
       xwalk::application::ApplicationService* app_service);
-  virtual ~XWalkWebContentsViewDelegate();
+  ~XWalkWebContentsViewDelegate() override;
 
   // Overridden from WebContentsViewDelegate:
   void ShowContextMenu(content::RenderFrameHost* render_frame_host,

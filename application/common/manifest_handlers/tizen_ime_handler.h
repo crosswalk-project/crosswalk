@@ -18,7 +18,7 @@ namespace application {
 class TizenImeInfo : public ApplicationData::ManifestData {
  public:
   TizenImeInfo();
-  virtual ~TizenImeInfo();
+  ~TizenImeInfo() override;
 
   const std::string& uuid() const {
     return uuid_;
@@ -37,7 +37,7 @@ class TizenImeInfo : public ApplicationData::ManifestData {
 class TizenImeHandler : public ManifestHandler {
  public:
   TizenImeHandler();
-  virtual ~TizenImeHandler();
+  ~TizenImeHandler() override;
   bool Parse(scoped_refptr<ApplicationData> application,
       base::string16* error) override;
   bool Validate(scoped_refptr<const ApplicationData> application,

@@ -23,7 +23,7 @@ namespace xwalk {
 class LocationProviderTizen : public content::LocationProviderBase {
  public:
   LocationProviderTizen();
-  virtual ~LocationProviderTizen();
+  ~LocationProviderTizen() override;
 
   // LocationProvider.
   bool StartProvider(bool high_accuracy) override;

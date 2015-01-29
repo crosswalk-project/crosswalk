@@ -12,7 +12,7 @@
 class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
  public:
   NaClBrowserDelegateImpl();
-  virtual ~NaClBrowserDelegateImpl();
+  ~NaClBrowserDelegateImpl() override;
 
   void ShowMissingArchInfobar(int render_process_id,
                               int render_view_id) override;

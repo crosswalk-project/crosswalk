@@ -31,7 +31,7 @@ class RenderViewContextMenuImpl : public RenderViewContextMenuBase {
  public:
   RenderViewContextMenuImpl(content::RenderFrameHost* render_frame_host,
                             const content::ContextMenuParams& params);
-  virtual ~RenderViewContextMenuImpl();
+  ~RenderViewContextMenuImpl() override;
 
   void RunMenuAt(views::Widget* parent,
                  const gfx::Point& point,

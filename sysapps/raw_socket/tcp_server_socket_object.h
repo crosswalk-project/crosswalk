@@ -19,7 +19,7 @@ class BindingObjectStore;
 class TCPServerSocketObject : public RawSocketObject {
  public:
   explicit TCPServerSocketObject(RawSocketInstance* instance);
-  virtual ~TCPServerSocketObject();
+  ~TCPServerSocketObject() override;
 
  private:
   void DoAccept();

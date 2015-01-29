@@ -19,7 +19,7 @@ class XWalkSpeechRecognitionManagerDelegate
     : public content::SpeechRecognitionManagerDelegate {
  public:
   XWalkSpeechRecognitionManagerDelegate();
-  virtual ~XWalkSpeechRecognitionManagerDelegate();
+  ~XWalkSpeechRecognitionManagerDelegate() override;
 
  protected:
   // SpeechRecognitionManagerDelegate methods.

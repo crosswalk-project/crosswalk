@@ -14,7 +14,7 @@ namespace xwalk {
 class SysAppsComponent : public XWalkComponent {
  public:
   SysAppsComponent();
-  virtual ~SysAppsComponent();
+  ~SysAppsComponent() override;
 
   void DisableDeviceCapabilities() { manager_.DisableDeviceCapabilities(); }
 

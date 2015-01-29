@@ -112,10 +112,4 @@ bool RuntimeNetworkDelegate::OnCanThrottleRequest(
   return false;
 }
 
-int RuntimeNetworkDelegate::OnBeforeSocketStreamConnect(
-    net::SocketStream* socket,
-    const net::CompletionCallback& callback) {
-  return net::OK;
-}
-
 }  // namespace xwalk

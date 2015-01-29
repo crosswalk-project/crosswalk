@@ -60,6 +60,12 @@
               '<(PRODUCT_DIR)/xwalk_xwview/assets/icudtl.dat',
             ],
           }],
+          ['v8_use_external_startup_data==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/natives_blob.bin',
+              '<(PRODUCT_DIR)/snapshot_blob.bin',
+            ],
+          }],
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_xwview/assets',
       },
@@ -103,6 +109,12 @@
             ['icu_use_data_file_flag==1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+            ['v8_use_external_startup_data==1', {
+              'files': [
+                '<(PRODUCT_DIR)/natives_blob.bin',
+                '<(PRODUCT_DIR)/snapshot_blob.bin',
               ],
             }],
           ],
@@ -336,6 +348,12 @@
               '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/icudtl.dat',
             ],
           }],
+          ['v8_use_external_startup_data==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/natives_blob.bin',
+              '<(PRODUCT_DIR)/snapshot_blob.bin',
+            ],
+          }],
         ],
         'asset_location': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
       },
@@ -393,6 +411,12 @@
             ['icu_use_data_file_flag==1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+            ['v8_use_external_startup_data==1', {
+              'files': [
+                '<(PRODUCT_DIR)/natives_blob.bin',
+                '<(PRODUCT_DIR)/snapshot_blob.bin',
               ],
             }],
           ],
@@ -534,6 +558,12 @@
               '<(PRODUCT_DIR)/sample/assets/icudtl.dat',
             ],
           }],
+          ['v8_use_external_startup_data==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/natives_blob.bin',
+              '<(PRODUCT_DIR)/snapshot_blob.bin',
+            ],
+          }],
         ],
         'asset_location': '<(PRODUCT_DIR)/sample/assets',
       },
@@ -556,6 +586,12 @@
             ['icu_use_data_file_flag==1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+            ['v8_use_external_startup_data==1', {
+              'files': [
+                '<(PRODUCT_DIR)/natives_blob.bin',
+                '<(PRODUCT_DIR)/snapshot_blob.bin',
               ],
             }],
           ],
@@ -588,6 +624,12 @@
               '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/icudtl.dat',
             ],
           }],
+          ['v8_use_external_startup_data==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/natives_blob.bin',
+              '<(PRODUCT_DIR)/snapshot_blob.bin',
+            ],
+          }],
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_internal_xwview/assets',
       },
@@ -617,6 +659,12 @@
             ['icu_use_data_file_flag==1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+            ['v8_use_external_startup_data==1', {
+              'files': [
+                '<(PRODUCT_DIR)/natives_blob.bin',
+                '<(PRODUCT_DIR)/snapshot_blob.bin',
               ],
             }],
           ],

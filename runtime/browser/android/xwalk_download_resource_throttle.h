@@ -21,7 +21,7 @@ class XWalkDownloadResourceThrottle : public content::ResourceThrottle {
                                 int render_process_id,
                                 int render_view_id,
                                 int request_id);
-  virtual ~XWalkDownloadResourceThrottle();
+  ~XWalkDownloadResourceThrottle() override;
 
   void WillStartRequest(bool* defer) override;
   void WillProcessResponse(bool* defer) override;

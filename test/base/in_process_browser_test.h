@@ -42,11 +42,11 @@ class InProcessBrowserTest : public content::BrowserTestBase,
   using RuntimeList = std::vector<xwalk::Runtime*>;
 
   InProcessBrowserTest();
-  virtual ~InProcessBrowserTest();
+  ~InProcessBrowserTest() override;
 
   // Configures everything for an in process browser test, then invokes
   // BrowserMain. BrowserMain ends up invoking RunTestOnMainThreadLoop.
-  virtual void SetUp() override;
+  void SetUp() override;
 
  protected:
   const RuntimeList& runtimes() const { return runtimes_.get(); }
@@ -61,12 +61,12 @@ class InProcessBrowserTest : public content::BrowserTestBase,
   virtual void ProperMainThreadCleanup() {}
 
   // BrowserTestBase:
-  virtual void RunTestOnMainThreadLoop() override;
+  void RunTestOnMainThreadLoop() override;
 
  private:
   // xwalk::Runtime::Observer
-  virtual void OnNewRuntimeAdded(xwalk::Runtime* runtime) override;
-  virtual void OnRuntimeClosed(xwalk::Runtime* runtime) override;
+  void OnNewRuntimeAdded(xwalk::Runtime* runtime) override;
+  void OnRuntimeClosed(xwalk::Runtime* runtime) override;
 
   void CloseAll();
   // Create data path directory for this test to avoid pollution in default

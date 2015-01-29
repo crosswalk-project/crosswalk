@@ -13,7 +13,7 @@ namespace sysapps {
 class StorageInfoProviderAndroid : public StorageInfoProvider {
  public:
   StorageInfoProviderAndroid();
-  virtual ~StorageInfoProviderAndroid();
+  ~StorageInfoProviderAndroid() override;
 
   scoped_ptr<SystemStorage> storage_info() const override;
 

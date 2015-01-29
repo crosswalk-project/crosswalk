@@ -38,7 +38,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   static XWalkContentBrowserClient* Get();
 
   explicit XWalkContentBrowserClient(XWalkRunner* xwalk_runner);
-  virtual ~XWalkContentBrowserClient();
+  ~XWalkContentBrowserClient() override;
 
   // ContentBrowserClient overrides.
   content::BrowserMainParts* CreateBrowserMainParts(
@@ -53,7 +53,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) override;
-  void AppendExtraCommandLineSwitches(CommandLine* command_line,
+  void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
   content::QuotaPermissionContext*
       CreateQuotaPermissionContext() override;
@@ -92,19 +92,11 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::CertificateRequestResultType* result) override;
 
   content::SpeechRecognitionManagerDelegate*
-      GetSpeechRecognitionManagerDelegate() override;
+      CreateSpeechRecognitionManagerDelegate() override;
 
-  blink::WebNotificationPermission
-  CheckDesktopNotificationPermission(
-      const GURL& source_url,
-      content::ResourceContext* context,
-      int render_process_id) override;
-  void ShowDesktopNotification(
-      const content::ShowDesktopNotificationHostMsgParams& params,
-      content::BrowserContext* browser_context,
-      int render_process_id,
-      scoped_ptr<content::DesktopNotificationDelegate> delegate,
-      base::Closure* cancel_callback) override;
+  content::PlatformNotificationService* GetPlatformNotificationService()
+      override;
+
   void RequestPermission(
       content::PermissionType permission,
       content::WebContents* web_contents,

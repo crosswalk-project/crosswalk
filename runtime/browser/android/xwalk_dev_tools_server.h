@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <string>
 #include "base/basictypes.h"
+#include "base/memory/scoped_ptr.h"
 #include "net/socket/unix_domain_server_socket_posix.h"
 
 namespace content {
@@ -37,7 +38,7 @@ class XWalkDevToolsServer {
     const net::UnixDomainServerSocket::Credentials& credentials);
 
   std::string socket_name_;
-  content::DevToolsHttpHandler* protocol_handler_;
+  scoped_ptr<content::DevToolsHttpHandler> protocol_handler_;
   bool allow_debug_permission_;
   bool allow_socket_access_;
 

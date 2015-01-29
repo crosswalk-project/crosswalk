@@ -30,7 +30,7 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   // To send receive messages to a RenderView we take the WebContents instance,
   // as it internally handles RenderViewHost instances changing underneath us.
   explicit XWalkRenderViewHostExt(content::WebContents* contents);
-  virtual ~XWalkRenderViewHostExt();
+  ~XWalkRenderViewHostExt() override;
 
   // |result| will be invoked with the outcome of the request.
   typedef base::Callback<void(bool)> DocumentHasImagesResult; // NOLINT *

@@ -18,7 +18,7 @@ class DeviceCapabilitiesObject : public EventTarget,
                                  public StorageInfoProvider::Observer {
  public:
   DeviceCapabilitiesObject();
-  virtual ~DeviceCapabilitiesObject();
+  ~DeviceCapabilitiesObject() override;
 
   // EventTarget implementation.
   void StartEvent(const std::string& type) override;

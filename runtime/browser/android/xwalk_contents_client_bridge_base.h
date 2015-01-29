@@ -14,8 +14,8 @@ class SkBitmap;
 
 namespace content {
 class DesktopNotificationDelegate;
+struct PlatformNotificationData;
 class RenderFrameHost;
-struct ShowDesktopNotificationHostMsgParams;
 class WebContents;
 }
 
@@ -65,7 +65,8 @@ class XWalkContentsClientBridgeBase {
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       = 0;
   virtual void ShowNotification(
-      const content::ShowDesktopNotificationHostMsgParams& params,
+      const content::PlatformNotificationData& notification_data,
+      const SkBitmap& icon,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
       = 0;

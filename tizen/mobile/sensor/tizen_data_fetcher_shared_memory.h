@@ -16,7 +16,7 @@ class TizenDataFetcherSharedMemory : public content::DataFetcherSharedMemory,
                                      public SensorProvider::Observer {
  public:
   TizenDataFetcherSharedMemory();
-  virtual ~TizenDataFetcherSharedMemory();
+  ~TizenDataFetcherSharedMemory() override;
 
  private:
   // From content::DataFetcherSharedMemory

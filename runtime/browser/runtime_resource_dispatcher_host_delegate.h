@@ -13,7 +13,7 @@ class RuntimeResourceDispatcherHostDelegate
     : public content::ResourceDispatcherHostDelegate {
  public:
   RuntimeResourceDispatcherHostDelegate();
-  virtual ~RuntimeResourceDispatcherHostDelegate();
+  ~RuntimeResourceDispatcherHostDelegate() override;
 
   static void ResourceDispatcherHostCreated();
   static scoped_ptr<RuntimeResourceDispatcherHostDelegate> Create();

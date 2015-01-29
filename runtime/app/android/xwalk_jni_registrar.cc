@@ -8,6 +8,7 @@
 #include "base/android/jni_registrar.h"
 #include "components/navigation_interception/component_jni_registrar.h"
 #include "components/web_contents_delegate_android/component_jni_registrar.h"
+#include "net/android/net_jni_registrar.h"
 #include "xwalk/extensions/common/android/xwalk_extension_android.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/android/intercepted_request_data_impl.h"
@@ -33,6 +34,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "InterceptedRequestDataImpl", RegisterInterceptedRequestData },
   { "NavigationInterception",
       navigation_interception::RegisterNavigationInterceptionJni },
+  { "NetAndroid", net::android::RegisterJni },
   { "WebContentsDelegateAndroid",
       web_contents_delegate_android::RegisterWebContentsDelegateAndroidJni },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },

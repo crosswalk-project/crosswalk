@@ -30,7 +30,7 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
       Runtime* runtime,
       const NativeAppWindow::CreateParams& params =
           NativeAppWindow::CreateParams());
-  virtual ~DefaultRuntimeUIDelegate();
+  ~DefaultRuntimeUIDelegate() override;
 
   NativeAppWindow* window() { return window_; }
 
@@ -38,14 +38,14 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
   DefaultRuntimeUIDelegate(Runtime* runtime,
                            const NativeAppWindow::CreateParams& params);
   // RuntimeUIDelegate
-  virtual void Show() override;
-  virtual void UpdateTitle(const base::string16& text) override;
-  virtual void UpdateIcon(const gfx::Image& image) override;
-  virtual void SetFullscreen(bool enter_fullscreen) override;
-  virtual void Close() override;
-  virtual void DeleteDelegate() override;
+  void Show() override;
+  void UpdateTitle(const base::string16& text) override;
+  void UpdateIcon(const gfx::Image& image) override;
+  void SetFullscreen(bool enter_fullscreen) override;
+  void Close() override;
+  void DeleteDelegate() override;
   // NativeAppWindowDelegate
-  virtual void OnWindowDestroyed() override;
+  void OnWindowDestroyed() override;
 
  private:
   Runtime* runtime_;

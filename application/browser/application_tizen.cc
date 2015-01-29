@@ -108,7 +108,8 @@ class ScreenOrientationDelegateTizen :
     return app_->IsFullScreenRequired();
   }
 
-  void Lock(blink::WebScreenOrientationLockType lock) override {
+  void Lock(content::WebContents* web_contents,
+            blink::WebScreenOrientationLockType lock) override {
     if (!app_) {
       LOG(ERROR) << "Invalid app error";
       return;
@@ -132,8 +133,8 @@ class ScreenOrientationDelegateTizen :
     return true;
   }
 
-  void Unlock() override {
-    Lock(GetDefaultOrientation(app_));
+  void Unlock(content::WebContents* web_contents) override {
+    Lock(web_contents, GetDefaultOrientation(app_));
   }
 
  private:
@@ -210,7 +211,7 @@ bool ApplicationTizen::Launch() {
     content::ScreenOrientationDelegate* delegate =
         new ScreenOrientationDelegateTizen(GetWeakPtr(), host);
     content::ScreenOrientationProvider::SetDelegate(delegate);
-    delegate->Lock(GetDefaultOrientation(GetWeakPtr()));
+    delegate->Lock(web_contents_, GetDefaultOrientation(GetWeakPtr()));
     return true;
   }
   return false;

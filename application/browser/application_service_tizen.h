@@ -18,7 +18,7 @@ class ApplicationStorage;
 // The application service manages launch and termination of the applications.
 class ApplicationServiceTizen : public ApplicationService {
  public:
-  virtual ~ApplicationServiceTizen();
+  ~ApplicationServiceTizen() override;
   // Launch an installed application using application id.
   Application* LaunchFromAppID(const std::string& id);
 

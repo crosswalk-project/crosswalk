@@ -28,7 +28,7 @@ namespace xwalk {
 class TizenPlatformSensor : public SensorProvider {
  public:
   TizenPlatformSensor();
-  virtual ~TizenPlatformSensor();
+  ~TizenPlatformSensor() override;
 
   bool Initialize() override;
   void Finish() override;

@@ -66,7 +66,7 @@ class ApiTestRunner : public ApiTestExtensionInstance::Observer {
   };
 
   ApiTestRunner();
-  virtual ~ApiTestRunner();
+  ~ApiTestRunner() override;
 
   // Block wait until the test API is called. If the test API is already called,
   // this will return immediately. Returns true if the waiting happened, returns

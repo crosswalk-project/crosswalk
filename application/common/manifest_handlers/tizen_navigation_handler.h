@@ -18,7 +18,7 @@ namespace application {
 class TizenNavigationInfo : public ApplicationData::ManifestData {
  public:
   explicit TizenNavigationInfo(const std::string& allowed_domains);
-  virtual ~TizenNavigationInfo();
+  ~TizenNavigationInfo() override;
 
   const std::vector<std::string>& GetAllowedDomains() const {
     return allowed_domains_;
@@ -31,7 +31,7 @@ class TizenNavigationInfo : public ApplicationData::ManifestData {
 class TizenNavigationHandler : public ManifestHandler {
  public:
   TizenNavigationHandler();
-  virtual ~TizenNavigationHandler();
+  ~TizenNavigationHandler() override;
 
   bool Parse(scoped_refptr<ApplicationData> application_data,
              base::string16* error) override;

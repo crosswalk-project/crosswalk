@@ -13,7 +13,7 @@ namespace xwalk {
 class StorageComponent : public XWalkComponent {
  public:
   StorageComponent();
-  virtual ~StorageComponent();
+  ~StorageComponent() override;
 
  private:
   // XWalkComponent implementation.

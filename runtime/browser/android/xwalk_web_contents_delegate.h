@@ -16,7 +16,7 @@ class XWalkWebContentsDelegate
     : public web_contents_delegate_android::WebContentsDelegateAndroid {
  public:
   XWalkWebContentsDelegate(JNIEnv* env, jobject obj);
-  virtual ~XWalkWebContentsDelegate();
+  ~XWalkWebContentsDelegate() override;
 
   void AddNewContents(content::WebContents* source,
                       content::WebContents* new_contents,
@@ -31,8 +31,8 @@ class XWalkWebContentsDelegate
   void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) override;
-  content::JavaScriptDialogManager*
-      GetJavaScriptDialogManager() override;
+  content::JavaScriptDialogManager* GetJavaScriptDialogManager(
+      content::WebContents* web_contents) override;
 
   void RequestMediaAccessPermission(
       content::WebContents* web_contents,
@@ -59,6 +59,7 @@ class XWalkWebContentsDelegate
   bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
+      int main_frame_route_id,
       WindowContainerType window_container_type,
       const base::string16& frame_name,
       const GURL& target_url,

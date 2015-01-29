@@ -26,7 +26,7 @@ NativeAppWindow* RuntimeCreateWindow(
   NativeAppWindow* window = NativeAppWindow::Create(params);
   // FIXME : Pass an App icon in params.
   // Set the app icon if it is passed from command line.
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   gfx::Image app_icon;
   if (command_line->HasSwitch(switches::kAppIcon)) {
     base::FilePath icon_file =

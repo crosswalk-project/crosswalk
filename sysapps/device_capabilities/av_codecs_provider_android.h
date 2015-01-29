@@ -13,7 +13,7 @@ namespace sysapps {
 class AVCodecsProviderAndroid : public AVCodecsProvider {
  public:
   AVCodecsProviderAndroid();
-  virtual ~AVCodecsProviderAndroid();
+  ~AVCodecsProviderAndroid() override;
 
   scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const override;
 

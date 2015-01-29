@@ -174,7 +174,7 @@ BUG=XWALK-2571
          '<(DEPTH)/base/base.gyp:base',
 --- src/content/content.gyp
 +++ src/content/content.gyp
-@@ -21,6 +21,65 @@
+@@ -21,6 +21,68 @@
        }],
      ],
    },
@@ -195,10 +195,13 @@ BUG=XWALK-2571
 +        '../third_party/WebKit/public/blink_headers.gyp:blink_headers',
 +        '../skia/skia.gyp:skia',
 +
-+        '../mojo/edk/mojo_edk.gyp:mojo_system_impl',
++        '../device/battery/battery.gyp:device_battery_mojo_bindings',
++        '../device/vibration/vibration.gyp:device_vibration_mojo_bindings',
 +        '../mojo/mojo_base.gyp:mojo_environment_chromium',
-+        '../mojo/public/mojo_public.gyp:mojo_application_bindings',
-+        '../mojo/public/mojo_public.gyp:mojo_cpp_bindings',
++        '../mojo/mojo_edk.gyp:mojo_system_impl',
++        '../mojo/mojo_public.gyp:mojo_application_bindings',
++        '../mojo/mojo_public.gyp:mojo_cpp_bindings',
++        'content_common_mojo_bindings.gyp:content_common_mojo_bindings',
 +      ],
 +      'export_dependent_settings': [
 +        '../ui/accessibility/accessibility.gyp:ax_gen',
@@ -336,14 +339,12 @@ BUG=XWALK-2571
        'type': '<(component)',
        'dependencies': [
          '../base/base.gyp:base',
---- src/mojo/edk/mojo_edk.gyp
-+++ src/mojo/edk/mojo_edk.gyp
-@@ -11,6 +11,21 @@
-   ],
-   'targets': [
+--- src/mojo/mojo_edk.gyp
++++ src/mojo/mojo_edk.gyp
+@@ -10,6 +10,21 @@
      {
-+      # GN version: //mojo/edk/system
-+      'target_name': 'mojo_system_impl',
+       # GN version: //mojo/edk/system
+       'target_name': 'mojo_system_impl',
 +      'type': 'none',
 +      'link_settings': {
 +        'libraries': [
@@ -353,22 +354,15 @@ BUG=XWALK-2571
 +      'all_dependent_settings': {
 +        # Ensures that dependent projects import the core functions on Windows.
 +        'defines': ['MOJO_USE_SYSTEM_IMPL'],
-+      }
++      },
 +    },
 +
 +    {
-       'target_name': 'mojo_edk',
-       'type': 'none',
-       'dependencies': [
-@@ -193,7 +208,7 @@
- 
-     {
-       # GN version: //mojo/edk/system
--      'target_name': 'mojo_system_impl',
-+      'target_name': 'mojo_system_impl_original',
++      # GN version: //mojo/edk/system
++      'target_name': 'mojo_system_original',
        'type': '<(component)',
        'dependencies': [
-         '../../base/base.gyp:base',
+         '../base/base.gyp:base',
 --- src/net/net.gyp
 +++ src/net/net.gyp
 @@ -44,6 +44,42 @@
@@ -507,19 +501,19 @@ BUG=XWALK-2571
 +            'defines': [
 +              'SKIA_DLL',
 +              'GR_GL_IGNORE_ES3_MSAA=0',
++
++              # From skia_common.gypi:
++              # For POSIX platforms, prefer the Mutex implementation provided
++              # by Skia since it does not generate static initializers.
++              'SK_USE_POSIX_THREADS',
++
++              '<@(skia_export_defines)',
 +            ],
 +          },
 +          'includes': [
 +            'skia_common.gypi',
 +          ],
 +
-+          # From skia_library.gypi.
-+          'dependencies': [
-+            '../third_party/WebKit/public/blink_skia_config.gyp:blink_skia_config',
-+          ],
-+          'export_dependent_settings': [
-+            '../third_party/WebKit/public/blink_skia_config.gyp:blink_skia_config',
-+          ],
 +          'direct_dependent_settings': {
 +            'include_dirs': [
 +              #temporary until we can hide SkFontHost

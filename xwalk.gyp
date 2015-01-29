@@ -232,6 +232,8 @@
         'runtime/browser/xwalk_component.h',
         'runtime/browser/xwalk_content_browser_client.cc',
         'runtime/browser/xwalk_content_browser_client.h',
+        'runtime/browser/xwalk_platform_notification_service.cc',
+        'runtime/browser/xwalk_platform_notification_service.h',
         'runtime/browser/xwalk_render_message_filter.cc',
         'runtime/browser/xwalk_render_message_filter.h',
         'runtime/browser/xwalk_runner.cc',
@@ -343,9 +345,6 @@
           ],
         }],
         ['OS=="win"', {
-          'resource_include_dirs': [
-            '<(SHARED_INTERMEDIATE_DIR)/webkit',
-          ],
           'configurations': {
             'Debug_Base': {
               'msvs_settings': {
@@ -538,7 +537,7 @@
             [ 'OS!="android"', {
               'variables': {
                 'pak_inputs+': [
-                  '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
                 ],
               },
             }],

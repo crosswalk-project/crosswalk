@@ -37,7 +37,7 @@ XWalkRuntimeFeatures::XWalkRuntimeFeatures()
     initialized_(false),
     experimental_features_enabled_(false) {}
 
-void XWalkRuntimeFeatures::Initialize(const CommandLine* cmd) {
+void XWalkRuntimeFeatures::Initialize(const base::CommandLine* cmd) {
   command_line_ = cmd;
   initialized_ = true;
   runtime_features_.clear();

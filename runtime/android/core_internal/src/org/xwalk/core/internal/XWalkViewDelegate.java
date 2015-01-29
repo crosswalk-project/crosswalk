@@ -40,7 +40,9 @@ class XWalkViewDelegate {
     private static final String[] MANDATORY_PAKS = {
             "xwalk.pak",
             "en-US.pak",
-            "icudtl.dat"
+            "icudtl.dat",
+            "natives_blob.bin",
+            "snapshot_blob.bin"
     };
     private static final String[] MANDATORY_LIBRARIES = {
             "libxwalkcore.so"
