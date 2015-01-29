@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,8 +43,6 @@ import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.net.NetworkChangeNotifier;
-
-import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
 
 /**
  * <p>XWalkViewInternal represents an Android view for web apps/pages. Thus most of attributes
@@ -340,7 +339,17 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         setNotificationService(new XWalkNotificationServiceImpl(context, this));
 
         if (!CommandLine.getInstance().hasSwitch("disable-xwalk-extensions")) {
-            BuiltinXWalkExtensions.load(context, getActivity());
+            //if BuiltinXwalkExtensions is not compiled, just throw exceptions and continue.
+            Class<?> BuiltinXWalkExtensions = null;
+            try {
+                BuiltinXWalkExtensions = Class.forName("org.xwalk.core.internal.extension.BuiltinXWalkExtensions");
+                Method method = BuiltinXWalkExtensions.getMethod("load", new Class[]{ Context.class, Activity.class });
+                method.invoke(null, context, getActivity());
+            } catch (ClassNotFoundException e) {
+                Log.w("XWalkViewInternal::initXWalkContent()", "Class BuiltinXWalkExtensions is not found. check the gyp flag: disable_builtin_extensions.");  
+            } catch (Exception e) {
+                Log.w("XWalkViewInternal::initXWalkContent()", "error in load builtin extensions.");
+            }
         } else {
             XWalkPreferencesInternal.setValue(XWalkPreferencesInternal.ENABLE_EXTENSIONS, false);
         }
