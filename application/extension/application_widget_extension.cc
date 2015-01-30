@@ -86,6 +86,11 @@ ApplicationWidgetExtension::ApplicationWidgetExtension(
     Application* application)
   : application_(application) {
   set_name("widget");
+
+  std::vector<std::string> entries;
+  entries.push_back("window.Widget");
+  set_entry_points(entries);
+
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_APPLICATION_WIDGET_API).as_string());
 }
