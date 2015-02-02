@@ -69,6 +69,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private XWalkLaunchScreenManager mLaunchScreenManager;
     private NavigationController mNavigationController;
     private WebContents mWebContents;
+    private boolean mIsLoaded = false;
 
     long mNativeContent;
     long mNativeWebContents;
@@ -239,6 +240,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         }
 
         doLoadUrl(url, data);
+        mIsLoaded = true;
     }
 
     public void reload(int mode) {
@@ -252,6 +254,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
             default:
                 mNavigationController.reload(true);
         }
+        mIsLoaded = true;
     }
 
     public String getUrl() {
@@ -423,8 +426,17 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         return nativeGetVersion(mNativeContent);
     }
 
-    public void setBackgroundColor(int color) {
+    public void setBackgroundColor(final int color) {
         if (mNativeContent == 0) return;
+        if (mIsLoaded == false) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    nativeSetBackgroundColor(mNativeContent, color);
+                }
+            });
+            return;
+        }
         nativeSetBackgroundColor(mNativeContent, color);
     }
 
@@ -484,6 +496,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         if (!nativeSetManifest(mNativeContent, baseUrl, content)) {
             throw new RuntimeException("Failed to parse the manifest file: " + url);
         }
+        mIsLoaded = true;
     }
 
     public XWalkNavigationHistoryInternal getNavigationHistory() {
