@@ -15,7 +15,6 @@
 namespace tizen {
 
 class BrowserMediaPlayerManager;
-class RenderViewHost;
 
 // This class manages all RenderFrame based media related managers at the
 // browser side. It receives IPC messages from media RenderFrameObservers and
@@ -24,7 +23,7 @@ class RenderViewHost;
 class CONTENT_EXPORT MediaWebContentsObserver :
     public content::WebContentsObserver {
  public:
-  explicit MediaWebContentsObserver(content::RenderViewHost* render_view_host);
+  explicit MediaWebContentsObserver(content::WebContents* web_contents);
   ~MediaWebContentsObserver() override;
 
   // WebContentsObserver implementations.

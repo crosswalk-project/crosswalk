@@ -15,8 +15,12 @@ MediaPlayerImpl::MediaPlayerImpl(
     blink::WebMediaPlayerClient* client,
     base::WeakPtr<media::WebMediaPlayerDelegate> delegate,
     RendererMediaPlayerManager* manager,
+    scoped_ptr<media::RendererFactory> renderer_factory,
+    scoped_ptr<media::CdmFactory> cdm_factory,
     const media::WebMediaPlayerParams& params)
-    : WebMediaPlayerImpl(frame, client, delegate, nullptr, params),
+    : WebMediaPlayerImpl(frame, client, delegate,
+                         renderer_factory.Pass(),
+                         cdm_factory.Pass(), params),
       client_(client),
       manager_(manager) {
   DCHECK(manager_);
