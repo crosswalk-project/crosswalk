@@ -13,9 +13,8 @@
 namespace tizen {
 
 MediaWebContentsObserver::MediaWebContentsObserver(
-    content::RenderViewHost* render_view_host)
-    : WebContentsObserver(content::WebContents::FromRenderViewHost(
-          render_view_host)) {
+    content::WebContents* web_contents)
+    : WebContentsObserver(web_contents) {
   resource_manager_.reset(new MurphyResourceManager());
 }
 
