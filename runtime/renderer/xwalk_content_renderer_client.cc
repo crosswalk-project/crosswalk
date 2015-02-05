@@ -6,6 +6,8 @@
 
 #include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/autofill/content/renderer/autofill_agent.h"
+#include "components/autofill/content/renderer/password_autofill_agent.h"
 #include "components/nacl/renderer/ppb_nacl_private_impl.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "content/public/renderer/render_frame.h"
@@ -156,6 +158,13 @@ void XWalkContentRendererClient::RenderViewCreated(
 #elif defined(OS_TIZEN)
   XWalkRenderViewExtTizen::RenderViewCreated(render_view);
 #endif
+  // The following code was copied from
+  // android_webview/renderer/aw_content_renderer_client.cc
+  // TODO(sgurun) do not create a password autofill agent (change
+  // autofill agent to store a weakptr).
+  autofill::PasswordAutofillAgent* password_autofill_agent =
+      new autofill::PasswordAutofillAgent(render_view);
+  new autofill::AutofillAgent(render_view, password_autofill_agent, nullptr);
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
