@@ -97,9 +97,6 @@ void XWalkBrowserMainPartsAndroid::PreEarlyInitialization() {
   // Android. So increase the limit to 4096 explicitly.
   base::SetFdLimit(4096);
 
-  base::CommandLine::ForCurrentProcess()->AppendSwitch(
-      cc::switches::kCompositeToMailbox);
-
   // Initialize the Compositor.
   content::Compositor::Initialize();
 
