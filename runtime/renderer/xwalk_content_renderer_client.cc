@@ -149,6 +149,14 @@ void XWalkContentRendererClient::RenderFrameCreated(
 #if !defined(DISABLE_NACL)
   new nacl::NaClHelper(render_frame);
 #endif
+
+  // The following code was copied from
+  // android_webview/renderer/aw_content_renderer_client.cc
+  // TODO(sgurun) do not create a password autofill agent (change
+  // autofill agent to store a weakptr).
+  autofill::PasswordAutofillAgent* password_autofill_agent =
+      new autofill::PasswordAutofillAgent(render_frame);
+  new autofill::AutofillAgent(render_frame, password_autofill_agent, nullptr);
 }
 
 void XWalkContentRendererClient::RenderViewCreated(
@@ -158,13 +166,6 @@ void XWalkContentRendererClient::RenderViewCreated(
 #elif defined(OS_TIZEN)
   XWalkRenderViewExtTizen::RenderViewCreated(render_view);
 #endif
-  // The following code was copied from
-  // android_webview/renderer/aw_content_renderer_client.cc
-  // TODO(sgurun) do not create a password autofill agent (change
-  // autofill agent to store a weakptr).
-  autofill::PasswordAutofillAgent* password_autofill_agent =
-      new autofill::PasswordAutofillAgent(render_view);
-  new autofill::AutofillAgent(render_view, password_autofill_agent, nullptr);
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
