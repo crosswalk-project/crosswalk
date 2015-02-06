@@ -172,6 +172,7 @@
       'sources': [
         'runtime/android/core_internal/src/org/xwalk/core/internal/AndroidProtocolHandler.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/InterceptedRequestData.java',
+        'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkAutofillClient.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContent.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsClientBridge.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java',
