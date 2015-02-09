@@ -256,6 +256,15 @@
             'use_lzma_param': '',
           },
         }],
+        ['disable_builtin_extensions==1', {
+          'variables': {
+            'disable_builtin_ext_param': '--disable-builtin-ext',
+          },
+        }, {
+          'variables': {
+            'disable_builtin_ext_param': '',
+          },
+        }],
       ],
       'actions': [
         {
@@ -274,6 +283,7 @@
             '-t', '<(PRODUCT_DIR)',
             '<(icu_data_param)',
             '<(use_lzma_param)',
+            '<(disable_builtin_ext_param)',
           ],
         },
       ],
