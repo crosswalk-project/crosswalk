@@ -163,7 +163,6 @@ class Runtime : public content::WebContentsDelegate,
   gfx::Image app_icon_;
 
   unsigned int fullscreen_options_;
-  bool remote_debugging_enabled_;
   RuntimeUIDelegate* ui_delegate_;
   Observer* observer_;
   base::WeakPtrFactory<Runtime> weak_ptr_factory_;
