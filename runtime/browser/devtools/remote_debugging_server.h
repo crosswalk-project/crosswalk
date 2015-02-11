@@ -26,9 +26,11 @@ class RemoteDebuggingServer {
                         const std::string& frontend_url);
 
   virtual ~RemoteDebuggingServer();
+  int port() { return port_; }
 
  private:
   scoped_ptr<content::DevToolsHttpHandler> devtools_http_handler_;
+  int port_;
   DISALLOW_COPY_AND_ASSIGN(RemoteDebuggingServer);
 };
 
