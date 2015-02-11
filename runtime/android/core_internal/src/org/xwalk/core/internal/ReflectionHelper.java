@@ -7,11 +7,13 @@ package org.xwalk.core.internal;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.HashMap;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
 
 /**
  * This class is used to encapsulate the reflection invoking for bridge and wrapper.
@@ -118,6 +120,42 @@ public class ReflectionHelper {
         return false;
     }
     Wrapper Only */
+
+    /** Uses PackageManager to check the signature of the crosswalk shared
+     *  library APK to make sure it was signed by the Crosswalk project.
+     */
+    public static boolean checkLibrary(Context app, Context library) {
+        PackageManager packageManager = getBridgeContext().getPackageManager();
+        PackageInfo packageInfo =
+                packageManager(LIBRARY_APK_PACKAGE, PackageManager.GET_SIGNATURES);
+
+        if (packageInfo.signatures.length == 0) {
+            // Then the package was not signed or not available
+            // Return false and calling code should abort library load
+            return false;
+        } else {
+            for (int i = 0; i < packageInfo.signatures.length; i++) {
+                byte [] sig = packageInfo.signatures[i].toByteArray();
+                InputStream in = new ByteArrayInputStream(sig);
+                // A byte comparison may be sufficient here, but the
+                // X.509 parsing makes it more obvious that this is a
+                // cert comparison.
+                try {
+                    CertificateFactory certFact = CertificateFactory.getInstance("X.509");
+                    X509Certificate certificate =
+                            (X509Certificate) certFact.generateCertificate(in);
+                    PublicKey publicKey = certificate.getPublicKey();
+                    // FIXME(terriko): Check against Crosswalk public key
+                    // if it's good, return true here
+                } catch (CertificateException e) {
+                    // Certificate is invalid, abort
+                    return false;
+                }
+            }
+        }
+        // The correct signature was not found
+        return false;
+    }
 
     public static Context getBridgeContext() {
         return sBridgeContext;
