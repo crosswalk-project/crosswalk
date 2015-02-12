@@ -28,7 +28,7 @@ class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
                              bool is_blocking,
                              const base::FilePath& profile_directory,
                              base::FilePath* file_path) override;
-  void SetDebugPatterns(std::string debug_patterns) override;
+  void SetDebugPatterns(const std::string& debug_patterns) override;
   bool IsNonSfiModeAllowed(const base::FilePath& profile_directory,
                            const GURL& manifest_url) override;
   bool URLMatchesDebugPatterns(const GURL& manifest_url) override;

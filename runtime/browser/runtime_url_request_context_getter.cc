@@ -111,9 +111,9 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         &cookieable_schemes[0], cookieable_schemes.size());
     storage_->set_cookie_store(cookie_store);
 #endif
-    storage_->set_channel_id_service(new net::ChannelIDService(
+    storage_->set_channel_id_service(make_scoped_ptr(new net::ChannelIDService(
         new net::DefaultChannelIDStore(NULL),
-        base::WorkerPool::GetTaskRunner(true)));
+        base::WorkerPool::GetTaskRunner(true))));
     storage_->set_http_user_agent_settings(new net::StaticHttpUserAgentSettings(
         "en-us,en", xwalk::GetUserAgent()));
 

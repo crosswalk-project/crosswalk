@@ -60,7 +60,7 @@ ppapi::host::HostFactory* NaClBrowserDelegateImpl::CreatePpapiHostFactory(
   return new xwalk::XWalkBrowserPepperHostFactory(ppapi_host);
 }
 
-void NaClBrowserDelegateImpl::SetDebugPatterns(std::string debug_patterns) {
+void NaClBrowserDelegateImpl::SetDebugPatterns(const std::string& debug_patterns) {
 }
 
 bool NaClBrowserDelegateImpl::URLMatchesDebugPatterns(
