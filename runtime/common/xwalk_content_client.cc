@@ -16,7 +16,7 @@
 #include "content/public/common/user_agent.h"
 #if !defined(DISABLE_NACL)
 #include "content/public/common/pepper_plugin_info.h"
-#include "ppapi/native_client/src/trusted/plugin/ppapi_entrypoints.h"
+#include "components/nacl/renderer/plugin/ppapi_entrypoints.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #endif
 #include "ui/base/l10n/l10n_util.h"

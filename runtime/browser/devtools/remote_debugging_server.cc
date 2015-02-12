@@ -14,13 +14,13 @@ namespace xwalk {
 class TCPServerSocketFactory
     : public content::DevToolsHttpHandler::ServerSocketFactory {
  public:
-  TCPServerSocketFactory(const std::string& address, int port, int backlog)
-      : content::DevToolsHttpHandler::ServerSocketFactory(
-            address, port, backlog) {}
+  TCPServerSocketFactory(
+    const std::string& address, int port, int backlog) {
+  }
 
  private:
   // content::DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> Create() const override {
+  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
     return scoped_ptr<net::ServerSocket>(
         new net::TCPServerSocket(NULL, net::NetLog::Source()));
   }

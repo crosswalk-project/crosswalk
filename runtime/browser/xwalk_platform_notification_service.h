@@ -24,7 +24,7 @@ class XWalkPlatformNotificationService
   static XWalkPlatformNotificationService* GetInstance();
 
   // content::PlatformNotificationService implementation.
-  blink::WebNotificationPermission CheckPermission(
+  blink::WebNotificationPermission CheckPermissionOnIOThread(
       content::ResourceContext* resource_context,
       const GURL& origin,
       int render_process_id) override;

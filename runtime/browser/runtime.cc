@@ -136,15 +136,13 @@ void Runtime::EnterFullscreenModeForTab(content::WebContents* web_contents,
                                         const GURL&) {
   fullscreen_options_ |= FULLSCREEN_FOR_TAB;
   if (ui_delegate_)
-    ui_delegate_->SetFullscreen(
-        enter_fullscreen || (fullscreen_options_ & FULLSCREEN_FOR_LAUNCH));
+    ui_delegate_->SetFullscreen(fullscreen_options_ & FULLSCREEN_FOR_LAUNCH);
 }
 
 void Runtime::ExitFullscreenModeForTab(content::WebContents* web_contents) {
   fullscreen_options_ &= ~FULLSCREEN_FOR_TAB;
   if (ui_delegate_)
-    ui_delegate_->SetFullscreen(
-        enter_fullscreen || (fullscreen_options_ & FULLSCREEN_FOR_LAUNCH));
+    ui_delegate_->SetFullscreen(fullscreen_options_ & FULLSCREEN_FOR_LAUNCH);
 }
 
 bool Runtime::IsFullscreenForTabOrPending(
@@ -176,7 +174,7 @@ bool Runtime::PreHandleKeyboardEvent(
       bool* is_keyboard_shortcut) {
   // Escape exits tabbed fullscreen mode.
   if (event.windowsKeyCode == 27 && IsFullscreenForTabOrPending(source)) {
-    ToggleFullscreenModeForTab(source, false);
+    ExitFullscreenModeForTab(source);
     return true;
   }
   return false;
