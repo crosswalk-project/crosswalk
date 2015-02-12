@@ -18,6 +18,8 @@ extern const char kListFeaturesFlags[];
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
 extern const char kXWalkDisableSharedProcessMode[];
+extern const char kAllowRunningInsecureContent[];
+extern const char kNoDisplayingInsecureContent[];
 
 #if defined(OS_ANDROID)
 extern const char kXWalkProfileName[];
