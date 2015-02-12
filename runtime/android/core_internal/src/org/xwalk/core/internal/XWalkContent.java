@@ -426,16 +426,25 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         return nativeGetVersion(mNativeContent);
     }
 
+    private boolean isOpaque(int color) {
+        return ((color >> 24) & 0xFF) == 0xFF;
+    }
+
     public void setBackgroundColor(final int color) {
         if (mNativeContent == 0) return;
         if (mIsLoaded == false) {
             post(new Runnable() {
                 @Override
                 public void run() {
-                    nativeSetBackgroundColor(mNativeContent, color);
+                    setBackgroundColor(color);
                 }
             });
             return;
+        }
+        if (isOpaque(color) == false) {
+            setOverlayVideoMode(true);
+            mContentViewRenderView.setSurfaceViewBackgroundColor(color);
+            mContentViewCore.setBackgroundOpaque(false);
         }
         nativeSetBackgroundColor(mNativeContent, color);
     }
