@@ -410,7 +410,7 @@
                     '../components/nacl.gyp:nacl_helper',
                     '../components/nacl.gyp:nacl_linux',
                     '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
-                    '../ppapi/native_client/src/trusted/plugin/plugin.gyp:nacl_trusted_plugin',
+                    '../components/nacl/renderer/plugin/plugin.gyp:nacl_trusted_plugin',
                   ],
                 }],
             ],
