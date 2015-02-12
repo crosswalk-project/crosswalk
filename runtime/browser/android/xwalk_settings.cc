@@ -17,6 +17,7 @@
 #include "content/public/common/web_preferences.h"
 #include "jni/XWalkSettings_jni.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
@@ -197,6 +198,12 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
 
   prefs.user_gesture_required_for_media_playback = env->GetBooleanField(
       obj, field_ids_->media_playback_requires_user_gesture);
+
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  prefs.allow_running_insecure_content =
+      command_line->HasSwitch(switches::kAllowRunningInsecureContent);
+  prefs.allow_displaying_insecure_content =
+      !command_line->HasSwitch(switches::kNoDisplayingInsecureContent);
 
   ScopedJavaLocalRef<jstring> str;
   str.Reset(
