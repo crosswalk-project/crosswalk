@@ -96,8 +96,10 @@ class Runtime : public content::WebContentsDelegate,
       const content::OpenURLParams& params) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;
-  void ToggleFullscreenModeForTab(content::WebContents* web_contents,
-                                  bool enter_fullscreen) override;
+  void EnterFullscreenModeForTab(content::WebContents* web_contents,
+                                 const GURL& origin) override;
+  virtual void ExitFullscreenModeForTab(
+      content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
       const content::WebContents* web_contents) const override;
   void RequestToLockMouse(content::WebContents* web_contents,
