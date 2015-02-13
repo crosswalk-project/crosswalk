@@ -30,7 +30,19 @@ XWalkPlatformNotificationService::XWalkPlatformNotificationService() {}
 XWalkPlatformNotificationService::~XWalkPlatformNotificationService() {}
 
 blink::WebNotificationPermission
-XWalkPlatformNotificationService::CheckPermission(
+XWalkPlatformNotificationService::CheckPermissionOnUIThread(
+    content::BrowserContext* resource_context,
+    const GURL& origin,
+    int render_process_id) {
+#if defined(OS_ANDROID)
+  return blink::WebNotificationPermissionAllowed;
+#else
+  return blink::WebNotificationPermissionDenied;
+#endif
+}
+
+blink::WebNotificationPermission
+XWalkPlatformNotificationService::CheckPermissionOnIOThread(
     content::ResourceContext* resource_context,
     const GURL& origin,
     int render_process_id) {
@@ -47,13 +59,12 @@ void XWalkPlatformNotificationService::DisplayNotification(
     const SkBitmap& icon,
     const content::PlatformNotificationData& notification_data,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
-    int render_process_id,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
   scoped_ptr<content::RenderWidgetHostIterator> widgets(
       content::RenderWidgetHost::GetRenderWidgetHosts());
   while (content::RenderWidgetHost* rwh = widgets->GetNextHost()) {
-    if (!rwh->GetProcess() || rwh->GetProcess()->GetID() != render_process_id)
+    if (!rwh->GetProcess())
       continue;
     content::RenderViewHost* rvh = content::RenderViewHost::From(rwh);
     if (!rvh)

@@ -98,7 +98,7 @@ class Runtime : public content::WebContentsDelegate,
                            bool to_different_document) override;
   void EnterFullscreenModeForTab(content::WebContents* web_contents,
                                  const GURL& origin) override;
-  virtual void ExitFullscreenModeForTab(
+  void ExitFullscreenModeForTab(
       content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
       const content::WebContents* web_contents) const override;
