@@ -31,6 +31,7 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
+#include "net/base/net_errors.h"
 #include "net/socket/unix_domain_listen_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
 
@@ -45,6 +46,7 @@ namespace {
 // Currently, the chrome version is hardcoded because of this dependancy.
 const char kFrontEndURL[] =
     "http://chrome-devtools-frontend.appspot.com/serve_rev/%s/inspector.html";
+const int kBackLog = 10;
 
 bool AuthorizeSocketAccessWithDebugPermission(
      const net::UnixDomainServerSocket::Credentials& credentials) {
@@ -76,10 +78,6 @@ class XWalkAndroidDevToolsHttpHandlerDelegate
     return base::FilePath();
   }
 
-  scoped_ptr<net::ServerSocket> CreateSocketForTethering(
-      std::string* name) override {
-    return scoped_ptr<net::ServerSocket>();
-  }
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkAndroidDevToolsHttpHandlerDelegate);
 };
@@ -91,18 +89,23 @@ class UnixDomainServerSocketFactory
   explicit UnixDomainServerSocketFactory(
       const std::string& socket_name,
       const net::UnixDomainServerSocket::AuthCallback& auth_callback)
-      : content::DevToolsHttpHandler::ServerSocketFactory(socket_name, 0, 1),
-      auth_callback_(auth_callback) {}
+      : socket_name_ (socket_name),
+        auth_callback_(auth_callback) {}
 
  private:
   // content::DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> Create() const override {
-    return scoped_ptr<net::ServerSocket>(
+  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
+    scoped_ptr<net::ServerSocket> socket(
         new net::UnixDomainServerSocket(
             auth_callback_,
             true /* use_abstract_namespace */));
+    if (socket->ListenWithAddressAndPort(socket_name_, 0, kBackLog) != net::OK)
+      return scoped_ptr<net::ServerSocket>();
+
+    return socket;
   }
 
+  const std::string socket_name_;
   const net::UnixDomainServerSocket::AuthCallback auth_callback_;
   DISALLOW_COPY_AND_ASSIGN(UnixDomainServerSocketFactory);
 };

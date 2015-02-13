@@ -42,6 +42,7 @@ import org.chromium.content_public.browser.LoadUrlParams;
 import org.chromium.content_public.browser.NavigationHistory;
 import org.chromium.content_public.browser.NavigationController;
 import org.chromium.content_public.browser.WebContents;
+import org.chromium.content_public.browser.navigation_controller.UserAgentOverrideOption;
 import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.base.ActivityWindowAndroid;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
@@ -151,13 +152,13 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // bind all the native->java relationships.
         mCleanupReference = new CleanupReference(this, new DestroyRunnable(mNativeContent));
 
-        mNativeWebContents = nativeGetWebContents(mNativeContent);
+        WebContents webContents = nativeGetWebContents(mNativeContent);
 
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(getContext());
         mContentView = ContentView.newInstance(getContext(), mContentViewCore);
-        mContentViewCore.initialize(mContentView, mContentView, mNativeWebContents, mWindow);
+        mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
         mWebContents = mContentViewCore.getWebContents();
         mNavigationController = mWebContents.getNavigationController();
         addView(mContentView, new FrameLayout.LayoutParams(
@@ -224,7 +225,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                 params = LoadUrlParams.createLoadDataParamsWithBaseUrl(
                         content, "text/html", false, url, null);
             }
-            params.setOverrideUserAgent(LoadUrlParams.UA_OVERRIDE_TRUE);
+            params.setOverrideUserAgent(UserAgentOverrideOption.TRUE);
             mNavigationController.loadUrl(params);
         }
 
@@ -780,7 +781,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
-    private native long nativeGetWebContents(long nativeXWalkContent);
+    private native WebContents nativeGetWebContents(long nativeXWalkContent);
     private native long nativeReleasePopupXWalkContent(long nativeXWalkContent);
     private native void nativeSetJavaPeers(
             long nativeXWalkContent,

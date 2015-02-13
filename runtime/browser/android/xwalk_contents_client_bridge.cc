@@ -290,11 +290,8 @@ void XWalkContentsClientBridge::ExitFullscreen(
     JNIEnv*, jobject, jlong j_web_contents) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   WebContents* web_contents = reinterpret_cast<WebContents*>(j_web_contents);
-  if (web_contents) {
-    RenderViewHost* rvh = web_contents->GetRenderViewHost();
-    if (rvh)
-      rvh->ExitFullscreen();
-  }
+  if (web_contents)
+    web_contents->ExitFullscreen();
 }
 
 void XWalkContentsClientBridge::NotificationDisplayed(

@@ -49,4 +49,7 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
     public View getVideoLoadingProgressView() {
         return null;
     }
+    @Override
+    public void setSystemUiVisibility(boolean enterFullscreen) {
+    }
 }
