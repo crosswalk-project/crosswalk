@@ -7,6 +7,7 @@
 # This script is wrapper for Crosswalk that adds some support for how GYP
 # is invoked by Chromium beyond what can be done in the gclient hooks.
 
+import argparse
 import glob
 import os
 import re
@@ -126,15 +127,10 @@ def GetGypVars(supplemental_files):
   env_items = ProcessGypDefinesItems(
       shlex.split(os.environ.get('GYP_DEFINES', '')))
 
-  # GYP defines from the command line. We can't use optparse since we want
-  # to ignore all arguments other than "-D".
-  cmdline_input_items = []
-  for i in range(len(sys.argv))[1:]:
-    if sys.argv[i].startswith('-D'):
-      if sys.argv[i] == '-D' and i + 1 < len(sys.argv):
-        cmdline_input_items += [sys.argv[i + 1]]
-      elif len(sys.argv[i]) > 2:
-        cmdline_input_items += [sys.argv[i][2:]]
+  # GYP defines from the command line.
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-D', dest='defines', action='append', default=[])
+  cmdline_input_items = parser.parse_known_args()[0].defines
   cmdline_items = ProcessGypDefinesItems(cmdline_input_items)
 
   vars_dict = dict(supp_items + env_items + cmdline_items)
@@ -143,21 +139,21 @@ def GetGypVars(supplemental_files):
 
 def GetOutputDirectory():
   """Returns the output directory that GYP will use."""
-  # GYP generator flags from the command line. We can't use optparse since we
-  # want to ignore all arguments other than "-G".
-  needle = '-Goutput_dir='
-  cmdline_input_items = []
-  for item in sys.argv[1:]:
-    if item.startswith(needle):
-      return item[len(needle):]
 
-  env_items = shlex.split(os.environ.get('GYP_GENERATOR_FLAGS', ''))
+  # Handle command line generator flags.
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-G', dest='genflags', default=[], action='append')
+  genflags = parser.parse_known_args()[0].genflags
+
+  # Handle generator flags from the environment.
+  genflags += shlex.split(os.environ.get('GYP_GENERATOR_FLAGS', ''))
+
   needle = 'output_dir='
-  for item in env_items:
+  for item in genflags:
     if item.startswith(needle):
       return item[len(needle):]
 
-  return "out"
+  return 'out'
 
 
 def additional_include_files(supplemental_files, args=[]):
