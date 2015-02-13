@@ -49,8 +49,8 @@ void GenerateId(const std::string& input, std::string* output) {
 }
 
 void SetTaskbarGroupIdForProcess() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
-  const CommandLine::StringVector& args = command_line->GetArgs();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  const base::CommandLine::StringVector& args = command_line->GetArgs();
 
   if (args.empty())
     return;
@@ -59,7 +59,7 @@ void SetTaskbarGroupIdForProcess() {
   if (url.is_valid() && url.has_scheme()) {
     std::string appid;
     GenerateId(url.spec(), &appid);
-    ::SetCurrentProcessExplicitAppUserModelID(base::ASCIIToWide(appid).c_str());
+    ::SetCurrentProcessExplicitAppUserModelID(base::ASCIIToUTF16(appid).c_str());
   }
 }
 
