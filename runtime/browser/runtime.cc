@@ -136,13 +136,13 @@ void Runtime::EnterFullscreenModeForTab(content::WebContents* web_contents,
                                         const GURL&) {
   fullscreen_options_ |= FULLSCREEN_FOR_TAB;
   if (ui_delegate_)
-    ui_delegate_->SetFullscreen(fullscreen_options_ & FULLSCREEN_FOR_LAUNCH);
+    ui_delegate_->SetFullscreen(true);
 }
 
 void Runtime::ExitFullscreenModeForTab(content::WebContents* web_contents) {
   fullscreen_options_ &= ~FULLSCREEN_FOR_TAB;
   if (ui_delegate_)
-    ui_delegate_->SetFullscreen(fullscreen_options_ & FULLSCREEN_FOR_LAUNCH);
+    ui_delegate_->SetFullscreen(false);
 }
 
 bool Runtime::IsFullscreenForTabOrPending(
