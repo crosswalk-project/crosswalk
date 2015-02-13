@@ -41,6 +41,7 @@ RemoteDebuggingServer::RemoteDebuggingServer(
       frontend_url,
       new XWalkDevToolsHttpHandlerDelegate(),
       output_dir));
+  port_ = port;
 }
 
 RemoteDebuggingServer::~RemoteDebuggingServer() {
