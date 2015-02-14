@@ -7,6 +7,7 @@
       ['OS=="android"', {
         # Enable WebCL by default on android.
         'enable_webcl%': 1,
+        'v8_use_external_startup_data%': 0,
       }, {
         'enable_webcl%': 0,
       }],
