@@ -219,8 +219,11 @@ class TestMakeApk(unittest.TestCase):
     if self._mode.find('embedded') != -1:
       embedded_related_files = ['icudtl.dat',
                                 'xwalk.pak',
-                                'natives_blob.bin',
-                                'snapshot_blob.bin',
+                                # Please refer to XWALK-3516, disable v8 use
+                                # external startup data, reopen it if needed
+                                # later.
+                                # 'natives_blob.bin',
+                                # 'snapshot_blob.bin',
                                 'device_capabilities_api.js',
                                 'launch_screen_api.js',
                                 'presentation_api.js']
