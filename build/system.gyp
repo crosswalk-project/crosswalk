@@ -11,6 +11,19 @@
   },
   'targets' : [
     {
+      'target_name': 'linux_libnotify',
+      'type': 'none',
+      'conditions': [
+        ['building_crosswalk_bin==1 and tizen!=1', {
+          'link_settings': {
+            'libraries': [
+              '<!@(pkg-config --libs libnotify)',
+            ],
+          },
+        }],
+      ],
+    },
+    {
       'target_name': 'gio',
       'type': 'none',
       'variables': {

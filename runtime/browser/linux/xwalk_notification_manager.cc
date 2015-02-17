@@ -1,0 +1,139 @@
+// Copyright (c) 2015 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "xwalk/runtime/browser/linux/xwalk_notification_manager.h"
+
+#include "base/strings/utf_string_conversions.h"
+#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/desktop_notification_delegate.h"
+#include "content/public/common/platform_notification_data.h"
+#include "url/gurl.h"
+
+namespace {
+
+using content::BrowserThread;
+using xwalk::XWalkNotificationManager;
+
+// Defined by 'org.freedesktop.Notifications'.
+const int g_closed_by_user = 2;
+
+void NotificationClosedCallback(NotifyNotification* notification,
+                                gpointer user_data) {
+  XWalkNotificationManager* service =
+      static_cast<XWalkNotificationManager*>(user_data);
+
+  gint reason = notify_notification_get_closed_reason(notification);
+
+  bool by_user = (reason == g_closed_by_user);
+  if (by_user)
+    service->NotificationClicked(notification);
+  service->NotificationClosed(notification, by_user);
+  g_signal_handler_disconnect(notification,
+                              service->GetClosedHandler(notification));
+}
+
+void CancelDesktopNotificationCallback(
+    XWalkNotificationManager* service,
+    NotifyNotification* notification) {
+  g_signal_handler_disconnect(notification,
+                              service->GetClosedHandler(notification));
+  notify_notification_close(notification, nullptr);
+}
+
+}  // namespace
+
+namespace xwalk {
+
+XWalkNotificationManager::XWalkNotificationManager() :
+    initialized_(false) {
+  initialized_ = notify_init("xwalk");
+}
+
+XWalkNotificationManager::~XWalkNotificationManager() {
+  if (initialized_)
+    notify_uninit();
+}
+
+void XWalkNotificationManager::ShowDesktopNotification(
+    content::BrowserContext* browser_context,
+    const GURL& origin,
+    const content::PlatformNotificationData& notification_data,
+    scoped_ptr<content::DesktopNotificationDelegate> delegate,
+    int render_process_id,
+    base::Closure* cancel_callback) {
+  if (!initialized_)
+      return;
+
+  NotifyNotification* notification = nullptr;
+
+  if (!notification_data.tag.empty() &&
+      notifications_replace_map_.find(notification_data.tag) !=
+          notifications_replace_map_.end()) {
+    notification = notifications_replace_map_[notification_data.tag];
+    notify_notification_update(notification,
+        base::UTF16ToUTF8(notification_data.title).c_str(),
+        base::UTF16ToUTF8(notification_data.body).c_str(),
+        nullptr);
+  } else {
+    notification = notify_notification_new(
+        base::UTF16ToUTF8(notification_data.title).c_str(),
+        base::UTF16ToUTF8(notification_data.body).c_str(),
+        nullptr);
+
+    notifications_map_.set(reinterpret_cast<int64>(notification),
+                           delegate.Pass());
+    if (!notification_data.tag.empty()) {
+      notifications_replace_map_[notification_data.tag] = notification;
+    }
+
+    notifications_handler_map_[notification] =
+                    g_signal_connect(G_OBJECT(notification),
+                                     "closed",
+                                      G_CALLBACK(NotificationClosedCallback),
+                                      this);
+    if (cancel_callback)
+      *cancel_callback = base::Bind(&CancelDesktopNotificationCallback,
+                                    this,
+                                    notification);
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI,
+        FROM_HERE,
+        base::Bind(&XWalkNotificationManager::NotificationDisplayed,
+        base::Unretained(this),
+        notification));
+  }
+
+  notify_notification_show(notification, nullptr);
+}
+
+void XWalkNotificationManager::
+    NotificationDisplayed(NotifyNotification* notification) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  content::DesktopNotificationDelegate* notification_delegate =
+      notifications_map_.get(reinterpret_cast<int64>(notification));
+  if (notification_delegate)
+    notification_delegate->NotificationDisplayed();
+}
+
+void XWalkNotificationManager::
+    NotificationClicked(NotifyNotification* notification) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  content::DesktopNotificationDelegate* notification_delegate =
+      notifications_map_.get(reinterpret_cast<int64>(notification));
+  if (notification_delegate) {
+    notification_delegate->NotificationClick();
+  }
+}
+
+void XWalkNotificationManager::
+    NotificationClosed(NotifyNotification* notification, bool by_user) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
+      notifications_map_.take_and_erase(reinterpret_cast<int64>(notification));
+  if (notification_delegate) {
+    notification_delegate->NotificationClosed(by_user);
+  }
+}
+
+}  // namespace xwalk

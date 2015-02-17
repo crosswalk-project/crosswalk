@@ -12,6 +12,9 @@
 #include "content/public/browser/platform_notification_service.h"
 
 namespace xwalk {
+#if !defined(OS_TIZEN) && defined(OS_LINUX)
+class XWalkNotificationManager;
+#endif
 
 // The platform notification service is the profile-agnostic entry point
 // through which Web Notifications can be controlled. Heavily based on
@@ -52,6 +55,10 @@ class XWalkPlatformNotificationService
 
   XWalkPlatformNotificationService();
   ~XWalkPlatformNotificationService() override;
+
+#if !defined(OS_TIZEN) && defined(OS_LINUX)
+  scoped_ptr<XWalkNotificationManager> notification_manager_linux_;
+#endif
 };
 
 }  // namespace xwalk
