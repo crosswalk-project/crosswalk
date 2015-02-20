@@ -97,9 +97,6 @@ void XWalkBrowserMainPartsAndroid::PreEarlyInitialization() {
   // Android. So increase the limit to 4096 explicitly.
   base::SetFdLimit(4096);
 
-  base::CommandLine::ForCurrentProcess()->AppendSwitch(
-      cc::switches::kCompositeToMailbox);
-
   // Initialize the Compositor.
   content::Compositor::Initialize();
 
@@ -118,6 +115,10 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
 #if defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64)
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 #endif
+
+  // Enable experiemntal features like polymer and css animations because
+  // CrossWalk is testbed of state of art of web technology.
+  command_line->AppendSwitch(switches::kEnableExperimentalWebPlatformFeatures);
 
 #if defined(ENABLE_WEBRTC)
   // Disable HW encoding/decoding acceleration for WebRTC on Android.
