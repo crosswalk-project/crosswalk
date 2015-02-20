@@ -116,6 +116,10 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 #endif
 
+  // Enable experiemntal features like polymer and css animations because
+  // CrossWalk is testbed of state of art of web technology.
+  command_line->AppendSwitch(switches::kEnableExperimentalWebPlatformFeatures);
+
 #if defined(ENABLE_WEBRTC)
   // Disable HW encoding/decoding acceleration for WebRTC on Android.
   // FIXME: Remove these switches for Android when Android OS is removed from
