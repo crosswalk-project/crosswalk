@@ -105,8 +105,10 @@ def CopyBinaries(out_dir, out_project_dir, src_package):
 
   paks_to_copy = [
       'icudtl.dat',
-      'natives_blob.bin',
-      'snapshot_blob.bin',
+      # Please refer to XWALK-3516, disable v8 use external startup data,
+      # reopen it if needed later.
+      # 'natives_blob.bin',
+      # 'snapshot_blob.bin',
       'xwalk.pak',
   ]
 
