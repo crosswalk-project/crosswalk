@@ -15,6 +15,8 @@
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
+#elif !defined(OS_TIZEN) && defined(OS_LINUX)
+#include "xwalk/runtime/browser/linux/xwalk_notification_manager.h"
 #endif
 
 namespace xwalk {
@@ -35,6 +37,8 @@ XWalkPlatformNotificationService::CheckPermission(
     const GURL& origin,
     int render_process_id) {
 #if defined(OS_ANDROID)
+  return blink::WebNotificationPermissionAllowed;
+#elif !defined(OS_TIZEN) && defined(OS_LINUX)
   return blink::WebNotificationPermissionAllowed;
 #else
   return blink::WebNotificationPermissionDenied;
@@ -68,6 +72,17 @@ void XWalkPlatformNotificationService::DisplayNotification(
                              cancel_callback);
     return;
   }
+#elif !defined(OS_TIZEN) && defined(OS_LINUX)
+  if (!notification_manager_linux_)
+    notification_manager_linux_.reset(new XWalkNotificationManager());
+  notification_manager_linux_->ShowDesktopNotification(
+      browser_context,
+      origin,
+      notification_data,
+      delegate.Pass(),
+      render_process_id,
+      cancel_callback);
+#else
 #endif
 }
 

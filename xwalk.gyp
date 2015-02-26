@@ -151,6 +151,7 @@
         'runtime/browser/geolocation/xwalk_access_token_store.h',
         'runtime/browser/image_util.cc',
         'runtime/browser/image_util.h',
+        'runtime/browser/linux/xwalk_notification_manager.cc',
         'runtime/browser/media/media_capture_devices_dispatcher.cc',
         'runtime/browser/media/media_capture_devices_dispatcher.h',
         'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.cc',
@@ -325,6 +326,7 @@
             'runtime/browser/runtime_platform_util_linux.cc',
             'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
             'runtime/browser/android/xwalk_web_contents_view_delegate.h',
+            'runtime/browser/linux/xwalk_notification_manager.cc',
           ],
         }],
         ['OS=="android"',{
@@ -360,6 +362,7 @@
         }],  # OS=="win"
         ['OS=="linux"', {
           'dependencies': [
+            'build/system.gyp:libnotify',
             '../build/linux/system.gyp:fontconfig',
             '../build/linux/system.gyp:dbus',
           ],
