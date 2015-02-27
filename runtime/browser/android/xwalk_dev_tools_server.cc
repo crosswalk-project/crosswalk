@@ -44,7 +44,7 @@ namespace {
 // for remote debugging to work in chrome (see chrome's devtools_ui.cc).
 // Currently, the chrome version is hardcoded because of this dependancy.
 const char kFrontEndURL[] =
-    "http://chrome-devtools-frontend.appspot.com/serve_rev/%s/devtools.html";
+    "http://chrome-devtools-frontend.appspot.com/serve_rev/%s/inspector.html";
 
 bool AuthorizeSocketAccessWithDebugPermission(
      const net::UnixDomainServerSocket::Credentials& credentials) {
