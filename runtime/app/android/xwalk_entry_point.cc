@@ -3,27 +3,33 @@
 // found in the LICENSE file.
 
 #include "base/android/jni_android.h"
-#include "base/android/jni_registrar.h"
-#include "base/android/library_loader/library_loader_hooks.h"
-#include "content/public/app/android_library_loader_hooks.h"
+#include "base/android/jni_onload_delegate.h"
+#include "content/public/app/content_jni_onload.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_delegate.h"
 #include "xwalk/runtime/app/android/xwalk_jni_registrar.h"
 #include "xwalk/runtime/app/android/xwalk_main_delegate_android.h"
 
+namespace {
+
+class XWalkJNIOnLoadDelegate : public base::android::JNIOnLoadDelegate {
+ public:
+  bool RegisterJNI(JNIEnv* env) override {
+    return xwalk::RegisterJni(env);
+  }
+
+  bool Init() override {
+    content::SetContentMainDelegate(new xwalk::XWalkMainDelegateAndroid());
+    return true;
+  }
+};
+
+}  // namespace
+
 // This is called by the VM when the shared library is first loaded.
 JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-  base::android::SetLibraryLoadedHook(&content::LibraryLoaded);
-
-  base::android::InitVM(vm);
-  JNIEnv* env = base::android::AttachCurrentThread();
-  if (!base::android::RegisterLibraryLoaderEntryHook(env))
+  XWalkJNIOnLoadDelegate delegate;
+  if (!content::android::OnJNIOnLoad(vm, &delegate))
     return -1;
-
-  if (!xwalk::RegisterJni(env))
-    return -1;
-
-  content::SetContentMainDelegate(new xwalk::XWalkMainDelegateAndroid());
-
   return JNI_VERSION_1_4;
 }
