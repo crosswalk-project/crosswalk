@@ -6,8 +6,8 @@
 
 #include "base/command_line.h"
 #include "base/values.h"
+#include "content/public/child/v8_value_converter.h"
 #include "content/public/renderer/render_thread.h"
-#include "content/public/renderer/v8_value_converter.h"
 #include "grit/xwalk_extensions_resources.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_listener.h"
