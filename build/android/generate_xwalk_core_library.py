@@ -164,6 +164,8 @@ def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix):
   """
   for root, _, files in os.walk(input_dir):
     for f in files:
+      if f == 'OWNERS':
+        continue
       src_file = os.path.join(root, f)
       relative_path = os.path.relpath(src_file, input_dir)
       target_file = os.path.join(output_dir, relative_path)
