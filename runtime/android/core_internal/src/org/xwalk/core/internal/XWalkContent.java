@@ -154,7 +154,6 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
         WebContents webContents = nativeGetWebContents(mNativeContent);
 
-
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(getContext());
         mContentView = ContentView.newInstance(getContext(), mContentViewCore);
@@ -178,7 +177,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
         // won't be changed from false to true at the same time in the constructor of
         // XWalkSettings class.
-        mSettings = new XWalkSettings(getContext(), mNativeWebContents, false);
+        mSettings = new XWalkSettings(getContext(), webContents, false);
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);

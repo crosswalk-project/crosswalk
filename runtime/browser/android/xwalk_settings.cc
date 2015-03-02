@@ -88,9 +88,10 @@ struct XWalkSettings::FieldIds {
   jfieldID default_video_poster_url;
 };
 
-XWalkSettings::XWalkSettings(JNIEnv* env, jobject obj, jlong web_contents)
-    : WebContentsObserver(
-          reinterpret_cast<content::WebContents*>(web_contents)),
+XWalkSettings::XWalkSettings(JNIEnv* env,
+                             jobject obj,
+                             content::WebContents* web_contents)
+    : WebContentsObserver(web_contents),
       xwalk_settings_(env, obj) {
 }
 
@@ -233,8 +234,10 @@ void XWalkSettings::RenderViewCreated(
 
 static jlong Init(JNIEnv* env,
                  jobject obj,
-                 jlong web_contents) {
-  XWalkSettings* settings = new XWalkSettings(env, obj, web_contents);
+                 jobject web_contents) {
+  content::WebContents* contents = content::WebContents::FromJavaWebContents(
+      web_contents);
+  XWalkSettings* settings = new XWalkSettings(env, obj, contents);
   return reinterpret_cast<intptr_t>(settings);
 }
 
