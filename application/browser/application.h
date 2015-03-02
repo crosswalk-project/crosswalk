@@ -132,6 +132,8 @@ class Application : public Runtime::Observer,
 
   NativeAppWindow::CreateParams window_show_params_;
 
+  virtual GURL GetStartURL(Manifest::Type type) const;
+
  private:
   // We enforce ApplicationService ownership.
   friend class ApplicationService;
@@ -147,11 +149,11 @@ class Application : public Runtime::Observer,
 
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.
-  template <Manifest::Type> GURL GetStartURL();
+  template <Manifest::Type> GURL GetStartURL() const;
 
   template <Manifest::Type> ui::WindowShowState GetWindowShowState();
 
-  GURL GetAbsoluteURLFromKey(const std::string& key);
+  GURL GetAbsoluteURLFromKey(const std::string& key) const;
 
   void NotifyTermination();
 

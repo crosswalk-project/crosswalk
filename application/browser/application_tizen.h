@@ -9,6 +9,7 @@
 
 #include "base/event_types.h"
 #include "xwalk/application/browser/application.h"
+#include "xwalk/application/common/tizen/app_control_info.h"
 #include "xwalk/application/common/tizen/cookie_manager.h"
 
 #if defined(USE_OZONE)
@@ -34,11 +35,16 @@ class ApplicationTizen :  // NOLINT
   void RemoveAllCookies();
   void SetUserAgentString(const std::string& user_agent_string);
 
+ protected:
+  GURL GetStartURL(Manifest::Type type) const override;
+
  private:
   friend class Application;
   ApplicationTizen(scoped_refptr<ApplicationData> data,
                    XWalkBrowserContext* context);
   bool Launch() override;
+
+  GURL GetAppControlStartURL(const AppControlInfo& app_control) const;
 
   base::FilePath GetSplashScreenPath() override;
 

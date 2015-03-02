@@ -91,6 +91,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   // all SetManifestData calls should be on only one thread.
   void SetManifestData(const std::string& key, ManifestData* data);
 
+#if defined(OS_TIZEN)
+  void set_bundle(const std::string& bundle);
+#endif
+
   // Accessors:
   const base::FilePath& path() const { return path_; }
   const GURL& URL() const { return application_url_; }
@@ -99,6 +103,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   const std::string& ID() const { return application_id_; }
 #if defined(OS_TIZEN)
   std::string GetPackageID() const;
+  const std::string& bundle() const;
 #endif
   const base::Version* Version() const { return version_.get(); }
   const std::string VersionString() const;
@@ -199,6 +204,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // The source the application was loaded from.
   SourceType source_type_;
+
+#if defined(OS_TIZEN)
+  std::string bundle_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationData);
 };

@@ -90,8 +90,16 @@ void ApplicationData::SetManifestData(const std::string& key,
 }
 
 #if defined(OS_TIZEN)
+void ApplicationData::set_bundle(const std::string& bundle) {
+  bundle_ = bundle;
+}
+
 std::string ApplicationData::GetPackageID() const {
   return AppIdToPkgId(application_id_);
+}
+
+const std::string& ApplicationData::bundle() const {
+  return bundle_;
 }
 #endif
 
