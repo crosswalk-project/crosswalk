@@ -5,6 +5,7 @@
 package org.xwalk.core;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -118,27 +119,23 @@ public class XWalkCoreWrapper {
     private XWalkCoreStatus findEmbeddedBridge() {
         XWalkApplication xwalkApp = XWalkApplication.getApplication();
         mBridgeLoader = XWalkCoreWrapper.class.getClassLoader();
-        Class<?> clazz = null;
-        Method method = null;
         XWalkCoreStatus status = XWalkCoreStatus.NOT_FOUND;
 
-        try {
-            clazz = mBridgeLoader.loadClass(BRIDGE_PACKAGE + "." + XWALK_VIEW_DELEGATE);
-            method = clazz.getMethod("loadXWalkLibrary", Context.class);
-            method.invoke(null, xwalkApp);
+        // if local version(stored in SharedPreference) doesn't match
+        // core version(XWalkCoreBridge.XWALK_API_VERSION),
+        // means xwalkcore library has changed(upgrade or downgrade),
+        // need to decompress xwalkcore library again.
+        if (getLocalVersion(xwalkApp) == getCoreVersion()) {
+            return XWalkCoreStatus.MATCHED;
+        }
 
-            status = XWalkCoreStatus.MATCHED;
-        } catch (UnsatisfiedLinkError | InvocationTargetException e) {
-            try {
-                method = clazz.getMethod("XWalkLibraryCompressed", Context.class);
-                boolean exists = (boolean) method.invoke(null, xwalkApp);
-                if (exists) status = XWalkCoreStatus.COMPRESSED;
-            } catch (NoSuchMethodException | IllegalAccessException |
-                    InvocationTargetException nil) {
-                mBridgeLoader = null;
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException | NullPointerException |
-                IllegalAccessException | IllegalArgumentException e) {
+        try {
+            Class<?> clazz = mBridgeLoader.loadClass(BRIDGE_PACKAGE + "." + XWALK_VIEW_DELEGATE);
+            Method method = clazz.getMethod("XWalkLibraryCompressed", Context.class);
+            boolean exists = (boolean) method.invoke(null, xwalkApp);
+            if (exists) status = XWalkCoreStatus.COMPRESSED;
+        } catch (ClassNotFoundException | NoSuchMethodException |
+                IllegalAccessException | InvocationTargetException e) {
             mBridgeLoader = null;
         }
 
@@ -176,13 +173,37 @@ public class XWalkCoreWrapper {
         return status;
     }
 
-    public static void decompressXWalkLibrary() throws Exception {
+    private int getCoreVersion() {
+        int version = 0;
+        try {
+            Class<?> clazz = mBridgeLoader.loadClass(BRIDGE_PACKAGE + "." + XWALK_CORE_BRIDGE);
+            version = (int) clazz.getField("XWALK_API_VERSION").get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+        }
+
+        return version;
+    }
+
+    public int getLocalVersion(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("libxwalkcore",
+                Context.MODE_PRIVATE);
+        return sp.getInt("version", 0);
+    }
+
+    public void setLocalVersion(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("libxwalkcore",
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("version", getCoreVersion()).apply();
+    }
+
+    public static boolean decompressXWalkLibrary() throws Exception {
         XWalkApplication xwalkApp = XWalkApplication.getApplication();
         ClassLoader loader = XWalkCoreWrapper.class.getClassLoader();
 
         Class<?> clazz = loader.loadClass(BRIDGE_PACKAGE + "." + XWALK_VIEW_DELEGATE);
         Method method = clazz.getMethod("decompressXWalkLibrary", Context.class);
-        method.invoke(null, xwalkApp);
+        return (boolean) method.invoke(null, xwalkApp);
     }
 
     private void initBridge() {

@@ -42,10 +42,6 @@ public class XWalkCompressUtil {
 
             try {
                 File outfile = new File(libDir, library);
-                // FIXME: perhaps need to check validation.
-                if (outfile.isFile()) {
-                    continue;
-                }
                 tmpfile = new File(libDir, library + ".tmp");
                 input = new BufferedInputStream(openRawResource(context, library));
                 output = new BufferedOutputStream(new FileOutputStream(tmpfile));

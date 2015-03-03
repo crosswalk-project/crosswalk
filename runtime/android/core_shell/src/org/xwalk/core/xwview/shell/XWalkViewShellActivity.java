@@ -419,7 +419,7 @@ public class XWalkViewShellActivity extends FragmentActivity
         }
     }
 
-    private static class DecompressTask extends AsyncTask<Void, Integer, Void> {
+    private static class DecompressTask extends AsyncTask<Void, Integer, Boolean> {
         XWalkViewShellActivity mActivity;
         AlertDialog mDialog;
 
@@ -430,15 +430,16 @@ public class XWalkViewShellActivity extends FragmentActivity
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
+            boolean success = false;
             try {
-                XWalkCoreWrapper.decompressXWalkLibrary();
+                success = XWalkCoreWrapper.decompressXWalkLibrary();
                 // TODO: use publishProgress to update percentage.
             } catch (Exception e) {
                 Log.w(TAG, "decompress library failed: " + e.getMessage());
             }
 
-            return null;
+            return success;
         }
 
         @Override
@@ -447,9 +448,16 @@ public class XWalkViewShellActivity extends FragmentActivity
         }
 
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(Boolean success) {
             mActivity.onXWalkCoreReady();
+            XWalkCoreWrapper wrapper = XWalkCoreWrapper.getInstance();
+            if (success) wrapper.setLocalVersion(mActivity);
             mDialog.dismiss();
+        }
+
+        @Override
+        protected void onCancelled(Boolean b) {
+            mActivity.finish();
         }
     }
 }

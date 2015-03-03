@@ -85,14 +85,15 @@ class XWalkViewDelegate {
         return XWalkCompressUtil.XWalkLibraryCompressed(context, MANDATORY_LIBRARIES);
     }
 
-    public static void decompressXWalkLibrary(Context context) throws Exception {
-        if (context == null) return;
+    public static boolean decompressXWalkLibrary(Context context) throws Exception {
+        if (context == null) return false;
 
         String lib = PathUtils.getDataDirectory(context.getApplicationContext());
         long start = System.currentTimeMillis();
-        XWalkCompressUtil.decompressXWalkLibrary(context, MANDATORY_LIBRARIES, lib);
+        boolean success = XWalkCompressUtil.decompressXWalkLibrary(context, MANDATORY_LIBRARIES, lib);
         long end = System.currentTimeMillis();
         Log.d(TAG, "decompress library cost: " + (end - start) + " milliseconds.");
+        return success;
     }
 
     public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
