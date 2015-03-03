@@ -109,6 +109,11 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // External extensions will run in the BrowserProcess (in process mode).
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
 
+  // kDisableMojoChannel is not an exported symbol, so we cannot use it. We
+  // have to disable ChannelMojo for now as otherwise we only get a blank
+  // screen. See XWALK-3650.
+  command_line->AppendSwitch("disable-mojo-channel");
+
   // Only force to enable WebGL for Android for IA platforms because
   // we've tested the WebGL conformance test. For other platforms, just
   // follow up the behavior defined by Chromium upstream.
