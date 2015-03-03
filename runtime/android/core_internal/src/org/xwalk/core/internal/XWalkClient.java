@@ -16,7 +16,6 @@
 
 package org.xwalk.core.internal;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,9 +25,7 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -136,51 +133,6 @@ public class XWalkClient {
     //         ClientCertRequestHandler handler, String host_and_port) {
     //     handler.cancel();
     // }
-
-    /**
-     * Notify the host application to handle an authentication request. The
-     * default behavior is to cancel the request.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param handler The XWalkHttpAuthHandler that will handle the user's response.
-     * @param host The host requiring authentication.
-     * @param realm A description to help store user credentials for future
-     *            visits.
-     */
-    public void onReceivedHttpAuthRequest(XWalkViewInternal view,
-            XWalkHttpAuthHandler handler, String host, String realm) {
-        if (view == null) return;
-
-        final XWalkHttpAuthHandler haHandler = handler;
-        LinearLayout layout = new LinearLayout(mContext);
-        final EditText userNameEditText = new EditText(mContext);
-        final EditText passwordEditText = new EditText(mContext);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPaddingRelative(10, 0, 10, 20);
-        userNameEditText.setHint(R.string.http_auth_user_name);
-        passwordEditText.setHint(R.string.http_auth_password);
-        layout.addView(userNameEditText);
-        layout.addView(passwordEditText);
-
-        final Activity curActivity = mXWalkView.getActivity();
-        AlertDialog.Builder httpAuthDialog = new AlertDialog.Builder(curActivity);
-        httpAuthDialog.setTitle(R.string.http_auth_title)
-                .setView(layout)
-                .setCancelable(false)
-                .setPositiveButton(R.string.http_auth_log_in, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String userName = userNameEditText.getText().toString();
-                        String password = passwordEditText.getText().toString();
-                        haHandler.proceed(userName, password);
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton(android.R.string.cancel, null)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    public void onCancel(DialogInterface dialog) {
-                        haHandler.cancel();
-                    }
-                }).create().show();
-    }
 
     /**
      * Notify the host application that a request to automatically log in the

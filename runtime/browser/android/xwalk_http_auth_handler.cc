@@ -10,7 +10,7 @@
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "content/public/browser/browser_thread.h"
-#include "jni/XWalkHttpAuthHandler_jni.h"
+#include "jni/XWalkHttpAuthHandlerInternal_jni.h"
 #include "net/base/auth.h"
 #include "content/public/browser/web_contents.h"
 
@@ -27,13 +27,13 @@ XWalkHttpAuthHandler::XWalkHttpAuthHandler(XWalkLoginDelegate* login_delegate,
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   JNIEnv* env = base::android::AttachCurrentThread();
   http_auth_handler_.Reset(
-      Java_XWalkHttpAuthHandler_create(
+      Java_XWalkHttpAuthHandlerInternal_create(
           env, reinterpret_cast<intptr_t>(this), first_auth_attempt));
 }
 
 XWalkHttpAuthHandler:: ~XWalkHttpAuthHandler() {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
-  Java_XWalkHttpAuthHandler_handlerDestroyed(
+  Java_XWalkHttpAuthHandlerInternal_handlerDestroyed(
       base::android::AttachCurrentThread(),
       http_auth_handler_.obj());
 }

@@ -23,6 +23,7 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/ClientCertRequest.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkDownloadListener.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkExtension.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkHttpAuthHandler.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkJavascriptResult.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNavigationHistory.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNavigationItem.java',
