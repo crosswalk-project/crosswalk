@@ -12,18 +12,14 @@
 #include "xwalk/application/common/tizen/app_control_info.h"
 #include "xwalk/application/common/tizen/cookie_manager.h"
 
-#if defined(USE_OZONE)
 #include "ui/events/platform/platform_event_observer.h"
 #include "ui/events/platform/platform_event_types.h"
-#endif
 
 namespace xwalk {
 namespace application {
 
 class ApplicationTizen :  // NOLINT
-#if defined(USE_OZONE)
   public ui::PlatformEventObserver,
-#endif
   public Application {
  public:
   ~ApplicationTizen() override;
@@ -52,10 +48,8 @@ class ApplicationTizen :  // NOLINT
   void OnNewRuntimeAdded(Runtime* runtime) override;
   void OnRuntimeClosed(Runtime* runtime) override;
 
-#if defined(USE_OZONE)
   void WillProcessEvent(const ui::PlatformEvent& event) override;
   void DidProcessEvent(const ui::PlatformEvent& event) override;
-#endif
   bool CanBeSuspended() const;
 
 #if defined(OS_TIZEN_MOBILE)
