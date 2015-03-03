@@ -198,10 +198,13 @@ bool ApplicationData::LoadID(const std::string& explicit_id,
   std::string application_id;
 #if defined(OS_TIZEN)
   if (manifest_type() == Manifest::TYPE_WIDGET) {
-    const TizenApplicationInfo* tizen_app_info =
-        static_cast<TizenApplicationInfo*>(GetManifestData(
-            widget_keys::kTizenApplicationKey));
-    CHECK(tizen_app_info);
+    auto iter = manifest_data_.find(widget_keys::kTizenApplicationKey);
+    if (iter == manifest_data_.end()) {
+      NOTREACHED() << "Could not get Tizen application key";
+      return false;
+    }
+    TizenApplicationInfo* tizen_app_info =
+        static_cast<TizenApplicationInfo*>(iter->second.get());
     application_id = tizen_app_info->id();
   } else if (manifest_->HasKey(keys::kTizenAppIdKey)) {
     if (!manifest_->GetString(keys::kTizenAppIdKey, &application_id)) {
