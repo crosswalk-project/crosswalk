@@ -155,9 +155,20 @@ def TryCodeBaseFromVersionName(app_version):
   m = re.match(r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
                app_version)
   if not m:
-    print('Can not parse out app_versionCodeBase from app_version, '
-          'please specify --app-versionCode or --app-versionCodeBase : '
-          'app_version=%s' % (app_version))
+    print('Can not parse out app_versionCodeBase from app_version: %s if field '
+          'length of app_version is greater than 3 and --app-versionCode or '
+          '--app-versionCodeBase was not specified.\n'
+          'The length of app_versionCodeBase should not be greater than 7.\n'
+          'For example, app_version:"1.2.3" will generate app_versionCodeBase:'
+          '"0102003", app_version:"1.2" will generate "0102000".\n'
+          'app_versionCodeBase will concatenate with ABI(ABI\'s value is '
+          'corresponding to ARCH, e.g. arm:2, x86:6, x86_64:7) to generate '
+          'version code for application.\nFor example, for arm and app_version:'
+          '"1.2.3", app_versionCode is "20102003", for x86 and app_version:'
+          '"1.2", app_versionCode is "60102000".\n'
+          'Please specify --app-versionCode or --app-versionCodeBase if field '
+          'length of app_version is greater than 3, get detail information by '
+          '"make_apk.py --help"' % (app_version))
     sys.exit(12)
 
   versionList = []
@@ -595,7 +606,11 @@ def main(argv):
       'They are used for various settings for applications through '
       'command line options.')
   info = ('The version name of the application. '
-          'For example, --app-version=1.0.0')
+          'For example, --app-version=1.0.0 '
+          'If the field length of app version is greater than 3, '
+          '--app-versionCode or --app-versionCodeBase should be specified '
+          'in command line. '
+          'For example, --app-version=24.0.0.1 --app-versionCodeBase=24')
   group.add_option('--app-version', help=info)
   info = ('The version code of the application. '
           'For example, --app-versionCode=24')
