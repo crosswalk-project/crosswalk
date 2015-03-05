@@ -1,3 +1,4 @@
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -37,5 +38,15 @@ const char kAllowRunningInsecureContent[]   = "allow-running-insecure-content";
 // By default, an https page can load images, fonts or frames from an http
 // page. This switch overrides this to block this lesser mixed-content problem.
 const char kNoDisplayingInsecureContent[]   = "no-displaying-insecure-content";
+
+#if defined(ENABLE_PLUGINS)
+// Use the PPAPI (Pepper) Flash found at the given path.
+const char kPpapiFlashPath[] = "ppapi-flash-path";
+
+// Report the given version for the PPAPI (Pepper) Flash. The version should be
+// numbers separated by '.'s (e.g., "12.3.456.78"). If not specified, it
+// defaults to "10.2.999.999".
+const char kPpapiFlashVersion[] = "ppapi-flash-version";
+#endif
 
 }  // namespace switches

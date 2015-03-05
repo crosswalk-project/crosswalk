@@ -301,4 +301,13 @@ void Runtime::RequestMediaAccessPermission(
       web_contents, request, callback);
 }
 
+bool Runtime::CheckMediaAccessPermission(
+    content::WebContents* web_contents,
+    const GURL& security_origin,
+    content::MediaStreamType type) {
+  // TODO(xiang): Pepper flash plugin will trigger this check a lot, return
+  // false at the moment.
+  return false;
+}
+
 }  // namespace xwalk
