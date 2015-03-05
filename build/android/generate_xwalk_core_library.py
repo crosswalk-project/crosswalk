@@ -156,14 +156,17 @@ def CopyBinaries(out_dir, out_project_dir, src_package):
   distutils.dir_util.copy_tree(source_dir, target_dir)
 
 
-def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix):
+def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix, blacklist=None):
   """ Copy the files into the output directory. If one file in input_dir folder
   doesn't exist, copy it directly. If a file exists, copy it and rename the
   file so that the resources won't be overrided. So all of them could be
   packaged into the xwalk core library.
   """
+  blacklist = blacklist or []
   for root, _, files in os.walk(input_dir):
     for f in files:
+      if f in blacklist:
+        continue
       src_file = os.path.join(root, f)
       relative_path = os.path.relpath(src_file, input_dir)
       target_file = os.path.join(output_dir, relative_path)
@@ -265,7 +268,8 @@ def CopyResources(project_source, out_dir, out_project_dir):
     os.makedirs(subdir)
     with zipfile.ZipFile(zip_file) as z:
       z.extractall(path=subdir)
-    CopyDirAndPrefixDuplicates(subdir, res_dir, zip_name)
+    CopyDirAndPrefixDuplicates(subdir, res_dir, zip_name,
+                               blacklist=['OWNERS'])
     MoveImagesToNonMdpiFolders(res_dir)
 
   if os.path.isdir(temp_dir):
