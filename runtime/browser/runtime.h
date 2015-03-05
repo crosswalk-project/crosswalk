@@ -137,6 +137,9 @@ class Runtime : public content::WebContentsDelegate,
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) override;
+  bool CheckMediaAccessPermission(content::WebContents* web_contents,
+                                  const GURL& security_origin,
+                                  content::MediaStreamType type) override;
 
   // Overridden from content::WebContentsObserver.
   void DidUpdateFaviconURL(

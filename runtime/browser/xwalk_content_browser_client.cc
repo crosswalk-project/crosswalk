@@ -38,6 +38,7 @@
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 #if !defined(DISABLE_NACL)
 #include "components/nacl/browser/nacl_browser.h"
@@ -141,17 +142,18 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
 // process we launch.
 void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line, int child_process_id) {
-  base::CommandLine* browser_process_cmd_line =
-      base::CommandLine::ForCurrentProcess();
-  const int extra_switches_count = 1;
-  const char* extra_switches[extra_switches_count] = {
-    switches::kXWalkDisableExtensionProcess
+  const base::CommandLine& browser_process_cmd_line =
+      *base::CommandLine::ForCurrentProcess();
+  const char* extra_switches[] = {
+    switches::kXWalkDisableExtensionProcess,
+#if defined(ENABLE_PLUGINS)
+    switches::kPpapiFlashPath,
+    switches::kPpapiFlashVersion
+#endif
   };
 
-  for (int i = 0; i < extra_switches_count; i++) {
-    if (browser_process_cmd_line->HasSwitch(extra_switches[i]))
-      command_line->AppendSwitch(extra_switches[i]);
-  }
+  command_line->CopySwitchesFrom(
+      browser_process_cmd_line, extra_switches, arraysize(extra_switches));
 }
 
 content::QuotaPermissionContext*
