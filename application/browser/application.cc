@@ -170,6 +170,7 @@ GURL Application::GetStartURL(Manifest::Type type) const {
       return GetStartURL<Manifest::Type::TYPE_MANIFEST>();
     default:
       NOTREACHED() << "Unknown manifest type";
+      return GURL();
   }
 }
 
