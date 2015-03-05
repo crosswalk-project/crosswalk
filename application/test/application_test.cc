@@ -78,11 +78,11 @@ IN_PROC_BROWSER_TEST_F(ApplicationTest, TestMultiApp) {
   EXPECT_EQ(service->active_applications().size(), currently_running_count);
 }
 
-IN_PROC_BROWSER_TEST_F(ApplicationTest, TestUnsafeStartURL) {
+IN_PROC_BROWSER_TEST_F(ApplicationTest, TestWebStartURL) {
   base::FilePath manifest_path = GetManifestPath(
-      test_data_dir_.Append(FILE_PATH_LITERAL("unsafe_start_URL")),
+      test_data_dir_.Append(FILE_PATH_LITERAL("web_start_URL")),
       Manifest::TYPE_MANIFEST);
   Application* app = application_sevice()->LaunchFromManifestPath(
       manifest_path, Manifest::TYPE_MANIFEST);
-  EXPECT_EQ(NULL, app);
+  ASSERT_TRUE(app);
 }
