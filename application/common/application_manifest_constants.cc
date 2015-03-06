@@ -66,6 +66,7 @@ const char kXWalkLaunchScreenPortrait[] =
     "xwalk_launch_screen.portrait";
 const char kXWalkLaunchScreenReadyWhen[] =
     "xwalk_launch_screen.ready_when";
+const char kXWalkUserAgentKey[] = "xwalk_user_agent";
 
 #if defined(OS_TIZEN)
 const char kTizenAppIdKey[] = "tizen_app_id";

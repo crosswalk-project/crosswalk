@@ -61,6 +61,9 @@ class XWalkContentRendererClient
                        const GURL& url,
                        const GURL& first_party_for_cookies,
                        GURL* new_url) override;
+#if !defined(OS_ANDROID)
+  std::string GetOverridenUserAgent() const;
+#endif
 
  protected:
   scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;

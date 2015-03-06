@@ -164,6 +164,8 @@ class Application : public Runtime::Observer,
   StoredPermissionMap permission_map_;
   // Security policy.
   scoped_ptr<ApplicationSecurityPolicy> security_policy_;
+  // User Agent string
+  std::string user_agent_;
   // WeakPtrFactory should be always declared the last.
   base::WeakPtrFactory<Application> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(Application);

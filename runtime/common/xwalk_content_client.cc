@@ -30,8 +30,8 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
-#if (defined(OS_TIZEN))
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
+#if (defined(OS_TIZEN))
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
 
@@ -189,7 +189,7 @@ std::string XWalkContentClient::GetProduct() const {
 }
 
 std::string XWalkContentClient::GetUserAgent() const {
-#if (defined(OS_TIZEN))
+#if !defined(OS_ANDROID)
   // TODO(jizydorczyk):
   // const_cast below is required to invoke ContentClient::renderer() method,
   // I think there is no reason for ContentClient::renderer() in content API
@@ -199,11 +199,10 @@ std::string XWalkContentClient::GetUserAgent() const {
   content::ContentRendererClient* content_renderer_client =
       content_client->renderer();
   if (content_renderer_client) {
-    XWalkContentRendererClientTizen* content_renderer_client_tizen =
-        static_cast<XWalkContentRendererClientTizen*>(
-            content_renderer_client);
-    const std::string& user_agent_string = content_renderer_client_tizen->
-        GetOverridenUserAgent();
+    XWalkContentRendererClient* xwalk_content_renderer_client =
+        static_cast<XWalkContentRendererClient*>(content_renderer_client);
+    const std::string& user_agent_string =
+        xwalk_content_renderer_client->GetOverridenUserAgent();
     if (!user_agent_string.empty())
       return user_agent_string;
   }

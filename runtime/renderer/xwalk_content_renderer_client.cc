@@ -291,4 +291,12 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
   }
 }
 
+#if !defined(OS_ANDROID)
+std::string XWalkContentRendererClient::GetOverridenUserAgent() const {
+  if (!xwalk_render_process_observer_)
+    return "";
+  return xwalk_render_process_observer_->GetOverridenUserAgent();
+}
+#endif
+
 }  // namespace xwalk

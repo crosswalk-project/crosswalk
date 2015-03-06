@@ -58,9 +58,7 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
     IPC_MESSAGE_HANDLER(ViewMsg_SuspendJSEngine, OnSuspendJSEngine)
-#if defined(OS_TIZEN)
     IPC_MESSAGE_HANDLER(ViewMsg_UserAgentStringChanged, OnUserAgentChanged)
-#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -107,7 +105,6 @@ void XWalkRenderProcessObserver::OnSuspendJSEngine(bool is_suspend) {
   is_suspended_ = is_suspend;
 }
 
-#if defined(OS_TIZEN)
 void XWalkRenderProcessObserver::OnUserAgentChanged(
     const std::string& userAgentString) {
   overriden_user_agent_ = userAgentString;
@@ -116,7 +113,6 @@ void XWalkRenderProcessObserver::OnUserAgentChanged(
 std::string XWalkRenderProcessObserver::GetOverridenUserAgent() const {
   return overriden_user_agent_;
 }
-#endif
 
 bool XWalkRenderProcessObserver::CanRequest(const GURL& orig,
                                             const GURL& dest) const {
