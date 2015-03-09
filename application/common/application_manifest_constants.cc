@@ -13,6 +13,7 @@ namespace application_manifest_keys {
 const char kNameKey[] = "name";
 const char kDisplay[] = "display";
 const char kStartURLKey[] = "start_url";
+const char kScopeKey[] = "scope";
 const char kCSPKey[] = "csp";
 const char kBoundsKey[] = "xwalk_bounds";
 const char kWidthKey[] = "width";

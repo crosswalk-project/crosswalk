@@ -425,7 +425,8 @@ bool ApplicationData::HasCSPDefined() const {
           manifest_->HasPath(widget_keys::kCSPReportOnlyKey) ||
           manifest_->HasPath(widget_keys::kAllowNavigationKey);
 #else
-  return manifest_->HasPath(GetCSPKey(manifest_type()));
+  return manifest_->HasPath(GetCSPKey(manifest_type())) ||
+         manifest_->HasPath(keys::kScopeKey);
 #endif
 }
 

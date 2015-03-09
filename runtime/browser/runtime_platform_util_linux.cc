@@ -43,7 +43,13 @@ void XDGUtil(const std::string& util, const std::string& arg) {
 }
 
 void XDGOpen(const std::string& path) {
-  XDGUtil("xdg-open", path);
+  GURL url(path);
+  if (url.is_valid() && url.SchemeIsHTTPOrHTTPS()) {
+    std::string cmd = "xdg-open " + path;
+    std::system(cmd.c_str());
+  } else {
+    XDGUtil("xdg-open", path);
+  }
 }
 
 void XDGEmail(const std::string& email) {

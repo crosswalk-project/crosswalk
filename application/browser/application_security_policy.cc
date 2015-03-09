@@ -76,9 +76,9 @@ bool ApplicationSecurityPolicy::IsAccessAllowed(const GURL& url) const {
   if (!enabled_)
     return true;
 
-  // Accessing own resources is always allowed.
-  if (url.SchemeIs(application::kApplicationScheme) &&
-      url.host() == app_->id())
+  // Accessing own resources in W3C Widget is always allowed.
+  if (app_->data()->manifest_type() == Manifest::TYPE_WIDGET &&
+      url.SchemeIs(application::kApplicationScheme) && url.host() == app_->id())
     return true;
 
   for (std::vector<WhitelistEntry>::const_iterator it =
@@ -87,7 +87,8 @@ bool ApplicationSecurityPolicy::IsAccessAllowed(const GURL& url) const {
     bool subdomains = it->subdomains;
     bool is_host_matched = subdomains ?
         url.DomainIs(policy.host().c_str()) : url.host() == policy.host();
-    if (url.scheme() == policy.scheme() && is_host_matched)
+    if (url.scheme() == policy.scheme() && is_host_matched &&
+        StartsWithASCII(url.path(), policy.path(), false))
       return true;
   }
   return false;
@@ -185,11 +186,10 @@ void ApplicationSecurityPolicyCSP::Enforce() {
         app_->data()->GetManifestData(widget_keys::kAllowNavigationKey));
     if (info) {
       const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
-      for (std::vector<std::string>::const_iterator it = allowed_list.begin();
-           it != allowed_list.end(); ++it) {
+      for (const auto& it : allowed_list) {
         // If the policy is "*", it represents that any external link is allowed
         // to navigate to.
-        if ((*it) == kAsterisk) {
+        if (it == kAsterisk) {
           enabled_ = false;
           return;
         }
@@ -198,32 +198,44 @@ void ApplicationSecurityPolicyCSP::Enforce() {
         // means that can access to all subdomains for 'domain',
         // otherwise, the host of request url should exactly the same
         // as policy.
-        bool subdomains = ((*it).find("*.") == 0);
-        std::string host = subdomains ? (*it).substr(2) : (*it);
+        bool subdomains = (it.find("*.") == 0);
+        const std::string host = subdomains ? it.substr(2) : it;
         AddWhitelistEntry(GURL("http://" + host), subdomains);
         AddWhitelistEntry(GURL("https://" + host), subdomains);
       }
     }
 #endif
   } else {
-    if (!csp_info || csp_info->GetDirectives().empty()) {
-      LOG(ERROR) << "Failed to obtain CSP directives from the manifest";
-      return;
-    }
-    enabled_ = true;
-    const std::map<std::string, std::vector<std::string> >& policies =
-        csp_info->GetDirectives();
-    std::map<std::string, std::vector<std::string> >::const_iterator it =
-        policies.begin();
-    for (; it != policies.end(); ++it) {
-      const std::vector<std::string>& allowed_list = it->second;
-      for (std::vector<std::string>::const_iterator it = allowed_list.begin();
-           it != allowed_list.end(); ++it) {
-        GURL url(*it);
-        if (url.is_valid())
-          AddWhitelistEntry(url, false);
+    if (csp_info && !csp_info->GetDirectives().empty()) {
+      enabled_ = true;
+      const std::map<std::string, std::vector<std::string> >& policies =
+          csp_info->GetDirectives();
+
+      for (const auto& directive : policies) {
+        for (const auto& it : directive.second) {
+          GURL url(it);
+          if (url.is_valid())
+            AddWhitelistEntry(url, false);
+        }
       }
     }
+
+    // scope
+    std::string scope;
+    GURL internalUrl(ApplicationData::GetBaseURLFromApplicationId(app_->id()));
+    if (app_->data()->GetManifest()->GetString(keys::kScopeKey, &scope) &&
+        !scope.empty()) {
+      enabled_ = true;
+      url::Replacements<char> replacements;
+      replacements.SetPath(scope.c_str(), url::Component(0, scope.length()));
+      internalUrl = internalUrl.ReplaceComponents(replacements);
+    }
+    if (internalUrl.is_valid())
+      // All links out of whitelist will be opened in system default web
+      // browser.
+      AddWhitelistEntry(internalUrl, false);
+    else
+      LOG(INFO) << "URL " << internalUrl.spec() << " is wrong.";
   }
 
   if (enabled_) {

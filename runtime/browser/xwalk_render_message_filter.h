@@ -16,9 +16,7 @@ class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
   bool OnMessageReceived(const IPC::Message& message) override;
 
  private:
-#if defined(OS_TIZEN)
   void OnOpenLinkExternal(const GURL& url);
-#endif
   ~XWalkRenderMessageFilter() override {}
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderMessageFilter);

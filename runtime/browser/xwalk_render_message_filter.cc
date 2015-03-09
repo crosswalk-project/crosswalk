@@ -16,23 +16,17 @@ XWalkRenderMessageFilter::XWalkRenderMessageFilter()
 bool XWalkRenderMessageFilter::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
-#if defined(OS_TIZEN)
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderMessageFilter, message)
     IPC_MESSAGE_HANDLER(ViewMsg_OpenLinkExternal, OnOpenLinkExternal)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
-#else
-  handled = false;
-#endif
 
   return handled;
 }
 
-#if defined(OS_TIZEN)
 void XWalkRenderMessageFilter::OnOpenLinkExternal(const GURL& url) {
   LOG(INFO) << "OpenLinkExternal: " << url.spec();
   platform_util::OpenExternal(url);
 }
-#endif
 
 }  // namespace xwalk

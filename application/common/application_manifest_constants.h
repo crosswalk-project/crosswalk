@@ -18,6 +18,7 @@ namespace application_manifest_keys {
   extern const char kDisplay[];
   // extern const char kOrientation[];
   extern const char kStartURLKey[];
+  extern const char kScopeKey[];
   extern const char kCSPKey[];
   extern const char kBoundsKey[];
   extern const char kWidthKey[];
