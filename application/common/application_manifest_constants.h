@@ -19,6 +19,13 @@ namespace application_manifest_keys {
   // extern const char kOrientation[];
   extern const char kStartURLKey[];
   extern const char kCSPKey[];
+  extern const char kBoundsKey[];
+  extern const char kWidthKey[];
+  extern const char kHeightKey[];
+  extern const char kMinWidthKey[];
+  extern const char kMinHeightKey[];
+  extern const char kMaxWidthKey[];
+  extern const char kMaxHeightKey[];
 
   // Deprecated fields:
 

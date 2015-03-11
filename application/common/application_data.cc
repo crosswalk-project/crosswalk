@@ -186,6 +186,8 @@ bool ApplicationData::Init(const std::string& explicit_id,
     return false;
   if (!LoadDescription(error))
     return false;
+  if (!LoadWindowSetting(error))
+    return false;
 
   application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
 
@@ -335,6 +337,54 @@ bool ApplicationData::LoadDescription(base::string16* error) {
 
   // No error but also no description found.
   return true;
+}
+
+bool ApplicationData::LoadWindowSetting(base::string16* error) {
+  DCHECK(error);
+  if (manifest_type() != Manifest::TYPE_MANIFEST)
+    return true;
+  bool ok = true;
+  if (manifest_->HasKey(keys::kBoundsKey)) {
+    const base::DictionaryValue* bounds_dict;
+    if (!manifest_->GetDictionary(keys::kBoundsKey, &bounds_dict) ||
+        !bounds_dict) {
+      ok = false;
+      *error = base::ASCIIToUTF16("Failed to get application bounds.");
+    } else {
+      int width = 0;
+      int height = 0;
+      int min_width = 0;
+      int min_height = 0;
+      int max_width = 0;
+      int max_height = 0;
+      if (bounds_dict->HasKey(keys::kWidthKey))
+        bounds_dict->GetInteger(keys::kWidthKey, &width);
+      if (bounds_dict->HasKey(keys::kHeightKey))
+        bounds_dict->GetInteger(keys::kHeightKey, &height);
+      if (bounds_dict->HasKey(keys::kMinWidthKey))
+        bounds_dict->GetInteger(keys::kMinWidthKey, &min_width);
+      if (bounds_dict->HasKey(keys::kMinHeightKey))
+        bounds_dict->GetInteger(keys::kMinHeightKey, &min_height);
+      if (bounds_dict->HasKey(keys::kMaxWidthKey))
+        bounds_dict->GetInteger(keys::kMaxWidthKey, &max_width);
+      if (bounds_dict->HasKey(keys::kMaxHeightKey))
+        bounds_dict->GetInteger(keys::kMaxHeightKey, &max_height);
+
+      if (width < 0 || height < 0 || min_width < 0 || min_height < 0 ||
+          max_width < 0 || max_height < 0) {
+        ok = false;
+        *error = base::ASCIIToUTF16("Window bounds cannot be negative.");
+      } else {
+        width = std::max(min_width, std::min(width, max_width));
+        height = std::max(min_height, std::min(height, max_height));
+        window_bounds_.set_width(width);
+        window_bounds_.set_height(height);
+        window_min_size_.SetSize(min_width, min_height);
+        window_max_size_.SetSize(max_width, max_height);
+      }
+    }
+  }
+  return ok;
 }
 
 StoredPermission ApplicationData::GetPermission(

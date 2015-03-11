@@ -233,6 +233,12 @@ bool Application::Launch() {
       GetWindowShowState<Manifest::TYPE_WIDGET>() :
       GetWindowShowState<Manifest::TYPE_MANIFEST>();
 
+  params.bounds = data_->window_bounds();
+  params.minimum_size.set_width(data_->window_min_size().width());
+  params.minimum_size.set_height(data_->window_min_size().height());
+  params.maximum_size.set_width(data_->window_max_size().width());
+  params.maximum_size.set_height(data_->window_max_size().height());
+
   window_show_params_ = params;
   // Only the first runtime can have a launch screen.
   params.splash_screen_path = GetSplashScreenPath();
