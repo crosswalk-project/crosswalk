@@ -112,11 +112,6 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
-  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
-  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
-    extension_controller_.reset(
-        new extensions::XWalkExtensionRendererController(this));
-
   blink::WebString application_scheme(
       base::ASCIIToUTF16(application::kApplicationScheme));
   blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
@@ -137,6 +132,11 @@ void XWalkContentRendererClient::RenderThreadStarted() {
 
 void XWalkContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
+  if (NULL == extension_controller_.get() && !cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
+    extension_controller_.reset(
+      new extensions::XWalkExtensionRendererController(this));
+
   new XWalkFrameHelper(render_frame, extension_controller_.get());
 #if defined(OS_ANDROID)
   new XWalkPermissionClient(render_frame);
