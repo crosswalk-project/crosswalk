@@ -79,6 +79,8 @@
             'manifest_handlers/tizen_setting_handler.h',
             'manifest_handlers/tizen_splash_screen_handler.cc',
             'manifest_handlers/tizen_splash_screen_handler.h',
+            'tizen/app_control_info.cc',
+            'tizen/app_control_info.h',
             'tizen/application_storage.cc',
             'tizen/application_storage.h',
             'tizen/application_storage_impl.cc',

@@ -41,8 +41,10 @@ class XWalkViewDelegate {
             "xwalk.pak",
             "en-US.pak",
             "icudtl.dat",
-            "natives_blob.bin",
-            "snapshot_blob.bin"
+            // Please refer to XWALK-3516, disable v8 use external startup data,
+            // reopen it if needed later.
+            // "natives_blob.bin",
+            // "snapshot_blob.bin"
     };
     private static final String[] MANDATORY_LIBRARIES = {
             "libxwalkcore.so"

@@ -14,6 +14,13 @@ const char kNameKey[] = "name";
 const char kDisplay[] = "display";
 const char kStartURLKey[] = "start_url";
 const char kCSPKey[] = "csp";
+const char kBoundsKey[] = "xwalk_bounds";
+const char kWidthKey[] = "width";
+const char kHeightKey[] = "height";
+const char kMinWidthKey[] = "min-width";
+const char kMinHeightKey[] = "min-height";
+const char kMaxWidthKey[] = "max-width";
+const char kMaxHeightKey[] = "max-height";
 
 // Deprecated entries:
 

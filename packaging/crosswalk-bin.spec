@@ -24,7 +24,7 @@
 %define _binary_payload w3.gzdio
 
 Name:           crosswalk-bin
-Version:        13.41.303.0
+Version:        13.41.318.0
 Release:        0
 Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
@@ -53,9 +53,12 @@ BuildRequires:  libelf-devel
 BuildRequires:  ninja
 BuildRequires:  perl
 BuildRequires:  pkgconfig(ail)
+BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
+BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(cairo)
+BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(capi-location-manager)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)

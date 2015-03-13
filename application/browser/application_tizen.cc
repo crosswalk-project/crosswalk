@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "base/logging.h"
+
 #include "content/browser/renderer_host/media/audio_renderer_host.h"
 #include "content/browser/renderer_host/render_process_host_impl.h"
 #include "content/public/browser/web_contents.h"
@@ -23,13 +25,12 @@
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
-#if defined(USE_OZONE)
 #include "content/public/browser/render_view_host.h"
 #include "ui/events/event.h"
 #include "ui/events/event_constants.h"
+#include "ui/events/event_utils.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
 #include "ui/events/platform/platform_event_source.h"
-#endif
 
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
@@ -150,17 +151,13 @@ ApplicationTizen::ApplicationTizen(
       root_window_(NULL),
 #endif
       is_suspended_(false) {
-#if defined(USE_OZONE)
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
-#endif
   cookie_manager_ = scoped_ptr<CookieManager>(
       new CookieManager(id(), browser_context_));
 }
 
 ApplicationTizen::~ApplicationTizen() {
-#if defined(USE_OZONE)
   ui::PlatformEventSource::GetInstance()->RemovePlatformEventObserver(this);
-#endif
 }
 
 void ApplicationTizen::Hide() {
@@ -217,6 +214,47 @@ bool ApplicationTizen::Launch() {
   return false;
 }
 
+GURL ApplicationTizen::GetStartURL(Manifest::Type type) const {
+  const std::string& bundle = data_->bundle();
+  if (bundle.empty()) {
+    return Application::GetStartURL(type);
+  }
+
+  auto app_control = AppControlInfo::CreateFromBundle(bundle);
+  if (!app_control) {
+    return Application::GetStartURL(type);
+  }
+
+  GURL app_control_url = GetAppControlStartURL(*app_control);
+  if (!app_control_url.is_valid()) {
+    return Application::GetStartURL(type);
+  }
+
+  return app_control_url;
+}
+
+GURL ApplicationTizen::GetAppControlStartURL(
+    const AppControlInfo& app_control) const {
+  const AppControlInfoList* app_controls =
+      static_cast<const AppControlInfoList*>(
+          data()->GetManifestData(
+              widget_keys::kTizenApplicationAppControlsKey));
+  if (app_controls) {
+    for (const auto& item : app_controls->controls) {
+      if (item.Covers(app_control)) {
+        LOG(INFO) << "Start URL by appcontrol: "
+                  << " operation: " << item.operation()
+                  << " mime: " << item.mime()
+                  << " uri: " << item.uri()
+                  << " src: " << item.src();
+        return data()->GetResourceURL(item.src());
+      }
+    }
+  }
+
+  return GURL();
+}
+
 base::FilePath ApplicationTizen::GetSplashScreenPath() {
   if (TizenSplashScreenInfo* ss_info = static_cast<TizenSplashScreenInfo*>(
       data()->GetManifestData(widget_keys::kTizenSplashScreenKey))) {
@@ -263,16 +301,16 @@ void ApplicationTizen::Resume() {
   is_suspended_ = false;
 }
 
-#if defined(USE_OZONE)
 void ApplicationTizen::WillProcessEvent(const ui::PlatformEvent& event) {}
 
 void ApplicationTizen::DidProcessEvent(
     const ui::PlatformEvent& event) {
-  ui::Event* ui_event = static_cast<ui::Event*>(event);
-  if (!ui_event->IsKeyEvent() || ui_event->type() != ui::ET_KEY_PRESSED)
+  scoped_ptr<ui::Event> ui_event(ui::EventFromNative(event));
+  if (!ui_event ||
+      !ui_event->IsKeyEvent() || ui_event->type() != ui::ET_KEY_PRESSED)
     return;
 
-  ui::KeyEvent* key_event = static_cast<ui::KeyEvent*>(ui_event);
+  ui::KeyEvent* key_event = static_cast<ui::KeyEvent*>(ui_event.get());
 
   // FIXME: Most Wayland devices don't have similar hardware button for 'back'
   // and 'memu' as Tizen Mobile, even that hardare buttons could be different
@@ -294,7 +332,6 @@ void ApplicationTizen::DidProcessEvent(
         (*it)->web_contents()->GetRoutingID(), key_event->key_code()));
   }
 }
-#endif
 
 void ApplicationTizen::RemoveAllCookies() {
   cookie_manager_->RemoveAllCookies();

@@ -24,6 +24,11 @@ class XWalkRunnerTizen : public XWalkRunner {
 
   void PreMainMessageLoopRun() override;
 
+ protected:
+  void InitializeRuntimeVariablesForExtensions(
+      const content::RenderProcessHost* host,
+      base::ValueMap* variables) override;
+
  private:
   friend class XWalkRunner;
   XWalkRunnerTizen();

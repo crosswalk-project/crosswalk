@@ -100,6 +100,9 @@
           'variables': {
             'packages': [
               'ail',
+              'aul',
+              'bundle',
+              'capi-appfw-application',
               'dlog',
               'nss',
               'nspr',

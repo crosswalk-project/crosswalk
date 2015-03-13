@@ -20,7 +20,8 @@ class ApplicationServiceTizen : public ApplicationService {
  public:
   ~ApplicationServiceTizen() override;
   // Launch an installed application using application id.
-  Application* LaunchFromAppID(const std::string& id);
+  Application* LaunchFromAppID(const std::string& id,
+      const std::string& encoded_bundle = std::string());
 
  private:
   friend class ApplicationService;

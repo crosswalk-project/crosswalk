@@ -1,3 +1,4 @@
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
@@ -10,14 +11,19 @@
 #include "base/files/file_util.h"
 #include "base/path_service.h"
 #include "base/strings/string_piece.h"
+#include "base/strings/string_split.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/nacl/common/nacl_process_type.h"
+#include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/user_agent.h"
-#if !defined(DISABLE_NACL)
+#if defined(ENABLE_PLUGINS)
 #include "content/public/common/pepper_plugin_info.h"
-#include "ppapi/native_client/src/trusted/plugin/ppapi_entrypoints.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
+#endif
+#if !defined(DISABLE_NACL)
+#include "ppapi/native_client/src/trusted/plugin/ppapi_entrypoints.h"
 #endif
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -43,6 +49,69 @@ const uint32 kNaClPluginPermissions = ppapi::PERMISSION_PRIVATE |
 const char kPnaclPluginMimeType[] = "application/x-pnacl";
 const char kPnaclPluginExtension[] = "";
 const char kPnaclPluginDescription[] = "Portable Native Client Executable";
+#endif
+
+#if defined(ENABLE_PLUGINS)
+const int32 kPepperFlashPermissions = ppapi::PERMISSION_DEV |
+                                      ppapi::PERMISSION_PRIVATE |
+                                      ppapi::PERMISSION_BYPASS_USER_GESTURE |
+                                      ppapi::PERMISSION_FLASH;
+
+content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
+                                                const std::string& version) {
+  content::PepperPluginInfo plugin;
+
+  plugin.is_out_of_process = true;
+  plugin.name = content::kFlashPluginName;
+  plugin.path = path;
+  plugin.permissions = kPepperFlashPermissions;
+
+  std::vector<std::string> flash_version_numbers;
+  base::SplitString(version, '.', &flash_version_numbers);
+  if (flash_version_numbers.size() < 1)
+    flash_version_numbers.push_back("11");
+  // |SplitString()| puts in an empty string given an empty string. :(
+  else if (flash_version_numbers[0].empty())
+    flash_version_numbers[0] = "11";
+  if (flash_version_numbers.size() < 2)
+    flash_version_numbers.push_back("2");
+  if (flash_version_numbers.size() < 3)
+    flash_version_numbers.push_back("999");
+  if (flash_version_numbers.size() < 4)
+    flash_version_numbers.push_back("999");
+  // E.g., "Shockwave Flash 10.2 r154":
+  plugin.description = plugin.name + " " + flash_version_numbers[0] + "." +
+      flash_version_numbers[1] + " r" + flash_version_numbers[2];
+  plugin.version = JoinString(flash_version_numbers, '.');
+  content::WebPluginMimeType swf_mime_type(content::kFlashPluginSwfMimeType,
+                                           content::kFlashPluginSwfExtension,
+                                           content::kFlashPluginSwfDescription);
+  plugin.mime_types.push_back(swf_mime_type);
+  content::WebPluginMimeType spl_mime_type(content::kFlashPluginSplMimeType,
+                                           content::kFlashPluginSplExtension,
+                                           content::kFlashPluginSplDescription);
+  plugin.mime_types.push_back(spl_mime_type);
+
+  return plugin;
+}
+
+void AddPepperFlashFromCommandline(
+    std::vector<content::PepperPluginInfo>* plugins) {
+  const base::CommandLine::StringType path =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValueNative(
+          switches::kPpapiFlashPath);
+  if (path.empty())
+    return;
+
+  // Also get the version from the command-line. Should be something like 11.2
+  // or 11.2.123.45.
+  std::string version =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+          switches::kPpapiFlashVersion);
+
+  plugins->push_back(
+      CreatePepperFlashInfo(base::FilePath(path), version));
+}
 #endif
 
 }  // namespace
@@ -108,6 +177,10 @@ void XWalkContentClient::AddPepperPlugins(
     nacl.permissions = kNaClPluginPermissions;
     plugins->push_back(nacl);
   }
+#endif
+
+#if defined(ENABLE_PLUGINS)
+  AddPepperFlashFromCommandline(plugins);
 #endif
 }
 

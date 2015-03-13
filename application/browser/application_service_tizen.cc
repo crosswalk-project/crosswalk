@@ -58,7 +58,8 @@ ApplicationServiceTizen::ApplicationServiceTizen(
 ApplicationServiceTizen::~ApplicationServiceTizen() {
 }
 
-Application* ApplicationServiceTizen::LaunchFromAppID(const std::string& id) {
+Application* ApplicationServiceTizen::LaunchFromAppID(
+    const std::string& id, const std::string& encoded_bundle) {
   if (!IsValidApplicationID(id)) {
      LOG(ERROR) << "The input parameter is not a valid app id: " << id;
      return NULL;
@@ -70,6 +71,9 @@ Application* ApplicationServiceTizen::LaunchFromAppID(const std::string& id) {
     LOG(ERROR) << "Application with id " << id << " is not installed.";
     return NULL;
   }
+
+  // Set bundle data for app
+  app_data->set_bundle(encoded_bundle);
 
   return Launch(app_data);
 }

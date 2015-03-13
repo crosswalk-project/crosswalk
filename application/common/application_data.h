@@ -20,6 +20,7 @@
 #include "base/strings/string_util.h"
 #include "base/synchronization/lock.h"
 #include "base/threading/thread_checker.h"
+#include "ui/gfx/geometry/rect.h"
 #include "url/gurl.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/permission_types.h"
@@ -91,6 +92,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   // all SetManifestData calls should be on only one thread.
   void SetManifestData(const std::string& key, ManifestData* data);
 
+#if defined(OS_TIZEN)
+  void set_bundle(const std::string& bundle);
+#endif
+
   // Accessors:
   const base::FilePath& path() const { return path_; }
   const GURL& URL() const { return application_url_; }
@@ -99,12 +104,20 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   const std::string& ID() const { return application_id_; }
 #if defined(OS_TIZEN)
   std::string GetPackageID() const;
+  const std::string& bundle() const;
 #endif
   const base::Version* Version() const { return version_.get(); }
   const std::string VersionString() const;
   const std::string& Name() const { return name_; }
   const std::string& NonLocalizedName() const { return non_localized_name_; }
   const std::string& Description() const { return description_; }
+  const gfx::Rect& window_bounds() const { return window_bounds_; }
+  const gfx::Size& window_min_size() const {
+    return window_min_size_;
+  }
+  const gfx::Size& window_max_size() const {
+    return window_max_size_;
+  }
 
   const Manifest* GetManifest() const {
     return manifest_.get();
@@ -144,6 +157,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   bool LoadName(base::string16* error);
   bool LoadVersion(base::string16* error);
   bool LoadDescription(base::string16* error);
+  bool LoadWindowSetting(base::string16* error);
 
   // The application's human-readable name. Name is used for display purpose. It
   // might be wrapped with unicode bidi control characters so that it is
@@ -199,6 +213,15 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // The source the application was loaded from.
   SourceType source_type_;
+
+  // Main window bounds
+  gfx::Rect window_bounds_;
+  gfx::Size window_min_size_;
+  gfx::Size window_max_size_;
+
+#if defined(OS_TIZEN)
+  std::string bundle_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationData);
 };

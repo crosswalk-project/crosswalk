@@ -8,6 +8,7 @@
 
 #include "base/files/file_enumerator.h"
 #include "base/json/json_reader.h"
+#include "base/logging.h"
 #include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
@@ -102,7 +103,7 @@ Application::~Application() {
 }
 
 template<>
-GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() {
+GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() const {
 #if defined(OS_TIZEN)
   if (data_->IsHostedApp()) {
     std::string source;
@@ -132,7 +133,7 @@ GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() {
 }
 
 template<>
-GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() {
+GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() const {
   if (data_->IsHostedApp()) {
     std::string source;
     // Not trying to get a relative path for the "fake" application.
@@ -161,6 +162,17 @@ GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() {
   return GURL();
 }
 
+GURL Application::GetStartURL(Manifest::Type type) const {
+  switch (type) {
+    case Manifest::Type::TYPE_WIDGET:
+      return GetStartURL<Manifest::Type::TYPE_WIDGET>();
+    case Manifest::Type::TYPE_MANIFEST:
+      return GetStartURL<Manifest::Type::TYPE_MANIFEST>();
+    default:
+      NOTREACHED() << "Unknown manifest type";
+      return GURL();
+  }
+}
 
 template<>
 ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>() {
@@ -201,10 +213,8 @@ bool Application::Launch() {
   }
 
   CHECK(!render_process_host_);
-  bool is_wgt = data_->manifest_type() == Manifest::TYPE_WIDGET;
 
-  GURL url = is_wgt ? GetStartURL<Manifest::TYPE_WIDGET>() :
-                      GetStartURL<Manifest::TYPE_MANIFEST>();
+  GURL url = GetStartURL(data_->manifest_type());
   if (!url.is_valid())
     return false;
 
@@ -219,9 +229,15 @@ bool Application::Launch() {
   runtime->LoadURL(url);
 
   NativeAppWindow::CreateParams params;
-  params.state = is_wgt ?
+  params.state = data_->manifest_type() == Manifest::TYPE_WIDGET ?
       GetWindowShowState<Manifest::TYPE_WIDGET>() :
       GetWindowShowState<Manifest::TYPE_MANIFEST>();
+
+  params.bounds = data_->window_bounds();
+  params.minimum_size.set_width(data_->window_min_size().width());
+  params.minimum_size.set_height(data_->window_min_size().height());
+  params.maximum_size.set_width(data_->window_max_size().width());
+  params.maximum_size.set_height(data_->window_max_size().height());
 
   window_show_params_ = params;
   // Only the first runtime can have a launch screen.
@@ -232,7 +248,7 @@ bool Application::Launch() {
   return true;
 }
 
-GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
+GURL Application::GetAbsoluteURLFromKey(const std::string& key) const {
   const Manifest* manifest = data_->GetManifest();
   std::string source;
 

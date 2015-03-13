@@ -7,6 +7,7 @@ var c = document.createElement("iframe");
 document.body.appendChild(c);
 c.contentDocument.write('lala');
 c.src = "counter.html";
+c.contentDocument.close();
 document.title = 'Pass';
 </script>
 </body>

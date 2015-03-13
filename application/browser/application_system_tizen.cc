@@ -102,7 +102,22 @@ void application_event_cb(app_event event, void* data, bundle* b) {
 
       ApplicationServiceTizen* app_service_tizen =
           ToApplicationServiceTizen(app_system->application_service());
-      Application* app = app_service_tizen->LaunchFromAppID(app_id);
+
+      // TODO(t.iwanek):
+      // In tizen platform RESET event should reload application
+      // It should be handled it here.
+      // By now it will just ignore second launch of an application
+
+      std::string encoded_bundle;
+      bundle_raw* r = nullptr;
+      int len = 0;
+      if (!bundle_encode(b, &r, &len)) {
+        encoded_bundle.assign(reinterpret_cast<char*>(r), len);
+        bundle_free_encoded_rawdata(&r);
+      }
+
+      Application* app =
+          app_service_tizen->LaunchFromAppID(app_id, encoded_bundle);
       LOG(INFO) << "Application launched with id: " << app->id();
       handler_data->current_app = static_cast<ApplicationTizen*>(app);
       break;

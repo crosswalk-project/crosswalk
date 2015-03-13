@@ -3,6 +3,7 @@
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
+    'use_libnotify%': 0,
     'conditions': [
       ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
@@ -394,6 +395,18 @@
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
           ],
+        }],
+        ['OS=="linux" and use_libnotify==1', {
+          'defines': ['USE_LIBNOTIFY=1'],
+          'link_settings': {
+            'libraries': [
+              '<!@(pkg-config --libs libnotify)',
+            ],
+          },
+          'sources': [
+            'runtime/browser/linux/xwalk_notification_manager.cc',
+            'runtime/browser/linux/xwalk_notification_manager.h',
+          ]
         }],
         ['disable_nacl==0', {
             'conditions': [
