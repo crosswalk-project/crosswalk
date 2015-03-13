@@ -156,6 +156,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   }
 #endif
 
+  std::string GetApplicationLocale() override;
+
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
