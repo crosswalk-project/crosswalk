@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "base/android/locale_utils.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/files/file.h"
@@ -425,6 +426,10 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
 content::DevToolsManagerDelegate*
   XWalkContentBrowserClient::GetDevToolsManagerDelegate() {
   return new XWalkDevToolsDelegate(browser_context_);
+}
+
+std::string XWalkContentBrowserClient::GetApplicationLocale() {
+  return base::android::GetDefaultLocale();
 }
 
 }  // namespace xwalk
