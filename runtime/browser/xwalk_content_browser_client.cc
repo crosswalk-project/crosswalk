@@ -47,6 +47,7 @@
 #endif
 
 #if defined(OS_ANDROID)
+#include "base/android/locale_utils.h"
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
@@ -425,6 +426,14 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
 content::DevToolsManagerDelegate*
   XWalkContentBrowserClient::GetDevToolsManagerDelegate() {
   return new XWalkDevToolsDelegate(browser_context_);
+}
+
+std::string XWalkContentBrowserClient::GetApplicationLocale() {
+#if defined(OS_ANDROID)
+  return base::android::GetDefaultLocale();
+#else
+  return content::ContentBrowserClient::GetApplicationLocale();
+#endif
 }
 
 }  // namespace xwalk
