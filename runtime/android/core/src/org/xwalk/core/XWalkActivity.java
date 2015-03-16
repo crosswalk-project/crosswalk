@@ -20,6 +20,9 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
@@ -40,13 +43,10 @@ import org.xwalk.core.XWalkLibraryListener.LibraryStatus;
  * It provides method to allow overriding getResources() behavior.
  */
 public abstract class XWalkActivity extends Activity implements XWalkLibraryListener {
-    private static final String XWALK_CORE_APK = "XWalkRuntimeLib.apk";
+    private static final String XWALK_APK_NAME = "XWalkRuntimeLib.apk";
 
-    private static final String XWALK_CORE_MARKET_URL =
+    private static final String XWALK_APK_MARKET_URL =
             "market://details?id=" + XWalkCoreWrapper.XWALK_APK_PACKAGE;
-
-    private static final String XWALK_CORE_DOWNLOAD_URL =
-            "http://10.0.2.2/" + XWALK_CORE_APK; // This address is only for test temporarily
 
     private static final String TAG = "XWalkActivity";
 
@@ -58,6 +58,7 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
     private boolean mIsVisible;
     private LinkedList<Object> mReservedObjects;
     private LinkedList<ReflectMethod> mReservedMethods;
+    private String mXWalkApkDownloadUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,22 +209,41 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
     }
 
     private void getXWalkLibrary() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            startActivity(intent.setData(Uri.parse(XWALK_CORE_MARKET_URL)));
-            showDialog(getMarketProgressDialog());
-        } catch (ActivityNotFoundException e) {
-            Log.d(TAG, "Market open failed");
-            showDialog(getMarketOpenFailedDialog());
-            // TODO(sunlin): enable direct download in the future
-            // downloadXWalkLibrary();
+        // The download url is defined by the meta-data item with the name of "xwalk_apk_url"
+        // under the application tag in AndroidManifest.xml. It can also be specified via
+        // --xwalk-apk-url option of make_apk script indirectly.
+        if (mXWalkApkDownloadUrl == null) {
+            try {
+                PackageManager packageManager = getPackageManager();
+                ApplicationInfo appInfo = packageManager.getApplicationInfo(
+                        getPackageName(), PackageManager.GET_META_DATA);
+                if (appInfo.metaData != null) {
+                    mXWalkApkDownloadUrl = appInfo.metaData.getString("xwalk_apk_url");
+                }
+            } catch (NameNotFoundException e) {
+            }
+            if (mXWalkApkDownloadUrl == null) mXWalkApkDownloadUrl = "";
+            Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkDownloadUrl);
+        }
+
+        if (!mXWalkApkDownloadUrl.isEmpty()) {
+            downloadXWalkLibrary();
+        } else {
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                startActivity(intent.setData(Uri.parse(XWALK_APK_MARKET_URL)));
+                showDialog(getMarketProgressDialog());
+            } catch (ActivityNotFoundException e) {
+                Log.d(TAG, "Market open failed");
+                showDialog(getMarketOpenFailedDialog());
+            }
         }
     }
 
     private void downloadXWalkLibrary() {
         showDialog(getDownloadProgressDialog());
 
-        mDownloadTask = new DownloadTask(this);
+        mDownloadTask = new DownloadTask(this, mXWalkApkDownloadUrl);
         mDownloadTask.execute();
     }
 
@@ -243,22 +263,24 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
         private DownloadManager mDownloadManager;
         private long mDownloadId;
         private ProgressDialog mProgressDialog;
+        private String mDownloadUrl;
 
-        DownloadTask(XWalkActivity activity) {
+        DownloadTask(XWalkActivity activity, String url) {
             super();
 
             mXWalkActivity = activity;
             mDownloadManager= (DownloadManager) activity.getSystemService(DOWNLOAD_SERVICE);
             mDownloadId = -1;
             mProgressDialog = (ProgressDialog) activity.mActiveDialog;
+            mDownloadUrl = url;
         }
 
         @Override
         protected void onPreExecute() {
-            Log.d(TAG, "Download started, " + XWalkActivity.XWALK_CORE_DOWNLOAD_URL);
-            Request request = new Request(Uri.parse(XWalkActivity.XWALK_CORE_DOWNLOAD_URL));
+            Log.d(TAG, "Download started, " + mDownloadUrl);
+            Request request = new Request(Uri.parse(mDownloadUrl));
             request.setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_DOWNLOADS, XWALK_CORE_APK);
+                    Environment.DIRECTORY_DOWNLOADS, XWALK_APK_NAME);
             mDownloadId = mDownloadManager.enqueue(request);
         }
 

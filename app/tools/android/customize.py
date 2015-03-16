@@ -285,6 +285,16 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
     EditElementAttribute(xmldoc, 'application', 'android:icon',
                          '@drawable/%s' % icon_name)
 
+  if app_info.xwalk_apk_url:
+    meta_data = xmldoc.createElement('meta-data')
+    meta_data.setAttribute('android:name', 'xwalk_apk_url')
+    meta_data.setAttribute('android:value', app_info.xwalk_apk_url)
+    app_node = xmldoc.getElementsByTagName('application')[0]
+    comment = 'The download URL of Crosswalk runtime library APK. \n\
+        Default updater use the Android download manager to fetch the url'
+    app_node.appendChild(xmldoc.createComment(comment))
+    app_node.appendChild(meta_data)
+
   file_handle = open(os.path.join(app_dir, 'AndroidManifest.xml'), 'w')
   xmldoc.writexml(file_handle, encoding='utf-8')
   file_handle.close()
