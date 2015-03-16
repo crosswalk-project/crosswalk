@@ -23,7 +23,7 @@
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #endif
 #if !defined(DISABLE_NACL)
-#include "ppapi/native_client/src/trusted/plugin/ppapi_entrypoints.h"
+#include "components/nacl/renderer/plugin/ppapi_entrypoints.h"
 #endif
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"

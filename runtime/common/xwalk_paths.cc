@@ -18,6 +18,7 @@
 #include "base/environment.h"
 #include "base/nix/xdg_util.h"
 #elif defined(OS_MACOSX) && !defined(OS_IOS)
+#import "base/mac/foundation_util.h"
 #import "base/mac/mac_util.h"
 #endif
 

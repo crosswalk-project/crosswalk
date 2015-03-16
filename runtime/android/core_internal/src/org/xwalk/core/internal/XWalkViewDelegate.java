@@ -26,6 +26,7 @@ import org.chromium.base.ResourceExtractor;
 import org.chromium.base.ResourceExtractor.ResourceIntercepter;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
+import org.chromium.base.library_loader.LibraryProcessType;
 import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
@@ -211,7 +212,8 @@ class XWalkViewDelegate {
     private static void loadLibrary(Context context) {
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         try {
-            LibraryLoader.loadNow(context, true);
+            LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
+            libraryLoader.loadNow(context, true);
         } catch (ProcessInitException e) {
             throw new RuntimeException("Cannot load Crosswalk Core", e);
         }
@@ -222,7 +224,7 @@ class XWalkViewDelegate {
             @Override
             public void run() {
                 try {
-                    LibraryLoader.ensureInitialized();
+                    LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER).ensureInitialized();
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
@@ -231,8 +233,8 @@ class XWalkViewDelegate {
                         XWalkSwitches.PROFILE_NAME,
                         XWalkPreferencesInternal.getStringValue(XWalkPreferencesInternal.PROFILE_NAME));
                 try {
-                    BrowserStartupController.get(context).startBrowserProcessesSync(
-                        true);
+                    BrowserStartupController.get(context, LibraryProcessType.PROCESS_BROWSER).
+                        startBrowserProcessesSync(true);
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }

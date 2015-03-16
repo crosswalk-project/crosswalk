@@ -15,6 +15,7 @@ import android.webkit.WebSettings;
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
+import org.chromium.content_public.browser.WebContents;
 
 /**
  * @hide
@@ -137,7 +138,7 @@ public class XWalkSettings {
         }
     }
 
-    public XWalkSettings(Context context, long nativeWebContents,
+    public XWalkSettings(Context context, WebContents webContents,
             boolean isAccessFromFileURLsGrantedByDefault) {
         ThreadUtils.assertOnUiThread();
         mContext = context;
@@ -155,18 +156,18 @@ public class XWalkSettings {
 
         mEventHandler = new EventHandler();
 
-        setWebContents(nativeWebContents);
+        setWebContents(webContents);
     }
 
-    void setWebContents(long nativeWebContents) {
+    void setWebContents(WebContents webContents) {
         synchronized (mXWalkSettingsLock) {
             if (mNativeXWalkSettings != 0) {
                 nativeDestroy(mNativeXWalkSettings);
                 assert mNativeXWalkSettings == 0;
             }
-            if (nativeWebContents != 0) {
+            if (webContents != null) {
                 mEventHandler.bindUiThread();
-                mNativeXWalkSettings = nativeInit(nativeWebContents);
+                mNativeXWalkSettings = nativeInit(webContents);
                 nativeUpdateEverythingLocked(mNativeXWalkSettings);
             }
         }
@@ -656,7 +657,7 @@ public class XWalkSettings {
         }
     }
 
-    private native long nativeInit(long webContentsPtr);
+    private native long nativeInit(WebContents webContents);
 
     private native void nativeDestroy(long nativeXWalkSettings);
 

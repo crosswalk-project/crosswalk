@@ -114,10 +114,10 @@ void OpenExternal(const GURL& url) {
     else
       argv.push_back("xwalk-launcher");
     argv.push_back(url.spec());
-    base::ProcessHandle handle;
 
-    if (base::LaunchProcess(argv, base::LaunchOptions(), &handle))
-      base::EnsureProcessGetsReaped(handle);
+    base::Process process = base::LaunchProcess(argv, base::LaunchOptions());
+    if (process.IsValid())
+      base::EnsureProcessGetsReaped(process.Handle());
   } else if (!HandleExternalProtocol(url)) {
     LOG(ERROR) << "Can not handle url: " << url.spec();
   }

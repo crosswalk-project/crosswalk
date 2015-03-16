@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/compiler_specific.h"
+#include "base/files/scoped_file.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
@@ -148,6 +149,13 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   content::DevToolsManagerDelegate*
       GetDevToolsManagerDelegate() override;
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  void GetAdditionalMappedFilesForChildProcess(
+      const base::CommandLine& command_line,
+      int child_process_id,
+      content::FileDescriptorInfo* mappings) override;
+#endif
+
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 
 #if defined(OS_ANDROID)
@@ -159,6 +167,12 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
+
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  base::ScopedFD v8_natives_fd_;
+  base::ScopedFD v8_snapshot_fd_;
+#endif
+
   scoped_refptr<RuntimeGeolocationPermissionContext>
     geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;

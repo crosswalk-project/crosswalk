@@ -37,9 +37,9 @@ void XDGUtil(const std::string& util, const std::string& arg) {
     options.environ["GNOME_DISABLE_CRASH_DIALOG"] = "";
   }
 
-  base::ProcessHandle handle;
-  if (base::LaunchProcess(argv, options, &handle))
-    base::EnsureProcessGetsReaped(handle);
+  base::Process process = base::LaunchProcess(argv, options);
+  if (process.IsValid())
+    base::EnsureProcessGetsReaped(process.Handle());
 }
 
 void XDGOpen(const std::string& path) {

@@ -4,7 +4,8 @@
 
 #include "xwalk/sysapps/raw_socket/udp_socket_object.h"
 
-#include <string.h>
+#include <algorithm>
+#include <string>
 
 #include "base/logging.h"
 #include "net/base/net_errors.h"
@@ -214,7 +215,8 @@ void UDPSocketObject::OnRead(int status) {
       static_cast<char*>(read_buffer_->data()), status));
 
   UDPMessageEvent event;
-  event.data = std::string(read_buffer_->data(), status);
+  std::string buffer_data(read_buffer_->data(), status);
+  std::copy(buffer_data.begin(), buffer_data.end(), back_inserter(event.data));
   event.remote_port = from_.port();
   event.remote_address = from_.ToStringWithoutPort();
 

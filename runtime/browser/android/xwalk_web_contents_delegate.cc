@@ -219,15 +219,25 @@ void XWalkWebContentsDelegate::HandleKeyboardEvent(
   Java_XWalkWebContentsDelegate_handleKeyboardEvent(env, obj.obj(), key_event);
 }
 
-void XWalkWebContentsDelegate::ToggleFullscreenModeForTab(
+void XWalkWebContentsDelegate::EnterFullscreenModeForTab(
     content::WebContents* web_contents,
-    bool enter_fullscreen) {
+    const GURL&) {
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
   if (obj.is_null())
     return;
   Java_XWalkWebContentsDelegate_toggleFullscreen(
-      env, obj.obj(), enter_fullscreen);
+      env, obj.obj(), true);
+}
+
+void XWalkWebContentsDelegate::ExitFullscreenModeForTab(
+    content::WebContents* web_contents) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkWebContentsDelegate_toggleFullscreen(
+      env, obj.obj(), false);
 }
 
 bool XWalkWebContentsDelegate::IsFullscreenForTabOrPending(

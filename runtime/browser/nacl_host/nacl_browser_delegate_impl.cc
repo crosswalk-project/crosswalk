@@ -5,8 +5,8 @@
 #include "xwalk/runtime/browser/nacl_host/nacl_browser_delegate_impl.h"
 
 #include "base/path_service.h"
+#include "components/nacl/renderer/ppb_nacl_private.h"
 #include "content/public/browser/browser_thread.h"
-#include "ppapi/c/private/ppb_nacl_private.h"
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
@@ -60,7 +60,8 @@ ppapi::host::HostFactory* NaClBrowserDelegateImpl::CreatePpapiHostFactory(
   return new xwalk::XWalkBrowserPepperHostFactory(ppapi_host);
 }
 
-void NaClBrowserDelegateImpl::SetDebugPatterns(std::string debug_patterns) {
+void NaClBrowserDelegateImpl::SetDebugPatterns(
+    const std::string& debug_patterns) {
 }
 
 bool NaClBrowserDelegateImpl::URLMatchesDebugPatterns(

@@ -5,8 +5,8 @@
 #include "xwalk/application/renderer/application_native_module.h"
 
 #include "base/logging.h"
+#include "content/public/child/v8_value_converter.h"
 #include "content/public/renderer/render_view.h"
-#include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"

@@ -45,7 +45,7 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   OverrideFrameworkBundlePath();
   OverrideChildProcessPath();
 #elif defined(OS_WIN)
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   std::string process_type =
           command_line->GetSwitchValueASCII(switches::kProcessType);
   // Only set the id for browser process

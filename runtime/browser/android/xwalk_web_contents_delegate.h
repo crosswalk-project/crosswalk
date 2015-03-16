@@ -51,8 +51,11 @@ class XWalkWebContentsDelegate
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
 
-  void ToggleFullscreenModeForTab(content::WebContents* web_contents,
-                                          bool enter_fullscreen) override;
+  void EnterFullscreenModeForTab(
+      content::WebContents* web_contents,
+      const GURL& origin) override;
+  void ExitFullscreenModeForTab(
+      content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
       const content::WebContents* web_contents) const override;
 
