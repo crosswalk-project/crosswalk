@@ -34,7 +34,8 @@ class XWalkContent {
   static XWalkContent* FromID(int render_process_id, int render_view_id);
   static XWalkContent* FromWebContents(content::WebContents* web_contents);
 
-  jlong GetWebContents(JNIEnv* env, jobject obj);
+  base::android::ScopedJavaLocalRef<jobject> GetWebContents(JNIEnv* env,
+                                                            jobject obj);
   void SetPendingWebContentsForPopup(scoped_ptr<content::WebContents> pending);
   jlong ReleasePopupXWalkContent(JNIEnv* env, jobject obj);
   void SetJavaPeers(JNIEnv* env,

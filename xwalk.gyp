@@ -43,6 +43,7 @@
         '../content/content.gyp:content_ppapi_plugin',
         '../content/content.gyp:content_renderer',
         '../content/content.gyp:content_utility',
+        '../gin/gin.gyp:gin',
         '../ipc/ipc.gyp:ipc',
         '../media/media.gyp:media',
         '../net/net.gyp:net',
@@ -315,6 +316,9 @@
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
             '../components/components.gyp:web_modal',
             '../components/components.gyp:renderer_context_menu',
+
+            # https://code.google.com/p/chromium/issues/detail?id=449919#c30
+            '../extensions/extensions.gyp:extensions_browser',
           ],
           'sources': [
             'runtime/browser/tizen/xwalk_web_contents_view_delegate.cc',
@@ -394,6 +398,7 @@
         ['use_aura==1', {
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
+            '../ui/base/ime/ui_base_ime.gyp:ui_base_ime',
           ],
         }],
         ['OS=="linux" and use_libnotify==1', {
@@ -423,7 +428,7 @@
                     '../components/nacl.gyp:nacl_helper',
                     '../components/nacl.gyp:nacl_linux',
                     '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
-                    '../ppapi/native_client/src/trusted/plugin/plugin.gyp:nacl_trusted_plugin',
+                    '../components/nacl/renderer/plugin/plugin.gyp:nacl_trusted_plugin',
                   ],
                 }],
             ],

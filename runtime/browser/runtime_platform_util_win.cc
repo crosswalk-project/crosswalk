@@ -100,7 +100,7 @@ void ShowItemInFolderOnFileThread(const base::FilePath& full_path) {
       ShellExecute(NULL, L"open", dir.value().c_str(), NULL, NULL, SW_SHOW);
     } else {
       LPTSTR message = NULL;
-      DWORD message_length = FormatMessage(
+      FormatMessage(
           FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
           0, hr, 0, reinterpret_cast<LPTSTR>(&message), 0, NULL);
       LOG(WARNING) << " " << __FUNCTION__
@@ -118,7 +118,7 @@ void ShowItemInFolderOnFileThread(const base::FilePath& full_path) {
 // is empty. This function tells if it is.
 bool ValidateShellCommandForScheme(const std::string& scheme) {
   base::win::RegKey key;
-  std::wstring registry_path = base::ASCIIToWide(scheme) +
+  std::wstring registry_path = base::ASCIIToUTF16(scheme) +
                                L"\\shell\\open\\command";
   key.Open(HKEY_CLASSES_ROOT, registry_path.c_str(), KEY_READ);
   if (!key.Valid())

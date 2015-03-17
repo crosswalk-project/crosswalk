@@ -16,14 +16,14 @@ class XWalkTaskbarGroupingTest : public InProcessBrowserTest {
  public:
   bool TestForTaskbarGrouping(const std::string& url,
                               const std::string& expected_id) {
-    CommandLine::ForCurrentProcess()->AppendArg(url);
+    base::CommandLine::ForCurrentProcess()->AppendArg(url);
     xwalk::SetTaskbarGroupIdForProcess();
 
     bool result = true;
 #if defined(OS_WIN)
     PWSTR user_model_id;
     ::GetCurrentProcessExplicitAppUserModelID(&user_model_id);
-    result = (base::ASCIIToWide(expected_id) == user_model_id);
+    result = (base::ASCIIToUTF16(expected_id) == user_model_id);
     CoTaskMemFree(user_model_id);
 #endif
 

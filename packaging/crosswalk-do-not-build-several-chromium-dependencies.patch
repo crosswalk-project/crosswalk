@@ -174,7 +174,7 @@ BUG=XWALK-2571
          '<(DEPTH)/base/base.gyp:base',
 --- src/content/content.gyp
 +++ src/content/content.gyp
-@@ -21,6 +21,68 @@
+@@ -21,6 +21,69 @@
        }],
      ],
    },
@@ -198,9 +198,9 @@ BUG=XWALK-2571
 +        '../device/battery/battery.gyp:device_battery_mojo_bindings',
 +        '../device/vibration/vibration.gyp:device_vibration_mojo_bindings',
 +        '../mojo/mojo_base.gyp:mojo_environment_chromium',
-+        '../mojo/mojo_edk.gyp:mojo_system_impl',
-+        '../mojo/mojo_public.gyp:mojo_application_bindings',
-+        '../mojo/mojo_public.gyp:mojo_cpp_bindings',
++        '../third_party/mojo/mojo_edk.gyp:mojo_system_impl',
++        '../third_party/mojo/mojo_public.gyp:mojo_application_bindings',
++        '../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
 +        'content_common_mojo_bindings.gyp:content_common_mojo_bindings',
 +      ],
 +      'export_dependent_settings': [
@@ -211,6 +211,7 @@ BUG=XWALK-2571
 +        '../third_party/WebKit/public/blink_headers.gyp:blink_headers',
 +        # The public render_widget_host.h needs to re-export skia defines.
 +        '../skia/skia.gyp:skia',
++        'content_common_mojo_bindings.gyp:content_common_mojo_bindings',
 +      ],
 +
 +      'actions': [
@@ -339,8 +340,8 @@ BUG=XWALK-2571
        'type': '<(component)',
        'dependencies': [
          '../base/base.gyp:base',
---- src/mojo/mojo_edk.gyp
-+++ src/mojo/mojo_edk.gyp
+--- src/third_party/mojo/mojo_edk.gyp
++++ src/third_party/mojo/mojo_edk.gyp
 @@ -10,6 +10,21 @@
      {
        # GN version: //mojo/edk/system
@@ -913,7 +914,7 @@ BUG=XWALK-2571
          '<(DEPTH)/base/base.gyp:base',
 --- src/ui/gl/gl.gyp
 +++ src/ui/gl/gl.gyp
-@@ -10,6 +10,75 @@
+@@ -10,6 +10,25 @@
    'targets': [
      {
        'target_name': 'gl',
@@ -930,58 +931,8 @@ BUG=XWALK-2571
 +      'variables': {
 +        'gl_binding_output_dir': '<(SHARED_INTERMEDIATE_DIR)/ui/gl',
 +      },
-+      'direct_dependent_settings': {
-+        'include_dirs': [
-+          '<(gl_binding_output_dir)',
-+        ],
-+      },
 +      'export_dependent_settings': [
 +        '<(DEPTH)/third_party/mesa/mesa.gyp:mesa_headers',
-+      ],
-+      # hard_dependency is necessary for this target because it has actions
-+      # that generate header files included by dependent targets. The header
-+      # files must be generated before the dependents are compiled. The usual
-+      # semantics are to allow the two targets to build concurrently.
-+      'hard_dependency': 1,
-+      'actions': [
-+        {
-+          'action_name': 'generate_gl_bindings',
-+          'variables': {
-+            'generator_path': 'generate_bindings.py',
-+            # Prefer khronos EGL/GLES headers by listing that path first.
-+            'header_paths': '../../third_party/khronos:../../third_party/mesa/src/include:.:../../gpu',
-+          },
-+          'inputs': [
-+            '<(generator_path)',
-+            '<!@(python <(generator_path) --header-paths=<(header_paths) --inputs)',
-+          ],
-+          'outputs': [
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_egl.cc',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_egl.h',
-+            '<(gl_binding_output_dir)/gl_bindings_api_autogen_egl.h',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_gl.cc',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_gl.h',
-+            '<(gl_binding_output_dir)/gl_bindings_api_autogen_gl.h',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_glx.cc',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_glx.h',
-+            '<(gl_binding_output_dir)/gl_bindings_api_autogen_glx.h',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_mock.cc',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_mock.h',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_osmesa.cc',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_osmesa.h',
-+            '<(gl_binding_output_dir)/gl_bindings_api_autogen_osmesa.h',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_wgl.cc',
-+            '<(gl_binding_output_dir)/gl_bindings_autogen_wgl.h',
-+            '<(gl_binding_output_dir)/gl_bindings_api_autogen_wgl.h',
-+            '<(gl_binding_output_dir)/gl_mock_autogen_gl.h',
-+          ],
-+          'action': [
-+            'python',
-+            '<(generator_path)',
-+            '--header-paths=<(header_paths)',
-+            '<(gl_binding_output_dir)',
-+          ],
-+        },
 +      ],
 +    },
 +    {
@@ -989,58 +940,6 @@ BUG=XWALK-2571
        'type': '<(component)',
        'product_name': 'gl_wrapper',  # Avoid colliding with OS X's libGL.dylib
        'dependencies': [
-@@ -127,51 +196,6 @@
-         '<(gl_binding_output_dir)/gl_bindings_autogen_osmesa.cc',
-         '<(gl_binding_output_dir)/gl_bindings_autogen_osmesa.h',
-       ],
--      # hard_dependency is necessary for this target because it has actions
--      # that generate header files included by dependent targets. The header
--      # files must be generated before the dependents are compiled. The usual
--      # semantics are to allow the two targets to build concurrently.
--      'hard_dependency': 1,
--      'actions': [
--        {
--          'action_name': 'generate_gl_bindings',
--          'variables': {
--            'generator_path': 'generate_bindings.py',
--            # Prefer khronos EGL/GLES headers by listing that path first.
--            'header_paths': '../../third_party/khronos:../../third_party/mesa/src/include:.:../../gpu',
--          },
--          'inputs': [
--            '<(generator_path)',
--            '<!@(python <(generator_path) --header-paths=<(header_paths) --inputs)',
--          ],
--          'outputs': [
--            '<(gl_binding_output_dir)/gl_bindings_autogen_egl.cc',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_egl.h',
--            '<(gl_binding_output_dir)/gl_bindings_api_autogen_egl.h',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_gl.cc',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_gl.h',
--            '<(gl_binding_output_dir)/gl_bindings_api_autogen_gl.h',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_glx.cc',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_glx.h',
--            '<(gl_binding_output_dir)/gl_bindings_api_autogen_glx.h',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_mock.cc',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_mock.h',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_osmesa.cc',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_osmesa.h',
--            '<(gl_binding_output_dir)/gl_bindings_api_autogen_osmesa.h',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_wgl.cc',
--            '<(gl_binding_output_dir)/gl_bindings_autogen_wgl.h',
--            '<(gl_binding_output_dir)/gl_bindings_api_autogen_wgl.h',
--            '<(gl_binding_output_dir)/gl_mock_autogen_gl.h',
--          ],
--          'action': [
--            'python',
--            '<(generator_path)',
--            '--header-paths=<(header_paths)',
--            '<(gl_binding_output_dir)',
--          ],
--        },
--      ],
-       'conditions': [
-         ['OS in ("win", "android", "linux")', {
-           'sources': [
 --- src/ui/views/views.gyp
 +++ src/ui/views/views.gyp
 @@ -570,6 +570,23 @@

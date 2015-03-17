@@ -18,7 +18,7 @@ class XWalkRenderViewHostExt;
 
 class XWalkSettings : public content::WebContentsObserver {
  public:
-  XWalkSettings(JNIEnv* env, jobject obj, jlong web_contents);
+  XWalkSettings(JNIEnv* env, jobject obj, content::WebContents* web_contents);
   ~XWalkSettings() override;
 
   // Called from Java.

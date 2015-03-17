@@ -54,7 +54,9 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
 }
 
 void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
-  CHECK(base::OpenProcessHandle(peer_pid, &renderer_process_handle_));
+  base::Process process = base::Process::Open(peer_pid);
+  renderer_process_handle_ = process.Handle();
+  CHECK(process.IsValid());
 }
 
 void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
