@@ -55,6 +55,7 @@ echo "Creating a new ${TAR_FILE} from ${BASE_SRC_DIR}/src"
 tar --update --file "${TAR_FILE}" \
     --exclude-vcs --exclude=LayoutTests \
     --exclude=src/out --exclude=src/third_party/android_tools \
+    --exclude=src/native_client/toolchain \
     --directory="${BASE_SRC_DIR}" \
     --transform="s:^:crosswalk/:S" \
     src
