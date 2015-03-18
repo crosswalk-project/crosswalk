@@ -19,3 +19,4 @@ We are also on IRC : #crosswalk on Freenode
 ## License
 
 Crosswalk's code uses the BSD license, see our `LICENSE` file.
+
