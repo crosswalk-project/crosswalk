@@ -66,9 +66,9 @@ bool TizenMetaDataHandler::Parse(scoped_refptr<ApplicationData> application,
   const Manifest* manifest = application->GetManifest();
   DCHECK(manifest);
 
-  base::Value* metadata_value = NULL;
+  base::Value* metadata_value = nullptr;
   if (!manifest->Get(keys::kTizenMetaDataKey, &metadata_value)) {
-    *error = base::ASCIIToUTF16("Failed to get value of tizen metaData");
+    return true;
   }
 
   MetaDataPair metadata_item;
