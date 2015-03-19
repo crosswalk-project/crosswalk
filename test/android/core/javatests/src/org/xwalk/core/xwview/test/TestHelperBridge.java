@@ -85,6 +85,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnLoadFinishedHelper extends CallbackHelper {
+        private String mUrl;
+
+        public String getUrl() {
+            assert getCallCount() > 0;
+            return mUrl;
+        }
+
+        public void notifyCalled(String url) {
+            mUrl = url;
+            notifyCalled();
+        }
+    }
+
     public class OnProgressChangedHelper extends CallbackHelper {
         private int mProgress;
 
@@ -358,6 +372,7 @@ class TestHelperBridge {
     private final OnCreateWindowRequestedHelper mOnCreateWindowRequestedHelper;
     private final OnConsoleMessageHelper mOnConsoleMessageHelper;
     private final OnReceivedIconHelper mOnReceivedIconHelper;
+    private final OnLoadFinishedHelper mOnLoadFinishedHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -379,6 +394,7 @@ class TestHelperBridge {
         mOnCreateWindowRequestedHelper = new OnCreateWindowRequestedHelper();
         mOnConsoleMessageHelper = new OnConsoleMessageHelper();
         mOnReceivedIconHelper = new OnReceivedIconHelper();
+        mOnLoadFinishedHelper = new OnLoadFinishedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -407,6 +423,10 @@ class TestHelperBridge {
 
     public OnLoadStartedHelper getOnLoadStartedHelper() {
         return mOnLoadStartedHelper;
+    }
+
+    public OnLoadFinishedHelper getOnLoadFinishedHelper() {
+        return mOnLoadFinishedHelper;
     }
 
     public OnJavascriptCloseWindowHelper getOnJavascriptCloseWindowHelper() {
@@ -491,6 +511,10 @@ class TestHelperBridge {
 
     public void onLoadStarted(String url) {
         mOnLoadStartedHelper.notifyCalled(url);
+    }
+
+    public void onLoadFinished(String url) {
+        mOnLoadFinishedHelper.notifyCalled(url);
     }
 
     public void onJavascriptCloseWindow() {
