@@ -150,6 +150,11 @@ public class XWalkViewTestBase
         public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
             return mTestHelperBridge.shouldOverrideUrlLoading(url);
         }
+
+        @Override
+        public void onLoadFinished(XWalkView view, String url) {
+            mInnerContentsClient.onLoadFinished(url);
+        }
     }
 
     class TestXWalkResourceClient extends TestXWalkResourceClientBase {
@@ -385,13 +390,11 @@ public class XWalkViewTestBase
         runTestWaitPageFinished(new Runnable(){
             @Override
             public void run() {
-                getInstrumentation().runOnMainSync(new Runnable() {
-                    @Override
-                    public void run() {
-                        mXWalkView.getNavigationHistory().navigate(
-                            XWalkNavigationHistory.Direction.BACKWARD, 1);
-                    }
-                });
+                try {
+                    goBackAsync();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
             }
         });
     }
@@ -400,13 +403,31 @@ public class XWalkViewTestBase
         runTestWaitPageFinished(new Runnable(){
             @Override
             public void run() {
-                getInstrumentation().runOnMainSync(new Runnable() {
-                    @Override
-                    public void run() {
-                        mXWalkView.getNavigationHistory().navigate(
-                            XWalkNavigationHistory.Direction.FORWARD, 1);
-                    }
-                });
+                try {
+                    goForwardAsync();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+        });
+    }
+
+    protected void goBackAsync() throws Throwable {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.getNavigationHistory().navigate(
+                    XWalkNavigationHistory.Direction.BACKWARD, 1);
+            }
+        });
+    }
+
+    protected void goForwardAsync() throws Throwable {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.getNavigationHistory().navigate(
+                    XWalkNavigationHistory.Direction.FORWARD, 1);
             }
         });
     }
