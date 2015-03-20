@@ -778,6 +778,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         }
     }
 
+    public void setZOrderOnTop(boolean onTop) {
+        if (mContentViewRenderView == null) return;
+        mContentViewRenderView.setZOrderOnTop(onTop);
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);

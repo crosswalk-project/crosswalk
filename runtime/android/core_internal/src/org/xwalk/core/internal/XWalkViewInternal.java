@@ -941,6 +941,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.setOverlayVideoMode(enabled);
     }
 
+    /**
+    * Control whether the XWalkView's surface is placed on top of its window.
+    * Note this only works when XWalkPreferences.ANIMATABLE_XWALK_VIEW is false.
+    * @param onTop true for on top.
+    * @since 5.0
+    */
+    @XWalkAPI
+    public void setZOrderOnTop(boolean onTop) {
+        if (mContent == null) return;
+        mContent.setZOrderOnTop(onTop);
+    }
+
     // Below methods are for test shell and instrumentation tests.
     /**
      * @hide
