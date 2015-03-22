@@ -20,6 +20,12 @@ namespace content {
 class RenderProcessHost;
 }
 
+#if defined(USE_WEBUI_FILE_PICKER)
+namespace wm {
+class WMState;
+}
+#endif
+
 namespace xwalk {
 
 class XWalkRunner;
@@ -71,6 +77,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   bool run_default_message_loop_;
 
  private:
+#if defined(USE_WEBUI_FILE_PICKER)
+  scoped_ptr<wm::WMState> wm_state_;
+#endif
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainParts);
 };
 

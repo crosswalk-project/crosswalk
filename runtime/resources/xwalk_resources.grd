@@ -14,8 +14,21 @@
       <include file="icons/crosswalk_48x48.png" name="IDR_XWALK_ICON_48" type="BINDATA" />
       <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
       <include name="IDR_XWALK_NATIVE_FILE_SYSTEM_API" file="../../experimental/native_file_system/native_file_system_api.js" type="BINDATA" />
+      <include name="IDR_FILE_PICKER_HTML" file="file_picker/file_picker.html" type="BINDATA" />
+      <include name="IDR_FILE_PICKER_JS" file="file_picker/file_picker.js" type="BINDATA" />
+      <include name="IDR_FILE_PICKER_CSS" file="file_picker/file_picker.css" type="BINDATA" />
     </includes>
     <messages fallback_to_english="true">
+      <!-- Generic terms -->
+      <message name="IDS_OK" desc="Used for OK on buttons">
+        OK
+      </message>
+      <message name="IDS_CANCEL" desc="Used for Cancel on buttons" formatter_data="android_java">
+        Cancel
+      </message>
+      <message name="IDS_SAVE" desc="Used on a button to save information you are editing.">
+        Save
+      </message>
       <message name="IDS_IMAGE_FILES" desc="The description of the image file extensions in the select file dialog.">
         Image Files
       </message>
@@ -149,6 +162,28 @@
       </message>
       <message name="IDS_ERRORPAGES_DETAILS_HTTP_VERSION_NOT_SUPPORTED" desc="The error message displayed when the server returns a 505.">
         The server does not support the HTTP version used in the request.
+      </message>
+      <!-- File-picker strings -->
+      <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
+        Save file as
+      </message>
+      <message name="IDS_FILE_PICKER_FILE_NAME" desc="File Name">
+        File name
+      </message>
+      <message name="IDS_FILE_BROWSER_SELECT_FOLDER_TITLE" desc="Select folder title.">
+        Select a folder to open
+      </message>
+      <message name="IDS_FILE_BROWSER_SELECT_UPLOAD_FOLDER_TITLE" desc="Select folder title for upload.">
+        Select a folder to upload
+      </message>
+      <message name="IDS_FILE_BROWSER_SELECT_OPEN_FILE_TITLE" desc="Select open file title.">
+        Select a file to open
+      </message>
+      <message name="IDS_FILE_BROWSER_SELECT_OPEN_MULTI_FILE_TITLE" desc="Select open multi file title.">
+        Select one or more files
+      </message>
+      <message name="IDS_FILE_BROWSER_SELECT_SAVEAS_FILE_TITLE" desc="Select saveas file title.">
+        Save file as
       </message>
     </messages>
   </release>

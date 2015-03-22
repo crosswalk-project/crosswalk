@@ -14,6 +14,9 @@
         # Whether we should verify package integrity before loading Crosswalk runtime libraray in shared mode
         'verify_xwalk_apk%': 0,
       }],
+      ['OS=="tizen"', {
+        'use_webui_file_picker': 1,
+      }],
     ], # conditions
   },
   'includes' : [
@@ -423,6 +426,30 @@
             '../ui/base/ime/ui_base_ime.gyp:ui_base_ime',
           ],
         }],
+        ['use_webui_file_picker==1', {
+          'defines': ['USE_WEBUI_FILE_PICKER'],
+          'dependencies': [
+            '../content/app/resources/content_resources.gyp:content_resources',
+          ],
+          'sources': [
+            'runtime/browser/ui/browser_dialogs.h',
+            'runtime/browser/ui/xwalk_web_dialog_view.cc',
+            'runtime/browser/ui/linux_webui/select_file_dialog_impl_webui.h',
+            'runtime/browser/ui/linux_webui/select_file_dialog_impl_webui.cc',
+            'runtime/browser/ui/linux_webui/linux_webui.h',
+            'runtime/browser/ui/linux_webui/linux_webui.cc',
+            'runtime/browser/ui/webui/file_picker/file_picker_web_dialog.h',
+            'runtime/browser/ui/webui/file_picker/file_picker_web_dialog.cc',
+            'runtime/browser/ui/webui/file_picker/file_picker_ui.cc',
+            'runtime/browser/ui/webui/file_picker/file_picker_ui.h',
+            'runtime/browser/ui/webui/xwalk_web_contents_handler.cc',
+            'runtime/browser/ui/webui/xwalk_web_contents_handler.h',
+            'runtime/browser/ui/webui/xwalk_web_ui_controller_factory.cc',
+            'runtime/browser/ui/webui/xwalk_web_ui_controller_factory.h',
+            'runtime/common/url_constants.cc',
+            'runtime/common/url_constants.h',
+          ],
+        }],
         ['disable_nacl==0', {
             'conditions': [
                 ['OS=="linux"', {
@@ -578,10 +605,10 @@
                 ],
               },
             }],
-            [ 'tizen==1', {
+            [ 'use_webui_file_picker == 1', {
               'variables': {
                 'pak_inputs+': [
-                  # Add WebUI resources for Tizen.
+                  # Add WebUI resources.
                   '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/ui/resources/webui_resources.pak',
                 ],

@@ -428,7 +428,7 @@ void RuntimeFileSelectHelper::RunFileChooserOnUIThread(
 #if defined(OS_ANDROID)
       &accept_types);
 #else
-      NULL);
+      web_contents_);
 #endif
 
   select_file_types_.reset();

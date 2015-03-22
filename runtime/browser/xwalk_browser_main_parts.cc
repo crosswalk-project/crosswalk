@@ -45,6 +45,12 @@
 #include "ui/base/ime/input_method_initializer.h"
 #endif
 
+#if defined(USE_WEBUI_FILE_PICKER)
+#include "ui/wm/core/wm_state.h"
+#include "xwalk/runtime/browser/ui/linux_webui/linux_webui.h"
+#include "xwalk/runtime/browser/ui/webui/xwalk_web_ui_controller_factory.h"
+#endif
+
 namespace {
 
 // FIXME: Compare with method in startup_browser_creator.cc.
@@ -131,6 +137,10 @@ void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 void XWalkBrowserMainParts::PreEarlyInitialization() {
 #if !defined(OS_CHROMEOS) && defined(USE_AURA) && defined(OS_LINUX)
   ui::InitializeInputMethodForTesting();
+#if defined(USE_WEBUI_FILE_PICKER)
+  ui::LinuxShellDialog::SetInstance(BuildWebUI());
+  wm_state_.reset(new wm::WMState);
+#endif
 #endif
 }
 
@@ -212,6 +222,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   }
 
   NativeAppWindow::Initialize();
+
+#if defined(USE_WEBUI_FILE_PICKER)
+  content::WebUIControllerFactory::RegisterFactory(
+      XWalkWebUIControllerFactory::GetInstance());
+#endif
 
   if (command_line->HasSwitch(switches::kListFeaturesFlags)) {
     XWalkRuntimeFeatures::GetInstance()->DumpFeaturesFlags();

@@ -3,6 +3,7 @@
     'tizen%': 0,
     'tizen_mobile%': 0,
     'enable_murphy%': 0,
+    'use_webui_file_picker%': 0,
     'conditions': [
       ['OS=="android"', {
         # Enable WebCL by default on android.
