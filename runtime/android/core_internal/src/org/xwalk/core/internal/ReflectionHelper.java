@@ -2,16 +2,53 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.xwalk.core.internal;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import dalvik.system.DexClassLoader;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
+import android.widget.Toast;
 
 /**
  * This class is used to encapsulate the reflection invoking for bridge and wrapper.
@@ -117,6 +154,145 @@ public class ReflectionHelper {
         }
         return false;
     }
+
+    // We are doing following checks before loading shared library:
+    //  1. The APK contains only one Certificate, this is to protect from FakeID attack.
+    //  2. The contained certificate is exactly the one expected to be.
+    //  3. additional check for master key exploit since Android 4.0.
+    //     From http://androidvulnerabilities.org/by/manufacturer/all,
+    //     There are three master key exploit since Android 4.0.
+    public static boolean checkLibrary(Context app, Context library) throws NameNotFoundException, IOException {
+        String apk = library.getPackageCodePath();
+        if (apk == null || apk.isEmpty()) return false;
+        JarFile apkFile = new JarFile(apk);
+        Enumeration<JarEntry> entries = apkFile.entries();
+        int rsaCount = 0;
+        boolean rsaMatched = false;
+        boolean hasDuplicateEntries = false;
+        Set<String> entryNames = new HashSet<String>();
+        while(entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            String entryName = entry.getName();
+            if (entryNames.contains(entryName)) {
+                hasDuplicateEntries = true;
+                break;
+            } else {
+                entryNames.add(entryName);
+            }
+            if (entryName.toUpperCase().startsWith("META-INF/") && entryName.toUpperCase().endsWith(".RSA")) {
+                rsaCount ++;
+                InputStream is = apkFile.getInputStream(entry);
+                byte[] tmpBuffer = new byte[1024];
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int count;
+                while ((count = is.read(tmpBuffer, 0, 1024)) != -1) {
+                    buffer.write(tmpBuffer, 0, count);
+                }
+                buffer.flush();
+                is.close();
+                Signature sig = new Signature(buffer.toByteArray());
+                String sigContent = sig.toCharsString();
+                // TODO(wang16): Compare with expected RSA
+                if (sigContent.isEmpty()) continue;
+                rsaMatched = true;
+            }
+        }
+        apkFile.close();
+        // Crosswalk Library apk should only contain one certificate.
+        // Multiple signature introduces fake id risk.
+        if (rsaCount != 1) return false;
+        // For master key exploit 8219321, it's using multiple entries with same name to bypass system checking.
+        // If there is no duplicate entries, we are safe.
+        if (hasDuplicateEntries) return false;
+        // For master key exploit 9695860, it's only applicable to the APKs with classes.dex smaller than 64k,
+        // crosswalk library has classes.dex much more bigger than 64k. So no need to check for it.
+        // For master key exploit 9950697, it's using different values for the file name length in centralDir and
+        // local header to make native side load malicious content. Here we do additional check for the both
+        // file name length of each entry to be safe.
+        if (!checkFileNameLength(apk)) return false;
+        return rsaMatched;
+    }
+
+    private static boolean checkFileNameLength(String apk) throws IOException {
+        RandomAccessFile raf = new RandomAccessFile(apk, "r");
+        // Following code are partly picked from AOSP.
+
+        // Scan back, looking for the End Of Central Directory field. If the zip file doesn't
+        // have an overall comment (unrelated to any per-entry comments), we'll hit the EOCD
+        // on the first try.
+        // No need to synchronize raf here -- we only do this when we first open the zip file.
+        long scanOffset = raf.length() - 22; // ENDHDR
+        if (scanOffset < 0) {
+            // File too short to be a zip file
+            raf.close();
+            return false;
+        }
+        long stopOffset = scanOffset - 65536;
+        if (stopOffset < 0) {
+            stopOffset = 0;
+        }
+        final int ENDHEADERMAGIC = 0x06054b50;
+        while (true) {
+            raf.seek(scanOffset);
+            if (Integer.reverseBytes(raf.readInt()) == ENDHEADERMAGIC) {
+                break;
+            }
+            scanOffset--;
+            if (scanOffset < stopOffset) {
+                // EOCD not found; not a zip file?
+                raf.close();
+                return false;
+            }
+        }
+        // Read the End Of Central Directory. ENDHDR includes the signature bytes,
+        // which we've already read.
+        int diskNumber = Short.reverseBytes(raf.readShort()) & 0xffff;
+        int diskWithCentralDir = Short.reverseBytes(raf.readShort()) & 0xffff;
+        int numEntries = Short.reverseBytes(raf.readShort()) & 0xffff;
+        int totalNumEntries = Short.reverseBytes(raf.readShort()) & 0xffff;
+        raf.skipBytes(4); // Ignore centralDirSize.
+        long centralDirOffset = ((long) (Integer.reverseBytes(raf.readInt()))) & 0xffffffffL;
+        int commentLength = Short.reverseBytes(raf.readShort()) & 0xffff;
+        if (numEntries != totalNumEntries || diskNumber != 0 || diskWithCentralDir != 0) {
+            // spanned archives not supported
+            raf.close();
+            return false;
+        }
+        if (commentLength > 0) {
+            raf.skipBytes(commentLength);
+        }
+        // Seek to the first CDE and read all entries.
+        // We have to do this now (from the constructor) rather than lazily because the
+        // public API doesn't allow us to throw IOException except from the constructor
+        // or from getInputStream.
+        raf.seek(centralDirOffset);
+        for (int i = 0; i < numEntries; ++i) {
+            long entryOffsetInCentralDir = raf.getFilePointer();
+            int sig = Integer.reverseBytes(raf.readInt());
+            if (sig != 0x0000000002014b50) { // CENSIG
+                 // Central Directory Entry not found
+                raf.close();
+                return false;
+            }
+            raf.seek(entryOffsetInCentralDir + 28);
+            int nameLength = Short.reverseBytes(raf.readShort()) & 0xffff;
+            int extraLength = Short.reverseBytes(raf.readShort()) & 0xffff;
+            int commentByteCount = Short.reverseBytes(raf.readShort()) & 0xffff;
+            raf.seek(entryOffsetInCentralDir + 42);
+            long localHeaderRelOffset = ((long) (Integer.reverseBytes(raf.readInt()))) & 0xffffffffL;
+            long savedOffset = raf.getFilePointer();
+            raf.seek(localHeaderRelOffset + 26);
+            int nameLengthInLocalHeader = Short.reverseBytes(raf.readShort()) & 0xffff;
+            raf.seek(savedOffset);
+            raf.skipBytes(nameLength + commentByteCount + extraLength);
+            if (nameLengthInLocalHeader != nameLength) {
+                raf.close();
+                return false;
+            }
+        }
+        raf.close();
+        return true;
+    }
     Wrapper Only */
 
     public static Context getBridgeContext() {
@@ -142,17 +318,27 @@ public class ReflectionHelper {
                 handleException("Shared mode requires XWalkApplication");
                 return;
             }
+            DexClassLoader bridgeClasses = null;
             try {
-                sBridgeContext = app.createPackageContext(
-                        LIBRARY_APK_PACKAGE,
-                        Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+                sBridgeContext = app.createPackageContext(LIBRARY_APK_PACKAGE, 0);
+                if (!checkLibrary(app, sBridgeContext)) {
+                    handleException("Can't verify the Crosswalk Library");
+                    return;
+                }
+                bridgeClasses = new DexClassLoader(
+                        sBridgeContext.getPackageCodePath(),
+                        app.getCacheDir().getAbsolutePath(),
+                        sBridgeContext.getApplicationInfo().nativeLibraryDir,
+                        sBridgeContext.getClassLoader());
                 sAlreadyUsingLibrary = true;
             } catch (PackageManager.NameNotFoundException e) {
+                handleException(e);
+            } catch (IOException e) {
                 handleException(e);
             }
             if (sBridgeContext != null) {
                 app.addResource(sBridgeContext.getResources());
-                initClassLoader(sBridgeContext.getClassLoader(), sBridgeContext);
+                initClassLoader(bridgeClasses, sBridgeContext);
             }
         } else {
             initClassLoader(ReflectionHelper.class.getClassLoader(), null);
