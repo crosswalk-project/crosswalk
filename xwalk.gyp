@@ -743,12 +743,14 @@
 
             # For external testing.
             'pack_xwalk_core_library',
+            'pack_xwalk_shared_library',
             'xwalk_core_library_documentation',
             'xwalk_runtime_lib_apk',
             'xwalk_app_hello_world_apk',
             'xwalk_app_template',
             'xwalk_core_sample_apk',
             'xwalk_core_library_aar',
+            'xwalk_shared_library_aar',
             'xwalk_packaging_tool_test',
           ],
         }],
@@ -911,6 +913,8 @@
         },
         'version_code_shift%': '<(version_code_shift)',
         'xwalk_version_code': '<!(python tools/build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
+        'sdk_version': '<!(python ../build/util/version.py -f SDK_VERSION -t "@SDK@")',
+        'min_sdk_version': '<!(python ../build/util/version.py -f SDK_VERSION -t "@MIN_SDK@")',
       },
       'includes': [
         'xwalk_android.gypi',

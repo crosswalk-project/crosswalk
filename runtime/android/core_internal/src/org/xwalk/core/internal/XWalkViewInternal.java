@@ -186,7 +186,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});"},
               postWrapperLines = {
-                  "        if (bridge == null) return;",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
@@ -209,7 +208,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, null);"},
               postWrapperLines = {
-                  "        if (bridge == null) return;",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
@@ -225,7 +223,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     private static Context convertContext(Context context) {
         Context ret = context;
-        Context bridgeContext = ReflectionHelper.getBridgeContext();
+        Context bridgeContext = XWalkCoreBridge.getInstance().getContext();
         if (bridgeContext == null || context == null ||
                 bridgeContext.getPackageName().equals(context.getPackageName())) {
             // Not acrossing package
@@ -410,7 +408,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param content the content for the web page/app. Could be empty.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void load(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -429,7 +427,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param content the content for manifest.json.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void loadAppFromManifest(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -518,7 +516,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param name the name injected in JavaScript.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void addJavascriptInterface(Object object, String name) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -757,7 +755,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkUIClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setUIClient(XWalkUIClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -770,7 +768,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkResourceClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setResourceClient(XWalkResourceClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -827,8 +825,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     /**
      * This method is used by Cordova for hacking.
      * TODO(yongsheng): remove this and related test cases?
-     *
-     * @hide
      */
     @XWalkAPI
     public void setNetworkAvailable(boolean networkUp) {
