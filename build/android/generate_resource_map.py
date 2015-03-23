@@ -7,7 +7,6 @@
 import optparse
 import os
 import re
-import shutil
 import sys
 
 
@@ -28,41 +27,20 @@ def CreateResourceMap(r_java, res_map):
     output.write(''.join(output_content))
 
 
-def Touch(stamp):
-  if not stamp:
-    return
-  if not os.path.isdir(os.path.dirname(stamp)):
-    os.makedirs(os.path.dirname(stamp))
-  with open(stamp, 'a'):
-    os.utime(stamp, None)
-
-
 def main():
   parser = optparse.OptionParser()
-  parser.add_option('--gen-dir',
-                    help='The folder contains generated R.java.',
-                    type='string')
-  parser.add_option('--resource-map-dir',
-                    help='The folder to place resource map.',
-                    type='string')
-  parser.add_option('--stamp',
-                    help='The file to be stamped on success.',
-                    type='string')
+  info = ('The folder contains generated R.java')
+  parser.add_option('--gen-dir', help=info)
+  info = ('The folder to place resource maps')
+  parser.add_option('--resource-map-dir', help=info)
   options, _ = parser.parse_args()
 
   if not os.path.isdir(options.gen_dir):
     return 1
-  if os.path.exists(options.resource_map_dir):
-    shutil.rmtree(options.resource_map_dir)
-  os.makedirs(options.resource_map_dir)
   for root, _, files in os.walk(options.gen_dir):
     if 'R.java' in files:
-      if os.path.basename(root) == 'core':
-        continue
       r_java = os.path.join(root, 'R.java')
       CreateResourceMap(r_java, options.resource_map_dir)
-
-  Touch(options.stamp)
 
 
 if __name__ == '__main__':

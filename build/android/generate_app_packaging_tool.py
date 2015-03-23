@@ -28,7 +28,6 @@ def PrepareFromXwalk(src_dir, target_dir):
   # The directory to copy libraries and code from.
   jar_src_dir = os.path.join(src_dir, 'lib.java')
   xwalk_core_library_dir = os.path.join(src_dir, 'xwalk_core_library')
-  xwalk_shared_library_dir = os.path.join(src_dir, 'xwalk_shared_library')
 
   # The directory to copy libraries, code and resources to.
   app_target_dir = os.path.join(target_dir, 'template')
@@ -54,9 +53,6 @@ def PrepareFromXwalk(src_dir, target_dir):
 
     # XWalk Core Library
     (xwalk_core_library_dir, os.path.join(target_dir, 'xwalk_core_library')),
-
-    # XWalk Shared Library
-    (xwalk_shared_library_dir, os.path.join(target_dir, 'xwalk_shared_library')),
 
     # Build and python tools.
     (os.path.join(tools_src_dir, 'ant', 'xwalk-debug.keystore'), target_dir),
@@ -102,7 +98,7 @@ def PrepareFromXwalk(src_dir, target_dir):
 
 def main(args):
   if len(args) != 1:
-    print ('You must provide only one argument: folder to update')
+    print 'You must provide only one argument: folder to update'
     return 1
   target_dir = args[0]
   src_dir = os.path.dirname(target_dir)

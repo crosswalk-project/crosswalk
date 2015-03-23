@@ -12,17 +12,14 @@ class CodeGenerator(object):
     self._generated_code = ''
     self._generated_class_name = ''
 
-  def RunTask(self):
-    pass
-
-  def GetJavaData(self, clazz):
-    return self._class_loader.GetJavaData(clazz)
+  def LoadJavaClass(self, clazz):
+    return self._class_loader.LoadJavaClass(clazz)
 
   def IsInternalClass(self, clazz):
     return self._class_loader.IsInternalClass(clazz)
 
-  def GenerateDoc(self, doc):
-    return self._class_loader.GenerateDoc(doc)
+  def RunTask(self):
+    pass
 
   def GetGeneratedCode(self):
     return self._generated_code
