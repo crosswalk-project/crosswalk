@@ -1,7 +1,6 @@
 {
   'variables': {
     'reflection_java_dir': '<(PRODUCT_DIR)/gen/xwalk_core_reflection_layer',
-    'internal_dir': 'runtime/android/core_internal/src/org/xwalk/core/internal',
   },
   'targets': [
     {
@@ -39,40 +38,19 @@
       'variables': {
           'grd_file': '../xwalk/runtime/android/core_internal/strings/android_xwalk_strings.grd',
        },
-      'includes': [
+       'includes': [
           '../build/java_strings_grd.gypi',
-      ],
-    },
-    {
-      'target_name': 'xwalk_app_strings',
-      'type': 'none',
-      'variables': {
-          'grd_file': '../xwalk/runtime/android/core/strings/xwalk_app_strings.grd',
-       },
-      'includes': [
-          '../build/java_strings_grd.gypi',
-      ],
+        ],
     },
     {
       'target_name': 'xwalk_core_reflection_layer_java_gen',
       'type': 'none',
       'variables': {
-        'script_dir': 'tools/reflection_generator',
-        'internal_dir': 'runtime/android/core_internal/src/org/xwalk/core/internal',
-        'template_dir': 'runtime/android/templates',
-        'scripts': [
-          '>!@(find <(script_dir) -name "*.py")'
-        ],
-        'internal_sources': [
-          '>!@(find <(internal_dir) -name "*Internal.java")'
-        ],
-        'reflect_sources': [
-          '>!@(find <(internal_dir) -name "Reflect*.java")'
-        ],
-        'templates': [
-          '>!@(find <(template_dir) -name "*.template")'
-        ],
         'timestamp': '<(reflection_java_dir)/gen.timestamp',
+        'internal_src': 'runtime/android/core_internal/src/org/xwalk/core/internal',
+        'internal_java_sources': [
+          '>!@(find <(internal_src) -name "*.java")'
+        ],
       },
       'all_dependent_settings': {
         'variables': {
@@ -85,25 +63,26 @@
           'action_name': 'generate_reflection',
           'message': 'Creating reflection layer',
           'inputs': [
-            '>@(scripts)',
-            '>@(internal_sources)',
-            '>@(reflect_sources)',
-            '>@(templates)',
-            'SDK_VERSION',
+            'tools/reflection_generator/bridge_generator.py',
+            'tools/reflection_generator/code_generator.py',
+            'tools/reflection_generator/interface_generator.py',
+            'tools/reflection_generator/java_class_component.py',
+            'tools/reflection_generator/java_class.py',
+            'tools/reflection_generator/java_method.py',
+            'tools/reflection_generator/reflection_generator.py',
+            'tools/reflection_generator/wrapper_generator.py',
+            '>@(internal_java_sources)',
           ],
           'outputs': [
             '<(timestamp)',
           ],
           'action': [
-            'python', '<(script_dir)/reflection_generator.py',
-            '--input-dir', '<(internal_dir)',
-            '--template-dir', '<(template_dir)',
-            '--bridge-output', '<(reflection_java_dir)/bridge',
-            '--wrapper-output', '<(reflection_java_dir)/wrapper',
+            'python', 'tools/reflection_generator/reflection_generator.py',
+            '--input_dir', '<(internal_src)',
+            '--bridge_output', '<(reflection_java_dir)/bridge',
+            '--wrap_output', '<(reflection_java_dir)/wrapper',
+            '--helper_class', 'runtime/android/core_internal/src/org/xwalk/core/internal/ReflectionHelper.java',
             '--stamp', '<(timestamp)',
-            '--target-arch=<(target_arch)',
-            '--sdk-version=<(sdk_version)',
-            '--min-sdk-version=<(min_sdk_version)',
           ],
         },
       ],
@@ -125,7 +104,6 @@
         'has_java_resources': 1,
         'R_package': 'org.xwalk.core.internal',
         'R_package_relpath': 'org/xwalk/core/internal',
-        'additional_input_paths': [ '>(reflection_layer_gen_timestamp)' ],
         'generated_src_dirs': [
           '<(reflection_java_dir)/bridge',
         ],
@@ -137,13 +115,9 @@
       'type': 'none',
       'dependencies': [
         'xwalk_core_reflection_layer_java_gen',
-        'xwalk_app_strings',
       ],
       'variables': {
         'java_in_dir': 'runtime/android/core',
-        'has_java_resources': 1,
-        'R_package': 'org.xwalk.core',
-        'R_package_relpath': 'org/xwalk/core',
         'additional_input_paths': [ '>(reflection_layer_gen_timestamp)' ],
         'generated_src_dirs': [
           '<(reflection_java_dir)/wrapper',

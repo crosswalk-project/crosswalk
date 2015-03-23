@@ -1,5 +1,0 @@
-package org.xwalk.core;
-
-class XWalkSdkVersion {
-    public static final int SDK_VERSION = ${SDK_VERSION};
-}

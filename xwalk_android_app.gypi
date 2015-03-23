@@ -108,18 +108,17 @@
         'xwalk_app_runtime_java',
         'xwalk_app_template_apk',
         'xwalk_core_library',
-        'xwalk_shared_library',
       ],
       'actions': [
         {
           'action_name': 'prepare_xwalk_app_template',
-          'message': 'Generating XWalk App Template.',
           'inputs': [
             'build/android/common_function.py',
             'build/android/generate_app_packaging_tool.py',
           ],
           'outputs': [
-            '<(PRODUCT_DIR)/prepare_xwalk_app_template_intermediate/always_run',
+            # put an inexist file here to do this step every time.
+            '<(PRODUCT_DIR)/xwalk_app_template_1'
           ],
           'action': [
             'python', 'build/android/generate_app_packaging_tool.py',
@@ -143,7 +142,8 @@
           ],
           'outputs': [
             '<(PRODUCT_DIR)/xwalk_app_template.tar.gz',
-            '<(PRODUCT_DIR)/xwalk_app_template_intermediate/always_run',
+            # put an inexist file here to do this step every time.
+            '<(PRODUCT_DIR)/xwalk_app_template.tar.gz1',
           ],
           'action': [
             'python', 'tools/tar.py',
