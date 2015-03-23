@@ -140,11 +140,20 @@ void ShowItemInFolder(const base::FilePath& full_path) {
       base::Bind(&ShowItemInFolderOnFileThread, full_path));
 }
 
-void OpenItem(const base::FilePath& full_path) {
+void OpenItem(const base::FilePath& full_path, OpenItemType item_type) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  BrowserThread::PostTask(
+  switch (item_type) {
+  case OPEN_FILE:
+    BrowserThread::PostTask(
       BrowserThread::FILE, FROM_HERE,
-      base::Bind(base::IgnoreResult(&ui::win::OpenItemViaShell), full_path));
+      base::Bind(base::IgnoreResult(&ui::win::OpenFileViaShell), full_path));
+    break;
+  case OPEN_FOLDER:
+    BrowserThread::PostTask(
+      BrowserThread::FILE, FROM_HERE,
+      base::Bind(base::IgnoreResult(&ui::win::OpenFolderViaShell), full_path));
+    break;
+  }
 }
 
 void OpenExternal(const GURL& url) {

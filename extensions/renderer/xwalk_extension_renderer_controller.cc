@@ -13,7 +13,7 @@
 #include "ipc/ipc_listener.h"
 #include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -95,7 +95,7 @@ void CreateExtensionModulesWithoutDeviceAPI(XWalkExtensionClient* client,
 }  // namespace
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context) {
+    blink::WebLocalFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);

@@ -26,8 +26,8 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
-#include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
+#include "xwalk/runtime/browser/xwalk_permission_manager.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -205,6 +205,12 @@ content::SSLHostStateDelegate* XWalkBrowserContext::GetSSLHostStateDelegate() {
     ssl_host_state_delegate_.reset(new XWalkSSLHostStateDelegate());
   }
   return ssl_host_state_delegate_.get();
+}
+
+content::PermissionManager* XWalkBrowserContext::GetPermissionManager() {
+  if (!permission_manager_.get())
+    permission_manager_.reset(new XWalkPermissionManager());
+  return permission_manager_.get();
 }
 
 RuntimeURLRequestContextGetter*

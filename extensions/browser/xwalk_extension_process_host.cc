@@ -189,7 +189,7 @@ void XWalkExtensionProcessHost::StartProcess() {
 
   process_->Launch(
       new ExtensionSandboxedProcessLauncherDelegate(process_->GetHost()),
-      cmd_line.release());
+      cmd_line.release(), true);
 
   base::ListValue runtime_variables_lv;
   ToListValue(&const_cast<base::ValueMap&>(*runtime_variables_),

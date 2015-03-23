@@ -12,6 +12,7 @@
 #include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
+#include "content/public/common/permission_status.mojom.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
 using base::android::ScopedJavaLocalRef;

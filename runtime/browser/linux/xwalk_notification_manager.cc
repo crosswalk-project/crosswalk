@@ -28,7 +28,7 @@ void NotificationClosedCallback(NotifyNotification* notification,
   bool by_user = (reason == g_closed_by_user);
   if (by_user)
     service->NotificationClicked(notification);
-  service->NotificationClosed(notification, by_user);
+  service->NotificationClosed(notification);
   g_signal_handler_disconnect(notification,
                               service->GetHandler(notification));
 }
@@ -131,12 +131,12 @@ void XWalkNotificationManager::NotificationClicked(
 }
 
 void XWalkNotificationManager::NotificationClosed(
-    NotifyNotification* notification, bool by_user) {
+    NotifyNotification* notification) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
       notifications_map_.take_and_erase(reinterpret_cast<int64>(notification));
   if (notification_delegate) {
-    notification_delegate->NotificationClosed(by_user);
+    notification_delegate->NotificationClosed();
   }
 }
 

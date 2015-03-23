@@ -9,6 +9,7 @@
 #include <libnotify/notify.h>
 
 #include <map>
+#include <string>
 
 #include "base/callback.h"
 #include "base/containers/scoped_ptr_hash_map.h"
@@ -43,12 +44,12 @@ class XWalkNotificationManager {
 
   void NotificationDisplayed(NotifyNotification* notification);
   void NotificationClicked(NotifyNotification* notification);
-  void NotificationClosed(NotifyNotification* notification, bool by_user);
+  void NotificationClosed(NotifyNotification* notification);
 
  private:
   base::ScopedPtrHashMap<int64, content::DesktopNotificationDelegate>
       notifications_map_;
-  std::map<base::string16, NotifyNotification*> notifications_replace_map_;
+  std::map<std::string, NotifyNotification*> notifications_replace_map_;
   std::map<NotifyNotification*, gulong> notifications_handler_map_;
 
   bool initialized_;

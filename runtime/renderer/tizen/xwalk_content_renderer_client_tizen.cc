@@ -115,30 +115,6 @@ void XWalkContentRendererClientTizen::GetNavigationErrorStrings(
   }
 }
 
-void XWalkContentRendererClientTizen::DidCreateScriptContext(
-    blink::WebFrame* frame,
-    v8::Handle<v8::Context> context,
-    int extension_group,
-    int world_id) {
-  XWalkContentRendererClient::DidCreateScriptContext(
-      frame, context, extension_group, world_id);
-  std::string code =
-      "(function() {"
-      "  window.eventListenerList = [];"
-      "  window._addEventListener = window.addEventListener;"
-      "  window.addEventListener = function(event, callback, useCapture) {"
-      "    if (event == 'storage') {"
-      "      window.eventListenerList.push(callback);"
-      "    }"
-      "    window._addEventListener(event, callback, useCapture);"
-      "  }"
-      "})();";
-
-  blink::WebScriptSource source =
-      blink::WebScriptSource(base::ASCIIToUTF16(code));
-  frame->executeScript(source);
-}
-
 std::string XWalkContentRendererClientTizen::GetOverridenUserAgent() const {
   if (!xwalk_render_process_observer_)
     return "";

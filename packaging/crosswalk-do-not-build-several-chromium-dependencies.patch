@@ -366,11 +366,10 @@ BUG=XWALK-2571
          '../base/base.gyp:base',
 --- src/net/net.gyp
 +++ src/net/net.gyp
-@@ -44,6 +44,42 @@
-   ],
-   'targets': [
+@@ -104,6 +104,41 @@
+     },
      {
-+      'target_name': 'net',
+       'target_name': 'net',
 +      'type': 'none',
 +      'link_settings': {
 +        'libraries': [
@@ -404,21 +403,12 @@ BUG=XWALK-2571
 +        }],
 +      ],
 +    },
-+
 +    {
-       'target_name': 'net_derived_sources',
-       'type': 'none',
-       'sources': [
-@@ -80,7 +116,7 @@
-       },
-     },
-     {
--      'target_name': 'net',
 +      'target_name': 'net_original',
-       'type': '<(component)',
-       'variables': { 'enable_wexit_time_destructors': 1, },
        'dependencies': [
-@@ -1177,6 +1213,16 @@
+         '../base/base.gyp:base_i18n',
+         '../third_party/icu/icu.gyp:icui18n',
+@@ -842,6 +842,15 @@
        'targets': [
          {
            'target_name': 'net_with_v8',
@@ -429,7 +419,6 @@ BUG=XWALK-2571
 +            ],
 +          },
 +        },
-+
 +        {
 +          'target_name': 'net_with_v8_original',
            'type': '<(component)',

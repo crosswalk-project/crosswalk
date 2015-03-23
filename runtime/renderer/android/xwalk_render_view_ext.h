@@ -9,7 +9,6 @@
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_view_observer.h"
 #include "third_party/skia/include/core/SkColor.h"
-#include "third_party/WebKit/public/web/WebPermissionClient.h"
 
 namespace blink {
 

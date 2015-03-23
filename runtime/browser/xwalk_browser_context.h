@@ -28,6 +28,7 @@ class URLRequestContextGetter;
 
 namespace content {
 class DownloadManagerDelegate;
+class PermissionManager;
 }
 
 namespace visitedlink {
@@ -74,6 +75,7 @@ class XWalkBrowserContext
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
   content::PushMessagingService* GetPushMessagingService() override;
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
+  content::PermissionManager* GetPermissionManager() override;
 
   RuntimeURLRequestContextGetter* GetURLRequestContextGetterById(
       const std::string& pkg_id);
@@ -120,6 +122,7 @@ class XWalkBrowserContext
       PartitionPathContextGetterMap;
   PartitionPathContextGetterMap context_getters_;
   scoped_ptr<XWalkSSLHostStateDelegate> ssl_host_state_delegate_;
+  scoped_ptr<content::PermissionManager> permission_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserContext);
 };
