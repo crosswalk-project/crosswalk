@@ -27,6 +27,8 @@ def Clean(name, app_version):
       os.remove(name + '_' + app_version + '_x86_64.apk')
     if os.path.isfile(name + '_' + app_version + '_arm.apk'):
       os.remove(name + '_' + app_version + '_arm.apk')
+    if os.path.isfile(name + '_' + app_version + '_arm64.apk'):
+      os.remove(name + '_' + app_version + '_arm64.apk')
 
 
 def CompareSizeForCompressor(mode, original, ext, name, fun):
@@ -180,6 +182,8 @@ class TestMakeApk(unittest.TestCase):
                                        'x86_64', 'libxwalkcore.so')
     arm_native_lib_path = os.path.join('xwalk_core_library', 'libs',
                                        'armeabi-v7a', 'libxwalkcore.so')
+    arm64_native_lib_path = os.path.join('xwalk_core_library', 'libs',
+                                         'arm64-v8a', 'libxwalkcore.so')
     arch_list = []
     if os.path.isfile(x86_native_lib_path):
       arch_list.append('x86')
@@ -187,6 +191,8 @@ class TestMakeApk(unittest.TestCase):
       arch_list.append('x86_64')
     if os.path.isfile(arm_native_lib_path):
       arch_list.append('arm')
+    if os.path.isfile(arm64_native_lib_path):
+      arch_list.append('arm64')
     return arch_list
 
   def checkApks(self, apk_name, app_version, keystore_path=None):
@@ -204,6 +210,9 @@ class TestMakeApk(unittest.TestCase):
       arm_apk_path = '%s_%s_arm.apk' % (apk_name, app_version)
       if os.path.exists(arm_apk_path):
         apks.append((arm_apk_path, 'arm'))
+      arm64_apk_path = '%s_%s_arm64.apk' % (apk_name, app_version)
+      if os.path.exists(arm64_apk_path):
+        apks.append((arm64_apk_path, 'arm64'))
 
     for apk, apk_arch in apks:
       self.checkApk(apk, apk_arch, keystore_path)
@@ -235,6 +244,8 @@ class TestMakeApk(unittest.TestCase):
       self.assertTrue(out.find('x86_64/libxwalkcore.so') != -1)
     elif arch == 'arm':
       self.assertTrue(out.find('armeabi-v7a/libxwalkcore.so') != -1)
+    elif arch == 'arm64':
+      self.assertTrue(out.find('arm64-v8a/libxwalkcore.so') != -1)
 
     if keystore_path:
       cmd = ['jarsigner', '-verify', '-keystore', keystore_path,
@@ -287,6 +298,9 @@ class TestMakeApk(unittest.TestCase):
     elif 'x86_64' in self.archs():
       arch = '--arch=x86_64'
       versionCode = 'versionCode="70100000"'
+    elif 'arm64' in self.archs():
+      arch = '--arch=arm64'
+      versionCode = 'versionCode="30100000"'
     else:
       arch = '--arch=arm'
       versionCode = 'versionCode="20100000"'
@@ -334,6 +348,9 @@ class TestMakeApk(unittest.TestCase):
     elif 'x86_64' in self.archs():
       arch = '--arch=x86_64'
       versionCode = 'versionCode="70000003"'
+    elif 'arm64' in self.archs():
+      arch = '--arch=arm64'
+      versionCode = 'versionCode="30000003"'
     else:
       arch = '--arch=arm'
       versionCode = 'versionCode="20000003"'
@@ -363,6 +380,8 @@ class TestMakeApk(unittest.TestCase):
       arch = '--arch=x86'
     elif 'x86_64' in self.archs():
       arch = '--arch=x86_64'
+    elif 'arm64' in self.archs():
+      arch = '--arch=arm64'
     else:
       arch = '--arch=arm'
     cmd = ['python', 'make_apk.py', '--name=Example',
@@ -881,6 +900,7 @@ class TestMakeApk(unittest.TestCase):
         self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86_64.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_arm.apk'))
+      self.assertFalse(os.path.isfile('Example_1.0.0_arm64.apk'))
       Clean('Example', '1.0.0')
       cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
              '--package=org.xwalk.example', '--app-url=http://www.intel.com',
@@ -894,11 +914,13 @@ class TestMakeApk(unittest.TestCase):
         self.assertFalse(os.path.isfile('Example_1.0.0_x86_64.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_arm.apk'))
+      self.assertFalse(os.path.isfile('Example_1.0.0_arm64.apk'))
       Clean('Example', '1.0.0')
       cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
              '--package=org.xwalk.example', '--app-url=http://www.intel.com',
              '--arch=arm', self._mode]
       RunCommand(cmd)
+      self.addCleanup(Clean, 'Example', '1.0.0')
       if 'arm' in self.archs():
         self.assertTrue(os.path.isfile('Example_1.0.0_arm.apk'))
         self.checkApk('Example_1.0.0_arm.apk', 'arm')
@@ -906,10 +928,26 @@ class TestMakeApk(unittest.TestCase):
         self.assertFalse(os.path.isfile('Example_1.0.0._arm.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86_64.apk'))
+      self.assertFalse(os.path.isfile('Example_1.0.0_arm64.apk'))
       Clean('Example', '1.0.0')
 
       cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
              '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+             '--arch=arm64', self._mode]
+      RunCommand(cmd)
+      self.addCleanup(Clean, 'Example', '1.0.0')
+      if 'arm64' in self.archs():
+        self.assertTrue(os.path.isfile('Example_1.0.0_arm64.apk'))
+        self.checkApk('Example_1.0.0_arm64.apk', 'arm64')
+      else:
+        self.assertFalse(os.path.isfile('Example_1.0.0._arm64.apk'))
+      self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
+      self.assertFalse(os.path.isfile('Example_1.0.0_x86_64.apk'))
+      self.assertFalse(os.path.isfile('Example_1.0.0_arm.apk'))
+      Clean('Example', '1.0.0')
+
+      cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+             '--package=org.xwalk.example', '--app-url=http://www.crosswalk-project.org',
              self._mode]
       RunCommand(cmd)
       if 'arm' in self.archs():
@@ -917,6 +955,11 @@ class TestMakeApk(unittest.TestCase):
         self.checkApk('Example_1.0.0_arm.apk', 'arm')
       else:
         self.assertFalse(os.path.isfile('Example_1.0.0._arm.apk'))
+      if 'arm64' in self.archs():
+        self.assertTrue(os.path.isfile('Example_1.0.0_arm64.apk'))
+        self.checkApk('Example_1.0.0_arm64.apk', 'arm64')
+      else:
+        self.assertFalse(os.path.isfile('Example_1.0.0._arm64.apk'))
       if 'x86' in self.archs():
         self.assertTrue(os.path.isfile('Example_1.0.0_x86.apk'))
         self.checkApk('Example_1.0.0_x86.apk', 'x86')
@@ -959,6 +1002,8 @@ class TestMakeApk(unittest.TestCase):
         arch = '--arch=x86'
       elif 'x86_64' in arch_list:
         arch = '--arch=x86_64'
+      elif 'arm64' in arch_list:
+        arch = '--arch=arm64'
       else:
         arch = '--arch=arm'
       icon = '--icon=%s' % icon_path

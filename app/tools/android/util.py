@@ -28,7 +28,7 @@ def CleanDir(path):
 
 
 def AllArchitectures():
-  return ("x86", "x86_64", "arm")
+  return ("x86", "x86_64", "arm", "arm64")
 
 
 def RunCommand(command, verbose=False, shell=False):

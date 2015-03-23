@@ -36,7 +36,8 @@ def ConvertArchNameToArchFolder(arch):
   arch_dict = {
       'x86': 'x86',
       'x86_64': 'x86_64',
-      'arm': 'armeabi-v7a'
+      'arm': 'armeabi-v7a',
+      'arm64': 'arm64-v8a'
   }
   return arch_dict.get(arch, None)
 
@@ -184,6 +185,8 @@ def MakeVersionCode(options, app_version):
   abi = '0'
   if options.arch == 'arm':
     abi = '2'
+  if options.arch == 'arm64':
+    abi = '3'
   if options.arch == 'x86':
     abi = '6'
   if options.arch == 'x86_64':
@@ -494,14 +497,9 @@ def MakeApk(options, app_info, manifest):
     else:
       # If the arch option is unspecified, all of available platform APKs
       # will be generated.
-      valid_archs = ['x86', 'x86_64', 'armeabi-v7a']
-      for arch in valid_archs:
-        if arch in available_archs:
-          if arch.find('arm') != -1:
-            options.arch = 'arm'
-          else:
-            options.arch = arch
-          print("options.arch:", options.arch)
+      for arch in AllArchitectures():
+        if ConvertArchNameToArchFolder(arch) in available_archs:
+          options.arch = arch
           Execution(options, app_info)
           packaged_archs.append(options.arch)
         else:
@@ -548,9 +546,9 @@ def main(argv):
           'Set the default mode as \'embedded\'. For example: --mode=embedded')
   parser.add_option('--mode', choices=('embedded', 'shared'),
                     default='embedded', help=info)
-  info = ('The target architecture of the embedded runtime. Supported values '
-          'are \'x86\' \'x86_64\' and \'arm\'. Note, if undefined, APKs for '
-          'all possible architestures will be generated.')
+  info = ('The target architecture of the embedded runtime. Supported values: '
+          '%s. If not specified, APKs for all available architectures will be '
+          'generated.' % ', '.join(AllArchitectures()))
   parser.add_option('--arch', choices=AllArchitectures(), help=info)
   group = optparse.OptionGroup(parser, 'Application Source Options',
       'This packaging tool supports 3 kinds of web application source: '

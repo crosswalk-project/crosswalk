@@ -907,6 +907,9 @@
             ['android_app_abi=="x86_64"', {
               'version_code_shift%': 4,
             }],
+            ['android_app_abi=="arm64-v8a"', {
+              'version_code_shift%': 5,
+            }],
           ], # conditions
         },
         'version_code_shift%': '<(version_code_shift)',
