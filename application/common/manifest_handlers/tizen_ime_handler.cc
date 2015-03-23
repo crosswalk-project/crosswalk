@@ -122,8 +122,9 @@ bool TizenImeHandler::Parse(scoped_refptr<ApplicationData> application,
   const Manifest* manifest = application->GetManifest();
   DCHECK(manifest);
 
-  base::Value* value;
-  manifest->Get(keys::kTizenImeKey, &value);
+  base::Value* value = nullptr;
+  if (!manifest->Get(keys::kTizenImeKey, &value))
+    return true;
 
   bool result = true;
 
@@ -148,6 +149,9 @@ bool TizenImeHandler::Validate(
   const TizenImeInfo* ime_info =
       static_cast<const TizenImeInfo*>(
           application->GetManifestData(keys::kTizenImeKey));
+
+  if (!ime_info)
+    return true;
 
   if (ime_info->uuid().empty()) {
     *error = kErrMsgValidatingUuidEmpty;

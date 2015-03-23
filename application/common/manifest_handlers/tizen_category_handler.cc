@@ -43,8 +43,9 @@ bool TizenCategoryHandler::Parse(scoped_refptr<ApplicationData> application,
     base::string16* error) {
   const Manifest* manifest = application->GetManifest();
   scoped_ptr<CategoryInfoList> aplist(new CategoryInfoList());
-  base::Value* value;
-  manifest->Get(keys::kTizenCategoryKey, &value);
+  base::Value* value = nullptr;
+  if (!manifest->Get(keys::kTizenCategoryKey, &value))
+    return true;
 
   if (value->GetType() == base::Value::TYPE_LIST) {
     // multiple entries
@@ -79,6 +80,9 @@ bool TizenCategoryHandler::Validate(
   const CategoryInfoList* categories_list =
       static_cast<const CategoryInfoList*>(
           application->GetManifestData(keys::kTizenCategoryKey));
+
+  if (!categories_list)
+    return true;
 
   for (const auto& item : categories_list->categories) {
     if (item.empty()) {

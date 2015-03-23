@@ -69,8 +69,9 @@ bool TizenAppControlHandler::Parse(scoped_refptr<ApplicationData> application,
     base::string16* error) {
   const Manifest* manifest = application->GetManifest();
   scoped_ptr<AppControlInfoList> aplist(new AppControlInfoList());
-  base::Value* value;
-  manifest->Get(keys::kTizenApplicationAppControlsKey, &value);
+  base::Value* value = nullptr;
+  if (!manifest->Get(keys::kTizenApplicationAppControlsKey, &value))
+    return true;
 
   if (value->GetType() == base::Value::TYPE_LIST) {
     // multiple entries
@@ -107,6 +108,9 @@ bool TizenAppControlHandler::Validate(
   const AppControlInfoList* app_controls =
       static_cast<const AppControlInfoList*>(
           application->GetManifestData(keys::kTizenApplicationAppControlsKey));
+
+  if (!app_controls)
+    return true;
 
   for (const auto& item : app_controls->controls) {
     if (item.src().empty()) {
