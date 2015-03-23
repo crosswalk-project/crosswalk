@@ -16,52 +16,58 @@ class JavaClassLoader(object):
   """Manager class maintains all loaded java classes."""
   def __init__(self, src_path, class_list):
     self._src_path = src_path
-    self._class_list = class_list
     self._java_data_map = {}
-
-    for clazz in self._class_list:
-      self.LoadJavaFile(clazz)
-
-    for key,java_data in self._java_data_map.items():
-      for method in java_data._methods:
-        method.PrepareStrings()
+    self._class_list = class_list
 
   def IsInternalClass(self, clazz):
     return clazz in self._class_list
 
-  def GetJavaData(self, clazz):
-    return self._java_data_map.get(clazz)
-
-  def LoadJavaFile(self, clazz):
-    if self._java_data_map.has_key(clazz):
-      return
+  def LoadJavaClass(self, clazz):
+    java_data = self._java_data_map.get(clazz, None)
+    if java_data:
+      return java_data
 
     file_name = os.path.join(self._src_path, '%s.java' % clazz)
+    self._java_data_map[clazz] = self.LoadJavaFile(file_name)
+
+    return self._java_data_map[clazz]
+
+  def LoadJavaFile(self, file_name):
     try:
       file_handle = open(file_name, 'r')
       file_content = file_handle.read()
       file_handle.close()
     except Exception:
-      print('Error reading input Java file, please check.')
+      print 'Error reading input Java file, please check.'
       return
 
     java_data = InternalJavaFileData(self)
     java_data.SetClassContent(file_content)
-    self._java_data_map[clazz] = java_data
+
+    return java_data
+
+  def MangleInternalNameToBridgeName(self, internal_name):
+    if not self.IsInternalClass(internal_name):
+      return internal_name
+    else:
+      return internal_name.replace('Internal', 'Bridge')
+
+  def MangleInternalNameToWrapperName(self, internal_name):
+    if not self.IsInternalClass(internal_name):
+      return internal_name
+    else:
+      return internal_name.replace('Internal', '')
 
   def GenerateDoc(self, doc):
     if not doc:
       return ''
-
     def ReplaceInternal(matchobj):
       match = matchobj.group(0)
       if self.IsInternalClass(match):
-        return self.GetJavaData(match).wrapper_name
+        return self.LoadJavaClass(match).wrapper_name
       else:
         return match
-
-    return re.sub('XWalk[a-zA-Z_0-9]*Internal',
-        ReplaceInternal, doc).lstrip('\n')
+    return re.sub('XWalk[a-zA-Z_0-9]*Internal', ReplaceInternal, doc)
 
 class InternalJavaFileData(object):
   """Data class stores the generator information of internal class."""
@@ -85,6 +91,9 @@ class InternalJavaFileData(object):
     self._imports = []
     self._enums = {}
     self._package_name = ''
+
+  def LoadJavaClass(self, clazz):
+    return self._class_loader.LoadJavaClass(clazz)
 
   @property
   def class_name(self):
@@ -130,24 +139,6 @@ class InternalJavaFileData(object):
   def package_name(self):
     return self._package_name
 
-  def GetJavaData(self, clazz):
-    return self._class_loader.GetJavaData(clazz)
-
-  def IsInternalClass(self, clazz):
-    return self._class_loader.IsInternalClass(clazz)
-
-  def MangleInternalNameToBridgeName(self, internal_name):
-    if not self.IsInternalClass(internal_name):
-      return internal_name
-    else:
-      return internal_name.replace('Internal', 'Bridge')
-
-  def MangleInternalNameToWrapperName(self, internal_name):
-    if not self.IsInternalClass(internal_name):
-      return internal_name
-    else:
-      return internal_name.replace('Internal', '')
-
   def SetClassContent(self, content):
     self.ExtractPackageName(content)
     self.ExtractImports(content)
@@ -184,9 +175,9 @@ class InternalJavaFileData(object):
       annotation_content = match.group('annotation_content')
       self._class_name = match.group('class_name')
       self._bridge_name = \
-          self.MangleInternalNameToBridgeName(self._class_name)
+          self._class_loader.MangleInternalNameToBridgeName(self._class_name)
       self._wrapper_name = \
-          self.MangleInternalNameToWrapperName(self._class_name)
+          self._class_loader.MangleInternalNameToWrapperName(self._class_name)
       self._class_type = match.group('type')
       self._class_doc = match.group('class_doc')
       self.ParseClassAnnotations(annotation_content)
@@ -375,54 +366,42 @@ class InternalJavaFileData(object):
       enum_object = Enum(enum_name, enum_content, enum_doc)
       self._enums[enum_name] = enum_object
 
-  def HasNoInstanceAnnotation(self):
-    return self._class_annotations.get(
-        InternalJavaFileData.ANNOTATION_NO_INSTANCE, False)
-
   def HasCreateInternallyAnnotation(self):
     return self._class_annotations.get(
         InternalJavaFileData.ANNOTATION_CREATE_INTERNALLY, False)
-
-  def HasInstanceCreateInternallyAnnotation(self):
-    instance = None
-    clazz = self._class_annotations.get(
-        InternalJavaFileData.ANNOTATION_INSTANCE, None)
-    if clazz:
-      instance = self.GetJavaData(clazz.replace('.class', ''))
-
-    if instance:
-      return instance.HasCreateInternallyAnnotation()
-    else:
-      return self.HasCreateInternallyAnnotation()
 
   def UseAsInstanceInBridgeCall(self, var):
     return '%s.getWrapper()' % self.UseAsReturnInBridgeSuperCall(var)
 
   def UseAsInstanceInBridgeOverrideCall(self, var):
-    clazz = self._class_annotations.get(
-        InternalJavaFileData.ANNOTATION_INSTANCE, self._class_name)
+    clazz = self._class_annotations.get('instance', self._class_name)
     clazz = clazz.replace('.class', '')
-
-    if self.GetJavaData(clazz).class_annotations.get(
-        InternalJavaFileData.ANNOTATION_CREATE_INTERNALLY, False):
+    if self.LoadJavaClass(clazz).class_annotations.get(
+        'createInternally', False):
       return self.UseAsReturnInBridgeSuperCall(var)
-    return '(%s) %s' % (self.GetJavaData(clazz).bridge_name, var)
+    return '(%s) %s' % (self.LoadJavaClass(clazz).bridge_name, var)
 
   def UseAsReturnInBridgeSuperCall(self, var):
-    clazz = self._class_annotations.get(
-        InternalJavaFileData.ANNOTATION_INSTANCE, self._class_name)
+    clazz = self._class_annotations.get('instance', self._class_name)
     clazz = clazz.replace('.class', '')
 
-    if self.GetJavaData(clazz).class_annotations.get(
-        InternalJavaFileData.ANNOTATION_CREATE_INTERNALLY, False):
+    if self.LoadJavaClass(clazz).class_annotations.get(
+        'createInternally', False):
       typed_var_template = Template('(${VAR} instanceof ${BRIDGE_TYPE} ?'\
           ' ((${BRIDGE_TYPE}) ${VAR} ) : new ${BRIDGE_TYPE}(${INTERNAL_VAR}))')
       value = {'VAR': var,
-               'BRIDGE_TYPE': self.GetJavaData(clazz).bridge_name,
+               'BRIDGE_TYPE': self.LoadJavaClass(clazz).bridge_name,
                'INTERNAL_VAR': var if clazz == self._class_name else\
                                    '(%s) %s' % (clazz, var)}
       var = typed_var_template.substitute(value)
+
     return var
+
+  def UseAsTypeInBridgeAndBridgeSuperCall(self):
+    clazz = self._class_annotations.get('instance', self._class_name)
+    clazz = clazz.replace('.class', '')
+
+    return self.LoadJavaClass(clazz).bridge_name
 
   def UseAsInstanceInBridgeSuperCall(self, var):
     # pylint: disable=R0201
@@ -433,29 +412,38 @@ class InternalJavaFileData(object):
     clazz = clazz.replace('.class', '')
 
     if clazz != self._class_name:
-      var = '((%s) %s)' % (self.GetJavaData(clazz).wrapper_name, var)
+      var = '((%s) %s)' % (self.LoadJavaClass(clazz).wrapper_name, var)
     return '%s.getBridge()' % var
 
   def UseAsTypeInWrapperCall(self):
     return self._wrapper_name
 
-  def GetBridgeName(self, subclass=None):
-    if not self.IsInternalClass(self._class_name):
+  def GetFullBridgeName(self, subclass=None):
+    if not self._class_loader.IsInternalClass(self._class_name):
       return self._class_name
     else:
       clazz = self._class_annotations.get(
           InternalJavaFileData.ANNOTATION_INSTANCE, self._class_name)
       clazz = clazz.replace('.class', '')
+      package_string = 'org.xwalk.core.internal.%s'
       if not subclass:
-        return self.GetJavaData(clazz).bridge_name
+        return package_string % self.LoadJavaClass(clazz).bridge_name
       else:
-        return clazz + '$' + subclass
+        return package_string % (clazz + '$' + subclass)
 
-  def GetWrapperName(self, subclass=None):
-    if not self.IsInternalClass(self._class_name):
+  def GetFullWrapperName(self, subclass=None):
+    if not self._class_loader.IsInternalClass(self._class_name):
       return self._class_name
     else:
       if not subclass:
-        return self._wrapper_name
+        return "org.xwalk.core.%s" % self._wrapper_name
       else:
-        return "%s$%s" % (self._wrapper_name, subclass.replace('Internal', ''))
+        return "org.xwalk.core.%s$%s" % (self._wrapper_name,
+                                         subclass.replace('Internal', ''))
+
+  def GetInstanceJavaData(self):
+    clazz = self._class_annotations.get('instance', None)
+    if clazz:
+      clazz = clazz.replace('.class', '')
+      return self.LoadJavaClass(clazz)
+    return None
