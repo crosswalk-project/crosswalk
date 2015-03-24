@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "base/android/locale_utils.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/files/file.h"
@@ -463,5 +464,13 @@ void XWalkContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
 #endif  // V8_USE_EXTERNAL_STARTUP_DATA
 }
 #endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
+
+std::string XWalkContentBrowserClient::GetApplicationLocale() {
+#if defined(OS_ANDROID)
+  return base::android::GetDefaultLocale();
+#else
+  return content::ContentBrowserClient::GetApplicationLocale();
+#endif
+}
 
 }  // namespace xwalk
