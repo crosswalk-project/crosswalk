@@ -166,7 +166,7 @@ void XWalkContentRendererClient::RenderViewCreated(
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context,
+    blink::WebLocalFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
   if (extension_controller_)
     extension_controller_->DidCreateScriptContext(frame, context);

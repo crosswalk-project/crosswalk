@@ -290,7 +290,7 @@ void XWalkContentBrowserClient::RequestPermission(
     int bridge_id,
     const GURL& requesting_frame,
     bool user_gesture,
-    const base::Callback<void(bool)>& result_callback) {
+    const base::Callback<void(content::PermissionStatus)>& result_callback) {
   switch (permission) {
     case content::PERMISSION_GEOLOCATION:
 #if defined(OS_ANDROID) || defined(OS_TIZEN)
@@ -301,7 +301,7 @@ void XWalkContentBrowserClient::RequestPermission(
     geolocation_permission_context_->RequestGeolocationPermission(
         web_contents, requesting_frame, result_callback);
 #else
-    result_callback.Run(false);
+      result_callback.Run(content::PERMISSION_STATUS_DENIED);
 #endif
       break;
     case content::PERMISSION_NOTIFICATIONS:

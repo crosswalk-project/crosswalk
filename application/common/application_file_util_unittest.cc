@@ -110,8 +110,8 @@ static scoped_refptr<ApplicationData> LoadApplicationManifest(
     ApplicationData::SourceType location,
     int extra_flags,
     std::string* error) {
-  JSONStringValueSerializer serializer(manifest_value);
-  scoped_ptr<base::Value> result(serializer.Deserialize(NULL, error));
+  JSONStringValueDeserializer deserializer(manifest_value);
+  scoped_ptr<base::Value> result(deserializer.Deserialize(NULL, error));
   if (!result.get())
     return NULL;
   CHECK_EQ(base::Value::TYPE_DICTIONARY, result->GetType());

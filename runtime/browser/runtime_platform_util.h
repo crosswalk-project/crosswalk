@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/callback_forward.h"
 #include "base/strings/string16.h"
 #include "ui/gfx/native_widget_types.h"
 
@@ -17,14 +18,18 @@ class FilePath;
 }
 
 namespace platform_util {
+// Type of item that is the target of the OpenItem() call.
+enum OpenItemType { OPEN_FILE, OPEN_FOLDER };
 
-// Show the given file in a file manager. If possible, select the file.
-// Must be called from the UI thread.
+// Opens the item specified by |full_path|, which is expected to be the type
+// indicated by |item_type| in the desktop's default manner.
+// Must be called on the UI thread.
+void OpenItem(const base::FilePath& full_path, OpenItemType item_type);
+
+// Opens the folder containing the item specified by |full_path| in the
+// desktop's default manner. If possible, the item will be selected. Must
+// be called on the UI thread.
 void ShowItemInFolder(const base::FilePath& full_path);
-
-// Open the given file in the desktop's default manner.
-// Must be called from the UI thread.
-void OpenItem(const base::FilePath& full_path);
 
 // Open the given external protocol URL in the desktop's default manner.
 // (For example, mailto: URLs in the default mail user agent.)

@@ -7,6 +7,7 @@
 
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
+#include "content/public/common/permission_status.mojom.h"
 
 class GURL;
 
@@ -25,7 +26,7 @@ class RuntimeGeolocationPermissionContext
   virtual void RequestGeolocationPermission(
       content::WebContents* web_contents,
       const GURL& requesting_frame,
-      base::Callback<void(bool)> result_callback);
+      base::Callback<void(content::PermissionStatus)> result_callback);
   virtual void CancelGeolocationPermissionRequest(
       content::WebContents* web_contents,
       const GURL& requesting_frame);
@@ -38,7 +39,7 @@ class RuntimeGeolocationPermissionContext
   void RequestGeolocationPermissionOnUIThread(
       content::WebContents* web_contents,
       const GURL& requesting_frame,
-      base::Callback<void(bool)> result_callback);
+      base::Callback<void(content::PermissionStatus)> result_callback);
 
   void CancelGeolocationPermissionRequestOnUIThread(
       content::WebContents* web_contents,
