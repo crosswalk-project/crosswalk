@@ -104,7 +104,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       int bridge_id,
       const GURL& requesting_frame,
       bool user_gesture,
-      const base::Callback<void(bool)>& result_callback) override;
+      const base::Callback<void(content::PermissionStatus)>& result_callback) override;
   void CancelPermissionRequest(
       content::PermissionType permission,
       content::WebContents* web_contents,

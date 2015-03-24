@@ -384,8 +384,8 @@ scoped_ptr<Manifest> LoadManifest(
 template <>
 scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
     const base::FilePath& manifest_path, std::string* error) {
-  JSONFileValueSerializer serializer(manifest_path);
-  scoped_ptr<base::Value> root(serializer.Deserialize(NULL, error));
+  JSONFileValueDeserializer deserializer(manifest_path);
+  scoped_ptr<base::Value> root(deserializer.Deserialize(NULL, error));
   if (!root) {
     if (error->empty()) {
       // If |error| is empty, than the file could not be read.

@@ -45,7 +45,7 @@ class XWalkContentRendererClient
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
   void DidCreateScriptContext(
-      blink::WebFrame* frame, v8::Handle<v8::Context> context,
+      blink::WebLocalFrame* frame, v8::Handle<v8::Context> context,
       int extension_group, int world_id) override;
   bool IsExternalPepperPlugin(const std::string& module_name) override;
   const void* CreatePPAPIInterface(
