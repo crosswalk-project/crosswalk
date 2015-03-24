@@ -4,14 +4,8 @@
 
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
 
-#include "base/command_line.h"
-#include "grit/xwalk_resources.h"
-#include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image.h"
-#include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_ui_delegate_desktop.h"
-#include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
 // FIXME : Need to figure out what code paths are used by Android and not
@@ -26,21 +20,6 @@ const int kDefaultHeight = 600;
 NativeAppWindow* RuntimeCreateWindow(
     Runtime* runtime, const NativeAppWindow::CreateParams& params) {
   NativeAppWindow* window = NativeAppWindow::Create(params);
-  // FIXME : Pass an App icon in params.
-  // Set the app icon if it is passed from command line.
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  gfx::Image app_icon;
-  if (command_line->HasSwitch(switches::kAppIcon)) {
-    base::FilePath icon_file =
-        command_line->GetSwitchValuePath(switches::kAppIcon);
-    app_icon = xwalk_utils::LoadImageFromFilePath(icon_file);
-  } else {
-    // Otherwise, use the default icon for Crosswalk app.
-    ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
-    app_icon = rb.GetNativeImageNamed(IDR_XWALK_ICON_48);
-  }
-
-  window->UpdateIcon(app_icon);
 
   unsigned int fullscreen_options = runtime->fullscreen_options();
   if (params.state == ui::SHOW_STATE_FULLSCREEN)
