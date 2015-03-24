@@ -14,36 +14,60 @@ def main():
   option_parser = optparse.OptionParser()
   option_parser.add_option('-t', dest='target',
                            help='Product out target directory.')
+  option_parser.add_option('--shared', action='store_true',
+                           default=False,
+                           help='Generate shared library', )
   options, _ = option_parser.parse_args()
 
   # The first entry of each tuple is the source file/directory that will be
   # copied (and must exist), the second entry is its relative path inside the
   # AAR file.
-  dirs = (
-    (os.path.join(options.target, 'xwalk_core_library', 'libs'),
-     'jni'),
-    (os.path.join(options.target, 'xwalk_core_library', 'res'),
-     'res'),
-  )
-  files = (
-    (os.path.join(options.target, 'gen', 'xwalk_core_internal_java', 'java_R',
-                  'R.txt'),
-     'R.txt'),
-    (os.path.join(options.target, 'xwalk_core_library', 'AndroidManifest.xml'),
-     'AndroidManifest.xml'),
-    (os.path.join(options.target, 'lib.java', 'xwalk_core_library_java.jar'),
-     'classes.jar'),
-  )
-  # This is a list of files that will not be packaged: mostly a blacklist of
-  # files within |dirs|.
-  exclude_files = (
-    os.path.join(options.target, 'xwalk_core_library', 'libs',
-                 'xwalk_core_library_java_app_part.jar'),
-    os.path.join(options.target, 'xwalk_core_library', 'libs',
-                 'xwalk_core_library_java_library_part.jar'),
-  )
+  if options.shared:
+    dirs = (
+      (os.path.join(options.target, 'xwalk_shared_library', 'libs'),
+       'jni'),
+      (os.path.join(options.target, 'xwalk_shared_library', 'res'),
+       'res'),
+    )
+    files = (
+      (os.path.join(options.target, 'xwalk_shared_library',
+        'AndroidManifest.xml'), 'AndroidManifest.xml'),
+      (os.path.join(options.target, 'xwalk_shared_library', 'libs',
+        'xwalk_core_library_java_app_part.jar'), 'classes.jar'),
+      (os.path.join(options.target, 'gen', 'xwalk_core_java', 'java_R',
+        'R.txt'), 'R.txt'),
+    )
+    exclude_files = (
+      os.path.join(options.target, 'xwalk_shared_library', 'libs',
+        'xwalk_core_library_java_app_part.jar'),
+    )
 
-  aar_path = os.path.join(options.target, 'xwalk_core_library.aar')
+    aar_path = os.path.join(options.target, 'xwalk_shared_library.aar')
+  else:
+    dirs = (
+      (os.path.join(options.target, 'xwalk_core_library', 'libs'),
+       'jni'),
+      (os.path.join(options.target, 'xwalk_core_library', 'res'),
+       'res'),
+    )
+    files = (
+      (os.path.join(options.target, 'xwalk_core_library', 'AndroidManifest.xml'),
+       'AndroidManifest.xml'),
+      (os.path.join(options.target, 'xwalk_core_library', 'libs',
+        'xwalk_core_library_java.jar'),
+      'classes.jar'),
+      (os.path.join(options.target, 'xwalk_core_empty_embedder_apk',
+        'gen', 'R.txt'), 'R.txt'),
+    )
+    # This is a list of files that will not be packaged: mostly a blacklist of
+    # files within |dirs|.
+    exclude_files = (
+      os.path.join(options.target, 'xwalk_core_library', 'libs',
+      'xwalk_core_library_java.jar'),
+    )
+
+    aar_path = os.path.join(options.target, 'xwalk_core_library.aar')
+
   with zipfile.ZipFile(aar_path, 'w', zipfile.ZIP_DEFLATED) as aar_file:
     for src, dest in files:
       aar_file.write(src, dest)

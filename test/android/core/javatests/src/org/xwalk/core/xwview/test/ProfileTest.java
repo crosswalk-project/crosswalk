@@ -13,6 +13,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.XWalkPreferences;
+import org.xwalk.core.XWalkReflectionHelper;
 
 /**
  * Test suite for XWalkPreferences.PROFILE_NAME.
@@ -41,6 +42,7 @@ public class ProfileTest extends XWalkViewTestBase {
                 File.separator + "Default");
         deleteDir(userDataDir);
         deleteDir(defaultUserDataDir);
+        XWalkReflectionHelper.initEmbeddedMode();
         XWalkPreferences.setValue(XWalkPreferences.PROFILE_NAME, TEST_PROFILE_NAME);
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         super.setUp();

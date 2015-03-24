@@ -27,15 +27,6 @@ def ConvertPrimitiveTypeToObject(class_name):
   }
   return primitive_map.get(class_name, class_name)
 
-
-def HasCreateInternally(java_data):
-  java_data_instance = java_data.GetInstanceJavaData()
-  if java_data_instance:
-    return java_data_instance.HasCreateInternallyAnnotation()
-  else:
-    return java_data.HasCreateInternallyAnnotation()
-
-
 class ParamType(object):
   """Internal representation of the type of a parameter of a method."""
   def __init__(self, expression, class_loader):
@@ -116,7 +107,7 @@ class MethodStringType(object):
 class Method(object):
   """Internal representaion of a method."""
   ANNOTATION_PRE_WRAPLINE = 'preWrapperLines'
-  ANNOTATION_POST_WRAPLINE = 'postWrapLines'
+  ANNOTATION_POST_WRAPLINE = 'postWrapperLines'
 
   def __init__(self, class_name, class_loader,
       is_constructor, is_static, is_abstract,
@@ -132,6 +123,7 @@ class Method(object):
     self._typed_params = OrderedDict()
     self._method_annotations = {}
     self._method_doc = doc
+
     self._class_java_data = ''
     self._method_declare_name = ''
     self._internal_params_declare = ''
@@ -144,15 +136,16 @@ class Method(object):
     self._wrapper_params_declare = ''
     self._wrapper_params_declare_for_bridge = ''
     self._wrapper_params_pass_to_bridge = ''
-    self._strings_prepared = False
+    self._is_reservable = False;
+
     self.ParseMethodParams(params)
     self.ParseMethodAnnotation(annotation)
 
   def IsInternalClass(self, clazz):
     return self._class_loader.IsInternalClass(clazz)
 
-  def LoadJavaClass(self, clazz):
-    return self._class_loader.LoadJavaClass(clazz)
+  def GetJavaData(self, clazz):
+    return self._class_loader.GetJavaData(clazz)
 
   def GenerateDoc(self, doc):
     return self._class_loader.GenerateDoc(doc)
@@ -168,6 +161,10 @@ class Method(object):
   @property
   def is_abstract(self):
     return self._is_abstract
+
+  @property
+  def is_reservable(self):
+    return self._is_reservable
 
   @property
   def method_name(self):
@@ -207,6 +204,9 @@ class Method(object):
       self._typed_params[param_name] = ParamType(param_type, self._class_loader)
 
   def ParseMethodAnnotation(self, annotation):
+    if annotation.find('reservable = true') >= 0:
+      self._is_reservable = True
+
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
     for match in re.finditer(pre_wrapline_re, annotation):
@@ -232,22 +232,8 @@ class Method(object):
       values['param%d' % arg] = self.params.keys()[arg-1]
     return template.substitute(values)
 
-  def GetBridgeParamsStringDeclareForWrapper(self):
-    self.PrepareStrings()
-    return self._bridge_params_declare_for_wrapper
-
-  def GetWrapperParamsStringDeclareForBridge(self):
-    self.PrepareStrings()
-    return self._wrapper_params_declare_for_bridge
-
-  def GetMethodDeclareName(self):
-    self.PrepareStrings()
-    return self._method_declare_name
-
   def PrepareStrings(self):
-    if self._strings_prepared:
-      return
-    self._class_java_data = self.LoadJavaClass(self._class_name)
+    self._class_java_data = self.GetJavaData(self._class_name)
     self._method_declare_name = self.GenerateMethodDeclareName()
 
     self._internal_params_declare = ', '.join(
@@ -260,8 +246,7 @@ class Method(object):
     self._bridge_params_pass_to_super = ', '.join(
         self.GetFormattedParamArray(ParamStringType.BRIDGE_PASS_TO_SUPER))
     self._bridge_params_pass_to_wrapper = ', '.join(
-        self.GetFormattedParamArray(
-            ParamStringType.BRIDGE_PASS_TO_WRAPPER, insert_empty=True))
+        self.GetFormattedParamArray(ParamStringType.BRIDGE_PASS_TO_WRAPPER))
     self._internal_params_pass_to_bridge = ', '.join(
         self.GetFormattedParamArray(ParamStringType.INTERNAL_PASS_TO_BRIDGE))
     self._bridge_override_condition = ' && '.join(
@@ -269,13 +254,10 @@ class Method(object):
     self._wrapper_params_declare = ', '.join(
         self.GetFormattedParamArray(ParamStringType.WRAPPER_DECLARE))
     self._wrapper_params_declare_for_bridge = ', '.join(
-        self.GetFormattedParamArray(ParamStringType.WRAPPER_DECLARE_FOR_BRIDGE,
-                                    insert_empty=True))
-    self._wrapper_params_pass_to_bridge = ', '.join(
         self.GetFormattedParamArray(
-            ParamStringType.WRAPPER_PASS_TO_BRIDGE, insert_empty=True))
-
-    self._strings_prepared = True
+            ParamStringType.WRAPPER_DECLARE_FOR_BRIDGE, insert_empty=True))
+    self._wrapper_params_pass_to_bridge = ', '.join(
+        self.GetFormattedParamArray(ParamStringType.WRAPPER_PASS_TO_BRIDGE))
 
   def GetFormattedParamArray(self, param_string_type,
       append_empty=False, insert_empty=False):
@@ -299,7 +281,7 @@ class Method(object):
   def FormatSingleParam(self, param_type, param_name, param_string_type):
     is_internal_class = self.IsInternalClass(param_type)
     if is_internal_class:
-      java_data = self.LoadJavaClass(param_type)
+      java_data = self.GetJavaData(param_type)
     typed_param = self._typed_params[param_name]
     if param_string_type == ParamStringType.INTERNAL_DECLARE:
       # the way internal declares its params, will be used in bridge's override
@@ -311,24 +293,24 @@ class Method(object):
       # call and super call.
       #   XWalkViewInternal view => XWalkViewBridge view
       if is_internal_class:
-        return '%s %s' % (java_data.UseAsTypeInBridgeAndBridgeSuperCall(),
-                          param_name)
+        return '%s %s'% (java_data.GetBridgeName(), param_name)
       else:
         return '%s %s' % (param_type, param_name)
     elif param_string_type == ParamStringType.BRIDGE_DECLARE_FOR_WRAPPER:
       # the way bridge declares its params for wrapper, will turn the param
       # type to class<?> value for reflection to use.
-      #   XWalkViewInternal view => "org.xwalk.core.XWalkView"
-      #   DirectionInternal direnction => enumDirectionClass
+      #   XWalkViewInternal view => coreBridge.getWrapperClass("XWalkView")
+      #   DirectionInternal direnction =>
+      #       coreBridge.getWrapperClass("XWalkView$Direction")
       #   String name => String.class
       if is_internal_class:
-        return '"%s"' % java_data.GetFullWrapperName()
+        return 'coreBridge.getWrapperClass("%s")' % java_data.GetWrapperName()
       else:
         # TODO(wang16): Here only detects enum declared in the same class as
         # the method itself. Using enum across class is not supported.
-        enums = self._class_java_data.enums
-        if param_type in enums:
-          return enums[param_type].EnumClassName()
+        if param_type in self._class_java_data.enums:
+          return ('coreBridge.getWrapperClass("%s")' %
+              self._class_java_data.GetWrapperName(param_type))
         else:
           return ConvertClassExpressionToClassType(param_type)
     elif param_string_type == ParamStringType.BRIDGE_PASS_TO_SUPER:
@@ -348,21 +330,20 @@ class Method(object):
           typed_param.contains_internal_class):
         assert len(typed_param.generic_type_parameters) == 1
         internal_generic_type_param = typed_param.generic_type_parameters[0]
-        internal_generic_type_class = self.LoadJavaClass(
+        internal_generic_type_class = self.GetJavaData(
             internal_generic_type_param.generic_type)
         return ('new ValueCallback<Object>() {\n' +
           '                @Override\n' +
           '                public void onReceiveValue(Object value) {\n' +
           '                    %sFinal.onReceiveValue((%s) ' % (
               param_name, internal_generic_type_class.bridge_name) +
-          'ReflectionHelper.getBridgeOrWrapper(value));\n' +
+          'coreBridge.getBridgeObject(value));\n' +
           '                }\n' +
           '            }')
       else:
         # TODO(wang16): Here only detects enum declared in the same class as
         # the method itself. Using enum across class is not supported.
-        enums = self._class_java_data.enums
-        if param_type in enums:
+        if param_type in self._class_java_data.enums:
           return 'Convert%s(%s)' % (param_type, param_name)
         else:
           return param_name
@@ -377,10 +358,9 @@ class Method(object):
       # the way bridge uses as the condition for whether call super or
       # call wrapper in override call
       #   XWalkViewInternal view => (view instanceof XWalkViewBridge)
-      if is_internal_class and not HasCreateInternally(java_data):
-        return'(%s instanceof %s)' % (
-            param_name,
-            java_data.UseAsTypeInBridgeAndBridgeSuperCall())
+      if (is_internal_class and
+          not java_data.HasInstanceCreateInternallyAnnotation()):
+        return'(%s instanceof %s)' % (param_name, java_data.GetBridgeName())
       else:
         return None
     elif param_string_type == ParamStringType.WRAPPER_DECLARE:
@@ -398,20 +378,22 @@ class Method(object):
     elif param_string_type == ParamStringType.WRAPPER_DECLARE_FOR_BRIDGE:
       # the way wrapper declares its params for bridge, will turn the param
       # type to class<?> value for reflection to use.
-      #   XWalkViewInternal view => "org.xwalk.core.internal.XWalkViewBridge"
+      #   XWalkViewInternal view =>
+      #       coreWrapper.getBridgeClass("XWalkViewBridge")
       #   DirectionInternal direction => enumDirectionClass
       #   String name => String.class
 
       # TODO(wang16): Currently there is no internal classes for static method.
       # Need to support it in future.
       if is_internal_class:
-        return '"%s"' % java_data.GetFullBridgeName()
+        return 'coreWrapper.getBridgeClass("%s")' % java_data.GetBridgeName()
       else:
         # TODO(wang16): Here only detects enum declared in the same class as
         # the method itself. Using enum across class is not supported.
         enums = self._class_java_data.enums
         if param_type in enums:
-          return enums[param_type].EnumClassName()
+          return ('coreWrapper.getBridgeClass("%s")' %
+              self._class_java_data.GetBridgeName(param_type))
         else:
           return ConvertClassExpressionToClassType(param_type)
     elif param_string_type == ParamStringType.WRAPPER_PASS_TO_BRIDGE:
@@ -442,85 +424,84 @@ class Method(object):
       return '%sMethod' % name
 
   def GenerateBridgeConstructor(self):
-    template = Template(
-        '    public ${NAME}(${PARAMS}, Object wrapper) {\n' +
-        '        super(${PARAMS_PASSING});\n' +
-        '        this.wrapper = wrapper;\n' +
-        '        try {\n' +
-        '            reflectionInit();\n' +
-        '        } catch (Exception e) {\n' +
-        '            ReflectionHelper.handleException(e);\n'+
-        '        }\n' +
-        '    }\n\n')
+    template = Template("""\
+    public ${NAME}(${PARAMS}, Object wrapper) {
+        super(${PARAMS_PASSING});
+
+        this.wrapper = wrapper;
+        reflectionInit();
+    }
+
+""")
     value = {'NAME': self._class_java_data.bridge_name,
              'PARAMS': self._bridge_params_declare,
              'PARAMS_PASSING': self._bridge_params_pass_to_super}
     return template.substitute(value)
 
   def GenerateBridgeStaticMethod(self):
-    no_return_value = self._method_return == 'void'
-    template = Template(
-        '    public static ${RETURN_TYPE} ${NAME}($PARAMS) {\n' +
-        '        ${RETURN}${CLASS_NAME}.${NAME}(${PARAMS_PASSING});\n' +
-        '    }\n\n')
+    template = Template("""\
+    public static ${RETURN_TYPE} ${NAME}($PARAMS) {
+        ${RETURN}${CLASS_NAME}.${NAME}(${PARAMS_PASSING});
+    }
+""")
+
     value = {'RETURN_TYPE': self.method_return,
              'NAME': self.method_name,
              'PARAMS': self._bridge_params_declare,
-             'RETURN': '' if no_return_value else 'return ',
+             'RETURN': '' if self._method_return == 'void' else 'return ',
              'CLASS_NAME': self._class_name,
              'PARAMS_PASSING': self._bridge_params_pass_to_super}
     return template.substitute(value)
 
   def GenerateBridgeOverrideMethod(self):
-    no_return_value = self._method_return == 'void'
     if not self._bridge_override_condition:
-      return '    @Override\n'
-    template = Template(
-        '    @Override\n' +
-        '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-        '        if (${IF_CONDITION}) {\n' +
-        '            ${RETURN}${NAME}(${BRIDGE_PARAMS_PASSING});\n' +
-        '        } else {\n' +
-        '            ${RETURN}super.${NAME}(${PARAMS_PASSING});\n' +
-        '        }\n' +
-        '    }\n\n')
+      return '    @Override'
+    template = Template("""\
+    @Override
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        if (${IF_CONDITION}) {
+            ${RETURN}${NAME}(${BRIDGE_PARAMS_PASSING});
+        } else {
+            ${RETURN}super.${NAME}(${PARAMS_PASSING});
+        }
+    }
+""")
+
     value = {'NAME': self.method_name,
              'RETURN_TYPE': self.method_return,
              'PARAMS': self._internal_params_declare,
-             'RETURN': '' if no_return_value else 'return ',
+             'RETURN': '' if self._method_return == 'void' else 'return ',
              'IF_CONDITION': self._bridge_override_condition,
              'PARAMS_PASSING': self._bridge_params_pass_to_super,
              'BRIDGE_PARAMS_PASSING': self._internal_params_pass_to_bridge}
     return template.substitute(value)
 
   def GenerateBridgeWrapperMethod(self):
-    no_return_value = self._method_return == 'void'
     return_is_internal = self.IsInternalClass(self._method_return)
     if return_is_internal:
-      return_type_java_data = self.LoadJavaClass(self._method_return)
+      return_type_java_data = self.GetJavaData(self._method_return)
 
     if return_is_internal:
-      template = Template(
-          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-          '${GENERIC_TYPE_DECLARE}' +
-          '        ${RETURN}ReflectionHelper.getBridgeOrWrapper(' + 
-          'ReflectionHelper.invokeMethod(\n' +
-          '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING}));\n' +
-          '    }\n\n')
+      template = Template("""\
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        ${GENERIC_TYPE_DECLARE}${RETURN}coreBridge.getBridgeObject(\
+${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
+    }
+""")
     else :
-      template = Template(
-          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-          '${GENERIC_TYPE_DECLARE}' +
-          '        ${RETURN}ReflectionHelper.invokeMethod(\n' +
-          '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING});\n' +
-          '    }\n\n')
+      template = Template("""\
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        ${GENERIC_TYPE_DECLARE}${RETURN}${METHOD_DECLARE_NAME}.invoke(\
+${PARAMS_PASSING});
+    }
+""")
 
-    if no_return_value:
+    if self._method_return == 'void':
       return_statement = ''
     elif return_is_internal:
       return_statement = 'return (%s)' % return_type_java_data.bridge_name
     else:
-      return_statement = 'return (%s)' % (
+      return_statement = ('return (%s)' %
           ConvertPrimitiveTypeToObject(self.method_return))
 
     # Handling generic types, current only ValueCallback will be handled.
@@ -530,7 +511,7 @@ class Method(object):
       if typed_param.generic_type != 'ValueCallback':
         continue
       if typed_param.contains_internal_class:
-        generic_type_declare += '        final %s %sFinal = %s;\n' % (
+        generic_type_declare += 'final %s %sFinal = %s;\n        ' % (
             typed_param.expression, param_name, param_name)
 
     value = {'RETURN_TYPE': self.method_return,
@@ -546,47 +527,51 @@ class Method(object):
     no_return_value = self._method_return == 'void'
     return_is_internal = self.IsInternalClass(self._method_return)
     if return_is_internal:
-      return_type_java_data = self.LoadJavaClass(self._method_return)
+      return_type_java_data = self.GetJavaData(self._method_return)
 
     if self._is_abstract:
       return ''
 
     if self._class_java_data.HasCreateInternallyAnnotation():
       if no_return_value:
-        template = Template(
-            '    public void ${NAME}Super(${PARAMS}) {\n' +
-            '        if (internal == null) {\n' +
-            '            super.${NAME}(${PARAM_PASSING});\n' +
-            '        } else {\n' +
-            '            internal.${NAME}(${PARAM_PASSING});\n' +
-            '        }\n' +
-            '    }\n\n')
+        template = Template("""\
+    public void ${NAME}Super(${PARAMS}) {
+        if (internal == null) {
+            super.${NAME}(${PARAM_PASSING});
+        } else {
+            internal.${NAME}(${PARAM_PASSING});
+        }
+    }
+""")
       else:
-        template = Template(
-            '    public ${RETURN_TYPE} ${NAME}Super(${PARAMS}) {\n' +
-            '        ${INTERNAL_RETURN_TYPE} ret;\n' +
-            '        if (internal == null) {\n' +
-            '            ret = super.${NAME}(${PARAM_PASSING});\n' +
-            '        } else {\n' +
-            '            ret = internal.${NAME}(${PARAM_PASSING});\n' +
-            '        }\n' +
-            '        ${IF_NULL_RETURN_NULL}\n' +
-            '        return ${RETURN_VALUE};\n' +
-            '    }\n\n')
+        template = Template("""\
+    public ${RETURN_TYPE} ${NAME}Super(${PARAMS}) {
+        ${INTERNAL_RETURN_TYPE} ret;
+        if (internal == null) {
+            ret = super.${NAME}(${PARAM_PASSING});
+        } else {
+            ret = internal.${NAME}(${PARAM_PASSING});
+        }
+        ${IF_NULL_RETURN_NULL}
+        return ${RETURN_VALUE};
+    }
+""")
     else:
       if no_return_value:
-        template = Template(
-            '    public void ${NAME}Super(${PARAMS}) {\n' +
-            '        super.${NAME}(${PARAM_PASSING});\n' +
-            '    }\n\n')
+        template = Template("""\
+    public void ${NAME}Super(${PARAMS}) {
+        super.${NAME}(${PARAM_PASSING});
+    }
+""")
       else:
-        template = Template(
-            '    public ${RETURN_TYPE} ${NAME}Super(${PARAMS}) {\n' +
-            '        ${INTERNAL_RETURN_TYPE} ret;\n' +
-            '        ret = super.${NAME}(${PARAM_PASSING});\n' +
-            '        ${IF_NULL_RETURN_NULL}\n' +
-            '        return ${RETURN_VALUE};\n' +
-            '    }\n\n')
+        template = Template("""\
+    public ${RETURN_TYPE} ${NAME}Super(${PARAMS}) {
+        ${INTERNAL_RETURN_TYPE} ret;
+        ret = super.${NAME}(${PARAM_PASSING});
+        ${IF_NULL_RETURN_NULL}
+        return ${RETURN_VALUE};
+    }
+""")
 
     if return_is_internal:
       return_value = return_type_java_data.UseAsReturnInBridgeSuperCall('ret')
@@ -615,55 +600,90 @@ class Method(object):
   def GenerateWrapperConstructor(self):
     # TODO(wang16): Currently, only support pre/post wrapper lines for
     # Constructors.
-    template = Template(
-        '${DOC}\n' +
-        '    public ${CLASS_NAME}(${PARAMS}) {\n' +
-        '${PRE_WRAP_LINES}\n' +
-        '        bridge = ReflectionHelper.createInstance(' +
-        '\"${CONSTRUCTOR_DECLARE_NAME}\"${PARAMS_PASSING}, this);\n' +
-        '        try {\n' +
-        '            reflectionInit();\n' +
-        '        } catch(Exception e) {\n' +
-        '            ReflectionHelper.handleException(e);\n' +
-        '        }\n' +
-        '${POST_WRAP_LINES}\n' +
-        '    }\n\n')
-    value = {'CLASS_NAME': self._class_java_data.wrapper_name,
-             'DOC': self.GenerateDoc(self.method_doc),
+    template = Template("""\
+${DOC}
+    public ${CLASS_NAME}(${PARAMS}) {
+${PRE_WRAP_LINES}
+        reflectionInit();
+    }
+
+""")
+
+    pre_wrap_string = self._method_annotations.get(
+        self.ANNOTATION_PRE_WRAPLINE, '')
+    post_wrap_string = self._method_annotations.get(
+        self.ANNOTATION_POST_WRAPLINE, '')
+
+    if (pre_wrap_string != ''):
+      pre_wrap_string += "\n\n"
+
+    pre_wrap_string += "        constructorTypes = new ArrayList<Object>();\n"
+    for param_type in self._wrapper_params_declare_for_bridge.split(', '):
+      if (param_type != ''):
+        param_type = param_type.replace('coreWrapper.getBridgeClass(', '')
+        param_type = param_type.replace(')', '')
+        pre_wrap_string  += ("        constructorTypes.add(%s);\n" % param_type)
+
+    pre_wrap_string += "\n"
+    pre_wrap_string += "        constructorParams = new ArrayList<Object>();\n"
+    for param_name in self._wrapper_params_pass_to_bridge.split(', '):
+      param_name = param_name.replace('.getBridge()', '')
+      pre_wrap_string += "        constructorParams.add(%s);\n" % param_name
+
+    if (post_wrap_string != ''):
+      pre_wrap_string += ("""
+        postWrapperMethod = new ReflectMethod(null, this,
+                \"post%s\");\n""" % self._method_declare_name)
+
+    value = {'DOC': self.GenerateDoc(self.method_doc),
+             'CLASS_NAME': self._class_java_data.wrapper_name,
              'PARAMS': self._wrapper_params_declare,
-             'PARAMS_PASSING': self._wrapper_params_pass_to_bridge,
-             'CONSTRUCTOR_DECLARE_NAME': self._method_declare_name,
-             'PRE_WRAP_LINES': self._method_annotations.get(
-                 self.ANNOTATION_PRE_WRAPLINE, ''),
-             'POST_WRAP_LINES': self._method_annotations.get(
-                 self.ANNOTATION_POST_WRAPLINE, '')}
-    return template.substitute(value)
+             'PRE_WRAP_LINES': pre_wrap_string}
+    ret = template.substitute(value)
+
+    if (post_wrap_string != ''):
+      template = Template("""\
+    public void post${POST_WRAP_METHOD}() {
+${POST_WRAP_LINES}
+    }
+
+""")
+      value = {'POST_WRAP_METHOD': self._method_declare_name,
+               'POST_WRAP_LINES': post_wrap_string}
+      ret += template.substitute(value)
+
+    return ret
 
   def GenerateWrapperStaticMethod(self):
-    no_return_value = self._method_return == 'void'
-    template = Template(
-        '${DOC}\n' +
-        '    public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-        '       Class<?> clazz = ReflectionHelper.loadClass(' +
-        '\"${FULL_BRIDGE_NAME}\");\n' +
-        '       Method method = ReflectionHelper.loadMethod(clazz, ' +
-        '\"${NAME}\"${PARAMS_DECLARE_FOR_BRIDGE});\n' +
-        '       ${RETURN}ReflectionHelper.invokeMethod(method, null' +
-        '${PARAMS_PASSING});\n' +
-        '    }\n\n')
-    if no_return_value:
+    template = Template("""\
+${DOC}
+    public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        XWalkCoreWrapper coreWrapper = \
+XWalkCoreWrapper.getInstance();
+        ReflectMethod method = new ReflectMethod(coreWrapper,
+                coreWrapper.getBridgeClass("${BRIDGE_NAME}"),
+                "${NAME}"${PARAMS_DECLARE_FOR_BRIDGE});
+        ${RETURN}method.invoke(${PARAMS_PASSING});
+    }
+""")
+
+    return_type = ConvertPrimitiveTypeToObject(self.method_return)
+    if self._method_return == 'void':
       return_state = ''
+      return_null = 'return;'
     else:
-      return_state = 'return (%s)' % ConvertPrimitiveTypeToObject(
-          self.method_return)
+      return_state = 'return (%s) ' % return_type
+      return_null = 'return (%s) null;' % return_type
+
     value = {'RETURN_TYPE': self.method_return,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
-             'FULL_BRIDGE_NAME': self._class_java_data.GetFullBridgeName(),
+             'BRIDGE_NAME': self._class_java_data.GetBridgeName(),
              'PARAMS_DECLARE_FOR_BRIDGE':
                  self._wrapper_params_declare_for_bridge,
              'PARAMS_PASSING': self._wrapper_params_pass_to_bridge,
              'PARAMS': self._wrapper_params_declare,
+             'RETURN_NULL': return_null,
              'RETURN': return_state}
     return template.substitute(value)
 
@@ -671,28 +691,39 @@ class Method(object):
     no_return_value = self._method_return == 'void'
     return_is_internal = self.IsInternalClass(self._method_return)
     if return_is_internal:
-      return_type_java_data = self.LoadJavaClass(self._method_return)
+      return_type_java_data = self.GetJavaData(self._method_return)
 
     if self.is_abstract:
       template = Template(
           '${DOC}\n' +
           '    public abstract ${RETURN_TYPE} ${NAME}(${PARAMS});\n\n')
     elif return_is_internal:
-      template = Template(
-          '${DOC}\n' +
-          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-          '        return (${RETURN_TYPE})ReflectionHelper.' +
-          'getBridgeOrWrapper(\n' +
-          '            ReflectionHelper.invokeMethod(' +
-          '${METHOD_DECLARE_NAME}, bridge${PARAMS_PASSING}));\n' +
-          '    }\n\n')
+      template = Template("""\
+${DOC}
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        return (${RETURN_TYPE}) coreWrapper.getWrapperObject(\
+${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
+    }
+""")
+    elif self.is_reservable:
+      template = Template("""\
+${DOC}
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        if (${METHOD_DECLARE_NAME}.isNull() &&
+                XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME})) {
+            ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_RESERVING});
+            return;
+        }
+        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+    }
+""")
     else:
-      template = Template(
-          '${DOC}\n' +
-          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-          '        ${RETURN}ReflectionHelper.invokeMethod(' +
-          '${METHOD_DECLARE_NAME}, bridge${PARAMS_PASSING});\n' +
-          '    }\n\n')
+      template = Template("""\
+${DOC}
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+    }
+""")
     if return_is_internal:
       return_type = return_type_java_data.wrapper_name
     else:
@@ -701,13 +732,24 @@ class Method(object):
       return_state = ''
     else:
       return_state = 'return (%s)' % ConvertPrimitiveTypeToObject(return_type)
+
+    params_reserving = []
+    for param in self._wrapper_params_pass_to_bridge.split(', '):
+      if (param.find("getBridge()") > 0):
+        param = param.replace('.getBridge()', '')
+        params_reserving.append(
+            'new ReflectMethod(null, %s, "getBridge")' % param)
+      else:
+        params_reserving.append(param)
+
     value = {'RETURN_TYPE': return_type,
              'RETURN': return_state,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
-             'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>', 
+             'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>',
                   r'ValueCallback<\1>',self._wrapper_params_declare),
              'METHOD_DECLARE_NAME': self._method_declare_name,
+             'PARAMS_RESERVING': ', '.join(params_reserving),
              'PARAMS_PASSING': self._wrapper_params_pass_to_bridge}
 
     return template.substitute(value)
@@ -715,7 +757,7 @@ class Method(object):
   def GenerateWrapperInterface(self):
     return_is_internal = self.IsInternalClass(self._method_return)
     if return_is_internal:
-      return_type_java_data = self.LoadJavaClass(self._method_return)
+      return_type_java_data = self.GetJavaData(self._method_return)
 
     template = Template(
         '${DOC}\n' +
@@ -731,20 +773,20 @@ class Method(object):
     return template.substitute(value)
 
   def GenerateMethodsStringForBridge(self):
-    self.PrepareStrings()
     if self._is_constructor:
       return self.GenerateBridgeConstructor()
     elif self._is_static:
       return self.GenerateBridgeStaticMethod()
     else:
-      return '%s%s%s%s' % (
-          '    private Method %s;\n' % self._method_declare_name,
+      return '%s\n%s\n%s\n%s\n' % (
           self.GenerateBridgeOverrideMethod(),
           self.GenerateBridgeWrapperMethod(),
-          self.GenerateBridgeSuperMethod())
+          self.GenerateBridgeSuperMethod(),
+          '    private ReflectMethod %s = \
+new ReflectMethod(null, null, "%s");\n' %
+              (self._method_declare_name, self._method_name))
 
   def GenerateMethodsStringForWrapper(self):
-    self.PrepareStrings()
     if self._is_constructor:
       return self.GenerateWrapperConstructor()
     elif self._is_static:
@@ -752,10 +794,11 @@ class Method(object):
     elif self._is_abstract:
       return self.GenerateWrapperBridgeMethod()
     else:
-      return '%s%s' % (
-          '    private Method %s;\n' % self._method_declare_name,
-          self.GenerateWrapperBridgeMethod())
+      return '%s\n%s\n' % (
+          self.GenerateWrapperBridgeMethod(),
+          '    private ReflectMethod %s = \
+new ReflectMethod(null, null, "%s");\n' %
+              (self._method_declare_name, self._method_name))
 
   def GenerateMethodsStringForInterface(self):
-    self.PrepareStrings()
     return self.GenerateWrapperInterface()

@@ -7,6 +7,7 @@
 from string import Template
 
 from code_generator import CodeGenerator
+from collections import OrderedDict
 from java_class import InternalJavaFileData
 
 class WrapperGenerator(CodeGenerator):
@@ -18,80 +19,54 @@ class WrapperGenerator(CodeGenerator):
     self._generated_class_name = self._java_data.wrapper_name
     self._generated_code = self.GenerateWrapperClass()
 
-  def GenerateDoc(self, doc):
-    return self._class_loader.GenerateDoc(doc)
-
   def GenerateWrapperClass(self):
     wrapper_template = Template("""\
 ${PACKAGE_SECTION}
-
 ${IMPORT_SECTION}
-
 ${DOC_SECTION}
-public ${MODIFIER}class ${CLASS_NAME} ${CLASS_EXTENDS} ${CLASS_IMPLEMENTS}{
 
-${FIELD_SECTION}
+public ${CLASS_MODIFIER}class ${CLASS_NAME} \
+${CLASS_EXTENDS} ${CLASS_IMPLEMENTS} {
 
-${ENUM_SECTION}
-
-    private final static String BRIDGE_CLASS = "${BRIDGE_CLASS_FULL_NAME}";
+${FIELDS_SECTION}
+${ENUMS_SECTION}
+    private XWalkCoreWrapper coreWrapper;
     private Object bridge;
 
     Object getBridge() {
         return bridge;
     }
-${CREATE_INTERNALLY_CONSTRUCORS}
+
+${INTERNALLY_CONSTRUCOR_SECTION}
 ${METHODS_SECTION}
-
 ${REFLECTION_SECTION}
-
-${STATIC_INITIALIZER}
 }
 """)
-    package_string = self.GeneratePackageString()
-    imports = self.GenerateImportRules()
-    modifier = self.GenerateModifier()
-    class_name = self._java_data.wrapper_name
-    class_extends = self.GenerateClassExtends()
-    class_implements = self.GenerateClassImplements()
-    fields = self.GenerateClassFields()
-    enums = self.GenerateClassEnums()
-    bridge_full_class_name = self._java_data.GetFullBridgeName()
-    create_internally_constructor = self.GenerateCreateInternallyConstructor()
-    methods = self.GenerateMethods()
-    reflections = self.GenerateReflectionInitString()
-    static_initializer = self.GenerateStaticInitializerString()
-    if self._java_data.class_annotations.has_key(
-        InternalJavaFileData.ANNOTATION_NO_INSTANCE):
-      create_internally_constructor = ''
-      static_initializer = ''
-      reflections = ''
-    value = {'PACKAGE_SECTION': package_string,
-             'IMPORT_SECTION': imports,
+
+    import_string = self.GenerateImportRules()
+    import_string += "import java.util.ArrayList;\n"
+
+    value = {'PACKAGE_SECTION': self.GeneratePackage(),
+             'IMPORT_SECTION': import_string,
              'DOC_SECTION': self.GenerateDoc(self._java_data.class_doc),
-             'MODIFIER': modifier,
-             'CLASS_NAME': class_name,
-             'CLASS_EXTENDS': class_extends,
-             'CLASS_IMPLEMENTS': class_implements,
-             'FIELD_SECTION': fields,
-             'ENUM_SECTION': enums,
-             'BRIDGE_CLASS_FULL_NAME': bridge_full_class_name,
-             'CREATE_INTERNALLY_CONSTRUCORS': create_internally_constructor,
-             'METHODS_SECTION': methods,
-             'REFLECTION_SECTION': reflections,
-             'STATIC_INITIALIZER': static_initializer}
+             'CLASS_MODIFIER': self.GenerateClassModifier(),
+             'CLASS_NAME': self._java_data.wrapper_name,
+             'CLASS_EXTENDS': self.GenerateClassExtends(),
+             'CLASS_IMPLEMENTS': self.GenerateClassImplements(),
+             'ENUMS_SECTION': self.GenerateEnums(),
+             'FIELDS_SECTION': self.GenerateFields(),
+             'INTERNALLY_CONSTRUCOR_SECTION':
+                  self.GenerateInternallyConstructor(),
+             'METHODS_SECTION': self.GenerateMethods(),
+             'REFLECTION_SECTION': self.GenerateReflectionInit()}
     return wrapper_template.substitute(value)
 
-  def HasCreateInternallyAnnotation(self):
-    return self._java_data.class_annotations.get(
-        InternalJavaFileData.ANNOTATION_CREATE_INTERNALLY, False)
-
-  def GeneratePackageString(self):
+  def GeneratePackage(self):
     # Remove the 'internal' folder from internal package.
     package_name = self._java_data.package_name.replace('.internal', '')
-    return 'package %s;' % (package_name)
+    return 'package %s;\n' % (package_name)
 
-  def GenerateModifier(self):
+  def GenerateClassModifier(self):
     for method in self._java_data.methods:
       if method.is_abstract:
         return 'abstract '
@@ -110,61 +85,67 @@ ${STATIC_INITIALIZER}
       to_implement = annotations[InternalJavaFileData.ANNOTATION_IMPL]
       impl_interface = to_implement.replace('.class', '')
       if self.IsInternalClass(impl_interface):
-        impl_interface = self.LoadJavaClass(impl_interface).wrapper_name
+        impl_interface = self.GetJavaData(impl_interface).wrapper_name
       return ' implements %s ' % (impl_interface)
     return ''
 
-  def GenerateClassFields(self):
-    fields_string = ''
+  def GenerateFields(self):
     field_template = Template("""\
 ${DOC}
     public final static ${TYPE} ${NAME} = ${VALUE};
+
 """)
+
+    fields_string = ''
     for field in self._java_data.fields:
-      value = {'TYPE': field.field_type,
+      value = {'DOC': self.GenerateDoc(field.field_doc),
+               'TYPE': field.field_type,
                'NAME': field.field_name,
-               'VALUE': field.field_value,
-               'DOC': self.GenerateDoc(field.field_doc)}
+               'VALUE': field.field_value}
       fields_string += field_template.substitute(value)
+
+    fields_string += "    private ArrayList<Object> constructorTypes;\n"
+    fields_string += "    private ArrayList<Object> constructorParams;\n"
+    fields_string += "    private ReflectMethod postWrapperMethod;\n"
+
     return fields_string
 
-  def GenerateClassEnums(self):
-    enums_string = ''
+  def GenerateEnums(self):
     enum_template = Template("""\
 ${DOC}
     public enum ${NAME} {${CONTENT}
     }
-    private Class<?> ${ENUM_CLASS_NAME};
-    private Method ${ENUM_VALUE_OF_METHOD};
+
+    private ReflectMethod ${ENUM_VALUE_OF_METHOD} = new ReflectMethod();
+
     private Object Convert${NAME}(${NAME} type) {
-        return ReflectionHelper.invokeMethod(${ENUM_VALUE_OF_METHOD}, \
-null, type.toString());
+        return ${ENUM_VALUE_OF_METHOD}.invoke(type.toString());
     }
 """)
+
+    enums_string = ''
     for enum in self._java_data.enums.values():
-      value = {'NAME': enum.enum_name.replace('Internal', ''),
+      value = {'DOC': self.GenerateDoc(enum.enum_doc),
+               'NAME': enum.enum_name.replace('Internal', ''),
                'CONTENT': enum.enum_declaration,
-               'DOC': self.GenerateDoc(enum.enum_doc),
-               'ENUM_CLASS_NAME': enum.EnumClassName(),
                'ENUM_VALUE_OF_METHOD': enum.EnumMethodValueOfName()}
       enums_string += enum_template.substitute(value)
     return enums_string
 
-  def GenerateCreateInternallyConstructor(self):
-    if not self.HasCreateInternallyAnnotation():
+  def GenerateInternallyConstructor(self):
+    if self._java_data.HasNoInstanceAnnotation():
       return ''
+    if not self._java_data.HasCreateInternallyAnnotation():
+      return ''
+
     constructor_template = Template("""\
     public ${CLASS_NAME}(Object bridge) {
         this.bridge = bridge;
-        try {
-            reflectionInit();
-        } catch (Exception e) {
-            ReflectionHelper.handleException(e);
-        }
+        reflectionInit();
     }
 """)
-    class_name = self._java_data.wrapper_name
-    return constructor_template.substitute({'CLASS_NAME': class_name})
+    value = {'CLASS_NAME': self._java_data.wrapper_name};
+    return constructor_template.substitute(value)
 
   def GenerateMethods(self):
     methods_string = ''
@@ -173,64 +154,84 @@ null, type.toString());
       methods_string += method.GenerateMethodsStringForWrapper()
     return methods_string
 
-  def GenerateReflectionInitString(self):
-    ref_methods_string = ''
+  def GenerateReflectionInit(self):
+    if self._java_data.HasNoInstanceAnnotation():
+      return ''
+
+    ref_init_string = """\
+        coreWrapper = XWalkCoreWrapper.getInstance();
+        if (coreWrapper == null) {
+            XWalkCoreWrapper.reserveReflectObject(this);
+            return;
+        }
+"""
+
+    if not self._java_data.HasCreateInternallyAnnotation():
+      init_templete = Template("""
+        int length = constructorTypes.size();
+        Class<?>[] paramTypes = new Class<?>[length+1];
+        for (int i = 0; i < length; ++i) {
+            Object type = constructorTypes.get(i);
+            if (type instanceof String) {
+                paramTypes[i] = coreWrapper.getBridgeClass((String) type);
+                constructorParams.set(i, \
+coreWrapper.getBridgeObject(constructorParams.get(i)));
+            } else if (type instanceof Class<?>) {
+                paramTypes[i] = (Class<?>) type;
+            } else {
+                assert(false);
+            }
+        }
+
+        paramTypes[length] = Object.class;
+        constructorParams.add(this);
+
+        ReflectConstructor constructor = new ReflectConstructor(
+                coreWrapper, coreWrapper.getBridgeClass(\"${BRIDGE_NAME}\"), \
+paramTypes);
+        bridge = constructor.newInstance(constructorParams.toArray());
+
+        if (postWrapperMethod != null) postWrapperMethod.invoke();
+""")
+
+      value = {'BRIDGE_NAME': self._java_data._bridge_name}
+      ref_init_string += init_templete.substitute(value)
+
 
     ref_enum_template = Template("""\
-        ${ENUM} = clazz.getClassLoader().loadClass("${ENUM_CLASS}");
-        ${METHOD} = ${ENUM}.getMethod("valueOf", String.class);
+        ${METHOD}.init(coreWrapper, null,
+                coreWrapper.getBridgeClass("${ENUM}"), "valueOf", String.class);
 """)
+
+    ref_methods_string = ''
     for enum in self._java_data.enums.values():
-      value = { 'ENUM': enum.EnumClassName(),
-                'ENUM_CLASS': self._java_data.GetFullBridgeName(enum.enum_name),
-                'METHOD': enum.EnumMethodValueOfName()}
+      value = {'METHOD': enum.EnumMethodValueOfName(),
+               'ENUM': self._java_data.GetBridgeName(enum.enum_name)}
       ref_methods_string += ref_enum_template.substitute(value)
 
     ref_method_template = Template("""\
-        ${METHOD_DECLARE_NAME} = ReflectionHelper.loadMethod(\
-clazz, \"${METHOD}Super\"${PARAMS});
+        ${METHOD_DECLARE_NAME}.init(coreWrapper, bridge, null,
+                "${METHOD}Super"${PARAMS});
 """)
+
+    if (ref_methods_string != ''):
+      ref_methods_string += "\n"
     for method in self._java_data.methods:
       if method.is_constructor or method.is_static or method.is_abstract:
         continue
-      value = { 'METHOD_DECLARE_NAME': method.GetMethodDeclareName(),
+      value = { 'METHOD_DECLARE_NAME': method._method_declare_name,
                 'METHOD': method.method_name,
-                'PARAMS': method.GetWrapperParamsStringDeclareForBridge()}
+                'PARAMS': method._wrapper_params_declare_for_bridge}
       ref_methods_string += ref_method_template.substitute(value)
 
     ref_init_template = Template("""\
-    private void reflectionInit() throws NoSuchMethodException,
-            ClassNotFoundException {
-        Class<?> clazz = bridge.getClass();
-${REF_METHODS}
-    }
-""")
-    value = {'REF_METHODS': ref_methods_string}
-    ref_init_string = ref_init_template.substitute(value)
-    return ref_init_string
+    void reflectionInit() {
+        XWalkReflectionHelper.initEmbeddedMode();
 
-  def FormatStaticInitializer(self, method):
-    static_initializer_template = Template("""\
-        ReflectionHelper.registerConstructor(\"${CONSTRUCTOR_NAME}\", \
-\"${FULL_CLASS_NAME}\"${PARAM_LIST}, Object.class);
+${REF_INIT}
+${REF_METHODS}    }
 """)
-    value = {"CONSTRUCTOR_NAME": method.GetMethodDeclareName(),
-             "FULL_CLASS_NAME": self._java_data.GetFullBridgeName(),
-             "PARAM_LIST": method.GetWrapperParamsStringDeclareForBridge()}
-    return static_initializer_template.substitute(value)
 
-  def GenerateStaticInitializerString(self):
-    if self._java_data.class_annotations.has_key(
-        InternalJavaFileData.ANNOTATION_CREATE_INTERNALLY):
-      return ''
-    static_initializer_template = Template("""\
-    static {
-${STATIC_INITIALIZER_LIST}
-    }
-""")
-    static_initializer_list = ''
-    for method in self._java_data.methods:
-      if method.is_constructor:
-        static_initializer_list += self.FormatStaticInitializer(method)
-    value = {'STATIC_INITIALIZER_LIST': static_initializer_list}
-    return static_initializer_template.substitute(value)
+    value = {'REF_INIT': ref_init_string,
+             'REF_METHODS': ref_methods_string}
+    return ref_init_template.substitute(value)

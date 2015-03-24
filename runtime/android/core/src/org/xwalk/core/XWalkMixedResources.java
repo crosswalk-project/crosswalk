@@ -33,8 +33,7 @@ import android.util.TypedValue;
  * But the only place use this R.attr and R.style is "select" tag
  * which is verified working well with this MixedResources.
  */
-public class XWalkMixedResources extends Resources {
-
+class XWalkMixedResources extends Resources {
     private Resources mLibraryResource;
 
     private boolean isCalledInLibrary() {
