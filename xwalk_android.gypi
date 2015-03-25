@@ -104,6 +104,7 @@
             '--target-arch=<(target_arch)',
             '--sdk-version=<(sdk_version)',
             '--min-sdk-version=<(min_sdk_version)',
+            '--verify-xwalk-apk=<(verify_xwalk_apk)',
           ],
         },
       ],

@@ -29,6 +29,12 @@
       <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
         Please get Crosswalk Runtime Library
       </message>
+      <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
+        Crosswalk Signature Verification Failed
+      </message>
+      <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
+        The integrity of Crosswalk runtime library can not be verified. Please uninstall the runtime library and restart this application
+      </message>
       <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
         Crosswalk Version Too Old
       </message>
