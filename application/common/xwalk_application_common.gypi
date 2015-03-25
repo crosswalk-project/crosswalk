@@ -42,7 +42,6 @@
         'permission_policy_manager.cc',
         'permission_policy_manager.h',
         'permission_types.h',
-        'signature_types.h',
         'package/package.h',
         'package/package.cc',
         'package/wgt_package.h',
