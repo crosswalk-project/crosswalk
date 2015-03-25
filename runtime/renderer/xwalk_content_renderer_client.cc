@@ -24,6 +24,7 @@
 #include "xwalk/application/renderer/application_native_module.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
+#include "xwalk/runtime/common/xwalk_common_messages.h"
 #include "xwalk/runtime/common/xwalk_localized_error.h"
 #include "xwalk/runtime/renderer/isolated_file_system.h"
 #include "xwalk/runtime/renderer/pepper/pepper_helper.h"
@@ -35,10 +36,6 @@
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #else
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#endif
-
-#if defined(OS_TIZEN)
-#include "xwalk/runtime/common/xwalk_common_messages.h"
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
@@ -230,23 +227,16 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 #if defined(OS_ANDROID)
   return false;
 #else
-  if (!xwalk_render_process_observer_->IsWarpMode()
-#if defined(OS_TIZEN)
-      && !xwalk_render_process_observer_->IsCSPMode()
-#endif
-      )
+  if (!xwalk_render_process_observer_->IsWarpMode() &&
+      !xwalk_render_process_observer_->IsCSPMode())
     return false;
 
   GURL origin_url(frame->document().url());
   GURL app_url(xwalk_render_process_observer_->app_url());
-#if defined(OS_TIZEN)
   // if under CSP mode.
   if (xwalk_render_process_observer_->IsCSPMode()) {
-    if (url.GetOrigin() != app_url.GetOrigin() &&
-        origin_url != first_party_for_cookies &&
-        !first_party_for_cookies.is_empty() &&
-        first_party_for_cookies.GetOrigin() != app_url.GetOrigin() &&
-        !blink::WebSecurityOrigin::create(app_url).canRequest(url)) {
+    if (!origin_url.is_empty() && origin_url != first_party_for_cookies &&
+        !xwalk_render_process_observer_->CanRequest(app_url, url)) {
       LOG(INFO) << "[BLOCK] allow-navigation: " << url.spec();
       content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
       *new_url = GURL();
@@ -254,7 +244,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
     }
     return false;
   }
-#endif
+
   // if under WARP mode.
   if (url.GetOrigin() == app_url.GetOrigin() ||
       xwalk_render_process_observer_->CanRequest(app_url, url)) {
@@ -269,7 +259,6 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
       first_party_for_cookies.GetOrigin() != app_url.GetOrigin())
     content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
 #endif
-
   *new_url = GURL();
   return true;
 #endif

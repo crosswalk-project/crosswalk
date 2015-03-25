@@ -53,7 +53,5 @@ IPC_MESSAGE_CONTROL1(ViewMsg_UserAgentStringChanged,  // NOLINT
 IPC_MESSAGE_ROUTED1(ViewMsg_HWKeyPressed, int /*keycode*/)  // NOLINT
 
 // These are messages sent from the renderer to the browser process.
-#if defined(OS_TIZEN)
 IPC_MESSAGE_CONTROL1(ViewMsg_OpenLinkExternal,  // NOLINT
                      GURL /* target link */)
-#endif  // OS_TIZEN  // NOLINT
