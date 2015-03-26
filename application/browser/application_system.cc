@@ -92,7 +92,9 @@ void ApplicationSystem::CreateExtensions(
     return;  // We might be in browser mode.
 
   extensions->push_back(new ApplicationRuntimeExtension(application));
-  extensions->push_back(new ApplicationWidgetExtension(application));
+  // Register the widget extension only when the application is widget format.
+  if (application->data()->manifest_type() == Manifest::TYPE_WIDGET)
+      extensions->push_back(new ApplicationWidgetExtension(application));
 }
 
 }  // namespace application
