@@ -10,6 +10,7 @@ import android.webkit.ValueCallback;
 
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
+import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
@@ -24,6 +25,7 @@ public class OnCreateWindowRequestedTest extends XWalkViewTestBase {
         super.setUp();
 
         mOnCreateWindowRequestedHelper = mTestHelperBridge.getOnCreateWindowRequestedHelper();
+        XWalkPreferences.setValue(XWalkPreferences.SUPPORT_MULTIPLE_WINDOWS, true);
 
         setUIClient(new XWalkUIClient(getXWalkView()){
             @Override

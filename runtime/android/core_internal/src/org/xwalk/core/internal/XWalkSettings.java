@@ -41,7 +41,7 @@ public class XWalkSettings {
     private boolean mAllowFileAccessFromFileURLs = false;
     private boolean mJavaScriptCanOpenWindowsAutomatically = true;
     private int mCacheMode = WebSettings.LOAD_DEFAULT;
-    private boolean mSupportMultipleWindows = true;
+    private boolean mSupportMultipleWindows = false;
     private boolean mAppCacheEnabled = true;
     private boolean mDomStorageEnabled = true;
     private boolean mDatabaseEnabled = true;

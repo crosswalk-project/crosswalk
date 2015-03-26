@@ -181,8 +181,6 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
-        // Enable this by default to suppport new window creation
-        mSettings.setSupportMultipleWindows(true);
 
         nativeSetJavaPeers(mNativeContent, this, mXWalkContentsDelegateAdapter, mContentsClientBridge,
                 mIoThreadClient, mContentsClientBridge.getInterceptNavigationDelegate());
