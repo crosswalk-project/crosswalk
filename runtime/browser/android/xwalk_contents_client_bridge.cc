@@ -234,7 +234,7 @@ void XWalkContentsClientBridge::ShowNotification(
   ScopedJavaLocalRef<jstring> jbody(
     ConvertUTF16ToJavaString(env, notification_data.body));
   ScopedJavaLocalRef<jstring> jreplace_id(
-    ConvertUTF16ToJavaString(env, notification_data.tag));
+    ConvertUTF8ToJavaString(env, notification_data.tag));
   ScopedJavaLocalRef<jobject> jicon;
   if (!icon.empty())
      jicon = gfx::ConvertToJavaBitmap(&icon);
@@ -318,7 +318,7 @@ void XWalkContentsClientBridge::NotificationClosed(
   scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
-    notification_delegate->NotificationClosed(by_user);
+    notification_delegate->NotificationClosed();
 }
 
 void XWalkContentsClientBridge::OnFilesSelected(

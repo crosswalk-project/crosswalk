@@ -22,8 +22,8 @@ import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 import org.chromium.content.browser.ContentViewClient;
-import org.chromium.content.browser.WebContentsObserver;
 import org.chromium.content_public.browser.WebContents;
+import org.chromium.content_public.browser.WebContentsObserver;
 import org.chromium.net.NetError;
 
 /**
@@ -100,7 +100,7 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     void installWebContentsObserver(WebContents webContents) {
         if (mWebContentsObserver != null) {
-            mWebContentsObserver.detachFromWebContents();
+            mWebContentsObserver.destroy();
         }
         mWebContentsObserver = new XWalkWebContentsObserver(webContents);
     }
