@@ -52,7 +52,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   // To be called in XWalkContentRendererClient so we can create and
   // destroy extensions contexts appropriatedly.
-  void DidCreateScriptContext(blink::WebFrame* frame,
+  void DidCreateScriptContext(blink::WebLocalFrame* frame,
                               v8::Handle<v8::Context> context);
   void WillReleaseScriptContext(blink::WebLocalFrame* frame,
                                 v8::Handle<v8::Context> context);

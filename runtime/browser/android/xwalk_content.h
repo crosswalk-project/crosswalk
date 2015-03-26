@@ -12,6 +12,7 @@
 #include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
+#include "content/public/common/permission_status.mojom.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
 using base::android::ScopedJavaLocalRef;
@@ -71,7 +72,7 @@ class XWalkContent {
 
   // Geolocation API support
   void ShowGeolocationPrompt(const GURL& origin,
-                             const base::Callback<void(bool)>& callback); // NOLINT
+                             const base::Callback<void(content::PermissionStatus)>& callback); // NOLINT
   void HideGeolocationPrompt(const GURL& origin);
   void InvokeGeolocationCallback(JNIEnv* env,
                                  jobject obj,
@@ -94,7 +95,8 @@ class XWalkContent {
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result
   // from the permission prompt.
-  typedef std::pair<const GURL, const base::Callback<void(bool)> >  /* NOLINT */ \
+  typedef std::pair<const GURL, \
+          const base::Callback<void(content::PermissionStatus)> >  /* NOLINT */ \
           OriginCallback;
   // The first element in the list is always the currently pending request.
   std::list<OriginCallback> pending_geolocation_prompts_;
