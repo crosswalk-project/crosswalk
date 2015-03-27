@@ -31,8 +31,8 @@ class XWalkCoreWrapper {
     private static XWalkCoreWrapper sInstance;
     private static LinkedList<Object> sReservedObjects;
 
-    private int mSdkVersion;
-    private int mMinSdkVersion;
+    private int mApiVersion;
+    private int mMinApiVersion;
     private int mCoreStatus;
 
     private Context mWrapperContext;
@@ -120,10 +120,10 @@ class XWalkCoreWrapper {
         sInstance.initXWalkView();
     }
 
-    private XWalkCoreWrapper(Context context, int minSdkVersion) {
-        mSdkVersion = XWalkSdkVersion.SDK_VERSION;
-        mMinSdkVersion = (minSdkVersion > 0 && minSdkVersion <= mSdkVersion) ?
-                minSdkVersion : mSdkVersion;
+    private XWalkCoreWrapper(Context context, int minApiVersion) {
+        mApiVersion = XWalkAppVersion.API_VERSION;
+        mMinApiVersion = (minApiVersion > 0 && minApiVersion <= mApiVersion) ?
+                minApiVersion : mApiVersion;
         mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
         mWrapperContext = context;
     }
@@ -180,15 +180,15 @@ class XWalkCoreWrapper {
     private boolean checkCoreVersion() {
         try {
             Class<?> clazz = getBridgeClass("XWalkCoreVersion");
-            int libVersion = (int) new ReflectField(clazz, "LIB_VERSION").get();
-            int minLibVersion = (int) new ReflectField(clazz, "MIN_LIB_VERSION").get();
-            Log.d(TAG, "libVersion:" + libVersion + ", minLib:" + minLibVersion);
-            Log.d(TAG, "sdkVersion:" + mSdkVersion + ", minSdk:" + mMinSdkVersion);
+            int libVersion = (int) new ReflectField(clazz, "API_VERSION").get();
+            int minLibVersion = (int) new ReflectField(clazz, "MIN_API_VERSION").get();
+            Log.d(TAG, "lib version, api:" + libVersion + ", min api:" + minLibVersion);
+            Log.d(TAG, "app version, api:" + mApiVersion + ", min api:" + mMinApiVersion);
 
-            if (mMinSdkVersion > libVersion) {
+            if (mMinApiVersion > libVersion) {
                 mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
                 return false;
-            } else if (mSdkVersion < minLibVersion) {
+            } else if (mApiVersion < minLibVersion) {
                 mCoreStatus = XWalkLibraryInterface.STATUS_NEWER_VERSION;
                 return false;
             }
@@ -221,15 +221,15 @@ class XWalkCoreWrapper {
             return false;
         }
 
-        if (!XWalkSdkVersion.VERIFY_XWALK_APK) {
+        if (!XWalkAppVersion.VERIFY_XWALK_APK) {
             Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
         } else {
             try {
                 PackageInfo packageInfo = mWrapperContext.getPackageManager().getPackageInfo(
                         XWALK_APK_PACKAGE, PackageManager.GET_SIGNATURES);
                 if (!verifyPackageInfo(packageInfo,
-                        XWalkSdkVersion.XWALK_APK_HASH_ALGORITHM,
-                        XWalkSdkVersion.XWALK_APK_HASH_CODE)) {
+                        XWalkAppVersion.XWALK_APK_HASH_ALGORITHM,
+                        XWalkAppVersion.XWALK_APK_HASH_CODE)) {
                     mCoreStatus = XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR;
                     return false;
                 }
