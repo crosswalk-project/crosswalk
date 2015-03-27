@@ -456,8 +456,8 @@ def CheckSystemRequirements():
     print('failed\nThe "android" binary could not be found. Check your Android '
           'SDK installation and your PATH environment variable.')
     sys.exit(1)
-  if GetAndroidApiLevel(android_path) < 14:
-    print('failed\nPlease install Android API level (>=14) first.')
+  if GetAndroidApiLevel(android_path) < 21:
+    print('failed\nPlease install Android API level (>=21) first.')
     sys.exit(3)
 
   # Check ant install
