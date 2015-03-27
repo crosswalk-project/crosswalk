@@ -90,20 +90,18 @@ class XWalkViewDelegate {
         // If context is null, it's called from wrapper's ReflectionHelper to try
         // loading native library within the package. No need to try load from library
         // package in this case.
-        // If context's applicationContext is not the same package with itself,
-        // It's a cross package invoking, load core library from library apk.
+        // If context's not null, it's a cross package invoking, load core library from library apk.
         // Only load the native library from /data/data if the Android version is
         // lower than 4.2. Android enables a system path /data/app-lib to store native
         // libraries starting from 4.2 and load them automatically.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null &&
-                !context.getApplicationContext().getPackageName().equals(context.getPackageName())) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null) {
             for (String library : MANDATORY_LIBRARIES) {
                 System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
             }
         }
         loadLibrary(context);
 
-        if (sRunningOnIA && !nativeIsLibraryBuiltForIA()) {
+        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
             throw new UnsatisfiedLinkError();
         }
         sLibraryLoaded = true;
@@ -114,7 +112,7 @@ class XWalkViewDelegate {
             return;
         }
 
-        loadXWalkLibrary(xwalkView.getContext());
+        loadXWalkLibrary(null);
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.

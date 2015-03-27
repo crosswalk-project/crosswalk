@@ -226,7 +226,7 @@ paramTypes);
 
     ref_init_template = Template("""\
     void reflectionInit() {
-        XWalkReflectionHelper.initEmbeddedMode();
+        XWalkCoreWrapper.initEmbeddedMode();
 
 ${REF_INIT}
 ${REF_METHODS}    }

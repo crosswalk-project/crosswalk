@@ -14,7 +14,6 @@ interface XWalkLibraryListener {
 
     public void onXWalkLibraryCancelled();
     public void onXWalkLibraryMatched();
-    public void onXWalkLibraryPrepared();
     public void onXWalkLibraryStartupError(LibraryStatus status, Throwable e);
     public void onXWalkLibraryRuntimeError(LibraryStatus status, Throwable e);
 
