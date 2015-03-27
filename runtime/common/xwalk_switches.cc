@@ -13,6 +13,9 @@ const char kAppIcon[] = "app-icon";
 // Disables the usage of Portable Native Client.
 const char kDisablePnacl[] = "disable-pnacl";
 
+// Forces the maximum disk space to be used by the disk cache, in bytes.
+const char kDiskCacheSize[] = "disk-cache-size";
+
 // Enable all the experimental features in XWalk.
 const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 
