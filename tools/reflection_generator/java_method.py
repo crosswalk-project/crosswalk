@@ -658,6 +658,7 @@ ${POST_WRAP_LINES}
     template = Template("""\
 ${DOC}
     public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        XWalkReflectionHelper.initEmbeddedMode();
         XWalkCoreWrapper coreWrapper = \
 XWalkCoreWrapper.getInstance();
         ReflectMethod method = new ReflectMethod(coreWrapper,
