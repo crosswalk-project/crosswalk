@@ -35,14 +35,16 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
         return sInstance;
     }
 
-    public static XWalkCoreWrapper getProvisionalInstance() {
-        return sProvisionalInstance;
-    }
+    public static void initEmbeddedMode() {
+        if (sInstance != null || sProvisionalInstance != null || sListener != null) return;
 
-    public static boolean checkEmbeddedMode() {
-        Assert.assertNull(sInstance);
         sProvisionalInstance = new XWalkCoreWrapper(-1);
-        return sProvisionalInstance.findEmbeddedCore();
+        if (!sProvisionalInstance.findEmbeddedCore()) {
+            Assert.fail("Must extend XWalkActivity on shared mode");
+        }
+
+        init();
+        Log.d(TAG, "Initialized embedded mode without XWalkActivity");
     }
 
     public static void check() {
@@ -128,6 +130,7 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
     }
 
     private boolean findEmbeddedCore() {
+        mBridgeContext = null;
         mBridgeLoader = XWalkCoreWrapper.class.getClassLoader();
         if (!checkCoreVersion() || !checkCoreArchitecture()) {
             mBridgeLoader = null;
@@ -135,7 +138,6 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
         }
 
         Log.d(TAG, "Running on embedded mode");
-        mBridgeContext = null;
         return true;
     }
 
@@ -143,18 +145,23 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
         XWalkApplication application = XWalkApplication.getApplication();
         if (application == null) Assert.fail("Must use or extend XWalkApplication");
 
-        Context context = createBridgeContext();
-        if (context == null) return false;
+        try {
+            mBridgeContext = application.createPackageContext(XWALK_APK_PACKAGE,
+                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+        } catch (NameNotFoundException e) {
+            Log.d(TAG, "XWalk apk not found");
+            return false;
+        }
 
-        mBridgeLoader = context.getClassLoader();
+        mBridgeLoader = mBridgeContext.getClassLoader();
         if (!checkCoreVersion() || !checkCoreArchitecture()) {
+            mBridgeContext = null;
             mBridgeLoader = null;
             return false;
         }
 
         Log.d(TAG, "Running on shared mode");
-        application.addResource(context.getResources());
-        mBridgeContext = context;
+        application.addResource(mBridgeContext.getResources());
         return true;
     }
 
@@ -183,30 +190,17 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
 
     private boolean checkCoreArchitecture() {
         try {
-            Class<?> clazz = getBridgeClass("XWalkCoreVersion");
-            String targetArch = (String) new ReflectField(null, clazz, "TARGET_ARCH").get();
-            boolean targetIsIA = (targetArch == "ia32" || targetArch == "x64");
-
-            clazz = getBridgeClass("XWalkViewDelegate");
-            boolean hostIsIA = (boolean) new ReflectMethod(null, clazz, "isRunningOnIA").invoke();
-
-            Log.d(TAG, "targetArch:" + targetArch + ", hostIsIA:" + hostIsIA);
-            if (targetIsIA == hostIsIA) return true;
+            Class<?> clazz = getBridgeClass("XWalkViewDelegate");
+            ReflectMethod method =
+                    new ReflectMethod(null, clazz, "loadXWalkLibrary", Context.class);
+            method.invoke(mBridgeContext);
         } catch (RuntimeException e) {
+            Log.d(TAG, "Failed to load native library");
+            mCoreStatus = LibraryStatus.NOT_FOUND;
+            return false;
         }
 
-        mCoreStatus = LibraryStatus.NOT_FOUND;
-        return false;
-    }
-
-    private Context createBridgeContext() {
-        try {
-            return XWalkApplication.getApplication().createPackageContext(XWALK_APK_PACKAGE,
-                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-        } catch (NameNotFoundException e) {
-            Log.d(TAG, "XWalk apk not found");
-        }
-        return null;
+        return true;
     }
 
     public boolean isSharedMode() {

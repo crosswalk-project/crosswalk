@@ -53,11 +53,9 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
     private DownloadTask mDownloadTask;
     private Dialog mActiveDialog;
     private XWalkCoreWrapper mCoreWrapper;
-    private XWalkLibraryDelegate mLibraryDelegate;
 
     private boolean mIsXWalkReady;
-    private boolean mIsShowing;
-    private boolean mIsInitializingLibrary;
+    private boolean mIsVisible;
     private LinkedList<Object> mReservedObjects;
     private LinkedList<ReflectMethod> mReservedMethods;
 
@@ -68,33 +66,27 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
         mDownloadTask = null;
         mActiveDialog = null;
         mCoreWrapper = null;
-        mLibraryDelegate = null;
 
         mIsXWalkReady = false;
-        mIsShowing = false;
-        mIsInitializingLibrary = false;
+        mIsVisible = false;
         mReservedObjects = new LinkedList<Object>();
         mReservedMethods = new LinkedList<ReflectMethod>();
 
-        XWalkCoreWrapper.reset(mCoreWrapper, this);
-        XWalkCoreWrapper.check();
+        XWalkCoreWrapper.reset(null, this);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mIsShowing = true;
-
+    protected void onStart() {
+        super.onStart();
+        mIsVisible = true;
         XWalkCoreWrapper.reset(mCoreWrapper, this);
-        if (!isXWalkReady() && !isShowingDialog() && !mIsInitializingLibrary) {
-            XWalkCoreWrapper.check();
-        }
+        if (!isXWalkReady()) XWalkCoreWrapper.check();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mIsShowing = false;
+    protected void onStop() {
+        super.onStop();
+        mIsVisible = false;
     }
 
     @Override
@@ -134,17 +126,7 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
         Log.d(TAG, "XWalk library matched");
         XWalkCoreWrapper.init();
         mCoreWrapper = XWalkCoreWrapper.getInstance();
-        mLibraryDelegate = XWalkLibraryDelegate.newInstance(this, this);
 
-        mIsInitializingLibrary = true;
-        if (!mLibraryDelegate.initLibrary()) {
-            Assert.fail("XWalk library initialization failed");
-        }
-    }
-
-    @Override
-    public final void onXWalkLibraryPrepared() {
-        Log.d(TAG, "XWalk library prepared");
         for (Object object = mReservedObjects.poll(); object != null;
                 object = mReservedObjects.poll()) {
             Log.d(TAG, "Init reserved objects: " + object.getClass());
@@ -169,7 +151,6 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
             method.invokeWithArguments();
         }
 
-        mIsInitializingLibrary = false;
         mIsXWalkReady = true;
         onXWalkReady();
     }
@@ -203,10 +184,6 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
 
     protected boolean isSharedMode() {
         return mCoreWrapper != null && mCoreWrapper.isSharedMode();
-    }
-
-    protected boolean isShowingDialog() {
-        return mActiveDialog != null && mActiveDialog.isShowing();
     }
 
     protected int getSdkVersion() {
@@ -435,7 +412,7 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
 
                 Log.d(TAG, "XWalk library installed");
                 dismissDialog();
-                if (mIsShowing) XWalkCoreWrapper.check();
+                if (mIsVisible) XWalkCoreWrapper.check();
             }
         };
 
