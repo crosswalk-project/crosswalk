@@ -21,7 +21,7 @@ class VirtualRootProvider {
  public:
   static VirtualRootProvider* GetInstance();
   std::string GetRealPath(const std::string& virtual_root);
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_WIN)
   static void SetTesting(bool test);
 #endif
 
@@ -32,7 +32,7 @@ class VirtualRootProvider {
 
   base::FilePath home_path_;
   std::map<std::string, base::FilePath> virtual_root_map_;
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_WIN)
   static bool testing_enabled_;
 #endif
 
