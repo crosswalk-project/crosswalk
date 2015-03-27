@@ -774,7 +774,9 @@
           'mac_bundle': 1,
           'mac_bundle_resources': [
             'runtime/app/English.lproj/MainMenu.xib',
-            '<(PRODUCT_DIR)/xwalk.pak'
+            '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/snapshot_blob.bin',
+            '<(PRODUCT_DIR)/natives_blob.bin',
           ],
           'dependencies': [
             'xwalk_runtime',

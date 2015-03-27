@@ -5,7 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_XWALK_VIEWS_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_UI_XWALK_VIEWS_DELEGATE_H_
 
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
 
 #include <string>
 #include "ui/views/views_delegate.h"
@@ -65,6 +65,6 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
 
 }  // namespace xwalk
 
-#endif  // defined(USE_AURA)
+#endif  // defined(TOOLKIT_VIEWS)
 
 #endif  // XWALK_RUNTIME_BROWSER_UI_XWALK_VIEWS_DELEGATE_H_

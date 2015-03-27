@@ -10,6 +10,7 @@
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/screen.h"
+#include "ui/views/views_delegate.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
