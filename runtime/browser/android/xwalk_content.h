@@ -72,7 +72,7 @@ class XWalkContent {
 
   // Geolocation API support
   void ShowGeolocationPrompt(const GURL& origin,
-                             const base::Callback<void(content::PermissionStatus)>& callback); // NOLINT
+                             const base::Callback<void(bool)>& callback); // NOLINT
   void HideGeolocationPrompt(const GURL& origin);
   void InvokeGeolocationCallback(JNIEnv* env,
                                  jobject obj,
@@ -95,8 +95,7 @@ class XWalkContent {
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result
   // from the permission prompt.
-  typedef std::pair<const GURL, \
-          const base::Callback<void(content::PermissionStatus)> >  /* NOLINT */ \
+  typedef std::pair<const GURL, const base::Callback<void(bool)> >  /* NOLINT */ \
           OriginCallback;
   // The first element in the list is always the currently pending request.
   std::list<OriginCallback> pending_geolocation_prompts_;

@@ -452,7 +452,7 @@ void ShowGeolocationPromptHelper(const JavaObjectWeakGlobalRef& java_ref,
 
 void XWalkContent::ShowGeolocationPrompt(
     const GURL& requesting_frame,
-    const base::Callback<void(content::PermissionStatus)>& callback) { // NOLINT
+    const base::Callback<void(bool)>& callback) { // NOLINT
   GURL origin = requesting_frame.GetOrigin();
   bool show_prompt = pending_geolocation_prompts_.empty();
   pending_geolocation_prompts_.push_back(OriginCallback(origin, callback));

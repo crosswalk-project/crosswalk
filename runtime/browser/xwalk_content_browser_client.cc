@@ -83,6 +83,13 @@ namespace {
 // The application-wide singleton of ContentBrowserClient impl.
 XWalkContentBrowserClient* g_browser_client = nullptr;
 
+void CallbackPermisisonStatusWrapper(
+    const base::Callback<void(content::PermissionStatus)>& callback,
+    bool allowed) {
+  callback.Run(allowed ? content::PERMISSION_STATUS_GRANTED
+                       : content::PERMISSION_STATUS_DENIED);
+}
+
 }  // namespace
 
 // static
@@ -299,7 +306,9 @@ void XWalkContentBrowserClient::RequestPermission(
         new RuntimeGeolocationPermissionContext();
     }
     geolocation_permission_context_->RequestGeolocationPermission(
-        web_contents, requesting_frame, result_callback);
+        web_contents,
+        requesting_frame,
+        base::Bind(&CallbackPermisisonStatusWrapper, result_callback));
 #else
       result_callback.Run(content::PERMISSION_STATUS_DENIED);
 #endif
