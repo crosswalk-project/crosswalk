@@ -61,14 +61,14 @@ void
 RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
-    base::Callback<void(content::PermissionStatus)> result_callback) {
+    base::Callback<void(bool)> result_callback) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
 
 #if defined(OS_ANDROID)
   XWalkContent* xwalk_content =
       XWalkContent::FromWebContents(web_contents);
   if (!xwalk_content) {
-    result_callback.Run(content::PERMISSION_STATUS_DENIED);
+    result_callback.Run(false);
     return;
   }
 
@@ -98,9 +98,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
     }
   }
 
-  result_callback.Run(has_geolocation_permission ?
-                      content::PERMISSION_STATUS_GRANTED :
-                      content::PERMISSION_STATUS_DENIED);
+  result_callback.Run(has_geolocation_permission);
 #endif
 
   // TODO(yongsheng): Handle this for other platforms.
@@ -110,7 +108,7 @@ void
 RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
-    base::Callback<void(content::PermissionStatus)> result_callback) {
+    base::Callback<void(bool)> result_callback) {
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(
