@@ -38,7 +38,7 @@ public class ContactConstants {
     // e.g. When to find "givenName=John", we actually need to find "John" in "givenNames".
     public static final Map<String, String> findFieldMap = createStringMap(new String[]{
         "familyName", "familyNames",
-        "givenName", "givenNames",
+        "givenNames", "givenNames",
         "middleName", "middleNames",
         "additionalName", "additionalNames",
         "honorificPrefix", "honorificPrefixes",
