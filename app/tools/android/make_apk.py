@@ -98,6 +98,8 @@ def ParseManifest(options):
   else:
     print('Error: there is no app launch path defined in manifest.json.')
     sys.exit(9)
+  if not options.xwalk_apk_url and parser.GetXWalkApkUrl():
+    options.xwalk_apk_url = parser.GetXWalkApkUrl()
   options.icon_dict = {}
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
@@ -257,6 +259,8 @@ def Customize(options, app_info, manifest):
     app_info.orientation = options.orientation
   if options.icon:
     app_info.icon = '%s' % os.path.expanduser(options.icon)
+  if options.xwalk_apk_url:
+    app_info.xwalk_apk_url = options.xwalk_apk_url
 
   #Add local extensions to extension list.
   extension_binary_path_list = GetExtensionBinaryPathList()
@@ -283,7 +287,7 @@ def Execution(options, app_info):
   # start to generate suitable versionCode
   app_info.app_versionCode = MakeVersionCode(options, app_info.app_version)
   # Write generated versionCode into AndroidManifest.xml.
-  # Later if we have other customization, 
+  # Later if we have other customization,
   # we can put them together into CustomizeManifest func.
   CustomizeManifest(app_info)
   name = app_info.android_name
@@ -579,6 +583,11 @@ def main(argv):
           '\'app_root\'. This flag should work with \'--app-root\' together. '
           'For example, --app-local-path=/relative/path/of/entry/file')
   group.add_option('--app-local-path', help=info)
+  info = ('The download URL of the Crosswalk runtime library APK. '
+          'The built-in updater uses the Android download manager to fetch '
+          'the url. '
+          'For example, --xwalk-apk-url=http://myhost/XWalkRuntimeLib.apk')
+  group.add_option('--xwalk-apk-url', help=info)
   parser.add_option_group(group)
   # Mandatory options group
   group = optparse.OptionGroup(parser, 'Mandatory arguments',

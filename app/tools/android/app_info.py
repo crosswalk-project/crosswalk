@@ -23,3 +23,4 @@ class AppInfo:
     self.package = 'org.xwalk.app.template'
     self.remote_debugging = ''
     self.use_animatable_view = ''
+    self.xwalk_apk_url = ''
