@@ -235,10 +235,13 @@ public class ContactFinder {
         // 60  David2 Smith   name
         String where = null;
         String[] whereArgs = null;
+        JSONArray returnArray = new JSONArray();
         if (contactIds.size() != 0) {
             where = Data.CONTACT_ID + " in (" + ContactUtils.makeQuestionMarkList(contactIds) + ")";
             whereArgs = contactIds.toArray(new String[contactIds.size()]);
         }
+        if(where==null)
+            return returnArray;
         Cursor c = null;
         Map<Long, ContactData> dataMap = null;
         try {
@@ -333,7 +336,6 @@ public class ContactFinder {
         }
 
         int i = 0;
-        JSONArray returnArray = new JSONArray();
         for (Map.Entry<Long, ContactData> entry : dataMap.entrySet()) {
             if (resultsLimit != null && ++i > resultsLimit) break;
             JSONObject o = entry.getValue().ensurePut(entry.getKey());
