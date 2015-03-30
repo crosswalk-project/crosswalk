@@ -124,3 +124,14 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   ASSERT_EQ(g_count, 1);
 }
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
+                       CrossContextsReferenceShouldNotCrash) {
+  Runtime* runtime = CreateRuntime();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+      base::FilePath().AppendASCII("cross_contexts_reference.html"));
+
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
+  xwalk_test_utils::NavigateToURL(runtime, url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
