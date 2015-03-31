@@ -30,4 +30,12 @@ const char kXWalkDataPath[] = "data-path";
 const char kXWalkProfileName[] = "profile-name";
 #endif
 
+// By default, an https page cannot run JavaScript, CSS or plug-ins from http
+// URLs. This provides an override to get the old insecure behavior.
+const char kAllowRunningInsecureContent[]   = "allow-running-insecure-content";
+
+// By default, an https page can load images, fonts or frames from an http
+// page. This switch overrides this to block this lesser mixed-content problem.
+const char kNoDisplayingInsecureContent[]   = "no-displaying-insecure-content";
+
 }  // namespace switches
