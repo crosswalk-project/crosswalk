@@ -13,14 +13,17 @@
 bool VirtualRootProvider::testing_enabled_ = false;
 
 VirtualRootProvider::VirtualRootProvider() {
-  if (!virtual_root_map_.empty())
-    return;
-
   if (testing_enabled_) {
-    base::GetTempDir(&home_path_);
-  } else {
-    home_path_ = base::GetHomeDir();
+    base::FilePath tmp_path;
+    base::GetTempDir(&tmp_path);
+    base::FilePath doc_path = tmp_path.Append("Documents");
+    if (!DirectoryExists(doc_path))
+      CreateDirectory(doc_path);
+    virtual_root_map_["DOCUMENTS"] = doc_path;
+    return;
   }
+
+  home_path_ = base::GetHomeDir();
 
   // TODO(shawngao5): Hard code virtual root mapping for linux here.
   // In future, it should be removed by parsing xdg configure file for
@@ -35,10 +38,4 @@ VirtualRootProvider::VirtualRootProvider() {
 
 void VirtualRootProvider::SetTesting(bool testing_enabled) {
   testing_enabled_ = testing_enabled;
-  base::FilePath tmp_path;
-  base::GetTempDir(&tmp_path);
-  base::FilePath doc_path = tmp_path.Append("Documents");
-  if (!DirectoryExists(doc_path)) {
-    CreateDirectory(doc_path);
-  }
 }

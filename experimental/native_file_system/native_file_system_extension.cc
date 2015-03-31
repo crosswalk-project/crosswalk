@@ -49,18 +49,18 @@ void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   }
   std::string promise_id_string;
   if (!msg_value->GetString("_promise_id", &promise_id_string)) {
-    LOG(ERROR) << "Invalide promise id.";
+    LOG(ERROR) << "Invalid promise id.";
     return;
   }
   std::string cmd_string;
   if (!msg_value->GetString("cmd", &cmd_string) ||
       "requestNativeFileSystem" != cmd_string) {
-    LOG(ERROR) << "Invalide cmd: " << cmd_string;
+    LOG(ERROR) << "Invalid cmd: " << cmd_string;
     return;
   }
   std::string virtual_root_string;
   if (!msg_value->GetString("data.virtual_root", &virtual_root_string)) {
-    LOG(ERROR) << "Invalide virtual root: " << virtual_root_string;
+    LOG(ERROR) << "Invalid virtual root: " << virtual_root_string;
     return;
   }
 
@@ -77,7 +77,7 @@ void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
     res->SetString("_promise_id", promise_id_string);
     res->SetString("cmd", "requestNativeFileSystem_ret");
     res->SetBoolean("data.error", true);
-    res->SetString("data.errorMessage", "Invalide name of virtual root.");
+    res->SetString("data.errorMessage", "Invalid name of virtual root.");
     std::string msg_string;
     base::JSONWriter::Write(res.get(), &msg_string);
     PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg_string)));
