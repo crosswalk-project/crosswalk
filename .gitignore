@@ -40,3 +40,7 @@ Thumbs.db
 cscope.*
 Session.vim
 UPSTREAM.blink
+third_party/lzma_sdk/*.bz2
+third_party/lzma_sdk/*.7z
+third_party/lzma_sdk/src
+raw/

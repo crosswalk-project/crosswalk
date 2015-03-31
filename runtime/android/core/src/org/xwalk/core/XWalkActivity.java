@@ -171,6 +171,8 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
             dialog = getStartupOlderVersionDialog();
         } else if (status == LibraryStatus.NEWER_VERSION) {
             dialog = getStartupNewerVersionDialog();
+        } else if  (status == LibraryStatus.COMPRESSED) {
+            dialog = getStartupDecompressDialog();
         }
         showDialog(dialog);
     }
@@ -583,5 +585,69 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
                 getString(R.string.xwalk_cancel), positiveListener);
         dialog.setCancelable(false);
         return dialog;
+    }
+
+    private AlertDialog getStartupDecompressDialog() {
+        AlertDialog dialog = buildAlertDialog();
+
+        final DecompressTask decompressTask = new DecompressTask(this, dialog);
+        decompressTask.execute();
+
+        OnClickListener positiveListener = new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                decompressTask.cancel(true);
+            }
+        };
+
+        dialog.setIcon(android.R.drawable.ic_dialog_alert);
+        dialog.setMessage(getString(R.string.decompress_library_message));
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                getString(R.string.xwalk_cancel), positiveListener);
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
+    private static class DecompressTask extends AsyncTask<Void, Integer, Boolean> {
+        XWalkActivity mXWalkActivity;
+        AlertDialog mDialog;
+
+        DecompressTask(XWalkActivity activity, AlertDialog dialog) {
+            super();
+            mXWalkActivity = activity;
+            mDialog = dialog;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            boolean success = false;
+            try {
+                success = XWalkCoreWrapper.decompressXWalkLibrary();
+                // TODO: use publishProgress to update percentage.
+            } catch (Exception e) {
+                Log.w(TAG, "Decompress library failed: " + e.getMessage());
+            }
+
+            return success;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            // TODO: update percentage.
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            Log.d(TAG, "Decompress completed");
+            mXWalkActivity.onXWalkLibraryMatched();
+            if (success) XWalkCoreWrapper.setLocalVersion(mXWalkActivity);
+            mDialog.dismiss();
+        }
+
+        @Override
+        protected void onCancelled(Boolean b) {
+            Log.d(TAG, "Decompress cancelled");
+            mXWalkActivity.finish();
+        }
     }
 }

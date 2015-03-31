@@ -5,12 +5,15 @@
 package org.xwalk.core;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.util.Log;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -138,13 +141,33 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
     private boolean findEmbeddedCore() {
         mBridgeContext = null;
         mBridgeLoader = XWalkCoreWrapper.class.getClassLoader();
-        if (!checkCoreArchitecture()) {
+        XWalkApplication xwalkApp = XWalkApplication.getApplication();
+
+        try {
+            Class<?> clazz = mBridgeLoader.loadClass(BRIDGE_PACKAGE + ".XWalkViewDelegate");
+            Method method = clazz.getMethod("XWalkLibraryCompressed", Context.class);
+            boolean lzma = (boolean) method.invoke(null, xwalkApp);
+            if (lzma) {
+                // if local version(stored in SharedPreference) doesn't match
+                // core version(XWalkSdkVersion.SDK_VERSION),
+                // means xwalkcore library has changed(upgrade or downgrade),
+                // need to decompress xwalkcore library again.
+                mCoreStatus = getLocalVersion(xwalkApp) == XWalkSdkVersion.SDK_VERSION ?
+                    LibraryStatus.MATCHED : LibraryStatus.COMPRESSED;
+                return true;
+            } else {
+                method = clazz.getMethod("loadXWalkLibrary", Context.class);
+                method.invoke(null, xwalkApp);
+                mCoreStatus = LibraryStatus.MATCHED;
+                return true;
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException |
+                IllegalAccessException | InvocationTargetException e) {
+            mCoreStatus = LibraryStatus.NOT_FOUND;
             mBridgeLoader = null;
-            return false;
         }
 
-        Log.d(TAG, "Running in embedded mode");
-        return true;
+        return false;
     }
 
     private boolean findSharedCore() {
@@ -189,6 +212,28 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
         application.addResource(mBridgeContext.getResources());
         Log.d(TAG, "Running in shared mode");
         return true;
+    }
+
+    public static boolean decompressXWalkLibrary() throws Exception {
+        XWalkApplication xwalkApp = XWalkApplication.getApplication();
+        ClassLoader loader = XWalkCoreWrapper.class.getClassLoader();
+
+        Class<?> clazz = loader.loadClass(BRIDGE_PACKAGE + ".XWalkViewDelegate");
+        Method method = clazz.getMethod("decompressXWalkLibrary", Context.class);
+        return (boolean) method.invoke(null, xwalkApp);
+    }
+
+    public static int getLocalVersion(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("libxwalkcore",
+                Context.MODE_PRIVATE);
+        return sp.getInt("version", 0);
+    }
+
+    public static void setLocalVersion(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("libxwalkcore",
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("version", XWalkSdkVersion.SDK_VERSION).apply();
     }
 
     private boolean checkCoreVersion() {

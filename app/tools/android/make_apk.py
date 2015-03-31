@@ -32,6 +32,7 @@ from manifest_json_parser import ManifestJsonParser
 NATIVE_LIBRARY = 'libxwalkcore.so'
 EMBEDDED_LIBRARY = 'xwalk_core_library'
 SHARED_LIBRARY = 'xwalk_shared_library'
+DUMMY_LIBRARY = 'libxwalkdummy.so'
 
 # FIXME(rakuco): Only ALL_ARCHITECTURES should exist. We keep these two
 # separate lists because SUPPORTED_ARCHITECTURES contains the architectures
@@ -94,7 +95,7 @@ def GetAndroidApiLevel(android_path):
 
 
 def ContainsNativeLibrary(path):
-  return os.path.isfile(os.path.join(path, NATIVE_LIBRARY))
+  return os.path.isfile(os.path.join(path, NATIVE_LIBRARY)) or os.path.isfile(os.path.join(path, DUMMY_LIBRARY))
 
 
 def ParseManifest(options):
@@ -378,10 +379,14 @@ def Execution(options, app_info):
       print ('Invalid CPU arch: %s.' % arch)
       sys.exit(10)
     library_lib_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'libs')
+    raw_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'res', 'raw')
     for dir_name in os.listdir(library_lib_path):
       lib_dir = os.path.join(library_lib_path, dir_name)
       if ContainsNativeLibrary(lib_dir):
         shutil.rmtree(lib_dir)
+      other_lib = os.path.join(raw_path, NATIVE_LIBRARY + '.' + dir_name)
+      if (os.path.isfile(other_lib)):
+        os.remove(other_lib)
     native_lib_path = os.path.join(app_dir, 'native_libs', arch)
     if ContainsNativeLibrary(native_lib_path):
       shutil.copytree(native_lib_path, os.path.join(library_lib_path, arch))
@@ -389,6 +394,10 @@ def Execution(options, app_info):
       print('No %s native library has been found for creating a Crosswalk '
             'embedded APK.' % arch)
       sys.exit(10)
+
+    compressed_lib = os.path.join(app_dir, 'native_libs',
+                                  NATIVE_LIBRARY + '.' + arch)
+    shutil.copy(compressed_lib, raw_path)
 
   if options.project_only:
     print (' (Skipping apk package creation)')
@@ -511,6 +520,10 @@ def MakeApk(options, app_info, manifest):
       lib_dir = os.path.join(library_lib_path, dir_name)
       if ContainsNativeLibrary(lib_dir):
         shutil.move(lib_dir, os.path.join(native_lib_path, dir_name))
+        compressed_lib = os.path.join(target_library_path, 'res', 'raw',
+                                      NATIVE_LIBRARY + '.' + dir_name)
+        if (os.path.isfile(compressed_lib)):
+          shutil.move(compressed_lib, native_lib_path)
         available_archs.append(dir_name)
     if options.arch:
       Execution(options, app_info)
