@@ -166,38 +166,36 @@ def MakeCodeBaseFromAppVersion(app_version):
   return '%02d%02d%03d' % tuple(version_numbers)
 
 
-# Follows the recommendation from
-# http://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-
-# your-apps-on-google-play-for-x86-based-android-devices-using
 def MakeVersionCode(options, app_version):
-  ''' Construct a version code'''
-  # If user specified --app-versionCode, use it forcely
+  """
+  Returns a number in a format suitable for Android's android:versionCode
+  manifest attribute.
+
+  If the --app-versionCode option is not provided, this function tries to
+  generate an 8-digit version code based on, in this order, either the
+  --app-versionCodeBase parameter or --app-version (or its JSON manifest
+  counterpart, "xwalk_version"), as recommended by
+  """
   if options.app_versionCode:
     return options.app_versionCode
 
-  # First digit is ABI, ARM=2, x86=6
-  abi = '0'
-  if options.arch == 'arm':
-    abi = '2'
-  if options.arch == 'arm64':
-    abi = '3'
-  if options.arch == 'x86':
-    abi = '6'
-  if options.arch == 'x86_64':
-    abi = '7'
-  b = '0'
-  # If user specified --app-versionCodeBase,add ABI prefix to it as versionCode
-  if options.app_versionCodeBase:
-    b = str(options.app_versionCodeBase)
-    if len(b) > 7:
-      print('Version code base must be 7 digits or less: '
-            'versionCodeBase=%s' % (b))
+  # The android:versionCode we build follows the recommendations from
+  # https://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-your-apps-on-google-play-for-x86-based-android-devices-using
+  arch_abis = {
+    'arm': 2,
+    'arm64': 3,
+    'x86': 6,
+    'x86_64': 7,
+  }
+  abi_number = arch_abis.get(options.arch, 0)
+  if options.app_versionCodeBase is not None:
+    if len(str(options.app_versionCodeBase)) > 7:
+      print('Error: --app-versionCodeBase must have 7 digits or less.')
       sys.exit(12)
-  # If both --app-versionCode and --app-versionCodeBase not specified,
-  # try to parse out versionCodeBase based on app_version
+    version_code_base = options.app_versionCodeBase
   else:
-    b = MakeCodeBaseFromAppVersion(app_version)
-    if b is None:
+    version_code_base = MakeCodeBaseFromAppVersion(app_version)
+    if version_code_base is None:
       print('Error: Cannot create a valid android:versionCode from version '
             'number "%s". Valid version numbers must follow the format '
             '"ab.cd.efg", where only \'a\' is mandatory. For example, "1", '
@@ -206,9 +204,8 @@ def MakeVersionCode(options, app_version):
             'or "--app-versionCodeBase" to manually provide the '
             'android:versionCode number that your APK will use.' % app_version)
       sys.exit(12)
-  # zero pad to 7 digits, middle digits can be used for other
-  # features, according to recommendation in URL
-  return '%s%s' % (abi, b.zfill(7))
+    version_code_base = int(version_code_base)
+  return '%d%07d' % (abi_number, version_code_base)
 
 
 def GetExtensionBinaryPathList():
