@@ -40,7 +40,6 @@ public class OnCreateWindowRequestedTest extends XWalkViewTestBase {
         });
     }
 
-    @DisabledTest
     public void testOnCreateWindowRequested() throws Throwable {
         String fileContent = getFileContent("create_window_1.html");
         int count = mOnCreateWindowRequestedHelper.getCallCount();

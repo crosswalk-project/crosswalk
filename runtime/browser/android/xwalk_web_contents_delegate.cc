@@ -23,6 +23,7 @@
 #include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
 
 using base::android::AttachCurrentThread;
+using base::android::ConvertUTF8ToJavaString;
 using base::android::ConvertUTF16ToJavaString;
 using base::android::ScopedJavaLocalRef;
 using content::FileChooserParams;
@@ -249,18 +250,13 @@ bool XWalkWebContentsDelegate::ShouldCreateWebContents(
     const std::string& partition_id,
     content::SessionStorageNamespace* session_storage_namespace) {
   JNIEnv* env = AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> java_delegate = GetJavaDelegate(env);
-
-  if (java_delegate.obj()) {
-    ScopedJavaLocalRef<jstring> url_buffer =
-        base::android::ConvertUTF8ToJavaString(env, target_url.spec());
-    return Java_XWalkWebContentsDelegate_shouldOpenWithDefaultBrowser(env,
-        java_delegate.obj(), url_buffer.obj()) == JNI_FALSE;
-  }
-
-  // As multiple windows mode has not been implemented yet, return false
-  // to make sure new WebContents won't be created.
-  return false;
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return true;
+  ScopedJavaLocalRef<jstring> java_url =
+      ConvertUTF8ToJavaString(env, target_url.spec());
+  return Java_XWalkWebContentsDelegate_shouldCreateWebContents(env, obj.obj(),
+      java_url.obj());
 }
 
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
