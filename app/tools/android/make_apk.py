@@ -602,16 +602,25 @@ def main(argv):
   group = optparse.OptionGroup(parser, 'Optional arguments',
       'They are used for various settings for applications through '
       'command line options.')
-  info = ('The version name of the application. '
-          'For example, --app-version=1.0.0')
-  group.add_option('--app-version', help=info)
-  info = ('The version code of the application. '
-          'For example, --app-versionCode=24')
-  group.add_option('--app-versionCode', type='int', help=info)
-  info = ('The version code base of the application. Version code will '
-          'be made by adding a prefix based on architecture to the version '
-          'code base. For example, --app-versionCodeBase=24')
-  group.add_option('--app-versionCodeBase', type='int', help=info)
+  group.add_option('--app-version',
+                   help='The application version, corresponding to the '
+                   'android:versionName attribute of the Android App '
+                   'Manifest. If the version is in the format "ab.cd.efg", '
+                   'like "1", "3.45" or "12.3.976", an android:versionCode '
+                   'will be generated automatically if "--app-versionCode" '
+                   'or "--app-versionCodeBase" are not specified.')
+  group.add_option('--app-versionCode', type='int',
+                   help='An integer corresponding to the android:versionCode '
+                   'attribute of the Android App Manifest. If specified, the '
+                   'value of the "--app-version" option is not used to set '
+                   'the value of the android:versionCode attribute.')
+  group.add_option('--app-versionCodeBase', type='int',
+                   help='An integer with at most 7 digits used to set the '
+                   'value of the android:versionCode attribute of the Android '
+                   'App Manifest if "--app-versionCode" is not specified. '
+                   'If both "--app-versionCodeBase" and "--app-version" are '
+                   'passed, the former will be used to set the '
+                   'android:versionCode attribute.')
   info = ('The description of the application. For example, '
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
