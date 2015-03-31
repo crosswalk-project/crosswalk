@@ -146,34 +146,24 @@ def FindExtensionJars(root_path):
   return extension_jars
 
 
-# Try to parse out suitable app_versionCodeBase based on app_version,
-# app_version "xx.xx.xxx" will generate app_versionCodeBase "xxxxxxx"
-# For example,  "1.2.3" will generate app_versionCodeBase "0102003"
-# "1.2" will generate "0102000"
-# If app_version does not match
-# r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
-# notify user the failure
-def TryCodeBaseFromVersionName(app_version):
-  m = re.match(r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
-               app_version)
-  if not m:
-    print('Can not parse out app_versionCodeBase from app_version, '
-          'please specify --app-versionCode or --app-versionCodeBase : '
-          'app_version=%s' % (app_version))
-    sys.exit(12)
+def MakeCodeBaseFromAppVersion(app_version):
+  """
+  Generates a string suitable for an Android versionCode from a version number.
 
-  versionList = []
-  for item in m.groups():
-    if (item and len(item) > 0):
-      versionList.append(item.strip('.'))
-  n = len(versionList)
-  while n < 3:
-    versionList.append('0')
-    n = n + 1
-  versionCodeBase = versionList[0].zfill(2)
-  versionCodeBase = versionCodeBase + versionList[1].zfill(2)
-  versionCodeBase = versionCodeBase + versionList[2].zfill(3)
-  return versionCodeBase
+  The returned string will be appended to the ABI prefix digit to create a
+  version number for the android:versionCode attribute of the Android manifest
+  file.
+
+  |app_version| must be a string with the format "ab.cd.efg", all digits but
+   'a' being optional.
+  If |app_version|'s format is invalid, this function returns None.
+  """
+  version_re = r'\d{1,2}(\.\d{1,2}(\.\d{1,3})?)?$'
+  if not re.match(version_re, app_version):
+    return None
+  version_numbers = map(int, app_version.split('.'))
+  version_numbers.extend([0] * (3 - len(version_numbers))) # Pad to 3 parts.
+  return '%02d%02d%03d' % tuple(version_numbers)
 
 
 # Follows the recommendation from
@@ -206,7 +196,16 @@ def MakeVersionCode(options, app_version):
   # If both --app-versionCode and --app-versionCodeBase not specified,
   # try to parse out versionCodeBase based on app_version
   else:
-    b = TryCodeBaseFromVersionName(app_version)
+    b = MakeCodeBaseFromAppVersion(app_version)
+    if b is None:
+      print('Error: Cannot create a valid android:versionCode from version '
+            'number "%s". Valid version numbers must follow the format '
+            '"ab.cd.efg", where only \'a\' is mandatory. For example, "1", '
+            '"3.45" and "12.3.976" are all valid version numbers. If you use '
+            'a different versioning scheme, please either "--app-versionCode" '
+            'or "--app-versionCodeBase" to manually provide the '
+            'android:versionCode number that your APK will use.' % app_version)
+      sys.exit(12)
   # zero pad to 7 digits, middle digits can be used for other
   # features, according to recommendation in URL
   return '%s%s' % (abi, b.zfill(7))
