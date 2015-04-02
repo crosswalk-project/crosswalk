@@ -92,9 +92,29 @@ void Runtime::Close() {
   web_contents_->Close();
 }
 
+void Runtime::Back() {
+  web_contents_->GetController().GoToOffset(-1);
+  web_contents_->Focus();
+}
+
+void Runtime::Forward() {
+  web_contents_->GetController().GoToOffset(1);
+  web_contents_->Focus();
+}
+
+void Runtime::Reload() {
+  web_contents_->GetController().Reload(false);
+  web_contents_->Focus();
+}
+
+void Runtime::Stop() {
+  web_contents_->Stop();
+  web_contents_->Focus();
+}
+
 NativeAppWindow* Runtime::window() {
   if (ui_delegate_)
-    return static_cast<DefaultRuntimeUIDelegate*>(ui_delegate_)->window();
+    return ui_delegate_->GetAppWindow();
   return nullptr;
 }
 
@@ -199,6 +219,8 @@ void Runtime::WebContentsCreated(
 
 void Runtime::DidNavigateMainFramePostCommit(
     content::WebContents* web_contents) {
+  if (ui_delegate_)
+    ui_delegate_->SetAddressURL(web_contents->GetLastCommittedURL());
 }
 
 content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager(
@@ -310,6 +332,12 @@ bool Runtime::CheckMediaAccessPermission(
   // TODO(xiang): Pepper flash plugin will trigger this check a lot, return
   // false at the moment.
   return false;
+}
+
+void Runtime::LoadProgressChanged(content::WebContents* source,
+                                  double progress) {
+  if (ui_delegate_)
+    ui_delegate_->SetLoadProgress(progress);
 }
 
 }  // namespace xwalk

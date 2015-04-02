@@ -18,6 +18,10 @@
 #include "ui/views/window/native_frame_view.h"
 #endif
 
+#if defined(OS_LINUX)
+#include "xwalk/runtime/browser/ui/native_app_window_desktop.h"
+#endif
+
 #if defined(OS_TIZEN)
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
 #endif
@@ -26,15 +30,16 @@ namespace xwalk {
 
 NativeAppWindowViews::NativeAppWindowViews(
     const NativeAppWindow::CreateParams& create_params)
-  : create_params_(create_params),
-    delegate_(create_params.delegate),
-    web_contents_(create_params.web_contents),
-    web_view_(NULL),
-    window_(NULL),
-    is_fullscreen_(false),
-    minimum_size_(create_params.minimum_size),
-    maximum_size_(create_params.maximum_size),
-    resizable_(create_params.resizable) {}
+    : web_contents_(create_params.web_contents),
+      web_view_(nullptr),
+      delegate_(create_params.delegate),
+      create_params_(create_params),
+      window_(nullptr),
+      is_fullscreen_(false),
+      minimum_size_(create_params.minimum_size),
+      maximum_size_(create_params.maximum_size),
+      resizable_(create_params.resizable) {
+}
 
 NativeAppWindowViews::~NativeAppWindowViews() {}
 
@@ -58,8 +63,11 @@ void NativeAppWindowViews::Initialize() {
       gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
   params.bounds = bounds;
 #else
-  params.type = views::Widget::InitParams::TYPE_WINDOW;
-  params.bounds = create_params_.bounds;
+  // Fullscreen should have higher priority than window size.
+  if (create_params_.state != ui::SHOW_STATE_FULLSCREEN) {
+    params.type = views::Widget::InitParams::TYPE_WINDOW;
+    params.bounds = create_params_.bounds;
+  }
 #endif
   params.net_wm_pid = create_params_.net_wm_pid;
 
@@ -261,7 +269,7 @@ void NativeAppWindowViews::ViewHierarchyChanged(
     TopViewLayout* layout = new TopViewLayout();
     SetLayoutManager(layout);
 
-    web_view_ = new views::WebView(NULL);
+    web_view_ = new views::WebView(nullptr);
     web_view_->SetWebContents(web_contents_);
     AddChildView(web_view_);
     layout->set_content_view(web_view_);
@@ -301,6 +309,8 @@ NativeAppWindow* NativeAppWindow::Create(
   NativeAppWindowViews* window;
 #if defined(OS_TIZEN)
   window = new NativeAppWindowTizen(create_params);
+#elif defined(OS_LINUX)
+  window = new NativeAppWindowDesktop(create_params);
 #else
   window = new NativeAppWindowViews(create_params);
 #endif

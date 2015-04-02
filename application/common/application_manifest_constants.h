@@ -159,6 +159,12 @@ namespace application_widget_keys {
 #endif
 }  // namespace application_widget_keys
 
+namespace application_manifest_values {
+extern const char kDisplayModeFullscreen[];
+extern const char kDisplayModeStandalone[];
+extern const char kDisplayModeMinimalUI[];
+extern const char kDisplayModeBrowser[];
+}  // namespace application_manifest_values
 
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];

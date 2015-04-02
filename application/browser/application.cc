@@ -37,6 +37,7 @@ using content::RenderProcessHost;
 namespace xwalk {
 
 namespace keys = application_manifest_keys;
+namespace values = application_manifest_values;
 namespace widget_keys = application_widget_keys;
 
 namespace {
@@ -175,9 +176,11 @@ GURL Application::GetStartURL(Manifest::Type type) const {
 }
 
 template<>
-ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>() {
+void Application::GetWindowShowState<Manifest::TYPE_WIDGET>(
+    NativeAppWindow::CreateParams* params) {
   const Manifest* manifest = data_->GetManifest();
   std::string view_modes_string;
+  params->state = ui::SHOW_STATE_DEFAULT;
   if (manifest->GetString(widget_keys::kViewModesKey, &view_modes_string)) {
     // FIXME: ATM only 'fullscreen' and 'windowed' values are supported.
     // If the first user prefererence is 'fullscreen', set window show state
@@ -185,24 +188,29 @@ ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>() {
     std::vector<std::string> modes;
     base::SplitString(view_modes_string, ' ', &modes);
     if (!modes.empty() && modes[0] == "fullscreen")
-      return ui::SHOW_STATE_FULLSCREEN;
+      params->state = ui::SHOW_STATE_FULLSCREEN;
   }
-
-  return ui::SHOW_STATE_DEFAULT;
 }
 
 template<>
-ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_MANIFEST>() {
+void Application::GetWindowShowState<Manifest::TYPE_MANIFEST>(
+    NativeAppWindow::CreateParams* params) {
   const Manifest* manifest = data_->GetManifest();
   std::string display_string;
-  if (manifest->GetString(keys::kDisplay, &display_string)) {
-    // FIXME: ATM only 'fullscreen' and 'standalone' (which is fallback value)
-    // values are supported.
-    if (display_string.find("fullscreen") != std::string::npos)
-      return ui::SHOW_STATE_FULLSCREEN;
-  }
 
-  return ui::SHOW_STATE_DEFAULT;
+  // FIXME: As we do not support browser mode, the default fallback will be
+  // minimal-ui mode.
+  params->mode = blink::WebDisplayModeMinimalUi;
+  params->state = ui::SHOW_STATE_DEFAULT;
+  if (!manifest->GetString(keys::kDisplay, &display_string))
+    return;
+
+  if (display_string == values::kDisplayModeFullscreen) {
+    params->mode = blink::WebDisplayModeFullscreen;
+    params->state = ui::SHOW_STATE_FULLSCREEN;
+  } else if (display_string == values::kDisplayModeStandalone) {
+    params->mode = blink::WebDisplayModeStandalone;
+  }
 }
 
 bool Application::Launch() {
@@ -229,9 +237,9 @@ bool Application::Launch() {
   runtime->LoadURL(url);
 
   NativeAppWindow::CreateParams params;
-  params.state = data_->manifest_type() == Manifest::TYPE_WIDGET ?
-      GetWindowShowState<Manifest::TYPE_WIDGET>() :
-      GetWindowShowState<Manifest::TYPE_MANIFEST>();
+  data_->manifest_type() == Manifest::TYPE_WIDGET ?
+      GetWindowShowState<Manifest::TYPE_WIDGET>(&params) :
+      GetWindowShowState<Manifest::TYPE_MANIFEST>(&params);
 
   params.bounds = data_->window_bounds();
   params.minimum_size.set_width(data_->window_min_size().width());
@@ -242,7 +250,7 @@ bool Application::Launch() {
   window_show_params_ = params;
   // Only the first runtime can have a launch screen.
   params.splash_screen_path = GetSplashScreenPath();
-  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime, params));
+  runtime->set_ui_delegate(RuntimeUIDelegate::Create(runtime, params));
   runtime->Show();
 
   return true;
@@ -272,7 +280,7 @@ int Application::GetRenderProcessHostID() const {
 void Application::OnNewRuntimeAdded(Runtime* runtime) {
   runtime->set_observer(this);
   runtime->set_ui_delegate(
-      DefaultRuntimeUIDelegate::Create(runtime, window_show_params_));
+      RuntimeUIDelegate::Create(runtime, window_show_params_));
   runtime->Show();
   runtimes_.push_back(runtime);
 }

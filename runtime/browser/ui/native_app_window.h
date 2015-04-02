@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/strings/string16.h"
+#include "third_party/WebKit/public/platform/WebDisplayMode.h"
 #include "ui/base/ui_base_types.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/geometry/size.h"
@@ -23,6 +24,10 @@ namespace xwalk {
 class NativeAppWindowDelegate {
  public:
   // Called when native app window is being destroyed.
+  virtual void OnBackPressed() {}
+  virtual void OnForwardPressed() {}
+  virtual void OnReloadPressed() {}
+  virtual void OnStopPressed() {}
   virtual void OnWindowDestroyed() {}
 
  protected:
@@ -58,6 +63,8 @@ class NativeAppWindow {
     // The absolute path of splash screen.
     // Empty if splash screen is not to be shown.
     base::FilePath splash_screen_path;
+    // The display mode. Currently only used by Linux desktop platform.
+    blink::WebDisplayMode mode;
   };
 
   // Do one time initialization at application startup.

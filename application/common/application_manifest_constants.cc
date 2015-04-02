@@ -183,6 +183,13 @@ const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
 
 }  // namespace application_widget_keys
 
+namespace application_manifest_values {
+const char kDisplayModeFullscreen[] = "fullscreen";
+const char kDisplayModeStandalone[] = "standalone";
+const char kDisplayModeMinimalUI[] = "minimal-ui";
+const char kDisplayModeBrowser[] = "browser";
+}  // namespace application_manifest_values
+
 namespace application_manifest_errors {
 const char kInvalidDescription[] =
     "Invalid value for 'description'.";
