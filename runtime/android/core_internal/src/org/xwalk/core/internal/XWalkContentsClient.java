@@ -217,5 +217,5 @@ abstract class XWalkContentsClient extends ContentViewClient {
      */
     public abstract void onNewPicture(Picture picture);
 
-    public abstract boolean shouldOpenWithDefaultBrowser(String contentUrl);
+    public abstract boolean shouldCreateWebContents(String contentUrl);
 }

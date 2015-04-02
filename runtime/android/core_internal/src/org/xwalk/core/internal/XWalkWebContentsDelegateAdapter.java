@@ -21,11 +21,11 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
     }
 
     @Override
-    public boolean shouldOpenWithDefaultBrowser(String contentUrl) {
+    public boolean shouldCreateWebContents(String contentUrl) {
         if (mXWalkContentsClient != null) {
-            return mXWalkContentsClient.shouldOpenWithDefaultBrowser(contentUrl);
+            return mXWalkContentsClient.shouldCreateWebContents(contentUrl);
         }
-        return false;
+        return super.shouldCreateWebContents(contentUrl);
     }
 
     @Override
