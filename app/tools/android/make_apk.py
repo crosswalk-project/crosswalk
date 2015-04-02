@@ -146,70 +146,66 @@ def FindExtensionJars(root_path):
   return extension_jars
 
 
-# Try to parse out suitable app_versionCodeBase based on app_version,
-# app_version "xx.xx.xxx" will generate app_versionCodeBase "xxxxxxx"
-# For example,  "1.2.3" will generate app_versionCodeBase "0102003"
-# "1.2" will generate "0102000"
-# If app_version does not match
-# r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
-# notify user the failure
-def TryCodeBaseFromVersionName(app_version):
-  m = re.match(r'(\d{1,2}\.+)(\d{1,2}\.+)(\d{1,3})$|(|\d{1,2}\.+)(\d{1,2})$',
-               app_version)
-  if not m:
-    print('Can not parse out app_versionCodeBase from app_version, '
-          'please specify --app-versionCode or --app-versionCodeBase : '
-          'app_version=%s' % (app_version))
-    sys.exit(12)
+def MakeCodeBaseFromAppVersion(app_version):
+  """
+  Generates a string suitable for an Android versionCode from a version number.
 
-  versionList = []
-  for item in m.groups():
-    if (item and len(item) > 0):
-      versionList.append(item.strip('.'))
-  n = len(versionList)
-  while n < 3:
-    versionList.append('0')
-    n = n + 1
-  versionCodeBase = versionList[0].zfill(2)
-  versionCodeBase = versionCodeBase + versionList[1].zfill(2)
-  versionCodeBase = versionCodeBase + versionList[2].zfill(3)
-  return versionCodeBase
+  The returned string will be appended to the ABI prefix digit to create a
+  version number for the android:versionCode attribute of the Android manifest
+  file.
+
+  |app_version| must be a string with the format "ab.cd.efg", all digits but
+   'a' being optional.
+  If |app_version|'s format is invalid, this function returns None.
+  """
+  version_re = r'\d{1,2}(\.\d{1,2}(\.\d{1,3})?)?$'
+  if not re.match(version_re, app_version):
+    return None
+  version_numbers = map(int, app_version.split('.'))
+  version_numbers.extend([0] * (3 - len(version_numbers))) # Pad to 3 parts.
+  return '%02d%02d%03d' % tuple(version_numbers)
 
 
-# Follows the recommendation from
-# http://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-
-# your-apps-on-google-play-for-x86-based-android-devices-using
 def MakeVersionCode(options, app_version):
-  ''' Construct a version code'''
-  # If user specified --app-versionCode, use it forcely
+  """
+  Returns a number in a format suitable for Android's android:versionCode
+  manifest attribute.
+
+  If the --app-versionCode option is not provided, this function tries to
+  generate an 8-digit version code based on, in this order, either the
+  --app-versionCodeBase parameter or --app-version (or its JSON manifest
+  counterpart, "xwalk_version"), as recommended by
+  """
   if options.app_versionCode:
     return options.app_versionCode
 
-  # First digit is ABI, ARM=2, x86=6
-  abi = '0'
-  if options.arch == 'arm':
-    abi = '2'
-  if options.arch == 'arm64':
-    abi = '3'
-  if options.arch == 'x86':
-    abi = '6'
-  if options.arch == 'x86_64':
-    abi = '7'
-  b = '0'
-  # If user specified --app-versionCodeBase,add ABI prefix to it as versionCode
-  if options.app_versionCodeBase:
-    b = str(options.app_versionCodeBase)
-    if len(b) > 7:
-      print('Version code base must be 7 digits or less: '
-            'versionCodeBase=%s' % (b))
+  # The android:versionCode we build follows the recommendations from
+  # https://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-your-apps-on-google-play-for-x86-based-android-devices-using
+  arch_abis = {
+    'arm': 2,
+    'arm64': 3,
+    'x86': 6,
+    'x86_64': 7,
+  }
+  abi_number = arch_abis.get(options.arch, 0)
+  if options.app_versionCodeBase is not None:
+    if len(str(options.app_versionCodeBase)) > 7:
+      print('Error: --app-versionCodeBase must have 7 digits or less.')
       sys.exit(12)
-  # If both --app-versionCode and --app-versionCodeBase not specified,
-  # try to parse out versionCodeBase based on app_version
+    version_code_base = options.app_versionCodeBase
   else:
-    b = TryCodeBaseFromVersionName(app_version)
-  # zero pad to 7 digits, middle digits can be used for other
-  # features, according to recommendation in URL
-  return '%s%s' % (abi, b.zfill(7))
+    version_code_base = MakeCodeBaseFromAppVersion(app_version)
+    if version_code_base is None:
+      print('Error: Cannot create a valid android:versionCode from version '
+            'number "%s". Valid version numbers must follow the format '
+            '"ab.cd.efg", where only \'a\' is mandatory. For example, "1", '
+            '"3.45" and "12.3.976" are all valid version numbers. If you use '
+            'a different versioning scheme, please either "--app-versionCode" '
+            'or "--app-versionCodeBase" to manually provide the '
+            'android:versionCode number that your APK will use.' % app_version)
+      sys.exit(12)
+    version_code_base = int(version_code_base)
+  return '%d%07d' % (abi_number, version_code_base)
 
 
 def GetExtensionBinaryPathList():
@@ -603,16 +599,25 @@ def main(argv):
   group = optparse.OptionGroup(parser, 'Optional arguments',
       'They are used for various settings for applications through '
       'command line options.')
-  info = ('The version name of the application. '
-          'For example, --app-version=1.0.0')
-  group.add_option('--app-version', help=info)
-  info = ('The version code of the application. '
-          'For example, --app-versionCode=24')
-  group.add_option('--app-versionCode', type='int', help=info)
-  info = ('The version code base of the application. Version code will '
-          'be made by adding a prefix based on architecture to the version '
-          'code base. For example, --app-versionCodeBase=24')
-  group.add_option('--app-versionCodeBase', type='int', help=info)
+  group.add_option('--app-version',
+                   help='The application version, corresponding to the '
+                   'android:versionName attribute of the Android App '
+                   'Manifest. If the version is in the format "ab.cd.efg", '
+                   'like "1", "3.45" or "12.3.976", an android:versionCode '
+                   'will be generated automatically if "--app-versionCode" '
+                   'or "--app-versionCodeBase" are not specified.')
+  group.add_option('--app-versionCode', type='int',
+                   help='An integer corresponding to the android:versionCode '
+                   'attribute of the Android App Manifest. If specified, the '
+                   'value of the "--app-version" option is not used to set '
+                   'the value of the android:versionCode attribute.')
+  group.add_option('--app-versionCodeBase', type='int',
+                   help='An integer with at most 7 digits used to set the '
+                   'value of the android:versionCode attribute of the Android '
+                   'App Manifest if "--app-versionCode" is not specified. '
+                   'If both "--app-versionCodeBase" and "--app-version" are '
+                   'passed, the former will be used to set the '
+                   'android:versionCode attribute.')
   info = ('The description of the application. For example, '
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
