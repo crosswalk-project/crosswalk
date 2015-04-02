@@ -76,6 +76,12 @@ class Runtime : public content::WebContentsDelegate,
   void Show();
   void Close();
 
+  // Navigation methods.
+  void Back();
+  void Forward();
+  void Reload();
+  void Stop();
+
   content::WebContents* web_contents() const { return web_contents_.get(); }
   // FIXME : This method should be removed.
   NativeAppWindow* window();
@@ -142,6 +148,8 @@ class Runtime : public content::WebContentsDelegate,
   bool CheckMediaAccessPermission(content::WebContents* web_contents,
                                   const GURL& security_origin,
                                   content::MediaStreamType type) override;
+  void LoadProgressChanged(content::WebContents* source,
+                           double progress) override;
 
   // Overridden from content::WebContentsObserver.
   void DidUpdateFaviconURL(

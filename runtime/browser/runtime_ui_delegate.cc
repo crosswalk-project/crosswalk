@@ -10,6 +10,7 @@
 #include "ui/gfx/image/image.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_ui_delegate_desktop.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
@@ -17,6 +18,7 @@ namespace xwalk {
 // compile the unneeded files.
 #if !defined(OS_ANDROID)
 namespace {
+
 // The default size for web content area size.
 const int kDefaultWidth = 840;
 const int kDefaultHeight = 600;
@@ -53,20 +55,29 @@ NativeAppWindow* RuntimeCreateWindow(
 }  // namespace
 #endif
 
-RuntimeUIDelegate* DefaultRuntimeUIDelegate::Create(
-    Runtime* runtime, const NativeAppWindow::CreateParams& params) {
+RuntimeUIDelegate* RuntimeUIDelegate::Create(
+    Runtime* runtime,
+    const NativeAppWindow::CreateParams& params) {
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+  return new RuntimeUIDelegateDesktop(runtime, params);
+#else
   return new DefaultRuntimeUIDelegate(runtime, params);
+#endif
 }
 
 DefaultRuntimeUIDelegate::DefaultRuntimeUIDelegate(
     Runtime* runtime, const NativeAppWindow::CreateParams& params)
   : runtime_(runtime),
-    window_params_(params),
-    window_(nullptr) {
+    window_(nullptr),
+    window_params_(params) {
   DCHECK(runtime_);
 }
 
 DefaultRuntimeUIDelegate::~DefaultRuntimeUIDelegate() {
+}
+
+NativeAppWindow* DefaultRuntimeUIDelegate::GetAppWindow() {
+  return window_;
 }
 
 void DefaultRuntimeUIDelegate::Show() {

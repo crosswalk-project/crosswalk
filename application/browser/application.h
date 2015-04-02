@@ -151,7 +151,8 @@ class Application : public Runtime::Observer,
   // manifest, returns it and the entry point used.
   template <Manifest::Type> GURL GetStartURL() const;
 
-  template <Manifest::Type> ui::WindowShowState GetWindowShowState();
+  template <Manifest::Type> void GetWindowShowState(
+      NativeAppWindow::CreateParams* params);
 
   GURL GetAbsoluteURLFromKey(const std::string& key) const;
 

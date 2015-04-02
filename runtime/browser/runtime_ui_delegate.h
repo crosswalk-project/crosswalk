@@ -5,7 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_UI_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_UI_DELEGATE_H_
 
-#include "base/memory/scoped_ptr.h"
+#include "url/gurl.h"
 #include "xwalk/runtime/browser/ui/native_app_window.h"
 
 namespace xwalk {
@@ -13,46 +13,51 @@ class Runtime;
 
 class RuntimeUIDelegate {
  public:
+  static RuntimeUIDelegate* Create(Runtime* runtime,
+                                   const NativeAppWindow::CreateParams& params =
+                                       NativeAppWindow::CreateParams());
+
   virtual ~RuntimeUIDelegate() {}
+  virtual NativeAppWindow* GetAppWindow() = 0;
   virtual void Show() = 0;
   virtual void UpdateTitle(const base::string16& text) = 0;
   virtual void UpdateIcon(const gfx::Image& image) = 0;
   virtual void SetFullscreen(bool enter_fullscreen) = 0;
   virtual void Close() = 0;
   virtual void DeleteDelegate() = 0;
+  virtual void SetLoadProgress(double progress) = 0;
+  virtual void SetAddressURL(const GURL& url) = 0;
 };
 
 // The default implementation displays WebContents in a separate window.
 class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
                                  public NativeAppWindowDelegate {
  public:
-  static RuntimeUIDelegate* Create(
-      Runtime* runtime,
-      const NativeAppWindow::CreateParams& params =
-          NativeAppWindow::CreateParams());
-  ~DefaultRuntimeUIDelegate() override;
-
-  NativeAppWindow* window() { return window_; }
-
- private:
   DefaultRuntimeUIDelegate(Runtime* runtime,
                            const NativeAppWindow::CreateParams& params);
+  ~DefaultRuntimeUIDelegate() override;
+
+ protected:
   // RuntimeUIDelegate
+  NativeAppWindow* GetAppWindow() override;
   void Show() override;
   void UpdateTitle(const base::string16& text) override;
   void UpdateIcon(const gfx::Image& image) override;
   void SetFullscreen(bool enter_fullscreen) override;
   void Close() override;
   void DeleteDelegate() override;
+  void SetLoadProgress(double progress) override {}
+  void SetAddressURL(const GURL& url) override {}
+
+  Runtime* runtime_;
+
+ private:
   // NativeAppWindowDelegate
   void OnWindowDestroyed() override;
 
- private:
-  Runtime* runtime_;
-  NativeAppWindow::CreateParams window_params_;
   NativeAppWindow* window_;
+  NativeAppWindow::CreateParams window_params_;
 };
-
 
 }  // namespace xwalk
 

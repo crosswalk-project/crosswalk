@@ -63,6 +63,11 @@ class NativeAppWindowViews : public NativeAppWindow,
   void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) override;
 
+  content::WebContents* web_contents_;
+  views::WebView* web_view_;
+
+  NativeAppWindowDelegate* delegate_;
+
  private:
   // WidgetDelegate implementation.
   views::View* GetInitiallyFocusedView() override;
@@ -99,10 +104,6 @@ class NativeAppWindowViews : public NativeAppWindow,
 
   NativeAppWindow::CreateParams create_params_;
 
-  NativeAppWindowDelegate* delegate_;
-  content::WebContents* web_contents_;
-
-  views::WebView* web_view_;
   views::Widget* window_;
   base::string16 title_;
   gfx::Image icon_;
