@@ -91,7 +91,6 @@ void XWalkPlatformNotificationService::DisplayNotification(
       origin,
       notification_data,
       delegate.Pass(),
-      render_process_id,
       cancel_callback);
 #endif
 }
