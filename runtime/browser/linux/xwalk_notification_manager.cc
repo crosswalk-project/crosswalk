@@ -65,7 +65,6 @@ void XWalkNotificationManager::ShowDesktopNotification(
     const GURL& origin,
     const content::PlatformNotificationData& notification_data,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
-    int render_process_id,
     base::Closure* cancel_callback) {
   if (!initialized_)
     return;
