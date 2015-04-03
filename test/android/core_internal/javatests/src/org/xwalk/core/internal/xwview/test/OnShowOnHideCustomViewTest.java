@@ -39,17 +39,6 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
 
     @MediumTest
     @Feature({"onShow/onHideCustomView"})
-    public void testOnShowAndHideCustomViewWithCallback() throws Throwable {
-        doOnShowAndHideCustomViewTest(new Runnable() {
-            @Override
-            public void run() {
-                mWebChromeClient.getExitCallback().onCustomViewHidden();
-            }
-        });
-    }
-
-    @MediumTest
-    @Feature({"onShow/onHideCustomView"})
     public void testOnShowAndHideCustomViewWithJavascript() throws Throwable {
         doOnShowAndHideCustomViewTest(new Runnable() {
             @Override
