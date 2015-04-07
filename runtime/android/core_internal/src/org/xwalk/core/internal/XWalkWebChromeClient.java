@@ -79,7 +79,7 @@ public class XWalkWebChromeClient {
         Activity activity = mXWalkView.getActivity();
 
         if (mCustomXWalkView != null || activity == null) {
-            callback.onCustomViewHidden();
+            if (callback != null) callback.onCustomViewHidden();
             return null;
         }
 
@@ -141,7 +141,6 @@ public class XWalkWebChromeClient {
      */
     public void onHideCustomView() {
         Activity activity = mXWalkView.getActivity();
-
         if (mCustomXWalkView == null || activity == null) return;
 
         if (mContentsClient != null) {
@@ -151,7 +150,7 @@ public class XWalkWebChromeClient {
         // Remove video view from activity's ContentView.
         FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
         decor.removeView(mCustomXWalkView);
-        mCustomViewCallback.onCustomViewHidden();
+        if (mCustomViewCallback != null) mCustomViewCallback.onCustomViewHidden();
 
         if (mPreOrientation != INVALID_ORIENTATION &&
                 mPreOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&

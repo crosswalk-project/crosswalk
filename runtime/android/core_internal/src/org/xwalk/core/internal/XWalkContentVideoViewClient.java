@@ -29,14 +29,7 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
     @Override
     public void enterFullscreenVideo(View view) {
         mView.setOverlayVideoMode(true);
-        CustomViewCallback cb = new CustomViewCallback() {
-            @Override
-            public void onCustomViewHidden() {
-                ContentVideoView contentVideoView = ContentVideoView.getContentVideoView();
-                if (contentVideoView != null) contentVideoView.exitFullscreen(false);
-            }
-        };
-        mContentsClient.onShowCustomView(view, cb);
+        mContentsClient.onShowCustomView(view, null);
     }
 
     @Override
