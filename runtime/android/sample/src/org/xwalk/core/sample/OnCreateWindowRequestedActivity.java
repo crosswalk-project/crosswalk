@@ -13,6 +13,7 @@ import android.webkit.ValueCallback;
 import java.util.LinkedList;
 
 import org.xwalk.core.XWalkNavigationHistory;
+import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
@@ -29,6 +30,10 @@ public class OnCreateWindowRequestedActivity extends XWalkBaseActivity {
 
         mXWalkView = new XWalkView(OnCreateWindowRequestedActivity.this, 
                 OnCreateWindowRequestedActivity.this);
+
+        // Enable multiple window support for this sample, for this flag is
+        // off default.
+        XWalkPreferences.setValue(XWalkPreferences.SUPPORT_MULTIPLE_WINDOWS, true);
         setClient(mXWalkView);
 
         mParent.addView(mXWalkView);
