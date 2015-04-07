@@ -46,7 +46,8 @@ void XDGOpen(const std::string& path) {
   GURL url(path);
   if (url.is_valid() && url.SchemeIsHTTPOrHTTPS()) {
     std::string cmd = "xdg-open " + path;
-    std::system(cmd.c_str());
+    if (std::system(cmd.c_str()) != 0)
+      LOG(ERROR) << "Web browser is launched with errors.";
   } else {
     XDGUtil("xdg-open", path);
   }
