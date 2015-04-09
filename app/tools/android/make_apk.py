@@ -161,7 +161,7 @@ def MakeCodeBaseFromAppVersion(app_version):
   version_re = r'\d{1,2}(\.\d{1,2}(\.\d{1,3})?)?$'
   if not re.match(version_re, app_version):
     return None
-  version_numbers = map(int, app_version.split('.'))
+  version_numbers = [int(i) for i in app_version.split('.')]
   version_numbers.extend([0] * (3 - len(version_numbers))) # Pad to 3 parts.
   return '%02d%02d%03d' % tuple(version_numbers)
 
