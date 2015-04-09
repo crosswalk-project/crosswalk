@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 
+#include "base/numerics/safe_conversions.h"
 #include "content/public/browser/render_process_host.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -227,7 +228,9 @@ void ApplicationSecurityPolicyCSP::Enforce() {
         !scope.empty()) {
       enabled_ = true;
       url::Replacements<char> replacements;
-      replacements.SetPath(scope.c_str(), url::Component(0, scope.length()));
+      replacements.SetPath(
+                   scope.c_str(),
+                   url::Component(0, base::checked_cast<int>(scope.length())));
       internalUrl = internalUrl.ReplaceComponents(replacements);
     }
     if (internalUrl.is_valid())

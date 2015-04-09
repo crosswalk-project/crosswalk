@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include "base/logging.h"
+#include "base/numerics/safe_conversions.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "xwalk/sysapps/raw_socket/tcp_socket.h"
@@ -148,7 +149,7 @@ void TCPSocketObject::OnSendString(
   memcpy(write_buffer_->data(), params->data.data(), params->data.size());
 
   int ret = socket_->Write(write_buffer_.get(),
-                           params->data.size(),
+                           base::checked_cast<int>(params->data.size()),
                            base::Bind(&TCPSocketObject::OnWrite,
                                       base::Unretained(this)));
 

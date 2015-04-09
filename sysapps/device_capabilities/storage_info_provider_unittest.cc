@@ -39,7 +39,7 @@ void TestClosure() {
 
   // We should have at least one storage, otherwise where is the binary
   // of this unit test being stored?
-  unsigned storage_count = storages.size();
+  size_t storage_count = storages.size();
   EXPECT_GT(storage_count, 0u);
 
   // The only information we can verify is the fact that the storage

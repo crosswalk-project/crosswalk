@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "base/numerics/safe_conversions.h"
 #include "net/base/net_errors.h"
 #include "xwalk/sysapps/raw_socket/udp_socket.h"
 
@@ -266,7 +267,7 @@ void UDPSocketObject::OnSend(int status) {
 
   int ret = socket_->SendTo(
       write_buffer_.get(),
-      write_buffer_size_,
+      base::checked_cast<int>(write_buffer_size_),
       addresses_[0],
       base::Bind(&UDPSocketObject::OnWrite, base::Unretained(this)));
 
