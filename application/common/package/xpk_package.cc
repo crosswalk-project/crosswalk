@@ -8,6 +8,7 @@
 
 #include "base/files/file_util.h"
 #include "base/files/scoped_file.h"
+#include "base/numerics/safe_conversions.h"
 #include "crypto/signature_verifier.h"
 #include "xwalk/application/common/id_util.h"
 
@@ -79,14 +80,14 @@ bool XPKPackage::VerifySignature() {
   if (!verifier.VerifyInit(kSignatureAlgorithm,
                            sizeof(kSignatureAlgorithm),
                            &signature_.front(),
-                           signature_.size(),
+                           base::checked_cast<int>(signature_.size()),
                            &key_.front(),
-                           key_.size()))
+                           base::checked_cast<int>(key_.size())))
     return false;
   unsigned char buf[1 << 12];
   size_t len = 0;
   while ((len = fread(buf, 1, sizeof(buf), file_->get())) > 0)
-    verifier.VerifyUpdate(buf, len);
+    verifier.VerifyUpdate(buf, base::checked_cast<int>(len));
   if (!verifier.VerifyFinal())
     return false;
 

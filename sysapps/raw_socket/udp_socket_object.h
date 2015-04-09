@@ -49,7 +49,7 @@ class UDPSocketObject : public RawSocketObject {
   scoped_refptr<net::IOBuffer> write_buffer_;
   scoped_ptr<net::UDPSocket> socket_;
 
-  unsigned write_buffer_size_;
+  size_t write_buffer_size_;
 
   scoped_ptr<net::HostResolver> resolver_;
   scoped_ptr<net::SingleRequestHostResolver> single_resolver_;

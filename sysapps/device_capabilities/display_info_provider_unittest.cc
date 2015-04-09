@@ -56,7 +56,7 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, DisplayInfoProvider) {
 
   std::vector<linked_ptr<DisplayUnit> > displays = info->displays;
 
-  unsigned display_count = displays.size();
+  size_t display_count = displays.size();
   EXPECT_GE(display_count, 0u);
 
   for (size_t i = 0; i < display_count; ++i) {

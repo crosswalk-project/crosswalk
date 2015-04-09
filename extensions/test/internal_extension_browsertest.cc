@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include "base/logging.h"
+#include "base/numerics/safe_conversions.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "grit/xwalk_extensions_resources.h"
@@ -103,10 +104,10 @@ void TestExtensionInstance::OnGetAllPersons(
     return;
   }
 
-  unsigned max_size = std::min<unsigned>(database()->size(), params->max_size);
+  size_t max_size = std::min<size_t>(database()->size(), params->max_size);
   std::vector<linked_ptr<Person> > persons;
 
-  for (unsigned i = 0; i < max_size; ++i) {
+  for (size_t i = 0; i < max_size; ++i) {
     linked_ptr<Person> person(new Person);
     person->name = database()->at(i).first;
     person->age = database()->at(i).second;
@@ -114,7 +115,8 @@ void TestExtensionInstance::OnGetAllPersons(
     persons.push_back(person);
   }
 
-  info->PostResult(GetAllPersons::Results::Create(persons, max_size));
+  info->PostResult(
+    GetAllPersons::Results::Create(persons, base::checked_cast<int>(max_size)));
 }
 
 void TestExtensionInstance::OnGetPersonAge(

@@ -5,6 +5,7 @@
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 
 #include "base/values.h"
+#include "base/numerics/safe_conversions.h"
 #include "base/stl_util.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -87,7 +88,8 @@ void XWalkExtensionClient::OnPostOutOfLineMessageToJS(
   if (!shared_memory.Map(size))
     return;
 
-  IPC::Message message(static_cast<char*>(shared_memory.memory()), size);
+  IPC::Message message(static_cast<char*>(shared_memory.memory()),
+                       base::checked_cast<int>(size));
   OnMessageReceived(message);
 }
 

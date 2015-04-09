@@ -211,7 +211,7 @@ void ManifestHandlerRegistry::ReorderHandlersGivenDependencies() {
       ManifestHandler* handler = *iter;
       const std::vector<std::string>& prerequisites =
           handler->PrerequisiteKeys();
-      int unsatisfied = prerequisites.size();
+      size_t unsatisfied = prerequisites.size();
       for (size_t i = 0; i < prerequisites.size(); ++i) {
         ManifestHandlerMap::const_iterator prereq_iter =
             handlers_.find(prerequisites[i]);

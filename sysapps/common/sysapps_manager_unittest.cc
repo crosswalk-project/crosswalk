@@ -53,7 +53,7 @@ class DummyExtension : public XWalkExtension {
   }
 };
 
-int CountExtensions(SysAppsManager* manager) {
+size_t CountExtensions(SysAppsManager* manager) {
   XWalkExtensionVector extensions;
   STLElementDeleter<XWalkExtensionVector> deleter(&extensions);
   manager->CreateExtensionsForExtensionThread(&extensions);
@@ -65,17 +65,17 @@ int CountExtensions(SysAppsManager* manager) {
 
 TEST_F(XWalkSysAppsManagerTest, DisableDeviceCapabilities) {
   SysAppsManager manager;
-  int count_before_disable = CountExtensions(&manager);
+  size_t count_before_disable = CountExtensions(&manager);
   manager.DisableDeviceCapabilities();
-  int count_after_disable = CountExtensions(&manager);
+  size_t count_after_disable = CountExtensions(&manager);
   EXPECT_EQ(count_before_disable, count_after_disable + 1);
 }
 
 TEST_F(XWalkSysAppsManagerTest, DisableRawSockets) {
   SysAppsManager manager;
-  int count_before_disable = CountExtensions(&manager);
+  size_t count_before_disable = CountExtensions(&manager);
   manager.DisableRawSockets();
-  int count_after_disable = CountExtensions(&manager);
+  size_t count_after_disable = CountExtensions(&manager);
   EXPECT_EQ(count_before_disable, count_after_disable + 1);
 }
 
