@@ -345,6 +345,10 @@
             'experimental/native_file_system/virtual_root_provider_android.cc',
           ],
           'sources!':[
+            'runtime/browser/runtime_ui_delegate_desktop.cc',
+            'runtime/browser/runtime_ui_delegate_desktop.h',
+            'runtime/browser/ui/native_app_window_desktop.cc',
+            'runtime/browser/ui/native_app_window_desktop.h',
             'runtime/renderer/xwalk_render_process_observer_generic.cc',
             'runtime/renderer/xwalk_render_process_observer_generic.h',
           ],
