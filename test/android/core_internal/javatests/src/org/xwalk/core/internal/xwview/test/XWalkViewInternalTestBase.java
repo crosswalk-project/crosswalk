@@ -32,6 +32,7 @@ import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
 
+import org.xwalk.core.internal.XWalkHttpAuthHandlerInternal;
 import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
 import org.xwalk.core.internal.XWalkNavigationItemInternal;
 import org.xwalk.core.internal.XWalkResourceClientInternal;
@@ -102,6 +103,12 @@ public class XWalkViewInternalTestBase
         public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view,
                 String url) {
             return mInnerContentsClient.shouldInterceptLoadRequest(url);
+        }
+
+        @Override
+        public void onReceivedHttpAuthRequest(XWalkViewInternal view,
+                XWalkHttpAuthHandlerInternal handler, String host, String realm) {
+            mInnerContentsClient.onReceivedHttpAuthRequest(host);
         }
     }
 

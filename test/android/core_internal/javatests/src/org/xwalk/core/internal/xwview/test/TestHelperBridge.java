@@ -126,6 +126,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnReceivedHttpAuthRequestHelper extends CallbackHelper {
+        private String mHost;
+
+        public String getHost() {
+            assert getCallCount() > 0;
+            return mHost;
+        }
+
+        public void notifyCalled(String host) {
+            mHost = host;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -136,6 +150,7 @@ class TestHelperBridge {
     private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
     private final ShouldInterceptLoadRequestHelper mShouldInterceptLoadRequestHelper;
     private final OnLoadStartedHelper mOnLoadStartedHelper;
+    private final OnReceivedHttpAuthRequestHelper mOnReceivedHttpAuthRequestHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -145,6 +160,7 @@ class TestHelperBridge {
         mOnTitleUpdatedHelper = new OnTitleUpdatedHelper();
         mShouldInterceptLoadRequestHelper = new ShouldInterceptLoadRequestHelper();
         mOnLoadStartedHelper = new OnLoadStartedHelper();
+        mOnReceivedHttpAuthRequestHelper = new OnReceivedHttpAuthRequestHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -173,6 +189,10 @@ class TestHelperBridge {
 
     public OnLoadStartedHelper getOnLoadStartedHelper() {
         return mOnLoadStartedHelper;
+    }
+
+    public OnReceivedHttpAuthRequestHelper getOnReceivedHttpAuthRequestHelper() {
+        return mOnReceivedHttpAuthRequestHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -204,5 +224,9 @@ class TestHelperBridge {
 
     public void onLoadStarted(String url) {
         mOnLoadStartedHelper.notifyCalled(url);
+    }
+
+    public void onReceivedHttpAuthRequest(String host) {
+        mOnReceivedHttpAuthRequestHelper.notifyCalled(host);
     }
 }
