@@ -297,6 +297,12 @@ public class XWalkViewShellActivity extends FragmentActivity
                 }
                 mUrlTextView.setText(mActiveView.getUrl());
             }
+
+            @Override
+            public void onLoadFinished(XWalkView view, String url) {
+                if (view != mActiveView) return;
+                mSectionsPagerAdapter.setPageTitle(view, view.getTitle());
+            }
         });
 
         xwalkView.setUIClient(new XWalkUIClient(xwalkView) {
