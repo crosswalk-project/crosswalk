@@ -1,5 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2015 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,15 +17,17 @@ import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.xwview.test.util.CommonResources;
 
 /**
- * Test suite for Navigate().
+ * Test suite for OnLoadFinished().
  */
-public class NavigateTest extends XWalkViewTestBase {
+public class OnLoadFinishedTest extends XWalkViewTestBase {
     private TestWebServer mWebServer;
+    private TestHelperBridge.OnLoadFinishedHelper mOnLoadFinishedHelper;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         mWebServer = TestWebServer.start();
+        mOnLoadFinishedHelper = mTestHelperBridge.getOnLoadFinishedHelper();
     }
 
     @Override
@@ -42,8 +44,8 @@ public class NavigateTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"Navigate"})
-    public void testNavigate() throws Throwable {
+    @Feature({"OnLoadFinished"})
+    public void testOnLoadFinished() throws Throwable {
         String path = "/test.html";
         String pageContent = CommonResources.makeHtmlPageFrom("<title>Test</title>",
                 "<div> The title is: Test </div>");
@@ -51,16 +53,23 @@ public class NavigateTest extends XWalkViewTestBase {
         final String firstTitle = "Test";
         final String secondUrl = "file:///android_asset/www/index.html";
         final String secondTitle ="Crosswalk Sample Application";
+        int count = 0;
 
         loadUrlSync(firstUrl);
         loadUrlSync(secondUrl);
         assertEquals(secondUrl, getUrlOnUiThread());
         assertEquals(secondTitle, getTitleOnUiThread());
-        goBackSync();
-        assertEquals(firstUrl, getUrlOnUiThread());
+
+        count = mOnLoadFinishedHelper.getCallCount();
+        goBackAsync();
+        mOnLoadFinishedHelper.waitForCallback(count);
+        assertEquals(firstUrl, mOnLoadFinishedHelper.getUrl());
         assertEquals(firstTitle, getTitleOnUiThread());
-        goForwardSync();
-        assertEquals(secondUrl, getUrlOnUiThread());
+
+        count = mOnLoadFinishedHelper.getCallCount();
+        goForwardAsync();
+        mOnLoadFinishedHelper.waitForCallback(count);
+        assertEquals(secondUrl, mOnLoadFinishedHelper.getUrl());
         assertEquals(secondTitle, getTitleOnUiThread());
     }
 }
