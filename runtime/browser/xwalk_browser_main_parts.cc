@@ -27,6 +27,9 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#if defined(USE_GTK_FILE_PICKER)
+#include "xwalk/runtime/browser/ui/gtk/gtk2_ui.h"
+#endif
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -129,6 +132,9 @@ void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 void XWalkBrowserMainParts::PreEarlyInitialization() {
 #if !defined(OS_CHROMEOS) && defined(USE_AURA) && defined(OS_LINUX)
   ui::InitializeInputMethodForTesting();
+#if defined(USE_GTK_FILE_PICKER)
+  ui::LinuxShellDialog::SetInstance(Gtk2Dialogs());
+#endif
 #endif
 }
 

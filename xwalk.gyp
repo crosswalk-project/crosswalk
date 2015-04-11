@@ -4,6 +4,7 @@
     'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'use_libnotify%': 0,
+    'use_gtk_file_picker%': 0,
     'conditions': [
       ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
@@ -416,6 +417,18 @@
             'runtime/browser/linux/xwalk_notification_manager.cc',
             'runtime/browser/linux/xwalk_notification_manager.h',
           ]
+        }],
+        ['use_gtk_file_picker==1', {
+          'defines': ['USE_GTK_FILE_PICKER'],
+          'dependencies': [
+            'build/system.gyp:gtk_file_picker',
+          ],
+          'sources': [
+            'runtime/browser/ui/gtk/gtk2_ui.cc',
+            'runtime/browser/ui/gtk/gtk2_ui.h',
+            'runtime/browser/ui/gtk/select_file_dialog_gtk2.cc',
+            'runtime/browser/ui/gtk/select_file_dialog_gtk2.h',
+          ],
         }],
         ['disable_nacl==0', {
             'conditions': [

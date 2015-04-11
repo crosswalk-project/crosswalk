@@ -11,6 +11,28 @@
   },
   'targets' : [
     {
+      'target_name': 'gtk_file_picker',
+      'type': 'none',
+      'conditions': [
+        ['building_crosswalk_bin==1', {
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags gtk+-2.0)',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other gtk+-2.0)',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l gtk+-2.0)',
+            ],
+          },
+        },
+       ],
+      ],
+    },
+    {
       'target_name': 'gio',
       'type': 'none',
       'variables': {
