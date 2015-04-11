@@ -292,6 +292,21 @@ void Runtime::DidUpdateFaviconURL(const std::vector<FaviconURL>& candidates) {
           &Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
 }
 
+void Runtime::DidStartNavigationToPendingEntry(
+    const GURL& url,
+    content::NavigationController::ReloadType reload_type) {
+    std::string title;
+    if (ui_delegate_ &&
+        reload_type == content::NavigationController::NO_RELOAD) {
+      title = base::UTF16ToUTF8(
+          web_contents()->GetController().GetActiveEntry()->GetTitle());
+      if (title.empty())
+        ui_delegate_->UpdateTitle(base::UTF8ToUTF16("Untitled"));
+      else
+        ui_delegate_->UpdateTitle(base::UTF8ToUTF16(title));
+    }
+}
+
 void Runtime::DidDownloadFavicon(int id,
                                  int http_status_code,
                                  const GURL& image_url,

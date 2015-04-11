@@ -155,6 +155,10 @@ class Runtime : public content::WebContentsDelegate,
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
 
+  void DidStartNavigationToPendingEntry(
+      const GURL& url,
+      content::NavigationController::ReloadType reload_type) override;
+
   // Callback method for WebContents::DownloadImage.
   void DidDownloadFavicon(int id,
                           int http_status_code,
