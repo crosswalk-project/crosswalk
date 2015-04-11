@@ -396,6 +396,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                                 String contentDisposition,
                                 String mimeType,
                                 long contentLength) {
+        if (mDownloadListener != null) {
+            mDownloadListener.onDownloadStart(
+                    url, userAgent, contentDisposition, mimeType, contentLength);
+        }
     }
 
     @Override
