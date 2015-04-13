@@ -8,6 +8,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import org.chromium.base.test.util.Feature;
 
+import org.chromium.base.test.util.DisabledTest;
+
 /**
  * Test suite for OnRequestFocus().
  */
@@ -20,8 +22,12 @@ public class OnRequestFocusTest extends XWalkViewTestBase {
         mOnRequestFocusHelper = mTestHelperBridge.getOnRequestFocusHelper();
     }
 
+    /*
     @SmallTest
     @Feature({"OnRequestFocus"})
+    BUG XWALK-3863
+    */
+    @DisabledTest
     public void testOnRequestFocus() throws Throwable {
         final String url = "file:///android_asset/www/request_focus_main.html";
         int count = mOnRequestFocusHelper.getCallCount();
