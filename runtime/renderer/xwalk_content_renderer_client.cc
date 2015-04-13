@@ -165,13 +165,6 @@ void XWalkContentRendererClient::RenderViewCreated(
 #endif
 }
 
-void XWalkContentRendererClient::DidCreateScriptContext(
-    blink::WebLocalFrame* frame, v8::Handle<v8::Context> context,
-    int extension_group, int world_id) {
-  if (extension_controller_)
-    extension_controller_->DidCreateScriptContext(frame, context);
-}
-
 void XWalkContentRendererClient::DidCreateModuleSystem(
     extensions::XWalkModuleSystem* module_system) {
   scoped_ptr<extensions::XWalkNativeModule> app_module(

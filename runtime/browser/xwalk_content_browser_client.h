@@ -12,7 +12,6 @@
 #include "base/files/scoped_file.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
-#include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate.h"
 
 namespace content {
@@ -98,18 +97,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   content::PlatformNotificationService* GetPlatformNotificationService()
       override;
 
-  void RequestPermission(
-      content::PermissionType permission,
-      content::WebContents* web_contents,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      const base::Callback<void(content::PermissionStatus)>& result_callback) override;
-  void CancelPermissionRequest(
-      content::PermissionType permission,
-      content::WebContents* web_contents,
-      int bridge_id,
-      const GURL& requesting_frame) override;
 #if !defined(OS_ANDROID)
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
@@ -175,8 +162,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   base::ScopedFD v8_snapshot_fd_;
 #endif
 
-  scoped_refptr<RuntimeGeolocationPermissionContext>
-    geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;
   XWalkBrowserContext* browser_context_;
 

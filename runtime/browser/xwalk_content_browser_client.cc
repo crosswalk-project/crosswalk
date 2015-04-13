@@ -83,13 +83,6 @@ namespace {
 // The application-wide singleton of ContentBrowserClient impl.
 XWalkContentBrowserClient* g_browser_client = nullptr;
 
-void CallbackPermisisonStatusWrapper(
-    const base::Callback<void(content::PermissionStatus)>& callback,
-    bool allowed) {
-  callback.Run(allowed ? content::PERMISSION_STATUS_GRANTED
-                       : content::PERMISSION_STATUS_DENIED);
-}
-
 }  // namespace
 
 // static
@@ -289,52 +282,6 @@ void XWalkContentBrowserClient::AllowCertificateError(
 content::PlatformNotificationService*
 XWalkContentBrowserClient::GetPlatformNotificationService() {
   return XWalkPlatformNotificationService::GetInstance();
-}
-
-void XWalkContentBrowserClient::RequestPermission(
-    content::PermissionType permission,
-    content::WebContents* web_contents,
-    int bridge_id,
-    const GURL& requesting_frame,
-    bool user_gesture,
-    const base::Callback<void(content::PermissionStatus)>& result_callback) {
-  switch (permission) {
-    case content::PERMISSION_GEOLOCATION:
-#if defined(OS_ANDROID) || defined(OS_TIZEN)
-    if (!geolocation_permission_context_.get()) {
-      geolocation_permission_context_ =
-        new RuntimeGeolocationPermissionContext();
-    }
-    geolocation_permission_context_->RequestGeolocationPermission(
-        web_contents,
-        requesting_frame,
-        base::Bind(&CallbackPermisisonStatusWrapper, result_callback));
-#else
-      result_callback.Run(content::PERMISSION_STATUS_DENIED);
-#endif
-      break;
-    case content::PERMISSION_NOTIFICATIONS:
-    default:
-      break;
-    }
-}
-
-void XWalkContentBrowserClient::CancelPermissionRequest(
-    content::PermissionType permission,
-    content::WebContents* web_contents,
-    int bridge_id,
-    const GURL& requesting_frame) {
-  switch (permission) {
-    case content::PERMISSION_GEOLOCATION:
-#if defined(OS_ANDROID) || defined(OS_TIZEN)
-      geolocation_permission_context_->CancelGeolocationPermissionRequest(
-          web_contents, requesting_frame);
-#endif
-      break;
-    case content::PERMISSION_NOTIFICATIONS:
-    default:
-      break;
-  }
 }
 
 void XWalkContentBrowserClient::DidCreatePpapiPlugin(

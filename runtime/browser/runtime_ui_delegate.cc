@@ -7,6 +7,10 @@
 #include "ui/gfx/image/image.h"
 #include "xwalk/runtime/browser/runtime.h"
 
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+#include "xwalk/runtime/browser/runtime_ui_delegate_desktop.h"
+#endif
+
 namespace xwalk {
 // FIXME : Need to figure out what code paths are used by Android and not
 // compile the unneeded files.
