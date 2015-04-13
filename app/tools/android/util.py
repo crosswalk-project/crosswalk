@@ -27,10 +27,6 @@ def CleanDir(path):
     shutil.rmtree(path)
 
 
-def AllArchitectures():
-  return ("x86", "x86_64", "arm")
-
-
 def RunCommand(command, verbose=False, shell=False):
   """Runs the command list, print the output, and propagate its result."""
   proc = subprocess.Popen(command, stdout=subprocess.PIPE,
