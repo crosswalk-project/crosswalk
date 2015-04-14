@@ -24,7 +24,7 @@
 %define _binary_payload w3.gzdio
 
 Name:           crosswalk-libs
-Version:        13.42.319.5
+Version:        13.42.319.6
 Release:        0
 Summary:        Chromium-based app runtime, private libraries
 License:        (BSD-3-Clause and LGPL-2.1+)
