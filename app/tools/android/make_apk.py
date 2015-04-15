@@ -23,7 +23,7 @@ from customize import VerifyPackageName, CustomizeAll, \
                       ParseParameterForCompressor, CustomizeManifest
 from extension_manager import GetExtensionList, GetExtensionStatus
 from handle_permissions import permission_mapping_table
-from util import AllArchitectures, CleanDir, GetVersion, RunCommand, \
+from util import CleanDir, GetVersion, RunCommand, \
                  CreateAndCopyDir, GetBuildDir
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
@@ -32,6 +32,22 @@ from manifest_json_parser import ManifestJsonParser
 NATIVE_LIBRARY = 'libxwalkcore.so'
 EMBEDDED_LIBRARY = 'xwalk_core_library'
 SHARED_LIBRARY = 'xwalk_shared_library'
+
+# FIXME(rakuco): Only ALL_ARCHITECTURES should exist. We keep these two
+# separate lists because SUPPORTED_ARCHITECTURES contains the architectures
+# for which we provide official Crosswalk downloads. We do not want to
+# prevent users from providing APKs for other architectures if they build
+# Crosswalk themselves though.
+SUPPORTED_ARCHITECTURES = (
+  'arm',
+  'x86',
+)
+ALL_ARCHITECTURES = (
+  'arm',
+  'arm64',
+  'x86',
+  'x86_64',
+)
 
 
 def ConvertArchNameToArchFolder(arch):
@@ -416,6 +432,7 @@ def Execution(options, app_info):
   shutil.copyfile(src_file, dst_file)
   print(' (Location: %s)' % dst_file)
 
+
 def PrintPackageInfo(options, name, packaged_archs):
   package_name_version = os.path.join(options.target_dir, name)
   if options.app_version:
@@ -428,22 +445,19 @@ def PrintPackageInfo(options, name, packaged_archs):
            % (name, package_name_version))
     return
 
-  all_archs = set(AllArchitectures())
-
-  if len(packaged_archs) != len(all_archs):
-    missed_archs = all_archs - set(packaged_archs)
-    print ('\nNote: This APK will only work on %s-based Android devices.'
-           ' Consider building\nfor %s as well.' %
-           (', '.join(packaged_archs), ', '.join(missed_archs)))
-  else:
-    print ("\nApplication apk's were created for %d architectures (%s)." %
-           (len(all_archs), (','.join(all_archs))))
-    print ('If you submit this application to an application '
-           'store, please submit both\npackages. Instructions '
-           'for submitting multiple APKs to Google Play Store are\navailable '
-           'here:')
-    print (' https://software.intel.com/en-us/html5/articles/submitting'
-           '-multiple-crosswalk-apk-to-google-play-store')
+  print('\nApplication APKs were created for the following architectures:')
+  for arch in sorted(packaged_archs):
+    print(' * %s' % arch)
+  missing_architectures = set(SUPPORTED_ARCHITECTURES) - set(packaged_archs)
+  if missing_architectures:
+    print('Consider building for the following architectures as well:')
+    for arch in sorted(missing_architectures):
+      print(' * %s' % arch)
+  print ('If you submit this application to an application store, please '
+         'submit packages for all architectures. Instructions for submitting '
+         'multiple APKs to the Google Play Store are available here:')
+  print ('https://software.intel.com/en-us/html5/articles/submitting'
+         '-multiple-crosswalk-apk-to-google-play-store')
 
 
 def CheckSystemRequirements():
@@ -504,14 +518,11 @@ def MakeApk(options, app_info, manifest):
     else:
       # If the arch option is unspecified, all of available platform APKs
       # will be generated.
-      for arch in AllArchitectures():
+      for arch in ALL_ARCHITECTURES:
         if ConvertArchNameToArchFolder(arch) in available_archs:
           options.arch = arch
           Execution(options, app_info)
           packaged_archs.append(options.arch)
-        else:
-          print('Warning: failed to create package for arch "%s" '
-                'due to missing native library' % arch)
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
         sys.exit(13)
@@ -555,8 +566,8 @@ def main(argv):
                     default='embedded', help=info)
   info = ('The target architecture of the embedded runtime. Supported values: '
           '%s. If not specified, APKs for all available architectures will be '
-          'generated.' % ', '.join(AllArchitectures()))
-  parser.add_option('--arch', choices=AllArchitectures(), help=info)
+          'generated.' % ', '.join(ALL_ARCHITECTURES))
+  parser.add_option('--arch', choices=ALL_ARCHITECTURES, help=info)
   group = optparse.OptionGroup(parser, 'Application Source Options',
       'This packaging tool supports 3 kinds of web application source: '
       '1) XPK package; 2) manifest.json; 3) various command line options, '
@@ -796,4 +807,3 @@ if __name__ == '__main__':
     sys.exit(main(sys.argv))
   except KeyboardInterrupt:
     print('')
-
