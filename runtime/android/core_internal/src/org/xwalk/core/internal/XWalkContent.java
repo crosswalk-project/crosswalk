@@ -315,7 +315,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentsClientBridge.setXWalkClient(client);
     }
 
-    public void setDownloadListener(DownloadListener listener) {
+    public void setDownloadListener(XWalkDownloadListenerInternal listener) {
         if (mNativeContent == 0) return;
         mContentsClientBridge.setDownloadListener(listener);
     }

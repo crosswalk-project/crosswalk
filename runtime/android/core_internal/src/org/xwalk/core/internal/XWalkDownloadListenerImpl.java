@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.xwalk.core.internal.AndroidProtocolHandler;
-import org.xwalk.core.internal.DownloadListener;
 import org.xwalk.core.internal.R;
+import org.xwalk.core.internal.XWalkDownloadListenerInternal;
 
-class XWalkDownloadListenerImpl implements DownloadListener {
+class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
     private static String DOWNLOAD_START_TOAST;
     private static String DOWNLOAD_NO_PERMISSION_TOAST;
     private static String DOWNLOAD_ALREADY_EXISTS_TOAST;
@@ -36,6 +36,7 @@ class XWalkDownloadListenerImpl implements DownloadListener {
     private Context mContext;
 
     public XWalkDownloadListenerImpl(Context context) {
+        super(context);
         mContext = context;
 
         DOWNLOAD_START_TOAST = mContext.getString(R.string.download_start_toast);

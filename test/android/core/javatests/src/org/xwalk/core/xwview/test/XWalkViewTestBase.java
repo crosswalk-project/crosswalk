@@ -28,6 +28,7 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 
+import org.xwalk.core.XWalkDownloadListener;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
@@ -161,6 +162,30 @@ public class XWalkViewTestBase
         public TestXWalkResourceClient() {
             super(mTestHelperBridge);
         }
+    }
+
+    class TestXWalkDownloadListener extends XWalkDownloadListener {
+        public TestXWalkDownloadListener(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onDownloadStart(String url, String userAgent,
+                String contentDisposition, String mimetype, long contentLength) {
+            mTestHelperBridge.onDownloadStart(url, userAgent, contentDisposition,
+                    mimetype, contentLength);
+        }
+    }
+
+    void setDownloadListener() {
+        final Context context = getActivity();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TestXWalkDownloadListener listener = new TestXWalkDownloadListener(context);
+                getXWalkView().setDownloadListener(listener);
+            }
+        });
     }
 
     void setUIClient(final XWalkUIClient client) {
