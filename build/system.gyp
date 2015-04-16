@@ -265,6 +265,32 @@
           ],
         }
       ],  # targets
+    }, {  # tizen == 0
+      'targets': [
+        {
+          'target_name': 'libnotify',
+          'type': 'none',
+          'conditions': [
+            ['building_crosswalk_bin==1', {
+              'direct_dependent_settings': {
+                'defines': ['USE_LIBNOTIFY=1'],
+                'cflags': [
+                  '<!@(pkg-config --cflags libnotify)',
+                ],
+              },
+              'link_settings': {
+                'ldflags': [
+                  '<!@(pkg-config --libs-only-L --libs-only-other libnotify)',
+                ],
+                'libraries': [
+                  '<!@(pkg-config --libs-only-l libnotify)',
+                ],
+              },
+            },
+           ],
+          ],
+        },
+      ],
     }],
   ],  # conditions
 }
