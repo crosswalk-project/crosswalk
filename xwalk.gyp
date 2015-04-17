@@ -3,7 +3,6 @@
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
-    'use_libnotify%': 0,
     'conditions': [
       ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
@@ -363,6 +362,15 @@
           # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
           'msvs_disabled_warnings': [ 4267, ],
         }],  # OS=="win"
+        ['OS=="linux" and tizen!=1', {
+          'dependencies': [
+            'build/system.gyp:libnotify',
+          ],
+          'sources': [
+            'runtime/browser/linux/xwalk_notification_manager.cc',
+            'runtime/browser/linux/xwalk_notification_manager.h',
+          ]
+        }],  # OS=="linux" and tizen!=1
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:fontconfig',
@@ -400,18 +408,6 @@
             '../ui/aura/aura.gyp:aura',
             '../ui/base/ime/ui_base_ime.gyp:ui_base_ime',
           ],
-        }],
-        ['OS=="linux" and use_libnotify==1', {
-          'defines': ['USE_LIBNOTIFY=1'],
-          'link_settings': {
-            'libraries': [
-              '<!@(pkg-config --libs libnotify)',
-            ],
-          },
-          'sources': [
-            'runtime/browser/linux/xwalk_notification_manager.cc',
-            'runtime/browser/linux/xwalk_notification_manager.h',
-          ]
         }],
         ['disable_nacl==0', {
             'conditions': [
