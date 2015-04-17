@@ -8,8 +8,6 @@ import java.lang.reflect.Field;
 import java.util.concurrent.RejectedExecutionException;
 
 class ReflectField {
-    private ReflectExceptionHandler mHandler;
-
     private Object mInstance;
     private Class<?> mClass;
     private String mName;
@@ -18,17 +16,15 @@ class ReflectField {
     public ReflectField() {
     }
 
-    public ReflectField(ReflectExceptionHandler handler, Object instance, String name) {
-        init(handler, instance, null, name);
+    public ReflectField(Object instance, String name) {
+        init(instance, null, name);
     }
 
-    public ReflectField(ReflectExceptionHandler handler, Class<?> clazz, String name) {
-        init(handler, null, clazz, name);
+    public ReflectField(Class<?> clazz, String name) {
+        init(null, clazz, name);
     }
 
-    public boolean init(ReflectExceptionHandler handler,
-            Object instance, Class<?> clazz, String name) {
-        mHandler = handler;
+    public boolean init(Object instance, Class<?> clazz, String name) {
         mInstance = instance;
         mClass = clazz != null ? clazz : (instance != null ? instance.getClass() : null);
         mName = name;
@@ -50,20 +46,18 @@ class ReflectField {
 
     public Object get() {
         if (mField == null) {
-            handleException(new UnsupportedOperationException(toString()));
-            return null;
+            throw new UnsupportedOperationException(toString());
         }
 
         try {
             return mField.get(mInstance);
         } catch (IllegalAccessException | NullPointerException e) {
-            handleException(new RejectedExecutionException(e));
+            throw new RejectedExecutionException(e);
         } catch (IllegalArgumentException e) {
-            handleException(e);
+            throw e;
         } catch (ExceptionInInitializerError e) {
-            handleException(new RuntimeException(e));
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public boolean isNull() {
@@ -85,11 +79,5 @@ class ReflectField {
 
     public Object getInstance() {
         return mInstance;
-    }
-
-    private void handleException(RuntimeException exception) {
-        if (mHandler == null || !mHandler.handleException(exception)) {
-            throw exception;
-        }
     }
 }

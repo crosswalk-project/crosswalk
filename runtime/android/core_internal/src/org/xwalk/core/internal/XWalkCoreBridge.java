@@ -6,18 +6,14 @@ package org.xwalk.core.internal;
 
 import android.content.Context;
 
-import junit.framework.Assert;
-
-class XWalkCoreBridge implements ReflectExceptionHandler {
-    public static final String WRAPPER_PACKAGE = "org.xwalk.core";
-    public static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
+class XWalkCoreBridge {
+    private static final String WRAPPER_PACKAGE = "org.xwalk.core";
+    private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
 
     private static XWalkCoreBridge sInstance;
 
-    private Context mContext;
-    private Object mWrapper;
+    private Context mBridgeContext;
     private ClassLoader mWrapperLoader;
-    private ClassLoader mBridgeLoader;
 
     public static XWalkCoreBridge getInstance() {
         return sInstance;
@@ -27,36 +23,24 @@ class XWalkCoreBridge implements ReflectExceptionHandler {
         sInstance = new XWalkCoreBridge(context, wrapper);
     }
 
-    public static void reset(Object object) {
-        sInstance = (XWalkCoreBridge) object;
-    }
-
     private XWalkCoreBridge(Context context, Object wrapper) {
-        mContext = context;
-        mWrapper = wrapper;
+        mBridgeContext = context;
         mWrapperLoader = wrapper.getClass().getClassLoader();
-        mBridgeLoader = XWalkCoreBridge.class.getClassLoader();
-        if (context != null) mBridgeLoader = context.getClassLoader();
 
-        try {
-            Class<?> javascriptInterface = getWrapperClass("JavascriptInterface");
-            Class<?> xwalkContent = getBridgeClass("XWalkContent");
-
-            ReflectMethod method = new ReflectMethod(null, xwalkContent,
-                    "setJavascriptInterfaceClass", javascriptInterface.getClass());
-            method.invoke(javascriptInterface);
-        } catch (RuntimeException e) {
-            Assert.fail("setJavascriptInterfaceClass failed");
-        }
+        Class<?> xwalkContent = getBridgeClass("XWalkContent");
+        Class<?> javascriptInterface = getWrapperClass("JavascriptInterface");
+        ReflectMethod method = new ReflectMethod(xwalkContent,
+                "setJavascriptInterfaceClass", javascriptInterface.getClass());
+        method.invoke(javascriptInterface);
     }
 
     public Context getContext() {
-        return mContext;
+        return mBridgeContext;
     }
 
     public Object getBridgeObject(Object object) {
         try {
-            return new ReflectMethod(null, object, "getBridge").invoke();
+            return new ReflectMethod(object, "getBridge").invoke();
         } catch (RuntimeException e) {
         }
         return null;
@@ -72,20 +56,9 @@ class XWalkCoreBridge implements ReflectExceptionHandler {
 
     public Class<?> getBridgeClass(String name) {
         try {
-            return mBridgeLoader.loadClass(BRIDGE_PACKAGE + "." + name);
+            return XWalkCoreBridge.class.getClassLoader().loadClass(BRIDGE_PACKAGE + "." + name);
         } catch (ClassNotFoundException e) {
         }
         return null;
-    }
-
-    @Override
-    public boolean handleException(RuntimeException exception) {
-        try {
-            ReflectMethod method = new ReflectMethod(null,
-                    mWrapper, "handleException", RuntimeException.class);
-            return (boolean) method.invoke(exception);
-        } catch (RuntimeException e) {
-        }
-        return false;
     }
 }
