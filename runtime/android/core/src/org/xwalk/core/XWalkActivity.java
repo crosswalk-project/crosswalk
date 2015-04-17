@@ -8,11 +8,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
-import android.app.DownloadManager.Request;
-import android.app.DownloadManager.Query;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -24,192 +21,179 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 
-import java.lang.Thread;
-import java.util.LinkedList;
-
-import junit.framework.Assert;
-
-import org.xwalk.core.XWalkLibraryListener.LibraryStatus;
+import org.xwalk.core.XWalkLibraryInterface.DecompressionListener;
+import org.xwalk.core.XWalkLibraryInterface.DownloadListener;
+import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
 
 /**
- * XWalkActiviy is to support cross package resource loading.
- * It provides method to allow overriding getResources() behavior.
+ * <code>XWalkActivity</code> helps to execute all procedures for initializing the Crosswalk
+ * environment, and displays dialogs for interacting with the end-user if necessary. The
+ * activities that hold the {@link XWalkView} object might want to extend
+ * <code>XWalkActivity</code> to obtain this capability. For those activities, it’s important
+ * to override the abstract method {@link #onXWalkReady} that notifies the Crosswalk
+ * environment is ready.
+ *
+ * <p>In shared mode, the Crosswalk runtime library is not loaded yet at the moment the
+ * activity is created. So the developer can’t use embedding API in <code>onCreate()</code>
+ * as usual. All routines using embedding API should be inside {@link #onXWalkReady} or after
+ * {@link #onXWalkReady} is invoked.
  */
-public abstract class XWalkActivity extends Activity implements XWalkLibraryListener {
-    private static final String XWALK_APK_NAME = "XWalkRuntimeLib.apk";
-
-    private static final String XWALK_APK_MARKET_URL =
-            "market://details?id=" + XWalkCoreWrapper.XWALK_APK_PACKAGE;
-
+public abstract class XWalkActivity extends Activity {
+    private static final String XWALK_APK_MARKET_URL = "market://details?id=org.xwalk.core";
     private static final String TAG = "XWalkActivity";
 
-    private DownloadTask mDownloadTask;
+    private XWalkLibraryListener mLibraryListener;
     private Dialog mActiveDialog;
-    private XWalkCoreWrapper mCoreWrapper;
-
     private boolean mIsXWalkReady;
-    private boolean mIsVisible;
-    private LinkedList<Object> mReservedObjects;
-    private LinkedList<ReflectMethod> mReservedMethods;
     private String mXWalkApkDownloadUrl;
+
+    private static class XWalkLibraryListener
+            implements DecompressionListener, DownloadListener, InitializationListener {
+        XWalkActivity mXWalkActivity;
+
+        XWalkLibraryListener(XWalkActivity activity) {
+            mXWalkActivity = activity;
+        }
+
+        @Override
+        public void onDecompressionStarted() {
+            mXWalkActivity.showDialog(mXWalkActivity.getDecompressionProgressDialog());
+        }
+
+        @Override
+        public void onDecompressionCancelled() {
+            mXWalkActivity.dismissDialog();
+            mXWalkActivity.finish();
+        }
+
+        @Override
+        public void onDecompressionCompleted() {
+            mXWalkActivity.dismissDialog();
+            mXWalkActivity.initXWalkLibrary();
+        }
+
+        @Override
+        public void onDownloadStarted() {
+            mXWalkActivity.showDialog(mXWalkActivity.getDownloadProgressDialog());
+        }
+
+        @Override
+        public void onDownloadUpdated(int percentage) {
+            ProgressDialog dialog = (ProgressDialog) mXWalkActivity.mActiveDialog;
+            dialog.setIndeterminate(false);
+            dialog.setMax(100);
+            dialog.setProgress(percentage);
+        }
+
+        @Override
+        public void onDownloadCancelled() {
+            mXWalkActivity.dismissDialog();
+            mXWalkActivity.finish();
+        }
+
+        @Override
+        public void onDownloadCompleted(Uri uri) {
+            mXWalkActivity.dismissDialog();
+
+            Log.d(TAG, "Install the Crosswalk library, " + uri.toString());
+            Intent install = new Intent(Intent.ACTION_VIEW);
+            install.setDataAndType(uri, "application/vnd.android.package-archive");
+            mXWalkActivity.startActivity(install);
+        }
+
+        @Override
+        public void onDownloadFailed(int status, int error) {
+            mXWalkActivity.dismissDialog();
+
+            String errMsg = null;
+            if (status == DownloadManager.STATUS_FAILED) {
+                if (error == DownloadManager.ERROR_DEVICE_NOT_FOUND) {
+                    errMsg = mXWalkActivity.getString(R.string.download_failed_device_not_found) ;
+                } else if (error == DownloadManager.ERROR_INSUFFICIENT_SPACE) {
+                    errMsg = mXWalkActivity.getString(R.string.download_failed_insufficient_space);
+                } else {
+                    errMsg = mXWalkActivity.getString(R.string.download_failed_message);
+                }
+            } else if (status == DownloadManager.STATUS_PAUSED) {
+                errMsg = mXWalkActivity.getString(R.string.download_failed_time_out);
+            }
+
+            AlertDialog dialog = mXWalkActivity.getDownloadFailedDialog();
+            dialog.setMessage(errMsg);
+            mXWalkActivity.showDialog(dialog);
+        }
+
+        @Override
+        public void onInitializationStarted() {
+        }
+
+        @Override
+        public void onInitializationCompleted() {
+            mXWalkActivity.mIsXWalkReady = true;
+            mXWalkActivity.onXWalkReady();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDownloadTask = null;
-        mActiveDialog = null;
-        mCoreWrapper = null;
-
-        mIsXWalkReady = false;
-        mIsVisible = false;
-        mReservedObjects = new LinkedList<Object>();
-        mReservedMethods = new LinkedList<ReflectMethod>();
-
-        XWalkCoreWrapper.reset(null, this);
+        mLibraryListener = new XWalkLibraryListener(this);
+        XWalkLibraryLoader.prepareToInit();
+        XWalkLibraryLoader.startDecompression(mLibraryListener, this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mIsVisible = true;
-        XWalkCoreWrapper.reset(mCoreWrapper, this);
-        if (!isXWalkReady()) XWalkCoreWrapper.check();
+        if (!mIsXWalkReady) initXWalkLibrary();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mIsVisible = false;
-    }
-
+    /**
+     * Returns the Resource instance comes from the application context
+     */
     @Override
     public Resources getResources() {
         return getApplicationContext().getResources();
     }
 
-    @Override
-    public final void onObjectInitFailed(Object object) {
-        Log.d(TAG, "Reserve object: " + object.getClass());
-        mReservedObjects.add(object);
-    }
-
-    @Override
-    public final void onMethodCallMissed(ReflectMethod method) {
-        Log.d(TAG, "Reserve method: " + method.toString());
-        mReservedMethods.add(method);
-    }
-
-    @Override
-    public final void onXWalkLibraryStartupError(LibraryStatus status, Throwable e) {
-        onXWalkStartupError(status, e);
-    }
-
-    @Override
-    public final void onXWalkLibraryRuntimeError(LibraryStatus status, Throwable e) {
-        onXWalkRuntimeError(status, e);
-    }
-
-    @Override
-    public final void onXWalkLibraryCancelled() {
-        finish();
-    }
-
-    @Override
-    public final void onXWalkLibraryMatched() {
-        Log.d(TAG, "XWalk library matched");
-        XWalkCoreWrapper.init();
-        mCoreWrapper = XWalkCoreWrapper.getInstance();
-
-        for (Object object = mReservedObjects.poll(); object != null;
-                object = mReservedObjects.poll()) {
-            Log.d(TAG, "Init reserved objects: " + object.getClass());
-            try {
-                new ReflectMethod(null, object, "reflectionInit").invoke();
-            } catch (RuntimeException e) {
-                Assert.fail("Reflect object initialization failed");
-            }
-        }
-
-        for (ReflectMethod method = mReservedMethods.poll(); method != null;
-                method = mReservedMethods.poll()) {
-            Log.d(TAG, "Call reserved methods: " + method);
-            Object[] args = method.getArguments();
-            if (args != null) {
-                for (int i = 0; i < args.length; ++i) {
-                    if (args[i] instanceof ReflectMethod) {
-                        args[i] = ((ReflectMethod) args[i]).invokeWithArguments();
-                    }
-                }
-            }
-            method.invokeWithArguments();
-        }
-
-        mIsXWalkReady = true;
-        onXWalkReady();
-    }
-
-    protected abstract void onXWalkReady();
-
-    protected void onXWalkStartupError(LibraryStatus status, Throwable e) {
-        Log.d(TAG, "XWalk startup error: " + status);
-        e.printStackTrace();
-
-        AlertDialog dialog = null;
-        if (status == LibraryStatus.NOT_FOUND) {
-            dialog = getStartupNotFoundDialog();
-        } else if (status == LibraryStatus.SIGNATURE_CHECK_ERROR) {
-            dialog = getStartupVerifyErrorDialog();
-        } else if (status == LibraryStatus.OLDER_VERSION) {
-            dialog = getStartupOlderVersionDialog();
-        } else if (status == LibraryStatus.NEWER_VERSION) {
-            dialog = getStartupNewerVersionDialog();
-        } else if  (status == LibraryStatus.COMPRESSED) {
-            dialog = getStartupDecompressDialog();
-        }
-        showDialog(dialog);
-    }
-
-    protected void onXWalkRuntimeError(LibraryStatus status, Throwable e) {
-        Log.d(TAG, "XWalk runtime error: " + status);
-        e.printStackTrace();
-        Assert.fail();
-    }
-
+    /**
+     * Returns true if the Crosswalk environment is ready, false otherwise
+     */
     protected boolean isXWalkReady() {
         return mIsXWalkReady;
     }
 
-    protected boolean isSharedMode() {
-        return mCoreWrapper != null && mCoreWrapper.isSharedMode();
-    }
+    /**
+     * This method will be invoked when the Crosswalk environment is ready
+     */
+    protected abstract void onXWalkReady();
 
-    protected int getSdkVersion() {
-        return XWalkSdkVersion.SDK_VERSION;
-    }
+    private void initXWalkLibrary() {
+        int status = XWalkLibraryLoader.initXWalkLibrary(this);
+        if (status == XWalkLibraryInterface.STATUS_MATCH) {
+            if (mActiveDialog != null) dismissDialog();
+            XWalkLibraryLoader.startInitialization(mLibraryListener);
+            return;
+        }
 
-    protected ProgressDialog buildProgressDialog() {
-        return new ProgressDialog(this);
-    }
+        if (mActiveDialog != null) return;
 
-    protected AlertDialog buildAlertDialog() {
-        return new AlertDialog.Builder(this).create();
-    }
-
-    protected void showDialog(Dialog dialog) {
-        mActiveDialog = dialog;
-        mActiveDialog.show();
-    }
-
-    protected void dismissDialog() {
-        mActiveDialog.dismiss();
+        if (status == XWalkLibraryInterface.STATUS_NOT_FOUND) {
+            showDialog(getStartupNotFoundDialog());
+        } else if (status == XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH) {
+            showDialog(getStartupArchitectureMismatchDialog());
+        } else if (status == XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR) {
+            showDialog(getStartupSignatureCheckErrorDialog());
+        } else if (status == XWalkLibraryInterface.STATUS_OLDER_VERSION) {
+            showDialog(getStartupOlderVersionDialog());
+        } else if (status == XWalkLibraryInterface.STATUS_NEWER_VERSION) {
+            showDialog(getStartupNewerVersionDialog());
+        }
     }
 
     private void getXWalkLibrary() {
@@ -236,7 +220,6 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 startActivity(intent.setData(Uri.parse(XWALK_APK_MARKET_URL)));
-                showDialog(getMarketProgressDialog());
             } catch (ActivityNotFoundException e) {
                 Log.d(TAG, "Market open failed");
                 showDialog(getMarketOpenFailedDialog());
@@ -245,409 +228,186 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
     }
 
     private void downloadXWalkLibrary() {
-        showDialog(getDownloadProgressDialog());
-
-        mDownloadTask = new DownloadTask(this, mXWalkApkDownloadUrl);
-        mDownloadTask.execute();
+        XWalkLibraryLoader.startDownload(mLibraryListener, this, mXWalkApkDownloadUrl);
     }
 
-    private void installXWalkLibrary(Uri uri) {
-        Log.d(TAG, "Install xwalk library, " + uri.toString());
-        Intent install = new Intent(Intent.ACTION_VIEW);
-        install.setDataAndType(uri, "application/vnd.android.package-archive");
-        startActivity(install);
+    private void showDialog(Dialog dialog) {
+        mActiveDialog = dialog;
+        mActiveDialog.show();
     }
 
-    private static class DownloadTask extends AsyncTask<Void, Integer, Integer> {
-        private static final int QUERY_INTERVAL_MS = 100;
-        private static final int MAX_PAUSED_COUNT = 6000; // 10 minutes
-        private static final int MAX_RUNNING_COUNT = 18000; // 30 minutes
+    private void dismissDialog() {
+        mActiveDialog.dismiss();
+        mActiveDialog = null;
+    }
 
-        private XWalkActivity mXWalkActivity;
-        private DownloadManager mDownloadManager;
-        private long mDownloadId;
-        private ProgressDialog mProgressDialog;
-        private String mDownloadUrl;
+    private ProgressDialog buildProgressDialog() {
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        return dialog;
+    }
 
-        DownloadTask(XWalkActivity activity, String url) {
-            super();
+    private AlertDialog buildAlertDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this).create();
+        dialog.setIcon(android.R.drawable.ic_dialog_alert);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        return dialog;
+    }
 
-            mXWalkActivity = activity;
-            mDownloadManager= (DownloadManager) activity.getSystemService(DOWNLOAD_SERVICE);
-            mDownloadId = -1;
-            mProgressDialog = (ProgressDialog) activity.mActiveDialog;
-            mDownloadUrl = url;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "Download started, " + mDownloadUrl);
-            Request request = new Request(Uri.parse(mDownloadUrl));
-            request.setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_DOWNLOADS, XWALK_APK_NAME);
-            mDownloadId = mDownloadManager.enqueue(request);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            Query query = new Query().setFilterById(mDownloadId);
-            int pausedCount = 0;
-            int runningCount = 0;
-
-            while (!isCancelled()) {
-                try {
-                    Thread.sleep(QUERY_INTERVAL_MS);
-                } catch (InterruptedException e) {
-                    break;
-                }
-
-                Cursor cursor = mDownloadManager.query(query);
-                if (cursor == null || !cursor.moveToFirst()) continue;
-
-                int totalIdx = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES);
-                int downloadIdx = cursor.getColumnIndex(
-                        DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR);
-                int totalSize = cursor.getInt(totalIdx);
-                int downloadSize = cursor.getInt(downloadIdx);
-                if (totalSize > 0) publishProgress(downloadSize, totalSize);
-
-                int statusIdx = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                int status = cursor.getInt(statusIdx);
-                if (status == DownloadManager.STATUS_FAILED ||
-                        status == DownloadManager.STATUS_SUCCESSFUL) {
-                    return status;
-                } else if (status == DownloadManager.STATUS_PAUSED) {
-                    if (++pausedCount == MAX_PAUSED_COUNT) return status;
-                } else if (status == DownloadManager.STATUS_RUNNING) {
-                    if (++runningCount == MAX_RUNNING_COUNT) return status;
-                }
-            }
-
-            return 0;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            Log.d(TAG, "Download progress: " + progress[0] + "/" + progress[1]);
-            mProgressDialog.setProgress(progress[0]);
-            mProgressDialog.setMax(progress[1]);
-            mProgressDialog.setIndeterminate(false);
-        }
-
-        @Override
-        protected void onCancelled(Integer result) {
-            Log.d(TAG, "Download cancelled");
-            mProgressDialog.dismiss();
-            mXWalkActivity.onXWalkLibraryCancelled();
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            mProgressDialog.dismiss();
-
-            if (result == DownloadManager.STATUS_SUCCESSFUL) {
-                Log.d(TAG, "Download finished");
-                Uri uri = mDownloadManager.getUriForDownloadedFile(mDownloadId);
-                mXWalkActivity.installXWalkLibrary(uri);
-                return;
-            }
-
-            String errMsg = mXWalkActivity.getString(R.string.download_failed_message);
-            if (result == DownloadManager.STATUS_FAILED) {
-                Query query = new Query().setFilterById(mDownloadId);
-                Cursor cursor = mDownloadManager.query(query);
-                if (cursor != null && cursor.moveToFirst()) {
-                    int reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-                    int reason = cursor.getInt(reasonIdx);
-                    if (reason == DownloadManager.ERROR_DEVICE_NOT_FOUND) {
-                        errMsg = mXWalkActivity.getString(
-                                R.string.download_failed_device_not_found) ;
-                    } else if (reason == DownloadManager.ERROR_INSUFFICIENT_SPACE) {
-                        errMsg = mXWalkActivity.getString(
-                                R.string.download_failed_insufficient_space);
+    private ProgressDialog getDecompressionProgressDialog() {
+        ProgressDialog dialog = buildProgressDialog();
+        dialog.setMessage(getString(R.string.decompression_progress_message));
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        XWalkLibraryLoader.cancelDecompression();
                     }
-                }
-            } else if (result == DownloadManager.STATUS_PAUSED) {
-            } else if (result == DownloadManager.STATUS_RUNNING) {
-                errMsg = mXWalkActivity.getString(R.string.download_failed_time_out);
-            }
-
-            Log.d(TAG, "Download failed, " + errMsg);
-            AlertDialog dialog = mXWalkActivity.getDownloadFailedDialog();
-            dialog.setMessage(errMsg);
-            mXWalkActivity.showDialog(dialog);
-        }
+                });
+        return dialog;
     }
 
     private ProgressDialog getDownloadProgressDialog() {
         ProgressDialog dialog = buildProgressDialog();
-
-        OnClickListener negativeListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                mDownloadTask.cancel(true);
-            }
-        };
-
         dialog.setMessage(getString(R.string.download_progress_message));
         dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        dialog.setIndeterminate(true);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.xwalk_cancel), negativeListener);
-        dialog.setCancelable(false);
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        XWalkLibraryLoader.cancelDownload();
+                    }
+                });
         return dialog;
     }
 
     private AlertDialog getDownloadFailedDialog() {
         AlertDialog dialog = buildAlertDialog();
-
-        OnClickListener positiveListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                downloadXWalkLibrary();
-            }
-        };
-        OnClickListener negativeListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
         dialog.setTitle(getString(R.string.download_failed_title));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.xwalk_retry), positiveListener);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.xwalk_cancel), negativeListener);
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    private ProgressDialog getMarketProgressDialog() {
-        ProgressDialog dialog = buildProgressDialog();
-
-        final BroadcastReceiver installReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Uri uri = intent.getData();
-                if (!uri.getEncodedSchemeSpecificPart().equals(
-                        XWalkCoreWrapper.XWALK_APK_PACKAGE)) {
-                    return;
-                }
-
-                Log.d(TAG, "XWalk library installed");
-                dismissDialog();
-                if (mIsVisible) XWalkCoreWrapper.check();
-            }
-        };
-
-        OnShowListener showListener = new OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-                filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-                filter.addDataScheme("package");
-                registerReceiver(installReceiver, filter);
-            }
-        };
-        OnDismissListener dismissListener = new OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                unregisterReceiver(installReceiver);
-            }
-        };
-        OnClickListener negativeListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setMessage(getString(R.string.market_progress_message));
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setIndeterminate(true);
-        dialog.setOnShowListener(showListener);
-        dialog.setOnDismissListener(dismissListener);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.xwalk_cancel), negativeListener);
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    private AlertDialog getStartupNotFoundDialog() {
-        AlertDialog dialog = buildAlertDialog();
-
-        OnClickListener positiveListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                getXWalkLibrary();
-            }
-        };
-
-        OnClickListener negativeListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
-        dialog.setTitle(getString(R.string.startup_not_found_title));
-        dialog.setMessage(getString(R.string.startup_not_found_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.get_crosswalk), positiveListener);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.xwalk_cancel), negativeListener);
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    private AlertDialog getStartupVerifyErrorDialog() {
-        AlertDialog dialog = buildAlertDialog();
-
-        OnClickListener negativeListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
-        dialog.setTitle(getString(R.string.startup_signature_check_error_title));
-        dialog.setMessage(getString(R.string.startup_signature_check_error_message));
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.xwalk_cancel), negativeListener);
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    private AlertDialog getStartupOlderVersionDialog() {
-        AlertDialog dialog = buildAlertDialog();
-
-        OnClickListener positiveListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                getXWalkLibrary();
-            }
-        };
-        OnClickListener negativeListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
-        dialog.setTitle(getString(R.string.startup_older_version_title));
-        dialog.setMessage(getString(R.string.startup_older_version_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.get_crosswalk), positiveListener);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.xwalk_cancel), negativeListener);
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    private AlertDialog getStartupNewerVersionDialog() {
-        AlertDialog dialog = buildAlertDialog();
-
-        OnClickListener positiveListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
-        dialog.setTitle(getString(R.string.startup_newer_version_title));
-        dialog.setMessage(getString(R.string.startup_newer_version_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.xwalk_cancel), positiveListener);
-        dialog.setCancelable(false);
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_retry),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        downloadXWalkLibrary();
+                    }
+                });
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
         return dialog;
     }
 
     private AlertDialog getMarketOpenFailedDialog() {
         AlertDialog dialog = buildAlertDialog();
-
-        OnClickListener positiveListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                onXWalkLibraryCancelled();
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
         dialog.setTitle(getString(R.string.market_open_failed_title));
         dialog.setMessage(getString(R.string.market_open_failed_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.xwalk_cancel), positiveListener);
-        dialog.setCancelable(false);
+
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
         return dialog;
     }
 
-    private AlertDialog getStartupDecompressDialog() {
+    private AlertDialog getStartupNotFoundDialog() {
         AlertDialog dialog = buildAlertDialog();
-
-        final DecompressTask decompressTask = new DecompressTask(this, dialog);
-        decompressTask.execute();
-
-        OnClickListener positiveListener = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                decompressTask.cancel(true);
-            }
-        };
-
-        dialog.setIcon(android.R.drawable.ic_dialog_alert);
-        dialog.setMessage(getString(R.string.decompress_library_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.xwalk_cancel), positiveListener);
-        dialog.setCancelable(false);
+        dialog.setTitle(getString(R.string.startup_not_found_title));
+        dialog.setMessage(getString(R.string.startup_not_found_message));
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.get_crosswalk),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        getXWalkLibrary();
+                    }
+                });
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
         return dialog;
     }
 
-    private static class DecompressTask extends AsyncTask<Void, Integer, Boolean> {
-        XWalkActivity mXWalkActivity;
-        AlertDialog mDialog;
+    private AlertDialog getStartupArchitectureMismatchDialog() {
+        AlertDialog dialog = buildAlertDialog();
+        dialog.setTitle(getString(R.string.startup_architecture_mismatch_title));
+        dialog.setMessage(getString(R.string.startup_architecture_mismatch_message));
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.get_crosswalk),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        getXWalkLibrary();
+                    }
+                });
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
+        return dialog;
+    }
 
-        DecompressTask(XWalkActivity activity, AlertDialog dialog) {
-            super();
-            mXWalkActivity = activity;
-            mDialog = dialog;
-        }
+    private AlertDialog getStartupSignatureCheckErrorDialog() {
+        AlertDialog dialog = buildAlertDialog();
+        dialog.setTitle(getString(R.string.startup_signature_check_error_title));
+        dialog.setMessage(getString(R.string.startup_signature_check_error_message));
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
+        return dialog;
+    }
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            boolean success = false;
-            try {
-                success = XWalkCoreWrapper.decompressXWalkLibrary();
-                // TODO: use publishProgress to update percentage.
-            } catch (Exception e) {
-                Log.w(TAG, "Decompress library failed: " + e.getMessage());
-            }
+    private AlertDialog getStartupOlderVersionDialog() {
+        AlertDialog dialog = buildAlertDialog();
+        dialog.setTitle(getString(R.string.startup_older_version_title));
+        dialog.setMessage(getString(R.string.startup_older_version_message));
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.get_crosswalk),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        getXWalkLibrary();
+                    }
+                });
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
+        return dialog;
+    }
 
-            return success;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            // TODO: update percentage.
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            Log.d(TAG, "Decompress completed");
-            mXWalkActivity.onXWalkLibraryMatched();
-            if (success) XWalkCoreWrapper.setLocalVersion(mXWalkActivity);
-            mDialog.dismiss();
-        }
-
-        @Override
-        protected void onCancelled(Boolean b) {
-            Log.d(TAG, "Decompress cancelled");
-            mXWalkActivity.finish();
-        }
+    private AlertDialog getStartupNewerVersionDialog() {
+        AlertDialog dialog = buildAlertDialog();
+        dialog.setTitle(getString(R.string.startup_newer_version_title));
+        dialog.setMessage(getString(R.string.startup_newer_version_message));
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_cancel),
+                new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                });
+        return dialog;
     }
 }

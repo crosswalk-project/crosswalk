@@ -36,8 +36,11 @@ import java.util.Date;
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
 import org.chromium.base.ApplicationStatus.ActivityStateListener;
+import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.content.browser.ContentViewCore;
+import org.chromium.net.NetworkChangeNotifier;
+
 import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
 
 /**
@@ -156,6 +159,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public static final int INPUT_FILE_REQUEST_CODE = 1;
     private static final String TAG = XWalkViewInternal.class.getSimpleName();
 
+    private static boolean sInitialized = false;
+
     private XWalkContent mContent;
     private Activity mActivity;
     private Context mContext;
@@ -195,7 +200,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         checkThreadSafety();
         mActivity = (Activity) context;
         mContext = getContext();
-        init(mContext, attrs);
+
+        init(getContext(), getActivity());
+        initXWalkContent(mContext, attrs);
     }
 
     /**
@@ -218,7 +225,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // Make sure mActivity is initialized before calling 'init' method.
         mActivity = activity;
         mContext = getContext();
-        init(mContext, null);
+
+        init(getContext(), getActivity());
+        initXWalkContent(mContext, null);
     }
 
     private static Context convertContext(Context context) {
@@ -235,6 +244,27 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             ret = new MixedContext(bridgeContext, context);
         }
         return ret;
+    }
+
+    private static void init(Context context, Activity activity) {
+        if (sInitialized) return;
+
+        // Initialize the ActivityStatus. This is needed and used by many internal
+        // features such as location provider to listen to activity status.
+        ApplicationStatusManager.init(activity.getApplication());
+
+        // Auto detect network connectivity state.
+        // setAutoDetectConnectivityState() need to be called before activity started.
+        NetworkChangeNotifier.init(activity);
+        NetworkChangeNotifier.setAutoDetectConnectivityState(true);
+
+        // We will miss activity onCreate() status in ApplicationStatusManager,
+        // informActivityStarted() will simulate these callbacks.
+        ApplicationStatusManager.informActivityStarted(activity);
+
+        XWalkViewDelegate.init(context);
+
+        sInitialized = true;
     }
 
     /**
@@ -267,92 +297,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.supplyContentsForPopup(newXWalkView == null ? null : newXWalkView.mContent);
     }
 
-    private void init(Context context, AttributeSet attrs) {
-        // Initialize chromium resources. Assign them the correct ids in
-        // xwalk core.
-        XWalkInternalResources.resetIds(context);
-
-        // Intialize library, paks and others.
-        try {
-            XWalkViewDelegate.init(this);
-            mActivityStateListener = new XWalkActivityStateListener(this);
-            ApplicationStatus.registerStateListenerForActivity(
-                    mActivityStateListener, getActivity());
-        } catch (Throwable e) {
-            // Try to find if there is UnsatisfiedLinkError in the cause chain of the met Throwable.
-            Throwable linkError = e;
-            while (true) {
-                if (linkError == null) throw new RuntimeException(e);
-                if (linkError instanceof UnsatisfiedLinkError) break;
-                if (linkError.getCause() == null ||
-                        linkError.getCause().equals(linkError)) {
-                    throw new RuntimeException(e);
-                }
-                linkError = linkError.getCause();
-            }
-            final UnsatisfiedLinkError err = (UnsatisfiedLinkError) linkError;
-            final Activity activity = getActivity();
-            final String packageName = context.getPackageName();
-            String missingArch = XWalkViewDelegate.isRunningOnIA() ? "Intel" : "ARM";
-            final String message =
-                    context.getString(R.string.cpu_arch_mismatch_message, missingArch);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.cpu_arch_mismatch_title)
-                    .setMessage(message)
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            activity.finish();
-                        }
-                    }).setPositiveButton(R.string.goto_store_button_label,
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            activity.startActivity(new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(PLAYSTORE_DETAIL_URI + packageName)));
-                            activity.finish();
-                        }
-                    }).setNeutralButton(R.string.report_feedback_button_label,
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ApplicationErrorReport report = new ApplicationErrorReport();
-                            report.type = ApplicationErrorReport.TYPE_CRASH;
-                            report.packageName = report.processName = packageName;
-
-                            ApplicationErrorReport.CrashInfo crash =
-                                    new ApplicationErrorReport.CrashInfo();
-                            crash.exceptionClassName = err.getClass().getSimpleName();
-                            crash.exceptionMessage = "CPU architecture mismatch";
-                            StringWriter writer = new StringWriter();
-                            PrintWriter print = new PrintWriter(writer);
-                            err.printStackTrace(print);
-                            crash.stackTrace = writer.toString();
-                            StackTraceElement stack = err.getStackTrace()[0];
-                            crash.throwClassName = stack.getClassName();
-                            crash.throwFileName = stack.getFileName();
-                            crash.throwLineNumber = stack.getLineNumber();
-                            crash.throwMethodName = stack.getMethodName();
-
-                            report.crashInfo = crash;
-                            report.systemApp = false;
-                            report.time = System.currentTimeMillis();
-
-                            Intent intent = new Intent(Intent.ACTION_APP_ERROR);
-                            intent.putExtra(Intent.EXTRA_BUG_REPORT, report);
-                            activity.startActivity(intent);
-                            activity.finish();
-                        }
-                    });
-            builder.create().show();
-            return;
-        }
-
-        initXWalkContent(context, attrs);
-    }
-
     private void initXWalkContent(Context context, AttributeSet attrs) {
+        mActivityStateListener = new XWalkActivityStateListener(this);
+        ApplicationStatus.registerStateListenerForActivity(
+            mActivityStateListener, getActivity());
+
         mIsHidden = false;
         mContent = new XWalkContent(context, attrs, this);
         addView(mContent,
@@ -411,7 +360,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param content the content for the web page/app. Could be empty.
      * @since 1.0
      */
-    @XWalkAPI(reservable = true)
+    @XWalkAPI
     public void load(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -430,7 +379,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param content the content for manifest.json.
      * @since 1.0
      */
-    @XWalkAPI(reservable = true)
+    @XWalkAPI
     public void loadAppFromManifest(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -519,7 +468,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param name the name injected in JavaScript.
      * @since 1.0
      */
-    @XWalkAPI(reservable = true)
+    @XWalkAPI
     public void addJavascriptInterface(Object object, String name) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -758,7 +707,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkUIClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI(reservable = true)
+    @XWalkAPI
     public void setUIClient(XWalkUIClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -771,7 +720,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkResourceClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI(reservable = true)
+    @XWalkAPI
     public void setResourceClient(XWalkResourceClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();

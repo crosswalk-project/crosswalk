@@ -32,7 +32,6 @@ REFLECTION_HERLPER = [
     'ReflectMethod.java',
     'ReflectField.java',
     'ReflectConstructor.java',
-    'ReflectExceptionHandler.java',
 ]
 
 WRAPPER_PACKAGE = 'org.xwalk.core'

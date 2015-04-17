@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.RejectedExecutionException;
 
 class ReflectMethod {
-    private ReflectExceptionHandler mHandler;
-
     private Object mInstance;
     private Class<?> mClass;
     private String mName;
@@ -21,19 +19,15 @@ class ReflectMethod {
     public ReflectMethod() {
     }
 
-    public ReflectMethod(ReflectExceptionHandler handler,
-            Object instance, String name, Class<?>... parameterTypes) {
-        init(handler, instance, null, name, parameterTypes);
+    public ReflectMethod(Object instance, String name, Class<?>... parameterTypes) {
+        init(instance, null, name, parameterTypes);
     }
 
-    public ReflectMethod(ReflectExceptionHandler handler,
-            Class<?> clazz, String name, Class<?>... parameterTypes) {
-        init(handler, null, clazz, name, parameterTypes);
+    public ReflectMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
+        init(null, clazz, name, parameterTypes);
     }
 
-    public boolean init(ReflectExceptionHandler handler,
-            Object instance, Class<?> clazz, String name, Class<?>... parameterTypes) {
-        mHandler = handler;
+    public boolean init(Object instance, Class<?> clazz, String name, Class<?>... parameterTypes) {
         mInstance = instance;
         mClass = clazz != null ? clazz : (instance != null ? instance.getClass() : null);
         mName = name;
@@ -60,20 +54,18 @@ class ReflectMethod {
 
     public Object invoke(Object... args) {
         if (mMethod == null) {
-            handleException(new UnsupportedOperationException(toString()));
-            return null;
+            throw new UnsupportedOperationException(toString());
         }
 
         try {
             return mMethod.invoke(mInstance, args);
         } catch (IllegalAccessException | NullPointerException e) {
-            handleException(new RejectedExecutionException(e));
+            throw new RejectedExecutionException(e);
         } catch (IllegalArgumentException e) {
-            handleException(e);
+            throw e;
         } catch (InvocationTargetException e) {
-            handleException(new RuntimeException(e.getCause()));
+            throw new RuntimeException(e.getCause());
         }
-        return null;
     }
 
     public boolean isNull() {
@@ -107,11 +99,5 @@ class ReflectMethod {
 
     public Object invokeWithArguments() {
         return invoke(mArguments);
-    }
-
-    private void handleException(RuntimeException exception) {
-        if (mHandler == null || !mHandler.handleException(exception)) {
-            throw exception;
-        }
     }
 }

@@ -5,7 +5,6 @@
 package org.xwalk.core;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -13,194 +12,158 @@ import android.content.pm.Signature;
 import android.util.Log;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
 
 import junit.framework.Assert;
 
-import org.xwalk.core.XWalkLibraryListener.LibraryStatus;
+/**
+ * The appropriate invocation order is:
+ * handlePreInit() -> initXWalkLibrary() -> initXWalkEnvironment() -> handlePostInit() -> over
+ */
+class XWalkCoreWrapper {
+    private static final String XWALK_APK_PACKAGE = "org.xwalk.core";
+    private static final String WRAPPER_PACKAGE = "org.xwalk.core";
+    private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
+    private static final String TAG = "XWalkLib";
 
-class XWalkCoreWrapper implements ReflectExceptionHandler {
-    public static final String XWALK_APK_PACKAGE = "org.xwalk.core";
-    public static final String WRAPPER_PACKAGE = "org.xwalk.core";
-    public static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
-
-    private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
-    private static XWalkLibraryListener sListener;
-
-    private static final String TAG = "XWalkActivity";
+    private static LinkedList<Object> sReservedObjects;
 
     private int mSdkVersion;
     private int mMinSdkVersion;
+    private int mCoreStatus;
 
-    private Object mCore;
-    private LibraryStatus mCoreStatus;
-    private ClassLoader mBridgeLoader;
+    private Context mWrapperContext;
     private Context mBridgeContext;
+    private ClassLoader mBridgeLoader;
 
     public static XWalkCoreWrapper getInstance() {
         return sInstance;
     }
 
+    /**
+     * This method must be invoked on the UI thread.
+     */
+    public static void handlePreInit() {
+        Log.d(TAG, "Prepare to init core wrapper");
+        sReservedObjects = new LinkedList<Object>();
+    }
+
+    public static void reserveReflectObject(Object object) {
+        Log.d(TAG, "Reserve object: " + object.getClass());
+        sReservedObjects.add(object);
+    }
+
+    /**
+     * This method must be invoked on the UI thread.
+     */
+    public static void handlePostInit() {
+        for (Object object = sReservedObjects.poll(); object != null;
+                object = sReservedObjects.poll()) {
+            Log.d(TAG, "Init reserved object: " + object.getClass());
+            new ReflectMethod(object, "reflectionInit").invoke();
+        }
+    }
+
+    /**
+     * This method must be invoked on the UI thread.
+     */
+    public static int initXWalkLibrary(Context context) {
+        if (sInstance != null) return sInstance.mCoreStatus;
+        Assert.assertNotNull(sReservedObjects);
+
+        Log.d(TAG, "Init core wrapper");
+        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(context, -1);
+        if (!provisionalInstance.findEmbeddedCore()) {
+            int status = provisionalInstance.mCoreStatus;
+
+            if (!provisionalInstance.findSharedCore()) {
+                if (provisionalInstance.mCoreStatus != XWalkLibraryInterface.STATUS_NOT_FOUND) {
+                    status = provisionalInstance.mCoreStatus;
+                }
+                Log.d(TAG, "core status: " + status);
+                return status;
+            }
+        }
+
+        sInstance = provisionalInstance;
+        sInstance.initXWalkCore();
+
+        if (sInstance.isSharedMode()) {
+            XWalkApplication application = XWalkApplication.getApplication();
+            if (application == null) Assert.fail("Must use or extend XWalkApplication");
+            application.addResource(sInstance.mBridgeContext.getResources());
+        }
+        Log.d(TAG, "Init core successfully");
+        return sInstance.mCoreStatus;
+    }
+
+    /**
+     * This method must be invoked on the UI thread.
+     */
     public static void initEmbeddedMode() {
-        if (sInstance != null || sProvisionalInstance != null || sListener != null) return;
+        if (sInstance != null || sReservedObjects != null) return;
 
-        sProvisionalInstance = new XWalkCoreWrapper(-1);
-        if (!sProvisionalInstance.findEmbeddedCore()) {
-            Assert.fail("Must extend XWalkActivity on shared mode");
+        Log.d(TAG, "Init embedded mode");
+        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(null, -1);
+        if (!provisionalInstance.findEmbeddedCore()) {
+            Assert.fail("Please extend XWalkActivity for shared mode");
         }
 
-        init();
-        Log.d(TAG, "Initialized embedded mode without XWalkActivity");
+        sInstance = provisionalInstance;
+        sInstance.initXWalkCore();
     }
 
-    public static void check() {
-        check(-1);
+    public static void initXWalkEnvironment() {
+        sInstance.initXWalkView();
     }
 
-    public static void check(int minSdkVersion) {
-        Assert.assertNull(sInstance);
-        sProvisionalInstance = new XWalkCoreWrapper(minSdkVersion);
-        if (!sProvisionalInstance.findEmbeddedCore()) {
-            sProvisionalInstance.findSharedCore();
-        }
-        if (sListener == null) return;
-
-        LibraryStatus status = sProvisionalInstance.mCoreStatus;
-        if (status == LibraryStatus.MATCHED) {
-            sListener.onXWalkLibraryMatched();
-            return;
-        }
-
-        Error error = (status == LibraryStatus.NOT_FOUND) ?
-                new UnsatisfiedLinkError("XWalk Core Not Found") :
-                new VerifyError("API Incompatible");
-        sListener.onXWalkLibraryStartupError(status, error);
-    }
-
-    public static void init() {
-        Assert.assertNull(sInstance);
-        Assert.assertNotNull(sProvisionalInstance);
-        sInstance = sProvisionalInstance;
-        sProvisionalInstance = null;
-
-        sInstance.initCore();
-    }
-
-    public static void reset(XWalkCoreWrapper coreWrapper, XWalkLibraryListener coreListener) {
-        sProvisionalInstance = null;
-        sInstance = coreWrapper;
-        sListener = coreListener;
-
-        if (sInstance != null) sInstance.resetCore();
-    }
-
-    public static boolean reserveReflectObject(Object object) {
-        if (sInstance != null || sListener == null) return false;
-        sListener.onObjectInitFailed(object);
-        return true;
-    }
-
-    public static boolean reserveReflectMethod(ReflectMethod method) {
-        if (sInstance != null || sListener == null) return false;
-        sListener.onMethodCallMissed(method);
-        return true;
-    }
-
-    private void initCore() {
-        try {
-            Class<?> clazz = getBridgeClass("XWalkCoreBridge");
-            ReflectMethod method = new ReflectMethod(null,
-                    clazz, "init", Context.class, Object.class);
-            method.invoke(mBridgeContext, this);
-
-            mCore = new ReflectMethod(null, clazz, "getInstance").invoke();
-        } catch (RuntimeException e) {
-            Assert.fail("initCore failed");
-        }
-    }
-
-    private void resetCore() {
-        try {
-            ReflectMethod method = new ReflectMethod(null,
-                    getBridgeClass("XWalkCoreBridge"), "reset", Object.class);
-            method.invoke(mCore);
-        } catch (RuntimeException e) {
-            Assert.fail("resetCore failed");
-        }
-    }
-
-    private XWalkCoreWrapper(int minSdkVersion) {
+    private XWalkCoreWrapper(Context context, int minSdkVersion) {
         mSdkVersion = XWalkSdkVersion.SDK_VERSION;
         mMinSdkVersion = (minSdkVersion > 0 && minSdkVersion <= mSdkVersion) ?
                 minSdkVersion : mSdkVersion;
+        mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
+        mWrapperContext = context;
+    }
+
+    private void initXWalkView() {
+        Log.d(TAG, "Init xwalk view");
+        Object object = mWrapperContext;
+        if (mBridgeContext != null) {
+            ReflectConstructor constructor = new ReflectConstructor(
+                    getBridgeClass("MixedContext"), Context.class, Context.class);
+            object = constructor.newInstance(mBridgeContext, mWrapperContext);
+        }
+
+        Class<?> clazz = getBridgeClass("XWalkViewDelegate");
+        new ReflectMethod(clazz, "init", Context.class).invoke(object);
+    }
+
+    private void initXWalkCore() {
+        Log.d(TAG, "Init core bridge");
+        Class<?> clazz = getBridgeClass("XWalkCoreBridge");
+        ReflectMethod method = new ReflectMethod(clazz, "init", Context.class, Object.class);
+        method.invoke(mBridgeContext, this);
     }
 
     private boolean findEmbeddedCore() {
         mBridgeContext = null;
-        mBridgeLoader = XWalkCoreWrapper.class.getClassLoader();
-        XWalkApplication xwalkApp = XWalkApplication.getApplication();
 
-        try {
-            Class<?> clazz = mBridgeLoader.loadClass(BRIDGE_PACKAGE + ".XWalkViewDelegate");
-            Method method = clazz.getMethod("XWalkLibraryCompressed", Context.class);
-            boolean lzma = (boolean) method.invoke(null, xwalkApp);
-            if (lzma) {
-                // if local version(stored in SharedPreference) doesn't match
-                // core version(XWalkSdkVersion.SDK_VERSION),
-                // means xwalkcore library has changed(upgrade or downgrade),
-                // need to decompress xwalkcore library again.
-                mCoreStatus = getLocalVersion(xwalkApp) == XWalkSdkVersion.SDK_VERSION ?
-                    LibraryStatus.MATCHED : LibraryStatus.COMPRESSED;
-                return true;
-            } else {
-                method = clazz.getMethod("loadXWalkLibrary", Context.class);
-                method.invoke(null, xwalkApp);
-                mCoreStatus = LibraryStatus.MATCHED;
-                return true;
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                IllegalAccessException | InvocationTargetException e) {
-            mCoreStatus = LibraryStatus.NOT_FOUND;
+        mBridgeLoader = XWalkCoreWrapper.class.getClassLoader();
+        if (!checkCoreVersion() || !checkCoreArchitecture()) {
             mBridgeLoader = null;
+            return false;
         }
 
-        return false;
+        Log.d(TAG, "Running in embedded mode");
+        mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
+        return true;
     }
 
     private boolean findSharedCore() {
-        XWalkApplication application = XWalkApplication.getApplication();
-        if (application == null) Assert.fail("Must use or extend XWalkApplication");
-
-        if (!XWalkSdkVersion.VERIFY_XWALK_APK) {
-            Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
-        } else {
-            try {
-                PackageInfo packageInfo = application.getPackageManager().getPackageInfo(
-                        XWALK_APK_PACKAGE, PackageManager.GET_SIGNATURES);
-                if (!verifyPackageInfo(packageInfo,
-                        XWalkSdkVersion.XWALK_APK_HASH_ALGORITHM,
-                        XWalkSdkVersion.XWALK_APK_HASH_CODE)) {
-                    mCoreStatus = LibraryStatus.SIGNATURE_CHECK_ERROR;
-                    return false;
-                }
-            } catch (NameNotFoundException e) {
-                Log.d(TAG, "Crosswalk package not found");
-                mCoreStatus = LibraryStatus.NOT_FOUND;
-                return false;
-            }
-        }
-
-        try {
-            mBridgeContext = application.createPackageContext(XWALK_APK_PACKAGE,
-                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-        } catch (NameNotFoundException e) {
-            Log.d(TAG, "Crosswalk package not found");
-            mCoreStatus = LibraryStatus.NOT_FOUND;
-            return false;
-        }
+        if (!checkCorePackage()) return false;
 
         mBridgeLoader = mBridgeContext.getClassLoader();
         if (!checkCoreVersion() || !checkCoreArchitecture()) {
@@ -209,52 +172,29 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
             return false;
         }
 
-        application.addResource(mBridgeContext.getResources());
         Log.d(TAG, "Running in shared mode");
+        mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
         return true;
-    }
-
-    public static boolean decompressXWalkLibrary() throws Exception {
-        XWalkApplication xwalkApp = XWalkApplication.getApplication();
-        ClassLoader loader = XWalkCoreWrapper.class.getClassLoader();
-
-        Class<?> clazz = loader.loadClass(BRIDGE_PACKAGE + ".XWalkViewDelegate");
-        Method method = clazz.getMethod("decompressXWalkLibrary", Context.class);
-        return (boolean) method.invoke(null, xwalkApp);
-    }
-
-    public static int getLocalVersion(Context context) {
-        SharedPreferences sp = context.getSharedPreferences("libxwalkcore",
-                Context.MODE_PRIVATE);
-        return sp.getInt("version", 0);
-    }
-
-    public static void setLocalVersion(Context context) {
-        SharedPreferences sp = context.getSharedPreferences("libxwalkcore",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putInt("version", XWalkSdkVersion.SDK_VERSION).apply();
     }
 
     private boolean checkCoreVersion() {
         try {
             Class<?> clazz = getBridgeClass("XWalkCoreVersion");
-            int libVersion = (int) new ReflectField(null, clazz, "LIB_VERSION").get();
-            int minLibVersion = (int) new ReflectField(null, clazz, "MIN_LIB_VERSION").get();
+            int libVersion = (int) new ReflectField(clazz, "LIB_VERSION").get();
+            int minLibVersion = (int) new ReflectField(clazz, "MIN_LIB_VERSION").get();
             Log.d(TAG, "libVersion:" + libVersion + ", minLib:" + minLibVersion);
             Log.d(TAG, "sdkVersion:" + mSdkVersion + ", minSdk:" + mMinSdkVersion);
-            Assert.assertTrue(libVersion >= minLibVersion);
 
             if (mMinSdkVersion > libVersion) {
-                mCoreStatus = LibraryStatus.OLDER_VERSION;
+                mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
+                return false;
             } else if (mSdkVersion < minLibVersion) {
-                mCoreStatus = LibraryStatus.NEWER_VERSION;
-            } else {
-                mCoreStatus = LibraryStatus.MATCHED;
+                mCoreStatus = XWalkLibraryInterface.STATUS_NEWER_VERSION;
+                return false;
             }
         } catch (RuntimeException e) {
             Log.d(TAG, "Failed to check library version");
-            mCoreStatus = LibraryStatus.NOT_FOUND;
+            mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
             return false;
         }
 
@@ -264,21 +204,57 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
     private boolean checkCoreArchitecture() {
         try {
             Class<?> clazz = getBridgeClass("XWalkViewDelegate");
-            ReflectMethod method =
-                    new ReflectMethod(null, clazz, "loadXWalkLibrary", Context.class);
-            method.invoke(mBridgeContext);
-            mCoreStatus = LibraryStatus.MATCHED;
+            new ReflectMethod(clazz, "loadXWalkLibrary", Context.class).invoke(mBridgeContext);
         } catch (RuntimeException e) {
             Log.d(TAG, "Failed to load native library");
-            mCoreStatus = LibraryStatus.NOT_FOUND;
+            mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
             return false;
         }
 
         return true;
     }
 
-    private boolean verifyPackageInfo(PackageInfo packageInfo,
-            String hashAlgorithm, String hashCode) {
+    private boolean checkCorePackage() {
+        if (mWrapperContext == null) {
+            Log.d(TAG, "No application context");
+            mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
+            return false;
+        }
+
+        if (!XWalkSdkVersion.VERIFY_XWALK_APK) {
+            Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
+        } else {
+            try {
+                PackageInfo packageInfo = mWrapperContext.getPackageManager().getPackageInfo(
+                        XWALK_APK_PACKAGE, PackageManager.GET_SIGNATURES);
+                if (!verifyPackageInfo(packageInfo,
+                        XWalkSdkVersion.XWALK_APK_HASH_ALGORITHM,
+                        XWalkSdkVersion.XWALK_APK_HASH_CODE)) {
+                    mCoreStatus = XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR;
+                    return false;
+                }
+            } catch (NameNotFoundException e) {
+                Log.d(TAG, "Crosswalk package not found");
+                mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
+                return false;
+            }
+        }
+
+        try {
+            mBridgeContext = mWrapperContext.createPackageContext(XWALK_APK_PACKAGE,
+                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+            Log.d(TAG, "Created bridge context");
+        } catch (NameNotFoundException e) {
+            Log.d(TAG, "Crosswalk package not found");
+            mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean verifyPackageInfo(PackageInfo packageInfo, String hashAlgorithm,
+            String hashCode) {
         if (packageInfo.signatures == null) {
             Log.e(TAG, "No signature in package info");
             return false;
@@ -288,12 +264,12 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
         try {
             md = MessageDigest.getInstance(hashAlgorithm);
         } catch (NoSuchAlgorithmException | NullPointerException e) {
-            Assert.fail("Hash algorithm " + hashAlgorithm + " is not available");
+            Assert.fail("Invalid hash algorithm");
         }
 
         byte[] hashArray = hexStringToByteArray(hashCode);
         if (hashArray == null) {
-            Assert.fail("Hash code is invalid");
+            Assert.fail("Invalid hash code");
         }
 
         for (int i = 0; i < packageInfo.signatures.length; ++i) {
@@ -331,7 +307,7 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
 
     public Object getBridgeObject(Object object) {
         try {
-            return new ReflectMethod(null, object, "getBridge").invoke();
+            return new ReflectMethod(object, "getBridge").invoke();
         } catch (RuntimeException e) {
         }
         return null;
@@ -339,7 +315,7 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
 
     public Object getWrapperObject(Object object) {
         try {
-            return new ReflectMethod(null, object, "getWrapper").invoke();
+            return new ReflectMethod(object, "getWrapper").invoke();
         } catch (RuntimeException e) {
         }
         return null;
@@ -351,12 +327,5 @@ class XWalkCoreWrapper implements ReflectExceptionHandler {
         } catch (ClassNotFoundException e) {
         }
         return null;
-    }
-
-    @Override
-    public boolean handleException(RuntimeException exception) {
-        if (sListener == null) return false;
-        sListener.onXWalkLibraryRuntimeError(mCoreStatus, exception);
-        return true;
     }
 }
