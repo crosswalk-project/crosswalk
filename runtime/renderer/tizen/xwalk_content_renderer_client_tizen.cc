@@ -139,10 +139,4 @@ void XWalkContentRendererClientTizen::DidCreateScriptContext(
   frame->executeScript(source);
 }
 
-std::string XWalkContentRendererClientTizen::GetOverridenUserAgent() const {
-  if (!xwalk_render_process_observer_)
-    return "";
-  return xwalk_render_process_observer_->GetOverridenUserAgent();
-}
-
 }  // namespace xwalk

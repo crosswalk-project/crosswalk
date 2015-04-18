@@ -37,7 +37,6 @@ class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
       const blink::WebURLError& error,
       std::string* error_html,
       base::string16* error_description) override;
-  std::string GetOverridenUserAgent() const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClientTizen);

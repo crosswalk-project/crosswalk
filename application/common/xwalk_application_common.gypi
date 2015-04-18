@@ -35,6 +35,8 @@
         'manifest_handlers/csp_handler.h',
         'manifest_handlers/permissions_handler.cc',
         'manifest_handlers/permissions_handler.h',
+        'manifest_handlers/user_agent_handler.cc',
+        'manifest_handlers/user_agent_handler.h',
         'manifest_handlers/warp_handler.cc',
         'manifest_handlers/warp_handler.h',
         'manifest_handlers/widget_handler.cc',

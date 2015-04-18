@@ -19,14 +19,20 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/site_instance.h"
 #include "net/base/net_util.h"
+#include "net/url_request/static_http_user_agent_settings.h"
+#include "net/url_request/url_request_context.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/application/common/manifest_handlers/user_agent_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/application/common/package/wgt_package.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
+#include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_common_messages.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 
 #if defined(OS_TIZEN)
 #include "xwalk/application/browser/application_tizen.h"
@@ -227,12 +233,32 @@ bool Application::Launch() {
     return false;
 
   auto site = content::SiteInstance::CreateForURL(browser_context_, url);
+  UserAgentInfo* user_agent_info = static_cast<UserAgentInfo*>(
+      data_->GetManifestData(keys::kXWalkUserAgentKey));
+  if (user_agent_info && !user_agent_info->UserAgent().empty()) {
+    user_agent_ = user_agent_info->UserAgent();
+    xwalk::RuntimeURLRequestContextGetter* context_getter =
+        static_cast<xwalk::RuntimeURLRequestContextGetter*>(
+            browser_context_->GetRequestContext());
+    net::URLRequestContext* context = context_getter->GetURLRequestContext();
+    context->set_http_user_agent_settings(
+        new net::StaticHttpUserAgentSettings("*", user_agent_));
+    LOG(INFO) << "Set User Agent: " << user_agent_;
+  }
+
   Runtime* runtime = Runtime::Create(browser_context_, site);
   runtime->set_observer(this);
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
+
   web_contents_ = runtime->web_contents();
+
+  if (!user_agent_.empty()) {
+    render_process_host_->Send(
+        new ViewMsg_UserAgentStringChanged(user_agent_info->UserAgent()));
+    web_contents_->SetUserAgentOverride(user_agent_);
+  }
   InitSecurityPolicy();
   runtime->LoadURL(url);
 
@@ -279,6 +305,7 @@ int Application::GetRenderProcessHostID() const {
 
 void Application::OnNewRuntimeAdded(Runtime* runtime) {
   runtime->set_observer(this);
+  runtime->web_contents()->SetUserAgentOverride(user_agent_);
   runtime->set_ui_delegate(
       RuntimeUIDelegate::Create(runtime, window_show_params_));
   runtime->Show();

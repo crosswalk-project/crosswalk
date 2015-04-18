@@ -9,6 +9,7 @@
 #include "base/stl_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
+#include "xwalk/application/common/manifest_handlers/user_agent_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
 #if defined(OS_TIZEN)
@@ -133,6 +134,7 @@ ManifestHandlerRegistry::GetInstanceForXPK() {
   // handlers.push_back(new xxxHandler);
   handlers.push_back(new CSPHandler(Manifest::TYPE_MANIFEST));
   handlers.push_back(new PermissionsHandler);
+  handlers.push_back(new UserAgentHandler);
   xpk_registry_ = new ManifestHandlerRegistry(handlers);
   return xpk_registry_;
 }
