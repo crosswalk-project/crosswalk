@@ -21,6 +21,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
@@ -890,6 +892,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return false;
         checkThreadSafety();
         return mContent.canZoomOut();
+    }
+
+    /**
+     * Create a new InputConnection for and InputMethod to interact with the view.
+     * The default implementation returns the InputConnection created by ContentView
+     * @param outAttrs Fill in with attribute information about the connection
+     * @return the new InputConnection
+     * @since 5.0
+     */
+    @XWalkAPI
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return mContent.onCreateInputConnection(outAttrs);
     }
 
     /**
