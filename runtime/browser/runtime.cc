@@ -288,6 +288,7 @@ void Runtime::DidUpdateFaviconURL(const std::vector<FaviconURL>& candidates) {
       favicon.icon_url,
       true,  // Is a favicon
       0,     // No maximum size
+      true,  // Normal cache policy
       base::Bind(
           &Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
 }

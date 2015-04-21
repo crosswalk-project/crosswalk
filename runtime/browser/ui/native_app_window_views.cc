@@ -4,15 +4,21 @@
 
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 
+#include "base/command_line.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/web_contents.h"
+#include "grit/xwalk_resources.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/screen.h"
+#include "ui/views/views_delegate.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
+#include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 #include "xwalk/runtime/browser/ui/xwalk_views_delegate.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 #if defined(OS_WIN)
 #include "ui/views/window/native_frame_view.h"
@@ -70,6 +76,17 @@ void NativeAppWindowViews::Initialize() {
   }
 #endif
   params.net_wm_pid = create_params_.net_wm_pid;
+  // Set the app icon if it is passed from command line.
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kAppIcon)) {
+    base::FilePath icon_file =
+      command_line->GetSwitchValuePath(switches::kAppIcon);
+    icon_ = xwalk_utils::LoadImageFromFilePath(icon_file);
+  } else {
+    // Otherwise, use the default icon for Crosswalk app.
+    ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
+    icon_ = rb.GetNativeImageNamed(IDR_XWALK_ICON_48);
+  }
 
   window_->Init(params);
 

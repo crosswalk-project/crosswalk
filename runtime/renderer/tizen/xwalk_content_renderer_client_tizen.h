@@ -25,11 +25,6 @@ class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
   bool HasErrorPage(int http_status_code,
                     std::string* error_domain) override;
 
-  void DidCreateScriptContext(blink::WebFrame* frame,
-                              v8::Handle<v8::Context> context,
-                              int extension_group,
-                              int world_id) override;
-
   void GetNavigationErrorStrings(
       content::RenderView* render_view,
       blink::WebFrame* frame,

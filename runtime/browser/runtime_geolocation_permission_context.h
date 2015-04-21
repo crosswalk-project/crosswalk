@@ -7,6 +7,7 @@
 
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
+#include "content/public/common/permission_status.mojom.h"
 
 class GURL;
 

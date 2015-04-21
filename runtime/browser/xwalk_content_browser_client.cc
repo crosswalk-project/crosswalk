@@ -284,50 +284,6 @@ XWalkContentBrowserClient::GetPlatformNotificationService() {
   return XWalkPlatformNotificationService::GetInstance();
 }
 
-void XWalkContentBrowserClient::RequestPermission(
-    content::PermissionType permission,
-    content::WebContents* web_contents,
-    int bridge_id,
-    const GURL& requesting_frame,
-    bool user_gesture,
-    const base::Callback<void(bool)>& result_callback) {
-  switch (permission) {
-    case content::PERMISSION_GEOLOCATION:
-#if defined(OS_ANDROID) || defined(OS_TIZEN)
-    if (!geolocation_permission_context_.get()) {
-      geolocation_permission_context_ =
-        new RuntimeGeolocationPermissionContext();
-    }
-    geolocation_permission_context_->RequestGeolocationPermission(
-        web_contents, requesting_frame, result_callback);
-#else
-    result_callback.Run(false);
-#endif
-      break;
-    case content::PERMISSION_NOTIFICATIONS:
-    default:
-      break;
-    }
-}
-
-void XWalkContentBrowserClient::CancelPermissionRequest(
-    content::PermissionType permission,
-    content::WebContents* web_contents,
-    int bridge_id,
-    const GURL& requesting_frame) {
-  switch (permission) {
-    case content::PERMISSION_GEOLOCATION:
-#if defined(OS_ANDROID) || defined(OS_TIZEN)
-      geolocation_permission_context_->CancelGeolocationPermissionRequest(
-          web_contents, requesting_frame);
-#endif
-      break;
-    case content::PERMISSION_NOTIFICATIONS:
-    default:
-      break;
-  }
-}
-
 void XWalkContentBrowserClient::DidCreatePpapiPlugin(
     content::BrowserPpapiHost* browser_host) {
 #if defined(ENABLE_PLUGINS)
