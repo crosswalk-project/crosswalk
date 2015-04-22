@@ -165,6 +165,8 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
         AlertDialog dialog = null;
         if (status == LibraryStatus.NOT_FOUND) {
             dialog = getStartupNotFoundDialog();
+        } else if (status == LibraryStatus.SIGNATURE_CHECK_ERROR) {
+            dialog = getStartupVerifyErrorDialog();
         } else if (status == LibraryStatus.OLDER_VERSION) {
             dialog = getStartupOlderVersionDialog();
         } else if (status == LibraryStatus.NEWER_VERSION) {
@@ -493,6 +495,25 @@ public abstract class XWalkActivity extends Activity implements XWalkLibraryList
         dialog.setMessage(getString(R.string.startup_not_found_message));
         dialog.setButton(DialogInterface.BUTTON_POSITIVE,
                 getString(R.string.get_crosswalk), positiveListener);
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+                getString(R.string.xwalk_cancel), negativeListener);
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
+    private AlertDialog getStartupVerifyErrorDialog() {
+        AlertDialog dialog = buildAlertDialog();
+
+        OnClickListener negativeListener = new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                onXWalkLibraryCancelled();
+            }
+        };
+
+        dialog.setIcon(android.R.drawable.ic_dialog_alert);
+        dialog.setTitle(getString(R.string.startup_signature_check_error_title));
+        dialog.setMessage(getString(R.string.startup_signature_check_error_message));
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
                 getString(R.string.xwalk_cancel), negativeListener);
         dialog.setCancelable(false);

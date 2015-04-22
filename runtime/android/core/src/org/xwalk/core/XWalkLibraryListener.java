@@ -8,6 +8,7 @@ interface XWalkLibraryListener {
     public enum LibraryStatus {
         MATCHED,
         NOT_FOUND,
+        SIGNATURE_CHECK_ERROR,
         NEWER_VERSION,
         OLDER_VERSION
     }

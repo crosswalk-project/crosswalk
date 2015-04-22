@@ -80,7 +80,7 @@ def GenerateJavaReflectClass(input_dir):
 
 
 def GenerateJavaTemplateClass(template_dir,
-    target_arch, sdk_version, min_sdk_version):
+    target_arch, sdk_version, min_sdk_version, verify_xwalk_apk):
   template_file = os.path.join(template_dir, 'XWalkCoreVersion.template')
   template = Template(open(template_file, 'r').read())
   value = {'TARGET_ARCH': target_arch,
@@ -92,7 +92,9 @@ def GenerateJavaTemplateClass(template_dir,
 
   template_file = os.path.join(template_dir, 'XWalkSdkVersion.template')
   template = Template(open(template_file, 'r').read())
-  value = {'SDK_VERSION': sdk_version}
+
+  value = {'SDK_VERSION': sdk_version,
+           'VERIFY_XWALK_APK': 'true' if verify_xwalk_apk == 1 else 'false'}
   output_file = os.path.join(wrapper_path, "XWalkSdkVersion.java")
   with open(output_file, 'w') as f:
     f.write(template.substitute(value))
@@ -127,6 +129,8 @@ This script can generate bridge and wrap source files for given directory.
   option_parser.add_option('--target-arch', help='Target Architecture')
   option_parser.add_option('--sdk-version', help='API Version')
   option_parser.add_option('--min-sdk-version', help='Min API Version')
+  option_parser.add_option('--verify-xwalk-apk', default=0, type='int',
+      help='Verify Crosswalk library APK before loading')
 
   options, _ = option_parser.parse_args(argv)
   if (not options.input_dir or
@@ -155,8 +159,8 @@ This script can generate bridge and wrap source files for given directory.
     GenerateJavaReflectClass(options.input_dir)
 
   if options.template_dir:
-    GenerateJavaTemplateClass(options.template_dir,
-        options.target_arch, options.sdk_version, options.min_sdk_version)
+    GenerateJavaTemplateClass(options.template_dir, options.target_arch,
+        options.sdk_version, options.min_sdk_version, options.verify_xwalk_apk)
 
   if options.stamp:
     Touch(options.stamp)
