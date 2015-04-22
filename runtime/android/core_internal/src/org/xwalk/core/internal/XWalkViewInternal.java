@@ -155,6 +155,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
     public static final int INPUT_FILE_REQUEST_CODE = 1;
     private static final String TAG = XWalkViewInternal.class.getSimpleName();
+    private static final String PATH_PREFIX = "file:";
 
     private XWalkContent mContent;
     private Activity mActivity;
@@ -679,7 +680,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                     if (dataString != null) {
                         results = Uri.parse(dataString);
                     }
+                    deleteImageFile();
                 }
+            } else if (Activity.RESULT_CANCELED == resultCode) {
+                deleteImageFile();
             }
 
             mFilePathCallback.onReceiveValue(results);
@@ -1059,18 +1063,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Log.e(TAG, "Unable to create Image File", ex);
-            }
-
+            File photoFile = createImageFile();
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
+                mCameraPhotoPath = PATH_PREFIX + photoFile.getAbsolutePath();
+                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
             } else {
@@ -1086,7 +1083,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         Intent soundRecorder = new Intent(
                 MediaStore.Audio.Media.RECORD_SOUND_ACTION);
         ArrayList<Intent> extraIntents = new ArrayList<Intent>();
-        extraIntents.add(takePictureIntent);
+        if (takePictureIntent != null) extraIntents.add(takePictureIntent);
         extraIntents.add(camcorder);
         extraIntents.add(soundRecorder);
 
@@ -1099,18 +1096,37 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         return true;
     }
 
-    private File createImageFile() throws IOException {
+    private File createImageFile() {
+        // FIXME: If the external storage state is not "MEDIA_MOUNTED", we need to get
+        // other volume paths by "getVolumePaths()" when it was exposed.
+        String state = Environment.getExternalStorageState();
+        if (!state.equals(Environment.MEDIA_MOUNTED)) {
+            Log.e(TAG, "External storage is not mounted.");
+            return null;
+        }
+
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        File imageFile = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        return imageFile;
+        if (!storageDir.exists()) storageDir.mkdirs();
+        try {
+            return File.createTempFile(imageFileName, ".jpg", storageDir);
+        } catch (IOException ex) {
+            // Error occurred while creating the File
+            Log.e(TAG, "Unable to create Image File", ex);
+        }
+        return null;
+    }
+
+    private boolean deleteImageFile() {
+        if (mCameraPhotoPath == null || !mCameraPhotoPath.contains(PATH_PREFIX)) {
+            return false;
+        }
+        String filePath = mCameraPhotoPath.split(PATH_PREFIX)[1];
+        File file = new File(filePath);
+        return file.delete();
     }
 
     // For instrumentation test.
