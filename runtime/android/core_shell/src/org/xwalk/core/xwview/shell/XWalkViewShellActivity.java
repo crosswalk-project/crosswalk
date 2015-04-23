@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
@@ -17,7 +18,6 @@ import android.graphics.drawable.ClipDrawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.MessageQueue;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -36,13 +36,14 @@ import org.chromium.base.BaseSwitches;
 import org.chromium.base.CommandLine;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.content.browser.TracingControllerAndroid;
+import org.xwalk.core.XWalkActivity;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
-public class XWalkViewShellActivity extends FragmentActivity
+public class XWalkViewShellActivity extends XWalkActivity
         implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
     private static final String TAG = XWalkViewShellActivity.class.getName();
@@ -126,7 +127,7 @@ public class XWalkViewShellActivity extends FragmentActivity
 
         mActionBar = getActionBar();
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), mActionBar);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(this, getFragmentManager(), mActionBar);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -172,7 +173,7 @@ public class XWalkViewShellActivity extends FragmentActivity
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mReceiver);
+        if (mReceiver != null) unregisterReceiver(mReceiver);
         unregisterTracingReceiver();
     }
 
@@ -331,8 +332,8 @@ public class XWalkViewShellActivity extends FragmentActivity
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
         mViewPager.setCurrentItem(tab.getPosition());
-        android.support.v4.app.Fragment fragment = mSectionsPagerAdapter.getItem(tab.getPosition());
-        if (fragment!= null && fragment instanceof XWalkViewSectionFragment) {
+        Fragment fragment = mSectionsPagerAdapter.getItem(tab.getPosition());
+        if (fragment != null && fragment instanceof XWalkViewSectionFragment) {
             mActiveView = ((XWalkViewSectionFragment)fragment).getXWalkView();
         } else {
             mActiveView = null;
@@ -364,5 +365,9 @@ public class XWalkViewShellActivity extends FragmentActivity
         initializeXWalkViewClients(view);
         mProgressMap.put(view, 0);
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+    }
+
+    @Override
+    public void onXWalkReady() {
     }
 }
