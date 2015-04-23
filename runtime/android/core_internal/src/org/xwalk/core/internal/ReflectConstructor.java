@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2015 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,67 +6,64 @@ package org.xwalk.core.internal;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.RejectedExecutionException;
 
-public class ReflectConstructor {
-    private Object handler;
-    private Class<?> clazz;
-    private Class<?>[] parameterTypes;
-    private Constructor<?> constructor;
+class ReflectConstructor {
+    private Class<?> mClass;
+    private Class<?>[] mParameterTypes;
+    private Constructor<?> mConstructor;
 
     public ReflectConstructor() {
     }
 
-    public ReflectConstructor(Object handler, Class<?> clazz, Class<?>... parameterTypes) {
-        this.handler = handler;
-        this.clazz = clazz;
-        this.parameterTypes = parameterTypes;
+    public ReflectConstructor(Class<?> clazz, Class<?>... parameterTypes) {
+        init(clazz, parameterTypes);
+    }
+
+    public boolean init(Class<?> clazz, Class<?>... parameterTypes) {
+        mClass = clazz;
+        mParameterTypes = parameterTypes;
+        mConstructor = null;
+
+        if (mClass == null) return false;
 
         try {
-            constructor = clazz.getConstructor(parameterTypes);
-        } catch (NullPointerException | NoSuchMethodException e) {
-            constructor = null;
+            mConstructor = mClass.getConstructor(mParameterTypes);
+        } catch (NoSuchMethodException e) {
+            try {
+                mConstructor = mClass.getDeclaredConstructor(mParameterTypes);
+                mConstructor.setAccessible(true);
+            } catch (NoSuchMethodException e2) {
+            }
         }
+        return mConstructor != null;
     }
 
     public Object newInstance(Object... args) {
-        if (constructor == null) {
-            handleException(new UnsupportedOperationException(toString()));
-            return null;
+        if (mConstructor == null) {
+            throw new UnsupportedOperationException(toString());
         }
 
         try {
-            return constructor.newInstance(args);
-        } catch (IllegalAccessException | IllegalArgumentException | InstantiationException e) {
-            handleException(new RejectedExecutionException(toString()));
+            return mConstructor.newInstance(args);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RejectedExecutionException(e);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (InvocationTargetException e) {
-            handleException(e);
+            throw new RuntimeException(e.getCause());
         }
-        return null;
     }
 
     public boolean isNull() {
-        return constructor == null;
+        return mConstructor == null;
     }
 
     public String toString() {
-        if (constructor != null) return constructor.toString();
-        
-        String ret = null;
-        if (clazz != null) {
-            ret += clazz.toString();
-        }
-        return ret;
-    }
+        if (mConstructor != null) return mConstructor.toString();
 
-    private void handleException(Throwable throwable) {
-        try {
-            Method method = handler.getClass().getMethod("handleException", Throwable.class);
-            method.invoke(handler, throwable);
-        } catch (NullPointerException | NoSuchMethodException |
-                IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-            assert(false);
-        }
+        String ret = "";
+        if (mClass != null) ret += mClass.toString();
+        return ret;
     }
 }

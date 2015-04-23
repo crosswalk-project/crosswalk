@@ -14,7 +14,6 @@ import zipfile
 from common_function import RemoveUnusedFilesInReleaseMode
 from xml.dom.minidom import Document
 
-LIBRARY_PROJECT_NAME = 'xwalk_core_library'
 XWALK_CORE_SHELL_APK = 'xwalk_core_shell_apk'
 
 def AddGeneratorOptions(option_parser):
@@ -24,6 +23,9 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('-t', dest='target',
                            help='Product out target directory.',
                            type='string')
+  option_parser.add_option('--shared', action='store_true',
+                           default=False,
+                           help='Generate shared library', )
   option_parser.add_option('--no-icu-data', action='store_true',
                            default=False,
                            help='Exclude icudtl.dat when specified')
@@ -36,25 +38,26 @@ def AddGeneratorOptions(option_parser):
                            default=False,
                            help='Disable builtin extensions.')
 
-def CleanLibraryProject(out_dir):
-  out_project_path = os.path.join(out_dir, LIBRARY_PROJECT_NAME)
-  if os.path.exists(out_project_path):
-    for item in os.listdir(out_project_path):
-      sub_path = os.path.join(out_project_path, item)
+
+def CleanLibraryProject(out_project_dir):
+  if os.path.exists(out_project_dir):
+    for item in os.listdir(out_project_dir):
+      sub_path = os.path.join(out_project_dir, item)
       if os.path.isdir(sub_path):
         shutil.rmtree(sub_path)
       elif os.path.isfile(sub_path):
         os.remove(sub_path)
 
 
-def CopyProjectFiles(project_source, out_dir):
-  """cp xwalk/build/android/xwalkcore_library_template/<file>
-        out/Release/xwalk_core_library/<file>
-  """
+def CopyProjectFiles(project_source, out_project_dir, shared):
+  print('Copying library project files...')
+  if shared :
+    template_dir = os.path.join(project_source, 'xwalk', 'build', 'android',
+        'xwalk_shared_library_template')
+  else :
+    template_dir = os.path.join(project_source, 'xwalk', 'build', 'android',
+        'xwalkcore_library_template')
 
-  print 'Copying library project files...'
-  template_dir = os.path.join(project_source, 'xwalk', 'build', 'android',
-                              'xwalkcore_library_template')
   files_to_copy = [
       # AndroidManifest.xml from template.
       'AndroidManifest.xml',
@@ -67,17 +70,14 @@ def CopyProjectFiles(project_source, out_dir):
   ]
   for f in files_to_copy:
     source_file = os.path.join(template_dir, f)
-    target_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, f)
+    target_file = os.path.join(out_project_dir, f)
 
     shutil.copy2(source_file, target_file)
 
 
-def CopyJSBindingFiles(project_source, out_dir):
+def CopyJSBindingFiles(project_source, out_project_dir):
   print 'Copying js binding files...'
-  jsapi_dir = os.path.join(out_dir,
-                           LIBRARY_PROJECT_NAME,
-                           'res',
-                           'raw')
+  jsapi_dir = os.path.join(out_project_dir, 'res', 'raw')
   if not os.path.exists(jsapi_dir):
     os.makedirs(jsapi_dir)
 
@@ -99,21 +99,29 @@ def CopyJSBindingFiles(project_source, out_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, no_icu_data, use_lzma):
-  """cp out/Release/<pak> out/Release/xwalk_core_library/res/raw/<pak>
-     cp out/Release/lib.java/<lib> out/Release/xwalk_core_library/libs/<lib>
-     cp out/Release/xwalk_core_shell_apk/libs/*.lzma
-        out/Release/xwalk_core_library/res/raw
-     cp out/Release/xwalk_core_shell_apk/libs/*.so
-        out/Release/xwalk_core_library/libs
-  """
+def CopyBinaries(out_dir, out_project_dir, no_icu_data, use_lzma, shared):
+  # Copy jar files to libs.
+  libs_dir = os.path.join(out_project_dir, 'libs')
+  if not os.path.exists(libs_dir):
+    os.mkdir(libs_dir)
+
+  if shared:
+    libs_to_copy = ['xwalk_core_library_java_app_part.jar']
+  else:
+    libs_to_copy = ['xwalk_core_library_java.jar', ]
+
+  for lib in libs_to_copy:
+    source_file = os.path.join(out_dir, 'lib.java', lib)
+    target_file = os.path.join(libs_dir, lib)
+    shutil.copyfile(source_file, target_file)
+
+  if shared:
+    return
 
   print 'Copying binaries...'
   # Copy assets.
-  res_raw_dir = os.path.join(
-      out_dir, LIBRARY_PROJECT_NAME, 'res', 'raw')
-  res_value_dir = os.path.join(
-      out_dir, LIBRARY_PROJECT_NAME, 'res', 'values')
+  res_raw_dir = os.path.join(out_project_dir, 'res', 'raw')
+  res_value_dir = os.path.join(out_project_dir, 'res', 'values')
   if not os.path.exists(res_raw_dir):
     os.mkdir(res_raw_dir)
   if not os.path.exists(res_value_dir):
@@ -142,21 +150,6 @@ def CopyBinaries(out_dir, no_icu_data, use_lzma):
                                     'xwalk_resources_list.xml'), 'w')
   pak_list_xml.writexml(pak_list_file, newl='\n', encoding='utf-8')
   pak_list_file.close()
-
-  # Copy jar files to libs.
-  libs_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'libs')
-  if not os.path.exists(libs_dir):
-    os.mkdir(libs_dir)
-
-  libs_to_copy = [
-      'xwalk_core_library_java_app_part.jar',
-      'xwalk_core_library_java_library_part.jar',
-  ]
-
-  for lib in libs_to_copy:
-    source_file = os.path.join(out_dir, 'lib.java', lib)
-    target_file = os.path.join(libs_dir, lib)
-    shutil.copyfile(source_file, target_file)
 
   # Copy native libraries.
   source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
@@ -248,10 +241,10 @@ def ReplaceCrunchedImage(project_source, filename, filepath):
           return
 
 
-def CopyResources(project_source, out_dir):
+def CopyResources(project_source, out_dir, out_project_dir, shared):
   print 'Copying resources...'
-  res_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'res')
-  temp_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'temp')
+  res_dir = os.path.join(out_project_dir, 'res')
+  temp_dir = os.path.join(out_project_dir, 'temp')
   if os.path.exists(res_dir):
     shutil.rmtree(res_dir)
   if os.path.exists(temp_dir):
@@ -261,15 +254,23 @@ def CopyResources(project_source, out_dir):
   # Since there might be some resource files with same names from
   # different folders like ui_java, content_java and others,
   # it's necessary to rename some files to avoid overridding.
-  res_to_copy = [
-      # zip file list
-      'content_java.zip',
-      'content_strings_grd.zip',
-      'ui_java.zip',
-      'ui_strings_grd.zip',
-      'xwalk_core_internal_java.zip',
-      'xwalk_core_strings.zip'
-  ]
+  if shared:
+    res_to_copy = [
+        # zip file list
+        'xwalk_app_strings.zip',
+        'xwalk_core_java.zip'
+    ]
+  else:
+    res_to_copy = [
+        # zip file list
+        'content_java.zip',
+        'content_strings_grd.zip',
+        'ui_java.zip',
+        'ui_strings_grd.zip',
+        'xwalk_core_internal_java.zip',
+        'xwalk_core_strings.zip',
+        'xwalk_app_strings.zip'
+    ]
 
   for res_zip in res_to_copy:
     zip_file = os.path.join(out_dir, 'res.java', res_zip)
@@ -295,20 +296,19 @@ def CopyResources(project_source, out_dir):
         ReplaceCrunchedImage(project_source, filename, dirname)
 
 
-def PostCopyLibraryProject(out_dir):
+def PostCopyLibraryProject(out_project_dir):
   print 'Post Copy Library Project...'
   aidls_to_remove = [
       'org/chromium/content/common/common.aidl',
       'org/chromium/net/IRemoteAndroidKeyStoreInterface.aidl',
   ]
   for aidl in aidls_to_remove:
-    aidl_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'src', aidl)
+    aidl_file = os.path.join(out_project_dir, 'src', aidl)
     if os.path.exists(aidl_file):
       os.remove(aidl_file)
 
 
 def main(argv):
-  print 'Generating XWalkCore Library Project...'
   option_parser = optparse.OptionParser()
   AddGeneratorOptions(option_parser)
   options, _ = option_parser.parse_args(argv)
@@ -317,37 +317,40 @@ def main(argv):
     print 'Source project does not exist, please provide correct directory.'
     sys.exit(1)
   out_dir = options.target
+  if options.shared :
+    out_project_dir = os.path.join(out_dir, 'xwalk_shared_library')
+  else :
+    out_project_dir = os.path.join(out_dir, 'xwalk_core_library')
 
   # Clean directory for project first.
-  CleanLibraryProject(out_dir)
+  CleanLibraryProject(out_project_dir)
 
-  out_project_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME)
   if not os.path.exists(out_project_dir):
     os.mkdir(out_project_dir)
 
   # Copy Eclipse project files of library project.
-  CopyProjectFiles(options.source, out_dir)
+  CopyProjectFiles(options.source, out_project_dir, options.shared)
   # Copy binaries and resuorces.
-  CopyResources(options.source, out_dir)
-  CopyBinaries(out_dir, options.no_icu_data, options.use_lzma)
+  CopyResources(options.source, out_dir, out_project_dir, options.shared)
+  CopyBinaries(out_dir, out_project_dir, options.no_icu_data, options.use_lzma,
+      options.shared)
   # Copy JS API binding files if builtin extension enabled.
-  if not options.disable_builtin_ext:
-    CopyJSBindingFiles(options.source, out_dir)
+  if not options.disable_builtin_ext and not options.shared:
+    CopyJSBindingFiles(options.source, out_project_dir)
   # Post copy library project.
-  PostCopyLibraryProject(out_dir)
+  PostCopyLibraryProject(out_project_dir)
   # Remove unused files.
   mode = os.path.basename(os.path.normpath(out_dir))
-  RemoveUnusedFilesInReleaseMode(mode,
-      os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'libs'))
+  RemoveUnusedFilesInReleaseMode(mode, os.path.join(out_project_dir, 'libs'))
   # Create empty src directory
   src_dir = os.path.join(out_project_dir, 'src')
   if not os.path.isdir(src_dir):
     os.mkdir(src_dir)
   readme = os.path.join(src_dir, 'README.md')
   open(readme, 'w').write(
-      "# Source folder for xwalk_core_library\n"
+      "# Source folder for xwalk library\n"
       "## Why it's empty\n"
-      "xwalk_core_library doesn't contain java sources.\n"
+      "xwalk library doesn't contain java sources.\n"
       "## Why put me here\n"
       "To make archives keep the folder, "
       "the src directory is needed to build an apk by ant.")

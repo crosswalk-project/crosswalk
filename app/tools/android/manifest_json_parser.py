@@ -102,6 +102,7 @@ class ManifestJsonParser(object):
     version:          The version number.
     icons:            An array of icons.
     app_url:          The url of application, e.g. hosted app.
+    xwalk_apk_url:    The download URL of the Crosswalk runtime library APK
     description:      The description of application.
     app_root:         The root path of the web, this flag allows to package
                       local web application as apk.
@@ -146,6 +147,10 @@ class ManifestJsonParser(object):
     else:
       app_local_path = app_url
       app_url = ''
+    if 'xwalk_apk_url' in self.data_src:
+      ret_dict['xwalk_apk_url'] = self.data_src['xwalk_apk_url']
+    else:
+      ret_dict['xwalk_apk_url'] = ''
     file_path_prefix = os.path.split(self.input_path)[0]
     if 'icons' in self.data_src:
       icons = self.data_src['icons']
@@ -234,6 +239,7 @@ class ManifestJsonParser(object):
     print("description: %s" % self.GetDescription())
     print("icons: %s" % self.GetIcons())
     print("app_url: %s" % self.GetAppUrl())
+    print("xwalk_apk_url: %s" % self.GetXWalkApkUrl())
     print("app_root: %s" % self.GetAppRoot())
     print("app_local_path: %s" % self.GetAppLocalPath())
     print("permissions: %s" % self.GetPermissions())
@@ -279,6 +285,10 @@ class ManifestJsonParser(object):
   def GetAppUrl(self):
     """Return the URL of the application."""
     return self.ret_dict['app_url']
+
+  def GetXWalkApkUrl(self):
+    """Return the download URL of the Crosswalk runtime library APK"""
+    return self.ret_dict['xwalk_apk_url']
 
   def GetDescription(self):
     """Return the description of the application."""

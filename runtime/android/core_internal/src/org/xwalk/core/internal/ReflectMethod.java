@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2015 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,99 +8,96 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.RejectedExecutionException;
 
-public class ReflectMethod {
-    private Object handler;
-    private Object instance;
-    private String name;
-    private Class<?>[] parameterTypes;
-    private Class<?> clazz;
-    private Method method;
-    private Object[] arguments;
+class ReflectMethod {
+    private Object mInstance;
+    private Class<?> mClass;
+    private String mName;
+    private Class<?>[] mParameterTypes;
+    private Method mMethod;
+    private Object[] mArguments;
 
     public ReflectMethod() {
     }
 
-    public ReflectMethod(Object handler, Object instance, String name, Class<?>... parameterTypes) {
-        init(handler, instance, name, parameterTypes);
+    public ReflectMethod(Object instance, String name, Class<?>... parameterTypes) {
+        init(instance, null, name, parameterTypes);
     }
 
-    public ReflectMethod(Object handler, Class<?> clazz, String name, Class<?>... parameterTypes) {
-        init(handler, clazz, name, parameterTypes);
+    public ReflectMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
+        init(null, clazz, name, parameterTypes);
     }
 
-    public void init(Object handler, Object instance, String name, Class<?>... parameterTypes) {
-        this.handler = handler;
-        this.instance = instance;
-        this.name = name;
-        this.parameterTypes = parameterTypes;
+    public boolean init(Object instance, Class<?> clazz, String name, Class<?>... parameterTypes) {
+        mInstance = instance;
+        mClass = clazz != null ? clazz : (instance != null ? instance.getClass() : null);
+        mName = name;
+        mParameterTypes = parameterTypes;
+        mMethod = null;
 
-        clazz = instance == null ? null : instance.getClass();
-        try {
-            method = clazz.getMethod(name, parameterTypes);
-        } catch (NullPointerException | NoSuchMethodException e) {
-            method = null;
-        }
-    }
-
-    public void init(Object handler, Class<?> clazz, String name, Class<?>... parameterTypes) {
-        this.handler = handler;
-        this.name = name;
-        this.parameterTypes = parameterTypes;
-        this.clazz = clazz;
+        if (mClass == null) return false;
 
         try {
-            method = clazz.getMethod(name, parameterTypes);
-        } catch (NullPointerException | NoSuchMethodException e) {
-            method = null;
+            mMethod = mClass.getMethod(mName, mParameterTypes);
+        } catch (NoSuchMethodException e) {
+            for (Class<?> parent = mClass; parent != null; parent = parent.getSuperclass()) {
+                try {
+                    mMethod = parent.getDeclaredMethod(mName, mParameterTypes);
+                    mMethod.setAccessible(true);
+                    break;
+                } catch (NoSuchMethodException e2) {
+                }
+            }
         }
+
+        return mMethod != null;
     }
 
     public Object invoke(Object... args) {
-        if (method == null) {
-            handleException(new UnsupportedOperationException(toString()));
-            return null;
+        if (mMethod == null) {
+            throw new UnsupportedOperationException(toString());
         }
 
         try {
-            return method.invoke(instance, args);
-        } catch (IllegalAccessException | IllegalArgumentException | NullPointerException e) {
-            handleException(new RejectedExecutionException(toString()));
+            return mMethod.invoke(mInstance, args);
+        } catch (IllegalAccessException | NullPointerException e) {
+            throw new RejectedExecutionException(e);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (InvocationTargetException e) {
-            handleException(e);
+            throw new RuntimeException(e.getCause());
         }
-        return null;
-    }
-
-    public Object invokeWithReservedArguments() {
-        return invoke(arguments);
-    }
-
-    public void reserveArguments(Object... args) {
-        arguments = args;
     }
 
     public boolean isNull() {
-        return method == null;
+        return mMethod == null;
     }
 
     public String toString() {
-        if (method != null) return method.toString();
-        
-        String ret = null;
-        if (clazz != null) {
-            ret += clazz.toString();
-            if (name != null) ret += "." + name;
-        }
+        if (mMethod != null) return mMethod.toString();
+
+        String ret = "";
+        if (mClass != null) ret += mClass.toString() + ".";
+        if (mName != null) ret += mName;
         return ret;
     }
 
-    private void handleException(Throwable throwable) {
-        try {
-            Method method = handler.getClass().getMethod("handleException", Throwable.class);
-            method.invoke(handler, throwable);
-        } catch (NullPointerException | NoSuchMethodException |
-                IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-            assert(false);
-        }
+    public String getName() {
+        return mName;
+    }
+
+    public Object getInstance() {
+        return mInstance;
+    }
+
+    public Object[] getArguments() {
+        return mArguments;
+    }
+
+    public void setArguments(Object... args) {
+        mArguments = args;
+    }
+
+    public Object invokeWithArguments() {
+        return invoke(mArguments);
     }
 }

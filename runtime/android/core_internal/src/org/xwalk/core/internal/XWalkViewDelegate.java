@@ -18,7 +18,6 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
-import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
@@ -29,7 +28,6 @@ import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
-import org.chromium.net.NetworkChangeNotifier;
 
 @JNINamespace("xwalk")
 class XWalkViewDelegate {
@@ -79,73 +77,40 @@ class XWalkViewDelegate {
         }
     }
 
-    public static boolean XWalkLibraryCompressed(Context context) {
-        if (context == null) return false;
-
-        return XWalkCompressUtil.XWalkLibraryCompressed(context, MANDATORY_LIBRARIES);
-    }
-
-    public static boolean decompressXWalkLibrary(Context context) throws Exception {
-        if (context == null) return false;
-
-        String lib = PathUtils.getDataDirectory(context.getApplicationContext());
-        long start = System.currentTimeMillis();
-        boolean success = XWalkCompressUtil.decompressXWalkLibrary(context, MANDATORY_LIBRARIES, lib);
-        long end = System.currentTimeMillis();
-        Log.d(TAG, "decompress library cost: " + (end - start) + " milliseconds.");
-        return success;
-    }
-
     public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
-        if (sLibraryLoaded || (context == null)) return;
+        if (sLibraryLoaded) return;
 
-        if (XWalkLibraryCompressed(context)) {
-            String lib = PathUtils.getDataDirectory(context.getApplicationContext());
-            if (lib != null) {
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.load(lib + "/" + library);
-                }
+        // If context is null, it's called from wrapper's ReflectionHelper to try
+        // loading native library within the package. No need to try load from library
+        // package in this case.
+        // If context's not null, it's a cross package invoking, load core library from library apk.
+        // Only load the native library from /data/data if the Android version is
+        // lower than 4.2. Android enables a system path /data/app-lib to store native
+        // libraries starting from 4.2 and load them automatically.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null) {
+            for (String library : MANDATORY_LIBRARIES) {
+                System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
             }
-        } else {
-            // Only load the native library from /data/data if the Android version is
-            // lower than 4.2. Android enables a system path /data/app-lib to store native
-            // libraries starting from 4.2 and load them automatically.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
-                }
-            }
-
-            loadLibrary(context);
         }
 
-        if (sRunningOnIA && !nativeIsLibraryBuiltForIA()) {
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
+        try {
+            LibraryLoader.loadNow(context, true);
+        } catch (ProcessInitException e) {
+            throw new RuntimeException("Cannot load Crosswalk Core", e);
+        }
+
+        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
             throw new UnsatisfiedLinkError();
         }
         sLibraryLoaded = true;
     }
 
-    public static void init(XWalkViewInternal xwalkView) throws UnsatisfiedLinkError {
-        if (sInitialized) {
-            return;
-        }
+    public static void init(final Context context) {
+        if (sInitialized) return;
 
-        loadXWalkLibrary(xwalkView.getContext());
-
-        // Initialize the ActivityStatus. This is needed and used by many internal
-        // features such as location provider to listen to activity status.
-        ApplicationStatusManager.init(xwalkView.getActivity().getApplication());
-
-        // Auto detect network connectivity state.
-        // setAutoDetectConnectivityState() need to be called before activity started.
-        NetworkChangeNotifier.init(xwalkView.getActivity());
-        NetworkChangeNotifier.setAutoDetectConnectivityState(true);
-
-        // We will miss activity onCreate() status in ApplicationStatusManager,
-        // informActivityStarted() will simulate these callbacks.
-        ApplicationStatusManager.informActivityStarted(xwalkView.getActivity());
-
-        final Context context = xwalkView.getViewContext();
+        // Initialize chromium resources. Assign them the correct ids in xwalk core.
+        XWalkInternalResources.resetIds(context);
 
         // Last place to initialize CommandLine object. If you haven't initialize
         // the CommandLine object before XWalkViewContent is created, here will create
@@ -225,14 +190,6 @@ class XWalkViewDelegate {
         sInitialized = true;
     }
 
-    private static void loadLibrary(Context context) {
-        try {
-            LibraryLoader.loadNow(context, true);
-        } catch (ProcessInitException e) {
-            throw new RuntimeException("Cannot load Crosswalk Core", e);
-        }
-    }
-
     private static void startBrowserProcess(final Context context) {
         ThreadUtils.runOnUiThreadBlocking(new Runnable() {
             @Override
@@ -280,7 +237,5 @@ class XWalkViewDelegate {
                 Log.w(TAG, Log.getStackTraceString(e));
             }
         }
-
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
     }
 }

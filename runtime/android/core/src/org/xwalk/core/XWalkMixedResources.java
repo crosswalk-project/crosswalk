@@ -33,32 +33,7 @@ import android.util.TypedValue;
  * But the only place use this R.attr and R.style is "select" tag
  * which is verified working well with this MixedResources.
  */
-public class XWalkMixedResources extends Resources {
-    public static String MARKET_PROGRESS_MESSAGE = "Please wait until library installed";
-    public static String DOWNLOAD_PROGRESS_MESSAGE = "Downloading Crosswalk Runtime Library";
-    public static String DOWNLOAD_FAILED_TITLE = "Crosswalk Runtime Library download failed";
-    public static String DOWNLOAD_FAILED_MESSAGE = "Please retry or cancel";
-    public static String DOWNLOAD_FAILED_DEVICE_NOT_FOUND = "Storage device Not Found";
-    public static String DOWNLOAD_FAILED_INSUFFICIENT_SPACE = "Insufficient storage space";
-    public static String DOWNLOAD_FAILED_TIME_OUT = "Download time out";
-    public static String STARTUP_NOT_FOUND_TITLE = "Crosswalk Runtime Library not found";
-    public static String STARTUP_NOT_FOUND_MESSAGE = "Please get the library";
-    public static String STARTUP_OLDER_VERSION_TITLE = "Crosswalk Runtime Library is out of date";
-    public static String STARTUP_OLDER_VERSION_MESSAGE = "Please update the library or continue";
-    public static String STARTUP_NEWER_VERSION_TITLE = "Crosswalk Runtime Library is too new";
-    public static String STARTUP_NEWER_VERSION_MESSAGE = "Please update your app or continue";
-    public static String RUNTIME_OLDER_VERSION_TITLE = "Crosswalk Runtime Library is out of date";
-    public static String RUNTIME_OLDER_VERSION_MESSAGE = "Next operation may not be supported";
-    public static String RUNTIME_NEWER_VERSION_TITLE = "Crosswalk Runtime Library is too new";
-    public static String RUNTIME_NEWER_VERSION_MESSAGE = "Next operation may not be supported";
-    public static String DECOMPRESS_LIBRARY_MESSAGE = "Runtime is preparing...";
-
-    public static String CANCEL = "Cancel";
-    public static String CONTINUE = "Continue";
-    public static String TERMINATE = "Terminate";
-    public static String RETRY = "Retry";
-    public static String GET_LIBRARY = "Get Library";
-
+class XWalkMixedResources extends Resources {
     private Resources mLibraryResource;
 
     private boolean isCalledInLibrary() {
