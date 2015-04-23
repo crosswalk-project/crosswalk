@@ -112,7 +112,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
   // Enable SIMD.JS API by default.
-#if 0
   std::string js_flags("--simd_object");
   if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
     js_flags += " ";
@@ -120,7 +119,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
         command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
   }
   command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
-#endif
 
   startup_url_ = GetURLFromCommandLine(*command_line);
 }
