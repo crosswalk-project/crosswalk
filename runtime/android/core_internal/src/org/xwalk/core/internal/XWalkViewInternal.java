@@ -155,6 +155,13 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
     public static final int INPUT_FILE_REQUEST_CODE = 1;
     private static final String TAG = XWalkViewInternal.class.getSimpleName();
+    private static final String IMAGE_TYPE = "image/";
+    private static final String VIDEO_TYPE = "video/";
+    private static final String AUDIO_TYPE = "audio/";
+    private static final String ALL_IMAGE_TYPES = IMAGE_TYPE + "*";
+    private static final String ALL_VIDEO_TYPES = VIDEO_TYPE + "*";
+    private static final String ALL_AUDIO_TYPES = AUDIO_TYPE + "*";
+    private static final String ANY_TYPES = "*/*";
 
     private XWalkContent mContent;
     private Activity mActivity;
@@ -163,6 +170,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private XWalkActivityStateListener mActivityStateListener;
     private ValueCallback<Uri> mFilePathCallback;
     private String mCameraPhotoPath;
+    private String mFileType;
 
     /**
      * Normal reload mode as default.
@@ -1055,6 +1063,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public boolean showFileChooser(ValueCallback<Uri> uploadFile, String acceptType,
             String capture) {
         mFilePathCallback = uploadFile;
+        mFileType = acceptType;
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
@@ -1078,18 +1087,47 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             }
         }
 
-        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        contentSelectionIntent.setType("*/*");
-
         Intent camcorder = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         Intent soundRecorder = new Intent(
                 MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-        ArrayList<Intent> extraIntents = new ArrayList<Intent>();
-        extraIntents.add(takePictureIntent);
-        extraIntents.add(camcorder);
-        extraIntents.add(soundRecorder);
+        if (capture.equals("true")) {
+            if (mFileType.equals(ALL_IMAGE_TYPES)) {
+                getActivity().startActivityForResult(takePictureIntent,
+                        INPUT_FILE_REQUEST_CODE);
+                return true;
+            } else if (mFileType.equals(ALL_VIDEO_TYPES)) {
+                getActivity().startActivityForResult(camcorder,
+                        INPUT_FILE_REQUEST_CODE);
+                return true;
+            } else if (mFileType.equals(ALL_AUDIO_TYPES)) {
+                getActivity().startActivityForResult(soundRecorder,
+                        INPUT_FILE_REQUEST_CODE);
+                return true;
+            }
+        }
 
+        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        ArrayList<Intent> extraIntents = new ArrayList<Intent>();
+        if (!noSpecificType()) {
+            if (shouldShowImageTypes()) {
+                extraIntents.add(takePictureIntent);
+                contentSelectionIntent.setType(ALL_IMAGE_TYPES);
+            } else if (shouldShowVideoTypes()) {
+                extraIntents.add(camcorder);
+                contentSelectionIntent.setType(ALL_VIDEO_TYPES);
+            } else if (shouldShowAudioTypes()) {
+                extraIntents.add(soundRecorder);
+                contentSelectionIntent.setType(ALL_AUDIO_TYPES);
+            }
+        }
+
+        if (extraIntents.isEmpty()) {
+            contentSelectionIntent.setType(ANY_TYPES);
+            extraIntents.add(takePictureIntent);
+            extraIntents.add(camcorder);
+            extraIntents.add(soundRecorder);
+        }
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
         chooserIntent.putExtra(Intent.EXTRA_TITLE, "Choose an action");
@@ -1111,6 +1149,32 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                 storageDir      /* directory */
         );
         return imageFile;
+    }
+
+    private boolean noSpecificType() {
+        return mFileType.isEmpty() != false || mFileType.contains(ANY_TYPES);
+    }
+
+    private boolean shouldShowTypes(String allTypes, String specificType) {
+        if (noSpecificType() || mFileType.contains(allTypes)) return true;
+        return acceptSpecificType(specificType);
+    }
+
+    private boolean acceptSpecificType(String accept) {
+        if (mFileType.startsWith(accept))  return true;
+        return false;
+    }
+
+    private boolean shouldShowImageTypes() {
+        return shouldShowTypes(ALL_IMAGE_TYPES, IMAGE_TYPE);
+    }
+
+    private boolean shouldShowVideoTypes() {
+        return shouldShowTypes(ALL_VIDEO_TYPES, VIDEO_TYPE);
+    }
+
+    private boolean shouldShowAudioTypes() {
+        return shouldShowTypes(ALL_AUDIO_TYPES, AUDIO_TYPE);
     }
 
     // For instrumentation test.
