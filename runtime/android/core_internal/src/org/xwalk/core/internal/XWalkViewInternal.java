@@ -1086,7 +1086,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         Intent soundRecorder = new Intent(
                 MediaStore.Audio.Media.RECORD_SOUND_ACTION);
         ArrayList<Intent> extraIntents = new ArrayList<Intent>();
-        extraIntents.add(takePictureIntent);
+        if (takePictureIntent != null) extraIntents.add(takePictureIntent);
         extraIntents.add(camcorder);
         extraIntents.add(soundRecorder);
 
@@ -1103,8 +1103,22 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
+        String state = Environment.getExternalStorageState();
+        File storageDir = null;
+
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            storageDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES);
+        }
+        // FIXME: If the external storage state is not "MEDIA_MOUNTED", we need to
+        // get other volume paths by "getVolumePaths()" when it was exposed.
+        if (storageDir == null) {
+            Log.e(TAG, "Can not get the storage directory.");
+            return null;
+        } else if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+
         File imageFile = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
