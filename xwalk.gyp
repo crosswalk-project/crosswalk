@@ -394,6 +394,17 @@
             'experimental/native_file_system/virtual_root_provider_linux.cc',
           ]
         }],  # OS=="linux"
+        ['OS=="linux"' and 'tizen==0', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+          'sources': [
+            'runtime/browser/ui/x11_input_method_context_factory.cc',
+            'runtime/browser/ui/x11_input_method_context_factory.h',
+            'runtime/browser/ui/x11_input_method_context_impl_gtk2.cc',
+            'runtime/browser/ui/x11_input_method_context_impl_gtk2.h',
+          ]
+        }], # OS=="linux" and tizen==0
         ['os_posix==1 and OS != "mac" and use_allocator=="tcmalloc"', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
