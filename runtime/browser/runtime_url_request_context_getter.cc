@@ -6,8 +6,10 @@
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 
 #include <algorithm>
+#include <string>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
@@ -41,6 +43,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/cookie_manager.h"
@@ -53,6 +56,24 @@
 using content::BrowserThread;
 
 namespace xwalk {
+
+int GetDiskCacheSize() {
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+
+  if (!command_line->HasSwitch(switches::kDiskCacheSize))
+      return 0;
+
+  std::string str_value = command_line->GetSwitchValueASCII(
+      switches::kDiskCacheSize);
+
+  int size = 0;
+  if (!base::StringToInt(str_value, &size)) {
+      LOG(ERROR) << "The value " << str_value
+                 << " can not be converted to integer, ignoring!";
+  }
+
+  return size;
+}
 
 RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
     bool ignore_certificate_errors,
@@ -139,7 +160,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
             net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
             cache_path,
-            0,
+            GetDiskCacheSize(),
             BrowserThread::GetMessageLoopProxyForThread(
                 BrowserThread::CACHE));
 
