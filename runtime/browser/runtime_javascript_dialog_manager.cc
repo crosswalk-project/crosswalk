@@ -64,7 +64,7 @@ void RuntimeJavaScriptDialogManager::CancelActiveAndPendingDialogs(
   NOTIMPLEMENTED();
 }
 
-void RuntimeJavaScriptDialogManager::WebContentsDestroyed(
+void RuntimeJavaScriptDialogManager::ResetDialogState(
     content::WebContents* web_contents) {
   NOTIMPLEMENTED();
 }
