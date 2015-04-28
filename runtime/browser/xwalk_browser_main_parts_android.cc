@@ -10,6 +10,7 @@
 #include "base/base_paths_android.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
 #include "base/threading/sequenced_worker_pool.h"
@@ -61,9 +62,10 @@ void MoveUserDataDirIfNecessary(const base::FilePath& user_data_dir,
       "Cache",
       "Cookies",
       "Cookies-journal",
+      "IndexedDB",
       "Local Storage",
   };
-  for (int i = 0; i < 4; i++) {
+  for (size_t i = 0; i < arraysize(possible_data_dir_names); i++) {
     base::FilePath dir = user_data_dir.Append(possible_data_dir_names[i]);
     if (base::PathExists(dir)) {
       if (!base::Move(dir, profile.Append(possible_data_dir_names[i]))) {
