@@ -24,7 +24,7 @@
 %define _binary_payload w3.gzdio
 
 Name:           crosswalk-bin
-Version:        13.42.319.9
+Version:        13.42.319.10
 Release:        0
 Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
