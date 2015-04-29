@@ -73,7 +73,6 @@
         ['OS!="android"', {
           'dependencies': [
             '../../components/components.gyp:storage_monitor',
-            '../../content/content.gyp:content_common',
             '../../media/media.gyp:media',
             '../../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
           ],
