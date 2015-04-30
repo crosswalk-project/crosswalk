@@ -198,6 +198,8 @@
         'runtime/browser/runtime_url_request_context_getter.h',
         'runtime/browser/speech/speech_recognition_manager_delegate.cc',
         'runtime/browser/speech/speech_recognition_manager_delegate.h',
+        'runtime/browser/ssl_error_page.cc',
+        'runtime/browser/ssl_error_page.h',
         'runtime/browser/sysapps_component.cc',
         'runtime/browser/sysapps_component.h',
         'runtime/browser/storage_component.cc',

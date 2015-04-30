@@ -34,6 +34,7 @@
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
+#include "xwalk/runtime/browser/ssl_error_page.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
@@ -276,6 +277,20 @@ void XWalkContentBrowserClient::AllowCertificateError(
                                   &cancel_request);
   if (cancel_request)
     *result = content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY;
+#else
+  content::RenderFrameHost* render_frame_host =
+      content::RenderFrameHost::FromID(render_process_id, render_frame_id);
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(render_frame_host);
+  if (!web_contents) {
+    NOTREACHED();
+    return;
+  }
+
+  // The interstitial page shown is responsible for destroying
+  // this instance of SSLErrorPage
+  (new SSLErrorPage(web_contents, cert_error,
+                    ssl_info, request_url, callback))->Show();
 #endif
 }
 
