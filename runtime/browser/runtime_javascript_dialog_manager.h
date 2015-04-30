@@ -33,7 +33,7 @@ class RuntimeJavaScriptDialogManager : public content::JavaScriptDialogManager {
       const DialogClosedCallback& callback) override;
   void CancelActiveAndPendingDialogs(
       content::WebContents* web_contents) override;
-  void WebContentsDestroyed(
+  void ResetDialogState(
       content::WebContents* web_contents) override;
 
  private:
