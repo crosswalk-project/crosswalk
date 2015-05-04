@@ -143,11 +143,18 @@ GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() const {
     return GURL();
   }
 
-  GURL url = GetAbsoluteURLFromKey(keys::kStartURLKey);
-  if (url.is_valid())
-    return url;
+  std::string start_url_source;
+  if (data_->GetManifest()->GetString(keys::kStartURLKey, &start_url_source) &&
+      !start_url_source.empty()) {
+    GURL url(start_url_source);
+    if (url.is_valid() && url.SchemeIsHTTPOrHTTPS())
+      return url;
+    url = data_->GetResourceURL(start_url_source);
+    if (url.is_valid())
+      return url;
+  }
 
-  url = GetAbsoluteURLFromKey(keys::kLaunchLocalPathKey);
+  GURL url = GetAbsoluteURLFromKey(keys::kLaunchLocalPathKey);
   if (url.is_valid())
     return url;
 
