@@ -10,7 +10,8 @@ interface XWalkLibraryListener {
         NOT_FOUND,
         SIGNATURE_CHECK_ERROR,
         NEWER_VERSION,
-        OLDER_VERSION
+        OLDER_VERSION,
+        COMPRESSED
     }
 
     public void onXWalkLibraryCancelled();

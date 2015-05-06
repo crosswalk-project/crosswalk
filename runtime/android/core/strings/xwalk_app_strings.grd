@@ -65,6 +65,9 @@
       <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
         Please set up your app market
       </message>
+      <message desc="Decompress Library Message [CHAR-LIMIT=100]" name="IDS_DECOMPRESS_LIBRARY_MESSAGE">
+        Runtime is preparing...
+      </message>
       <message desc="Label of Cancel [CHAR-LIMIT=100]" name="IDS_XWALK_CANCEL">
         Cancel
       </message>

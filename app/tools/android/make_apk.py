@@ -30,8 +30,10 @@ from manifest_json_parser import ManifestJsonParser
 
 
 NATIVE_LIBRARY = 'libxwalkcore.so'
+DUMMY_LIBRARY = 'libxwalkdummy.so'
 EMBEDDED_LIBRARY = 'xwalk_core_library'
 SHARED_LIBRARY = 'xwalk_shared_library'
+
 
 # FIXME(rakuco): Only ALL_ARCHITECTURES should exist. We keep these two
 # separate lists because SUPPORTED_ARCHITECTURES contains the architectures
@@ -42,6 +44,7 @@ SUPPORTED_ARCHITECTURES = (
   'arm',
   'x86',
 )
+
 ALL_ARCHITECTURES = (
   'arm',
   'arm64',
@@ -95,6 +98,10 @@ def GetAndroidApiLevel(android_path):
 
 def ContainsNativeLibrary(path):
   return os.path.isfile(os.path.join(path, NATIVE_LIBRARY))
+
+
+def ContainsCompressedLibrary(path):
+  return os.path.isfile(os.path.join(path, NATIVE_LIBRARY + ".lzma"))
 
 
 def ParseManifest(options):
@@ -294,6 +301,39 @@ def Customize(options, app_info, manifest):
                options.xwalk_command_line, options.compressor)
 
 
+def CleanCompressedLibrary(library_path, arch):
+  useless = os.path.join(library_path, NATIVE_LIBRARY + '.' + arch)
+  if (os.path.isfile(useless)):
+    os.remove(useless)
+
+
+def CleanNativeLibrary(library_path, arch):
+  lib_dir = os.path.join(library_path, arch)
+  if (os.path.isdir(lib_dir)):
+    shutil.rmtree(lib_dir)
+
+
+def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
+  # need dummy library file to keep the arch info if enable lzma.
+  arch_path = os.path.join(library_path, arch)
+  if (not os.path.isdir(arch_path)):
+      os.mkdir(arch_path)
+  dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
+  shutil.copy(dummy_library, arch_path)
+
+  compressed_library = os.path.join(native_path, NATIVE_LIBRARY + '.lzma')
+  shutil.copy(compressed_library, raw_path)
+
+
+def CopyNativeLibrary(native_path, library_path, raw_path, arch):
+  # do not need dummy library when lzma disabled.
+  dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
+  if (os.path.isfile(dummy_library)):
+    os.remove(dummy_library)
+
+  shutil.copytree(native_path, os.path.join(library_path, arch))
+
+
 def Execution(options, app_info):
   # Now we've got correct app_version and correct ABI value,
   # start to generate suitable versionCode
@@ -394,14 +434,26 @@ def Execution(options, app_info):
     if not arch:
       print ('Invalid CPU arch: %s.' % arch)
       sys.exit(10)
-    library_lib_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'libs')
-    for dir_name in os.listdir(library_lib_path):
-      lib_dir = os.path.join(library_lib_path, dir_name)
-      if ContainsNativeLibrary(lib_dir):
-        shutil.rmtree(lib_dir)
-    native_lib_path = os.path.join(app_dir, 'native_libs', arch)
-    if ContainsNativeLibrary(native_lib_path):
-      shutil.copytree(native_lib_path, os.path.join(library_lib_path, arch))
+
+    native_path = os.path.join(app_dir, 'native_libs', arch)
+    library_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'libs')
+    raw_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'res', 'raw')
+
+    if options.enable_lzma:
+      contains_library = ContainsCompressedLibrary
+      clean_library = CleanCompressedLibrary
+      copy_library = CopyCompressedLibrary
+    else:
+      contains_library = ContainsNativeLibrary
+      clean_library = CleanNativeLibrary
+      copy_library = CopyNativeLibrary
+
+    # cleanup previous build's library first.
+    for dir_name in os.listdir(library_path):
+      clean_library(library_path, dir_name)
+
+    if contains_library(native_path):
+      copy_library(native_path, library_path, raw_path, arch)
     else:
       print('No %s native library has been found for creating a Crosswalk '
             'embedded APK.' % arch)
@@ -510,6 +562,73 @@ def CheckSystemRequirements():
   print('ok')
 
 
+def MakeCompressedLibrary(lib_dir):
+  # use lzma to compress the native library.
+  native_library = os.path.join(lib_dir, NATIVE_LIBRARY)
+  RunCommand(['lzma', '-f', native_library])
+  return True
+
+
+def MakeNativeLibrary(lib_dir):
+  # use lzma to decompress the compressed library.
+  compressed_library = os.path.join(lib_dir, NATIVE_LIBRARY + '.lzma')
+  RunCommand(['lzma', '-d', compressed_library])
+  return True
+
+
+def MakeSharedApk(options, app_info, app_dir):
+  # Copy xwalk_shared_library into app folder
+  target_library_path = os.path.join(app_dir, SHARED_LIBRARY)
+  shutil.copytree(os.path.join(xwalk_dir, SHARED_LIBRARY),
+                  target_library_path)
+  Execution(options, app_info)
+
+
+def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
+  # Copy xwalk_core_library into app folder and move the native libraries out.
+  # When making apk for specified CPU arch, will only include the
+  # corresponding native library by copying it back into xwalk_core_library.
+  target_library_path = os.path.join(app_dir, EMBEDDED_LIBRARY)
+  shutil.copytree(os.path.join(xwalk_dir, EMBEDDED_LIBRARY),
+                  target_library_path)
+  library_path = os.path.join(target_library_path, 'libs')
+  native_path = os.path.join(app_dir, 'native_libs')
+  os.makedirs(native_path)
+  available_archs = []
+
+  if options.enable_lzma:
+    contains_library = ContainsCompressedLibrary
+    make_library = MakeCompressedLibrary
+  else:
+    contains_library = ContainsNativeLibrary
+    make_library = MakeNativeLibrary
+
+  for dir_name in os.listdir(library_path):
+    lib_dir = os.path.join(library_path, dir_name)
+    if os.path.isdir(lib_dir) and \
+    (contains_library(lib_dir) or make_library(lib_dir)):
+      shutil.move(lib_dir, os.path.join(native_path, dir_name))
+      available_archs.append(dir_name)
+
+  if options.arch:
+    Execution(options, app_info)
+    packaged_archs.append(options.arch)
+  else:
+    # If the arch option is unspecified, all of available platform APKs
+    # will be generated.
+    for arch in ALL_ARCHITECTURES:
+      if ConvertArchNameToArchFolder(arch) in available_archs:
+        options.arch = arch
+        Execution(options, app_info)
+        packaged_archs.append(options.arch)
+      else:
+        print('Warning: failed to create package for arch "%s" '
+              'due to missing native library' % arch)
+    if len(packaged_archs) == 0:
+      print('No packages created, aborting')
+      sys.exit(13)
+
+
 def MakeApk(options, app_info, manifest):
   CheckSystemRequirements()
   Customize(options, app_info, manifest)
@@ -517,42 +636,9 @@ def MakeApk(options, app_info, manifest):
   app_dir = GetBuildDir(name)
   packaged_archs = []
   if options.mode == 'shared':
-    # Copy xwalk_shared_library into app folder
-    target_library_path = os.path.join(app_dir, SHARED_LIBRARY)
-    shutil.copytree(os.path.join(xwalk_dir, SHARED_LIBRARY),
-                    target_library_path)
-    Execution(options, app_info)
-  elif options.mode == 'embedded':
-    # Copy xwalk_core_library into app folder and move the native libraries
-    # out.
-    # When making apk for specified CPU arch, will only include the
-    # corresponding native library by copying it back into xwalk_core_library.
-    target_library_path = os.path.join(app_dir, EMBEDDED_LIBRARY)
-    shutil.copytree(os.path.join(xwalk_dir, EMBEDDED_LIBRARY),
-                    target_library_path)
-    library_lib_path = os.path.join(target_library_path, 'libs')
-    native_lib_path = os.path.join(app_dir, 'native_libs')
-    os.makedirs(native_lib_path)
-    available_archs = []
-    for dir_name in os.listdir(library_lib_path):
-      lib_dir = os.path.join(library_lib_path, dir_name)
-      if ContainsNativeLibrary(lib_dir):
-        shutil.move(lib_dir, os.path.join(native_lib_path, dir_name))
-        available_archs.append(dir_name)
-    if options.arch:
-      Execution(options, app_info)
-      packaged_archs.append(options.arch)
-    else:
-      # If the arch option is unspecified, all of available platform APKs
-      # will be generated.
-      for arch in ALL_ARCHITECTURES:
-        if ConvertArchNameToArchFolder(arch) in available_archs:
-          options.arch = arch
-          Execution(options, app_info)
-          packaged_archs.append(options.arch)
-      if len(packaged_archs) == 0:
-        print('No packages created, aborting')
-        sys.exit(13)
+    MakeSharedApk(options, app_info, app_dir)
+  else: # default
+    MakeEmbeddedApk(options, app_info, app_dir, packaged_archs)
 
   # if project_dir, save build directory
   if options.project_dir:
@@ -728,6 +814,9 @@ def main(argv):
                    callback=ParseParameterForCompressor, type='string',
                    nargs=0, help=info)
   parser.add_option_group(group)
+  parser.add_option('--enable-lzma', action='store_true', dest='enable_lzma',
+          default=False, help='Enable LZMA.')
+
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()
@@ -803,7 +892,11 @@ def main(argv):
   if not options.package:
     parser.error('A package name is required. Please use the "--package" '
                  'option.')
+
   VerifyPackageName(options.package)
+
+  if options.mode != 'embedded' and options.enable_lzma:
+    parser.error('LZMA is only available in embedded mode.')
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
