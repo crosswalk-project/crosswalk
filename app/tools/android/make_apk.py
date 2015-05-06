@@ -357,6 +357,23 @@ def Execution(options, app_info):
     print(' * Updating project')
   RunCommand(update_project_cmd)
 
+  # Enable proguard
+  if options.mode == 'embedded' and options.enable_proguard:
+    print(' * Enabling proguard config files')
+    # Enable proguard in project.properies.
+    if not os.path.exists(os.path.join(app_dir, 'project.properties')):
+      print('Error, project.properties file not found!')
+      sys.exit(14)
+    file_prop = file(os.path.join(app_dir, 'project.properties'), 'a')
+    file_prop.write('proguard.config=${sdk.dir}/tools/proguard/'
+                    'proguard-android.txt:proguard-xwalk.txt')
+    file_prop.close()
+
+    # Add proguard cfg file.
+    if not os.path.exists(os.path.join(app_dir, 'proguard-xwalk.txt')):
+      print('Error, proguard config file for Crosswalk not found!')
+      sys.exit(14)
+
   # Check whether external extensions are included.
   print(' * Checking for external extensions')
   extensions_string = 'xwalk-extensions'
@@ -432,6 +449,16 @@ def Execution(options, app_info):
   shutil.copyfile(src_file, dst_file)
   print(' (Location: %s)' % dst_file)
 
+  #Copy proguard dumping files
+  if options.mode == 'embedded' and options.enable_proguard \
+      and not options.project_dir:
+    proguard_dir = os.path.join(app_dir, 'bin/proguard/')
+    if os.path.exists(proguard_dir):
+      for afile in os.listdir(proguard_dir):
+        if afile.endswith('.txt'):
+          shutil.copy(os.path.join(proguard_dir,afile), xwalk_dir)
+    else:
+      print('Warning:Cannot find proguard dumping directory!')
 
 def PrintPackageInfo(options, name, packaged_archs):
   package_name_version = os.path.join(options.target_dir, name)
@@ -632,6 +659,10 @@ def main(argv):
   info = ('The description of the application. For example, '
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
+  info = ('Enable proguard to shrink and obfuscate java classes of Crosswalk '
+          'and Chromium, only works with embedded mode.')
+  group.add_option('--enable-proguard', action='store_true', default=False,
+                   help=info)
   group.add_option('--enable-remote-debugging', action='store_true',
                    dest='enable_remote_debugging', default=False,
                    help='Enable remote debugging.')
@@ -791,6 +822,11 @@ def main(argv):
     print('\nmake_apk.py error: Option --project-only must be used '
           'with --project-dir')
     sys.exit(8)
+
+  if options.enable_proguard and options.mode != 'embedded':
+    print('\nmake_apk.py error: Option --enable-proguard only works with '
+          'embedded mode.')
+    sys.exit(14)
 
   try:
     MakeApk(options, app_info, manifest)
