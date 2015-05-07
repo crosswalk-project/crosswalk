@@ -1,0 +1,9 @@
+Name: lzma_sdk
+URL: http://www.7-zip.org/sdk.html
+Version: 9.20
+License: Public Domain
+License Android Compatible: yes
+
+Description:
+General purpose compression library
+

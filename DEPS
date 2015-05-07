@@ -38,12 +38,6 @@ hooks = [
     "action": ["python", "src/xwalk/tools/generate_gclient-xwalk.py"],
   },
   {
-    # Fetch and prepare SevenZip LZMA SDK
-    "name": "download-lzma-sdk",
-    "pattern": ".",
-    "action": ["python", "src/xwalk/third_party/lzma_sdk/download_lzma_sdk.py"],
-  },
-  {
     # Fetch Crosswalk dependencies.
     "name": "fetch-deps",
     "pattern": ".",
