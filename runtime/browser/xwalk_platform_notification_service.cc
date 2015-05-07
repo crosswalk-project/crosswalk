@@ -38,6 +38,8 @@ XWalkPlatformNotificationService::CheckPermissionOnUIThread(
     int render_process_id) {
 #if defined(OS_ANDROID)
   return blink::WebNotificationPermissionAllowed;
+#elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
+  return blink::WebNotificationPermissionAllowed;
 #else
   return blink::WebNotificationPermissionDenied;
 #endif
