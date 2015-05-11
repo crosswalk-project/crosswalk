@@ -12,8 +12,8 @@
 import os
 import shlex
 import shutil
-import subprocess
 import sys
+import tarfile
 import urllib2
 
 SDK_URL = 'http://downloads.sourceforge.net/sevenzip/lzma920.tar.bz2'
@@ -32,30 +32,24 @@ def DownloadFromURL(url, dest_file):
 
 
 def ExtractJavaSDK(lzma_file):
-  # Determine the file type
-  cmd = shlex.split('file --mime-type {0}'.format(lzma_file))
-  result = subprocess.check_output(cmd)
-  mime_type = result.split()[-1]
-
-  if mime_type == 'application/x-bzip2':
-    cmd = ['tar', 'xjf', lzma_file, '-C', SDK_DIR, 'Java']
-  elif mime_type == 'application/x-7z-compressed':
-    cmd = ['7zr', 'x', '-o' + SDK_DIR, lzma_file, 'Java']
-  else:
-    print('Error: mime type of %s is not supported.' % lzma_file)
-    return False
-
+  tar = tarfile.open(lzma_file)
+  java_dir = [tarinfo for tarinfo in tar.getmembers()
+              if tarinfo.name.startswith('Java/')]
+  tar.extractall(SDK_DIR, java_dir)
+  tar.close()
   target_dir = os.path.join(SDK_DIR, 'src')
   if os.path.exists(target_dir):
     shutil.rmtree(os.path.join(SDK_DIR, 'src'))
 
-  subprocess.call(cmd)
   # Need rename Java to src so that java.gypi can recognize.
   os.rename(os.path.join(SDK_DIR, 'Java'), os.path.join(SDK_DIR, 'src'))
   return True
 
 
 def main():
+  if not sys.platform.startswith('linux'):
+    return 0
+
   sdk_file = os.path.join(SDK_DIR, os.path.basename(SDK_URL))
   valid_java_file = os.path.join(SDK_DIR, 'src', 'SevenZip', 'CRC.java')
 
