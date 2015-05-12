@@ -939,19 +939,19 @@
       'variables': {
         'variables': {
           'conditions': [
-            ['android_app_abi=="x86"', {
+            ['android_app_abi=="armeabi"', {
               'version_code_shift%': 1,
             }],
             ['android_app_abi=="armeabi-v7a"', {
               'version_code_shift%': 2,
             }],
-            ['android_app_abi=="armeabi"', {
+            ['android_app_abi=="arm64-v8a"', {
               'version_code_shift%': 3,
             }],
-            ['android_app_abi=="x86_64"', {
+            ['android_app_abi=="x86"', {
               'version_code_shift%': 4,
             }],
-            ['android_app_abi=="arm64-v8a"', {
+            ['android_app_abi=="x86_64"', {
               'version_code_shift%': 5,
             }],
           ], # conditions
