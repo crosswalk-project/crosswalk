@@ -89,8 +89,21 @@ void RfhToIoThreadClientMap::Set(pair<int, int> rfh_id,
 bool RfhToIoThreadClientMap::Get(
     pair<int, int> rfh_id, IoThreadClientData* client) {
   base::AutoLock lock(map_lock_);
-  RenderFrameHostToIoThreadClientType::iterator iterator =
-      rfh_to_io_thread_client_.find(rfh_id);
+  RenderFrameHostToIoThreadClientType::iterator iterator;
+
+  if (rfh_id.second != MSG_ROUTING_NONE) {
+    iterator = rfh_to_io_thread_client_.find(rfh_id);
+  } else {
+    // Content use render_frame_id= MSG_ROUTING_NONE for download request
+    // So just find the matched process_id
+    iterator = rfh_to_io_thread_client_.begin();
+    while (iterator != rfh_to_io_thread_client_.end()) {
+      if (iterator->first.first == rfh_id.first)
+        break;
+      iterator++;
+    }
+  }
+
   if (iterator == rfh_to_io_thread_client_.end())
     return false;
 
