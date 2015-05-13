@@ -30,4 +30,8 @@
   "xwalk/sysapps/sysapps_resources.grd": {
     "includes": [32175],
   },
+
+  "xwalk/runtime/resources/xwalk_strings.grd": {
+    "messages": [32200],
+  },
 }
