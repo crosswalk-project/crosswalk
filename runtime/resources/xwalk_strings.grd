@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1" source_lang_id="en">
+  <outputs>
+    <output filename="../grit/xwalk_strings.h" type="rc_header" >
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="en-US.pak" type="data_package" lang="en" />
+    <output filename="zh-CN.pak" type="data_package" lang="zh-CN" />
+  </outputs>
+  <translations>
+    <file path="locale/xwalk_strings_zh-CN.xtb" lang="zh-CN" />
+  </translations>
+  <release seq="1" allow_pseudo="false">
+    <messages fallback_to_english="true">
+      <message name="IDS_MINIMAL_UI_BACK" desc="The 'Back' button in minimal-ui navigation bar.">
+        Back
+      </message>
+      <message name="IDS_MINIMAL_UI_FORWARD" desc="The 'Forward' button in minimal-ui navigation bar.">
+        Forward
+      </message>
+      <message name="IDS_MINIMAL_UI_REFRESH" desc="The 'Refresh' button in minimal-ui navigation bar.">
+        Refresh
+      </message>
+      <message name="IDS_MINIMAL_UI_STOP" desc="The 'Stop' button in minimal-ui navigation bar.">
+        Stop
+      </message>
+    </messages>
+  </release>
+</grit>

@@ -95,7 +95,15 @@ void XWalkMainDelegate::InitializeResourceBundle() {
 
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
 #endif
+
+#if !defined(OS_ANDROID) && !defined(OS_TIZEN)
+  ui::ResourceBundle::InitSharedInstanceWithLocale(
+      "en-US", nullptr, ui::ResourceBundle::DO_NOT_LOAD_COMMON_RESOURCES);
+  ResourceBundle::GetSharedInstance().AddDataPackFromPath(
+      pak_file, ui::SCALE_FACTOR_NONE);
+#else
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
+#endif
 }
 
 content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {

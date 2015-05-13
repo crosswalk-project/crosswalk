@@ -7,7 +7,9 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/web_contents.h"
+#include "grit/xwalk_strings.h"
 #include "third_party/skia/include/core/SkPaint.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/gfx/canvas.h"
 #include "ui/views/background.h"
@@ -110,7 +112,8 @@ void NativeAppWindowDesktop::InitMinimalUI() {
 
     views::ColumnSet* toolbar_column_set = toolbar_layout->AddColumnSet(0);
     // Back button
-    back_button_ = new views::LabelButton(this, base::ASCIIToUTF16("Back"));
+    back_button_ = new views::LabelButton(
+        this, l10n_util::GetStringUTF16(IDS_MINIMAL_UI_BACK));
     back_button_->SetStyle(views::Button::STYLE_BUTTON);
     gfx::Size back_button_size = back_button_->GetPreferredSize();
     toolbar_column_set->AddColumn(
@@ -118,8 +121,8 @@ void NativeAppWindowDesktop::InitMinimalUI() {
         views::GridLayout::FIXED, back_button_size.width(),
         back_button_size.width() / 2);
     // Forward button
-    forward_button_ =
-        new views::LabelButton(this, base::ASCIIToUTF16("Forward"));
+    forward_button_ = new views::LabelButton(
+        this, l10n_util::GetStringUTF16(IDS_MINIMAL_UI_FORWARD));
     forward_button_->SetStyle(views::Button::STYLE_BUTTON);
     gfx::Size forward_button_size = forward_button_->GetPreferredSize();
     toolbar_column_set->AddColumn(
@@ -127,8 +130,8 @@ void NativeAppWindowDesktop::InitMinimalUI() {
         views::GridLayout::FIXED, forward_button_size.width(),
         forward_button_size.width() / 2);
     // Refresh button
-    refresh_button_ =
-        new views::LabelButton(this, base::ASCIIToUTF16("Refresh"));
+    refresh_button_ = new views::LabelButton(
+        this, l10n_util::GetStringUTF16(IDS_MINIMAL_UI_REFRESH));
     refresh_button_->SetStyle(views::Button::STYLE_BUTTON);
     gfx::Size refresh_button_size = refresh_button_->GetPreferredSize();
     toolbar_column_set->AddColumn(
@@ -136,7 +139,8 @@ void NativeAppWindowDesktop::InitMinimalUI() {
         views::GridLayout::FIXED, refresh_button_size.width(),
         refresh_button_size.width() / 2);
     // Stop button
-    stop_button_ = new views::LabelButton(this, base::ASCIIToUTF16("Stop"));
+    stop_button_ = new views::LabelButton(
+        this, l10n_util::GetStringUTF16(IDS_MINIMAL_UI_STOP));
     stop_button_->SetStyle(views::Button::STYLE_BUTTON);
     gfx::Size stop_button_size = stop_button_->GetPreferredSize();
     toolbar_column_set->AddColumn(

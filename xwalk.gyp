@@ -342,6 +342,10 @@
           ],
           'sources!':[
             'runtime/browser/runtime_platform_util_linux.cc',
+            'runtime/browser/runtime_ui_delegate_desktop.cc',
+            'runtime/browser/runtime_ui_delegate_desktop.h',
+            'runtime/browser/ui/native_app_window_desktop.cc',
+            'runtime/browser/ui/native_app_window_desktop.h',
             'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
             'runtime/browser/android/xwalk_web_contents_view_delegate.h',
           ],
@@ -485,6 +489,11 @@
             ['exclude', '^runtime/renderer/pepper/'],
           ],
         }],
+        ['tizen!=1 and OS!="android"', {
+          'dependencies': [
+            'xwalk_strings',
+          ],
+        }],
       ],
     },
     {
@@ -548,6 +557,32 @@
             'grit_grd_file': 'runtime/resources/xwalk_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
+        },
+      ],
+    },
+    {
+      'target_name': 'xwalk_strings',
+      'type': 'none',
+      'variables': {
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xwalk/locales',
+      },
+      'actions': [
+        {
+          'action_name': 'generate_xwalk_strings',
+          'variables': {
+            'grit_grd_file': 'runtime/resources/xwalk_strings.grd',
+            'grit_resource_ids': 'resources/resource_ids',
+          },
+          'includes': [ '../build/grit_action.gypi' ],
+        },
+      ],
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/locales',
+          'files': [
+            '<(grit_out_dir)/en-US.pak',
+            '<(grit_out_dir)/zh-CN.pak'
+          ],
         },
       ],
     },
