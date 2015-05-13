@@ -473,7 +473,20 @@
             ],
         }],
         ['enable_plugins==1', {
+          'sources': [
+            '../chrome/renderer/pepper/pepper_flash_drm_renderer_host.cc',
+            '../chrome/renderer/pepper/pepper_flash_drm_renderer_host.h',
+            '../chrome/renderer/pepper/pepper_flash_font_file_host.cc',
+            '../chrome/renderer/pepper/pepper_flash_font_file_host.h',
+            '../chrome/renderer/pepper/pepper_flash_fullscreen_host.cc',
+            '../chrome/renderer/pepper/pepper_flash_fullscreen_host.h',
+            '../chrome/renderer/pepper/pepper_flash_menu_host.cc',
+            '../chrome/renderer/pepper/pepper_flash_menu_host.h',
+            '../chrome/renderer/pepper/pepper_flash_renderer_host.cc',
+            '../chrome/renderer/pepper/pepper_flash_renderer_host.h',
+          ],
           'dependencies': [
+            '../components/components.gyp:pdf_renderer',
             '../ppapi/ppapi_internal.gyp:ppapi_host',
             '../ppapi/ppapi_internal.gyp:ppapi_proxy',
             '../ppapi/ppapi_internal.gyp:ppapi_ipc',
