@@ -9,8 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.RejectedExecutionException;
 
 class ReflectConstructor {
-    private ReflectExceptionHandler mHandler;
-
     private Class<?> mClass;
     private Class<?>[] mParameterTypes;
     private Constructor<?> mConstructor;
@@ -18,14 +16,11 @@ class ReflectConstructor {
     public ReflectConstructor() {
     }
 
-    public ReflectConstructor(ReflectExceptionHandler handler,
-            Class<?> clazz, Class<?>... parameterTypes) {
-        init(handler, clazz, parameterTypes);
+    public ReflectConstructor(Class<?> clazz, Class<?>... parameterTypes) {
+        init(clazz, parameterTypes);
     }
 
-    public boolean init(ReflectExceptionHandler handler,
-            Class<?> clazz, Class<?>... parameterTypes) {
-        mHandler = handler;
+    public boolean init(Class<?> clazz, Class<?>... parameterTypes) {
         mClass = clazz;
         mParameterTypes = parameterTypes;
         mConstructor = null;
@@ -46,20 +41,18 @@ class ReflectConstructor {
 
     public Object newInstance(Object... args) {
         if (mConstructor == null) {
-            handleException(new UnsupportedOperationException(toString()));
-            return null;
+            throw new UnsupportedOperationException(toString());
         }
 
         try {
             return mConstructor.newInstance(args);
         } catch (IllegalAccessException | InstantiationException e) {
-            handleException(new RejectedExecutionException(e));
+            throw new RejectedExecutionException(e);
         } catch (IllegalArgumentException e) {
-            handleException(e);
+            throw e;
         } catch (InvocationTargetException e) {
-            handleException(new RuntimeException(e.getCause()));
+            throw new RuntimeException(e.getCause());
         }
-        return null;
     }
 
     public boolean isNull() {
@@ -72,11 +65,5 @@ class ReflectConstructor {
         String ret = "";
         if (mClass != null) ret += mClass.toString();
         return ret;
-    }
-
-    private void handleException(RuntimeException exception) {
-        if (mHandler == null || !mHandler.handleException(exception)) {
-            throw exception;
-        }
     }
 }

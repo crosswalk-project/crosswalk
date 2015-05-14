@@ -118,7 +118,6 @@
         '../components/components.gyp:web_contents_delegate_android_java',
         '../content/content.gyp:content_java',
         '../ui/android/ui_android.gyp:ui_java',
-        'third_party/lzma_sdk/lzma_sdk_android.gyp:lzma_sdk_java',
         'xwalk_core_extensions_java',
         'xwalk_core_strings',
         'xwalk_core_reflection_layer_java_gen',
@@ -141,6 +140,8 @@
       'dependencies': [
         'xwalk_core_reflection_layer_java_gen',
         'xwalk_app_strings',
+        '../content/content.gyp:content_java',
+        'third_party/lzma_sdk/lzma_sdk_android.gyp:lzma_sdk_java',
       ],
       'variables': {
         'java_in_dir': 'runtime/android/core',

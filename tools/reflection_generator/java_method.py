@@ -136,7 +136,6 @@ class Method(object):
     self._wrapper_params_declare = ''
     self._wrapper_params_declare_for_bridge = ''
     self._wrapper_params_pass_to_bridge = ''
-    self._is_reservable = False;
 
     self.ParseMethodParams(params)
     self.ParseMethodAnnotation(annotation)
@@ -161,10 +160,6 @@ class Method(object):
   @property
   def is_abstract(self):
     return self._is_abstract
-
-  @property
-  def is_reservable(self):
-    return self._is_reservable
 
   @property
   def method_name(self):
@@ -204,9 +199,6 @@ class Method(object):
       self._typed_params[param_name] = ParamType(param_type, self._class_loader)
 
   def ParseMethodAnnotation(self, annotation):
-    if annotation.find('reservable = true') >= 0:
-      self._is_reservable = True
-
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
     for match in re.finditer(pre_wrapline_re, annotation):
@@ -632,7 +624,7 @@ ${PRE_WRAP_LINES}
 
     if (post_wrap_string != ''):
       pre_wrap_string += ("""
-        postWrapperMethod = new ReflectMethod(null, this,
+        postWrapperMethod = new ReflectMethod(this,
                 \"post%s\");\n""" % self._method_declare_name)
 
     value = {'DOC': self.GenerateDoc(self.method_doc),
@@ -661,7 +653,7 @@ ${DOC}
         XWalkCoreWrapper.initEmbeddedMode();
         XWalkCoreWrapper coreWrapper = \
 XWalkCoreWrapper.getInstance();
-        ReflectMethod method = new ReflectMethod(coreWrapper,
+        ReflectMethod method = new ReflectMethod(
                 coreWrapper.getBridgeClass("${BRIDGE_NAME}"),
                 "${NAME}"${PARAMS_DECLARE_FOR_BRIDGE});
         ${RETURN}method.invoke(${PARAMS_PASSING});
@@ -706,18 +698,6 @@ ${DOC}
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
     }
 """)
-    elif self.is_reservable:
-      template = Template("""\
-${DOC}
-    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        if (${METHOD_DECLARE_NAME}.isNull() &&
-                XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME})) {
-            ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_RESERVING});
-            return;
-        }
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
-    }
-""")
     else:
       template = Template("""\
 ${DOC}
@@ -739,7 +719,7 @@ ${DOC}
       if (param.find("getBridge()") > 0):
         param = param.replace('.getBridge()', '')
         params_reserving.append(
-            'new ReflectMethod(null, %s, "getBridge")' % param)
+            'new ReflectMethod(%s, "getBridge")' % param)
       else:
         params_reserving.append(param)
 
@@ -783,8 +763,7 @@ ${DOC}
           self.GenerateBridgeOverrideMethod(),
           self.GenerateBridgeWrapperMethod(),
           self.GenerateBridgeSuperMethod(),
-          '    private ReflectMethod %s = \
-new ReflectMethod(null, null, "%s");\n' %
+          '    private ReflectMethod %s = new ReflectMethod(null, "%s");\n' %
               (self._method_declare_name, self._method_name))
 
   def GenerateMethodsStringForWrapper(self):
@@ -797,8 +776,7 @@ new ReflectMethod(null, null, "%s");\n' %
     else:
       return '%s\n%s\n' % (
           self.GenerateWrapperBridgeMethod(),
-          '    private ReflectMethod %s = \
-new ReflectMethod(null, null, "%s");\n' %
+          '    private ReflectMethod %s = new ReflectMethod(null, "%s");\n' %
               (self._method_declare_name, self._method_name))
 
   def GenerateMethodsStringForInterface(self):

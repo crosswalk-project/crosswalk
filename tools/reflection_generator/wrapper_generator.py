@@ -187,8 +187,7 @@ coreWrapper.getBridgeObject(constructorParams.get(i)));
         constructorParams.add(this);
 
         ReflectConstructor constructor = new ReflectConstructor(
-                coreWrapper, coreWrapper.getBridgeClass(\"${BRIDGE_NAME}\"), \
-paramTypes);
+                coreWrapper.getBridgeClass(\"${BRIDGE_NAME}\"), paramTypes);
         bridge = constructor.newInstance(constructorParams.toArray());
 
         if (postWrapperMethod != null) postWrapperMethod.invoke();
@@ -199,7 +198,7 @@ paramTypes);
 
 
     ref_enum_template = Template("""\
-        ${METHOD}.init(coreWrapper, null,
+        ${METHOD}.init(null,
                 coreWrapper.getBridgeClass("${ENUM}"), "valueOf", String.class);
 """)
 
@@ -210,7 +209,7 @@ paramTypes);
       ref_methods_string += ref_enum_template.substitute(value)
 
     ref_method_template = Template("""\
-        ${METHOD_DECLARE_NAME}.init(coreWrapper, bridge, null,
+        ${METHOD_DECLARE_NAME}.init(bridge, null,
                 "${METHOD}Super"${PARAMS});
 """)
 
