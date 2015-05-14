@@ -10,6 +10,8 @@
 namespace xwalk {
 namespace sysapps {
 
+void CPUInfoProvider::init() {}
+
 double CPUInfoProvider::GetCPULoad() const {
   double load;
   getloadavg(&load, 1);

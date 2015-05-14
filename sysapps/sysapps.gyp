@@ -83,6 +83,13 @@
             'device_capabilities/storage_info_provider_chromium.h',
           ],
         }],
+        ['OS=="win"', {
+          'link_settings': {
+            'libraries': [
+              '-lPdh.lib',
+            ],
+          },
+        }]
       ],
       'direct_dependent_settings': {
         'include_dirs': [

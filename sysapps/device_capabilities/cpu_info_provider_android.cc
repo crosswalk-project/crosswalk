@@ -20,6 +20,8 @@ const char kProcLoadavg[] = "/proc/loadavg";
 namespace xwalk {
 namespace sysapps {
 
+void CPUInfoProvider::init() {}
+
 double CPUInfoProvider::GetCPULoad() const {
   // Bionic doesn't have a getloadavg() implementation.
   const base::FilePath proc_loadavg(kProcLoadavg);

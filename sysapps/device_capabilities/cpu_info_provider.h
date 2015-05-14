@@ -30,6 +30,8 @@ class CPUInfoProvider {
   // Android (via /proc/loadavg).
   double GetCPULoad() const;
 
+  void init();
+
   int number_of_processors_;
   std::string processor_architecture_;
 
