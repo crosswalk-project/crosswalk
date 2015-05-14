@@ -18,7 +18,6 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
-import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
@@ -30,7 +29,6 @@ import org.chromium.base.library_loader.LibraryProcessType;
 import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
-import org.chromium.net.NetworkChangeNotifier;
 
 @JNINamespace("xwalk")
 class XWalkViewDelegate {
@@ -99,7 +97,14 @@ class XWalkViewDelegate {
                 System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
             }
         }
-        loadLibrary(context);
+
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
+        try {
+            LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
+            libraryLoader.loadNow(context, true);
+        } catch (ProcessInitException e) {
+            throw new RuntimeException("Cannot load Crosswalk Core", e);
+        }
 
         if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
             throw new UnsatisfiedLinkError();
@@ -107,27 +112,11 @@ class XWalkViewDelegate {
         sLibraryLoaded = true;
     }
 
-    public static void init(XWalkViewInternal xwalkView) throws UnsatisfiedLinkError {
-        if (sInitialized) {
-            return;
-        }
+    public static void init(final Context context) {
+        if (sInitialized) return;
 
-        loadXWalkLibrary(null);
-
-        // Initialize the ActivityStatus. This is needed and used by many internal
-        // features such as location provider to listen to activity status.
-        ApplicationStatusManager.init(xwalkView.getActivity().getApplication());
-
-        // Auto detect network connectivity state.
-        // setAutoDetectConnectivityState() need to be called before activity started.
-        NetworkChangeNotifier.init(xwalkView.getActivity());
-        NetworkChangeNotifier.setAutoDetectConnectivityState(true);
-
-        // We will miss activity onCreate() status in ApplicationStatusManager,
-        // informActivityStarted() will simulate these callbacks.
-        ApplicationStatusManager.informActivityStarted(xwalkView.getActivity());
-
-        final Context context = xwalkView.getViewContext();
+        // Initialize chromium resources. Assign them the correct ids in xwalk core.
+        XWalkInternalResources.resetIds(context);
 
         // Last place to initialize CommandLine object. If you haven't initialize
         // the CommandLine object before XWalkViewContent is created, here will create
@@ -205,16 +194,6 @@ class XWalkViewDelegate {
 
         startBrowserProcess(context);
         sInitialized = true;
-    }
-
-    private static void loadLibrary(Context context) {
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
-        try {
-            LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
-            libraryLoader.loadNow(context, true);
-        } catch (ProcessInitException e) {
-            throw new RuntimeException("Cannot load Crosswalk Core", e);
-        }
     }
 
     private static void startBrowserProcess(final Context context) {
