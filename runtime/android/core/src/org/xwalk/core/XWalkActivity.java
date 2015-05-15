@@ -32,12 +32,12 @@ import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
  * <code>XWalkActivity</code> helps to execute all procedures for initializing the Crosswalk
  * environment, and displays dialogs for interacting with the end-user if necessary. The
  * activities that hold the {@link XWalkView} object might want to extend
- * <code>XWalkActivity</code> to obtain this capability. For those activities, it’s important
+ * <code>XWalkActivity</code> to obtain this capability. For those activities, it's important
  * to override the abstract method {@link #onXWalkReady} that notifies the Crosswalk
  * environment is ready.
  *
  * <p>In shared mode, the Crosswalk runtime library is not loaded yet at the moment the
- * activity is created. So the developer can’t use embedding API in <code>onCreate()</code>
+ * activity is created. So the developer can't use embedding API in <code>onCreate()</code>
  * as usual. All routines using embedding API should be inside {@link #onXWalkReady} or after
  * {@link #onXWalkReady} is invoked.
  */
