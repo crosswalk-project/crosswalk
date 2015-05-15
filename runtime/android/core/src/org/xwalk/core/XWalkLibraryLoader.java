@@ -228,7 +228,7 @@ class XWalkLibraryLoader {
             super();
             mListener = listener;
             mDownloadUrl = url;
-            mDownloadManager= (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         }
 
         @Override

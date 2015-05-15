@@ -109,23 +109,7 @@ public abstract class XWalkActivity extends Activity {
         @Override
         public void onDownloadFailed(int status, int error) {
             mXWalkActivity.dismissDialog();
-
-            String errMsg = null;
-            if (status == DownloadManager.STATUS_FAILED) {
-                if (error == DownloadManager.ERROR_DEVICE_NOT_FOUND) {
-                    errMsg = mXWalkActivity.getString(R.string.download_failed_device_not_found) ;
-                } else if (error == DownloadManager.ERROR_INSUFFICIENT_SPACE) {
-                    errMsg = mXWalkActivity.getString(R.string.download_failed_insufficient_space);
-                } else {
-                    errMsg = mXWalkActivity.getString(R.string.download_failed_message);
-                }
-            } else if (status == DownloadManager.STATUS_PAUSED) {
-                errMsg = mXWalkActivity.getString(R.string.download_failed_time_out);
-            }
-
-            AlertDialog dialog = mXWalkActivity.getDownloadFailedDialog();
-            dialog.setMessage(errMsg);
-            mXWalkActivity.showDialog(dialog);
+            mXWalkActivity.showDialog(mXWalkActivity.getDownloadFailedDialog(status, error));
         }
 
         @Override
@@ -272,6 +256,7 @@ public abstract class XWalkActivity extends Activity {
 
     private ProgressDialog getDecompressionProgressDialog() {
         ProgressDialog dialog = buildProgressDialog();
+        dialog.setTitle(getString(R.string.crosswalk_install_title));
         dialog.setMessage(getString(R.string.decompression_progress_message));
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_cancel),
                 new OnClickListener() {
@@ -285,6 +270,7 @@ public abstract class XWalkActivity extends Activity {
 
     private ProgressDialog getDownloadProgressDialog() {
         ProgressDialog dialog = buildProgressDialog();
+        dialog.setTitle(getString(R.string.crosswalk_install_title));
         dialog.setMessage(getString(R.string.download_progress_message));
         dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
@@ -297,9 +283,21 @@ public abstract class XWalkActivity extends Activity {
         return dialog;
     }
 
-    private AlertDialog getDownloadFailedDialog() {
+    private AlertDialog getDownloadFailedDialog(int status, int error) {
+        String message = getString(R.string.download_failed_message);
+        if (status == DownloadManager.STATUS_FAILED) {
+            if (error == DownloadManager.ERROR_DEVICE_NOT_FOUND) {
+                message = getString(R.string.download_failed_device_not_found) ;
+            } else if (error == DownloadManager.ERROR_INSUFFICIENT_SPACE) {
+                message = getString(R.string.download_failed_insufficient_space);
+            }
+        } else if (status == DownloadManager.STATUS_PAUSED) {
+            message = getString(R.string.download_failed_time_out);
+        }
+
         AlertDialog dialog = buildAlertDialog();
-        dialog.setTitle(getString(R.string.download_failed_title));
+        dialog.setTitle(getString(R.string.crosswalk_install_title));
+        dialog.setMessage(message);
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_retry),
                 new OnClickListener() {
                     @Override
@@ -307,7 +305,7 @@ public abstract class XWalkActivity extends Activity {
                         downloadXWalkLibrary();
                     }
                 });
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -319,10 +317,9 @@ public abstract class XWalkActivity extends Activity {
 
     private AlertDialog getMarketOpenFailedDialog() {
         AlertDialog dialog = buildAlertDialog();
-        dialog.setTitle(getString(R.string.market_open_failed_title));
+        dialog.setTitle(getString(R.string.crosswalk_install_title));
         dialog.setMessage(getString(R.string.market_open_failed_message));
-
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -336,14 +333,14 @@ public abstract class XWalkActivity extends Activity {
         AlertDialog dialog = buildAlertDialog();
         dialog.setTitle(getString(R.string.startup_not_found_title));
         dialog.setMessage(getString(R.string.startup_not_found_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.get_crosswalk),
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_continue),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         getXWalkLibrary();
                     }
                 });
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -357,14 +354,14 @@ public abstract class XWalkActivity extends Activity {
         AlertDialog dialog = buildAlertDialog();
         dialog.setTitle(getString(R.string.startup_architecture_mismatch_title));
         dialog.setMessage(getString(R.string.startup_architecture_mismatch_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.get_crosswalk),
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_continue),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         getXWalkLibrary();
                     }
                 });
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -378,7 +375,7 @@ public abstract class XWalkActivity extends Activity {
         AlertDialog dialog = buildAlertDialog();
         dialog.setTitle(getString(R.string.startup_signature_check_error_title));
         dialog.setMessage(getString(R.string.startup_signature_check_error_message));
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -392,14 +389,14 @@ public abstract class XWalkActivity extends Activity {
         AlertDialog dialog = buildAlertDialog();
         dialog.setTitle(getString(R.string.startup_older_version_title));
         dialog.setMessage(getString(R.string.startup_older_version_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.get_crosswalk),
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_continue),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         getXWalkLibrary();
                     }
                 });
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -413,7 +410,7 @@ public abstract class XWalkActivity extends Activity {
         AlertDialog dialog = buildAlertDialog();
         dialog.setTitle(getString(R.string.startup_newer_version_title));
         dialog.setMessage(getString(R.string.startup_newer_version_message));
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_cancel),
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.xwalk_close),
                 new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
