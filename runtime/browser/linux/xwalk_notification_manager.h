@@ -47,7 +47,8 @@ class XWalkNotificationManager {
   void NotificationClosed(NotifyNotification* notification);
 
  private:
-  base::ScopedPtrHashMap<int64, content::DesktopNotificationDelegate>
+  base::ScopedPtrHashMap<int64,
+                         scoped_ptr<content::DesktopNotificationDelegate>>
       notifications_map_;
   std::map<std::string, NotifyNotification*> notifications_replace_map_;
   std::map<NotifyNotification*, gulong> notifications_handler_map_;
