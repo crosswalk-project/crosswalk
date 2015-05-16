@@ -35,6 +35,8 @@ const char kTargetTypePage[] = "page";
 const char kTargetTypeServiceWorker[] = "service_worker";
 const char kTargetTypeOther[] = "other";
 
+const char kWebUIScheme[] = "chrome";
+
 class Target : public content::DevToolsTarget {
  public:
   explicit Target(scoped_refptr<content::DevToolsAgentHost> agent_host);
@@ -83,24 +85,21 @@ class Target : public content::DevToolsTarget {
 Target::Target(scoped_refptr<content::DevToolsAgentHost> agent_host)
     : agent_host_(agent_host) {
   if (content::WebContents* web_contents = agent_host_->GetWebContents()) {
+// The front-end (chrome://inspect) for Android WebView doesn't need Favicon.
+#if !defined(OS_ANDROID)
     content::NavigationController& controller = web_contents->GetController();
     content::NavigationEntry* entry = controller.GetActiveEntry();
     if (entry != NULL && entry->GetURL().is_valid())
       favicon_url_ = entry->GetFavicon().url;
-    if (favicon_url_.is_empty())
+    if (favicon_url_.is_empty() && !entry->GetURL().SchemeIs(kWebUIScheme))
       favicon_url_ = GetFaviconDataURL(web_contents);
+#endif
     last_activity_time_ = web_contents->GetLastActiveTime();
   }
 }
 
 GURL Target::GetFaviconDataURL(WebContents* web_contents) const {
   // Convert icon image to "data:" url.
-#if defined(OS_ANDROID)
-  // TODO(YangangHan): Add a new base parent class of WebContents
-  // for both Tizen and Android, so we can remove the current macro
-  // in the future.
-  return GURL();
-#endif
   xwalk::Runtime* runtime =
       static_cast<xwalk::Runtime*>(web_contents->GetDelegate());
   if (!runtime || runtime->app_icon().IsEmpty())
