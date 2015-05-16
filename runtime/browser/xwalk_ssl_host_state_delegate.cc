@@ -66,6 +66,13 @@ bool XWalkSSLHostStateDelegate::DidHostRunInsecureContent(
   return false;
 }
 
+void XWalkSSLHostStateDelegate::RevokeUserAllowExceptions(const std::string& host) {
+}
+
+bool XWalkSSLHostStateDelegate::HasAllowException(const std::string& host) const {
+  return false;
+}
+
 void XWalkSSLHostStateDelegate::AllowCert(const std::string& host,
                                           const net::X509Certificate& cert,
                                           net::CertStatus error) {
