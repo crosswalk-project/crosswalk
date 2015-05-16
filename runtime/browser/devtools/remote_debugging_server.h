@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 
-namespace content {
+namespace devtools_http_handler {
 class DevToolsHttpHandler;
 }
 
@@ -29,7 +29,7 @@ class RemoteDebuggingServer {
   int port() { return port_; }
 
  private:
-  scoped_ptr<content::DevToolsHttpHandler> devtools_http_handler_;
+  scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
   int port_;
   DISALLOW_COPY_AND_ASSIGN(RemoteDebuggingServer);
 };
