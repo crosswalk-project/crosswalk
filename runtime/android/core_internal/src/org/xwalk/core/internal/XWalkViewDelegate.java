@@ -230,6 +230,12 @@ class XWalkViewDelegate {
                 CommandLine.getInstance().appendSwitchWithValue(
                         XWalkSwitches.PROFILE_NAME,
                         XWalkPreferencesInternal.getStringValue(XWalkPreferencesInternal.PROFILE_NAME));
+
+                if (XWalkPreferencesInternal.getValue(XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW) &&
+                        !CommandLine.getInstance().hasSwitch(XWalkSwitches.DISABLE_GPU_RASTERIZATION)) {
+                    CommandLine.getInstance().appendSwitch(XWalkSwitches.DISABLE_GPU_RASTERIZATION);
+                }
+
                 try {
                     BrowserStartupController.get(context, LibraryProcessType.PROCESS_BROWSER).
                         startBrowserProcessesSync(true);
