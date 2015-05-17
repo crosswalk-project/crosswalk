@@ -11,6 +11,8 @@ public abstract class XWalkSwitches {
     // Native switch - xwalk_switches::kXWalkProfileName
     public static final String PROFILE_NAME = "profile-name";
 
+    public static final String DISABLE_GPU_RASTERIZATION = "disable-gpu-rasterization";
+
     // Prevent instantiation.
     private XWalkSwitches() {}
 }
