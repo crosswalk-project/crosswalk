@@ -27,6 +27,9 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#if defined(USE_GTK_UI)
+#include "xwalk/runtime/browser/ui/gtk2_ui.h"
+#endif
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -138,6 +141,10 @@ void XWalkBrowserMainParts::PreEarlyInitialization() {
 #if defined(USE_WEBUI_FILE_PICKER)
   ui::LinuxShellDialog::SetInstance(BuildWebUI());
   wm_state_.reset(new wm::WMState);
+#elif defined(USE_GTK_UI)
+  views::LinuxUI* gtk2_ui = BuildGtk2UI();
+  gtk2_ui->Initialize();
+  views::LinuxUI::SetInstance(gtk2_ui);
 #endif
 #endif
 }

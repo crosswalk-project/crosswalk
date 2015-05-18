@@ -456,6 +456,12 @@
             'runtime/common/url_constants.h',
           ],
         }],
+        ['OS=="linux" and tizen!=1', {
+          'defines': ['USE_GTK_UI'],
+          'dependencies': [
+            '../chrome/browser/ui/libgtk2ui/libgtk2ui.gyp:gtk2ui',
+          ],
+        }],  # OS=="linux" and tizen!=1
         ['disable_nacl==0', {
             'conditions': [
                 ['OS=="linux"', {
