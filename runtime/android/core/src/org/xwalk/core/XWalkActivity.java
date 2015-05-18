@@ -49,6 +49,7 @@ public abstract class XWalkActivity extends Activity {
     private XWalkLibraryListener mLibraryListener;
     private Dialog mActiveDialog;
     private boolean mIsXWalkReady;
+    private boolean mDecoratedBackground;
     private String mXWalkApkDownloadUrl;
 
     private static class XWalkLibraryListener
@@ -150,7 +151,7 @@ public abstract class XWalkActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (!mIsXWalkReady) initXWalkLibrary();
+        if (!mIsXWalkReady && !(mActiveDialog instanceof ProgressDialog)) initXWalkLibrary();
     }
 
     /**
@@ -177,11 +178,22 @@ public abstract class XWalkActivity extends Activity {
         int status = XWalkLibraryLoader.initXWalkLibrary(this);
         if (status == XWalkLibraryInterface.STATUS_MATCH) {
             if (mActiveDialog != null) dismissDialog();
+            if (mDecoratedBackground) {
+                getWindow().setBackgroundDrawable(null);
+                mDecoratedBackground = false;
+            }
             XWalkLibraryLoader.startInitialization(mLibraryListener);
             return;
         }
 
         if (mActiveDialog != null) return;
+
+        // Set background to screen_background_dark temporarily if default background is null
+        // to avoid the visual artifacts around the alert dialog
+        if (getWindow().getDecorView().getBackground() == null) {
+            getWindow().setBackgroundDrawableResource(android.R.drawable.screen_background_dark);
+            mDecoratedBackground = true;
+        }
 
         if (status == XWalkLibraryInterface.STATUS_NOT_FOUND) {
             showDialog(getStartupNotFoundDialog());
