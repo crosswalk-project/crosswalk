@@ -133,10 +133,10 @@ public abstract class XWalkActivity extends Activity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         if (!mIsXWalkReady && !(mActiveDialog instanceof ProgressDialog)) initXWalkLibrary();
-}
+    }
 
     /**
      * Returns the Resource instance comes from the application context
@@ -172,6 +172,8 @@ public abstract class XWalkActivity extends Activity {
 
         if (mActiveDialog != null) return;
 
+        // Set background to screen_background_dark temporarily if default background is null
+        // to avoid the visual artifacts around the alert dialog
         if (getWindow().getDecorView().getBackground() == null) {
             getWindow().setBackgroundDrawableResource(android.R.drawable.screen_background_dark);
             mDecoratedBackground = true;
