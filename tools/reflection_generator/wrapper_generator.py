@@ -175,7 +175,7 @@ ${DOC}
             if (type instanceof String) {
                 paramTypes[i] = coreWrapper.getBridgeClass((String) type);
                 constructorParams.set(i, \
-coreWrapper.getBridge(constructorParams.get(i)));
+coreWrapper.getBridgeObject(constructorParams.get(i)));
             } else if (type instanceof Class<?>) {
                 paramTypes[i] = (Class<?>) type;
             } else {
@@ -187,8 +187,7 @@ coreWrapper.getBridge(constructorParams.get(i)));
         constructorParams.add(this);
 
         ReflectConstructor constructor = new ReflectConstructor(
-                coreWrapper, coreWrapper.getBridgeClass(\"${BRIDGE_NAME}\"), \
-paramTypes);
+                coreWrapper.getBridgeClass(\"${BRIDGE_NAME}\"), paramTypes);
         bridge = constructor.newInstance(constructorParams.toArray());
 
         if (postWrapperMethod != null) postWrapperMethod.invoke();
@@ -199,7 +198,7 @@ paramTypes);
 
 
     ref_enum_template = Template("""\
-        ${METHOD}.init(coreWrapper,
+        ${METHOD}.init(null,
                 coreWrapper.getBridgeClass("${ENUM}"), "valueOf", String.class);
 """)
 
@@ -210,7 +209,7 @@ paramTypes);
       ref_methods_string += ref_enum_template.substitute(value)
 
     ref_method_template = Template("""\
-        ${METHOD_DECLARE_NAME}.init(coreWrapper, bridge,
+        ${METHOD_DECLARE_NAME}.init(bridge, null,
                 "${METHOD}Super"${PARAMS});
 """)
 
@@ -225,7 +224,9 @@ paramTypes);
       ref_methods_string += ref_method_template.substitute(value)
 
     ref_init_template = Template("""\
-    public void reflectionInit() {
+    void reflectionInit() {
+        XWalkCoreWrapper.initEmbeddedMode();
+
 ${REF_INIT}
 ${REF_METHODS}    }
 """)

@@ -12,6 +12,12 @@
       ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
       }],
+      ['OS=="android"', {
+        'sdk_version': '<!(python ../build/util/version.py -f SDK_VERSION -t "@SDK@")',
+        'min_sdk_version': '<!(python ../build/util/version.py -f SDK_VERSION -t "@MIN_SDK@")',
+        # Whether we should verify package integrity before loading Crosswalk runtime libraray in shared mode
+        'verify_xwalk_apk%': 0,
+      }],
     ], # conditions
   },
   'includes' : [
@@ -724,12 +730,14 @@
 
             # For external testing.
             'pack_xwalk_core_library',
+            'pack_xwalk_shared_library',
             'xwalk_core_library_documentation',
             'xwalk_runtime_lib_apk',
             'xwalk_app_hello_world_apk',
             'xwalk_app_template',
             'xwalk_core_sample_apk',
             'xwalk_core_library_aar',
+            'xwalk_shared_library_aar',
             'xwalk_packaging_tool_test',
           ],
         }],

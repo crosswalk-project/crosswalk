@@ -136,7 +136,6 @@ class Method(object):
     self._wrapper_params_declare = ''
     self._wrapper_params_declare_for_bridge = ''
     self._wrapper_params_pass_to_bridge = ''
-    self._is_reservable = False;
 
     self.ParseMethodParams(params)
     self.ParseMethodAnnotation(annotation)
@@ -161,10 +160,6 @@ class Method(object):
   @property
   def is_abstract(self):
     return self._is_abstract
-
-  @property
-  def is_reservable(self):
-    return self._is_reservable
 
   @property
   def method_name(self):
@@ -204,9 +199,6 @@ class Method(object):
       self._typed_params[param_name] = ParamType(param_type, self._class_loader)
 
   def ParseMethodAnnotation(self, annotation):
-    if annotation.find('reservable = true') >= 0:
-      self._is_reservable = True
-
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
     for match in re.finditer(pre_wrapline_re, annotation):
@@ -337,7 +329,7 @@ class Method(object):
           '                public void onReceiveValue(Object value) {\n' +
           '                    %sFinal.onReceiveValue((%s) ' % (
               param_name, internal_generic_type_class.bridge_name) +
-          'coreBridge.getBridge(value));\n' +
+          'coreBridge.getBridgeObject(value));\n' +
           '                }\n' +
           '            }')
       else:
@@ -484,7 +476,7 @@ class Method(object):
     if return_is_internal:
       template = Template("""\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        ${GENERIC_TYPE_DECLARE}${RETURN}coreBridge.getBridge(\
+        ${GENERIC_TYPE_DECLARE}${RETURN}coreBridge.getBridgeObject(\
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
     }
 """)
@@ -632,7 +624,7 @@ ${PRE_WRAP_LINES}
 
     if (post_wrap_string != ''):
       pre_wrap_string += ("""
-        postWrapperMethod = new ReflectMethod(null, this,
+        postWrapperMethod = new ReflectMethod(this,
                 \"post%s\");\n""" % self._method_declare_name)
 
     value = {'DOC': self.GenerateDoc(self.method_doc),
@@ -658,9 +650,10 @@ ${POST_WRAP_LINES}
     template = Template("""\
 ${DOC}
     public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        XWalkCoreWrapper.initEmbeddedMode();
         XWalkCoreWrapper coreWrapper = \
 XWalkCoreWrapper.getInstance();
-        ReflectMethod method = new ReflectMethod(coreWrapper,
+        ReflectMethod method = new ReflectMethod(
                 coreWrapper.getBridgeClass("${BRIDGE_NAME}"),
                 "${NAME}"${PARAMS_DECLARE_FOR_BRIDGE});
         ${RETURN}method.invoke(${PARAMS_PASSING});
@@ -701,20 +694,8 @@ XWalkCoreWrapper.getInstance();
       template = Template("""\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        return (${RETURN_TYPE}) coreWrapper.getWrapper(\
+        return (${RETURN_TYPE}) coreWrapper.getWrapperObject(\
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
-    }
-""")
-    elif self.is_reservable:
-      template = Template("""\
-${DOC}
-    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        if (${METHOD_DECLARE_NAME}.isNull() &&
-                XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME})) {
-            ${METHOD_DECLARE_NAME}.reserveArguments(${PARAMS_PASSING});
-            return;
-        }
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
     }
 """)
     else:
@@ -732,13 +713,24 @@ ${DOC}
       return_state = ''
     else:
       return_state = 'return (%s)' % ConvertPrimitiveTypeToObject(return_type)
+
+    params_reserving = []
+    for param in self._wrapper_params_pass_to_bridge.split(', '):
+      if (param.find("getBridge()") > 0):
+        param = param.replace('.getBridge()', '')
+        params_reserving.append(
+            'new ReflectMethod(%s, "getBridge")' % param)
+      else:
+        params_reserving.append(param)
+
     value = {'RETURN_TYPE': return_type,
              'RETURN': return_state,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
-             'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>', 
+             'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>',
                   r'ValueCallback<\1>',self._wrapper_params_declare),
              'METHOD_DECLARE_NAME': self._method_declare_name,
+             'PARAMS_RESERVING': ', '.join(params_reserving),
              'PARAMS_PASSING': self._wrapper_params_pass_to_bridge}
 
     return template.substitute(value)
@@ -771,8 +763,8 @@ ${DOC}
           self.GenerateBridgeOverrideMethod(),
           self.GenerateBridgeWrapperMethod(),
           self.GenerateBridgeSuperMethod(),
-          '    private ReflectMethod %s = new ReflectMethod();\n' %
-              self._method_declare_name)
+          '    private ReflectMethod %s = new ReflectMethod(null, "%s");\n' %
+              (self._method_declare_name, self._method_name))
 
   def GenerateMethodsStringForWrapper(self):
     if self._is_constructor:
@@ -784,8 +776,8 @@ ${DOC}
     else:
       return '%s\n%s\n' % (
           self.GenerateWrapperBridgeMethod(),
-          '    private ReflectMethod %s = new ReflectMethod();\n' %
-              self._method_declare_name )
+          '    private ReflectMethod %s = new ReflectMethod(null, "%s");\n' %
+              (self._method_declare_name, self._method_name))
 
   def GenerateMethodsStringForInterface(self):
     return self.GenerateWrapperInterface()

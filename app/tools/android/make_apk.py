@@ -31,6 +31,8 @@ from manifest_json_parser import ManifestJsonParser
 
 NATIVE_LIBRARY = 'libxwalkcore.so'
 DUMMY_LIBRARY = 'libxwalkdummy.so'
+EMBEDDED_LIBRARY = 'xwalk_core_library'
+SHARED_LIBRARY = 'xwalk_shared_library'
 
 
 def ConvertArchNameToArchFolder(arch):
@@ -97,6 +99,8 @@ def ParseManifest(options):
   else:
     print('Error: there is no app launch path defined in manifest.json.')
     sys.exit(9)
+  if not options.xwalk_apk_url and parser.GetXWalkApkUrl():
+    options.xwalk_apk_url = parser.GetXWalkApkUrl()
   options.icon_dict = {}
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
@@ -217,6 +221,8 @@ def Customize(options, app_info, manifest):
     app_info.orientation = options.orientation
   if options.icon:
     app_info.icon = '%s' % os.path.expanduser(options.icon)
+  if options.xwalk_apk_url:
+    app_info.xwalk_apk_url = options.xwalk_apk_url
 
   #Add local extensions to extension list.
   extension_binary_path_list = GetExtensionBinaryPathList()
@@ -279,9 +285,15 @@ def Execution(options, name):
   if options.mode == 'embedded':
     print(' * Updating project with xwalk_core_library')
     RunCommand([android_path, 'update', 'lib-project',
-                '--path', os.path.join(app_dir, 'xwalk_core_library'),
+                '--path', os.path.join(app_dir, EMBEDDED_LIBRARY),
                 '--target', target_string])
-    update_project_cmd.extend(['-l', 'xwalk_core_library'])
+    update_project_cmd.extend(['-l', EMBEDDED_LIBRARY])
+  elif options.mode == 'shared':
+    print(' * Updating project with xwalk_shared_library')
+    RunCommand([android_path, 'update', 'lib-project',
+                '--path', os.path.join(app_dir, SHARED_LIBRARY),
+                '--target', target_string])
+    update_project_cmd.extend(['-l', SHARED_LIBRARY])
   else:
     print(' * Updating project')
   RunCommand(update_project_cmd)
@@ -306,8 +318,8 @@ def Execution(options, name):
     if not arch:
       print ('Invalid CPU arch: %s.' % arch)
       sys.exit(10)
-    library_lib_path = os.path.join(app_dir, 'xwalk_core_library', 'libs')
-    raw_path = os.path.join(app_dir, 'xwalk_core_library', 'res', 'raw')
+    library_lib_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'libs')
+    raw_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'res', 'raw')
     for dir_name in os.listdir(library_lib_path):
       lib_dir = os.path.join(library_lib_path, dir_name)
       if ContainsNativeLibrary(lib_dir):
@@ -429,19 +441,18 @@ def MakeApk(options, app_info, manifest):
   app_dir = GetBuildDir(name)
   packaged_archs = []
   if options.mode == 'shared':
-    # For shared mode, it's not necessary to use the whole xwalk core library,
-    # use xwalk_core_library_java_app_part.jar from it is enough.
-    java_app_part_jar = os.path.join(xwalk_dir, 'xwalk_core_library', 'libs',
-                                     'xwalk_core_library_java_app_part.jar')
-    shutil.copy(java_app_part_jar, os.path.join(app_dir, 'libs'))
+    # Copy xwalk_shared_library into app folder
+    target_library_path = os.path.join(app_dir, SHARED_LIBRARY)
+    shutil.copytree(os.path.join(xwalk_dir, SHARED_LIBRARY),
+                    target_library_path)
     Execution(options, name)
   elif options.mode == 'embedded':
     # Copy xwalk_core_library into app folder and move the native libraries
     # out.
     # When making apk for specified CPU arch, will only include the
     # corresponding native library by copying it back into xwalk_core_library.
-    target_library_path = os.path.join(app_dir, 'xwalk_core_library')
-    shutil.copytree(os.path.join(xwalk_dir, 'xwalk_core_library'),
+    target_library_path = os.path.join(app_dir, EMBEDDED_LIBRARY)
+    shutil.copytree(os.path.join(xwalk_dir, EMBEDDED_LIBRARY),
                     target_library_path)
     library_lib_path = os.path.join(target_library_path, 'libs')
     native_lib_path = os.path.join(app_dir, 'native_libs')
@@ -474,7 +485,6 @@ def MakeApk(options, app_info, manifest):
         else:
           print('Warning: failed to create package for arch "%s" '
                 'due to missing native library' % arch)
-
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
         sys.exit(13)
@@ -542,6 +552,11 @@ def main(argv):
           '\'app_root\'. This flag should work with \'--app-root\' together. '
           'For example, --app-local-path=/relative/path/of/entry/file')
   group.add_option('--app-local-path', help=info)
+  info = ('The download URL of the Crosswalk runtime library APK. '
+          'The built-in updater uses the Android download manager to fetch '
+          'the url. '
+          'For example, --xwalk-apk-url=http://myhost/XWalkRuntimeLib.apk')
+  group.add_option('--xwalk-apk-url', help=info)
   parser.add_option_group(group)
   # Mandatory options group
   group = optparse.OptionGroup(parser, 'Mandatory arguments',

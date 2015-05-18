@@ -100,15 +100,14 @@ ${REFLECTION_INIT_SECTION}}
     if self._java_data.HasCreateInternallyAnnotation():
       ref_init_templete = Template("""
         ReflectConstructor constructor = new ReflectConstructor(
-                coreBridge, coreBridge.getWrapperClass("${WRAPPER_NAME}"), \
-Object.class);
+                coreBridge.getWrapperClass("${WRAPPER_NAME}"), Object.class);
         this.wrapper = constructor.newInstance(this);
 """)
       value = {'WRAPPER_NAME': self._java_data.GetWrapperName()}
       ref_init_string += ref_init_templete.substitute(value)
 
     ref_enum_template = Template("""\
-        ${METHOD}.init(coreBridge,
+        ${METHOD}.init(null,
                 coreBridge.getWrapperClass("${ENUM}"), "valueOf", String.class);
 """)
 
@@ -119,7 +118,7 @@ Object.class);
       ref_methods_string += ref_enum_template.substitute(value)
 
     ref_method_template = Template("""\
-        ${METHOD_DECLARE_NAME}.init(coreBridge, wrapper,
+        ${METHOD_DECLARE_NAME}.init(wrapper, null,
                 "${METHOD}"${PARAMS});
 """)
 
@@ -134,7 +133,7 @@ Object.class);
       ref_methods_string += ref_method_template.substitute(value)
 
     ref_init_template = Template("""\
-    public void reflectionInit() {
+    void reflectionInit() {
 ${REF_INIT}
 ${REF_METHODS}    }
 """)

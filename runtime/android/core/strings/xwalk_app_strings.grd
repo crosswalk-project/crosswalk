@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit current_release="1" latest_public_release="0">
+  <release allow_pseudo="false" seq="1">
+    <messages fallback_to_english="true">
+      <message desc="Crosswalk Install Title [CHAR-LIMIT=100]" name="IDS_CROSSWALK_INSTALL_TITLE">
+        Crosswalk Project Install
+      </message>
+      <message desc="Decompression Progress Message [CHAR-LIMIT=100]" name="IDS_DECOMPRESSION_PROGRESS_MESSAGE">
+        Decompressing Crosswalk Project...
+      </message>
+      <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
+        Downloading Crosswalk Project from remote host...
+      </message>
+      <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
+        Download failed. An network error occurred.
+      </message>
+      <message desc="Download Failed Not Found [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_DEVICE_NOT_FOUND">
+        Download failed. Storage device not found.
+      </message>
+      <message desc="Download Failed Insufficient space [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_INSUFFICIENT_SPACE">
+        Download failed. Insufficient disk space.
+      </message>
+      <message desc="Download Failed Time Out [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_TIME_OUT">
+        Download failed. The network connection timed out.
+      </message>
+      <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
+        Failed to open the app store
+      </message>
+      <message desc="Startup Not Found Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_TITLE">
+        Crosswalk Project Not Found
+      </message>
+      <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
+        This application requires the Crosswalk Project runtime to work. Select "Continue" to download it.
+      </message>
+      <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
+        Mismatch of CPU Architecture for Crosswalk Project
+      </message>
+      <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
+        The Crosswalk Project must be updated to match the CPU architecture of the device. Select "Continue" to download it.
+      </message>
+      <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
+        Crosswalk Project Signature Verification Failed
+      </message>
+      <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
+        The integrity of Crosswalk runtime library can not be verified.
+      </message>
+      <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
+        New Crosswalk Project Runtime Required
+      </message>
+      <message desc="Startup Older Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_MESSAGE">
+        The version of Crosswalk Project on this system must be updated. Select "Continue" to download it.
+      </message>
+      <message desc="Startup Newer Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_TITLE">
+        Crosswalk Project Version Incompatible
+      </message>
+      <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
+        The application is not compatible with the installed version of the Crosswalk Project runtime.
+      </message>
+      <message desc="Label of Cancel [CHAR-LIMIT=100]" name="IDS_XWALK_CANCEL">
+        Cancel
+      </message>
+      <message desc="Label of Continue [CHAR-LIMIT=100]" name="IDS_XWALK_CONTINUE">
+        Continue
+      </message>
+      <message desc="Label of Close [CHAR-LIMIT=100]" name="IDS_XWALK_CLOSE">
+        Close
+      </message>
+      <message desc="Label of Retry [CHAR-LIMIT=100]" name="IDS_XWALK_RETRY">
+        Retry
+      </message>
+    </messages>
+  </release>
+  <translations>
+  </translations>
+  <outputs>
+    <output filename="values/xwalk_app_strings.xml" lang="en" type="android" />
+  </outputs>
+</grit>

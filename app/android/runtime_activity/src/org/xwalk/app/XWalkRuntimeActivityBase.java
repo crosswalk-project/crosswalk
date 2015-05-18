@@ -35,6 +35,9 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
     @Override
     public void onXWalkReady() {
         tryLoadRuntimeView();
+        // TODO(sunlin): In shared mode, mRuntimeView.onCreate() will be
+        // called after onResume(). Currently, there is no impact because
+        // both of onCreate and onResume in XWalkRuntimeView is empty.
         if (mRuntimeView != null) mRuntimeView.onCreate();
     }
 

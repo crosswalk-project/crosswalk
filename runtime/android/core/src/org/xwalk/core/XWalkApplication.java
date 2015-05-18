@@ -22,6 +22,11 @@ public class XWalkApplication extends Application {
         gApp = this;
     }
 
+    /**
+     * In embedded mode, returns a Resources instance for the application's package. In shared mode,
+     * returns a mised Resources instance that can get resources not only from the application but
+     * also from the shared library across package.
+     */
     @Override
     public Resources getResources() {
         return mRes == null ? super.getResources() : mRes;
