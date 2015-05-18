@@ -129,8 +129,8 @@ public abstract class XWalkActivity extends Activity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         if (!mIsXWalkReady && !(mActiveDialog instanceof ProgressDialog)) initXWalkLibrary();
     }
 
