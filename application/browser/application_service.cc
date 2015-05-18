@@ -131,9 +131,12 @@ Application* ApplicationService::LaunchFromPackagePath(
     return NULL;
   }
 
+  std::string app_id;
+  if (package->manifest_type() == Manifest::TYPE_MANIFEST)
+    app_id = package->Id();
   std::string error;
   scoped_refptr<ApplicationData> application_data = LoadApplication(
-      target_dir, std::string(), ApplicationData::TEMP_DIRECTORY,
+      target_dir, app_id, ApplicationData::TEMP_DIRECTORY,
       package->manifest_type(), &error);
   if (!application_data.get()) {
     LOG(ERROR) << "Error occurred while trying to load application: "
