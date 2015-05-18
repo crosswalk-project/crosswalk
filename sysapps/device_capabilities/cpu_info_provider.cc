@@ -12,6 +12,7 @@ namespace sysapps {
 CPUInfoProvider::CPUInfoProvider()
     : number_of_processors_(base::SysInfo::NumberOfProcessors()),
       processor_architecture_(base::SysInfo::OperatingSystemArchitecture()) {
+  init();
 }
 
 CPUInfoProvider::~CPUInfoProvider() {}
