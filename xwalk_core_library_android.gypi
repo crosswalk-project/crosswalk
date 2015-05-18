@@ -12,7 +12,7 @@
       'target_name': 'xwalk_core_library_documentation',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_reflection_layer_java_gen'
+        'xwalk_core_library_java_app_part'
       ],
       'variables': {
         'api_files': [
@@ -29,6 +29,7 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkUIClient.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkView.java',
         ],
+        'xwalk_core_jar': '<(PRODUCT_DIR)/lib.java/xwalk_core_library_java_app_part.jar',
         'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',
       },
       'actions': [
@@ -36,7 +37,7 @@
           'action_name': 'javadoc_xwalk_core_library',
           'message': 'Creating documentation for XWalk Core Library',
           'inputs': [
-            '>(reflection_layer_gen_timestamp)',
+            '>(xwalk_core_jar)',
           ],
           'outputs': [
             '<(docs)/index.html',
@@ -47,6 +48,7 @@
             '-XDignore.symbol.file',
             '-d', '<(docs)',
             '-classpath', '<(android_sdk)/android.jar',
+            '-bootclasspath', '<(xwalk_core_jar)',
             '<@(api_files)',
           ],
         },
