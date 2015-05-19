@@ -781,6 +781,34 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentViewRenderView.setZOrderOnTop(onTop);
     }
 
+    public boolean zoomIn() {
+        if (mNativeContent == 0) return false;
+        return mContentViewCore.zoomIn();
+    }
+
+    public boolean zoomOut() {
+        if (mNativeContent == 0) return false;
+        return mContentViewCore.zoomOut();
+    }
+
+    public void zoomBy(float delta) {
+        if (mNativeContent == 0) return;
+        if (delta < 0.01f || delta > 100.0f) {
+            throw new IllegalStateException("zoom delta value outside [0.01, 100] range.");
+        }
+        mContentViewCore.pinchByDelta(delta);
+    }
+
+    public boolean canZoomIn() {
+        if (mNativeContent == 0) return false;
+        return mContentViewCore.canZoomIn();
+    }
+
+    public boolean canZoomOut() {
+        if (mNativeContent == 0) return false;
+        return mContentViewCore.canZoomOut();
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);
