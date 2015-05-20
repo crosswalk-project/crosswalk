@@ -18,12 +18,11 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "blink_upstream_version.h"  // NOLINT
+#include "components/devtools_http_handler/devtools_http_handler.h"
+#include "components/devtools_http_handler/devtools_http_handler_delegate.h"
 #include "content/public/browser/android/devtools_auth.h"
 #include "content/public/browser/devtools_agent_host.h"
-#include "content/public/browser/devtools_http_handler.h"
-#include "content/public/browser/devtools_http_handler_delegate.h"
 #include "content/public/browser/devtools_manager_delegate.h"
-#include "content/public/browser/devtools_target.h"
 #include "content/public/browser/favicon_status.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
@@ -34,6 +33,7 @@
 #include "net/base/net_errors.h"
 #include "net/socket/unix_domain_listen_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 
 using content::DevToolsAgentHost;
 using content::RenderViewHost;
@@ -60,7 +60,7 @@ bool AuthorizeSocketAccessWithDebugPermission(
 // Delegate implementation for the devtools http handler on android. A new
 // instance of this gets created each time devtools is enabled.
 class XWalkAndroidDevToolsHttpHandlerDelegate
-  : public content::DevToolsHttpHandlerDelegate {
+  : public devtools_http_handler::DevToolsHttpHandlerDelegate {
  public:
   XWalkAndroidDevToolsHttpHandlerDelegate() {
   }
@@ -70,12 +70,12 @@ class XWalkAndroidDevToolsHttpHandlerDelegate
         IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
   }
 
-  bool BundlesFrontendResources() override {
-    return false;
+  std::string GetFrontendResource(const std::string& path) override {
+    return std::string();
   }
 
-  base::FilePath GetDebugFrontendDir() override {
-    return base::FilePath();
+  std::string GetPageThumbnailData(const GURL& url) override {
+    return std::string();
   }
 
  private:
@@ -84,7 +84,7 @@ class XWalkAndroidDevToolsHttpHandlerDelegate
 
 // Factory for UnixDomainServerSocket.
 class UnixDomainServerSocketFactory
-    : public content::DevToolsHttpHandler::ServerSocketFactory {
+    : public devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory {
  public:
   explicit UnixDomainServerSocketFactory(
       const std::string& socket_name,
@@ -140,29 +140,33 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission,
                                 bool allow_socket_access) {
   allow_debug_permission_ = allow_debug_permission;
   allow_socket_access_ = allow_socket_access;
-  if (protocol_handler_)
+  if (devtools_http_handler_)
     return;
 
   net::UnixDomainServerSocket::AuthCallback auth_callback =
       base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
                  base::Unretained(this));
 
-  scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
-      new UnixDomainServerSocketFactory(socket_name_, auth_callback));
-  protocol_handler_.reset(content::DevToolsHttpHandler::Start(
+  scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
+      factory(new UnixDomainServerSocketFactory(socket_name_, auth_callback));
+  devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
       factory.Pass(),
       base::StringPrintf(kFrontEndURL, BLINK_UPSTREAM_REVISION),
-      new XWalkAndroidDevToolsHttpHandlerDelegate(), base::FilePath()));
+      new XWalkAndroidDevToolsHttpHandlerDelegate(),
+      base::FilePath(),
+      base::FilePath(),
+      std::string(),
+      xwalk::GetUserAgent()));
 }
 
 void XWalkDevToolsServer::Stop() {
-  protocol_handler_.reset();
+  devtools_http_handler_.reset();
   allow_socket_access_ = false;
   allow_debug_permission_ = false;
 }
 
 bool XWalkDevToolsServer::IsStarted() const {
-  return protocol_handler_;
+  return devtools_http_handler_;
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {
