@@ -47,7 +47,7 @@ class XWalkLibraryDecompressor {
         Assert.assertNotNull(context);
 
         int version = getLocalVersion(context);
-        return version > 0 && version == XWalkSdkVersion.SDK_VERSION;
+        return version > 0 && version == XWalkAppVersion.API_VERSION;
     }
 
     public static boolean decompressLibrary(Context context) {
@@ -61,7 +61,7 @@ class XWalkLibraryDecompressor {
         long end = System.currentTimeMillis();
         Log.d(TAG, "Decompress library cost: " + (end - start) + " milliseconds.");
 
-        if (success) setLocalVersion(context, XWalkSdkVersion.SDK_VERSION);
+        if (success) setLocalVersion(context, XWalkAppVersion.API_VERSION);
         return success;
     }
 
