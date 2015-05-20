@@ -15,7 +15,6 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/application_component.h"
-#include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/storage_component.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
@@ -174,19 +173,10 @@ void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
 }
 
 void XWalkRunner::EnableRemoteDebugging(int port) {
-  const char* local_ip = "0.0.0.0";
-  if (port > 0 && port < 65535) {
-    if (remote_debugging_server_.get() &&
-        remote_debugging_server_.get()->port() == port)
-      remote_debugging_server_.reset();
-    remote_debugging_server_.reset(
-        new RemoteDebuggingServer(browser_context(),
-            local_ip, port, std::string()));
-  }
+  (void) port;
 }
 
 void XWalkRunner::DisableRemoteDebugging() {
-  remote_debugging_server_.reset();
 }
 
 // static

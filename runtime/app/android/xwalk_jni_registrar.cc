@@ -41,7 +41,6 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkContentsIoThreadClientImpl",
       RegisterXWalkContentsIoThreadClientImpl },
   { "XWalkContent", RegisterXWalkContent },
-  { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
   { "XWalkExtensionAndroid", extensions::RegisterXWalkExtensionAndroid },
   { "XWalkHttpAuthHandler", RegisterXWalkHttpAuthHandler },
   { "XWalkPathHelper", RegisterXWalkPathHelper },

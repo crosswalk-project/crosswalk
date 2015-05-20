@@ -28,7 +28,6 @@
 #include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
@@ -402,7 +401,7 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
 
 content::DevToolsManagerDelegate*
   XWalkContentBrowserClient::GetDevToolsManagerDelegate() {
-  return new XWalkDevToolsDelegate(browser_context_);
+  return nullptr;
 }
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
