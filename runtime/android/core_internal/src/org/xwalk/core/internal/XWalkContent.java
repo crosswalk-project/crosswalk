@@ -156,7 +156,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(getContext());
-        mContentView = ContentView.newInstance(getContext(), mContentViewCore);
+        mContentView = new ContentView(getContext(), mContentViewCore);
         mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
         mWebContents = mContentViewCore.getWebContents();
         mNavigationController = mWebContents.getNavigationController();

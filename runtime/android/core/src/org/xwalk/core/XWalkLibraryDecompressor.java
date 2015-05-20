@@ -53,7 +53,7 @@ class XWalkLibraryDecompressor {
     public static boolean decompressLibrary(Context context) {
         Assert.assertNotNull(context);
 
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
         String lib = PathUtils.getDataDirectory(context.getApplicationContext());
 
         long start = System.currentTimeMillis();
@@ -68,7 +68,7 @@ class XWalkLibraryDecompressor {
     public static boolean loadDecompressedLibrary(Context context) {
         Assert.assertNotNull(context);
 
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
         String lib = PathUtils.getDataDirectory(context.getApplicationContext());
 
         try {
