@@ -104,7 +104,7 @@ class XWalkCoreWrapper {
      * This method must be invoked on the UI thread.
      */
     public static void initEmbeddedMode() {
-        if (sInstance != null || sReservedObjects != null) return;
+        if (sInstance != null || (sReservedObjects != null && !sReservedObjects.isEmpty())) return;
 
         Log.d(TAG, "Init embedded mode");
         XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(null, -1);
