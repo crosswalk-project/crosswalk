@@ -11,7 +11,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "net/socket/unix_domain_server_socket_posix.h"
 
-namespace content {
+namespace devtools_http_handler {
 class DevToolsHttpHandler;
 }
 
@@ -38,7 +38,7 @@ class XWalkDevToolsServer {
     const net::UnixDomainServerSocket::Credentials& credentials);
 
   std::string socket_name_;
-  scoped_ptr<content::DevToolsHttpHandler> protocol_handler_;
+  scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
   bool allow_debug_permission_;
   bool allow_socket_access_;
 
