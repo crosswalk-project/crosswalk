@@ -818,6 +818,68 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+    * Performs zoom in in this XWalkView.
+    * @return true if zoom in succeeds, false if no zoom changes
+    * @since 5.0
+    */
+    @XWalkAPI
+    public boolean zoomIn() {
+        if (mContent == null) return false;
+        checkThreadSafety();
+        return mContent.zoomIn();
+    }
+
+    /**
+    * Performs zoom out in this XWalkView.
+    * @return true if zoom out succeeds, false if no zoom changes
+    * @since 5.0
+    */
+    @XWalkAPI
+    public boolean zoomOut() {
+        if (mContent == null) return false;
+        checkThreadSafety();
+        return mContent.zoomOut();
+    }
+
+    /**
+    * Performs a zoom operation in this XWalkView.
+    * @param zoomFactor the zoom factor to apply.
+    * The zoom factor will be clamped to the XWalkView's zoom limits.
+    * This value must be in the range 0.01 to 100.0 inclusive.
+    * @since 5.0
+    */
+    @XWalkAPI
+    public void zoomBy(float factor) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.zoomBy(factor);
+    }
+
+    /**
+    * Gets whether this XWalkView can be zoomed in.
+    * @return true if this XWalkView can be zoomed in
+    * @since 5.0
+    */
+    @XWalkAPI
+    public boolean canZoomIn() {
+        if (mContent == null) return false;
+        checkThreadSafety();
+        return mContent.canZoomIn();
+    }
+
+    /**
+    * Gets whether this XWalkView can be zoomed out.
+    * @return true if this XWalkView can be zoomed out
+    * @since 5.0
+    */
+    @XWalkAPI
+    public boolean canZoomOut() {
+        if (mContent == null) return false;
+        checkThreadSafety();
+        return mContent.canZoomOut();
+    }
+
+    /**
      * It's used for Presentation API.
      * @hide
      */
