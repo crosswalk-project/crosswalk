@@ -60,7 +60,6 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private ActivityWindowAndroid mWindow;
-    private XWalkDevToolsServer mDevToolsServer;
     private XWalkViewInternal mXWalkView;
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkContentsIoThreadClient mIoThreadClient;
@@ -722,27 +721,13 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
         // to identify a debugging page
         final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
-        if (mDevToolsServer == null) {
-            mDevToolsServer = new XWalkDevToolsServer(socketName);
-            mDevToolsServer.setRemoteDebuggingEnabled(
-                    true, XWalkDevToolsServer.Security.ALLOW_SOCKET_ACCESS);
-        }
     }
 
     void disableRemoteDebugging() {
-        if (mDevToolsServer ==  null) return;
-
-        if (mDevToolsServer.isRemoteDebuggingEnabled()) {
-            mDevToolsServer.setRemoteDebuggingEnabled(false);
-        }
-        mDevToolsServer.destroy();
-        mDevToolsServer = null;
     }
 
     public String getRemoteDebuggingUrl() {
-        if (mDevToolsServer == null) return "";
-        // devtools/page is hardcoded in devtools_http_handler_impl.cc (kPageUrlPrefix)
-        return "ws://" + mDevToolsServer.getSocketName() + "/devtools/page/" + devToolsAgentId();
+        return "ws://";
     }
 
     @Override

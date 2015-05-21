@@ -23,7 +23,6 @@ class XWalkTestSuiteInitializer;
 namespace xwalk {
 
 class ApplicationComponent;
-class RemoteDebuggingServer;
 class SysAppsComponent;
 class XWalkBrowserContext;
 class XWalkComponent;
@@ -142,9 +141,6 @@ class XWalkRunner {
   ScopedVector<XWalkComponent> components_;
 
   ApplicationComponent* app_component_;
-
-  // Remote debugger server.
-  scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };
