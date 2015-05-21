@@ -30,6 +30,7 @@ import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
+import org.chromium.ui.gfx.DeviceDisplayInfo;
 
 import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
 import org.xwalk.core.internal.XWalkNavigationItemInternal;
@@ -39,9 +40,13 @@ import org.xwalk.core.internal.XWalkUIClientInternal;
 import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 
+import static org.chromium.base.test.util.ScalableTimeout.scaleTimeout;
+
 public class XWalkViewInternalTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewInternalTestRunnerActivity> {
     protected final static int WAIT_TIMEOUT_SECONDS = 15;
+    private static final long WAIT_TIMEOUT_MS = scaleTimeout(15000);
+    private static final int CHECK_INTERVAL = 100;
     private final static String TAG = "XWalkViewInternalTestBase";
     private XWalkViewInternal mXWalkViewInternal;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
@@ -622,5 +627,127 @@ public class XWalkViewInternalTestBase
                 return mXWalkViewInternal.getXWalkContentForTest();
             }
         });
+    }
+
+    protected void zoomByOnUiThreadAndWait(final float delta) throws Throwable {
+        final float previousScale = getPixelScaleOnUiThread();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkViewInternal.zoomBy(delta);
+            }
+        });
+        // The zoom level is updated asynchronously.
+        waitForScaleChange(previousScale);
+    }
+
+    protected void waitForScaleChange(final float previousScale) throws Throwable {
+        poll(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return previousScale != getPixelScaleOnUiThread();
+            }
+        });
+    }
+
+    protected void waitForScaleToBecome(final float expectedScale) throws Throwable {
+        poll(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return expectedScale == getScaleOnUiThread();
+            }
+        });
+    }
+
+    /**
+     * Returns pure page scale.
+     */
+    protected float getScaleOnUiThread() throws Exception {
+        final ContentViewCore contentViewCore = getContentViewCore();
+        return runTestOnUiThreadAndGetResult(new Callable<Float>() {
+            @Override
+            public Float call() throws Exception {
+                return contentViewCore.getScale();
+            }
+        });
+    }
+
+    /**
+     * Returns page scale multiplied by the screen density.
+     */
+    protected float getPixelScaleOnUiThread() throws Exception {
+        final ContentViewCore contentViewCore = getContentViewCore();
+        final double dipScale = DeviceDisplayInfo.create(getActivity()).getDIPScale();
+        return runTestOnUiThreadAndGetResult(new Callable<Float>() {
+            @Override
+            public Float call() throws Exception {
+                float pixelScale = contentViewCore.getScale() * (float)dipScale;
+                return pixelScale;
+            }
+        });
+    }
+
+    /**
+     * Returns whether a user can zoom the page in.
+     */
+    protected boolean canZoomInOnUiThread() throws Exception {
+        final ContentViewCore contentViewCore = getContentViewCore();
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mXWalkViewInternal.canZoomIn();
+            }
+        });
+    }
+
+    /**
+     * Returns whether a user can zoom the page out.
+     */
+    protected boolean canZoomOutOnUiThread() throws Exception {
+        final ContentViewCore contentViewCore = getContentViewCore();
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mXWalkViewInternal.canZoomOut();
+            }
+        });
+    }
+
+    protected void zoomInOnUiThreadAndWait() throws Throwable {
+        final float previousScale = getPixelScaleOnUiThread();
+        assertTrue(runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mXWalkViewInternal.zoomIn();
+            }
+        }));
+        // The zoom level is updated asynchronously.
+        waitForScaleChange(previousScale);
+    }
+
+    protected void zoomOutOnUiThreadAndWait() throws Throwable {
+        final float previousScale = getPixelScaleOnUiThread();
+        assertTrue(runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mXWalkViewInternal.zoomOut();
+            }
+        }));
+        // The zoom level is updated asynchronously.
+        waitForScaleChange(previousScale);
+    }
+
+    protected void poll(final Callable<Boolean> callable) throws Exception {
+        assertTrue(CriteriaHelper.pollForCriteria(new Criteria() {
+            @Override
+            public boolean isSatisfied() {
+                try {
+                    return callable.call();
+                } catch (Throwable e) {
+                    Log.e(TAG, "Exception while polling.", e);
+                    return false;
+                }
+            }
+        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL));
     }
 }
