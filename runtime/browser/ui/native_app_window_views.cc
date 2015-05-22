@@ -24,7 +24,7 @@
 #include "ui/views/window/native_frame_view.h"
 #endif
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_WIN)
 #include "xwalk/runtime/browser/ui/native_app_window_desktop.h"
 #endif
 
@@ -326,7 +326,7 @@ NativeAppWindow* NativeAppWindow::Create(
   NativeAppWindowViews* window;
 #if defined(OS_TIZEN)
   window = new NativeAppWindowTizen(create_params);
-#elif defined(OS_LINUX)
+#elif defined(OS_LINUX) || defined(OS_WIN)
   window = new NativeAppWindowDesktop(create_params);
 #else
   window = new NativeAppWindowViews(create_params);
