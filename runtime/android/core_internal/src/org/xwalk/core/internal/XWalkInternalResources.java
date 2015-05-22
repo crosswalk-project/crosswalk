@@ -15,6 +15,7 @@ class XWalkInternalResources {
 
     private static boolean loaded = false;
     private final static String INTERNAL_RESOURCE_CLASSES[] = {
+        "org.chromium.components.web_contents_delegate_android.R",
         "org.chromium.content.R",
         "org.chromium.ui.R",
         "org.xwalk.core.internal.R"
