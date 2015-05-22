@@ -454,7 +454,7 @@
             'runtime/common/url_constants.h',
           ],
         }],
-        ['OS=="linux" and tizen!=1', {
+        ['OS=="linux" and use_ozone!=1', {
           'defines': ['USE_GTK_UI'],
           'dependencies': [
             '../chrome/browser/ui/libgtk2ui/libgtk2ui.gyp:gtk2ui',
