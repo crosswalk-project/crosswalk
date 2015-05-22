@@ -258,6 +258,7 @@ def CopyResources(project_source, out_dir, out_project_dir, shared):
         'content_strings_grd.zip',
         'ui_java.zip',
         'ui_strings_grd.zip',
+        'web_contents_delegate_android_java.zip',
         'xwalk_core_internal_java.zip',
         'xwalk_core_strings.zip',
         'xwalk_app_strings.zip'
