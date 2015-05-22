@@ -591,15 +591,13 @@
             'grit_resource_ids': 'resources/resource_ids',
           },
           'includes': [ '../build/grit_action.gypi' ],
+          'outputs': [ '<(grit_out_dir)' ]
         },
       ],
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/locales',
-          'files': [
-            '<(grit_out_dir)/en-US.pak',
-            '<(grit_out_dir)/zh-CN.pak'
-          ],
+          'destination': '<(PRODUCT_DIR)/',
+          'files': [ '<(grit_out_dir)/' ],
         },
       ],
     },
