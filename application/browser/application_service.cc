@@ -4,11 +4,7 @@
 
 #include "xwalk/application/browser/application_service.h"
 
-#if defined(OS_MACOSX)
 #include <ext/hash_set>
-#else
-#include <hash_set>
-#endif
 #include <set>
 #include <string>
 #include <vector>
