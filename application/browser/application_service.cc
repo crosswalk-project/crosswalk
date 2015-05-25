@@ -4,11 +4,6 @@
 
 #include "xwalk/application/browser/application_service.h"
 
-#include <ext/hash_set>
-#include <set>
-#include <string>
-#include <vector>
-
 #include "base/files/file_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
@@ -242,7 +237,7 @@ void ApplicationService::OnApplicationTerminated(
       // further we need to add an appropriate logic to handle it.
       content::BrowserContext::GarbageCollectStoragePartitions(
           browser_context_,
-          make_scoped_ptr(new base::hash_set<base::FilePath>()),
+          make_scoped_ptr(new base::hash_set<base::FilePath>()), // NOLINT
           base::Bind(&base::DoNothing));
   }
 
