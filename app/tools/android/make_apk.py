@@ -335,8 +335,8 @@ def Execution(options, name):
             'embedded APK.' % arch)
       sys.exit(10)
 
-    compressed_lib = os.path.join(app_dir, 'native_libs',
-                                  NATIVE_LIBRARY + '.' + arch)
+    compressed_lib = os.path.join(app_dir, 'native_libs', arch,
+                                  NATIVE_LIBRARY + '.lzma')
     shutil.copy(compressed_lib, raw_path)
 
   if options.project_only:
