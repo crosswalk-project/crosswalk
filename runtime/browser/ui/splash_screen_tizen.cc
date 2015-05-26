@@ -7,6 +7,7 @@
 #include "base/location.h"
 #include "ui/compositor/layer.h"
 #include "ui/compositor/paint_context.h"
+#include "ui/compositor/paint_recorder.h"
 #include "ui/compositor/scoped_layer_animation_settings.h"
 #include "ui/gfx/canvas.h"
 #include "ui/gfx/image/image_skia.h"
@@ -30,7 +31,8 @@ class SplashScreenTizen::SplashScreenLayerDelegate : public ui::LayerDelegate {
 
   void OnPaintLayer(const ui::PaintContext& context) override {
     if (!image_.IsEmpty()) {
-      context.canvas()->DrawImageInt(image_.AsImageSkia(), 0, 0);
+      ui::PaintRecorder recorder(context);
+      recorder.canvas()->DrawImageInt(image_.AsImageSkia(), 0, 0);
     } else {
       LOG(WARNING) << "The splash screen image is not loaded.";
     }
