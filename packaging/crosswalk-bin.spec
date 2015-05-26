@@ -35,6 +35,7 @@ Source1001:     crosswalk-bin.manifest
 Source1002:     crosswalk.xml.in
 Source1003:     crosswalk.png
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
+Patch11:        crosswalk-conditional-x11-dependencies-in-angle.patch
 Patch1000:      crosswalk-do-not-build-several-chromium-dependencies.patch
 
 # Provided for compatibility for a while.
@@ -148,6 +149,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch10
 %endif
 
+%patch11
 %patch1000
 
 %build

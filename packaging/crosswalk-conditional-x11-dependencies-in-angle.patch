@@ -1,0 +1,19 @@
+Author: Raphael Kubo da Costa <raphael.kubo.da.costa@intel.com>
+
+ANGLE has recently introduced some hardcoded dependencies on X11 libraries.
+Even though they are not directly used by any Chromium target, their presence
+in gyp makes it call pkg-config and fail on configurations where X11 is not
+available.
+
+Upstream issue: https://code.google.com/p/angleproject/issues/detail?id=892
+--- src/third_party/angle/src/libGLESv2.gypi
++++ src/third_party/angle/src/libGLESv2.gypi
+@@ -744,7 +744,7 @@
+                 {
+                     'msvs_enable_winphone' : '1',
+                 }],
+-                ['OS=="linux"',
++                ['OS=="linux" and use_x11==1',
+                 {
+                     'link_settings': {
+                         'ldflags': [
