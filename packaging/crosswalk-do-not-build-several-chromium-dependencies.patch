@@ -197,9 +197,9 @@ BUG=XWALK-2571
 +
 +        '../device/battery/battery.gyp:device_battery_mojo_bindings',
 +        '../device/vibration/vibration.gyp:device_vibration_mojo_bindings',
++        '../mojo/mojo_base.gyp:mojo_application_bindings',
 +        '../mojo/mojo_base.gyp:mojo_environment_chromium',
 +        '../third_party/mojo/mojo_edk.gyp:mojo_system_impl',
-+        '../third_party/mojo/mojo_public.gyp:mojo_application_bindings',
 +        '../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
 +        'content_common_mojo_bindings.gyp:content_common_mojo_bindings',
 +      ],
