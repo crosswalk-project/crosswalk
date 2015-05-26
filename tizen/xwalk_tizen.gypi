@@ -4,6 +4,7 @@
     'target_name': 'xwalk_tizen_lib',
     'type': 'static_library',
     'dependencies': [
+      '../../content/content.gyp:content_browser',
       '../../skia/skia.gyp:skia',
       '../build/system.gyp:tizen_sensor',
       '../build/system.gyp:tizen_vibration',
