@@ -127,8 +127,13 @@ class XWalkViewDelegate {
         }
 
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
-        final int resourcesListResId = context.getResources().getIdentifier(
-                XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
+        int resListResId = context.getResources().getIdentifier(
+                XWALK_RESOURCES_LIST_RES_NAME, "array", context.getClass().getPackage().getName());
+        if (resListResId == 0) {
+            resListResId = context.getResources().getIdentifier(
+                    XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
+        }
+        final int resourcesListResId = resListResId;
         final AssetManager assets = context.getAssets();
         if (!context.getPackageName().equals(context.getApplicationContext().getPackageName()) ||
                 resourcesListResId != 0) {
@@ -175,7 +180,11 @@ class XWalkViewDelegate {
                     if (resourcesListResId != 0) {
                         String resourceName = resource.split("\\.")[0];
                         int resId = context.getResources().getIdentifier(
-                                resourceName, "raw", context.getPackageName());
+                                resourceName, "raw", context.getClass().getPackage().getName());
+                        if (resId == 0) {
+                            resId = context.getResources().getIdentifier(
+                                    resourceName, "raw", context.getPackageName());
+                        }
                         try {
                             if (resId != 0) return context.getResources().openRawResource(resId);
                         } catch (NotFoundException e) {
