@@ -303,23 +303,24 @@ def Customize(options, app_info, manifest):
 
 def CleanCompressedLibrary(library_path, arch):
   useless = os.path.join(library_path, NATIVE_LIBRARY + '.' + arch)
-  if (os.path.isfile(useless)):
+  if os.path.isfile(useless):
     os.remove(useless)
 
 
 def CleanNativeLibrary(library_path, arch):
   lib_dir = os.path.join(library_path, arch)
-  if (os.path.isdir(lib_dir)):
+  if os.path.isdir(lib_dir):
     shutil.rmtree(lib_dir)
 
 
 def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
-  # need dummy library file to keep the arch info if enable lzma.
+  # copy dummy library file to keep the arch info if it's available.
   arch_path = os.path.join(library_path, arch)
-  if (not os.path.isdir(arch_path)):
-      os.mkdir(arch_path)
   dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
-  shutil.copy(dummy_library, arch_path)
+  if os.path.isfile(dummy_library):
+    if not os.path.isdir(arch_path):
+      os.mkdir(arch_path)
+    shutil.copy(dummy_library, arch_path)
 
   compressed_library = os.path.join(native_path, NATIVE_LIBRARY + '.lzma')
   shutil.copy(compressed_library, raw_path)
@@ -328,7 +329,7 @@ def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
 def CopyNativeLibrary(native_path, library_path, raw_path, arch):
   # do not need dummy library when lzma disabled.
   dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
-  if (os.path.isfile(dummy_library)):
+  if os.path.isfile(dummy_library):
     os.remove(dummy_library)
 
   shutil.copytree(native_path, os.path.join(library_path, arch))
