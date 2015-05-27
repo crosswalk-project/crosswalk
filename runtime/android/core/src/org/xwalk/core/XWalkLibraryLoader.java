@@ -18,24 +18,102 @@ import java.lang.Thread;
 
 import junit.framework.Assert;
 
-import org.xwalk.core.XWalkLibraryInterface.DecompressionListener;
-import org.xwalk.core.XWalkLibraryInterface.DownloadListener;
-import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
-
 /**
- * <code>XWalkLibraryLoader</code> is a low level inteface to schedule decompressing,
- * downloading, initializing the Crosswalk Library. Normal user is recommended to use
- * {@link XWalkActivity}(with UI) or {@link XWalkInitializer}(without UI) which is more
- * simple and more user friendly.
+ * XWalkLibraryLoader is a low level inteface to schedule decompressing, downloading, activating
+ * the Crosswalk runtime. Normal user is recommended to use XWalkActivity or XWalkInitializer which
+ * is simpler and more user-friendly.
  *
- * <p>The appropriate invocation order is:
+ * The appropriate invocation order is:
  * prepareToInit() -
- * [ if native library is supposed to be compressed - startDecompression() ] -
- * initXWalkLibrary() -
- * [ if the library doesn't match - install suitable library - initXWalkLibrary() ] -
- * startInitialization() - over
+ * [ if the Crosswalk runtime is supposed to be compressed - startDecompress() ] -
+ * startDock() -
+ * [ if the Crosswalk runtime doesn't match - download suitable version - startDock() ] -
+ * startActivate() - over
  */
 class XWalkLibraryLoader {
+    /**
+     * Interface used to decompress the Crosswalk runtime
+     */
+    public interface DecompressListener {
+        /**
+         * Runs on the UI thread to notify decompression is started
+         */
+        public void onDecompressStarted();
+        /**
+         * Runs on the UI thread to notify decompression is cancelled
+         */
+        public void onDecompressCancelled();
+        /**
+         * Runs on the UI thread to notify decompression is completed successfully
+         */
+        public void onDecompressCompleted();
+    }
+
+    /**
+     * Interface used to dock the Crosswalk runtime
+     */
+    public interface DockListener {
+        /**
+         * Runs on the UI thread to notify docking is started
+         */
+        public void onDockStarted();
+        /**
+         * Runs on the UI thread to notify docking failed
+         */
+        public void onDockFailed();
+        /**
+         * Runs on the UI thread to notify docking is completed successfully
+         */
+        public void onDockCompleted();
+    }
+
+    /**
+     * Interface used to activate the Crosswalk runtime
+     */
+    public interface ActivateListener {
+        /**
+         * Runs on the UI thread to notify activation is started
+         */
+        public void onActivateStarted();
+        /**
+         * Runs on the UI thread to notify activation is completed successfully
+         */
+        public void onActivateCompleted();
+    }
+
+    /**
+     * Interface used to download the Crosswalk runtime
+     */
+    public interface DownloadListener {
+        /**
+         * Runs on the UI thread to notify download is started
+         */
+        public void onDownloadStarted();
+        /**
+         * Runs on the UI thread to notify the download progress
+         * @param percentage Shows the download progress in percentage
+         */
+        public void onDownloadUpdated(int percentage);
+        /**
+         * Runs on the UI thread to notify download is cancelled
+         */
+        public void onDownloadCancelled();
+        /**
+         * Runs on the UI thread to notify download is completed successfully
+         * @param uri The Uri where the downloaded file is stored
+         */
+        public void onDownloadCompleted(Uri uri);
+        /**
+         * Runs on the UI thread to notify download failed
+         *
+         * @param status The download status defined in android.app.DownloadManager.
+         *               The value maybe STATUS_FAILED or STATUS_PAUSED
+         * @param error The download error defined in android.app.DownloadManager.
+         *              This parameter makes sense only when the status is STATUS_FAILED
+         */
+        public void onDownloadFailed(int status, int error);
+    }
+
     private static final String XWALK_APK_NAME = "XWalkRuntimeLib.apk";
     private static final String TAG = "XWalkLib";
 
@@ -48,13 +126,14 @@ class XWalkLibraryLoader {
      * <p>This method must be invoked after initXWalkLibrary returns STATUS_MATCH
      */
     public static boolean isSharedMode() {
+        if (XWalkCoreWrapper.getInstance() == null) Assert.fail("Invoke initXWalkLibrary first");
         return XWalkCoreWrapper.getInstance().isSharedMode();
     }
 
     /**
-     * Prepares to start initialization.
+     * Prepares to start initializing before all other procedures.
      *
-     * <p>This method must be invoked on the UI thread and before other procedures
+     * <p>This method must be invoked on the UI thread.
      */
     public static void prepareToInit() {
         if (sPreparedToInit) return;
@@ -63,43 +142,15 @@ class XWalkLibraryLoader {
     }
 
     /**
-     * Links to the Crosswalk library either is embedded in current application or is shared
-     * across package
+     * Starts decompressing the Crosswalk runtime in background
      *
      * <p>This method must be invoked on the UI thread.
      *
-     * @return The library status that defined in {@link XWalkLibrarayInterface}
+     * @param listener The {@link DecompressListener} to use
+     * @param context The context of the package that holds the compressed Crosswalk runtime
      */
-    public static int initXWalkLibrary(Context context) {
-        if (!sPreparedToInit) Assert.fail("Invoke prepareToInit first");
-        return XWalkCoreWrapper.initXWalkLibrary(context);
-    }
-
-    /**
-     * Starts initializing the Crosswalk environment in background. The initialization is not
-     * cancelable.
-     *
-     * <p>This method must be invoked on the UI thread.
-     *
-     * @param listener The {@link XWalkLibraryInterface.InitializationListener} to use
-     */
-    public static void startInitialization(InitializationListener listener) {
-        if (XWalkCoreWrapper.getInstance() == null) Assert.fail("Invoke initXWalkLibrary first");
-        new InitializationTask(listener).execute();
-    }
-
-    /**
-     * Starts decompressing native library in background
-     *
-     * <p>This method must be invoked on the UI thread.
-     *
-     * @param listener The {@link XWalkLibraryInterface.DecompressionListener} to use
-     * @param context The context of the package that holds the compressed native library
-     *
-     * @return False if native library is not compressed, true otherwise
-     */
-    public static boolean startDecompression(DecompressionListener listener, Context context) {
-        return new DecompressionTask(listener, context).executeIfNeeded();
+    public static void startDecompress(DecompressListener listener, Context context) {
+        new DecompressTask(listener, context).execute();
     }
 
     /**
@@ -107,19 +158,43 @@ class XWalkLibraryLoader {
      *
      * @return False if decompression is not running or could not be cancelled, true otherwise
      */
-    public static boolean cancelDecompression() {
-        DecompressionTask task = (DecompressionTask) sActiveTask;
+    public static boolean cancelDecompress() {
+        DecompressTask task = (DecompressTask) sActiveTask;
         return task != null && task.cancel(true);
     }
 
     /**
-     * Starts downloading Crosswalk library in background via Android DownlomadManager
+     * Docks the Crosswalk runtime either is embedded in current application or is shared
+     * across package. The docking is not cancelable.
      *
      * <p>This method must be invoked on the UI thread.
      *
-     * @param listener The {@link XWalkLibraryInterface.InitializationListener} to use
+     * @param listener The {@link DockListener} to use
+     * @param context The application context
+     */
+    public static void startDock(DockListener listener, Context context) {
+        new DockTask(listener, context).execute();
+    }
+
+    /**
+     * Starts activating the Crosswalk runtime in background. The activation is not cancelable.
+     *
+     * <p>This method must be invoked on the UI thread.
+     *
+     * @param listener The {@link ActivateListener} to use
+     */
+    public static void startActivate(ActivateListener listener) {
+        new ActivateTask(listener).execute();
+    }
+
+    /**
+     * Starts downloading the Crosswalk runtime in background via Android DownlomadManager
+     *
+     * <p>This method must be invoked on the UI thread.
+     *
+     * @param listener The {@link DownloadListener} to use
      * @param context The context to get DownloadManager
-     * @param url The URL of the Crosswalk library
+     * @param url The URL of the Crosswalk runtime
      */
     public static void startDownload(DownloadListener listener, Context context, String url) {
         new DownloadTask(listener, context, url).execute();
@@ -135,62 +210,33 @@ class XWalkLibraryLoader {
         return task != null && task.cancel(true);
     }
 
-    private static class InitializationTask extends AsyncTask<Void, Integer, Integer> {
-        InitializationListener mListener;
-
-        InitializationTask(InitializationListener listener) {
-            super();
-            mListener = listener;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "InitializationTask started");
-            sActiveTask = this;
-            mListener.onInitializationStarted();
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            XWalkCoreWrapper.initXWalkEnvironment();
-            return 0;
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            Log.d(TAG, "InitializationTask finished");
-            sActiveTask = null;
-            XWalkCoreWrapper.handlePostInit();
-            mListener.onInitializationCompleted();
-        }
-    }
-
-    private static class DecompressionTask extends AsyncTask<Void, Integer, Integer> {
-        DecompressionListener mListener;
+    private static class DecompressTask extends AsyncTask<Void, Integer, Integer> {
+        DecompressListener mListener;
         Context mContext;
 
-        DecompressionTask(DecompressionListener listener, Context context) {
+        DecompressTask(DecompressListener listener, Context context) {
             super();
             mListener = listener;
             mContext = context;
         }
 
         public boolean executeIfNeeded() {
-            if (!XWalkLibraryDecompressor.isCompressed(mContext)) return false;
-            Log.d(TAG, "Using compressed native library");
             execute();
             return true;
         }
 
         @Override
         protected void onPreExecute() {
-            Log.d(TAG, "DecompressionTask started");
+            Log.d(TAG, "DecompressTask started");
             sActiveTask = this;
-            mListener.onDecompressionStarted();
+            mListener.onDecompressStarted();
         }
 
         @Override
         protected Integer doInBackground(Void... params) {
+            if (!XWalkLibraryDecompressor.isCompressed(mContext)) return 0;
+            Log.d(TAG, "Using compressed native library");
+
             if (!XWalkLibraryDecompressor.isDecompressed(mContext) &&
                     !XWalkLibraryDecompressor.decompressLibrary(mContext)) {
                 Assert.fail();
@@ -202,16 +248,81 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onCancelled(Integer result) {
-            Log.d(TAG, "DecompressionTask cancelled");
+            Log.d(TAG, "DecompressTask cancelled");
             sActiveTask = null;
-            mListener.onDecompressionCancelled();
+            mListener.onDecompressCancelled();
         }
 
         @Override
         protected void onPostExecute(Integer result) {
-            Log.d(TAG, "DecompressionTask finished");
+            Log.d(TAG, "DecompressTask finished");
             sActiveTask = null;
-            mListener.onDecompressionCompleted();
+            mListener.onDecompressCompleted();
+        }
+    }
+
+    private static class DockTask extends AsyncTask<Void, Integer, Integer> {
+        DockListener mListener;
+        Context mContext;
+
+        DockTask(DockListener listener, Context context) {
+            super();
+            mListener = listener;
+            mContext = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "DockTask started");
+            sActiveTask = this;
+            mListener.onDockStarted();
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            return XWalkCoreWrapper.attachXWalkCore(mContext);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            Log.d(TAG, "DockTask finished");
+            sActiveTask = null;
+            if (result == XWalkLibraryInterface.STATUS_MATCH) {
+                XWalkCoreWrapper.dockXWalkCore();
+                mListener.onDockCompleted();
+            } else {
+                mListener.onDockFailed();
+            }
+        }
+    }
+
+    private static class ActivateTask extends AsyncTask<Void, Integer, Integer> {
+        ActivateListener mListener;
+
+        ActivateTask(ActivateListener listener) {
+            super();
+            mListener = listener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "ActivateTask started");
+            sActiveTask = this;
+            mListener.onActivateStarted();
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            XWalkCoreWrapper.activateXWalkCore();
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            Log.d(TAG, "ActivateTask finished");
+            sActiveTask = null;
+            XWalkCoreWrapper.handlePostInit();
+            mListener.onActivateCompleted();
         }
     }
 
