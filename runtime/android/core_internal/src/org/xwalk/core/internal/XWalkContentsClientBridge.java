@@ -49,7 +49,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private XWalkClient mXWalkClient;
     private XWalkWebChromeClient mXWalkWebChromeClient;
     private Bitmap mFavicon;
-    private DownloadListener mDownloadListener;
+    private XWalkDownloadListenerInternal mDownloadListener;
     private InterceptNavigationDelegate mInterceptNavigationDelegate;
     private PageLoadListener mPageLoadListener;
     private XWalkNavigationHandler mNavigationHandler;
@@ -706,7 +706,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         nativeNotificationClosed(mNativeContentsClientBridge, id, byUser);
     }
 
-    void setDownloadListener(DownloadListener listener) {
+    void setDownloadListener(XWalkDownloadListenerInternal listener) {
         mDownloadListener = listener;
     }
 
