@@ -989,9 +989,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
-     * @hide
+     * Registers the interface to be used when content can not be handled by
+     * the rendering engine, and should be downloaded instead. This will replace
+     * the current handler.
+     * @param listener an implementation of XWalkDownloadListenerInternal
+     * @since 5.0
      */
-    public void setDownloadListener(DownloadListener listener) {
+    @XWalkAPI
+    public void setDownloadListener(XWalkDownloadListenerInternal listener) {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.setDownloadListener(listener);

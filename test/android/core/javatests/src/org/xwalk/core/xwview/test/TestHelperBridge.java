@@ -349,6 +349,49 @@ class TestHelperBridge {
         }
     }
 
+    public class OnDownloadStartHelper extends CallbackHelper {
+        private String mUrl;
+        private String mUserAgent;
+        private String mContentDisposition;
+        private String mMimeType;
+        long mContentLength;
+
+        public String getUrl() {
+            assert getCallCount() > 0;
+            return mUrl;
+        }
+
+        public String getUserAgent() {
+            assert getCallCount() > 0;
+            return mUserAgent;
+        }
+
+        public String getContentDisposition() {
+            assert getCallCount() > 0;
+            return mContentDisposition;
+        }
+
+        public String getMimeType() {
+            assert getCallCount() > 0;
+            return mMimeType;
+        }
+
+        public long getContentLength() {
+            assert getCallCount() > 0;
+            return mContentLength;
+        }
+
+        public void notifyCalled(String url, String userAgent, String contentDisposition,
+                String mimeType, long contentLength) {
+            mUrl = url;
+            mUserAgent = userAgent;
+            mContentDisposition = contentDisposition;
+            mMimeType = mimeType;
+            mContentLength = contentLength;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
@@ -373,6 +416,7 @@ class TestHelperBridge {
     private final OnConsoleMessageHelper mOnConsoleMessageHelper;
     private final OnReceivedIconHelper mOnReceivedIconHelper;
     private final OnLoadFinishedHelper mOnLoadFinishedHelper;
+    private final OnDownloadStartHelper mOnDownloadStartHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -395,6 +439,7 @@ class TestHelperBridge {
         mOnConsoleMessageHelper = new OnConsoleMessageHelper();
         mOnReceivedIconHelper = new OnReceivedIconHelper();
         mOnLoadFinishedHelper = new OnLoadFinishedHelper();
+        mOnDownloadStartHelper = new OnDownloadStartHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -475,6 +520,10 @@ class TestHelperBridge {
 
     public OnReceivedIconHelper getOnReceivedIconHelper() {
         return mOnReceivedIconHelper;
+    }
+
+    public OnDownloadStartHelper getOnDownloadStartHelper() {
+        return mOnDownloadStartHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -562,5 +611,11 @@ class TestHelperBridge {
     public boolean overrideOrUnhandledKeyEvent(KeyEvent event) {
         mOverrideOrUnhandledKeyEventHelper.notifyCalled(event);
         return true;
+    }
+
+    public void onDownloadStart(String url, String userAgent,
+            String contentDisposition, String mimetype, long contentLength) {
+        mOnDownloadStartHelper.notifyCalled(url, userAgent, contentDisposition,
+                mimetype, contentLength);
     }
 }
