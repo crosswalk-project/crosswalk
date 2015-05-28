@@ -322,10 +322,13 @@ def Execution(options, name):
     raw_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'res', 'raw')
     for dir_name in os.listdir(library_lib_path):
       lib_dir = os.path.join(library_lib_path, dir_name)
+      if not os.path.isdir(lib_dir):
+          continue
       if ContainsNativeLibrary(lib_dir):
         shutil.rmtree(lib_dir)
-      other_lib = os.path.join(raw_path, NATIVE_LIBRARY + '.' + dir_name)
-      if (os.path.isfile(other_lib)):
+      other_arch = 'armeabi_v7a' if arch == 'x86' else 'x86'
+      other_lib = os.path.join(raw_path, NATIVE_LIBRARY + '.' + other_arch)
+      if os.path.isfile(other_lib):
         os.remove(other_lib)
     native_lib_path = os.path.join(app_dir, 'native_libs', arch)
     if ContainsNativeLibrary(native_lib_path):
@@ -335,8 +338,8 @@ def Execution(options, name):
             'embedded APK.' % arch)
       sys.exit(10)
 
-    compressed_lib = os.path.join(app_dir, 'native_libs', arch,
-                                  NATIVE_LIBRARY + '.lzma')
+    compressed_lib = os.path.join(app_dir, 'native_libs',
+                                  NATIVE_LIBRARY + '.' + arch.replace('-', '_'))
     shutil.copy(compressed_lib, raw_path)
 
   if options.project_only:
@@ -463,7 +466,7 @@ def MakeApk(options, app_info, manifest):
       if ContainsNativeLibrary(lib_dir):
         shutil.move(lib_dir, os.path.join(native_lib_path, dir_name))
         compressed_lib = os.path.join(target_library_path, 'res', 'raw',
-                                      NATIVE_LIBRARY + '.' + dir_name)
+                                      NATIVE_LIBRARY + '.' + dir_name.replace('-', '_'))
         if (os.path.isfile(compressed_lib)):
           shutil.move(compressed_lib, native_lib_path)
         available_archs.append(dir_name)

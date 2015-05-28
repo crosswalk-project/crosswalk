@@ -155,13 +155,14 @@ def CopyBinaries(out_dir, out_project_dir, no_icu_data, use_lzma, shared):
   source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
   distutils.dir_util.copy_tree(source_dir, libs_dir)
 
-  # NOTE: Gradle doesn't accept '-', use '_' instead.
   if use_lzma:
-    for arch in ['x86', 'armeabi_v7a']:
+    for arch in ['x86', 'armeabi-v7a']:
       arch_dir = os.path.join(libs_dir, arch)
       lib = os.path.join(arch_dir, 'libxwalkcore.so.lzma')
       if os.path.isfile(lib):
-        shutil.move(lib, os.path.join(res_raw_dir, "libxwalkcore.so." + arch))
+        # NOTE: Gradle doesn't accept '-', use '_' instead.
+        shutil.move(lib, os.path.join(res_raw_dir, "libxwalkcore.so." +
+                                      arch.replace('-', '_')))
   else:
     shutil.rmtree(os.path.join(res_raw_dir, "libxwalkcore.so.*"), ignore_errors = True)
 
