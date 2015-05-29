@@ -175,7 +175,6 @@ void NativeAppWindowDesktop::InitMinimalUI() {
 
     web_view_ = new views::WebView(NULL);
     web_view_->SetWebContents(web_contents_);
-    AddChildView(web_view_);
     contents_view_->AddChildView(web_view_);
     layout->StartRow(1, 0);
     layout->AddView(contents_view_);
