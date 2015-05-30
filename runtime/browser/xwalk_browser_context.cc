@@ -12,7 +12,11 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/prefs/pref_registry_simple.h"
+#include "base/prefs/pref_service.h"
+#include "base/prefs/pref_service_factory.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/user_prefs/user_prefs.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -28,6 +32,7 @@
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/browser/xwalk_permission_manager.h"
+#include "xwalk/runtime/browser/xwalk_pref_store.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -67,12 +72,20 @@ class XWalkBrowserContext::RuntimeResourceContext :
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceContext);
 };
 
+XWalkBrowserContext* g_browser_context = nullptr;
+
+void HandleReadError(PersistentPrefStore::PrefReadError error) {
+  LOG(ERROR) << "Failed to read preference, error num: " << error;
+}
+
 XWalkBrowserContext::XWalkBrowserContext()
   : resource_context_(new RuntimeResourceContext) {
   InitWhileIOAllowed();
 #if defined(OS_ANDROID)
   InitVisitedLinkMaster();
 #endif
+  CHECK(!g_browser_context);
+  g_browser_context = this;
 }
 
 XWalkBrowserContext::~XWalkBrowserContext() {
@@ -80,6 +93,15 @@ XWalkBrowserContext::~XWalkBrowserContext() {
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
+  DCHECK_EQ(this, g_browser_context);
+  g_browser_context = nullptr;
+}
+
+// static
+XWalkBrowserContext* XWalkBrowserContext::GetDefault() {
+  // TODO(joth): rather than store in a global here, lookup this instance
+  // from the Java-side peer.
+  return g_browser_context;
 }
 
 // static
@@ -327,6 +349,21 @@ void XWalkBrowserContext::RebuildTable(
   // can change in the lifetime of this XWalkView and may not yet be set here.
   // Therefore this initialization path is not used.
   enumerator->OnComplete(true);
+}
+
+// Create user pref service for autofill functionality.
+void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
+  if (user_pref_service_) return;
+
+  PrefRegistrySimple* pref_registry = new PrefRegistrySimple();
+  pref_registry->RegisterStringPref("intl.accept_languages", "");
+
+  base::PrefServiceFactory pref_service_factory;
+  pref_service_factory.set_user_prefs(make_scoped_refptr(new XWalkPrefStore()));
+  pref_service_factory.set_read_error_callback(base::Bind(&HandleReadError));
+  user_pref_service_ = pref_service_factory.Create(pref_registry).Pass();
+
+  user_prefs::UserPrefs::Set(this, user_pref_service_.get());
 }
 #endif
 

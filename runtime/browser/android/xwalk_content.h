@@ -12,6 +12,7 @@
 #include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/prefs/pref_change_registrar.h"
 #include "content/public/common/permission_status.mojom.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
@@ -79,6 +80,9 @@ class XWalkContent {
                                  jboolean value,
                                  jstring origin);
 
+  void CreateUserPrefServiceIfNecessary(content::WebContents* contents);
+  void UpdateRendererPreferences();
+
  private:
   JavaObjectWeakGlobalRef java_ref_;
   // TODO(guangzhen): The WebContentsDelegate need to take ownership of
@@ -99,6 +103,8 @@ class XWalkContent {
           OriginCallback;
   // The first element in the list is always the currently pending request.
   std::list<OriginCallback> pending_geolocation_prompts_;
+
+  PrefChangeRegistrar pref_change_registrar_;
 };
 
 bool RegisterXWalkContent(JNIEnv* env);

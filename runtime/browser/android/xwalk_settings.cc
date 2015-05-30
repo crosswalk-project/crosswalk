@@ -9,6 +9,7 @@
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "base/command_line.h"
+#include "components/user_prefs/user_prefs.h"
 #include "content/browser/android/java/jni_helper.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -16,6 +17,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/web_preferences.h"
 #include "jni/XWalkSettings_jni.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
@@ -230,6 +232,19 @@ void XWalkSettings::RenderViewCreated(
   DCHECK(web_contents()->GetRenderViewHost() == render_view_host);
 
   UpdateEverything();
+}
+
+void XWalkSettings::UpdateAcceptLanguages(JNIEnv* env, jobject obj) {
+  PrefService* pref_service = GetPrefs();
+  if (!pref_service) return;
+  pref_service->SetString(
+      "intl.accept_languages",
+      base::android::ConvertJavaStringToUTF8(
+          Java_XWalkSettings_getAcceptLanguagesLocked(env, obj)));
+}
+
+PrefService* XWalkSettings::GetPrefs() {
+  return user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
 }
 
 static jlong Init(JNIEnv* env,
