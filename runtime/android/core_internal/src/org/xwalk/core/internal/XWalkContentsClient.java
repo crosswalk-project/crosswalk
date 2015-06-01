@@ -86,6 +86,11 @@ abstract class XWalkContentsClient extends ContentViewClient {
             // So it is safe for Crosswalk to rely on didStopLoading to ensure onPageFinished
             // can be called.
         }
+
+        @Override
+        public void documentLoadedInFrame(long frameId) {
+            onDocumentLoadedInFrame(frameId);
+        }
     }
 
     @Override
@@ -163,6 +168,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
     protected abstract boolean onCreateWindow(boolean isDialog, boolean isUserGesture);
 
     protected abstract void onCloseWindow();
+
+    public abstract void onDocumentLoadedInFrame(long frameId);
 
     public abstract void onReceivedIcon(Bitmap bitmap);
 
