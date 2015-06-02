@@ -52,4 +52,8 @@ const char kPpapiFlashPath[] = "ppapi-flash-path";
 const char kPpapiFlashVersion[] = "ppapi-flash-version";
 #endif
 
+// Specifies the user data directory, which is where the browser will look for
+// all of its state.
+const char kUserDataDir[] = "user-data-dir";
+
 }  // namespace switches
