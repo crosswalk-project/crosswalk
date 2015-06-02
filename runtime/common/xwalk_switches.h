@@ -29,6 +29,8 @@ extern const char kPpapiFlashPath[];
 extern const char kPpapiFlashVersion[];
 #endif
 
+extern const char kUserDataDir[];
+
 }  // namespace switches
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
