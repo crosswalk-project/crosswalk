@@ -35,10 +35,6 @@ class XWalkExtensionData {
     return in_process_ui_thread_server_.get();
   }
 
-  ExtensionServerMessageFilter* in_process_message_filter() {
-    return in_process_message_filter_;
-  }
-
   scoped_ptr<XWalkExtensionProcessHost> extension_process_host() {
     return extension_process_host_.Pass();
   }
@@ -57,12 +53,6 @@ class XWalkExtensionData {
     in_process_ui_thread_server_.reset(server.release());
   }
 
-  // We don't take the ownership of the filter because filters are owned by
-  // the IPC Channel they are filtering.
-  void set_in_process_message_filter(ExtensionServerMessageFilter* filter) {
-    in_process_message_filter_ = filter;
-  }
-
   void set_extension_process_host(scoped_ptr<XWalkExtensionProcessHost> host) {
     extension_process_host_.reset(host.release());
   }
@@ -79,9 +69,6 @@ class XWalkExtensionData {
   // Extension servers living on their respective threads.
   scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
   scoped_ptr<XWalkExtensionServer> in_process_ui_thread_server_;
-
-  // This object lives on the IO-thread.
-  ExtensionServerMessageFilter* in_process_message_filter_;
 
   // This object lives on the IO-thread.
   scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;

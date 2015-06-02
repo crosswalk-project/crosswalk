@@ -14,8 +14,7 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionData::XWalkExtensionData()
-    : in_process_message_filter_(NULL),
-      extension_thread_(NULL),
+    : extension_thread_(NULL),
       render_process_host_(NULL) {}
 
 XWalkExtensionData::~XWalkExtensionData() {

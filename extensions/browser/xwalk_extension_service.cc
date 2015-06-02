@@ -10,7 +10,6 @@
 #include "base/command_line.h"
 #include "base/pickle.h"
 #include "base/scoped_native_library.h"
-#include "base/synchronization/lock.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/notification_service.h"
@@ -58,15 +57,6 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
         task_runner_(task_runner),
         extension_thread_server_(extension_thread_server),
         ui_thread_server_(ui_thread_server) {}
-
-  // Tells the filter to stop dispatching messages to the server.
-  void Invalidate() {
-    base::AutoLock l(lock_);
-    sender_ = NULL;
-    task_runner_ = NULL;
-    extension_thread_server_ = NULL;
-    ui_thread_server_ = NULL;
-  }
 
   // IPC::Sender implementation.
   bool Send(IPC::Message* msg_ptr) override {
@@ -171,8 +161,6 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
     if (IPC_MESSAGE_CLASS(message) != XWalkExtensionClientServerMsgStart)
       return false;
 
-    base::AutoLock l(lock_);
-
     if (!extension_thread_server_ || !ui_thread_server_)
       return false;
 
@@ -190,9 +178,6 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
 
     return true;
   }
-
-  // This lock is used to protect access to filter members.
-  base::Lock lock_;
 
   IPC::Sender* sender_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
@@ -297,7 +282,7 @@ void XWalkExtensionService::SetExternalExtensionsPathForTesting(
 
 // We use this to keep track of the RenderProcess shutdown events.
 // This is _very_ important so we can clean up all we need gracefully,
-// avoiding invalid IPC steps after the IPC channel is gonne.
+// avoiding invalid IPC steps after the IPC channel is gone.
 void XWalkExtensionService::Observe(int type,
                               const content::NotificationSource& source,
                               const content::NotificationDetails& details) {
@@ -320,19 +305,6 @@ void XWalkExtensionService::OnRenderProcessHostClosed(
     return;
 
   XWalkExtensionData* data = it->second;
-
-  // Invalidate the objects in the different threads so they stop posting
-  // messages to each other. This is important because we'll schedule the
-  // deletion of both objects to their respective threads.
-  ExtensionServerMessageFilter* message_filter =
-      data->in_process_message_filter();
-  CHECK(message_filter);
-
-  message_filter->Invalidate();
-
-  // This will cause the filter to be deleted in the IO-thread.
-  host->GetChannel()->RemoveFilter(message_filter);
-
   extension_data_map_.erase(it);
   delete data;
 }
@@ -390,9 +362,6 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
                                        extension_thread_server.get(),
                                        ui_thread_server.get());
 
-  // The filter is owned by the IPC channel but we keep a reference to remove
-  // it from the Channel later during a RenderProcess shutdown.
-  data->set_in_process_message_filter(message_filter);
   channel->AddFilter(message_filter);
 
   data->set_in_process_extension_thread_server(extension_thread_server.Pass());
