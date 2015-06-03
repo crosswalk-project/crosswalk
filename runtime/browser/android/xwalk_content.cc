@@ -17,6 +17,9 @@
 #include "base/json/json_writer.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
+#include "base/prefs/pref_service.h"
+#include "components/navigation_interception/intercept_navigation_delegate.h"
+#include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
@@ -25,7 +28,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/url_constants.h"
-#include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
@@ -127,6 +129,32 @@ XWalkContent* XWalkContent::FromWebContents(
 
 XWalkContent::XWalkContent(scoped_ptr<content::WebContents> web_contents)
     : web_contents_(web_contents.Pass()) {
+  WebContents* contents = web_contents_.get();
+  CreateUserPrefServiceIfNecessary(contents);
+  PrefService* pref_service =
+      user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
+  pref_change_registrar_.Init(pref_service);
+  if (pref_service) {
+    base::Closure renderer_callback = base::Bind(
+        &XWalkContent::UpdateRendererPreferences, base::Unretained(this));
+    pref_change_registrar_.Add("intl.accept_languages", renderer_callback);
+  }
+}
+
+void XWalkContent::UpdateRendererPreferences() {
+  content::RendererPreferences* prefs =
+      web_contents_->GetMutableRendererPrefs();
+  PrefService* pref_service =
+      user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
+  prefs->accept_languages = pref_service->GetString("intl.accept_languages");
+  web_contents_->GetRenderViewHost()->SyncRendererPrefs();
+}
+
+void XWalkContent::CreateUserPrefServiceIfNecessary(
+    content::WebContents* contents) {
+  XWalkBrowserContext* browser_context =
+      XWalkBrowserContext::FromWebContents(contents);
+  browser_context->CreateUserPrefServiceIfNecessary();
 }
 
 XWalkContent::~XWalkContent() {

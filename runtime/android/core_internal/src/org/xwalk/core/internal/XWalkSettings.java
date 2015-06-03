@@ -57,6 +57,7 @@ public class XWalkSettings {
     private boolean mShouldFocusFirstNode = true;
     private boolean mGeolocationEnabled = true;
     private String mUserAgent;
+    private String mAcceptLanguages;
 
     // Protects access to settings global fields.
     private static final Object sGlobalContentSettingsLock = new Object();
@@ -657,6 +658,32 @@ public class XWalkSettings {
         }
     }
 
+    public void setAcceptLanguages(final String acceptLanguages) {
+        synchronized (mXWalkSettingsLock) {
+            if (mAcceptLanguages == acceptLanguages) return;
+            mAcceptLanguages = acceptLanguages;
+            mEventHandler.maybeRunOnUiThreadBlocking(new Runnable() {
+                @Override
+                public void run() {
+                    if (mNativeXWalkSettings != 0) {
+                        nativeUpdateAcceptLanguages(mNativeXWalkSettings);
+                    }
+                }
+            });
+        }
+    }
+
+    public String getAcceptLanguages() {
+        synchronized (mXWalkSettingsLock) {
+            return mAcceptLanguages;
+        }
+    }
+
+    @CalledByNative
+    private String getAcceptLanguagesLocked() {
+        return mAcceptLanguages;
+    }
+
     private native long nativeInit(WebContents webContents);
 
     private native void nativeDestroy(long nativeXWalkSettings);
@@ -668,4 +695,6 @@ public class XWalkSettings {
     private native void nativeUpdateUserAgent(long nativeXWalkSettings);
 
     private native void nativeUpdateWebkitPreferences(long nativeXWalkSettings);
+
+    private native void nativeUpdateAcceptLanguages(long nativeXWalkSettings);
 }

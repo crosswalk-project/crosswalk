@@ -22,6 +22,10 @@
 #include "content/public/browser/content_browser_client.h"
 #include "xwalk/runtime/browser/xwalk_ssl_host_state_delegate.h"
 
+#if defined(OS_ANDROID)
+#include "base/strings/string_split.h"
+#endif
+
 namespace net {
 class URLRequestContextGetter;
 }
@@ -34,6 +38,8 @@ class PermissionManager;
 namespace visitedlink {
 class VisitedLinkMaster;
 }
+
+class PrefService;
 
 namespace xwalk {
 
@@ -49,6 +55,9 @@ class XWalkBrowserContext
  public:
   XWalkBrowserContext();
   ~XWalkBrowserContext() override;
+
+  // Currently only one instance per process is supported.
+  static XWalkBrowserContext* GetDefault();
 
   // Convenience method to returns the XWalkBrowserContext corresponding to the
   // given WebContents.
@@ -95,6 +104,8 @@ class XWalkBrowserContext
   // visitedlink::VisitedLinkDelegate implementation.
   void RebuildTable(
       const scoped_refptr<URLEnumerator>& enumerator) override;
+
+  void CreateUserPrefServiceIfNecessary();
 #endif
 
  private:
@@ -115,6 +126,8 @@ class XWalkBrowserContext
 #if defined(OS_ANDROID)
   std::string csp_;
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
+
+  scoped_ptr<PrefService> user_pref_service_;
 #endif
 
   typedef std::map<base::FilePath::StringType,

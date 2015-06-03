@@ -26,6 +26,7 @@ import android.widget.FrameLayout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.util.Locale;
 
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
@@ -181,6 +182,10 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
+
+        String language = Locale.getDefault().toString();
+        if (language.isEmpty()) language = "en";
+        mSettings.setAcceptLanguages(language);
 
         nativeSetJavaPeers(mNativeContent, this, mXWalkContentsDelegateAdapter, mContentsClientBridge,
                 mIoThreadClient, mContentsClientBridge.getInterceptNavigationDelegate());

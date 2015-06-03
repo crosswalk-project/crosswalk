@@ -630,4 +630,13 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected void setAcceptLanguages(final String languages) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.setAcceptLanguages(languages);
+            }
+        });
+    }
 }
