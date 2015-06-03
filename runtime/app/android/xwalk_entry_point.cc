@@ -10,6 +10,9 @@
 #include "content/public/app/content_main_delegate.h"
 #include "xwalk/runtime/app/android/xwalk_jni_registrar.h"
 #include "xwalk/runtime/app/android/xwalk_main_delegate_android.h"
+#if defined(USE_COCOS2D)
+#include "third_party/WebKit/Source/core/cocos2d/cocos2dx/platform/android/blinkjni/Cocos2dxJniHelper.h"
+#endif
 
 // This is called by the VM when the shared library is first loaded.
 JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
@@ -22,6 +25,11 @@ JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
   if (!xwalk::RegisterJni(env))
     return -1;
+
+  #if defined(USE_COCOS2D)
+  if (!cocos2d::RegisterCocos2dJni(env))
+    return -1;
+  #endif
 
   content::SetContentMainDelegate(new xwalk::XWalkMainDelegateAndroid());
 

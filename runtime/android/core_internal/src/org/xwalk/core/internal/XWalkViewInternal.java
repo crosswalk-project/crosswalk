@@ -238,6 +238,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private static void init(Context context, Activity activity) {
         if (sInitialized) return;
 
+        try {
+            Class cocos2dHelper = Class.forName("org.cocos2dx.lib.Cocos2dxHelper");
+            Method method = cocos2dHelper.getMethod("init", new Class[]{Context.class});
+            method.invoke(null, activity);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         XWalkViewDelegate.loadXWalkLibrary(null);
 
         // Initialize the ActivityStatus. This is needed and used by many internal

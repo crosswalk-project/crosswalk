@@ -38,6 +38,9 @@
             'cleanup_icu_data',
           ],
         }],
+        ['enable_cocos2d==1', {
+          'defines': ['USE_COCOS2D'],
+        }],
       ],
     },
     {
@@ -185,6 +188,11 @@
         'generated_src_dirs': [
           '<(reflection_java_dir)/wrapper',
         ],
+        'conditions': [
+          ['enable_cocos2d==1', {
+            'input_jars_paths': ['<(PRODUCT_DIR)/lib.java/cocos2d_blink_java.jar']
+          }],
+        ]        
       },
       'includes': ['../build/java.gypi']
     },
