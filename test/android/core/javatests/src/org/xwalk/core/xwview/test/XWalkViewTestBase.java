@@ -156,6 +156,11 @@ public class XWalkViewTestBase
         public void onLoadFinished(XWalkView view, String url) {
             mInnerContentsClient.onLoadFinished(url);
         }
+
+        @Override
+        public void onDocumentLoadedInFrame(XWalkView view, long frameId) {
+            mInnerContentsClient.onDocumentLoadedInFrame(frameId);
+        }
     }
 
     class TestXWalkResourceClient extends TestXWalkResourceClientBase {

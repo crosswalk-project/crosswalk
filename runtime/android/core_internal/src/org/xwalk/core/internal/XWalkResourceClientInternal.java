@@ -125,6 +125,18 @@ public class XWalkResourceClientInternal {
     }
 
     /**
+     * Notify the client that initial HTML document has been completely loaded and
+     * parsed, without waiting for stylesheets, images, and subframes to finish loading.
+     * This is similar to JavaScript DOMContentLoaded.
+     * @param view the owner XWalkViewInternal instance.
+     * @param frameId the loaded and parsed frame.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void onDocumentLoadedInFrame(XWalkViewInternal view, long frameId) {
+    }
+
+    /**
      * Notify the client that the XWalkViewInternal will load the resource specified
      * by the given url.
      * @param view the owner XWalkViewInternal instance.

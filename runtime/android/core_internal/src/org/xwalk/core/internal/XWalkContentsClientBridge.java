@@ -238,6 +238,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public void onDocumentLoadedInFrame(long frameId) {
+        if (isOwnerActivityRunning()) {
+            mXWalkResourceClient.onDocumentLoadedInFrame(mXWalkView,frameId);
+        }
+    }
+
+    @Override
     public void onResourceLoadStarted(String url) {
         if (isOwnerActivityRunning()) {
             mXWalkResourceClient.onLoadStarted(mXWalkView, url);

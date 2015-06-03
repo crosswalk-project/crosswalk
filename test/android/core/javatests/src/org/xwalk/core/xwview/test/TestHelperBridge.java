@@ -71,6 +71,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnDocumentLoadedInFrameHelper extends CallbackHelper {
+        private long mFrameId;
+
+        public long getFrameId() {
+            assert getCallCount() > 0;
+            return mFrameId;
+        }
+
+        public void notifyCalled(long frameId) {
+            mFrameId = frameId;
+            notifyCalled();
+        }
+    }
+
     public class OnLoadStartedHelper extends CallbackHelper {
         private String mUrl;
 
@@ -414,6 +428,7 @@ class TestHelperBridge {
     private final OverrideOrUnhandledKeyEventHelper mOverrideOrUnhandledKeyEventHelper;
     private final OnCreateWindowRequestedHelper mOnCreateWindowRequestedHelper;
     private final OnConsoleMessageHelper mOnConsoleMessageHelper;
+    private final OnDocumentLoadedInFrameHelper mOnDocumentLoadedInFrameHelper;
     private final OnReceivedIconHelper mOnReceivedIconHelper;
     private final OnLoadFinishedHelper mOnLoadFinishedHelper;
     private final OnDownloadStartHelper mOnDownloadStartHelper;
@@ -437,6 +452,7 @@ class TestHelperBridge {
         mOverrideOrUnhandledKeyEventHelper = new OverrideOrUnhandledKeyEventHelper();
         mOnCreateWindowRequestedHelper = new OnCreateWindowRequestedHelper();
         mOnConsoleMessageHelper = new OnConsoleMessageHelper();
+        mOnDocumentLoadedInFrameHelper = new OnDocumentLoadedInFrameHelper();
         mOnReceivedIconHelper = new OnReceivedIconHelper();
         mOnLoadFinishedHelper = new OnLoadFinishedHelper();
         mOnDownloadStartHelper = new OnDownloadStartHelper();
@@ -464,6 +480,10 @@ class TestHelperBridge {
 
     public ShouldInterceptLoadRequestHelper getShouldInterceptLoadRequestHelper() {
         return mShouldInterceptLoadRequestHelper;
+    }
+
+    public OnDocumentLoadedInFrameHelper getOnDocumentLoadedInFrameHelper() {
+        return mOnDocumentLoadedInFrameHelper;
     }
 
     public OnLoadStartedHelper getOnLoadStartedHelper() {
@@ -556,6 +576,10 @@ class TestHelperBridge {
         WebResourceResponse response = mShouldInterceptLoadRequestHelper.getReturnValue(url);
         mShouldInterceptLoadRequestHelper.notifyCalled(url);
         return response;
+    }
+
+    public void onDocumentLoadedInFrame(long frameId) {
+        mOnDocumentLoadedInFrameHelper.notifyCalled(frameId);
     }
 
     public void onLoadStarted(String url) {
