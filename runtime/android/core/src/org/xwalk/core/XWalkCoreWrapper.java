@@ -106,7 +106,8 @@ class XWalkCoreWrapper {
         if (sInstance != null || sReservedObjects != null) return;
 
         Log.d(TAG, "Init embedded mode");
-        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(null, -1);
+        XWalkApplication application = XWalkApplication.getApplication();
+        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(application.getApplicationContext(), -1);
         if (!provisionalInstance.findEmbeddedCore()) {
             Assert.fail("Please extend XWalkActivity for shared mode");
         }
@@ -203,7 +204,8 @@ class XWalkCoreWrapper {
     private boolean checkCoreArchitecture() {
         try {
             Class<?> clazz = getBridgeClass("XWalkViewDelegate");
-            new ReflectMethod(clazz, "loadXWalkLibrary", Context.class).invoke(mBridgeContext);
+            new ReflectMethod(clazz, "loadXWalkLibrary", Context.class,
+                    Context.class).invoke(mBridgeContext, mWrapperContext);
         } catch (RuntimeException e) {
             Log.d(TAG, "Failed to load native library");
             mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;

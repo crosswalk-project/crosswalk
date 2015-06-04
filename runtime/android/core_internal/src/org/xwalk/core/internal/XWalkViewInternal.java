@@ -250,7 +250,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private static void init(Context context, Activity activity) {
         if (sInitialized) return;
 
-        XWalkViewDelegate.loadXWalkLibrary(context);
+        XWalkViewDelegate.loadXWalkLibrary(context, activity);
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
