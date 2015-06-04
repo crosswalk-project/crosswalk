@@ -226,6 +226,7 @@ def ReplaceCrunchedImage(project_source, filename, filepath):
   """Replace crunched images with source images.
   """
   search_dir = [
+      'components/web_contents_delegate_android/android/java/res',
       'content/public/android/java/res',
       'ui/android/java/res'
   ]
