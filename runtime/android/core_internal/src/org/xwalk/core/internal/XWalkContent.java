@@ -19,6 +19,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
@@ -58,7 +60,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private static Class<? extends Annotation> javascriptInterfaceClass = null;
 
     private ContentViewCore mContentViewCore;
-    private ContentView mContentView;
+    private XWalkContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private ActivityWindowAndroid mWindow;
     private XWalkDevToolsServer mDevToolsServer;
@@ -157,7 +159,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(getContext());
-        mContentView = ContentView.newInstance(getContext(), mContentViewCore);
+        mContentView = new XWalkContentView(getContext(), mContentViewCore, mXWalkView);
         mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
         mWebContents = mContentViewCore.getWebContents();
         mNavigationController = mWebContents.getNavigationController();
@@ -613,6 +615,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     public int getRoutingID() {
         return nativeGetRoutingID(mNativeContent);
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return mContentView.onCreateInputConnectionSuper(outAttrs);
     }
 
     //--------------------------------------------------------------------------------------------
