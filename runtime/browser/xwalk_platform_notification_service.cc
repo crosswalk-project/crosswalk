@@ -97,4 +97,13 @@ void XWalkPlatformNotificationService::DisplayNotification(
 #endif
 }
 
+bool XWalkPlatformNotificationService::GetDisplayedPersistentNotifications(
+    content::BrowserContext* browser_context,
+    std::set<std::string>* displayed_notifications) {
+    NOTIMPLEMENTED();
+    return false;
+}
+
+
+
 }  // namespace xwalk

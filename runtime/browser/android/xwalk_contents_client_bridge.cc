@@ -46,7 +46,8 @@ namespace {
 
 int g_next_notification_id_ = 1;
 
-ScopedPtrHashMap<int, content::DesktopNotificationDelegate> g_notification_map_;
+ScopedPtrHashMap<int, scoped_ptr<content::DesktopNotificationDelegate>>
+    g_notification_map_;
 
 }  // namespace
 

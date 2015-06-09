@@ -292,7 +292,10 @@ content::ResourceDispatcherHostLoginDelegate*
 bool RuntimeResourceDispatcherHostDelegateAndroid::HandleExternalProtocol(
     const GURL& url,
     int child_id,
-    int route_id) {
+    int route_id,
+    bool is_main_frame,
+    ui::PageTransition page_transition,
+    bool has_user_gesture) {
   // On Android, there are many Uris need to be handled differently.
   // e.g: sms:, tel:, mailto: and etc.
   // So here return false to let embedders to decide which protocol
