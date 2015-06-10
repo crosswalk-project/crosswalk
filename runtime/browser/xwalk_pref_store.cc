@@ -38,20 +38,22 @@ bool XWalkPrefStore::IsInitializationComplete() const {
   return true;
 }
 
-void XWalkPrefStore::SetValue(const std::string& key, base::Value* value) {
+void XWalkPrefStore::SetValue(const std::string& key,
+                              base::Value* value,
+                              uint32 flags) {
   DCHECK(value);
   if (prefs_.SetValue(key, value))
-      ReportValueChanged(key);
+      ReportValueChanged(key, flags);
 }
 
 void XWalkPrefStore::SetValueSilently(
-    const std::string& key, base::Value* value) {
+    const std::string& key, base::Value* value, uint32 flags) {
   prefs_.SetValue(key, value);
 }
 
-void XWalkPrefStore::RemoveValue(const std::string& key) {
+void XWalkPrefStore::RemoveValue(const std::string& key, uint32 flags) {
   if (prefs_.RemoveValue(key))
-    ReportValueChanged(key);
+    ReportValueChanged(key, flags);
 }
 
 bool XWalkPrefStore::ReadOnly() const {
@@ -69,6 +71,6 @@ PersistentPrefStore::PrefReadError XWalkPrefStore::ReadPrefs() {
 void XWalkPrefStore::ReadPrefsAsync(ReadErrorDelegate* error_delegate_raw) {
 }
 
-void XWalkPrefStore::ReportValueChanged(const std::string& key) {
+void XWalkPrefStore::ReportValueChanged(const std::string& key, uint32 flags) {
   FOR_EACH_OBSERVER(Observer, observers_, OnPrefValueChanged(key));
 }

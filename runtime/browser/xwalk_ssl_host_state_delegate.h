@@ -68,6 +68,10 @@ class XWalkSSLHostStateDelegate : public content::SSLHostStateDelegate {
   bool DidHostRunInsecureContent(const std::string& host,
                                  int pid) const override;
 
+  void RevokeUserAllowExceptions(const std::string& host) override;
+
+  bool HasAllowException(const std::string& host) const override;
+
  private:
   // Certificate policies for each host.
   std::map<std::string, internal::CertPolicy> cert_policy_for_host_;
