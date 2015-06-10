@@ -845,7 +845,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     /**
     * Performs a zoom operation in this XWalkView.
-    * @param zoomFactor the zoom factor to apply.
+    * @param factor the zoom factor to apply.
     * The zoom factor will be clamped to the XWalkView's zoom limits.
     * This value must be in the range 0.01 to 100.0 inclusive.
     * @since 5.0

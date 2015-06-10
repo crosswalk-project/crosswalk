@@ -10,13 +10,61 @@ import android.os.Handler;
 import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
 
 /**
- * <code>XWalkInitializer</code> is a helper to initialize the Crosswalk environment as
- * {@link XWalkActivity}. But unlike {@link XWalkActivity}, <code>XWalkInitializer</code>
- * neither provide UI interactions to help the end-user to download the appropriate
- * Crosswalk library, nor prompt messages to notify the specific error during initializing.
- * Due to this limitation, <code>XWalkInitializer</code> only works for embedded mode, or
- * for shared mode if the appropriate Crosswalk library has already been installed on the
- * device.
+ * <code>XWalkInitializer</code> is a helper to initialize the Crosswalk Project runtime, and to
+ * extract it if the runtime is compressed. But unlike {@link XWalkActivity},
+ * <code>XWalkInitializer</code> neither provide UI interactions to help the end-user to download
+ * appropriate Crosswalk Project runtime, nor prompt messages to notify specific errors during
+ * initializing. Due to this limitation, <code>XWalkInitializer</code> only works for embedded mode.
+ *
+ * For example:</p>
+ *
+ * <pre>
+ * public class MyXWalkActivity extends Activity implements XWalkInitializer.XWalkInitListener {
+ *     XWalkView mXWalkView;
+ *
+ *     &#64;Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
+ *
+ *         // Must call initAsync() before anything that involes the embedding API,
+ *         // including calling setContentView() with the layout which holds the XWalkView object.
+ *
+ *         XWalkInitializer.initAsync(this, this);
+ *
+ *         // Before onXWalkInitCompleted() is invoked, you can do nothing with the embedding API
+ *         // except the following:
+ *         // 1. Create the instance of XWalkView
+ *         // 2. Call setUIClient()
+ *         // 3. Call setResourceClient()
+ *
+ *         setContentView(R.layout.activity_xwalkview);
+ *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
+ *         mXWalkView.setUIClient(new MyXWalkUIClient(mXWalkView));
+ *         mXWalkView.setResourceClient(new MyXWalkResourceClient(mXWalkView));
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitCompleted() {
+ *         // Do anyting with the embedding API
+ *
+ *         XWalkPreferences.setValue(XWalkPreferences.SUPPORT_MULTIPLE_WINDOWS, true);
+ *
+ *         mXWalkView.load("http://crosswalk-project.org/", null);
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitStarted() {
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitCancelled() {
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitFailed() {
+ *     }
+ * }
+ * </pre>
  */
 public class XWalkInitializer {
     /**
