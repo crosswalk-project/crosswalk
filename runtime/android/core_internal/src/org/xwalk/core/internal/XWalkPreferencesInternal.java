@@ -78,11 +78,11 @@ public class XWalkPreferencesInternal {
 
     /**
      * The key string to enable/disable animatable XWalkViewInternal. Default value is
-     * true.
+     * false.
      *
-     * If this key is set to False, then SurfaceView will be created internally as the
+     * If this key is set to false, then SurfaceView will be created internally as the
      * rendering backend.
-     * If this key is set to True, the XWalkViewInternal created by Crosswalk can be
+     * If this key is set to true, the XWalkViewInternal created by Crosswalk can be
      * transformed and animated. Internally, Crosswalk is alternatively using
      * TextureView as the backend of XWalkViewInternal.
      *
@@ -92,7 +92,7 @@ public class XWalkPreferencesInternal {
      * android.view.View</a> that is different from
      * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
      * SurfaceView</a>. Unlike SurfaceView, it can be resized, transformed and
-     * animated. Once this key is set to True, all XWalkViewInternal will use TextureView
+     * animated. Once this key is set to true, all XWalkViewInternal will use TextureView
      * as the rendering target instead of SurfaceView. The downside of TextureView
      * is, it would consume more graphics memory than SurfaceView and may have
      * 1~3 extra frames of latency to display updates.
@@ -154,7 +154,7 @@ public class XWalkPreferencesInternal {
 
     static {
         sPrefMap.put(REMOTE_DEBUGGING, new PreferenceValue(false));
-        sPrefMap.put(ANIMATABLE_XWALK_VIEW, new PreferenceValue(true));
+        sPrefMap.put(ANIMATABLE_XWALK_VIEW, new PreferenceValue(false));
         sPrefMap.put(ENABLE_JAVASCRIPT, new PreferenceValue(true));
         sPrefMap.put(JAVASCRIPT_CAN_OPEN_WINDOW, new PreferenceValue(true));
         sPrefMap.put(
