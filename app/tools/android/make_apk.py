@@ -314,7 +314,6 @@ def CleanNativeLibrary(library_path, arch):
 
 
 def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
-  # copy dummy library file to keep the arch info if it's available.
   arch_path = os.path.join(library_path, arch)
   dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
   if os.path.isfile(dummy_library):
@@ -327,11 +326,6 @@ def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
 
 
 def CopyNativeLibrary(native_path, library_path, raw_path, arch):
-  # do not need dummy library when lzma disabled.
-  dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
-  if os.path.isfile(dummy_library):
-    os.remove(dummy_library)
-
   shutil.copytree(native_path, os.path.join(library_path, arch))
 
 

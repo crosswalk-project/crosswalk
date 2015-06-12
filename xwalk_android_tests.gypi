@@ -34,11 +34,16 @@
         'xwalk_core_internal_java',
         'xwalk_core_java',
         'xwalk_core_shell_apk_pak',
+        'libxwalkdummy',
       ],
       'variables': {
         'apk_name': 'XWalkCoreShell',
         'java_in_dir': 'runtime/android/core_shell',
         'resource_dir': 'runtime/android/core_shell/res',
+        'native_lib_target': 'libxwalkdummy',
+        'additional_bundled_libs': [
+          '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
+        ],
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_left_frame.html',
@@ -57,9 +62,6 @@
             'additional_input_paths': [
               '<(PRODUCT_DIR)/xwalk_xwview/assets/icudtl.dat',
             ],
-          }],
-          ['use_lzma==0', {
-            'native_lib_target': 'libxwalkcore',
           }],
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_xwview/assets',
@@ -86,19 +88,7 @@
           ],
         },
       ],
-      'conditions': [
-        ['use_lzma==1', {
-          'dependencies': [
-            'libxwalkdummy',
-          ],
-          'includes': [ 'xwalk_lzma.gypi' ],
-        },{
-          'dependencies': [
-            'libxwalkcore',
-          ],
-          'includes': [ '../build/java_apk.gypi' ],
-        }],
-      ],
+      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_core_shell_apk_pak',
@@ -323,11 +313,16 @@
         'xwalk_core_internal_java',
         'xwalk_runtime_client_embedded_shell_apk_pak',
         'xwalk_runtime_client_test_utils_java',
+        'libxwalkdummy',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeClientEmbeddedShell',
         'java_in_dir': 'app/android/runtime_client_embedded_shell',
         'resource_dir': 'app/android/runtime_client_embedded_shell/res',
+        'native_lib_target': 'libxwalkdummy',
+        'additional_bundled_libs': [
+          '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
+        ],
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/index.html',
@@ -352,9 +347,6 @@
             'additional_input_paths': [
               '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/icudtl.dat',
             ],
-          }],
-          ['use_lzma==0', {
-            'native_lib_target': 'libxwalkcore',
           }],
         ],
         'asset_location': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
@@ -395,19 +387,7 @@
           ],
         },
       ],
-      'conditions': [
-        ['use_lzma==1', {
-          'dependencies': [
-            'libxwalkdummy',
-          ],
-          'includes': [ 'xwalk_lzma.gypi' ],
-        },{
-          'dependencies': [
-            'libxwalkcore',
-          ],
-          'includes': [ '../build/java_apk.gypi' ],
-        }],
-      ],
+      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_runtime_client_embedded_shell_apk_pak',

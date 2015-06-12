@@ -95,7 +95,7 @@ def CopyJSBindingFiles(project_source, out_project_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, out_project_dir, src_package, shared, use_lzma):
+def CopyBinaries(out_dir, out_project_dir, src_package, shared):
   # Copy jar files to libs.
   libs_dir = os.path.join(out_project_dir, 'libs')
   if not os.path.exists(libs_dir):
@@ -155,16 +155,6 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared, use_lzma):
   # Copy native libraries.
   source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
   distutils.dir_util.copy_tree(source_dir, libs_dir)
-
-  # NOTE: Gradle doesn't accept '-', use '_' instead.
-  if use_lzma:
-    for arch in ['x86', 'armeabi_v7a']:
-      arch_dir = os.path.join(libs_dir, arch)
-      lib = os.path.join(arch_dir, 'libxwalkcore.so.lzma')
-      if os.path.isfile(lib):
-        shutil.move(lib, os.path.join(res_raw_dir, "libxwalkcore.so." + arch))
-  else:
-    shutil.rmtree(os.path.join(res_raw_dir, "libxwalkcore.so.*"), ignore_errors = True)
 
 
 def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix, blacklist=None):
@@ -333,7 +323,7 @@ def main(argv):
   CopyProjectFiles(options.source, out_project_dir, options.shared)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
-  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared, options.use_lzma)
+  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
   # Copy JS API binding files.
   if not options.shared:
     CopyJSBindingFiles(options.source, out_project_dir)
