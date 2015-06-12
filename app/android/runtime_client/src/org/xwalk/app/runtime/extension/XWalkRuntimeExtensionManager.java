@@ -155,18 +155,20 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
                 JSONObject jsonObject = jsonFeatures.getJSONObject(i);
                 String name = jsonObject.getString("name");
                 String className =  jsonObject.getString("class");
-                String jsApiFile = jsonObject.getString("jsapi");
+                String jsApiFile = jsonObject.optString("jsapi");
 
                 // Load the content of the JavaScript file.
-                String jsApi;
-                try {
-                    jsApi = getExtensionJSFileContent(mActivity, jsApiFile, false);
-                } catch (IOException e) {
-                    Log.w(TAG, "Failed to read the file " + jsApiFile);
-                    return;
+                String jsApi = null;
+                if (jsApiFile != null && jsApiFile.length() != 0) {
+                    try {
+                        jsApi = getExtensionJSFileContent(mActivity, jsApiFile, false);
+                    } catch (IOException e) {
+                        Log.w(TAG, "Failed to read the file " + jsApiFile);
+                        return;
+                    }
                 }
 
-                if (name != null && className != null && jsApi != null) {
+                if (name != null && className != null) {
                     createExternalExtension(name, className, jsApi, this);
                 }
             }
@@ -235,5 +237,6 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
     private static void handleException(Exception e) {
         // TODO(yongsheng): Handle exceptions here.
         Log.e(TAG, "Error in calling methods of external extensions. " + e.toString());
+        e.printStackTrace();
     }
 }

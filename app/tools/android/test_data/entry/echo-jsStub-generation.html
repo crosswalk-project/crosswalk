@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test entry file for "echoJsStubGenExtension"</title>
+    <script type="text/javascript">
+      function action() {
+        var pp1 = document.getElementById('pp1');
+        var pp2 = document.getElementById('pp2');
+        var pp3 = document.getElementById('pp3');
+        var pp4 = document.getElementById('pp4');
+        document.getElementById('pp').innerText = jsStub.echo.readOnlyProperty;
+
+        pp1.innerText = jsStub.echo.writablePrefix;
+        jsStub.echo.getPrefix(function(p){ pp2.innerText = p; });
+
+        jsStub.echo.getPrefixPromise().then(function(p) {
+            pp3.innerText = p;
+        }).catch(function() {console.log("rejected.")});
+        
+        pp4.innerText = jsStub.echo.echo("Hello World!");
+
+        // Test the writable prefix property.
+        // Change writable property in JavaScript and see if it updated in Java side.
+        jsStub.echo.writablePrefix = "New prefix from Java: ";
+        var echoWithNewPrefix = document.createTextNode("Echo with new prefix:" + jsStub.echo.echo("Hello World!"));
+        document.body.appendChild(echoWithNewPrefix);
+        document.body.appendChild(document.createElement("br"));
+        document.body.appendChild(document.createElement("br"));
+
+        // Test events.
+        onHandler = function(e) {
+          var eData = document.createTextNode("onHandler Event data:" + JSON.stringify(e));
+          document.body.appendChild(eData);
+          document.body.appendChild(document.createElement("br"));
+          document.body.appendChild(document.createElement("br"));
+        };
+
+        addHandler = function(e) {
+          var eData = document.createTextNode("addEventListener, Event data:" + JSON.stringify(e));
+          document.body.appendChild(eData);
+          document.body.appendChild(document.createElement("br"));
+          document.body.appendChild(document.createElement("br"));
+        };
+
+        // Set handlers.
+        jsStub.echo.onclick = onHandler; 
+        jsStub.echo.onupdatePrefix = onHandler;
+        jsStub.echo.onnewStudent = onHandler;
+        jsStub.echo.addEventListener("click", addHandler);
+        jsStub.echo.addEventListener("newStudent", addHandler);
+        jsStub.echo.addEventListener("updatePrefix", function(e) {
+          // Delete self in the handlers.
+          console.log("The self deleting handle:" + JSON.stringify(e));
+
+          // Test the feature: property updated by Java will notify JS.
+          var updatedReadOnlyProperty = document.createTextNode("Read only property updated:" + jsStub.echo.readOnlyProperty);
+          document.body.appendChild(updatedReadOnlyProperty);
+          document.body.appendChild(document.createElement("br"));
+          document.body.appendChild(document.createElement("br"));
+
+          jsStub.echo.removeEventListener("updatePrefix", arguments.callee);
+          jsStub.echo.removeEventListener("click", onHandler);
+          jsStub.echo.testEvent();
+        });
+
+        // Trigger the event in JavaScript side.
+        jsStub.echo.dispatchEvent("click", {"data": "triggered click evnt by JavaScript"});
+
+        // Replace the onXXX handler point
+        jsStub.echo.onclick = null; 
+        jsStub.echo.onupdatePrefix = function() {};
+        // Test events triggered by Java side.
+        jsStub.echo.testEvent();
+      }
+    </script>
+  </head>
+  <body>
+    <div><h3>Echo extension test</h3>
+      readOnlyProperty: <label id="pp">null</label><br />
+      writablePrefix property: <label id="pp1">null</label><br />
+      Prefix from async func: <label id="pp2">null</label><br />
+      Prefix promise: <label id="pp3">null</label><br />
+      Echo sync func: <label id="pp4">null</label><br />
+    </div>
+    <button type="button" onclick="action()">Action</button>
+    <div>Test Events:</div>
+  </body>
+</html>
