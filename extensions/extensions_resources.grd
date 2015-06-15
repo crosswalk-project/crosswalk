@@ -11,6 +11,7 @@
   <release seq="1">
     <includes>
       <include name="IDR_XWALK_EXTENSIONS_INTERNAL_API" file="renderer/xwalk_internal_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_EXTENSIONS_JS_STUB_WRAPPER" file="renderer/xwalk_js_stub_wrapper.js" type="BINDATA" />
       <include name="IDR_XWALK_EXTENSIONS_TESTS_INTERNAL_EXTENSION_BROWSERTEST_API" file="test/internal_extension_browsertest_api.js" type="BINDATA" />
     </includes>
   </release>

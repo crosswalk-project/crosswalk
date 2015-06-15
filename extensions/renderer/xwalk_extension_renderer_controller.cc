@@ -106,6 +106,10 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
       "internal", CreateJSModuleFromResource(
           IDR_XWALK_EXTENSIONS_INTERNAL_API));
 
+  module_system->RegisterNativeModule(
+      "jsStub", CreateJSModuleFromResource(
+          IDR_XWALK_EXTENSIONS_JS_STUB_WRAPPER));
+
   delegate_->DidCreateModuleSystem(module_system);
 
   CreateExtensionModules(in_browser_process_extensions_client_.get(),

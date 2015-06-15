@@ -386,6 +386,8 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   src_file = os.path.join(src_path, file_name)
   dest_file = os.path.join(dest_extension_path, file_name)
   if not os.path.isfile(src_file):
+    if suffix == ".js":
+      return
     print('Error: %s was not found in %s.' % (file_name, src_path))
     sys.exit(9)
   else:
@@ -453,14 +455,14 @@ def CustomizeExtensions(app_info, extensions):
       # Below 3 properties are used by runtime. See extension manager.
       # And 'permissions' will be merged.
       if not ('name' in json_output and
-              'class' in json_output and
-              'jsapi' in json_output):
-        print ('Error: properties \'name\', \'class\' and \'jsapi\' in a json '
+              'class' in json_output):
+        print ('Error: properties \'name\', \'class\' in a json '
                'file are mandatory.')
         sys.exit(9)
       # Reset the path for JavaScript.
       js_path_prefix = extensions_string + '/' + extension_name + '/'
-      json_output['jsapi'] = js_path_prefix + json_output['jsapi']
+      if ('jsapi' in json_output):
+          json_output['jsapi'] = js_path_prefix + json_output['jsapi']
       extension_json_list.append(json_output)
       # Merge the permissions of extensions into AndroidManifest.xml.
       manifest_path = os.path.join(app_dir, 'AndroidManifest.xml')

@@ -186,6 +186,17 @@
       'includes': ['../build/java.gypi'],
     },
     {
+      'target_name': 'echoJsStubGenExtension',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_java',
+      ],
+      'variables': {
+        'java_in_dir': 'app/tools/android/test_data/extensions/echoJsStubGenExtension/',
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
       'target_name': 'xwalk_packaging_tool_test',
       'type': 'none',
       'dependencies': [
