@@ -146,8 +146,14 @@ void XWalkContent::UpdateRendererPreferences() {
       web_contents_->GetMutableRendererPrefs();
   PrefService* pref_service =
       user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
-  prefs->accept_languages = pref_service->GetString("intl.accept_languages");
+  const std::string accept_languages =
+      pref_service->GetString("intl.accept_languages");
+  prefs->accept_languages = accept_languages;
   web_contents_->GetRenderViewHost()->SyncRendererPrefs();
+  XWalkBrowserContext* browser_context =
+      XWalkRunner::GetInstance()->browser_context();
+  CHECK(browser_context);
+  browser_context->UpdateAcceptLanguages(accept_languages);
 }
 
 void XWalkContent::CreateUserPrefServiceIfNecessary(

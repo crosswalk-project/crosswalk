@@ -292,4 +292,14 @@ net::HostResolver* RuntimeURLRequestContextGetter::host_resolver() {
   return url_request_context_->host_resolver();
 }
 
+#if defined(OS_ANDROID)
+void RuntimeURLRequestContextGetter::UpdateAcceptLanguages(
+    const std::string& accept_languages) {
+  if (!storage_)
+    return;
+  storage_->set_http_user_agent_settings(new net::StaticHttpUserAgentSettings(
+      accept_languages, xwalk::GetUserAgent()));
+}
+#endif
+
 }  // namespace xwalk

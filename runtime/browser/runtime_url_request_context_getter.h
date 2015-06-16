@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_URL_REQUEST_CONTEXT_GETTER_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_URL_REQUEST_CONTEXT_GETTER_H_
 
+#include <string>
+
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -44,6 +46,9 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
       GetNetworkTaskRunner() const override;
 
   net::HostResolver* host_resolver();
+  #if defined(OS_ANDROID)
+  void UpdateAcceptLanguages(const std::string& accept_languages);
+  #endif
 
  private:
   ~RuntimeURLRequestContextGetter() override;

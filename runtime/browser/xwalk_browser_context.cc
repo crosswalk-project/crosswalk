@@ -368,6 +368,15 @@ void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
 
   user_prefs::UserPrefs::Set(this, user_pref_service_.get());
 }
+
+void XWalkBrowserContext::UpdateAcceptLanguages(
+    const std::string& accept_languages) {
+  RuntimeURLRequestContextGetter* url_request_context_getter =
+      url_request_getter_.get();
+  if (!url_request_context_getter)
+    return;
+  url_request_context_getter->UpdateAcceptLanguages(accept_languages);
+}
 #endif
 
 }  // namespace xwalk
