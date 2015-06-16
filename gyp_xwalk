@@ -354,6 +354,7 @@ if __name__ == '__main__':
     args.append('-Duse_minimum_resources=1')
     args.append('-Duse_lzma=1')
     args.append('-Ddisable_builtin_extensions=1')
+    args.append('-Denable_cocos2d=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'

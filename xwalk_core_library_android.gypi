@@ -31,6 +31,11 @@
         ],
         'xwalk_core_jar': '<(PRODUCT_DIR)/lib.java/xwalk_core_library_java_app_part.jar',
         'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',
+        'conditions': [
+          ['enable_cocos2d==1', {
+            'input_jars_paths': ['<(PRODUCT_DIR)/lib.java/cocos2d_blink_java.jar']
+          }],
+        ]
       },
       'actions': [
         {
