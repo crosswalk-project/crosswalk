@@ -1,0 +1,27 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Copyright (c) 2015 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# This file provides common configuration information for building
+# Crosswalk packages for various platforms.
+
+# Base name of the package.
+PACKAGE="crosswalk"
+
+# Filename of the main executable (for generating launcher scripts, etc.)
+PROGNAME="xwalk"
+
+# Base directory for package installation.
+INSTALLDIR="/opt/crosswalk-project"
+
+# Brief package description.
+SHORTDESC="Runtime for hosted and packaged apps"
+
+# Detailed package description.
+FULLDESC="The Crosswalk Project is an HTML5 application runtime, built on open source foundations, which extends the web platform with new capabilities."
+
+# Package maintainer information.
+MAINTNAME="Crosswalk Project"
+MAINTMAIL="crosswalk-dev@lists.crosswalk-project.org"
+PRODUCTURL="https://crosswalk-project.org/"
