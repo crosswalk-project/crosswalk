@@ -13,18 +13,20 @@
 
 namespace xwalk {
 
-struct MatchRuntimeFeature
-  : std::unary_function<XWalkRuntimeFeatures::RuntimeFeature, bool> {
-  explicit MatchRuntimeFeature(const std::string& name) : name(name) {}
-  bool operator()(const XWalkRuntimeFeatures::RuntimeFeature& entry) const {
-    return entry.name == name;
-  }
-  const std::string name;
-};
+XWalkRuntimeFeatures::Feature::Feature() {
+}
 
-XWalkRuntimeFeatures::RuntimeFeature::RuntimeFeature()
-    : status(Experimental),
-      enabled(false) {
+XWalkRuntimeFeatures::Feature::Feature(
+    const std::string& name,
+    const std::string& cmd_line,
+    const std::string& description,
+    Status status,
+    bool enabled)
+    : name(name),
+      cmd_line(cmd_line),
+      description(description),
+      status(status),
+      enabled(enabled) {
 }
 
 // static
@@ -45,49 +47,57 @@ void XWalkRuntimeFeatures::Initialize(const base::CommandLine* cmd) {
     experimental_features_enabled_ = true;
   else
     experimental_features_enabled_ = false;
-  // Add new features here with the following parameters :
-  // - Name of the feature
-  // - Name of the command line switch which will be used after the
-  // --enable/--disable
-  // - Description of the feature
-  // - Status of the feature : experimental which is turned off by default or
-  // stable which is turned on by default
+
+#if !defined(DISABLE_BUNDLED_EXTENSIONS)
+#if defined(OS_ANDROID)
+  // FIXME(cmarcelo): The application extensions are currently not fully working
+  // for Android, so disable them. See
+  // https://crosswalk-project.org/jira/browse/XWALK-674.
+  // Android uses a Java extension for device capabilities, so disable the one
+  // from sysapps/.
   AddFeature("SysApps", "sysapps",
-             "Master switch for the SysApps category of APIs", Stable);
+      "Master switch for the SysApps category of APIs", Feature::Stable);
   AddFeature("RawSocketsAPI", "raw-sockets",
-             "JavaScript support for using TCP and UDP sockets", Stable);
-  AddFeature("DeviceCapabilitiesAPI", "device-capabilities",
-             "JavaScript support for peeking at device capabilities", Stable);
+      "JavaScript support for using TCP and UDP sockets", Feature::Stable);
   AddFeature("StorageAPI", "storage",
-             "JavaScript support to file system beyond W3C spec", Stable);
+      "JavaScript support to file system beyond W3C spec", Feature::Stable);
+  AddFeature("DialogAPI", "dialog-api",
+      "JavaScript support for dialog APIs", Feature::Experimental);
+#else
+  AddFeature("SysApps", "sysapps",
+      "Master switch for the SysApps category of APIs", Feature::Stable);
+  AddFeature("RawSocketsAPI", "raw-sockets",
+      "JavaScript support for using TCP and UDP sockets", Feature::Stable);
+  AddFeature("DeviceCapabilitiesAPI", "device-capabilities",
+      "JavaScript support for peeking at device capabilities", Feature::Stable);
+  AddFeature("StorageAPI", "storage",
+      "JavaScript support to file system beyond W3C spec", Feature::Stable);
+  AddFeature("ApplicationAPI", "application-api",
+      "JavaScript support for Widget and Manifest APIs", Feature::Stable);
+  AddFeature("DialogAPI", "dialog-api",
+      "JavaScript support for dialog APIs", Feature::Experimental);
+#endif
+#endif
 }
 
 XWalkRuntimeFeatures::~XWalkRuntimeFeatures() {}
 
 void XWalkRuntimeFeatures::AddFeature(const char* name,
-                                 const char* command_line_switch,
-                                 const char* description,
-                                 RuntimeFeatureStatus status) {
-  RuntimeFeature feature;
-  feature.name = name;
-  feature.description = description;
-  feature.command_line_switch = command_line_switch;
-  feature.status = status;
-  feature.enabled = false;
-
+                                      const char* cmd_line,
+                                      const char* description,
+                                      Feature::Status status) {
+  Feature feature(name, cmd_line, description, status);
   if (experimental_features_enabled_) {
     feature.enabled = true;
-  } else if (command_line_->HasSwitch(
-              ("disable-" + std::string(command_line_switch)))) {
+  } else if (command_line_->HasSwitch("disable-" + std::string(cmd_line))) {
     feature.enabled = false;
-  } else if (command_line_->HasSwitch(
-              ("enable-" + std::string(command_line_switch)))) {
+  } else if (command_line_->HasSwitch("enable-" + std::string(cmd_line))) {
     feature.enabled = true;
   } else {
-    feature.enabled = (status == Stable);
+    feature.enabled = (status == Feature::Stable);
   }
 
-  runtime_features_.push_back(feature);
+  runtime_features_[name] = feature;
 }
 
 void XWalkRuntimeFeatures::DumpFeaturesFlags() {
@@ -110,22 +120,22 @@ void XWalkRuntimeFeatures::DumpFeaturesFlags() {
     + command_line_title.length() + status_title.length();
   output += std::string(total_length, '-') + '\n';
 
-  RuntimeFeaturesList::const_iterator it = runtime_features_.begin();
-  for (; it != runtime_features_.end(); ++it) {
-    std::string status = (it->status == Stable) ?
+  for (const auto& pair : runtime_features_) {
+    const Feature& feature = pair.second;
+    std::string status = (feature.status == Feature::Stable) ?
       std::string("Stable") : std::string("Experimental");
     std::string command_line;
 
-    it->enabled ? command_line = "--disable-"
+    feature.enabled ? command_line = "--disable-"
       : command_line = "--enable-";
-    command_line += it->command_line_switch;
+    command_line += feature.cmd_line;
 
     output += command_line;
     std::string space(command_line_description_space
       + command_line_title.length() - command_line.length(), ' ');
-    output +=  space + it->description;
+    output +=  space + feature.description;
     std::string space2(description_status_space + description_title.length()
-      - it->description.length(), ' ');
+      - feature.description.length(), ' ');
     output += space2 + status + '\n';
   }
   std::cout << output << std::endl;
@@ -133,15 +143,10 @@ void XWalkRuntimeFeatures::DumpFeaturesFlags() {
 
 bool XWalkRuntimeFeatures::isFeatureEnabled(const char* name) const {
   CHECK(initialized_);
-  if (experimental_features_enabled_)
-    return true;
-
-  RuntimeFeaturesList::const_iterator it = std::find_if(
-    runtime_features_.begin(), runtime_features_.end(),
-      MatchRuntimeFeature(name));
+  auto it = runtime_features_.find(name);
   if (it == runtime_features_.end())
     return false;
-  return (*it).enabled;
+  return it->second.enabled;
 }
 
 }  // namespace xwalk

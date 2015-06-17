@@ -24,9 +24,6 @@ class ApplicationComponent : public XWalkComponent {
   explicit ApplicationComponent(XWalkBrowserContext* browser_context);
   ~ApplicationComponent() override;
 
-  // Used by Android since extensions for Application are not supported there.
-  void DisableExtensions() { extensions_enabled_ = false; }
-
   application::ApplicationSystem* app_system() { return app_system_.get(); }
 
  private:
@@ -39,7 +36,6 @@ class ApplicationComponent : public XWalkComponent {
       extensions::XWalkExtensionVector* extensions) override;
 
   scoped_ptr<application::ApplicationSystem> app_system_;
-  bool extensions_enabled_;
 };
 
 }  // namespace xwalk
