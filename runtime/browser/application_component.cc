@@ -5,20 +5,21 @@
 #include "xwalk/runtime/browser/application_component.h"
 
 #include "xwalk/application/browser/application_system.h"
+#include "xwalk/runtime/common/xwalk_runtime_features.h"
 
 namespace xwalk {
 
 ApplicationComponent::ApplicationComponent(
     XWalkBrowserContext* browser_context)
-    : app_system_(application::ApplicationSystem::Create(browser_context)),
-      extensions_enabled_(true) {}
+    : app_system_(application::ApplicationSystem::Create(browser_context)) {
+}
 
 ApplicationComponent::~ApplicationComponent() {}
 
 void ApplicationComponent::CreateUIThreadExtensions(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  if (!extensions_enabled_)
+  if (!XWalkRuntimeFeatures::isApplicationAPIEnabled())
     return;
   app_system_->CreateExtensions(host, extensions);
 }

@@ -253,8 +253,6 @@
         'runtime/browser/xwalk_render_message_filter.h',
         'runtime/browser/xwalk_runner.cc',
         'runtime/browser/xwalk_runner.h',
-        'runtime/browser/xwalk_runner_android.cc',
-        'runtime/browser/xwalk_runner_android.h',
         'runtime/browser/xwalk_runner_tizen.cc',
         'runtime/browser/xwalk_runner_tizen.h',
         'runtime/browser/xwalk_ssl_host_state_delegate.cc',
@@ -510,6 +508,9 @@
           'dependencies': [
             'xwalk_strings',
           ],
+        }],
+        ['disable_bundled_extensions==1', {
+          'defines': ['DISABLE_BUNDLED_EXTENSIONS'],
         }],
       ],
     },

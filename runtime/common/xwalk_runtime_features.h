@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_COMMON_XWALK_RUNTIME_FEATURES_H_
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include "base/command_line.h"
@@ -24,35 +25,45 @@ class XWalkRuntimeFeatures {
   DECLARE_RUNTIME_FEATURE(DeviceCapabilitiesAPI);
   DECLARE_RUNTIME_FEATURE(StorageAPI);
   DECLARE_RUNTIME_FEATURE(DialogAPI);
+  DECLARE_RUNTIME_FEATURE(ApplicationAPI);
 
   void Initialize(const base::CommandLine* cmd);
   void DumpFeaturesFlags();
   static XWalkRuntimeFeatures* GetInstance();
 
-  enum RuntimeFeatureStatus {
-    Stable,
-    Experimental
-  };
+  struct Feature {
+    enum Status {
+      Stable,
+      Experimental
+    };
 
-  struct RuntimeFeature {
+    Feature();
+    Feature(const std::string& name,
+            const std::string& cmd_line,
+            const std::string& description,
+            Status status = Experimental,
+            bool enabled = false);
+
     std::string name;
+    std::string cmd_line;
     std::string description;
-    std::string command_line_switch;
-    RuntimeFeatureStatus status;
+    Status status;
     bool enabled;
-
-    RuntimeFeature();
   };
 
  private:
   friend struct DefaultSingletonTraits<XWalkRuntimeFeatures>;
+
   XWalkRuntimeFeatures();
   ~XWalkRuntimeFeatures();
-  void AddFeature(const char* name, const char* command_line_switch,
-                  const char* description, RuntimeFeatureStatus status);
+
+  void AddFeature(const char* name,
+                  const char* cmd_line,
+                  const char* description,
+                  Feature::Status status);
   bool isFeatureEnabled(const char* name) const;
-  typedef std::vector<RuntimeFeature> RuntimeFeaturesList;
-  RuntimeFeaturesList runtime_features_;
+  typedef std::map<std::string, Feature> RuntimeFeaturesMap;
+  RuntimeFeaturesMap runtime_features_;
   const base::CommandLine* command_line_;
   bool initialized_;
   bool experimental_features_enabled_;
