@@ -78,6 +78,8 @@
         '../extensions/common/constants.h',
         '../extensions/common/url_pattern.cc',
         '../extensions/common/url_pattern.h',
+        #TODO: use the "disable_builtin_extensions" flag in GYP to
+        #      control the native file system extension below.
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
         'experimental/native_file_system/virtual_root_provider_mac.cc',
@@ -354,6 +356,7 @@
           'dependencies':[
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
+            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
           ],
           'sources': [
             'experimental/native_file_system/virtual_root_provider_android.cc',

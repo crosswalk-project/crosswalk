@@ -33,6 +33,33 @@
         'runtime/app/android/xwalk_jni_registrar.cc',
         'runtime/app/android/xwalk_jni_registrar.h',
       ],
+      'conditions': [
+        ['use_icu_alternatives_on_android==1', {
+          'dependencies': [
+            'cleanup_icu_data',
+          ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'cleanup_icu_data',
+      'type': 'none',
+      'actions': [
+        {
+          'action_name': 'cleanup_icu_data',
+          'message': 'Cleanup icu data files',
+          'inputs': [
+            'build/android/clean_up_icu_data.py',
+          ],
+          'outputs': [
+            '<(PRODUCT_DIR)/cleanup_icu_data/always_run',
+          ],
+          'action': [
+            'python', 'build/android/clean_up_icu_data.py',
+            '--product-dir', '<(PRODUCT_DIR)',
+          ],
+        },
+      ],
     },
     {
       'target_name': 'xwalk_core_strings',
@@ -129,6 +156,13 @@
         'additional_input_paths': [ '>(reflection_layer_gen_timestamp)' ],
         'generated_src_dirs': [
           '<(reflection_java_dir)/bridge',
+        ],
+        'conditions': [
+          ['disable_builtin_extensions == 0', {
+            'additional_src_dirs': [
+              'runtime/android/core_internal/extension',
+            ]
+          }],
         ],
       },
       'includes': ['../build/java.gypi'],
@@ -233,7 +267,7 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
         'conditions': [
-          ['icu_use_data_file_flag==1', {
+          ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
             'additional_input_paths': [
               '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
             ],
@@ -264,7 +298,7 @@
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
           'conditions': [
-            ['icu_use_data_file_flag==1', {
+            ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
               ],
@@ -288,9 +322,9 @@
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
-            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
+            'runtime/android/core_internal/extension/api/contacts/contacts_api.js',
+            'runtime/android/core_internal/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core_internal/extension/api/messaging/messaging_api.js',
           ],
         },
       ],

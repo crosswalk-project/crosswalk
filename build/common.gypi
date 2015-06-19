@@ -3,6 +3,7 @@
     'tizen%': 0,
     'tizen_mobile%': 0,
     'enable_murphy%': 0,
+    'disable_builtin_extensions%': 0,
     'use_webui_file_picker%': 0,
     'disable_bundled_extensions%': 0,
     'conditions': [
@@ -22,6 +23,7 @@
       'enable_murphy%': '<(enable_murphy)',
       # Whether to enable WebCL.
       'enable_webcl%': '<(enable_webcl)',
+      'disable_builtin_extensions%': '<(disable_builtin_extensions)',
     },
     'conditions': [
       ['tizen==1', {
