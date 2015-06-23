@@ -17,8 +17,8 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'b80e331a4f8a90c15f2a6c3c7f544c652e1c8ab1'
-v8_crosswalk_rev = 'efee9f16dbb093b08306590aeb9a7d8ae25efe0f'
+chromium_crosswalk_rev = '1b72e883523830f699573560546a7d65f2e1681c'
+v8_crosswalk_rev = 'fec24d2b62fc69c84c9ad12310ef257e53225042'
 ozone_wayland_rev = '81e4b41be7511971011c7ced9c70131713d7541e'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
@@ -27,8 +27,8 @@ ozone_wayland_rev = '81e4b41be7511971011c7ced9c70131713d7541e'
 # the blink-crosswalk repository, so that the devtools code can use it to fetch
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = 'd5d937c2cfd6697b4c8afbaeaa33f592315ad504'
-blink_upstream_rev = '196248'
+blink_crosswalk_rev = '0ffa6507520916a5a156bf0b514a62949d0b9092'
+blink_upstream_rev = '197137'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
@@ -54,13 +54,6 @@ solutions = [
       'src/third_party/khronos/CL':
         'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
            '28150',
-
-      # Temporarily roll ANGLE a few commits forward compared to Chromium
-      # 44.0.2403.30, as we need some fixes for Linux builds without X11 (a
-      # pure Ozone-Wayland build, for example).
-      # See https://code.google.com/p/angleproject/issues/detail?id=1011
-      'src/third_party/angle':
-        'https://chromium.googlesource.com/angle/angle.git@90d5f9b1f0114d0950bde63d61054b30dcd76eb3',
 
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
