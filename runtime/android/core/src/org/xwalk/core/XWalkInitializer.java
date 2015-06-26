@@ -5,22 +5,28 @@
 package org.xwalk.core;
 
 import android.content.Context;
-import android.os.Handler;
 
-import org.xwalk.core.XWalkLibraryInterface.DecompressionListener;
-import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
+import junit.framework.Assert;
+
+import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
+import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
+import org.xwalk.core.XWalkLibraryLoader.DockListener;
 
 /**
- * <code>XWalkInitializer</code> is a helper to initialize the Crosswalk Project runtime, and to
- * extract it if the runtime is compressed. But unlike {@link XWalkActivity},
- * <code>XWalkInitializer</code> neither provide UI interactions to help the end-user to download
- * appropriate Crosswalk Project runtime, nor prompt messages to notify specific errors during
- * initializing. Due to this limitation, <code>XWalkInitializer</code> only works for embedded mode.
+ * <p><code>XWalkInitializer</code> is an alternative to {@link XWalkActivity} with the difference
+ * that it provides a way to initialize the Crosswalk runtime in background silently. Another
+ * advantage is that the developer can use their own activity class directly rather than having it
+ * extend {@link XWalkActivity}. However, {@link XWalkActivity} is still recommended because it
+ * makes the code simpler.</p>
  *
- * For example:</p>
+ * <p>If the initialization failed, which means the Crosswalk runtime doesn't exist or doesn't match
+ * the application, you could use {@link XWalkUpdater} to prompt the user to download the Crosswalk
+ * runtime just like {@link XWalkActivity}.
+ *
+ * <p>For example:</p>
  *
  * <pre>
- * public class MyXWalkActivity extends Activity implements XWalkInitializer.XWalkInitListener {
+ * public class MyActivity extends Activity implements XWalkInitializer.XWalkInitListener {
  *     XWalkView mXWalkView;
  *
  *     &#64;Override
@@ -45,6 +51,10 @@ import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
  *     }
  *
  *     &#64;Override
+ *     public void onXWalkInitStarted() {
+ *     }
+ *
+ *     &#64;Override
  *     public void onXWalkInitCompleted() {
  *         // Do anyting with the embedding API
  *
@@ -54,147 +64,138 @@ import org.xwalk.core.XWalkLibraryInterface.InitializationListener;
  *     }
  *
  *     &#64;Override
- *     public void onXWalkInitStarted() {
+ *     public void onXWalkInitFailed() {
+ *         // Perform error handling here, or launch the XWalkUpdater
  *     }
  *
  *     &#64;Override
  *     public void onXWalkInitCancelled() {
- *     }
- *
- *     &#64;Override
- *     public void onXWalkInitFailed() {
+ *         // Perform error handling here
  *     }
  * }
  * </pre>
  */
 public class XWalkInitializer {
     /**
-     * Interface used to initialize the Crosswalk environment
+     * Interface used to initialize the Crosswalk runtime
      */
     public interface XWalkInitListener {
         /**
          * Runs on the UI thread to notify initialization is started
          */
         public void onXWalkInitStarted();
+
         /**
          * Runs on the UI thread to notify initialization is cancelled
          */
         public void onXWalkInitCancelled();
+
         /**
          * Runs on the UI thread to notify initialization is completed successfully
          */
         public void onXWalkInitCompleted();
+
         /**
          * Runs on the UI thread to notify initialization failed
          */
         public void onXWalkInitFailed();
     }
 
-    private static final String TAG = "XWalkInitializer";
-
     private static XWalkInitializer sInstance;
 
     /**
-     * Initializes the Crosswalk environment asynchronously
+     * Initializes the Crosswalk runtime asynchronously.
      *
      * <p>This method must be invoked on the UI thread.
      *
      * @param listener The {@link XWalkInitListener} to use
-     * @param context The context that initialization is to run it
+     * @param context The context that the initialization is to run it
      *
-     * @return False if initialization is running, true otherwise
+     * @return True if the initialization is started, false if another initialization is proceeding
      */
     public static boolean initAsync(XWalkInitListener listener, Context context) {
         if (sInstance != null) return false;
-        new XWalkInitializer(listener, context).start();
+        new XWalkInitializer(listener, context).initialize();
         return true;
     }
 
     /**
-     * Attempts to cancel initialization
+     * Attempts to cancel the initialization.
      *
-     * @return False if initialization is not running or could not be cancelled, true otherwise
+     * @return False if the initialization is not proceeding or can't be cancelled, true otherwise.
      */
     public static boolean cancelInit() {
-        if (sInstance == null) return false;
-        return sInstance.cancel();
+        return sInstance != null && sInstance.cancel();
     }
 
-    private XWalkLibraryListener mLibraryListener;
-    private Handler mHandler;
+    /**
+     * Check whether the initialization is procedding.
+     */
+    public static boolean isInProgress() {
+        return sInstance != null;
+    }
+
     private XWalkInitListener mInitListener;
     private Context mContext;
 
-    private static class XWalkLibraryListener
-            implements DecompressionListener, InitializationListener {
-        XWalkInitializer mInitializer;
-
-        XWalkLibraryListener(XWalkInitializer initializer) {
-            mInitializer = initializer;
-        }
-
-        @Override
-        public void onDecompressionStarted() {
-            sInstance = mInitializer;
-            mInitializer.mInitListener.onXWalkInitStarted();
-        }
-
-        @Override
-        public void onDecompressionCancelled() {
-            sInstance = null;
-            mInitializer.mInitListener.onXWalkInitCancelled();
-        }
-
-        @Override
-        public void onDecompressionCompleted() {
-            int status = XWalkLibraryLoader.initXWalkLibrary(mInitializer.mContext);
-            if (status == XWalkLibraryInterface.STATUS_MATCH) {
-                XWalkLibraryLoader.startInitialization(this);
-            } else {
-                mInitializer.mInitListener.onXWalkInitFailed();
-            }
-        }
-
-        @Override
-        public void onInitializationStarted() {
-            if (sInstance == null) {
-                sInstance = mInitializer;
-                mInitializer.mInitListener.onXWalkInitStarted();
-            }
-        }
-
-        @Override
-        public void onInitializationCompleted() {
-            sInstance = null;
-            mInitializer.mInitListener.onXWalkInitCompleted();
-        }
-    }
-
     private XWalkInitializer(XWalkInitListener listener, Context context) {
-        mLibraryListener = new XWalkLibraryListener(this);
-        mHandler = new Handler();
         mInitListener = listener;
         mContext = context;
+
         XWalkLibraryLoader.prepareToInit();
     }
 
-    private void start() {
-        if (XWalkLibraryLoader.startDecompression(mLibraryListener, mContext)) return;
+    private void initialize() {
+        sInstance = this;
+        mInitListener.onXWalkInitStarted();
 
-        int status = XWalkLibraryLoader.initXWalkLibrary(mContext);
-        if (status == XWalkLibraryInterface.STATUS_MATCH) {
-            XWalkLibraryLoader.startInitialization(mLibraryListener);
-        } else {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mInitListener.onXWalkInitFailed();
-                }
-            });
-        }
+        XWalkLibraryLoader.startDecompress(new XWalkLibraryListener(), mContext);
     }
 
     private boolean cancel() {
-        return XWalkLibraryLoader.cancelDecompression();
+        return XWalkLibraryLoader.cancelDecompress();
+    }
+
+    private class XWalkLibraryListener
+            implements DecompressListener, DockListener, ActivateListener {
+        @Override
+        public void onDecompressStarted() {
+        }
+
+        @Override
+        public void onDecompressCancelled() {
+            sInstance = null;
+            mInitListener.onXWalkInitCancelled();
+        }
+
+        @Override
+        public void onDecompressCompleted() {
+            XWalkLibraryLoader.startDock(this, mContext);
+        }
+
+        @Override
+        public void onDockStarted() {
+        }
+
+        @Override
+        public void onDockFailed() {
+            sInstance = null;
+            mInitListener.onXWalkInitFailed();
+        }
+
+        @Override
+        public void onDockCompleted() {
+            XWalkLibraryLoader.startActivate(this);
+        }
+
+        @Override
+        public void onActivateStarted() {
+        }
+
+        @Override
+        public void onActivateCompleted() {
+            sInstance = null;
+            mInitListener.onXWalkInitCompleted();
+        }
     }
 }

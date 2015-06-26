@@ -19,7 +19,9 @@ import junit.framework.Assert;
 
 /**
  * The appropriate invocation order is:
- * handlePreInit() -> initXWalkLibrary() -> initXWalkEnvironment() -> handlePostInit() -> over
+ * handlePreInit() -
+ * attachXWalkCore() - dockXWalkCore() - activateXWalkCore() -
+ * handlePostInit() - over
  */
 class XWalkCoreWrapper {
     private static final String XWALK_APK_PACKAGE = "org.xwalk.core";
@@ -27,6 +29,7 @@ class XWalkCoreWrapper {
     private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
     private static final String TAG = "XWalkLib";
 
+    private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
     private static LinkedList<Object> sReservedObjects;
 
@@ -40,6 +43,10 @@ class XWalkCoreWrapper {
 
     public static XWalkCoreWrapper getInstance() {
         return sInstance;
+    }
+
+    public static int getProvisionalStatus() {
+        return sProvisionalInstance.mCoreStatus;
     }
 
     /**
@@ -66,28 +73,35 @@ class XWalkCoreWrapper {
         }
     }
 
-    /**
-     * This method must be invoked on the UI thread.
-     */
-    public static int initXWalkLibrary(Context context) {
-        if (sInstance != null) return sInstance.mCoreStatus;
-        Assert.assertNotNull(sReservedObjects);
+    public static int attachXWalkCore(Context context) {
+        Assert.assertNull(sInstance);
 
         Log.d(TAG, "Init core wrapper");
-        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(context, -1);
-        if (!provisionalInstance.findEmbeddedCore()) {
-            int status = provisionalInstance.mCoreStatus;
+        sProvisionalInstance = new XWalkCoreWrapper(context, -1);
+        if (!sProvisionalInstance.findEmbeddedCore()) {
+            int status = sProvisionalInstance.mCoreStatus;
 
-            if (!provisionalInstance.findSharedCore()) {
-                if (provisionalInstance.mCoreStatus != XWalkLibraryInterface.STATUS_NOT_FOUND) {
-                    status = provisionalInstance.mCoreStatus;
+            if (!sProvisionalInstance.findSharedCore()) {
+                if (sProvisionalInstance.mCoreStatus != XWalkLibraryInterface.STATUS_NOT_FOUND) {
+                    status = sProvisionalInstance.mCoreStatus;
                 }
                 Log.d(TAG, "core status: " + status);
                 return status;
             }
         }
+        return sProvisionalInstance.mCoreStatus;
+    }
 
-        sInstance = provisionalInstance;
+    /**
+     * This method must be invoked on the UI thread.
+     */
+    public static void dockXWalkCore() {
+        Assert.assertNotNull(sReservedObjects);
+        Assert.assertNotNull(sProvisionalInstance);
+        Assert.assertNull(sInstance);
+
+        sInstance = sProvisionalInstance;
+        sProvisionalInstance = null;
         sInstance.initXWalkCore();
 
         if (sInstance.isSharedMode()) {
@@ -96,7 +110,10 @@ class XWalkCoreWrapper {
             application.addResource(sInstance.mBridgeContext.getResources());
         }
         Log.d(TAG, "Init core successfully");
-        return sInstance.mCoreStatus;
+    }
+
+    public static void activateXWalkCore() {
+        sInstance.initXWalkView();
     }
 
     /**
@@ -114,10 +131,6 @@ class XWalkCoreWrapper {
 
         sInstance = provisionalInstance;
         sInstance.initXWalkCore();
-    }
-
-    public static void initXWalkEnvironment() {
-        sInstance.initXWalkView();
     }
 
     private XWalkCoreWrapper(Context context, int minApiVersion) {
