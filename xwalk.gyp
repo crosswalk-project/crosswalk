@@ -20,6 +20,7 @@
   'includes' : [
     'xwalk_tests.gypi',
     'application/xwalk_application.gypi',
+    'xwalk_installer.gypi',
   ],
   'targets': [
     {
