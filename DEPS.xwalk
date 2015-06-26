@@ -105,6 +105,15 @@ hooks = [
     ],
     'pattern': '.',
     'name': 'upstream_revision'
+  },
+  {
+    'action': [
+      'python',
+      'src/xwalk/tools/patch_skia.py',
+      'src/xwalk/packaging/skia-perf-regression-copy-surface-as-draw.patch'
+     ],
+     'pattern': '.',
+     'name': 'patch_skia_regression'
   }
 ]
 

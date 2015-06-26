@@ -1,0 +1,30 @@
+From 775d171e308090831ed999aa0dc395b5b27d675d Mon Sep 17 00:00:00 2001
+From: Qiankun Miao <qiankun.miao@intel.com>
+Date: Fri, 26 Jun 2015 16:08:19 +0800
+Subject: [PATCH] Use a fallback draw instead of CopyTexSubImage for
+ copySurface
+
+This is a workaroud for CrossWalk 14. Skia upstream already fixed this
+issue. When CrossWalk rolls that fix, this workaroud should be removed.
+---
+ src/gpu/GrDrawTarget.cpp | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/gpu/GrDrawTarget.cpp b/src/gpu/GrDrawTarget.cpp
+index 420f9ea..c582f1b 100644
+--- a/src/gpu/GrDrawTarget.cpp
++++ b/src/gpu/GrDrawTarget.cpp
+@@ -941,10 +941,6 @@ bool GrDrawTarget::copySurface(GrSurface* dst,
+         return true;
+     }
+
+-    if (this->onCopySurface(dst, src, clippedSrcRect, clippedDstPoint)) {
+-        return true;
+-    }
+-
+     GrRenderTarget* rt = dst->asRenderTarget();
+     GrTexture* tex = src->asTexture();
+
+--
+2.4.0
+
