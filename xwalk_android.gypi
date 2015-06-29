@@ -146,7 +146,7 @@
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContent.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsClientBridge.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java',
-        'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkCookieManager.java',
+        'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkCookieManagerInternal.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkDevToolsServer.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkHttpAuthHandler.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkPathHelper.java',
