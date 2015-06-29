@@ -17,6 +17,7 @@ from wrapper_generator import WrapperGenerator
 
 # Classes list that have to generate bridge and wrap code.
 CLASSES_TO_BE_PROCESS = [
+    'XWalkCookieManagerInternal',
     'XWalkExtensionInternal',
     'XWalkViewInternal',
     'XWalkUIClientInternal',
