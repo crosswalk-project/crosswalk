@@ -124,11 +124,7 @@ std::string GetProduct() {
 
 std::string GetUserAgent() {
   std::string product = GetProduct();
-#if (defined(OS_TIZEN_MOBILE) || defined(OS_ANDROID))
-  product += " Mobile Crosswalk/" XWALK_VERSION;
-#else
   product += " Crosswalk/" XWALK_VERSION;
-#endif
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
