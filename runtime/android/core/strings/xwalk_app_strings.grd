@@ -2,56 +2,53 @@
 <grit current_release="1" latest_public_release="0">
   <release allow_pseudo="false" seq="1">
     <messages fallback_to_english="true">
-      <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
-        Downloading Crosswalk
+      <message desc="Crosswalk Install Title [CHAR-LIMIT=100]" name="IDS_CROSSWALK_INSTALL_TITLE">
+        Crosswalk Project Install
       </message>
-      <message desc="Download Failed Title [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_TITLE">
-        Crosswalk Download Failed
+      <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
+        Downloading the Crosswalk Project runtime from remote host...
       </message>
       <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
-        Please retry or cancel
+        Download failed. A network error occurred.
       </message>
       <message desc="Download Failed Not Found [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_DEVICE_NOT_FOUND">
-        Storage device not found
+        Download failed. Storage device not found.
       </message>
       <message desc="Download Failed Insufficient space [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_INSUFFICIENT_SPACE">
-        Insufficient storage space
+        Download failed. Insufficient disk space.
       </message>
       <message desc="Download Failed Time Out [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_TIME_OUT">
-        Timed out
-      </message>
-      <message desc="Market Open Failed Title [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_TITLE">
-        Market Open Failed
+        Download failed. The network connection timed out.
       </message>
       <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
-        Please set up your market
+        Failed to open the app store. You need an app store to download the Crosswalk Project runtime.
       </message>
       <message desc="Startup Not Found Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_TITLE">
-        Crosswalk Not Found
+        Crosswalk Project Runtime Not Found
       </message>
       <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
         Please get Crosswalk Runtime Library
       </message>
       <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
-        Mismatch of CPU Architecture for Crosswalk
+        Mismatch of CPU Architecture for the Crosswalk Project Runtime
       </message>
       <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
         Please get Crosswalk Runtime Library
       </message>
       <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
-        Crosswalk Signature Verification Failed
+        The Crosswalk Project Signature Verification Failed
       </message>
       <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
         The integrity of Crosswalk runtime library can not be verified. Please uninstall the runtime library and restart this application
       </message>
       <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
-        Crosswalk Version Too Old
+        New Crosswalk Project Runtime Required
       </message>
       <message desc="Startup Older Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_MESSAGE">
         Please update Crosswalk or continue
       </message>
       <message desc="Startup Newer Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_TITLE">
-        Crosswalk Version Too New
+        Incompatible Crosswalk Project Runtime
       </message>
       <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
         The application is using outdated Crosswalk SDK
@@ -62,14 +59,11 @@
       <message desc="Label of Continue [CHAR-LIMIT=100]" name="IDS_XWALK_CONTINUE">
         Continue
       </message>
-      <message desc="Label of Terminate [CHAR-LIMIT=100]" name="IDS_XWALK_TERMINATE">
-        Terminate
+      <message desc="Label of Close [CHAR-LIMIT=100]" name="IDS_XWALK_CLOSE">
+        Close
       </message>
       <message desc="Label of Retry [CHAR-LIMIT=100]" name="IDS_XWALK_RETRY">
         Retry
-      </message>
-      <message desc="Get Crosswalk [CHAR-LIMIT=100]" name="IDS_GET_CROSSWALK">
-        Get Crosswalk
       </message>
     </messages>
   </release>

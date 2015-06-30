@@ -9,12 +9,11 @@ import android.util.Log;
 import android.view.Window;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
-import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 import org.xwalk.core.XWalkLibraryLoader.DockListener;
 import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
 public class XWalkActivityDelegate
-            implements DecompressListener, DockListener, ActivateListener, XWalkUpdateListener {
+            implements DockListener, ActivateListener, XWalkUpdateListener {
     private static final String TAG = "XWalkActivity";
 
     private Activity mActivity;
@@ -22,12 +21,10 @@ public class XWalkActivityDelegate
     private XWalkUpdater mXWalkUpdater;
     private Runnable mCancelCommand;
     private Runnable mCompleteCommand;
-    private Runnable mDecompressCancelCommand;
 
     private boolean mIsInitializing;
     private boolean mIsXWalkReady;
     private boolean mBackgroundDecorated;
-    private boolean mWillDecompress;
 
     public XWalkActivityDelegate(Activity activity,
             Runnable cancelCommand, Runnable completeCommand) {
@@ -37,13 +34,6 @@ public class XWalkActivityDelegate
 
         mDialogManager = new XWalkDialogManager(mActivity);
         mXWalkUpdater = new XWalkUpdater(this, mActivity, mDialogManager);
-        mDecompressCancelCommand = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Cancel by XWalkActivity");
-                XWalkLibraryLoader.cancelDecompress();
-            }
-        };
 
         XWalkLibraryLoader.prepareToInit(mActivity);
     }
@@ -65,33 +55,8 @@ public class XWalkActivityDelegate
             XWalkLibraryLoader.startActivate(this, mActivity);
         } else {
             Log.d(TAG, "Initialize by XWalkActivity");
-            XWalkLibraryLoader.startDecompress(this, mActivity);
+            XWalkLibraryLoader.startDock(this, mActivity);
         }
-    }
-
-    @Override
-    public void onDecompressStarted() {
-        mDialogManager.showDecompressProgress(mDecompressCancelCommand);
-        mWillDecompress = true;
-    }
-
-    @Override
-    public void onDecompressCancelled() {
-        mDialogManager.dismissDialog();
-        mWillDecompress = false;
-
-        mIsInitializing = false;
-        mCancelCommand.run();
-    }
-
-    @Override
-    public void onDecompressCompleted() {
-        if (mWillDecompress) {
-            mDialogManager.dismissDialog();
-            mWillDecompress = false;
-        }
-
-        XWalkLibraryLoader.startDock(this, mActivity);
     }
 
     @Override

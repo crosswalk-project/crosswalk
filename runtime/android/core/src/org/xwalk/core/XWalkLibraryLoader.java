@@ -20,41 +20,17 @@ import java.lang.Thread;
 import junit.framework.Assert;
 
 /**
- * XWalkLibraryLoader is a low level inteface to schedule decompressing, downloading, activating
+ * XWalkLibraryLoader is a low level inteface to schedule downloading, activating
  * the Crosswalk runtime. Normal user is recommended to use XWalkActivity or XWalkInitializer which
  * is simpler and more user-friendly.
  *
  * The appropriate invocation order is:
  * prepareToInit() -
- * [ if the Crosswalk runtime is supposed to be compressed - startDecompress() ] -
  * startDock() -
  * [ if the Crosswalk runtime doesn't match - download suitable version - startDock() ] -
  * startActivate() - over
  */
 class XWalkLibraryLoader {
-    /**
-     * Interface used to decompress the Crosswalk runtime
-     */
-    public interface DecompressListener {
-        /**
-         * Run on the UI thread to notify decompression is started.
-         *
-         * <p> This method will not be invoked if the Crosswalk runtime is not compressed or has
-         * already been decompressed.
-         */
-        public void onDecompressStarted();
-
-        /**
-         * Run on the UI thread to notify decompression is cancelled.
-         */
-        public void onDecompressCancelled();
-
-        /**
-         * Run on the UI thread to notify decompression is completed successfully.
-         */
-        public void onDecompressCompleted();
-    }
-
     /**
      * Interface used to dock the Crosswalk runtime
      */
@@ -166,28 +142,6 @@ class XWalkLibraryLoader {
     }
 
     /**
-     * Start decompressing the Crosswalk runtime in background
-     *
-     * <p>This method must be invoked on the UI thread.
-     *
-     * @param listener The {@link DecompressListener} to use
-     * @param context The context of the package that holds the compressed Crosswalk runtime
-     */
-    public static void startDecompress(DecompressListener listener, Context context) {
-        new DecompressTask(listener, context).execute();
-    }
-
-    /**
-     * Attempt to cancel decompression
-     *
-     * @return False if decompression is not running or could not be cancelled, true otherwise
-     */
-    public static boolean cancelDecompress() {
-        DecompressTask task = (DecompressTask) sActiveTask;
-        return task != null && task.cancel(true);
-    }
-
-    /**
      * Dock to the the Crosswalk runtime either is embedded in the application or is shared
      * across package. The docking is not cancelable.
      *
@@ -232,56 +186,6 @@ class XWalkLibraryLoader {
     public static boolean cancelDownload() {
         DownloadTask task = (DownloadTask) sActiveTask;
         return task != null && task.cancel(true);
-    }
-
-    private static class DecompressTask extends AsyncTask<Void, Integer, Integer> {
-        DecompressListener mListener;
-        Context mContext;
-        boolean mIsCompressed;
-        boolean mIsDecompressed;
-
-        DecompressTask(DecompressListener listener, Context context) {
-            super();
-            mListener = listener;
-            mContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "DecompressTask started");
-            sActiveTask = this;
-            mIsCompressed = XWalkLibraryDecompressor.isCompressed(mContext);
-            if (mIsCompressed) mIsDecompressed = XWalkLibraryDecompressor.isDecompressed(mContext);
-
-            if (mIsCompressed && !mIsDecompressed) mListener.onDecompressStarted();
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            if (!mIsCompressed) return 0;
-
-            if (!mIsDecompressed && !XWalkLibraryDecompressor.decompressLibrary(mContext)) {
-                return 1;
-            }
-
-            XWalkLibraryDecompressor.loadDecompressedLibrary(mContext);
-            return 0;
-        }
-
-        @Override
-        protected void onCancelled(Integer result) {
-            Log.d(TAG, "DecompressTask cancelled");
-            sActiveTask = null;
-            mListener.onDecompressCancelled();
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            Log.d(TAG, "DecompressTask finished, " + result);
-            sActiveTask = null;
-            Assert.assertEquals(result.intValue(), 0);
-            mListener.onDecompressCompleted();
-        }
     }
 
     private static class DockTask extends AsyncTask<Void, Integer, Integer> {

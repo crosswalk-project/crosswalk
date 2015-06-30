@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.util.Log;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
-import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 import org.xwalk.core.XWalkLibraryLoader.DockListener;
 
 /**
@@ -56,11 +55,6 @@ import org.xwalk.core.XWalkLibraryLoader.DockListener;
  *     }
  *
  *     &#64;Override
- *     public void onXWalkInitCancelled() {
- *         // Perform error handling here
- *     }
- *
- *     &#64;Override
  *     public void onXWalkInitCompleted() {
  *         // Do anyting with the embedding API
  *
@@ -85,11 +79,6 @@ public class XWalkInitializer {
          * Run on the UI thread to notify Crosswalk initialization is started.
          */
         public void onXWalkInitStarted();
-
-        /**
-         * Run on the UI thread to notify Crosswalk initialization is cancelled.
-         */
-        public void onXWalkInitCancelled();
 
         /**
          * Run on the UI thread to notify Crosswalk initialization failed.
@@ -143,38 +132,12 @@ public class XWalkInitializer {
             XWalkLibraryLoader.startActivate(new XWalkLibraryListener(), mActivity);
         } else {
             Log.d(TAG, "Initialize by XWalkInitializer");
-            XWalkLibraryLoader.startDecompress(new XWalkLibraryListener(), mActivity);
+            XWalkLibraryLoader.startDock(new XWalkLibraryListener(), mActivity);
         }
         return true;
     }
 
-    /**
-     * Attempt to cancel the initialization.
-     *
-     * @return False if the initialization is not proceeding or can't be cancelled, true otherwise.
-     */
-    public boolean cancelInit() {
-        Log.d(TAG, "Cancel by XWalkInitializer");
-        return mIsInitializing && XWalkLibraryLoader.cancelDecompress();
-    }
-
-    private class XWalkLibraryListener
-            implements DecompressListener, DockListener, ActivateListener {
-        @Override
-        public void onDecompressStarted() {
-        }
-
-        @Override
-        public void onDecompressCancelled() {
-            mIsInitializing = false;
-            mInitListener.onXWalkInitCancelled();
-        }
-
-        @Override
-        public void onDecompressCompleted() {
-            XWalkLibraryLoader.startDock(this, mActivity);
-        }
-
+    private class XWalkLibraryListener implements DockListener, ActivateListener {
         @Override
         public void onDockStarted() {
         }

@@ -90,14 +90,6 @@ class XWalkDialogManager {
         showDialog(dialog);
     }
 
-    public void showDecompressProgress(Runnable cancelCommand) {
-        ProgressDialog dialog = buildProgressDialog();
-        dialog.setTitle(mContext.getString(R.string.crosswalk_install_title));
-        dialog.setMessage(mContext.getString(R.string.decompression_progress_message));
-        setNegativeButton(dialog, mContext.getString(R.string.xwalk_cancel), cancelCommand);
-        showDialog(dialog);
-    }
-
     public void showDownloadProgress(Runnable cancelCommand) {
         ProgressDialog dialog = buildProgressDialog();
         dialog.setTitle(mContext.getString(R.string.crosswalk_install_title));
