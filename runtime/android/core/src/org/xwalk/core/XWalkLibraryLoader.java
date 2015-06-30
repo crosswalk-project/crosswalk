@@ -25,31 +25,11 @@ import junit.framework.Assert;
  * is simpler and more user-friendly.
  *
  * The appropriate invocation order is:
- * prepareToInit() -
- * startDock() -
- * [ if the Crosswalk runtime doesn't match - download suitable version - startDock() ] -
- * startActivate() - over
+ * prepareToInit() - startActivate() -
+ * [ if the Crosswalk runtime doesn't match - download suitable version - startActivate() ] - over
  */
+
 class XWalkLibraryLoader {
-    /**
-     * Interface used to dock the Crosswalk runtime
-     */
-    public interface DockListener {
-        /**
-         * Run on the UI thread to notify docking is started
-         */
-        public void onDockStarted();
-
-        /**
-         * Run on the UI thread to notify docking failed
-         */
-        public void onDockFailed();
-        /**
-         * Run on the UI thread to notify docking is completed successfully
-         */
-        public void onDockCompleted();
-    }
-
     /**
      * Interface used to activate the Crosswalk runtime
      */
@@ -58,6 +38,11 @@ class XWalkLibraryLoader {
          * Run on the UI thread to notify activation is started
          */
         public void onActivateStarted();
+
+        /**
+         * Run on the UI thread to notify activation failed
+         */
+        public void onActivateFailed();
 
         /**
          * Run on the UI thread to notify activation is completed successfully
@@ -142,19 +127,6 @@ class XWalkLibraryLoader {
     }
 
     /**
-     * Dock to the the Crosswalk runtime either is embedded in the application or is shared
-     * across package. The docking is not cancelable.
-     *
-     * <p>This method must be invoked on the UI thread.
-     *
-     * @param listener The {@link DockListener} to use
-     * @param context The application context
-     */
-    public static void startDock(DockListener listener, Context context) {
-        new DockTask(listener, context).execute();
-    }
-
-    /**
      * Start activating the Crosswalk runtime in background. The activation is not cancelable.
      *
      * <p>This method must be invoked on the UI thread.
@@ -188,42 +160,6 @@ class XWalkLibraryLoader {
         return task != null && task.cancel(true);
     }
 
-    private static class DockTask extends AsyncTask<Void, Integer, Integer> {
-        DockListener mListener;
-        Context mContext;
-
-        DockTask(DockListener listener, Context context) {
-            super();
-            mListener = listener;
-            mContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "DockTask started");
-            sActiveTask = this;
-            mListener.onDockStarted();
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            return XWalkCoreWrapper.attachXWalkCore(mContext);
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            if (result == XWalkLibraryInterface.STATUS_MATCH) XWalkCoreWrapper.dockXWalkCore();
-
-            Log.d(TAG, "DockTask finished, " + result);
-            sActiveTask = null;
-            if (result == XWalkLibraryInterface.STATUS_MATCH) {
-                mListener.onDockCompleted();
-            } else {
-                mListener.onDockFailed();
-            }
-        }
-    }
-
     private static class ActivateTask extends AsyncTask<Void, Integer, Integer> {
         ActivateListener mListener;
         Activity mActivity;
@@ -243,16 +179,26 @@ class XWalkLibraryLoader {
 
         @Override
         protected Integer doInBackground(Void... params) {
-            XWalkCoreWrapper.activateXWalkCore();
-            return 0;
+            if (XWalkCoreWrapper.getInstance() != null) return -1;
+            return XWalkCoreWrapper.attachXWalkCore(mActivity);
         }
 
         @Override
         protected void onPostExecute(Integer result) {
-            Log.d(TAG, "ActivateTask finished");
+            if (result == XWalkLibraryInterface.STATUS_MATCH) {
+                XWalkCoreWrapper.dockXWalkCore();
+            }
+            if (XWalkCoreWrapper.getInstance() != null) {
+                XWalkCoreWrapper.handlePostInit(mActivity.getClass().getName());
+            }
+
+            Log.d(TAG, "ActivateTask finished, " + result);
             sActiveTask = null;
-            XWalkCoreWrapper.handlePostInit(mActivity.getClass().getName());
-            mListener.onActivateCompleted();
+            if (result > XWalkLibraryInterface.STATUS_MATCH) {
+                mListener.onActivateFailed();
+            } else {
+                mListener.onActivateCompleted();
+            }
         }
     }
 
@@ -330,9 +276,10 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onCancelled(Integer result) {
+            mDownloadManager.remove(mDownloadId);
+
             Log.d(TAG, "DownloadTask cancelled");
             sActiveTask = null;
-            mDownloadManager.remove(mDownloadId);
             mListener.onDownloadCancelled();
         }
 
@@ -344,19 +291,18 @@ class XWalkLibraryLoader {
             if (result == DownloadManager.STATUS_SUCCESSFUL) {
                 Uri uri = mDownloadManager.getUriForDownloadedFile(mDownloadId);
                 mListener.onDownloadCompleted(uri);
-                return;
-            }
-
-            int error = -1;
-            if (result == DownloadManager.STATUS_FAILED) {
-                Query query = new Query().setFilterById(mDownloadId);
-                Cursor cursor = mDownloadManager.query(query);
-                if (cursor != null && cursor.moveToFirst()) {
-                    int reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-                    error = cursor.getInt(reasonIdx);
+            } else {
+                int error = -1;
+                if (result == DownloadManager.STATUS_FAILED) {
+                    Query query = new Query().setFilterById(mDownloadId);
+                    Cursor cursor = mDownloadManager.query(query);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+                        error = cursor.getInt(reasonIdx);
+                    }
                 }
+                mListener.onDownloadFailed(result, error);
             }
-            mListener.onDownloadFailed(result, error);
         }
     }
 }

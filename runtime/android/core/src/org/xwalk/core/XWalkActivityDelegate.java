@@ -9,11 +9,9 @@ import android.util.Log;
 import android.view.Window;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
-import org.xwalk.core.XWalkLibraryLoader.DockListener;
 import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
-public class XWalkActivityDelegate
-            implements DockListener, ActivateListener, XWalkUpdateListener {
+public class XWalkActivityDelegate implements ActivateListener, XWalkUpdateListener {
     private static final String TAG = "XWalkActivity";
 
     private Activity mActivity;
@@ -46,25 +44,24 @@ public class XWalkActivityDelegate
         return mIsXWalkReady && XWalkLibraryLoader.isSharedLibrary();
     }
 
+    public void setXWalkApkUrl(String url) {
+        mXWalkUpdater.setXWalkApkUrl(url);
+    }
+
     public void onResume() {
         if (mIsInitializing || mIsXWalkReady) return;
 
         mIsInitializing = true;
-        if (XWalkLibraryLoader.isLibraryReady()) {
-            Log.d(TAG, "Activate by XWalkActivity");
-            XWalkLibraryLoader.startActivate(this, mActivity);
-        } else {
-            Log.d(TAG, "Initialize by XWalkActivity");
-            XWalkLibraryLoader.startDock(this, mActivity);
-        }
+        Log.d(TAG, "Activate by XWalkActivity");
+        XWalkLibraryLoader.startActivate(this, mActivity);
     }
 
     @Override
-    public void onDockStarted() {
+    public void onActivateStarted() {
     }
 
     @Override
-    public void onDockFailed() {
+    public void onActivateFailed() {
         mIsInitializing = false;
 
         if (mXWalkUpdater.updateXWalkRuntime()) {
@@ -80,7 +77,7 @@ public class XWalkActivityDelegate
     }
 
     @Override
-    public void onDockCompleted() {
+    public void onActivateCompleted() {
         if (mDialogManager.isShowingDialog()) mDialogManager.dismissDialog();
 
         if (mBackgroundDecorated) {
@@ -89,15 +86,6 @@ public class XWalkActivityDelegate
             mBackgroundDecorated = false;
         }
 
-        XWalkLibraryLoader.startActivate(this, mActivity);
-    }
-
-    @Override
-    public void onActivateStarted() {
-    }
-
-    @Override
-    public void onActivateCompleted() {
         mIsInitializing = false;
         mIsXWalkReady = true;
         mCompleteCommand.run();

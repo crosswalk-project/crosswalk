@@ -316,8 +316,7 @@ def main(argv):
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
   CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
   # Copy JS API binding files.
-  if not options.shared:
-    CopyJSBindingFiles(options.source, out_project_dir)
+  CopyJSBindingFiles(options.source, out_project_dir)
   # Remove unused files.
   mode = os.path.basename(os.path.normpath(out_dir))
   RemoveUnusedFilesInReleaseMode(mode,

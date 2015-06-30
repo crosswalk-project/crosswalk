@@ -430,7 +430,7 @@
       'target_name': 'xwalk_shared_library_aar',
       'type': 'none',
       'dependencies': [
-        'xwalk_shared_library',
+        'xwalk_core_empty_embedder_apk',
       ],
       'actions': [
         {
