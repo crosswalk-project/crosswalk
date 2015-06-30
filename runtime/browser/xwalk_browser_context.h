@@ -106,6 +106,8 @@ class XWalkBrowserContext
       const scoped_refptr<URLEnumerator>& enumerator) override;
 
   void CreateUserPrefServiceIfNecessary();
+
+  void UpdateAcceptLanguages(const std::string& accept_languages);
 #endif
 
  private:
