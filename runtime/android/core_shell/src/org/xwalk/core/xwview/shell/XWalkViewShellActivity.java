@@ -364,10 +364,10 @@ public class XWalkViewShellActivity extends XWalkActivity
         }
         initializeXWalkViewClients(view);
         mProgressMap.put(view, 0);
-        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
     }
 
     @Override
     public void onXWalkReady() {
+        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
     }
 }
