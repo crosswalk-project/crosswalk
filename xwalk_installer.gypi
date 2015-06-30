@@ -23,7 +23,12 @@
         'packaging_files_binaries': [
           '<(PRODUCT_DIR)/xwalk',
           '<(PRODUCT_DIR)/libffmpegsumo.so',
-          '<(PRODUCT_DIR)/locales/en-US.pak',
+
+          # Commented out for the time being because non-Ozone Linux builds
+          # depend on the gtk2ui target in src/chrome, which can cause
+          # Chromium's language files to overwrite Crosswalk's in the directory
+          # below. Remove once we stop depending on the gtk2ui target.
+          # '<(PRODUCT_DIR)/locales/en-US.pak',
         ],
         'flock_bash': ['flock', '--', '/tmp/linux_package_lock', 'bash'],
         'deb_build': '<(PRODUCT_DIR)/installer/debian/build.sh',
