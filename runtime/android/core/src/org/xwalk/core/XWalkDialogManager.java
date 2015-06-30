@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
+import junit.framework.Assert;
+
 class XWalkDialogManager {
     private Context mContext;
     private Dialog mActiveDialog;
@@ -74,6 +76,8 @@ class XWalkDialogManager {
             dialog.setTitle(mContext.getString(R.string.startup_newer_version_title));
             dialog.setMessage(mContext.getString(R.string.startup_newer_version_message));
             setNegativeButton(dialog, cancelText, cancelCommand);
+        } else {
+            Assert.fail();
         }
         showDialog(dialog);
     }
