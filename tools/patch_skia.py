@@ -23,11 +23,13 @@ def main():
   skia_dir = os.path.join(third_party_dir, 'skia')
   patch_dir = os.path.join(root_dir, sys.argv[1])
 
-  output = subprocess.call(["git", "reset", "--hard"], cwd=skia_dir)
+  git_exe = 'git.bat' if sys.platform.startswith('win') else 'git'
+
+  output = subprocess.call([git_exe, "reset", "--hard"], cwd=skia_dir)
   if output != 0:
     return output
 
-  return subprocess.call(["git", "apply", patch_dir], cwd=skia_dir)
+  return subprocess.call([git_exe, "apply", patch_dir], cwd=skia_dir)
 
 if __name__ == '__main__':
   sys.exit(main())
