@@ -14,6 +14,7 @@ import android.util.Log;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
+import java.util.HashMap;
 
 import junit.framework.Assert;
 
@@ -31,7 +32,12 @@ class XWalkCoreWrapper {
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
-    private static LinkedList<Object> sReservedObjects;
+
+    private static LinkedList<String> sReservedActivities = new LinkedList<String>();
+    private static HashMap<String, LinkedList<Object> > sReservedObjects =
+            new HashMap<String, LinkedList<Object> >();
+    private static HashMap<String, LinkedList<ReflectMethod> > sReservedMethods =
+            new HashMap<String, LinkedList<ReflectMethod> >();
 
     private int mApiVersion;
     private int mMinApiVersion;
@@ -45,38 +51,81 @@ class XWalkCoreWrapper {
         return sInstance;
     }
 
-    public static int getProvisionalStatus() {
+    public static int getCoreStatus() {
+        if (sInstance != null) return XWalkLibraryInterface.STATUS_MATCH;
+        if (sProvisionalInstance == null) return XWalkLibraryInterface.STATUS_PENDING;
         return sProvisionalInstance.mCoreStatus;
     }
 
     /**
      * This method must be invoked on the UI thread.
      */
-    public static void handlePreInit() {
-        Log.d(TAG, "Prepare to init core wrapper");
-        sReservedObjects = new LinkedList<Object>();
+    public static void handlePreInit(String tag) {
+        if (sInstance != null) return;
+
+        Log.d(TAG, "Pre init xwalk core in " + tag);
+        if (sReservedObjects.containsKey(tag)) {
+            sReservedObjects.remove(tag);
+            sReservedMethods.remove(tag);
+        } else {
+            sReservedActivities.add(tag);
+        }
+
+        sReservedObjects.put(tag, new LinkedList<Object>());
+        sReservedMethods.put(tag, new LinkedList<ReflectMethod>());
     }
 
     public static void reserveReflectObject(Object object) {
-        Log.d(TAG, "Reserve object: " + object.getClass());
-        sReservedObjects.add(object);
+        String tag = sReservedActivities.getLast();
+        Log.d(TAG, "Reserve object " + object.getClass() + " to " + tag);
+        sReservedObjects.get(tag).add(object);
+    }
+
+    public static void reserveReflectMethod(ReflectMethod method) {
+        String tag = sReservedActivities.getLast();
+        Log.d(TAG, "Reserve method " + method.toString() + " to " + tag);
+        sReservedMethods.get(sReservedActivities.getLast()).add(method);
     }
 
     /**
      * This method must be invoked on the UI thread.
      */
-    public static void handlePostInit() {
-        for (Object object = sReservedObjects.poll(); object != null;
-                object = sReservedObjects.poll()) {
+    public static void handlePostInit(String tag) {
+        if (!sReservedObjects.containsKey(tag)) return;
+
+        Log.d(TAG, "Post init xwalk core in " + tag);
+        LinkedList<Object> reservedObjects = sReservedObjects.get(tag);
+        for (Object object = reservedObjects.poll(); object != null;
+                object = reservedObjects.poll()) {
             Log.d(TAG, "Init reserved object: " + object.getClass());
             new ReflectMethod(object, "reflectionInit").invoke();
         }
+
+        LinkedList<ReflectMethod> reservedMethods = sReservedMethods.get(tag);
+        for (ReflectMethod method = reservedMethods.poll(); method != null;
+                method = reservedMethods.poll()) {
+            Log.d(TAG, "Call reserved method: " + method.toString());
+            Object[] args = method.getArguments();
+            if (args != null) {
+                for (int i = 0; i < args.length; ++i) {
+                    if (args[i] instanceof ReflectMethod) {
+                        args[i] = ((ReflectMethod) args[i]).invokeWithArguments();
+                    }
+                }
+            }
+            method.invokeWithArguments();
+        }
+
+        sReservedActivities.remove(tag);
+        sReservedMethods.remove(tag);
+        sReservedObjects.remove(tag);
     }
 
     public static int attachXWalkCore(Context context) {
+        Assert.assertNotNull(sReservedObjects);
         Assert.assertNull(sInstance);
 
-        Log.d(TAG, "Init core wrapper");
+        Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
             int status = sProvisionalInstance.mCoreStatus;
@@ -96,23 +145,26 @@ class XWalkCoreWrapper {
      * This method must be invoked on the UI thread.
      */
     public static void dockXWalkCore() {
-        Assert.assertNotNull(sReservedObjects);
         Assert.assertNotNull(sProvisionalInstance);
         Assert.assertNull(sInstance);
 
+        Log.d(TAG, "Dock xwalk core");
         sInstance = sProvisionalInstance;
         sProvisionalInstance = null;
         sInstance.initXWalkCore();
 
         if (sInstance.isSharedMode()) {
             XWalkApplication application = XWalkApplication.getApplication();
-            if (application == null) Assert.fail("Must use or extend XWalkApplication");
+            if (application == null) {
+                Assert.fail("Please use XWalkApplication in the Android manifest for shared mode");
+            }
             application.addResource(sInstance.mBridgeContext.getResources());
         }
-        Log.d(TAG, "Init core successfully");
+        Log.d(TAG, "Initialize xwalk core successfully");
     }
 
     public static void activateXWalkCore() {
+        Log.d(TAG, "Activate xwalk core");
         sInstance.initXWalkView();
     }
 
@@ -120,13 +172,12 @@ class XWalkCoreWrapper {
      * This method must be invoked on the UI thread.
      */
     public static void initEmbeddedMode() {
-        if (sInstance != null || sReservedObjects != null) return;
+        if (sInstance != null || !sReservedActivities.isEmpty()) return;
 
         Log.d(TAG, "Init embedded mode");
-        XWalkApplication application = XWalkApplication.getApplication();
-        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(application.getApplicationContext(), -1);
+        XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(null, -1);
         if (!provisionalInstance.findEmbeddedCore()) {
-            Assert.fail("Please extend XWalkActivity for shared mode");
+            Assert.fail("Please have your activity extend XWalkActivity for shared mode");
         }
 
         sInstance = provisionalInstance;
@@ -217,8 +268,7 @@ class XWalkCoreWrapper {
     private boolean checkCoreArchitecture() {
         try {
             Class<?> clazz = getBridgeClass("XWalkViewDelegate");
-            new ReflectMethod(clazz, "loadXWalkLibrary", Context.class,
-                    Context.class).invoke(mBridgeContext, mWrapperContext);
+            new ReflectMethod(clazz, "loadXWalkLibrary", Context.class).invoke(mBridgeContext);
         } catch (RuntimeException e) {
             Log.d(TAG, "Failed to load native library");
             mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;

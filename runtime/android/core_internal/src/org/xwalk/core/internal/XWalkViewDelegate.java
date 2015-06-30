@@ -82,7 +82,7 @@ class XWalkViewDelegate {
         }
     }
 
-    public static void loadXWalkLibrary(Context context, Context wrapperContext) throws UnsatisfiedLinkError {
+    public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
         if (sLibraryLoaded) return;
 
         // If context is null, it's called from wrapper's ReflectionHelper to try
@@ -97,12 +97,7 @@ class XWalkViewDelegate {
                 System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
             }
         }
-        if (context == null) context = wrapperContext;
-        if (context != null && context.getApplicationContext() != null) {
-            PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
-        } else {
-            PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, wrapperContext);
-        }
+
         try {
             LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
             libraryLoader.loadNow(context, true);
@@ -118,6 +113,8 @@ class XWalkViewDelegate {
 
     public static void init(final Context context) {
         if (sInitialized) return;
+
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
 
         // Initialize chromium resources. Assign them the correct ids in xwalk core.
         XWalkInternalResources.resetIds(context);
