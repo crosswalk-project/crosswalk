@@ -20,9 +20,7 @@ import junit.framework.Assert;
 
 /**
  * The appropriate invocation order is:
- * handlePreInit() -
- * attachXWalkCore() - dockXWalkCore() - activateXWalkCore() -
- * handlePostInit() - over
+ * handlePreInit() - attachXWalkCore() - dockXWalkCore() - handlePostInit() - over
  */
 class XWalkCoreWrapper {
     private static final String XWALK_APK_PACKAGE = "org.xwalk.core";
@@ -36,6 +34,8 @@ class XWalkCoreWrapper {
     private static LinkedList<String> sReservedActivities = new LinkedList<String>();
     private static HashMap<String, LinkedList<Object> > sReservedObjects =
             new HashMap<String, LinkedList<Object> >();
+    private static HashMap<String, LinkedList<Class<?> > > sReservedClasses =
+            new HashMap<String, LinkedList<Class<?> > >();
     private static HashMap<String, LinkedList<ReflectMethod> > sReservedMethods =
             new HashMap<String, LinkedList<ReflectMethod> >();
 
@@ -66,12 +66,14 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Pre init xwalk core in " + tag);
         if (sReservedObjects.containsKey(tag)) {
             sReservedObjects.remove(tag);
+            sReservedClasses.remove(tag);
             sReservedMethods.remove(tag);
         } else {
             sReservedActivities.add(tag);
         }
 
         sReservedObjects.put(tag, new LinkedList<Object>());
+        sReservedClasses.put(tag, new LinkedList<Class<?> >());
         sReservedMethods.put(tag, new LinkedList<ReflectMethod>());
     }
 
@@ -79,6 +81,12 @@ class XWalkCoreWrapper {
         String tag = sReservedActivities.getLast();
         Log.d(TAG, "Reserve object " + object.getClass() + " to " + tag);
         sReservedObjects.get(tag).add(object);
+    }
+
+    public static void reserveReflectClass(Class<?> clazz) {
+        String tag = sReservedActivities.getLast();
+        Log.d(TAG, "Reserve class " + clazz.toString() + " to " + tag);
+        sReservedClasses.get(tag).add(clazz);
     }
 
     public static void reserveReflectMethod(ReflectMethod method) {
@@ -99,6 +107,13 @@ class XWalkCoreWrapper {
                 object = reservedObjects.poll()) {
             Log.d(TAG, "Init reserved object: " + object.getClass());
             new ReflectMethod(object, "reflectionInit").invoke();
+        }
+
+        LinkedList<Class<?> > reservedClasses = sReservedClasses.get(tag);
+        for (Class<?> clazz = reservedClasses.poll(); clazz != null;
+                clazz = reservedClasses.poll()) {
+            Log.d(TAG, "Init reserved class: " + clazz.toString());
+            new ReflectMethod(clazz, "reflectionInit").invoke();
         }
 
         LinkedList<ReflectMethod> reservedMethods = sReservedMethods.get(tag);
@@ -151,12 +166,7 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Dock xwalk core");
         sInstance = sProvisionalInstance;
         sProvisionalInstance = null;
-        sInstance.initXWalkCore();
-        Log.d(TAG, "Initialize xwalk core successfully");
-    }
-
-    public static void activateXWalkCore() {
-        Log.d(TAG, "Activate xwalk core");
+        sInstance.initCoreBridge();
         sInstance.initXWalkView();
     }
 
@@ -173,7 +183,7 @@ class XWalkCoreWrapper {
         }
 
         sInstance = provisionalInstance;
-        sInstance.initXWalkCore();
+        sInstance.initCoreBridge();
     }
 
     private XWalkCoreWrapper(Context context, int minApiVersion) {
@@ -184,18 +194,18 @@ class XWalkCoreWrapper {
         mWrapperContext = context;
     }
 
+    private void initCoreBridge() {
+        Log.d(TAG, "Init core bridge");
+        Class<?> clazz = getBridgeClass("XWalkCoreBridge");
+        ReflectMethod method = new ReflectMethod(clazz, "init", Context.class, Object.class);
+        method.invoke(mBridgeContext, this);
+    }
+
     private void initXWalkView() {
         Log.d(TAG, "Init xwalk view");
         Class<?> clazz = getBridgeClass("XWalkViewDelegate");
         ReflectMethod method = new ReflectMethod(clazz, "init", Context.class, Context.class);
         method.invoke(mBridgeContext, mWrapperContext);
-    }
-
-    private void initXWalkCore() {
-        Log.d(TAG, "Init core bridge");
-        Class<?> clazz = getBridgeClass("XWalkCoreBridge");
-        ReflectMethod method = new ReflectMethod(clazz, "init", Context.class, Object.class);
-        method.invoke(mBridgeContext, this);
     }
 
     private boolean findEmbeddedCore() {

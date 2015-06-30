@@ -330,7 +330,7 @@ def main(argv):
   CopyBinaries(out_dir, out_project_dir, options.no_icu_data, options.use_lzma,
       options.shared)
   # Copy JS API binding files if builtin extension enabled.
-  if not options.disable_builtin_ext and not options.shared:
+  if not options.disable_builtin_ext:
     CopyJSBindingFiles(options.source, out_project_dir)
   # Post copy library project.
   PostCopyLibraryProject(out_project_dir)

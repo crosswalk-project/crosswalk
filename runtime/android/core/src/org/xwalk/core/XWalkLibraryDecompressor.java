@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import junit.framework.Assert;
-
 import org.chromium.base.PathUtils;
 
 import SevenZip.Compression.LZMA.Decoder;
@@ -30,8 +28,6 @@ class XWalkLibraryDecompressor {
     private static final String TAG = "XWalkLib";
 
     public static boolean isCompressed(Context context) {
-        Assert.assertNotNull(context);
-
         for (String library : MANDATORY_LIBRARIES) {
             try {
                 openRawResource(context, library);
@@ -44,15 +40,11 @@ class XWalkLibraryDecompressor {
     }
 
     public static boolean isDecompressed(Context context) {
-        Assert.assertNotNull(context);
-
         int version = getLocalVersion(context);
         return version > 0 && version == XWalkAppVersion.API_VERSION;
     }
 
     public static boolean decompressLibrary(Context context) {
-        Assert.assertNotNull(context);
-
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         String lib = PathUtils.getDataDirectory(context.getApplicationContext());
 
@@ -66,8 +58,6 @@ class XWalkLibraryDecompressor {
     }
 
     public static boolean loadDecompressedLibrary(Context context) {
-        Assert.assertNotNull(context);
-
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         String lib = PathUtils.getDataDirectory(context.getApplicationContext());
 
@@ -84,8 +74,6 @@ class XWalkLibraryDecompressor {
     }
 
     private static boolean decompress(Context context, String libDir) {
-        if (context == null) return false;
-
         File f = new File(libDir);
         if (f.exists() && f.isFile()) f.delete();
         if (!f.exists() && !f.mkdirs()) return false;
