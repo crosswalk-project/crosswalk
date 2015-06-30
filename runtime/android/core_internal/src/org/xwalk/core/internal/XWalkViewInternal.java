@@ -252,7 +252,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private static void init(Context context, Activity activity) {
         if (sInitialized) return;
 
-        XWalkViewDelegate.loadXWalkLibrary(null);
+        XWalkViewDelegate.loadXWalkLibrary(context);
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
@@ -715,7 +715,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkUIClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setUIClient(XWalkUIClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -728,7 +728,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkResourceClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setResourceClient(XWalkResourceClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -845,7 +845,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     /**
     * Performs a zoom operation in this XWalkView.
-    * @param zoomFactor the zoom factor to apply.
+    * @param factor the zoom factor to apply.
     * The zoom factor will be clamped to the XWalkView's zoom limits.
     * This value must be in the range 0.01 to 100.0 inclusive.
     * @since 5.0
