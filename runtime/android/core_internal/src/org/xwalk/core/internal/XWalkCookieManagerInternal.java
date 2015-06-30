@@ -7,18 +7,20 @@ package org.xwalk.core.internal;
 import org.chromium.base.JNINamespace;
 
 /**
- * XWalkCookieManager manages cookies according to RFC2109 spec.
+ * XWalkCookieManagerInternal manages cookies according to RFC2109 spec.
  *
  * Methods in this class are thread safe.
  *
  * @hide
  */
 @JNINamespace("xwalk")
-public final class XWalkCookieManager {
+@XWalkAPI(createExternally = true)
+public class XWalkCookieManagerInternal {
     /**
      * Control whether cookie is enabled or disabled
      * @param accept TRUE if accept cookie
      */
+    @XWalkAPI
     public void setAcceptCookie(boolean accept) {
         nativeSetAcceptCookie(accept);
     }
@@ -27,6 +29,7 @@ public final class XWalkCookieManager {
      * Return whether cookie is enabled
      * @return TRUE if accept cookie
      */
+    @XWalkAPI
     public boolean acceptCookie() {
         return nativeAcceptCookie();
     }
@@ -38,6 +41,7 @@ public final class XWalkCookieManager {
      * @param url The url which cookie is set for
      * @param value The value for set-cookie: in http response header
      */
+    @XWalkAPI
     public void setCookie(final String url, final String value) {
         nativeSetCookie(url, value);
     }
@@ -48,6 +52,7 @@ public final class XWalkCookieManager {
      * @param url The url needs cookie
      * @return The cookies in the format of NAME=VALUE [; NAME=VALUE]
      */
+    @XWalkAPI
     public String getCookie(final String url) {
         String cookie = nativeGetCookie(url.toString());
         // Return null if the string is empty to match legacy behavior
@@ -57,6 +62,7 @@ public final class XWalkCookieManager {
     /**
      * Remove all session cookies, which are cookies without expiration date
      */
+    @XWalkAPI
     public void removeSessionCookie() {
         nativeRemoveSessionCookie();
     }
@@ -64,6 +70,7 @@ public final class XWalkCookieManager {
     /**
      * Remove all cookies
      */
+    @XWalkAPI
     public void removeAllCookie() {
         nativeRemoveAllCookie();
     }
@@ -71,6 +78,7 @@ public final class XWalkCookieManager {
     /**
      *  Return true if there are stored cookies.
      */
+    @XWalkAPI
     public boolean hasCookies() {
         return nativeHasCookies();
     }
@@ -78,10 +86,12 @@ public final class XWalkCookieManager {
     /**
      * Remove all expired cookies
      */
+    @XWalkAPI
     public void removeExpiredCookie() {
         nativeRemoveExpiredCookie();
     }
 
+    @XWalkAPI
     public void flushCookieStore() {
         nativeFlushCookieStore();
     }
@@ -89,6 +99,7 @@ public final class XWalkCookieManager {
     /**
      * Whether cookies are accepted for file scheme URLs.
      */
+    @XWalkAPI
     public boolean allowFileSchemeCookies() {
         return nativeAllowFileSchemeCookies();
     }
@@ -103,6 +114,7 @@ public final class XWalkCookieManager {
      * Note that calls to this method will have no effect if made after a
      * WebView or CookieManager instance has been created.
      */
+    @XWalkAPI
     public void setAcceptFileSchemeCookies(boolean accept) {
         nativeSetAcceptFileSchemeCookies(accept);
     }

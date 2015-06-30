@@ -19,7 +19,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
-#include "jni/XWalkCookieManager_jni.h"
+#include "jni/XWalkCookieManagerInternal_jni.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/cookies/cookie_options.h"
 #include "net/url_request/url_request_context.h"
