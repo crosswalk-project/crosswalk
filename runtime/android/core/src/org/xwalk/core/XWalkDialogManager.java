@@ -11,12 +11,20 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.util.Log;
 
 import junit.framework.Assert;
 
 class XWalkDialogManager {
+    private static final String TAG = "XWalkLib";
+    private static final String PACKAGE_RE = "[a-z]+\\.[a-z0-9]+\\.[a-z0-9]+.*";
+
     private Context mContext;
     private Dialog mActiveDialog;
+    private String mApplicationName;
 
     public XWalkDialogManager(Context context) {
         mContext = context;
@@ -55,26 +63,31 @@ class XWalkDialogManager {
 
         if (status == XWalkLibraryInterface.STATUS_NOT_FOUND) {
             dialog.setTitle(mContext.getString(R.string.startup_not_found_title));
-            dialog.setMessage(mContext.getString(R.string.startup_not_found_message));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_not_found_message)));
             setPositiveButton(dialog, downloadText, downloadCommand);
             setNegativeButton(dialog, cancelText, cancelCommand);
         } else if (status == XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH) {
             dialog.setTitle(mContext.getString(R.string.startup_architecture_mismatch_title));
-            dialog.setMessage(mContext.getString(R.string.startup_architecture_mismatch_message));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_architecture_mismatch_message)));
             setPositiveButton(dialog, downloadText, downloadCommand);
             setNegativeButton(dialog, cancelText, cancelCommand);
         } else if (status == XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR) {
             dialog.setTitle(mContext.getString(R.string.startup_signature_check_error_title));
-            dialog.setMessage(mContext.getString(R.string.startup_signature_check_error_message));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_signature_check_error_message)));
             setNegativeButton(dialog, cancelText, cancelCommand);
         } else if (status == XWalkLibraryInterface.STATUS_OLDER_VERSION) {
             dialog.setTitle(mContext.getString(R.string.startup_older_version_title));
-            dialog.setMessage(mContext.getString(R.string.startup_older_version_message));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_older_version_message)));
             setPositiveButton(dialog, downloadText, downloadCommand);
             setNegativeButton(dialog, cancelText, cancelCommand);
         } else if (status == XWalkLibraryInterface.STATUS_NEWER_VERSION) {
             dialog.setTitle(mContext.getString(R.string.startup_newer_version_title));
-            dialog.setMessage(mContext.getString(R.string.startup_newer_version_message));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_newer_version_message)));
             setNegativeButton(dialog, cancelText, cancelCommand);
         } else {
             Assert.fail();
@@ -156,5 +169,28 @@ class XWalkDialogManager {
                         command.run();
                     }
                 });
+    }
+
+    private String replaceApplicationName(String text) {
+        if (mApplicationName == null) {
+            try {
+                PackageManager packageManager = mContext.getPackageManager();
+                ApplicationInfo appInfo = packageManager.getApplicationInfo(
+                        mContext.getPackageName(), 0);
+                mApplicationName = (String) packageManager.getApplicationLabel(appInfo);
+            } catch (NameNotFoundException e) {
+            }
+
+            if (mApplicationName == null || mApplicationName.matches(PACKAGE_RE)) {
+                mApplicationName = "this application";
+            }
+            Log.d(TAG, "Crosswalk application name: " + mApplicationName);
+        }
+
+        text = text.replaceAll("APP_NAME", mApplicationName);
+        if (text.startsWith("this")) {
+            text = text.replaceFirst("this", "This");
+        }
+        return text;
     }
 }
