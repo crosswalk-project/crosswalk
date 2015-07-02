@@ -45,8 +45,9 @@ class XWalkViewDelegate {
             // "natives_blob.bin",
             // "snapshot_blob.bin"
     };
+
     private static final String[] MANDATORY_LIBRARIES = {
-            "libxwalkcore.so"
+        "xwalkcore"
     };
     private static final String TAG = "XWalkViewDelegate";
     private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
@@ -85,24 +86,32 @@ class XWalkViewDelegate {
     public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
         if (sLibraryLoaded) return;
 
-        // If context is null, it's called from wrapper's ReflectionHelper to try
-        // loading native library within the package. No need to try load from library
-        // package in this case.
-        // If context's not null, it's a cross package invoking, load core library from library apk.
-        // Only load the native library from /data/data if the Android version is
-        // lower than 4.2. Android enables a system path /data/app-lib to store native
+        // If context is null, it's running in embedded mode, otherwise in shared mode.
+        // Only load the native library from /data/data if in shared mode and the Android version
+        // is lower than 4.2. Android enables a system path /data/app-lib to store native
         // libraries starting from 4.2 and load them automatically.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null) {
-            for (String library : MANDATORY_LIBRARIES) {
-                System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null) {
+                String path = "/data/data/" + context.getPackageName() + "/lib/";
+                for (String library : MANDATORY_LIBRARIES) {
+                    System.load(path + "lib" + library + ".so");
+                }
+            } else {
+                for (String library : MANDATORY_LIBRARIES) {
+                    System.loadLibrary(library);
+                }
             }
+        } catch (UnsatisfiedLinkError e) {
+            // The libxwalkcore.so doesn't exist in default directory if it's decompressed. In this
+            // case, it will be loaded through org.xwalk.core.XWalkLibraryDecompressor.
         }
 
+        // Load libraries what is wrote in NativeLibraries.java at compile time. It may duplicate
+        // with System.loadLibrary("xwalkcore") above, but same library won't be loaded repeatedly.
         try {
             LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
             libraryLoader.loadNow(context, true);
         } catch (ProcessInitException e) {
-            throw new RuntimeException("Cannot load Crosswalk Core", e);
         }
 
         if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
