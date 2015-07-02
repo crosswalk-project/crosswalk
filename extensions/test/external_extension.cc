@@ -67,6 +67,17 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, NavigateWithExternalExtension) {
   }
 }
 
+IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionMessaging2) {
+  Runtime* runtime = CreateRuntime();
+  GURL url = GetExtensionsTestURL(
+      base::FilePath(),
+      base::FilePath().AppendASCII("echo_messaging_2.html"));
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime, url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
 IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
   Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(

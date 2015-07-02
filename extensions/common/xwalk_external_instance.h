@@ -8,6 +8,7 @@
 #include <string>
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/public/XW_Extension.h"
+#include "xwalk/extensions/public/XW_Extension_Message_2.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
 
 namespace xwalk {
@@ -42,6 +43,9 @@ class XWalkExternalInstance : public XWalkExtensionInstance {
 
   // XW_MessagingInterface_1 (from XW_Extension.h) implementation.
   void MessagingPostMessage(const char* msg);
+
+  // XW_MessagingInterface_2 (from XW_Extension_Message_2.h) implementation.
+  void MessagingPostBinaryMessage(const char* msg, const size_t size);
 
   // XW_Internal_SyncMessagingInterface_1 (from XW_Extension_SyncMessage.h)
   // implementation.

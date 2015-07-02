@@ -8,6 +8,7 @@
 #include <map>
 #include "base/memory/singleton.h"
 #include "xwalk/extensions/public/XW_Extension.h"
+#include "xwalk/extensions/public/XW_Extension_Message_2.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
 #include "xwalk/extensions/public/XW_Extension_EntryPoints.h"
 #include "xwalk/extensions/public/XW_Extension_Permissions.h"
@@ -125,6 +126,12 @@ class XWalkExternalAdapter {
   // XW_MessagingInterface_1 from XW_Extension.h.
   DEFINE_FUNCTION_1(Extension, Messaging, Register, XW_HandleMessageCallback);
   DEFINE_FUNCTION_1(Instance, Messaging, PostMessage, const char*);
+
+  // XW_MessagingInterface_2 from XW_Extension_Message_2.h.
+  DEFINE_FUNCTION_1(Extension, Messaging, RegisterBinaryMessageCallback,
+                    XW_HandleBinaryMessageCallback);
+  DEFINE_FUNCTION_2(Instance, Messaging, PostBinaryMessage, const char*,
+                    size_t);
 
   // XW_Internal_SyncMessaging_1 from XW_Extension_SyncMessage.h.
   DEFINE_FUNCTION_1(Extension, SyncMessaging, Register,
