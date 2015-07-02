@@ -136,6 +136,7 @@ class Method(object):
     self._wrapper_params_declare = ''
     self._wrapper_params_declare_for_bridge = ''
     self._wrapper_params_pass_to_bridge = ''
+    self._is_reservable = False
 
     self.ParseMethodParams(params)
     self.ParseMethodAnnotation(annotation)
@@ -160,6 +161,10 @@ class Method(object):
   @property
   def is_abstract(self):
     return self._is_abstract
+
+  @property
+  def is_reservable(self):
+    return self._is_reservable
 
   @property
   def method_name(self):
@@ -199,6 +204,9 @@ class Method(object):
       self._typed_params[param_name] = ParamType(param_type, self._class_loader)
 
   def ParseMethodAnnotation(self, annotation):
+    if annotation.find('reservable = true') >= 0:
+      self._is_reservable = True
+
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
     for match in re.finditer(pre_wrapline_re, annotation):
@@ -696,6 +704,18 @@ ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         return (${RETURN_TYPE}) coreWrapper.getWrapperObject(\
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
+    }
+""")
+    elif self.is_reservable:
+      template = Template("""\
+${DOC}
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        if (${METHOD_DECLARE_NAME}.isNull()) {
+            ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_RESERVING});
+            XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
+            return;
+        }
+        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
     }
 """)
     else:

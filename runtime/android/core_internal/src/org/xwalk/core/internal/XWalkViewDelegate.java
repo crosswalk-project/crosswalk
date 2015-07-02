@@ -93,7 +93,6 @@ class XWalkViewDelegate {
             }
         }
 
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         try {
             LibraryLoader.loadNow(context, true);
         } catch (ProcessInitException e) {
@@ -108,6 +107,8 @@ class XWalkViewDelegate {
 
     public static void init(final Context context) {
         if (sInitialized) return;
+
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
 
         // Initialize chromium resources. Assign them the correct ids in xwalk core.
         XWalkInternalResources.resetIds(context);

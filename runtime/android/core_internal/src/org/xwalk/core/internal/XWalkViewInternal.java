@@ -246,7 +246,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             e.printStackTrace();
         }
 
-        XWalkViewDelegate.loadXWalkLibrary(null);
+        XWalkViewDelegate.loadXWalkLibrary(context);
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
@@ -694,7 +694,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkUIClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setUIClient(XWalkUIClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -707,7 +707,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param client the XWalkResourceClientInternal defined by callers.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setResourceClient(XWalkResourceClientInternal client) {
         if (mContent == null) return;
         checkThreadSafety();

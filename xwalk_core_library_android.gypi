@@ -20,6 +20,7 @@
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkApplication.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkExtension.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkJavascriptResult.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNavigationHistory.java',

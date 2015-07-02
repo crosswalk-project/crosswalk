@@ -40,6 +40,7 @@ def PrepareFromXwalk(src_dir, target_dir):
   # The source file/directory list to be copied and the target directory list.
   source_target_list = [
     (os.path.join(source_code_dir, 'xwalk/VERSION'), target_dir),
+    (os.path.join(source_code_dir, 'xwalk/API_VERSION'), target_dir),
 
     # This jar is needed for minifying and obfuscating the javascript and css.
     (os.path.join(tools_src_dir,

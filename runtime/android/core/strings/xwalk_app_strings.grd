@@ -6,13 +6,13 @@
         Crosswalk Project Install
       </message>
       <message desc="Decompression Progress Message [CHAR-LIMIT=100]" name="IDS_DECOMPRESSION_PROGRESS_MESSAGE">
-        Decompressing Crosswalk Project...
+        Decompressing the Crosswalk Project runtime...
       </message>
       <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
-        Downloading Crosswalk Project from remote host...
+        Downloading the Crosswalk Project runtime from remote host...
       </message>
       <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
-        Download failed. An network error occurred.
+        Download failed. A network error occurred.
       </message>
       <message desc="Download Failed Not Found [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_DEVICE_NOT_FOUND">
         Download failed. Storage device not found.
@@ -24,37 +24,37 @@
         Download failed. The network connection timed out.
       </message>
       <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
-        Failed to open the app store
+        Failed to open the app store. You need an app store to download the Crosswalk Project runtime.
       </message>
       <message desc="Startup Not Found Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_TITLE">
-        Crosswalk Project Not Found
+        Crosswalk Project Runtime Not Found
       </message>
       <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
-        This application requires the Crosswalk Project runtime to work. Select "Continue" to download it.
+        APP_NAME requires the Crosswalk Project runtime to work. Please install it from the application store, then restart APP_NAME.
       </message>
       <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
-        Mismatch of CPU Architecture for Crosswalk Project
+        Mismatch of CPU Architecture for the Crosswalk Project Runtime
       </message>
       <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
-        The Crosswalk Project must be updated to match the CPU architecture of the device. Select "Continue" to download it.
+        The Crosswalk Project runtime must be updated to match the CPU architecture of the device. Please install it from the application store, then restart APP_NAME.
       </message>
       <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
-        Crosswalk Project Signature Verification Failed
+        The Crosswalk Project Signature Verification Failed
       </message>
       <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
-        The integrity of Crosswalk runtime library can not be verified.
+        The integrity of the Crosswalk Project runtime cannot be verified. Please uninstall it and restart APP_NAME.
       </message>
       <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
         New Crosswalk Project Runtime Required
       </message>
       <message desc="Startup Older Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_MESSAGE">
-        The version of Crosswalk Project on this system must be updated. Select "Continue" to download it.
+        The version of the Crosswalk Project runtime on this system must be updated. Please install it from the application store, then restart APP_NAME.
       </message>
       <message desc="Startup Newer Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_TITLE">
-        Crosswalk Project Version Incompatible
+        Incompatible Crosswalk Project Runtime
       </message>
       <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
-        The application is not compatible with the installed version of the Crosswalk Project runtime.
+        APP_NAME is not compatible with the installed version of the Crosswalk Project runtime.
       </message>
       <message desc="Label of Cancel [CHAR-LIMIT=100]" name="IDS_XWALK_CANCEL">
         Cancel
