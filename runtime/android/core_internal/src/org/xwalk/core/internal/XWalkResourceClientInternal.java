@@ -130,7 +130,7 @@ public class XWalkResourceClientInternal {
      * This is similar to JavaScript DOMContentLoaded.
      * @param view the owner XWalkViewInternal instance.
      * @param frameId the loaded and parsed frame.
-     * @since 6.0
+     * @since 5.0
      */
     @XWalkAPI
     public void onDocumentLoadedInFrame(XWalkViewInternal view, long frameId) {
