@@ -64,7 +64,8 @@ NativeAppWindowDesktop::NativeAppWindowDesktop(
       forward_button_(nullptr),
       refresh_button_(nullptr),
       stop_button_(nullptr),
-      address_bar_(nullptr) {
+      address_bar_(nullptr),
+      contents_view_(nullptr) {
 }
 
 NativeAppWindowDesktop::~NativeAppWindowDesktop() {

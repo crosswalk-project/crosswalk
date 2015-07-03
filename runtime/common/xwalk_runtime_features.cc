@@ -13,7 +13,9 @@
 
 namespace xwalk {
 
-XWalkRuntimeFeatures::Feature::Feature() {
+XWalkRuntimeFeatures::Feature::Feature()
+    : status(Experimental),
+      enabled(false) {
 }
 
 XWalkRuntimeFeatures::Feature::Feature(
