@@ -358,11 +358,15 @@
             'runtime/browser/android/xwalk_web_contents_view_delegate.h',
           ],
         }],
+        ['OS=="android" and use_icu_alternatives_on_android==1',{
+          'dependencies': [
+            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
+          ],
+        }],
         ['OS=="android"',{
           'dependencies':[
             'xwalk_core_jar_jni',
-            'xwalk_core_native_jni',
-            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
+            'xwalk_core_native_jni',    
           ],
           'sources': [
             'experimental/native_file_system/virtual_root_provider_android.cc',
