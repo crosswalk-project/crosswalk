@@ -329,12 +329,16 @@
             '<@(speech_files)',
           ],
         }],
+        ['OS=="android" and use_icu_alternatives_on_android==1',{
+          'dependencies': [
+            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
+          ],
+        }],
         ['OS=="android"',{
           'dependencies':[
             '../components/components.gyp:cdm_browser',
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
-            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
           ],
           'sources': [
             'experimental/native_file_system/virtual_root_provider_android.cc',
