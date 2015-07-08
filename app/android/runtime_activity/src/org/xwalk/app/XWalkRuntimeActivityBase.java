@@ -142,4 +142,8 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
         mUseAnimatableView = value;
     }
 
+    @Override
+    public boolean isXWalkReady() {
+        return super.isXWalkReady();
+    }
 }
