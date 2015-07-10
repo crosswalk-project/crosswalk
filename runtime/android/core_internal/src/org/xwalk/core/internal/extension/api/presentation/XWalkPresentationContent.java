@@ -51,6 +51,11 @@ public class XWalkPresentationContent {
                 }
 
                 @Override
+                public void onPageLoadStarted(XWalkViewInternal view, String url) {
+                  view.evaluateJavascript("navigator.presentation.session = new navigator.presentation.PresentationSession(1, 1);", null);
+                }
+
+                @Override
                 public void onPageLoadStopped(
                         XWalkViewInternal view, String url, LoadStatusInternal status) {
                     if (status == LoadStatusInternal.FINISHED) {
