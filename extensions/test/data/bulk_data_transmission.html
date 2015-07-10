@@ -47,15 +47,6 @@ var readableSize = function(size) {
   return size + suffix;
 }
 
-var requestDataAsync = function(size) {
-  bulkData.requestBulkDataAsync(size, function(msg) {
-      var message = document.createElement('p');
-      message.innerText = 'Requested '
-        + readableSize(msg.length) + ' data chunk asynchronously';
-      divAsync.appendChild(message);
-    });
-}
-
 var startPow = 1;
 var maxPow = 26; // 26 is 64MB, which is the limit of IPC post message
 var repeatTimes = 1;
@@ -64,10 +55,15 @@ var index = startPow * repeatTimes;
 
 function runTestCase() {
   return new Promise(function(resolve) {
-      var size = Math.pow(2, Math.floor(index / repeatTimes));
-      requestDataAsync(size);
+    var size = Math.pow(2, Math.floor(index / repeatTimes));
+    bulkData.requestBulkDataAsync(size, function (msg) {
+      var message = document.createElement('p');
+      message.innerText = 'Received '
+        + readableSize(msg.length) + ' data chunk asynchronously';
+      divAsync.appendChild(message);
       resolve();
-    }).then(function() {
+    });
+  }).then(function () {
       ++index;
       if (index == (maxPow + 1) * repeatTimes) {
         document.title = "Pass";
@@ -76,7 +72,7 @@ function runTestCase() {
       runTestCase();
     }, function(e) {
       console.error(e);
-      document.title = "Fail";
+      document.title = "Fail" + e;
     });
 };
 runTestCase();
