@@ -319,6 +319,16 @@
         },
       },
       'conditions': [
+        ['disable_devtools==1', {
+          'sources!': [
+            'runtime/browser/android/xwalk_dev_tools_server.cc',
+            'runtime/browser/android/xwalk_dev_tools_server.h',
+            'runtime/browser/devtools/remote_debugging_server.cc',
+            'runtime/browser/devtools/remote_debugging_server.h',
+            'runtime/browser/devtools/xwalk_devtools_delegate.cc',
+            'runtime/browser/devtools/xwalk_devtools_delegate.h',
+          ],
+        }],
         ['tizen==1', {
           'dependencies': [
             '../content/app/resources/content_resources.gyp:content_resources',
@@ -616,7 +626,7 @@
         'xwalk_resources',
       ],
       'conditions': [
-        [ 'OS!="android"', {
+        [ 'OS!="android"' and 'disable_devtools!=1', {
           'dependencies': [
             '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
           ],
@@ -646,7 +656,7 @@
             ],
           },
           'conditions': [
-            [ 'OS!="android"', {
+            [ 'OS!="android"' and 'disable_devtools!=1', {
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
