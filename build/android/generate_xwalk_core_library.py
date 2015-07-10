@@ -255,23 +255,17 @@ def CopyResources(project_source, out_dir, out_project_dir, shared):
   # Since there might be some resource files with same names from
   # different folders like ui_java, content_java and others,
   # it's necessary to rename some files to avoid overridding.
-  if shared:
-    res_to_copy = [
-        # zip file list
-        'xwalk_app_strings.zip',
-        'xwalk_core_java.zip'
-    ]
-  else:
-    res_to_copy = [
-        # zip file list
-        'content_java.zip',
-        'content_strings_grd.zip',
-        'ui_java.zip',
-        'ui_strings_grd.zip',
-        'xwalk_core_internal_java.zip',
-        'xwalk_core_strings.zip',
-        'xwalk_app_strings.zip'
-    ]
+  res_to_copy = [
+      # zip file list
+      'content_java.zip',
+      'content_strings_grd.zip',
+      'ui_java.zip',
+      'ui_strings_grd.zip',
+      'xwalk_core_internal_java.zip',
+      'xwalk_core_java.zip',
+      'xwalk_core_strings.zip',
+      'xwalk_app_strings.zip'
+  ]
 
   for res_zip in res_to_copy:
     zip_file = os.path.join(out_dir, 'res.java', res_zip)

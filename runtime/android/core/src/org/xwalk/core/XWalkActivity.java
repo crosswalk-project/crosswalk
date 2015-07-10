@@ -5,7 +5,6 @@
 package org.xwalk.core;
 
 import android.app.Activity;
-import android.content.res.Resources;
 import android.os.Bundle;
 
 /**
@@ -53,14 +52,7 @@ import android.os.Bundle;
  * }
  * </pre>
  *
- * <p>Besides, you must use {@link XWalkApplication} in the Android manifest if the application is
- * intended to run in shared mode.</p>
- *
- * <pre>
- * &lt;application android:name="org.xwalk.core.XWalkApplication"&gt;
- * </pre>
- *
- * <p>And shared mode also needs following permissions:</p>
+ * <p>Besides, shared mode needs following permissions:</p>
  *
  * <pre>
  * &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
@@ -114,13 +106,5 @@ public abstract class XWalkActivity extends Activity {
     protected void onResume() {
         super.onResume();
         mActivityDelegate.onResume();
-    }
-
-    /**
-     * Returns the Resource instance comes from the application context
-     */
-    @Override
-    public Resources getResources() {
-        return getApplicationContext().getResources();
     }
 }
