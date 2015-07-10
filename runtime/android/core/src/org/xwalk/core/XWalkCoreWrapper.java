@@ -152,14 +152,6 @@ class XWalkCoreWrapper {
         sInstance = sProvisionalInstance;
         sProvisionalInstance = null;
         sInstance.initXWalkCore();
-
-        if (sInstance.isSharedMode()) {
-            XWalkApplication application = XWalkApplication.getApplication();
-            if (application == null) {
-                Assert.fail("Please use XWalkApplication in the Android manifest for shared mode");
-            }
-            application.addResource(sInstance.mBridgeContext.getResources());
-        }
         Log.d(TAG, "Initialize xwalk core successfully");
     }
 
@@ -194,15 +186,9 @@ class XWalkCoreWrapper {
 
     private void initXWalkView() {
         Log.d(TAG, "Init xwalk view");
-        Object object = mWrapperContext;
-        if (mBridgeContext != null) {
-            ReflectConstructor constructor = new ReflectConstructor(
-                    getBridgeClass("MixedContext"), Context.class, Context.class);
-            object = constructor.newInstance(mBridgeContext, mWrapperContext);
-        }
-
         Class<?> clazz = getBridgeClass("XWalkViewDelegate");
-        new ReflectMethod(clazz, "init", Context.class).invoke(object);
+        ReflectMethod method = new ReflectMethod(clazz, "init", Context.class, Context.class);
+        method.invoke(mBridgeContext, mWrapperContext);
     }
 
     private void initXWalkCore() {
