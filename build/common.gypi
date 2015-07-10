@@ -46,6 +46,9 @@
       ['enable_webcl==1', {
         'defines': ['ENABLE_WEBCL=1'],
       }],
+      ['disable_devtools==1', {
+        'defines': ['DISABLE_DEVTOOLS=1'],
+      }],
     ],
     'includes': [
       'xwalk_filename_rules.gypi',

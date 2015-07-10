@@ -23,7 +23,9 @@ class XWalkTestSuiteInitializer;
 namespace xwalk {
 
 class ApplicationComponent;
+#ifndef DISABLE_DEVTOOLS
 class RemoteDebuggingServer;
+#endif
 class SysAppsComponent;
 class XWalkBrowserContext;
 class XWalkComponent;
@@ -143,8 +145,10 @@ class XWalkRunner {
 
   ApplicationComponent* app_component_;
 
+#ifndef DISABLE_DEVTOOLS
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };
