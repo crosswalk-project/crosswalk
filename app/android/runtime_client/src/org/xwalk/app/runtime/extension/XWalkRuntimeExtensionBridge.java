@@ -25,6 +25,8 @@ interface XWalkRuntimeExtensionBridge {
      */
     public void postMessage(int instanceId, String message);
 
+    public void postBinaryMessage(int instanceId, byte[] message);
+
     /**
      * Broadcast a message frome native side to all receivers on JavaScript side.
      *
@@ -54,6 +56,15 @@ interface XWalkRuntimeExtensionBridge {
      * @param message The message content received on native side.
      */
     public void onMessage(int instanceId, String message);
+
+    /**
+     * Handle the binary message from JavaScript side to native side.
+     * JavaScript wraps the binary message into an ArrayBuffer.
+     *
+     * @param instanceId The extension instance id.
+     * @param message The binary message content received on native side.
+     */
+    public void onBinaryMessage(int instanceId, byte[] message);
 
     /**
      * Handle the message from JavaScript side to native side in a synchronous way.

@@ -35,6 +35,17 @@ public interface XWalkExtensionContextClient {
     public void postMessage(XWalkExtensionClient extension, int instanceId, String message);
 
     /**
+     * Post a binary message to the given extension instance.
+     * JavaScript receives the binary message in an ArrayBuffer.
+     *
+     * @param extension The xwalk extension
+     * @param instanceId The unique id to identify the extension instance as the
+     *                   message destination.
+     * @param message The binary message content to be posted.
+     */
+    public void postBinaryMessage(XWalkExtensionClient extension, int instanceId, byte[] message);
+
+    /**
      * Broadcast a message to all extension instances.
      *
      * @param extension The xwalk extension

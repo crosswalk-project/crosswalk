@@ -84,6 +84,12 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
         if (bridge != null) bridge.postMessage(instanceID, message);
     }
 
+    @Override
+    public void postBinaryMessage(XWalkExtensionClient extension, int instanceID, byte[] message) {
+        XWalkRuntimeExtensionBridge bridge = mExtensions.get(extension.getExtensionName());
+        if (bridge != null) bridge.postBinaryMessage(instanceID, message);
+    }
+
     public void broadcastMessage(XWalkExtensionClient extension, String message) {
         XWalkRuntimeExtensionBridge bridge = mExtensions.get(extension.getExtensionName());
         if (bridge != null) bridge.broadcastMessage(message);

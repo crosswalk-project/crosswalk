@@ -328,6 +328,12 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         mTestCase.assertEquals("Pass", title);
     }
 
+    // For external extension mechanism: binary mode.
+    public void testExternalExtensionBinary() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("echo_binary_java.html");
+        mTestCase.assertEquals("Pass", title);
+    }
+
     // For internal extension implementation of Messaging.
     public void testMessaging() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("messaging_mini.html");

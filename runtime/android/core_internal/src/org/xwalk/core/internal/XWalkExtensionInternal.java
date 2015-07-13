@@ -55,6 +55,17 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
     }
 
     /**
+     * Send binary message to an instance.
+     * @param instanceID the id of instance.
+     * @param message the binary message.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void postBinaryMessage(int instanceID, byte[] message) {
+        super.postBinaryMessage(instanceID, message);
+    }
+
+    /**
      * Broadcast message to all extension instances.
      * @param message the message.
      * @since 2.1
@@ -88,6 +99,15 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      */
     @XWalkAPI
     public abstract void onMessage(int instanceID, String message);
+
+    /**
+     * Notify the extension that the async binary message is received.
+     * @param instanceID the id of instance.
+     * @param message the received binar message.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void onBinaryMessage(int instanceID, byte[] message) {}
 
     /**
      * Notify the extension that the sync message is received.

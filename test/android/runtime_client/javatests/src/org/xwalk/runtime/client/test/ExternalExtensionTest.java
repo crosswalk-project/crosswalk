@@ -32,4 +32,13 @@ public class ExternalExtensionTest extends XWalkRuntimeClientTestBase {
                         getTestUtil(), this);
         helper.testExternalExtensionSync();
     }
+
+    @SmallTest
+    @Feature({"ExternalExtensionBinary"})
+    public void testExternalExtensionBinary() throws Throwable {
+        RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
+                        getTestUtil(), this);
+        helper.testExternalExtensionBinary();
+    }
 }

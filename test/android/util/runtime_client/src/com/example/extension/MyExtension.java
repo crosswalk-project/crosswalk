@@ -20,4 +20,9 @@ public class MyExtension extends XWalkExtensionClient {
     public String onSyncMessage(int instanceId, String message) {
         return "From java sync:" + message;
     }
+
+    @Override
+    public void onBinaryMessage(int instanceId, byte[] message) {
+        postBinaryMessage(instanceId, message);
+    }
 }

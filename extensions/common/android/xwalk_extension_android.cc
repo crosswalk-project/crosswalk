@@ -72,6 +72,22 @@ void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
   env->ReleaseStringUTFChars(msg, str);
 }
 
+void XWalkExtensionAndroid::PostBinaryMessage(JNIEnv* env, jobject obj,
+                                              jint instance, jbyteArray msg) {
+  if (!is_valid()) return;
+
+  InstanceMap::iterator it = instances_.find(instance);
+  if (it == instances_.end()) {
+    LOG(WARNING) << "Instance(" << instance << ") not found ";
+    return;
+  }
+
+  jbyte* msg_ptr = env->GetByteArrayElements(msg, NULL);
+  jsize msg_size = env->GetArrayLength(msg);
+  it->second->PostBinaryMessageWrapper((const char*)msg_ptr, msg_size);
+  env->ReleaseByteArrayElements(msg, msg_ptr, JNI_ABORT);
+}
+
 void XWalkExtensionAndroid::BroadcastMessage(JNIEnv* env, jobject obj,
                                              jstring msg) {
   if (!is_valid()) return;
@@ -162,21 +178,30 @@ XWalkExtensionAndroidInstance::~XWalkExtensionAndroidInstance() {
 void XWalkExtensionAndroidInstance::HandleMessage(
     scoped_ptr<base::Value> msg) {
   std::string value;
-
-  if (!msg->GetAsString(&value)) {
-    return;
-  }
+  const base::BinaryValue* binary_value = nullptr;
 
   JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object is referenced for message routing";
     return;
   }
 
-  Java_XWalkExtensionAndroid_onMessage(
-      env, obj.obj(), getID(), buffer.obj());
+  if (msg->GetAsString(&value)) {
+    ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
+    Java_XWalkExtensionAndroid_onMessage(
+        env, obj.obj(), getID(), buffer.obj());
+  } else if (msg->GetAsBinary(&binary_value)) {
+    ScopedJavaLocalRef<jbyteArray> buffer(
+        env, env->NewByteArray(binary_value->GetSize()));
+    env->SetByteArrayRegion(
+        buffer.obj(), 0, binary_value->GetSize(),
+        reinterpret_cast<jbyte*>(const_cast<char*>(binary_value->GetBuffer())));
+    Java_XWalkExtensionAndroid_onBinaryMessage(
+        env, obj.obj(), getID(), buffer.obj());
+  } else {
+    NOTREACHED() << "Failed to decode message as either string or binary blob";
+  }
 }
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(

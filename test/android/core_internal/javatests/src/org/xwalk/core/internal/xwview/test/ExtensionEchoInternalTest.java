@@ -45,4 +45,13 @@ public class ExtensionEchoInternalTest extends XWalkViewInternalTestBase {
         loadAssetFileAndWaitForTitle("framesEcho.html");
         assertEquals(PASS_STRING, getTitleOnUiThread());
     }
+
+    @SmallTest
+    @Feature({"ExtensionEchoInternal"})
+    public void testBinary() throws Throwable {
+        ExtensionEchoInternal echo = new ExtensionEchoInternal();
+
+        loadAssetFileAndWaitForTitle("echo_binary_java.html");
+        assertEquals(PASS_STRING, getTitleOnUiThread());
+    }
 }
