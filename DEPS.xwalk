@@ -18,7 +18,7 @@
 # -----------------------------------
 
 chromium_crosswalk_rev = '62db5766f2426b436215300484609bdbd63e4d3b'
-v8_crosswalk_rev = '6113c9e286577ba137bd2f8ecf04d9db464dec22'
+v8_crosswalk_rev = '8a7cc07db034fa22dfcc572da9c2e40f3b2d9e05'
 ozone_wayland_rev = '81e4b41be7511971011c7ced9c70131713d7541e'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
@@ -114,16 +114,6 @@ hooks = [
     'pattern': '.',
     'name': 'upstream_revision'
   },
-  {
-    #TODO(darktears): Remove when we move to M45 since the patch will be part of skia
-    'action': [
-      'python',
-      'src/xwalk/tools/patch_skia.py',
-      'src/xwalk/packaging/skia-perf-regression-copy-surface-as-draw.patch'
-    ],
-    'pattern': '.',
-    'name': 'patch_skia_regression'
-  }
 ]
 
 # -------------------------------------------------
