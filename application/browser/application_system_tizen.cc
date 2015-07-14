@@ -147,7 +147,7 @@ bool ApplicationSystemTizen::LaunchFromCommandLine(
   scoped_ptr<char*[]> argv(new char*[size]);
   memset(argv.get(), 0x0, size);
   for (size_t i = 0; i < size - 1; ++i) {
-    if (!StartsWithASCII(args[i], "--", false))
+    if (!base::StartsWithASCII(args[i], "--", false))
       argv[positionals++] = const_cast<char*>(args[i].c_str());
   }
 

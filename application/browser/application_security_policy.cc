@@ -89,7 +89,7 @@ bool ApplicationSecurityPolicy::IsAccessAllowed(const GURL& url) const {
     bool is_host_matched = subdomains ?
         url.DomainIs(policy.host().c_str()) : url.host() == policy.host();
     if (url.scheme() == policy.scheme() && is_host_matched &&
-        StartsWithASCII(url.path(), policy.path(), false))
+        base::StartsWithASCII(url.path(), policy.path(), false))
       return true;
   }
   return false;
