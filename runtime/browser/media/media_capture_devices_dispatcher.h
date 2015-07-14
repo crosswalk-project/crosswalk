@@ -107,7 +107,7 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   content::MediaStreamDevices test_video_devices_;
 
   // A list of observers for the device update notifications.
-  ObserverList<Observer> observers_;
+  base::ObserverList<Observer> observers_;
 };
 
 #endif  // XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_

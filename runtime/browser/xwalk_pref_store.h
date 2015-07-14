@@ -53,7 +53,7 @@ class XWalkPrefStore : public PersistentPrefStore {
   // Stores the preference values.
   PrefValueMap prefs_;
 
-  ObserverList<PrefStore::Observer, true> observers_;
+  base::ObserverList<PrefStore::Observer, true> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkPrefStore);
 };
