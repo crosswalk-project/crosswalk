@@ -658,114 +658,34 @@ BUG=XWALK-2571
              'includes': [ '../build/common_defines.gypi', ],
 --- src/third_party/ffmpeg/ffmpeg.gyp
 +++ src/third_party/ffmpeg/ffmpeg.gyp
-@@ -150,6 +150,12 @@
-       'targets': [
-         {
-           'target_name': 'ffmpegsumo',
-+          'type': 'none',
-+          # No 'link_settings', ffmpegsumo is a 'loadable_module'.
-+        },
-+
-+        {
-+          'target_name': 'ffmpegsumo_original',
-           'type': 'loadable_module',
-           'sources': [
-             '<@(c_sources)',
-@@ -429,6 +435,61 @@
-   'targets': [
-     {
-       'target_name': 'ffmpeg',
-+      'type': 'none',
-+      'link_settings': {
-+        'libraries': [
-+          '-lffmpeg',
-+        ],
-+      },
-+      'direct_dependent_settings': {
-+        'defines': [
-+          '__STDC_CONSTANT_MACROS',  # FFmpeg uses INT64_C.
-+        ],
-+        'include_dirs': [
-+          '<(output_root)',
-+          '../..',  # The chromium 'src' directory.
-+          '<(platform_config_root)',
-+          '.',
-+        ],
-+      },
-+      'variables': {
-+        'outfile_type': 'posix_stubs',
-+        'stubs_filename_root': 'ffmpeg_stubs',
-+        'project_path': 'third_party/ffmpeg',
-+        'intermediate_dir': '<(INTERMEDIATE_DIR)',
-+        'output_root': '<(SHARED_INTERMEDIATE_DIR)/ffmpeg',
-+        'platform_config_root': 'chromium/config/<(ffmpeg_branding)/<(os_config)/<(ffmpeg_config)'
-+      },
-+      'actions': [
-+        {
-+          'action_name': 'generate_stubs',
-+          'inputs': [
-+            '<(generate_stubs_script)',
-+            '<(extra_header)',
-+            '<@(sig_files)',
-+          ],
-+          'outputs': [
-+            '<(intermediate_dir)/<(stubs_filename_root).cc',
-+            '<(output_root)/<(project_path)/<(stubs_filename_root).h',
-+          ],
-+          'action': ['python',
-+                     '<(generate_stubs_script)',
-+                     '-i', '<(intermediate_dir)',
-+                     '-o', '<(output_root)/<(project_path)',
-+                     '-t', '<(outfile_type)',
-+                     '-e', '<(extra_header)',
-+                     '-s', '<(stubs_filename_root)',
-+                     '-p', '<(project_path)',
-+                     '<@(_inputs)',
-+          ],
-+          'process_outputs_as_sources': 1,
-+          'message': 'Generating FFmpeg stubs for dynamic loading',
-+        },
+@@ -168,6 +168,27 @@
+ 
+   'targets': [{
+     'target_name': 'ffmpeg',
++    'type': 'none',
++    'link_settings': {
++      'libraries': [
++        '-lffmpeg',
 +      ],
 +    },
++    'variables': {
++      # Path to platform configuration files.
++      'platform_config_root': 'chromium/config/<(ffmpeg_branding)/<(os_config)/<(ffmpeg_config)',
++    },
++    'direct_dependent_settings': {
++      'include_dirs': [
++        '../..',  # The chromium 'src' directory.
++        '<(platform_config_root)',
++        '.',
++      ],
++    },
++  },
 +
-+    {
-+      'target_name': 'ffmpeg_original',
-       'sources': [
-         # Files needed for stub generation rules.
-         '<@(sig_files)',
-@@ -536,32 +597,6 @@
-               '.',
-             ],
-           },
--          'actions': [
--            {
--              'action_name': 'generate_stubs',
--              'inputs': [
--                '<(generate_stubs_script)',
--                '<(extra_header)',
--                '<@(sig_files)',
--              ],
--              'outputs': [
--                '<(intermediate_dir)/<(stubs_filename_root).cc',
--                '<(output_root)/<(project_path)/<(stubs_filename_root).h',
--              ],
--              'action': ['python',
--                         '<(generate_stubs_script)',
--                         '-i', '<(intermediate_dir)',
--                         '-o', '<(output_root)/<(project_path)',
--                         '-t', '<(outfile_type)',
--                         '-e', '<(extra_header)',
--                         '-s', '<(stubs_filename_root)',
--                         '-p', '<(project_path)',
--                         '<@(_inputs)',
--              ],
--              'process_outputs_as_sources': 1,
--              'message': 'Generating FFmpeg stubs for dynamic loading',
--            },
--          ],
-           'conditions': [
-             # Linux/Solaris need libdl for dlopen() and friends.
-             ['OS == "linux" or OS == "solaris"', {
++  {
++    'target_name': 'ffmpeg_original',
+     'type': '<(ffmpeg_component)',
+     'variables': {
+       # Path to platform configuration files.
 --- src/third_party/icu/icu.gyp
 +++ src/third_party/icu/icu.gyp
 @@ -171,6 +171,37 @@

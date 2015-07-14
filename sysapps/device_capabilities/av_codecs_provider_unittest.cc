@@ -18,7 +18,7 @@ using xwalk::jsapi::device_capabilities::SystemAVCodecs;
 using xwalk::sysapps::AVCodecsProvider;
 
 TEST(XWalkSysAppsDeviceCapabilitiesTest, AVCodecsProvider) {
-  media::InitializeMediaLibraryForTesting();
+  media::InitializeMediaLibrary();
   xwalk::sysapps::SysAppsManager manager;
 
   AVCodecsProvider* provider(manager.GetAVCodecsProvider());
