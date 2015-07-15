@@ -79,7 +79,7 @@ void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
     res->SetBoolean("data.error", true);
     res->SetString("data.errorMessage", "Invalid name of virtual root.");
     std::string msg_string;
-    base::JSONWriter::Write(res.get(), &msg_string);
+    base::JSONWriter::Write(*res, &msg_string);
     PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg_string)));
     return;
   }
@@ -165,7 +165,7 @@ void FileSystemChecker::RegisterFileSystemsAndSendResponse() {
   res->SetBoolean("data.error", false);
   res->SetString("data.file_system_id", filesystem_id);
   std::string msg_string;
-  base::JSONWriter::Write(res.get(), &msg_string);
+  base::JSONWriter::Write(*res, &msg_string);
   instance_->PostMessageToJS(
       scoped_ptr<base::Value>(
           new base::StringValue(msg_string)));
