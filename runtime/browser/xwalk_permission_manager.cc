@@ -7,8 +7,8 @@
 
 #include "base/callback.h"
 #include "content/public/browser/permission_type.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
-#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 
 namespace xwalk {
@@ -35,7 +35,7 @@ XWalkPermissionManager::~XWalkPermissionManager() {
 
 void XWalkPermissionManager::RequestPermission(
     content::PermissionType permission,
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     int request_id,
     const GURL& requesting_origin,
     bool user_gesture,
@@ -48,7 +48,7 @@ void XWalkPermissionManager::RequestPermission(
             new RuntimeGeolocationPermissionContext();
       }
       geolocation_permission_context_->RequestGeolocationPermission(
-          web_contents,
+          render_frame_host,
           requesting_origin,
           base::Bind(&CallbackPermisisonStatusWrapper, callback));
 #else
@@ -74,14 +74,14 @@ void XWalkPermissionManager::RequestPermission(
 
 void XWalkPermissionManager::CancelPermissionRequest(
     content::PermissionType permission,
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     int request_id,
     const GURL& requesting_origin) {
   switch (permission) {
     case content::PermissionType::GEOLOCATION:
 #if defined(OS_ANDROID) || defined(OS_TIZEN)
       geolocation_permission_context_->CancelGeolocationPermissionRequest(
-          web_contents, requesting_origin);
+          render_frame_host, requesting_origin);
 #endif
       break;
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
