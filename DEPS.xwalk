@@ -17,8 +17,8 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'aa27a06ed316c2a8a77ef256acc7c367de781fdf'
-v8_crosswalk_rev = 'fec24d2b62fc69c84c9ad12310ef257e53225042'
+chromium_crosswalk_rev = '05bf1798ede0a2e1278c47219eed769ce8398058'
+v8_crosswalk_rev = '113df1898786636dcc444644a1e2d54031c0d666'
 ozone_wayland_rev = '81e4b41be7511971011c7ced9c70131713d7541e'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
@@ -27,8 +27,8 @@ ozone_wayland_rev = '81e4b41be7511971011c7ced9c70131713d7541e'
 # the blink-crosswalk repository, so that the devtools code can use it to fetch
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = '410929b00299e3bf00eb4d0c966f850a137393ec'
-blink_upstream_rev = '197137'
+blink_crosswalk_rev = '8a5b095d16177fa3ddd907b91337a52f9437dbb9'
+blink_upstream_rev = '198430'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
@@ -54,6 +54,14 @@ solutions = [
       'src/third_party/khronos/CL':
         'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
            '28150',
+
+      # Temporarily roll ffmpeg forward.
+      # We need commit 408c4b08 which introduces the |ffmpeg_component|
+      # variable so that we can continue building ffmpeg as a shared library
+      # for the time being (see https://crrev.com/1141703002 and
+      # https://groups.google.com/a/chromium.org/d/msg/chromium-packagers/R5rcZXWxBEQ/B6k0zzmJbvcJ.
+      'src/third_party/ffmpeg':
+         'https://chromium.googlesource.com/chromium/third_party/ffmpeg.git@408c4b08fab5cbaa284847f8c573fe939cada87c',
 
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that

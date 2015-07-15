@@ -19,9 +19,7 @@ namespace xwalk {
 namespace sysapps {
 
 AVCodecsProviderFFmpeg::AVCodecsProviderFFmpeg() {
-  base::FilePath media_path;
-  PathService::Get(content::DIR_MEDIA_LIBS, &media_path);
-  media::InitializeMediaLibrary(media_path);
+  media::InitializeMediaLibrary();
   media::FFmpegGlue::InitializeFFmpeg();
 }
 

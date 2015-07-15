@@ -5,6 +5,11 @@
     'enable_murphy%': 0,
     'use_webui_file_picker%': 0,
     'disable_bundled_extensions%': 0,
+
+    # Build FFMPEG as a shared library. The default since M44 is building it as
+    # a static library. We do not want to do that for now, see XWALK-4574.
+    'ffmpeg_component%': 'shared_library',
+
     'conditions': [
       ['OS=="android"', {
         # Enable WebCL by default on android.

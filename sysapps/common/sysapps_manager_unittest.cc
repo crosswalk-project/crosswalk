@@ -30,7 +30,7 @@ namespace {
 class XWalkSysAppsManagerTest : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
-    media::InitializeMediaLibraryForTesting();
+    media::InitializeMediaLibrary();
 
     // We need to make sure the resource bundle is up because
     // the extensions we instantiate on this test depend on it.
