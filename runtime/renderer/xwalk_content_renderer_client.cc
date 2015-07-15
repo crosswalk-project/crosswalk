@@ -290,7 +290,7 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
     const blink::WebURLError& error,
     std::string* error_html,
     base::string16* error_description) {
-  bool is_post = EqualsASCII(failed_request.httpMethod(), "POST");
+  bool is_post = base::EqualsASCII(failed_request.httpMethod(), "POST");
 
   // TODO(guangzhen): Check whether error_html is needed in xwalk runtime.
 
