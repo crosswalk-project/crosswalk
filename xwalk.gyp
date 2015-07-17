@@ -880,15 +880,6 @@
             'runtime/app/xwalk_content_main.cc',
             'runtime/app/xwalk_content_main.h',
           ],
-          'copies': [
-            {
-              # Copy FFmpeg binaries for audio/video support.
-              'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
-              'files': [
-                '<(PRODUCT_DIR)/ffmpegsumo.so',
-              ],
-            },
-          ],
           'conditions': [
             ['enable_webrtc==1', {
               'variables': {

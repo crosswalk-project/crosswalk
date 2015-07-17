@@ -172,7 +172,10 @@ stage_install_common() {
   done
 
   # ffmpeg libs
-  install -m 644 -s "${BUILDDIR}/libffmpegsumo.so" "${STAGEDIR}/${INSTALLDIR}/"
+  if [ -f "${BUILDDIR}/lib/libffmpeg.so" ]; then
+      install -m 755 -d "${STAGEDIR}/${INSTALLDIR}/lib/"
+      install -m 644 -s "${BUILDDIR}/lib/libffmpeg.so" "${STAGEDIR}/${INSTALLDIR}/lib/"
+  fi
 
   # launcher script and symlink
   process_template "${BUILDDIR}/installer/common/wrapper" \

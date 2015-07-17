@@ -67,6 +67,46 @@ stage_install_debian() {
 # Actually generate the package file.
 do_package() {
   echo "Packaging ${ARCHITECTURE}..."
+
+  # Need a dummy debian/control file for dpkg-shlibdeps.
+  DUMMY_STAGING_DIR="${TMPFILEDIR}/dummy_staging"
+  mkdir "$DUMMY_STAGING_DIR"
+  pushd "$DUMMY_STAGING_DIR"
+  mkdir debian
+  touch debian/control
+  # Generate the dependencies,
+  # TODO(mmoss): This is a workaround for a problem where dpkg-shlibdeps was
+  # resolving deps using some of our build output shlibs (i.e.
+  # out/Release/lib.target/libfreetype.so.6), and was then failing with:
+  #   dpkg-shlibdeps: error: no dependency information found for ...
+  # It's not clear if we ever want to look in LD_LIBRARY_PATH to resolve deps,
+  # but it seems that we don't currently, so this is the most expediant fix.
+  SAVE_LDLP=${LD_LIBRARY_PATH:-}
+  unset LD_LIBRARY_PATH
+  DPKG_SHLIB_DEPS=$(dpkg-shlibdeps -O "${STAGEDIR}/${INSTALLDIR}/${PROGNAME}" | \
+                           sed 's/^shlibs:Depends=//')
+  if [ -n "$SAVE_LDLP" ]; then
+      LD_LIBRARY_PATH=$SAVE_LDLP
+  fi
+  rm -rf "$DUMMY_STAGING_DIR"
+  popd
+
+  # Additional dependencies not in the dpkg-shlibdeps output.
+  # - Pull a more recent version of NSS than required by runtime linking, for
+  #   security and stability updates in NSS.
+  ADDITION_DEPS="ca-certificates, libnss3 (>= 3.14.3), lsb-base (>=3.2), \
+    xdg-utils (>= 1.0.2)"
+
+  # Fix-up libnspr dependency due to renaming in Ubuntu (the old package still
+  # exists, but it was moved to "universe" repository, which isn't installed by
+  # default).
+  DPKG_SHLIB_DEPS=$(sed \
+                        's/\(libnspr4-0d ([^)]*)\), /\1 | libnspr4 (>= 4.9.5-0ubuntu0), /g' \
+                        <<< $DPKG_SHLIB_DEPS)
+
+  COMMON_DEPS="${DPKG_SHLIB_DEPS}, ${ADDITION_DEPS}"
+  COMMON_PREDEPS="dpkg (>= 1.14.0)"
+
   PREDEPENDS="$COMMON_PREDEPS"
   DEPENDS="${COMMON_DEPS}"
   REPLACES=""
@@ -162,52 +202,6 @@ source ${BUILDDIR}/installer/common/crosswalk.info
 # Some Debian packaging tools want these set.
 export DEBFULLNAME="${MAINTNAME}"
 export DEBEMAIL="${MAINTMAIL}"
-
-# We'd like to eliminate more of these deps by relying on the 'lsb' package, but
-# that brings in tons of unnecessary stuff, like an mta and rpm. Until that full
-# 'lsb' package is installed by default on DEB distros, we'll have to stick with
-# the LSB sub-packages, to avoid pulling in all that stuff that's not installed
-# by default.
-
-# Need a dummy debian/control file for dpkg-shlibdeps.
-DUMMY_STAGING_DIR="${TMPFILEDIR}/dummy_staging"
-mkdir "$DUMMY_STAGING_DIR"
-cd "$DUMMY_STAGING_DIR"
-mkdir debian
-touch debian/control
-
-# Generate the dependencies,
-# TODO(mmoss): This is a workaround for a problem where dpkg-shlibdeps was
-# resolving deps using some of our build output shlibs (i.e.
-# out/Release/lib.target/libfreetype.so.6), and was then failing with:
-#   dpkg-shlibdeps: error: no dependency information found for ...
-# It's not clear if we ever want to look in LD_LIBRARY_PATH to resolve deps,
-# but it seems that we don't currently, so this is the most expediant fix.
-SAVE_LDLP=${LD_LIBRARY_PATH:-}
-unset LD_LIBRARY_PATH
-DPKG_SHLIB_DEPS=$(dpkg-shlibdeps -O "$BUILDDIR/${PROGNAME}" | \
-  sed 's/^shlibs:Depends=//')
-if [ -n "$SAVE_LDLP" ]; then
-  LD_LIBRARY_PATH=$SAVE_LDLP
-fi
-
-rm -rf "$DUMMY_STAGING_DIR"
-
-# Additional dependencies not in the dpkg-shlibdeps output.
-# - Pull a more recent version of NSS than required by runtime linking, for
-#   security and stability updates in NSS.
-ADDITION_DEPS="ca-certificates, libnss3 (>= 3.14.3), lsb-base (>=3.2), \
-    xdg-utils (>= 1.0.2)"
-
-# Fix-up libnspr dependency due to renaming in Ubuntu (the old package still
-# exists, but it was moved to "universe" repository, which isn't installed by
-# default).
-DPKG_SHLIB_DEPS=$(sed \
-    's/\(libnspr4-0d ([^)]*)\), /\1 | libnspr4 (>= 4.9.5-0ubuntu0), /g' \
-    <<< $DPKG_SHLIB_DEPS)
-
-COMMON_DEPS="${DPKG_SHLIB_DEPS}, ${ADDITION_DEPS}"
-COMMON_PREDEPS="dpkg (>= 1.14.0)"
 
 # Make everything happen in the OUTPUTDIR.
 cd "${OUTPUTDIR}"
