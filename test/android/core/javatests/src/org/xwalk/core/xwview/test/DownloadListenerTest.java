@@ -31,12 +31,14 @@ public class DownloadListenerTest extends XWalkViewTestBase {
         final String data = "download data";
         final String contentDisposition = "attachment;filename=\"download.txt\"";
         final String mimeType = "text/plain";
+        final String userAgent = "Chrome/44.0.2403.81 Crosswalk/15.44.376.0 Mobile Safari/537.36";
 
         List<Pair<String, String>> downloadHeaders = new ArrayList<Pair<String, String>>();
         downloadHeaders.add(Pair.create("Content-Disposition", contentDisposition));
         downloadHeaders.add(Pair.create("Content-Type", mimeType));
         downloadHeaders.add(Pair.create("Content-Length", Integer.toString(data.length())));
 
+        setUserAgent(userAgent);
         setDownloadListener();
         TestWebServer webServer = TestWebServer.start();
         try {
@@ -49,6 +51,7 @@ public class DownloadListenerTest extends XWalkViewTestBase {
             assertEquals(contentDisposition, mDownloadStartHelper.getContentDisposition());
             assertEquals(mimeType, mDownloadStartHelper.getMimeType());
             assertEquals(data.length(), mDownloadStartHelper.getContentLength());
+            assertEquals(userAgent, mDownloadStartHelper.getUserAgent());
         } finally {
             webServer.shutdown();
         }
