@@ -51,11 +51,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
         }
 
         @Override
-        public void didChangeThemeColor(int color) {
-            onDidChangeThemeColor(color);
-        }
-
-        @Override
         public void didStopLoading(String url) {
             onPageFinished(url);
         }
@@ -168,8 +163,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
     protected abstract boolean onCreateWindow(boolean isDialog, boolean isUserGesture);
 
     protected abstract void onCloseWindow();
-
-    public abstract void onDidChangeThemeColor(int color);
 
     public abstract void onReceivedIcon(Bitmap bitmap);
 
