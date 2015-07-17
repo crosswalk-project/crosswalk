@@ -238,13 +238,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void onDidChangeThemeColor(int color) {
-        if (isOwnerActivityRunning()) {
-            mXWalkUIClient.onDidChangeThemeColor(mXWalkView,color);
-        }
-    }
-
-    @Override
     public void onResourceLoadStarted(String url) {
         if (isOwnerActivityRunning()) {
             mXWalkResourceClient.onLoadStarted(mXWalkView, url);
