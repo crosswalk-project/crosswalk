@@ -22,7 +22,6 @@
         ],
         'packaging_files_binaries': [
           '<(PRODUCT_DIR)/xwalk',
-          '<(PRODUCT_DIR)/libffmpegsumo.so',
 
           # Commented out for the time being because non-Ozone Linux builds
           # depend on the gtk2ui target in src/chrome, which can cause
@@ -35,6 +34,11 @@
         'deb_cmd': ['<@(flock_bash)', '<(deb_build)', '-o' '<(PRODUCT_DIR)',
                     '-b', '<(PRODUCT_DIR)', '-a', '<(target_arch)'],
         'conditions': [
+          ['ffmpeg_component=="shared_library"', {
+            'packaging_files_binaries': [
+              '<(PRODUCT_DIR)/lib/libffmpeg.so',
+            ],
+          }],
           ['target_arch=="ia32"', {
             'deb_arch': 'i386',
             'packaging_files_common': [

@@ -237,7 +237,6 @@ rm -f src/out/Release/lib/libxwalk_backend_lib.so
 install -d %{buildroot}%{_libdir}/xwalk/lib
 install -m 0644 -p -D src/out/Release/lib/*.so %{buildroot}%{_libdir}/xwalk/lib/
 install -m 0644 -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
-install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -m 0644 -p -D src/out/Release/natives_blob.bin %{buildroot}%{_libdir}/xwalk/natives_blob.bin
 install -m 0644 -p -D src/out/Release/snapshot_blob.bin %{buildroot}%{_libdir}/xwalk/snapshot_blob.bin
 
@@ -245,7 +244,6 @@ install -m 0644 -p -D src/out/Release/snapshot_blob.bin %{buildroot}%{_libdir}/x
 %manifest crosswalk-libs.manifest
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/lib/lib*.so
-%{_libdir}/xwalk/libffmpegsumo.so
 %if ! %{_disable_nacl}
 %{_libdir}/xwalk/nacl_bootstrap_raw
 %{_libdir}/xwalk/nacl_helper
