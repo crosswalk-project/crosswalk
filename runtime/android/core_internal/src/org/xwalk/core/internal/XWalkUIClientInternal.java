@@ -15,9 +15,12 @@ import android.os.Build.VERSION_CODES;
 import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ValueCallback;
 import android.widget.EditText;
+
+import org.chromium.base.ApiCompatibilityUtils;
 
 /**
  * This class notifies the embedder UI events/callbacks.
@@ -91,6 +94,15 @@ public class XWalkUIClientInternal {
     public boolean onCreateWindowRequested(XWalkViewInternal view, InitiateByInternal initiator,
             ValueCallback<XWalkViewInternal> callback) {
         return false;
+    }
+
+    /**
+     * Called when the theme color is changed. This works only on Android Lollipop+(5.0+).
+     * @param color the new color in RGB format.
+     */
+    public void onDidChangeThemeColor(XWalkViewInternal view, int color) {
+        if (view == null || view.getActivity() == null) return;
+        ApiCompatibilityUtils.setStatusBarColor(view.getActivity(),color);
     }
 
     /**
