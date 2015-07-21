@@ -186,6 +186,28 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public static final int RELOAD_IGNORE_CACHE = 1;
 
     /**
+     * Constructs a new XWalkView with a Context object.
+     * @param context a Context object used to access application assets.
+     * @since 6.0
+     */
+    @XWalkAPI(preWrapperLines = {
+                  "        super(${param1}, null);"},
+              postWrapperLines = {
+                  "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT,",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+    public XWalkViewInternal(Context context) {
+        super(context, null);
+
+        checkThreadSafety();
+        mActivity = (Activity) context;
+        mContext = getContext();
+
+        init(getContext(), getActivity());
+        initXWalkContent(mContext, null);
+    }
+
+    /**
      * Constructor for inflating via XML.
      * @param context  a Context object used to access application assets.
      * @param attrs    an AttributeSet passed to our parent.
@@ -198,7 +220,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
-        super(convertContext(context), attrs);
+        super(context, attrs);
 
         checkThreadSafety();
         mActivity = (Activity) context;
@@ -222,7 +244,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
     public XWalkViewInternal(Context context, Activity activity) {
-        super(convertContext(context), null);
+        super(context, null);
 
         checkThreadSafety();
         // Make sure mActivity is initialized before calling 'init' method.
@@ -233,26 +255,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         initXWalkContent(mContext, null);
     }
 
-    private static Context convertContext(Context context) {
-        Context ret = context;
-        Context bridgeContext = null;
-        if (XWalkCoreBridge.getInstance() != null) {
-            bridgeContext = XWalkCoreBridge.getInstance().getContext();
-        }
-        if (bridgeContext == null || context == null ||
-                bridgeContext.getPackageName().equals(context.getPackageName())) {
-            // Not acrossing package
-            ret = context;
-        } else {
-            ret = new MixedContext(bridgeContext, context);
-        }
-        return ret;
-    }
-
     private static void init(Context context, Activity activity) {
         if (sInitialized) return;
 
-        XWalkViewDelegate.loadXWalkLibrary(context);
+        XWalkViewDelegate.init(null, activity);
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
@@ -266,8 +272,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // We will miss activity onCreate() status in ApplicationStatusManager,
         // informActivityStarted() will simulate these callbacks.
         ApplicationStatusManager.informActivityStarted(activity);
-
-        XWalkViewDelegate.init(context);
 
         sInitialized = true;
     }
