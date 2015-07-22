@@ -22,8 +22,16 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_params.h"
 #include "content/shell/common/shell_switches.h"
 #include "net/base/filename_util.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
+#include "xwalk/runtime/browser/runtime_select_file_policy.h"
+#include "xwalk/runtime/browser/ui/download_views.h"
+
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+#include "base/nix/xdg_util.h"
+#endif
 
 #if defined(OS_LINUX) && !defined(OS_TIZEN)
 #include "xwalk/runtime/browser/runtime_platform_util.h"
@@ -33,6 +41,34 @@ using content::BrowserThread;
 
 namespace xwalk {
 
+RuntimeDownloadManagerDelegate::DownloadSelectFileParams::DownloadSelectFileParams(content::DownloadItem* item,
+                         const content::DownloadTargetCallback& callback)
+    : item(item),
+      callback(callback) {
+}
+
+RuntimeDownloadManagerDelegate::DownloadSelectFileParams::~DownloadSelectFileParams(){}
+
+RuntimeDownloadManagerDelegate::RuntimeDownloadView::RuntimeDownloadView(
+    content::WebContents* contents,
+    RuntimeDownloadManagerDelegate* owner)
+    : content::WebContentsObserver(contents),
+      owner_(owner) {
+  Runtime* runtime = static_cast<Runtime*>(contents->GetDelegate());
+  DCHECK(runtime->window());
+  view_.reset(new DownloadBarView(runtime->window()));
+  view_->set_owned_by_client();
+  owner_->download_views_.insert(std::make_pair(contents, this));
+}
+
+RuntimeDownloadManagerDelegate::RuntimeDownloadView::~RuntimeDownloadView(){}
+
+void
+RuntimeDownloadManagerDelegate::RuntimeDownloadView::WebContentsDestroyed() {
+  owner_->download_views_.erase(web_contents());
+  delete this;
+}
+
 RuntimeDownloadManagerDelegate::RuntimeDownloadManagerDelegate()
     : download_manager_(NULL),
       suppress_prompting_(false) {
@@ -40,7 +76,10 @@ RuntimeDownloadManagerDelegate::RuntimeDownloadManagerDelegate()
   AddRef();
 }
 
-RuntimeDownloadManagerDelegate::~RuntimeDownloadManagerDelegate() {}
+RuntimeDownloadManagerDelegate::~RuntimeDownloadManagerDelegate() {
+  for (auto& key_view : download_views_)
+    delete(key_view.second);
+}
 
 void RuntimeDownloadManagerDelegate::SetDownloadManager(
     content::DownloadManager* download_manager) {
@@ -55,20 +94,16 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
     content::DownloadItem* download,
     const content::DownloadTargetCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-#if defined(OS_LINUX) && !defined(OS_TIZEN)
-  // Use the platform's default application to handle the download URL
-  // when there's no download path preset.
-  if (default_download_path_.empty() &&
-      download->GetForcedFilePath().empty()) {
-    platform_util::OpenExternal(download->GetURL());
-    return false;
-  }
-#endif
   // This assignment needs to be here because even at the call to
   // SetDownloadManager, the system is not fully initialized.
   if (default_download_path_.empty()) {
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+    default_download_path_ =
+        base::nix::GetXDGUserDirectory("DOWNLOAD", "Downloads");
+#else
     default_download_path_ = download_manager_->GetBrowserContext()->GetPath().
         Append(FILE_PATH_LITERAL("Downloads"));
+#endif
   }
 
   if (!download->GetForcedFilePath().empty()) {
@@ -178,18 +213,62 @@ void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
 
   if (GetSaveFileName(&save_as))
     result = base::FilePath(std::wstring(save_as.lpstrFile));
-#else
-  NOTIMPLEMENTED();
-#endif
 
   callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
                content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
+#elif defined(OS_LINUX) && !defined(OS_TIZEN)
+  content::WebContents* contents = item->GetWebContents();
+  select_file_dialog_ =
+      ui::SelectFileDialog::Create(this, new RuntimeSelectFilePolicy);
+  ui::SelectFileDialog::FileTypeInfo file_type_info;
+  file_type_info.include_all_files = true;
+  file_type_info.support_drive = true;
+  gfx::NativeWindow owning_window =
+      platform_util::GetTopLevel(contents->GetNativeView());
+  DownloadSelectFileParams* params =
+      new DownloadSelectFileParams(item, callback);
+  select_file_dialog_->SelectFile(ui::SelectFileDialog::SELECT_SAVEAS_FILE,
+                                  base::string16(),
+                                  suggested_path,
+                                  &file_type_info,
+                                  0,
+                                  base::FilePath::StringType(),
+                                  owning_window,
+                                  params);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RuntimeDownloadManagerDelegate::SetDownloadBehaviorForTesting(
     const base::FilePath& default_download_path) {
   default_download_path_ = default_download_path;
   suppress_prompting_ = true;
+}
+
+void RuntimeDownloadManagerDelegate::FileSelected(const base::FilePath& path,
+                                                  int index,
+                                                  void* params) {
+  scoped_ptr<DownloadSelectFileParams> scoped_params(
+      static_cast<DownloadSelectFileParams*>(params));
+  content::DownloadItem* item = scoped_params->item;
+  content::DownloadTargetCallback& callback = scoped_params->callback;
+
+  content::WebContents* contents = item->GetWebContents();
+  RuntimeDownloadView* view;
+  if (download_views_.find(contents) == download_views_.end())
+    view = new RuntimeDownloadView(contents, this);
+  else
+    view = download_views_[contents];
+
+  view->view()->AddDownloadItem(item, path);
+  callback.Run(path, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
+               content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, path);
+}
+
+void RuntimeDownloadManagerDelegate::FileSelectionCanceled(void* params) {
+  scoped_ptr<DownloadSelectFileParams> scoped_params(
+      static_cast<DownloadSelectFileParams*>(params));
 }
 
 }  // namespace xwalk

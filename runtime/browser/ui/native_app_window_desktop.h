@@ -21,11 +21,17 @@ namespace xwalk {
 class NativeAppWindowDesktop : public NativeAppWindowViews,
                                public views::ButtonListener {
  public:
+  enum ViewID {
+    VIEW_ID_NONE = 0,
+    VIEW_ID_DOWNLOAD_BAR,
+  };
+
   explicit NativeAppWindowDesktop(const NativeAppWindow::CreateParams& params);
   ~NativeAppWindowDesktop() override;
 
   void SetLoadProgress(double progress);
   void SetAddressURL(const std::string& url);
+  void UpdateWebViewPreferredSize();
 
  private:
   class AddressView;
@@ -33,6 +39,7 @@ class NativeAppWindowDesktop : public NativeAppWindowViews,
   // NativeAppWindowViews implementation.
   void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) override;
+  void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
 
   // ButtonListener implementation.
   void ButtonPressed(views::Button* sender, const ui::Event& event) override;
@@ -47,7 +54,6 @@ class NativeAppWindowDesktop : public NativeAppWindowViews,
   views::LabelButton* refresh_button_;
   views::LabelButton* stop_button_;
   AddressView* address_bar_;
-
   views::View* contents_view_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowDesktop);
