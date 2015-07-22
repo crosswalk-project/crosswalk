@@ -55,6 +55,7 @@
 #include "base/android/locale_utils.h"
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
+#include "components/cdm/browser/cdm_message_filter_android.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_view_delegate.h"
@@ -202,6 +203,9 @@ void XWalkContentBrowserClient::RenderProcessWillLaunch(
 #endif
   xwalk_runner_->OnRenderProcessWillLaunch(host);
   host->AddFilter(new XWalkRenderMessageFilter);
+#if defined(OS_ANDROID)
+  host->AddFilter(new cdm::CdmMessageFilterAndroid());
+#endif
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
