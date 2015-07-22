@@ -17,7 +17,7 @@ using namespace xwalk::jsapi::raw_socket; // NOLINT
 
 namespace {
 
-const unsigned kBufferSize = 4096;
+const size_t kBufferSize = 4096;
 
 }  // namespace
 
