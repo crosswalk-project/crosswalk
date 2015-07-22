@@ -22,11 +22,13 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_params.h"
 #include "content/shell/common/shell_switches.h"
 #include "net/base/filename_util.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
 
 #if defined(OS_LINUX) && !defined(OS_TIZEN)
-#include "xwalk/runtime/browser/runtime_platform_util.h"
+#include "base/nix/xdg_util.h"
 #endif
 
 using content::BrowserThread;
@@ -40,7 +42,8 @@ RuntimeDownloadManagerDelegate::RuntimeDownloadManagerDelegate()
   AddRef();
 }
 
-RuntimeDownloadManagerDelegate::~RuntimeDownloadManagerDelegate() {}
+RuntimeDownloadManagerDelegate::~RuntimeDownloadManagerDelegate() {
+}
 
 void RuntimeDownloadManagerDelegate::SetDownloadManager(
     content::DownloadManager* download_manager) {
@@ -55,20 +58,16 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
     content::DownloadItem* download,
     const content::DownloadTargetCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-#if defined(OS_LINUX) && !defined(OS_TIZEN)
-  // Use the platform's default application to handle the download URL
-  // when there's no download path preset.
-  if (default_download_path_.empty() &&
-      download->GetForcedFilePath().empty()) {
-    platform_util::OpenExternal(download->GetURL());
-    return false;
-  }
-#endif
   // This assignment needs to be here because even at the call to
   // SetDownloadManager, the system is not fully initialized.
   if (default_download_path_.empty()) {
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+    default_download_path_ =
+        base::nix::GetXDGUserDirectory("DOWNLOAD", "Downloads");
+#else
     default_download_path_ = download_manager_->GetBrowserContext()->GetPath().
         Append(FILE_PATH_LITERAL("Downloads"));
+#endif
   }
 
   if (!download->GetForcedFilePath().empty()) {
@@ -178,12 +177,22 @@ void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
 
   if (GetSaveFileName(&save_as))
     result = base::FilePath(std::wstring(save_as.lpstrFile));
-#else
-  NOTIMPLEMENTED();
-#endif
 
   callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
                content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
+#elif defined(OS_LINUX) && !defined(OS_TIZEN)
+  content::WebContents* contents = item->GetWebContents();
+  Runtime* runtime = static_cast<Runtime*>(contents->GetDelegate());
+  if (!runtime->AddDownloadItem(item, callback, suggested_path)) {
+    const base::FilePath empty;
+    callback.Run(empty,
+        content::DownloadItem::TARGET_DISPOSITION_PROMPT,
+        content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+        suggested_path);
+  }
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RuntimeDownloadManagerDelegate::SetDownloadBehaviorForTesting(

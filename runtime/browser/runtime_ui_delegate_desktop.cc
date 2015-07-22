@@ -42,4 +42,16 @@ void RuntimeUIDelegateDesktop::SetAddressURL(const GURL& url) {
     window->SetAddressURL(url.spec());
 }
 
+bool RuntimeUIDelegateDesktop::AddDownloadItem(
+    content::DownloadItem* download_item,
+    const content::DownloadTargetCallback& callback,
+    const base::FilePath& suggested_path) {
+  if (NativeAppWindowDesktop* window =
+      ToNativeAppWindowDesktop(GetAppWindow())) {
+    window->AddDownloadItem(download_item, callback, suggested_path);
+    return true;
+  }
+  return false;
+}
+
 }  // namespace xwalk

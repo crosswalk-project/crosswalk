@@ -397,6 +397,8 @@
           'sources': [
             'runtime/browser/linux/xwalk_notification_manager.cc',
             'runtime/browser/linux/xwalk_notification_manager.h',
+            'runtime/browser/ui/desktop/download_views.cc',
+            'runtime/browser/ui/desktop/download_views.h',
           ]
         }],  # OS=="linux" and tizen!=1
         ['OS=="linux"', {

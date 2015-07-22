@@ -342,4 +342,14 @@ void Runtime::LoadProgressChanged(content::WebContents* source,
     ui_delegate_->SetLoadProgress(progress);
 }
 
+bool Runtime::AddDownloadItem(content::DownloadItem* download_item,
+    const content::DownloadTargetCallback& callback,
+    const base::FilePath& suggested_path) {
+  if (ui_delegate_) {
+    return ui_delegate_->AddDownloadItem(download_item, callback,
+        suggested_path);
+  }
+  return false;
+}
+
 }  // namespace xwalk

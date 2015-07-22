@@ -9,6 +9,7 @@
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/download_manager_delegate.h"
+#include "xwalk/runtime/browser/runtime.h"
 
 namespace xwalk {
 
