@@ -639,4 +639,13 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected void setUserAgent(final String userAgent) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.setUserAgentString(userAgent);
+            }
+        });
+    }
 }
