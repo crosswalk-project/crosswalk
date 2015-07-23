@@ -648,4 +648,22 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected String getUrlOnUiThread() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return mXWalkView.getUrl();
+            }
+        });
+    }
+
+    protected String getOriginalUrlOnUiThread() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return mXWalkView.getOriginalUrl();
+            }
+        });
+    }
 }
