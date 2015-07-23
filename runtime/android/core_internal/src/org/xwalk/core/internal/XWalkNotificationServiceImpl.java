@@ -58,8 +58,6 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         mView = view;
         mNotificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        // Cancel all exist notifications at startup time. To avoid receiving legacy pendingIntents.
-        mNotificationManager.cancelAll();
 
         mNotificationCloseReceiver = new BroadcastReceiver() {
             @Override
@@ -185,7 +183,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         builder.setDeleteIntent(PendingIntent.getBroadcast(
                 activity, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
-        doShowNotification(notificationId, 
+        doShowNotification(notificationId,
                 VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN ? builder.build() : builder.getNotification());
         notificationChanged();
         onNotificationShown(notificationId);
@@ -260,7 +258,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         for(Integer id : mExistNotificationIds.keySet()) {
             filter.addCategory(getCategoryFromNotificationId(id));
         }
-        
+
         try {
             mView.getActivity().registerReceiver(mNotificationCloseReceiver, filter);
         } catch (AndroidRuntimeException e) {
