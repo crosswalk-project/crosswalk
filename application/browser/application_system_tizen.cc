@@ -118,8 +118,10 @@ void application_event_cb(app_event event, void* data, bundle* b) {
 
       Application* app =
           app_service_tizen->LaunchFromAppID(app_id, encoded_bundle);
-      LOG(INFO) << "Application launched with id: " << app->id();
-      handler_data->current_app = static_cast<ApplicationTizen*>(app);
+      if (app) {
+        LOG(INFO) << "Application launched with id: " << app->id();
+        handler_data->current_app = static_cast<ApplicationTizen*>(app);
+      }
       break;
     }
     case AE_LOWMEM_POST:
