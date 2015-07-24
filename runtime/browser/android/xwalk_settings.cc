@@ -130,6 +130,7 @@ void XWalkSettings::UpdateEverything() {
 void XWalkSettings::UpdateEverythingLocked(JNIEnv* env, jobject obj) {
   UpdateWebkitPreferences(env, obj);
   UpdateUserAgent(env, obj);
+  UpdateFormDataPreferences(env, obj);
 }
 
 void XWalkSettings::UpdateUserAgent(JNIEnv* env, jobject obj) {
@@ -216,6 +217,13 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
       GURL(ConvertJavaStringToUTF8(str)) : GURL();
 
   render_view_host->UpdateWebkitPreferences(prefs);
+}
+
+void XWalkSettings::UpdateFormDataPreferences(JNIEnv* env, jobject obj) {
+  if (!web_contents()) return;
+  XWalkContent* content = XWalkContent::FromWebContents(web_contents());
+  if (!content) return;
+  content->SetSaveFormData(Java_XWalkSettings_getSaveFormDataLocked(env, obj));
 }
 
 void XWalkSettings::RenderViewCreated(
