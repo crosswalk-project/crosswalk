@@ -62,6 +62,7 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
         Uri src = Uri.parse(url);
         if (src.getScheme().equals("http") || src.getScheme().equals("https")) {
             Request request = new Request(Uri.parse(url));
+            request.addRequestHeader("User-Agent", userAgent);
             request.setDestinationInExternalPublicDir(
                     Environment.DIRECTORY_DOWNLOADS, fileName);
             getDownloadManager().enqueue(request);
