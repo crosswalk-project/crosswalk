@@ -160,9 +160,25 @@ ${DOC}
     value = {'CLASS_NAME': self._java_data.wrapper_name};
     return constructor_template.substitute(value)
 
+  def GenerateWrapperDefaultConstructor(self):
+    template = Template("""\
+    public ${NAME}() {
+${WRAP_LINES}
+        reflectionInit();
+    }
+
+""")
+    wrap_string = "        constructorTypes = new ArrayList<Object>();\n"
+    wrap_string += "        constructorParams = new ArrayList<Object>();\n"
+    value = {'NAME': self._java_data.wrapper_name,
+             'WRAP_LINES': wrap_string}
+    return template.substitute(value)
+
   def GenerateMethods(self):
     methods_string = ''
     # Generate method definitions.
+    if self._java_data.need_default_constructor:
+      methods_string += self.GenerateWrapperDefaultConstructor()
     for method in self._java_data.methods:
       methods_string += method.GenerateMethodsStringForWrapper()
     return methods_string
