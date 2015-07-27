@@ -85,8 +85,21 @@ ${REFLECTION_INIT_SECTION}}
              'BRIDGE_CLASS_NAME': self._java_data.bridge_name}
     return constructor_template.substitute(value)
 
+  def GenerateBridgeDefaultConstructor(self):
+    template = Template("""\
+    public ${NAME}(Object wrapper) {
+        this.wrapper = wrapper;
+        reflectionInit();
+    }
+
+""")
+    value = {'NAME': self._java_data.bridge_name}
+    return template.substitute(value)
+
   def GenerateMethods(self):
     methods_string = ''
+    if self._java_data.need_default_constructor:
+      methods_string += self.GenerateBridgeDefaultConstructor()
     for method in self._java_data.methods:
       methods_string += method.GenerateMethodsStringForBridge()
     return methods_string

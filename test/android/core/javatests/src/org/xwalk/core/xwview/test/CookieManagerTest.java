@@ -5,7 +5,6 @@
 
 package org.xwalk.core.xwview.test;
 
-import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
 import android.test.MoreAsserts;
@@ -23,22 +22,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkCookieManagerInternal;
-import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.XWalkCookieManager;
 
 /**
  * Tests for the CookieManager.
  */
 public class CookieManagerTest extends XWalkViewTestBase {
 
-    private XWalkCookieManagerInternal mCookieManager = null;
+    private XWalkCookieManager mCookieManager = null;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
-        mCookieManager = new XWalkCookieManagerInternal();
+        mCookieManager = new XWalkCookieManager();
     }
 
     @SmallTest
