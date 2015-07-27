@@ -18,14 +18,24 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
 
 /**
  * <p><code>XWalkUpdater</code> is a follow-up solution for {@link XWalkInitializer} in case the
- * initialization has failed. The {@link XWalkActivity}'s users don't need to use this class.</p>
+ * initialization has failed. The users of {@link XWalkActivity} don't need to use this class.</p>
  *
- * <p><code>XWalkUpdater</code> helps to update the Crosswalk runtime and displays dialogs to
- * interact with the user. After the Crosswalk runtime is downloaded and installed properly,
- * the user will return to current activity from the play store or the installer. You should check
- * this point and invoke <code>XWalkInitializer.initAsync()</code> again to repeat the
- * initialization process. Please note that from now on, the application will be running in shared
- * mode.</p>
+ * <p><code>XWalkUpdater</code> helps to donwload the Crosswalk runtime and displays dialogs to
+ * interact with the user. By default, it will navigate to the Crosswalk runtime's page on the
+ * default application store, subsequent process will be up to the user. If the developer specified
+ * the download URL of the Crosswalk runtime, it will launch the download manager to fetch the APK.
+ * To specify the download URL, insert a meta-data element with the name "xwalk_apk_url" inside the
+ * application tag in the Android manifest.
+ *
+ * <pre>
+ * &lt;application android:name="org.xwalk.core.XWalkApplication"&gt;
+ *     &lt;meta-data android:name="xwalk_apk_url" android:value="http://host/XWalkRuntimeLib.apk" /&gt;
+ * </pre>
+ *
+ * <p>After the proper Crosswalk runtime is downloaded and installed, the user will return to
+ * current activity from the application store or the installer. The developer should check this
+ * point and invoke <code>XWalkInitializer.initAsync()</code> again to repeat the initialization
+ * process. Please note that from now on, the application will be running in shared mode.</p>
  *
  * <p>For example:</p>
  *
@@ -59,6 +69,16 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *         // Perform error handling here
  *     }
  * }
+ * </pre>
+ *
+ * <p>To download the Crosswalk runtime, you need to grant following permissions in the
+ * Android manifest:</p>
+ *
+ * <pre>
+ * &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
+ * &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /&gt;
+ * &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+ * &lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
  * </pre>
  */
 
@@ -139,6 +159,27 @@ public class XWalkUpdater {
         return true;
     }
 
+    /**
+     * Dismiss the dialog showing and waiting for user's input.
+     *
+     * @return Return false if no dialog is being displayed, true if dismissed the showing dialog.
+     */
+    public boolean dismissDialog() {
+        if (!mDialogManager.isShowingDialog()) return false;
+        mDialogManager.dismissDialog();
+        return true;
+    }
+
+    /**
+     * Set the download URL of the Crosswalk runtime. By default, the updater will get the URL from
+     * the Android manifest.
+     *
+     * @param url The download URL.
+     */
+    public void setXWalkApkUrl(String url) {
+        mXWalkApkUrl = url;
+    }
+
     private void downloadXWalkApk() {
         String downloadUrl = getXWalkApkUrl();
         if (!downloadUrl.isEmpty()) {
@@ -158,7 +199,7 @@ public class XWalkUpdater {
         }
     }
 
-    protected String getXWalkApkUrl() {
+    private String getXWalkApkUrl() {
         if (mXWalkApkUrl != null) return mXWalkApkUrl;
 
         // The download url is defined by the meta-data element with the name "xwalk_apk_url"
