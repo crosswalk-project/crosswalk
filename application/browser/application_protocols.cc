@@ -14,6 +14,7 @@
 
 #include "base/files/file_path.h"
 #include "base/memory/weak_ptr.h"
+#include "base/numerics/safe_math.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
@@ -286,7 +287,8 @@ class URLRequestApplicationJobTizen : public URLRequestApplicationJob {
     }
 
     net::GetMimeTypeFromFile(file_path_, &mime_type_);
-    cipher_buffer_ = new net::IOBufferWithSize(file_info->size);
+    cipher_buffer_ = new net::IOBufferWithSize(
+        base::CheckedNumeric<size_t>(file_info->size).ValueOrDie());
     int flags = base::File::FLAG_OPEN |
                 base::File::FLAG_READ |
                 base::File::FLAG_ASYNC;
