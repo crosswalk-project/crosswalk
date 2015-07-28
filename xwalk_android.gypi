@@ -217,7 +217,15 @@
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkViewDelegate.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkWebContentsDelegate.java',
       ],
+
       'includes': ['../build/jni_generator.gypi'],
+      'conditions': [
+        ['disable_devtools==1', {
+          'sources!': [
+            'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkDevToolsServer.java',
+          ],
+        }],
+      ],
     },
     {
       'target_name': 'xwalk_core_extensions_java',
