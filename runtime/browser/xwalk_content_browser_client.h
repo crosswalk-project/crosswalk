@@ -91,6 +91,11 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const base::Callback<void(bool)>& callback, // NOLINT
       content::CertificateRequestResultType* result) override;
 
+  void SelectClientCertificate(
+      content::WebContents* web_contents,
+      net::SSLCertRequestInfo* cert_request_info,
+      scoped_ptr<content::ClientCertificateDelegate> delegate) override;
+
   content::SpeechRecognitionManagerDelegate*
       CreateSpeechRecognitionManagerDelegate() override;
 
@@ -156,7 +161,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
-
+  scoped_ptr<content::ClientCertificateDelegate> delegate_;
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
   base::ScopedFD v8_natives_fd_;
   base::ScopedFD v8_snapshot_fd_;

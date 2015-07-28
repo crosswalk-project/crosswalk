@@ -14,6 +14,7 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/child_process_data.h"
+#include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
@@ -23,6 +24,7 @@
 #include "content/public/common/content_descriptors.h"
 #include "content/public/common/main_function_params.h"
 #include "gin/v8_initializer.h"
+#include "gin/public/isolate_holder.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "ppapi/host/ppapi_host.h"
@@ -54,6 +56,9 @@
 #if defined(OS_ANDROID)
 #include "base/android/locale_utils.h"
 #include "base/android/path_utils.h"
+#include "base/android/jni_android.h"
+#include "base/android/jni_array.h"
+#include "base/android/jni_string.h"
 #include "base/base_paths_android.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
@@ -247,6 +252,23 @@ bool XWalkContentBrowserClient::AllowSetCookie(
       options);
 #else
   return true;
+#endif
+}
+
+// Selects a SSL client certificate and returns it to the |delegate|. If no
+// certificate was selected NULL is returned to the |delegate|.
+void XWalkContentBrowserClient::SelectClientCertificate(
+    content::WebContents* web_contents,
+    net::SSLCertRequestInfo* cert_request_info,
+    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+#if defined(OS_ANDROID)
+  XWalkContentsClientBridgeBase* client =
+      XWalkContentsClientBridgeBase::FromWebContents(web_contents);
+  if (client) {
+    client->SelectClientCertificate(cert_request_info, delegate.Pass());
+  } else {
+    delegate->ContinueWithCertificate(nullptr);
+  }
 #endif
 }
 

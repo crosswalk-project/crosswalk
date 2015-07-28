@@ -28,6 +28,8 @@ CLASSES_TO_BE_PROCESS = [
     'XWalkNavigationHistoryInternal',
     'XWalkJavascriptResultHandlerInternal',
     'XWalkJavascriptResultInternal',
+    'ClientCertRequestHandlerInternal',
+    'ClientCertRequestInternal',
 ]
 
 REFLECTION_HERLPER = [

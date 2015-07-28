@@ -70,6 +70,7 @@
         'xwalk_resources',
         'extensions/extensions.gyp:xwalk_extensions',
         'sysapps/sysapps.gyp:sysapps',
+        '../third_party/boringssl/boringssl.gyp:boringssl',
       ],
       'include_dirs': [
         '..',

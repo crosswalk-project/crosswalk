@@ -24,6 +24,15 @@ import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
+import java.security.cert.X509Certificate;
+import java.security.KeyStore.PrivateKeyEntry;  
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.security.auth.x500.X500Principal;
+
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
@@ -32,6 +41,9 @@ import org.chromium.components.navigation_interception.NavigationParams;
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.chromium.content.browser.ContentViewDownloadDelegate;
 import org.chromium.content.browser.DownloadInfo;
+import org.chromium.net.AndroidPrivateKey;
+import org.chromium.net.DefaultAndroidKeyStore;
+
 import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 
 // Help bridge callback in XWalkContentsClient to XWalkViewClient and
@@ -39,6 +51,7 @@ import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 @JNINamespace("xwalk")
 class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
+
     private static final String TAG = XWalkContentsClientBridge.class.getName();
     private static final int NEW_XWALKVIEW_CREATED = 100;
     private static final int NEW_ICON_DOWNLOAD     = 101;
@@ -64,13 +77,12 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private String mLoadingUrl = null;
 
     // The native peer of the object
-    private long mNativeContentsClientBridge;
+    protected long mNativeContentsClientBridge;
 
     private float mPageScaleFactor;
 
     private class InterceptNavigationDelegateImpl implements InterceptNavigationDelegate {
         private XWalkContentsClient mContentsClient;
-
         public InterceptNavigationDelegateImpl(XWalkContentsClient client) {
             mContentsClient = client;
         }
@@ -92,7 +104,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     public XWalkContentsClientBridge(XWalkViewInternal xwView) {
         mXWalkView = xwView;
-
+        mLocalKeyStore = new DefaultAndroidKeyStore();
+        mLookupTable = new ClientCertLookupTable();
         mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl(this);
 
         mUiThreadHandler = new Handler() {
@@ -309,6 +322,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onReceivedLoginRequest(String realm, String account, String args) {
+    }
+
+    @Override
+    public void onReceivedClientCertRequest(ClientCertRequestInternal handler) {
+        if (mXWalkResourceClient != null && isOwnerActivityRunning()) {
+            mXWalkResourceClient.onReceivedClientCertRequest(mXWalkView, handler);
+        }
     }
 
     @Override
@@ -591,6 +611,11 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         return new XWalkContentVideoViewClient(this, mXWalkView.getActivity(), mXWalkView);
     }
 
+    public void provideClientCertificateResponse(int id, byte[][] certChain,
+            AndroidPrivateKey androidKey) {
+        nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id, certChain, androidKey);
+    }
+
     // Used by the native peer to set/reset a weak ref to the native peer.
     @CalledByNative
     private void setNativeContentsClientBridge(long nativeContentsClientBridge) {
@@ -620,6 +645,52 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         };
         onReceivedSslError(callback, sslError);
         return true;
+    }
+
+    @CalledByNative
+    private void selectClientCertificate(final int id, final String[] keyTypes,
+            byte[][] encodedPrincipals, final String host, final int port) {
+        if (mXWalkResourceClient != null && isOwnerActivityRunning()) {
+            assert mNativeContentsClientBridge != 0;
+
+            ClientCertLookupTable.Cert cert = mLookupTable.getCertData(host, port);
+
+            if (mLookupTable.isDenied(host, port)) {
+                nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id, null, null);
+
+                return;
+            }
+
+            if (cert != null) {
+                nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id,
+                        cert.certChain, cert.privateKey);
+
+                return;
+            }
+
+            // Build the list of principals from encoded versions.
+            Principal[] principals = null;
+
+            if (encodedPrincipals.length > 0) {
+                principals = new X500Principal[encodedPrincipals.length];
+
+                for (int n = 0; n < encodedPrincipals.length; n++) {
+                    try {
+                        principals[n] = new X500Principal(encodedPrincipals[n]);
+                    } catch (IllegalArgumentException e) {
+                        Log.w(TAG, "Exception while decoding issuers list: " + e);
+                        nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id,
+                                null, null);
+
+                        return;
+                    }
+                }
+            }
+
+            final ClientCertRequestInternal handler = new ClientCertRequestHandlerInternal(
+                    this, id, host, port);
+            this.onReceivedClientCertRequest(handler);
+        }
     }
 
     private void proceedSslError(boolean proceed, int id) {
@@ -769,4 +840,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private native void nativeOnFilesNotSelected(long nativeXWalkContentsClientBridge,
             int processId, int renderId, int mode_flags);
     private native void nativeDownloadIcon(long nativeXWalkContentsClientBridge, String url);
+    private native void nativeProvideClientCertificateResponse(
+            long nativeXWalkContentsClientBridge, int id, byte[][] certChain, AndroidPrivateKey androidKey);
 }
