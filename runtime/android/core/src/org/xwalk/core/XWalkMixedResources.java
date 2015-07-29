@@ -12,6 +12,8 @@ import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 
 /**
+ * This class is deprecated.
+ *
  * XWalkMixedResources is used to combine the resources
  * from two different packages.
  *

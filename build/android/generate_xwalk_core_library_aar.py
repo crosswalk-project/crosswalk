@@ -34,8 +34,8 @@ def main():
         'AndroidManifest.xml'), 'AndroidManifest.xml'),
       (os.path.join(options.target, 'xwalk_shared_library', 'libs',
         'xwalk_core_library_java_app_part.jar'), 'classes.jar'),
-      (os.path.join(options.target, 'gen', 'xwalk_core_java', 'java_R',
-        'R.txt'), 'R.txt'),
+      (os.path.join(options.target, 'xwalk_core_empty_embedder_apk',
+        'gen', 'R.txt'), 'R.txt'),
     )
     exclude_files = (
       os.path.join(options.target, 'xwalk_shared_library', 'libs',
