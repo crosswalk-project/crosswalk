@@ -1,0 +1,79 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package org.xwalk.core.internal;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.chromium.net.AndroidPrivateKey;
+
+/**
+ * Store user's client certificate decision for a host and port pair. Not thread-safe. All accesses are done on UI
+ * thread.
+ */
+public class ClientCertLookupTable {
+    private final Map<String, Cert> mCerts;
+    private final Set<String> mDenieds;
+
+    public ClientCertLookupTable() {
+        mCerts = new HashMap<String, Cert>();
+        mDenieds = new HashSet<String>();
+    }
+
+    // Clear client certificate preferences
+    public void clear() {
+        mCerts.clear();
+        mDenieds.clear();
+    }
+
+    public void allow(String host, int port, AndroidPrivateKey privateKey, byte[][] chain) {
+        String host_and_port = hostAndPort(host, port);
+        mCerts.put(host_and_port, new Cert(privateKey, chain));
+        mDenieds.remove(host_and_port);
+    }
+
+    public void deny(String host, int port) {
+        String host_and_port = hostAndPort(host, port);
+        mCerts.remove(host_and_port);
+        mDenieds.add(host_and_port);
+    }
+
+    public Cert getCertData(String host, int port) {
+        return mCerts.get(hostAndPort(host, port));
+    }
+
+    public boolean isDenied(String host, int port) {
+        return mDenieds.contains(hostAndPort(host, port));
+    }
+
+    // TODO(sgurun) add a test for this. Not separating host and pair properly will be
+    // a security issue.
+    private static String hostAndPort(String host, int port) {
+        return host + ":" + port;
+    }
+
+    /**
+     * A container for the certificate data.
+     */
+    public static class Cert {
+        AndroidPrivateKey privateKey;
+        byte[][] certChain;
+
+        public Cert(AndroidPrivateKey privateKey, byte[][] certChain) {
+            this.privateKey = privateKey;
+
+            byte[][] newChain = new byte[certChain.length][];
+
+            for (int i = 0; i < certChain.length; i++) {
+                newChain[i] = Arrays.copyOf(certChain[i], certChain[i].length);
+            }
+
+            this.certChain = newChain;
+        }
+    }
+}

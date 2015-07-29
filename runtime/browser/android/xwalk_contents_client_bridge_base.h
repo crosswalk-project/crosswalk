@@ -7,7 +7,9 @@
 
 #include "base/callback_forward.h"
 #include "base/supports_user_data.h"
+#include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/javascript_dialog_manager.h"
+#include "net/ssl/ssl_cert_request_info.h"
 
 class GURL;
 class SkBitmap;
@@ -32,6 +34,7 @@ namespace xwalk {
 // native/ from browser/ layer.
 class XWalkContentsClientBridgeBase {
  public:
+  typedef base::Callback<void(net::X509Certificate*)> SelectCertificateCallback;
   // Adds the handler to the UserData registry.
   static void Associate(content::WebContents* web_contents,
                         XWalkContentsClientBridgeBase* handler);
@@ -45,6 +48,10 @@ class XWalkContentsClientBridgeBase {
       content::RenderFrameHost* render_frame_host);
 
   virtual ~XWalkContentsClientBridgeBase();
+
+  virtual void SelectClientCertificate(
+      net::SSLCertRequestInfo* cert_request_info,
+      scoped_ptr<content::ClientCertificateDelegate> delegate) = 0;
 
   virtual void AllowCertificateError(int cert_error,
                                      net::X509Certificate* cert,
