@@ -200,7 +200,7 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
   XWalkHitTestData data;
 
   data.href = GetHref(element);
-  data.anchor_text = element.innerText();
+  data.anchor_text = element.textContent();
 
   GURL absolute_link_url;
   if (node.isLink())
@@ -230,7 +230,7 @@ void XWalkRenderViewExt::OnDoHitTest(int view_x, int view_y) {
   XWalkHitTestData data;
 
   if (!result.urlElement().isNull()) {
-    data.anchor_text = result.urlElement().innerText();
+    data.anchor_text = result.urlElement().textContent();
     data.href = GetHref(result.urlElement());
   }
 
