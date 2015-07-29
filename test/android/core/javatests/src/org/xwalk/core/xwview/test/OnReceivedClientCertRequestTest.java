@@ -8,6 +8,7 @@ import org.xwalk.core.ClientCertRequestHandler;
 
 import android.test.suitebuilder.annotation.MediumTest;
 
+import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 /**
@@ -24,8 +25,11 @@ public class OnReceivedClientCertRequestTest extends XWalkViewTestBase {
                 .getOnReceivedClientCertRequestHelper();
     }
 
-    @MediumTest
-    @Feature({ "onReceivedClientCertRequest" })
+    // TODO(hengzhi): Since the device issue, it can not access the network,
+    // so disabled this test temporarily. It will be enabled later.
+    // @MediumTest
+    // @Feature({ "onReceivedClientCertRequest" })
+    @DisabledTest
     public void testClientCertRequest() throws Throwable {
         final String url = "https://egov.privasphere.com/";
         int onReceivedClientCertRequestCallCount = mOnReceivedClientCertRequestHelper
