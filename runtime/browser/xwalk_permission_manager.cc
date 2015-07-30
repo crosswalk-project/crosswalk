@@ -48,7 +48,7 @@ void XWalkPermissionManager::RequestPermission(
             new RuntimeGeolocationPermissionContext();
       }
       geolocation_permission_context_->RequestGeolocationPermission(
-          render_frame_host,
+          content::WebContents::FromRenderFrameHost(render_frame_host),
           requesting_origin,
           base::Bind(&CallbackPermisisonStatusWrapper, callback));
 #else
@@ -81,7 +81,8 @@ void XWalkPermissionManager::CancelPermissionRequest(
     case content::PermissionType::GEOLOCATION:
 #if defined(OS_ANDROID) || defined(OS_TIZEN)
       geolocation_permission_context_->CancelGeolocationPermissionRequest(
-          render_frame_host, requesting_origin);
+          content::WebContents::FromRenderFrameHost(render_frame_host),
+          requesting_origin);
 #endif
       break;
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
