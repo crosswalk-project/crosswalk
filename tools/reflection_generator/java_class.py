@@ -85,6 +85,7 @@ class InternalJavaFileData(object):
     self._imports = []
     self._enums = {}
     self._package_name = ''
+    self._need_default_constructor = True
 
   @property
   def class_name(self):
@@ -129,6 +130,10 @@ class InternalJavaFileData(object):
   @property
   def package_name(self):
     return self._package_name
+
+  @property
+  def need_default_constructor(self):
+    return self._need_default_constructor
 
   def GetJavaData(self, clazz):
     return self._class_loader.GetJavaData(clazz)
@@ -212,6 +217,7 @@ class InternalJavaFileData(object):
       create_internally = match.group('create_internally')
       if create_internally == 'true':
         self._class_annotations['createInternally'] = True
+        self._need_default_constructor = False
       elif create_internally == 'false':
         self._class_annotations['createInternally'] = False
 
@@ -230,6 +236,7 @@ class InternalJavaFileData(object):
       no_instance = match.group('no_instance')
       if no_instance == 'true':
         self._class_annotations['noInstance'] = True
+        self._need_default_constructor = False
       elif no_instance == 'false':
         self._class_annotations['noInstance'] = False
 
@@ -275,6 +282,7 @@ class InternalJavaFileData(object):
           method_name, None,
           method_params, method_annotation, method_doc)
       self._methods.append(method)
+      self._need_default_constructor = False
 
     method_re = re.compile(
         '(?P<method_doc>(\n\s*/\*\*.*\n(\s+\*(.)*\n)+\s+\*/\s*)?)\n'
