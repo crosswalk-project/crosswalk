@@ -28,13 +28,6 @@ import org.chromium.base.ApiCompatibilityUtils;
 @XWalkAPI(createExternally = true)
 public class XWalkUIClientInternal {
 
-    // Strings for displaying Dialog.
-    private static String mJSAlertTitle;
-    private static String mJSConfirmTitle;
-    private static String mJSPromptTitle;
-    private static String mOKButton;
-    private static String mCancelButton;
-
     private Context mContext;
     private AlertDialog mDialog;
     private EditText mPromptText;
@@ -70,16 +63,6 @@ public class XWalkUIClientInternal {
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
         }
         mXWalkView = view;
-        initResources();
-    }
-
-    private void initResources() {
-        if (mJSAlertTitle != null) return;
-        mJSAlertTitle = mContext.getString(R.string.js_alert_title);
-        mJSConfirmTitle = mContext.getString(R.string.js_confirm_title);
-        mJSPromptTitle = mContext.getString(R.string.js_prompt_title);
-        mOKButton = mContext.getString(android.R.string.ok);
-        mCancelButton = mContext.getString(android.R.string.cancel);
     }
 
     /**
@@ -403,10 +386,11 @@ public class XWalkUIClientInternal {
             XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        dialogBuilder.setTitle(mJSAlertTitle)
+        dialogBuilder.setTitle(mContext.getString(R.string.js_alert_title))
                 .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
+                .setPositiveButton(mContext.getString(android.R.string.ok),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         fResult.confirm();
@@ -428,10 +412,11 @@ public class XWalkUIClientInternal {
             XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        dialogBuilder.setTitle(mJSConfirmTitle)
+        dialogBuilder.setTitle(mContext.getString(R.string.js_confirm_title))
                 .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
+                .setPositiveButton(mContext.getString(android.R.string.ok),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         fResult.confirm();
@@ -440,7 +425,8 @@ public class XWalkUIClientInternal {
                 })
                 // Need to implement 'onClick' and call the dialog.cancel. Otherwise, the
                 // UI will be locked.
-                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
+                .setNegativeButton(mContext.getString(android.R.string.cancel),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // This will call OnCancelLisitener.onCancel().
@@ -462,9 +448,10 @@ public class XWalkUIClientInternal {
             String defaultValue, XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        dialogBuilder.setTitle(mJSPromptTitle)
+        dialogBuilder.setTitle(mContext.getString(R.string.js_prompt_title))
                 .setMessage(message)
-                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
+                .setPositiveButton(mContext.getString(android.R.string.ok),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         fResult.confirmWithResult(mPromptText.getText().toString());
@@ -473,7 +460,8 @@ public class XWalkUIClientInternal {
                 })
                 // Need to implement 'onClick' and call the dialog.cancel. Otherwise, the
                 // UI will be locked.
-                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
+                .setNegativeButton(mContext.getString(android.R.string.cancel),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // This will call OnCancelLisitener.onCancel().

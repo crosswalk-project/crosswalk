@@ -18,7 +18,6 @@
         'api_files': [
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/JavascriptInterface.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkApplication.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkDownloadListener.java',
@@ -431,7 +430,7 @@
       'target_name': 'xwalk_shared_library_aar',
       'type': 'none',
       'dependencies': [
-        'xwalk_shared_library',
+        'xwalk_core_empty_embedder_apk',
       ],
       'actions': [
         {

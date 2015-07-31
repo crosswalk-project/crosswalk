@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.res.Resources;
 
 /**
+ * This class is deprecated.
+ *
  * XWalkApplication is to support cross package resource loading.
  * It provides method to allow overriding getResources() behavior.
  */

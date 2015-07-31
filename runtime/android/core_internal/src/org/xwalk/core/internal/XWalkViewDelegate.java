@@ -82,6 +82,16 @@ class XWalkViewDelegate {
         }
     }
 
+    public static void init(Context bridgeContext, Context context) {
+        loadXWalkLibrary(bridgeContext);
+
+        if (bridgeContext == null) {
+            init(context);
+        } else {
+            init(new MixedContext(bridgeContext, context));
+        }
+    }
+
     public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
         if (sLibraryLoaded) return;
 
@@ -111,7 +121,7 @@ class XWalkViewDelegate {
         sLibraryLoaded = true;
     }
 
-    public static void init(final Context context) {
+    private static void init(final Context context) {
         if (sInitialized) return;
 
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);

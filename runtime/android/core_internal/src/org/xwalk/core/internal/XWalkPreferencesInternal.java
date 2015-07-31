@@ -171,7 +171,7 @@ public class XWalkPreferencesInternal {
      * @param enabled true if setting it as enabled.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public static synchronized void setValue(String key, boolean enabled) throws RuntimeException {
         checkKey(key);
         // If the listener list is not empty, we consider the preference is
@@ -194,7 +194,7 @@ public class XWalkPreferencesInternal {
      * @param value the integer value.
      * @since 3.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public static synchronized void setValue(String key, int value) throws RuntimeException {
         checkKey(key);
         // If the listener list is not empty, we consider the preference is
@@ -217,7 +217,7 @@ public class XWalkPreferencesInternal {
      * @param value the string value.
      * @since 3.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public static synchronized void setValue(String key, String value) throws RuntimeException {
         checkKey(key);
         // If the listener list is not empty, we consider the preference is
