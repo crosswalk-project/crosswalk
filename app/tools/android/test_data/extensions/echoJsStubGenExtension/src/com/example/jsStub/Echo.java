@@ -1,3 +1,7 @@
+// Copyright (c) 2015 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 package com.example.jsStub;
 
 import android.util.Log;
@@ -26,7 +30,7 @@ import org.xwalk.app.runtime.extension.*;
  *   removeEventListener: [Function], interface method as an EventTarget
  * }
  */
-public class Echo extends XWalkExtensionClient {
+public class Echo extends XWalkExtensionBindingObject {
 
   // Expose a read only JS property.
   @JsApi
@@ -40,8 +44,8 @@ public class Echo extends XWalkExtensionClient {
   @JsApi(isEventList = true)
   public static String[] events = {"updatePrefix", "click", "newStudent"};
 
-  public Echo(String extensionName, String jsApi, XWalkExtensionContextClient context) {
-    super(extensionName, jsApi, context);
+  public Echo(XWalkExtensionClient eClient) {
+    super(eClient);
   }
   
   // In some cases, Java objects need to be passed to JavaScript,
@@ -137,14 +141,14 @@ public class Echo extends XWalkExtensionClient {
 
   // Expose an async JS method with callback.
   @JsApi
-  public void getPrefix(@JsCallback JSONObject callbackInfo) {
+  public void getPrefix(JSONObject callbackInfo) {
     invokeJsCallback(callbackInfo, null, writablePrefix);
     return;
   }
 
   // Expose a JS method returns promise.
-  @JsApi
-  public void getPrefixPromise(@JsCallback(isPromise = true) JSONObject promise) {
+  @JsApi(withPromise = true)
+  public void getPrefixPromise(JSONObject promise) {
     Boolean flag = true;
     if (flag)
       invokeJsCallback(promise, "resolve", writablePrefix);

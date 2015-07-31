@@ -33,6 +33,21 @@ interface XWalkRuntimeExtensionBridge {
     public void broadcastMessage(String message);
 
     /**
+     * Called when a new extension instance is created.
+     * Handle the message from JavaScript side to native side.
+     *
+     * @param instanceId The extension instance id.
+     */
+    public void onInstanceCreated(int instanceId);
+
+    /**
+     * Called when a extension instance is destoryed.
+     *
+     * @param instanceId The extension instance id.
+     */
+    public void onInstanceDestoryed(int instanceId);
+
+    /**
      * Handle the message from JavaScript side to native side.
      *
      * @param instanceId The extension instance id.

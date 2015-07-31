@@ -110,11 +110,13 @@ std::string WrapAPICode(const std::string& extension_code,
       "extension.internal = {};"
       "extension.internal.sendSyncMessage = extension.sendSyncMessage;"
       "delete extension.sendSyncMessage;"
-      "var exports = {}; (function() {'use strict'; %s\n})();"
-      "%s = exports; });",
+      "extension.setExports = function(exports){%s = exports;};"
+      "(function() {'use strict';"
+      "  var exports = {}; %s\n;"
+      "extension.setExports(exports);})();});",
       CodeToEnsureNamespace(extension_name).c_str(),
-      extension_code.c_str(),
-      extension_name.c_str());
+      extension_name.c_str(),
+      extension_code.c_str());
 }
 
 v8::Handle<v8::Value> RunString(const std::string& code,
