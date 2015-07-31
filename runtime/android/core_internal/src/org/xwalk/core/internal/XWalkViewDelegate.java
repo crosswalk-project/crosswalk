@@ -29,7 +29,6 @@ import org.chromium.base.library_loader.LibraryProcessType;
 import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
-import org.chromium.net.NetworkChangeNotifier;
 
 @JNINamespace("xwalk")
 class XWalkViewDelegate {
@@ -92,14 +91,6 @@ class XWalkViewDelegate {
         } else {
             init(new MixedContext(bridgeContext, context));
         }
-        initNetworkChangeNotifier(context);
-    }
-
-    private static void initNetworkChangeNotifier(Context context) {
-        // Auto detect network connectivity state.
-        // setAutoDetectConnectivityState() need to be called before activity started.
-        NetworkChangeNotifier.init(context);
-        NetworkChangeNotifier.setAutoDetectConnectivityState(true);
     }
 
     public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
