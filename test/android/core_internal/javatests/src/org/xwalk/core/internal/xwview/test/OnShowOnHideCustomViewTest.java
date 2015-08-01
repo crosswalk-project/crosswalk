@@ -52,7 +52,7 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
     @Feature({"onShow/onHideCustomView"})
     public void testOnShowCustomViewAndPlayWithHtmlControl() throws Throwable {
         doOnShowCustomViewTest();
-        Assert.assertTrue(DOMUtils.isVideoPaused(mContentViewCore.getWebContents(),
+        Assert.assertTrue(DOMUtils.isMediaPaused(mContentViewCore.getWebContents(),
                                                  VideoTestWebServer.VIDEO_ID));
 
         // Click the html play button that is rendered above the video right in the middle
@@ -61,7 +61,7 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
         // ever moves.
         TouchCommon.singleClickView(mWebChromeClient.getCustomView());
 
-        Assert.assertTrue(DOMUtils.waitForVideoPlay(
+        Assert.assertTrue(DOMUtils.waitForMediaPlay(
                 mContentViewCore.getWebContents(), VideoTestWebServer.VIDEO_ID));
     }
 
