@@ -7,6 +7,9 @@ package org.xwalk.app.runtime.extension;
 import android.content.Intent;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +34,8 @@ public class XWalkExtensionClient {
 
     // The context used by extensions.
     protected XWalkExtensionContextClient mExtensionContext;
+
+    private Map<Integer, XWalkExtensionBindingObjectStore> instanceStores;
 
     // Reflection for JS stub generation
     protected ReflectionHelper reflection;
@@ -63,6 +68,7 @@ public class XWalkExtensionClient {
         mEntryPoints = entryPoints;
         mExtensionContext = context;
         reflection = new ReflectionHelper(this.getClass());
+        instanceStores = new HashMap<Integer, XWalkExtensionBindingObjectStore>();
 
         if (mJsApi == null || mJsApi.length() == 0) {
             mJsApi = new JsStubGenerator(reflection).generate();
@@ -142,6 +148,27 @@ public class XWalkExtensionClient {
     }
 
     /**
+     * Called when a new extension instance is created.
+     */
+    public void onInstanceCreated(int instanceID) {
+        instanceStores.put(instanceID, new XWalkExtensionBindingObjectStore(this, instanceID));
+    }
+
+    /**
+     * Called when a extension instance is destoryed.
+     */
+    public void onInstanceDestoryed(int instanceID) {
+        instanceStores.remove(instanceID);
+    }
+
+    /**
+     * Get the binding object store by instance ID.
+     */
+    public XWalkExtensionBindingObjectStore getInstanceStore(int instanceID) {
+        return instanceStores.get(instanceID);
+    }
+
+    /**
      * JavaScript calls into Java code. The message is handled by
      * the extension implementation. The inherited classes should
      * override and add its implementation.
@@ -149,36 +176,7 @@ public class XWalkExtensionClient {
      * @param message the message from JavaScript code.
      */
     public void onMessage(int extensionInstanceID, String message) {
-        String TAG = "Extension-" + mName;
-        try {
-            JSONObject m = new JSONObject(message);
-            String cmd = m.getString("cmd");
-            String memberName = m.getString("name");
-            try {
-                switch (cmd) {
-                    case "invokeNative":
-                        reflection.invokeMethod(extensionInstanceID,
-                               this, memberName, m.getJSONArray("args"));
-                        break;
-                    default:
-                        Log.w(TAG, "Unsupported cmd: " + cmd);
-                        break;
-                }
-            } catch (Exception e) {
-                // Currently, we only notice the user when the argument is not matching.
-                // The error message will passed to JavaScript console.
-                if (e instanceof IllegalArgumentException) {
-                    logJs(extensionInstanceID, e.toString(), "warn");
-                } else {
-                    Log.w(TAG, "Failed to access member, error msg:\n" + e.toString());
-                }
-                e.printStackTrace();
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Invalid message, error msg:\n" + e.toString());
-            e.printStackTrace();
-            return;
-        }
+        handleMessage(extensionInstanceID, message);
     }
 
     /**
@@ -189,85 +187,66 @@ public class XWalkExtensionClient {
      * @param message the message from JavaScript code.
      */
     public String onSyncMessage(int extensionInstanceID, String message) {
-        String TAG = "Extension-" + mName;
-        Object result = null;
-        try {
-            JSONObject m = new JSONObject(message);
-            String cmd = m.getString("cmd");
-            String memberName = m.getString("name");
-            try {
-                switch (cmd) {
-                    case "invokeNative":
-                        result = reflection.invokeMethod(extensionInstanceID,
-                                this, memberName, m.getJSONArray("args"));
-                        break;
-
-                    case "getProperty":
-                        result = reflection.getProperty(this, memberName);
-                        break;
-
-                    case "setProperty":
-                        reflection.setProperty(this, memberName, m.get("value"));
-                        break;
-
-                    default:
-                        Log.w(TAG, "Unsupported cmd: " + cmd);
-                        break;
-                }
-            } catch (Exception e) {
-                if (e instanceof IllegalArgumentException) {
-                    logJs(extensionInstanceID, e.toString(), "warn");
-                } else {
-                    Log.w(TAG, "Failed to access member, error msg:\n" + e.toString());
-                }
-                e.printStackTrace();
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Invalid message, error msg:\n" + e.toString());
-            e.printStackTrace();
-        }
+        Object result = handleMessage(extensionInstanceID, message);
         return (result != null) ? ReflectionHelper.objToJSON(result): "";
     }
 
-    /* Helper method to invoke JavaScript callback.
-     *
-     * Following message will be sent to JavaScript side:
-     * {
-     *  cmd:"invokeCallback"
-     *  // need to combine the cid and instanceId in the same feild
-     *  callInfo: an object contains the callback information(cid, vid)
-     *  key: String
-     *  args: args
-     * }
-     */
-    public void invokeJsCallback(JSONObject callInfo, String key, Object... args) {
+    public ReflectionHelper getTargetReflect(String cName) {
+        ReflectionHelper targetReflect = reflection.getConstructorReflection(cName);
+        return (targetReflect != null)? targetReflect : reflection;
+    }
+    
+    Object handleMessage(int extensionInstanceID, String message) {
+        String TAG = "Extension-" + mName;
         try {
-            int instanceID = callInfo.getInt("instanceID");
-            JSONObject jsCallInfo = new JSONObject();
-            jsCallInfo.put("cid", callInfo.getInt("cid"));
-            jsCallInfo.put("vid", callInfo.getInt("vid"));
+            JSONObject m = new JSONObject(message);
+            String cmd = m.getString("cmd");
+            int objectId = m.getInt("objectId");
 
-            JSONObject msgOut = new JSONObject();
-            msgOut.put("cmd", "invokeCallback");
-            msgOut.put("callInfo", jsCallInfo);
-            msgOut.put("key", key);
-            msgOut.put("args", ReflectionHelper.objToJSON(args));
-            postMessage(instanceID, msgOut.toString());
+            if (cmd.equals("jsObjectCollected")) {
+                XWalkExtensionBindingObject obj =
+                        getInstanceStore(extensionInstanceID).removeBindingObject(objectId);
+                return null;
+            } else if (cmd.equals("newInstance")) {
+                XWalkExtensionBindingObject instance = (XWalkExtensionBindingObject)(reflection.invokeMethod(
+                        this, extensionInstanceID, this, m.getString("name"), m.getJSONArray("args")));
+                if (instance == null) return false;
+
+                int newObjectId = m.getInt("bindingObjectId");
+                return getInstanceStore(extensionInstanceID).addBindingObject(newObjectId, instance);
+            } else {
+                /*
+                 * 1. message to the extension itself,  objectId:0,    cName:""
+                 * 2. message to constructor,           objectId:0,    cName:[Its exported JS name]
+                 * 3, message to object,                objectId:[>1], cName:[Its constructor's JS name]
+                 */
+                String cName = m.getString("constructorJsName");
+                Object targetObj = null;
+                if (objectId == 0) {
+                    targetObj = (cName.length() == 0) ? this : null;
+                } else {
+                    targetObj = getInstanceStore(extensionInstanceID).getBindingObject(objectId);
+                }
+                return getTargetReflect(cName).handleMessage(this, extensionInstanceID, targetObj, m);
+            }
         } catch (Exception e) {
+            if (e instanceof JSONException) {
+                Log.w(TAG, "Invalid message, error msg:\n" + e.toString());
+            } else if (e instanceof IllegalArgumentException) {
+                logJs(extensionInstanceID, e.toString(), "warn");
+            } else {
+                Log.w(TAG, "Failed to access member, error msg:\n" + e.toString());
+            }
             e.printStackTrace();
         }
+        return null;
     }
 
-    /* Helper method to print information in JavaScript console,
-     * mostly for debug purpose.
-     *
-     * Following message will be sent to JavaScript side:
-     * { cmd:"error"
-     *   level: "log", "info", "warn", "error", default is "error"
-     *   msg: String
-     * }
-     */
-    public void logJs(int instanceId, String msg, String level) {
+    protected Object getBindingStore(int instanceId) {
+       return instanceStores.get(instanceId);
+    }
+
+    private void logJs(int instanceId, String msg, String level) {
         try {
             JSONObject msgOut = new JSONObject(); 
             msgOut.put("cmd", "error");
@@ -279,48 +258,12 @@ public class XWalkExtensionClient {
         }
     }
 
-    /* Trigger JavaScript handlers in Java side.
-     *
-     * Following message will be sent to JavaScript side:
-     * { cmd:"dispatchEvent"
-     *   type: pointed in "supportedEvents" string array
-     *   data: a JSON data will passed to js
-     * }
-     */
-    public void dispatchEvent(String type, Object event) {
-        if (!reflection.isEventSupported(type)) {
-            Log.w("Extension-" + mName, "Unsupport event in extension: " + type);
-            return;
-        }
-        try {
-            JSONObject msgOut = new JSONObject(); 
-            msgOut.put("cmd", "dispatchEvent");
-            msgOut.put("type", type);
-            msgOut.put("event", ReflectionHelper.objToJSON(event));
-            // The event will be broadcasted to all extension instances.
-            broadcastMessage(msgOut.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /* Notify the JavaScript side that some property is updated by Java side.
-     *
-     * Following message will be sent to JavaScript side:
-     * { cmd:"updateProperty"
-     *   name: the name of property need to be updated
-     * }
-     */
-    public void updateProperty(String pName) {
-        if (!reflection.hasProperty(pName)) {
-            Log.w("Extension-" + mName, "Unexposed property in extension: " + pName);
-            return;
-        }
+    public void sendEvent(String type, Object event) {
         try {
             JSONObject msgOut = new JSONObject();
-            msgOut.put("cmd", "updateProperty");
-            msgOut.put("name", pName);
-            // This message will be broadcasted to all extension instances.
+            msgOut.put("cmd", "onEvent");
+            msgOut.put("type", type);
+            msgOut.put("event", ReflectionHelper.objToJSON(event));
             broadcastMessage(msgOut.toString());
         } catch (Exception e) {
             e.printStackTrace();

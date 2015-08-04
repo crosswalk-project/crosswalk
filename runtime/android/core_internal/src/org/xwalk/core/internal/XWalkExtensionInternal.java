@@ -65,6 +65,22 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
     }
 
     /**
+     * Notify the extension that an instance is created.
+     * @param instanceID the id of instance.
+     * @since 15.45
+     */
+    @XWalkAPI
+    public void onInstanceCreated(int instanceID) {}
+
+    /**
+     * Notify the extension that an instance is destoryed.
+     * @param instanceID the id of instance.
+     * @since 15.45
+     */
+    @XWalkAPI
+    public void onInstanceDestoryed(int instanceID) {}
+
+    /**
      * Notify the extension that the async message is received.
      * @param instanceID the id of instance.
      * @param message the received message.

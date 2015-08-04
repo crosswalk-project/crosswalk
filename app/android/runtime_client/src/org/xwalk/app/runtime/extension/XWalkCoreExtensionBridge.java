@@ -31,6 +31,16 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExt
         return mExtension.onSyncMessage(instanceID, message);
     }
 
+    @Override
+    public void onInstanceCreated(int instanceID) {
+        mExtension.onInstanceCreated(instanceID);
+    }
+
+    @Override
+    public void onInstanceDestoryed(int instanceID) {
+        mExtension.onInstanceDestoryed(instanceID);
+    }
+
     public void onDestroy() {
         mExtension.onDestroy();
     }
