@@ -200,7 +200,6 @@
         'xwalk_core_java',
       ],
       'variables': {
-        'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
       },
@@ -217,7 +216,6 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--classes-dir=<(classes_dir)',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
           ],
@@ -231,7 +229,6 @@
         'xwalk_core_internal_empty_embedder_apk',
       ],
       'variables': {
-        'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
       },
@@ -248,7 +245,6 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--classes-dir=<(classes_dir)',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
           ],
@@ -263,7 +259,6 @@
         'xwalk_core_library_java_library_part',
       ],
       'variables': {
-        'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
       },
@@ -280,7 +275,6 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--classes-dir=<(classes_dir)',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
           ],
