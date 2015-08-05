@@ -17,8 +17,8 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '6220c9dcdc02b2f69b612c3d0934313fd7f1808a'
-v8_crosswalk_rev = '8a7cc07db034fa22dfcc572da9c2e40f3b2d9e05'
+chromium_crosswalk_rev = 'aeb79987ef20617d720288b5af4bbe711f31e34e'
+v8_crosswalk_rev = 'c0660476f98d8876282da3abf4886690f5202a6d'
 ozone_wayland_rev = '1a6657f711796333787d8a4e05d6ad86e4e01d7d'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
@@ -27,8 +27,8 @@ ozone_wayland_rev = '1a6657f711796333787d8a4e05d6ad86e4e01d7d'
 # the blink-crosswalk repository, so that the devtools code can use it to fetch
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = 'ad0948b88b2f748d79bb18288faca3926d3f949f'
-blink_upstream_rev = '197550'
+blink_crosswalk_rev = 'e115776f2c2efd68cbf71b34a5b8aea422789c0a'
+blink_upstream_rev = '199335'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
@@ -53,12 +53,6 @@ solutions = [
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
         crosswalk_git + '/khronos-cl-api-1.2.git@6f4be98d10f03ce2b12c769cd9835c73a441c00f',
-
-# Temporarily roll FFMPEG a backwards compared to Chromium as a temporary fix for
-# https://codereview.chromium.org/1141703002 This needs
-# ffmpeg_component=shared_library in gyp
-      'src/third_party/ffmpeg':
-         'https://chromium.googlesource.com/chromium/third_party/ffmpeg.git@0ec2f1eee82359bb9c02a912feb1914a3a169cbe',
 
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
