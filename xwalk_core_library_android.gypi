@@ -311,7 +311,7 @@
       'target_name': 'xwalk_shared_library',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_library_java_app_part',
+        'xwalk_core_library_java',
       ],
       'actions': [
         {
