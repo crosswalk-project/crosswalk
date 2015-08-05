@@ -25,6 +25,9 @@
       'disable_builtin_extensions%': '<(disable_builtin_extensions)',
     },
     'conditions': [
+      ['disable_web_audio==1', {
+        'defines': ['DISABLE_WEB_AUDIO=1'],
+      }],
       ['tizen==1', {
         'defines': ['OS_TIZEN=1'],
       }],
