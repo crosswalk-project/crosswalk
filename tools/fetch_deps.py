@@ -46,7 +46,7 @@ class DepsFetcher(object):
   def DoGclientSyncForChromium(self):
     gclient_cmd = ['gclient', 'sync', '--verbose', '--reset',
                    '--force', '--with_branch_heads',
-                   '--delete_unversioned_trees']
+                   '--delete_unversioned_trees', '-j1']
     gclient_cmd.append('--gclientfile=%s' %
                        os.path.basename(self._new_gclient_file))
     gclient_utils.CheckCallAndFilterAndHeader(gclient_cmd,
