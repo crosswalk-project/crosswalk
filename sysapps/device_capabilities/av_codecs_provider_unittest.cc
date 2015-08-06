@@ -2,7 +2,7 @@
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-/**
+
 #include "xwalk/sysapps/device_capabilities/av_codecs_provider.h"
 
 #include <vector>
@@ -33,5 +33,3 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, AVCodecsProvider) {
   for (size_t i = 0; i < video_codecs.size(); ++i)
     EXPECT_FALSE(video_codecs[i]->format.empty());
 }
-*/
-
