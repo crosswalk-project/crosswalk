@@ -119,7 +119,7 @@ class Runtime : public content::WebContentsDelegate,
   void CloseContents(content::WebContents* source) override;
   void WebContentsCreated(content::WebContents* source_contents,
                           int opener_render_frame_id,
-                          const base::string16& frame_name,
+                          const std::string& frame_name,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;
   void DidNavigateMainFramePostCommit(
