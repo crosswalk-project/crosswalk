@@ -92,6 +92,9 @@ def GetAndroidApiLevel(android_path):
   target_output = RunCommand([android_path, 'list', 'target', '-c'])
   target_regex = re.compile(r'android-(\d+)')
   targets = [int(i) for i in target_regex.findall(target_output)]
+  for i in range(len(targets)):
+    if targets[i] == "L":
+      targets[i] = 20
   targets.extend([-1])
   return max(targets)
 
