@@ -17,7 +17,9 @@
 #include "components/autofill/core/browser/webdata/autofill_webdata_service.h"
 #include "components/autofill/core/common/autofill_pref_names.h"
 #include "components/user_prefs/user_prefs.h"
+#include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/ssl_status.h"
 #include "jni/XWalkAutofillClient_jni.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
@@ -175,12 +177,28 @@ void XWalkAutofillClient::LinkClicked(const GURL& url,
   NOTIMPLEMENTED();
 }
 
+bool XWalkAutofillClient::IsContextSecure(const GURL& form_origin) {
+  content::SSLStatus ssl_status;
+  content::NavigationEntry* navigation_entry =
+      web_contents_->GetController().GetLastCommittedEntry();
+  if (!navigation_entry)
+     return false;
+
+  ssl_status = navigation_entry->GetSSL();
+  // Note: The implementation below is a copy of the one in
+  // ChromeAutofillClient::IsContextSecure, and should be kept in sync
+  // until crbug.com/505388 gets implemented.
+  return ssl_status.security_style ==
+      content::SECURITY_STYLE_AUTHENTICATED &&
+      ssl_status.content_status == content::SSLStatus::NORMAL_CONTENT;
+}
+
 void XWalkAutofillClient::SuggestionSelected(JNIEnv* env,
                                              jobject object,
                                              jint position) {
   if (delegate_) {
     delegate_->DidAcceptSuggestion(suggestions_[position].value,
-                                   suggestions_[position].frontend_id
+                                   suggestions_[position].frontend_id,
                                    position);
   }
 }
