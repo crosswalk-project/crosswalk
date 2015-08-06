@@ -141,12 +141,17 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   content::DevToolsManagerDelegate*
       GetDevToolsManagerDelegate() override;
-
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_ANDROID)
+  virtual void GetAdditionalMappedFilesForChildProcess(
+      const base::CommandLine& command_line,
+      int child_process_id,
+      content::FileDescriptorInfo* mappings,
+      std::map<int, base::MemoryMappedFile::Region>* regions) override {}
+#elif defined(OS_POSIX) && !defined(OS_MACOSX)
   void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
       int child_process_id,
-      content::FileDescriptorInfo* mappings) override;
+      content::FileDescriptorInfo* mappings) override {}
 #endif
 
   XWalkBrowserMainParts* main_parts() { return main_parts_; }

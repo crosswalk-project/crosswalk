@@ -432,14 +432,6 @@ content::DevToolsManagerDelegate*
   return new XWalkDevToolsDelegate(browser_context_);
 }
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
-void XWalkContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
-    const base::CommandLine& command_line,
-    int child_process_id,
-    content::FileDescriptorInfo* mappings) {
-}
-#endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
-
 std::string XWalkContentBrowserClient::GetApplicationLocale() {
 #if defined(OS_ANDROID)
   return base::android::GetDefaultLocale();
