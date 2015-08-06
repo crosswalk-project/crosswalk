@@ -180,7 +180,8 @@ void XWalkAutofillClient::SuggestionSelected(JNIEnv* env,
                                              jint position) {
   if (delegate_) {
     delegate_->DidAcceptSuggestion(suggestions_[position].value,
-                                   suggestions_[position].frontend_id);
+                                   suggestions_[position].frontend_id
+                                   position);
   }
 }
 
