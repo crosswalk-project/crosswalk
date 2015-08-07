@@ -216,7 +216,6 @@ class XWalkViewDelegate {
                 }
             });
         }
-        ResourceExtractor.setExtractImplicitLocaleForTesting(false);
         // Use MixedContext to initialize the ResourceExtractor, as the pak file
         // is in the library apk if in shared apk mode.
         ResourceExtractor.get(context);
