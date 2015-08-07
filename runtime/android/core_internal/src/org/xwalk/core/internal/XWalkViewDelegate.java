@@ -22,7 +22,6 @@ import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ResourceExtractor;
-import org.chromium.base.ResourceExtractor.ResourceIntercepter;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.LibraryProcessType;
@@ -152,69 +151,6 @@ class XWalkViewDelegate {
         if (resListResId == 0) {
             resListResId = context.getResources().getIdentifier(
                     XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
-        }
-        final int resourcesListResId = resListResId;
-        final AssetManager assets = context.getAssets();
-        if (!context.getPackageName().equals(context.getApplicationContext().getPackageName()) ||
-                resourcesListResId != 0) {
-            // For shared mode, assets are in library package.
-            // For embedding API usage, assets are in res/raw.
-            ResourceExtractor.setResourceIntercepter(new ResourceIntercepter() {
-
-                @Override
-                public Set<String> getInterceptableResourceList() {
-                    Set<String> resourcesList = new HashSet<String>();
-                    if (!context.getPackageName().equals(
-                            context.getApplicationContext().getPackageName())) {
-                        try {
-                            for (String resource : assets.list("")) {
-                                resourcesList.add(resource);
-                            }
-                        } catch (IOException e){}
-                    }
-                    if (resourcesListResId != 0) {
-                        try {
-                            String[] resources = context.getResources().getStringArray(resourcesListResId);
-                            for (String resource : resources) {
-                                resourcesList.add(resource);
-                            }
-                        } catch (NotFoundException e) {
-                            Log.w(TAG, "R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
-                        }
-                    }
-                    return resourcesList;
-                }
-
-                @Override
-                public InputStream interceptLoadingForResource(String resource) {
-                    if (!context.getPackageName().equals(
-                            context.getApplicationContext().getPackageName())) {
-                        try {
-                            InputStream fromAsset = context.getAssets().open(resource);
-                            if (fromAsset != null) return fromAsset;
-                        } catch (IOException e) {
-                            Log.w(TAG, resource + " can't be found in assets.");
-                        }
-                    }
-
-                    if (resourcesListResId != 0) {
-                        String resourceName = resource.split("\\.")[0];
-                        int resId = context.getResources().getIdentifier(
-                                resourceName, "raw", context.getClass().getPackage().getName());
-                        if (resId == 0) {
-                            resId = context.getResources().getIdentifier(
-                                    resourceName, "raw", context.getPackageName());
-                        }
-                        try {
-                            if (resId != 0) return context.getResources().openRawResource(resId);
-                        } catch (NotFoundException e) {
-                            Log.w(TAG, "R.raw." + resourceName + " can't be found.");
-                        }
-                    }
-
-                    return null;
-                }
-            });
         }
         // Use MixedContext to initialize the ResourceExtractor, as the pak file
         // is in the library apk if in shared apk mode.
