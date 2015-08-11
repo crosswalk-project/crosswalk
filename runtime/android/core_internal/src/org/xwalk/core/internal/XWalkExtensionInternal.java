@@ -73,12 +73,12 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
     public void onInstanceCreated(int instanceID) {}
 
     /**
-     * Notify the extension that an instance is destoryed.
+     * Notify the extension that an instance is destroyed.
      * @param instanceID the id of instance.
      * @since 15.45
      */
     @XWalkAPI
-    public void onInstanceDestoryed(int instanceID) {}
+    public void onInstanceDestroyed(int instanceID) {}
 
     /**
      * Notify the extension that the async message is received.

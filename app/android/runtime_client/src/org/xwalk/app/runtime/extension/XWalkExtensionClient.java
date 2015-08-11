@@ -155,9 +155,9 @@ public class XWalkExtensionClient {
     }
 
     /**
-     * Called when a extension instance is destoryed.
+     * Called when a extension instance is destroyed.
      */
-    public void onInstanceDestoryed(int instanceID) {
+    public void onInstanceDestroyed(int instanceID) {
         instanceStores.remove(instanceID);
     }
 

@@ -25,9 +25,9 @@ public class XWalkExtensionBindingObject {
     }
 
     /*
-     * Called when this binding object is destoryed by JS.
+     * Called when this binding object is destroyed by JS.
      */
-    public void onJsDestoryed() {}
+    public void onJsDestroyed() {}
 
     /*
      * Called when this object is binded with JS.
