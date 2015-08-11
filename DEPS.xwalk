@@ -55,14 +55,6 @@ solutions = [
         'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
            '28150',
 
-      # Temporarily roll ffmpeg forward.
-      # We need commit 408c4b08 which introduces the |ffmpeg_component|
-      # variable so that we can continue building ffmpeg as a shared library
-      # for the time being (see https://crrev.com/1141703002 and
-      # https://groups.google.com/a/chromium.org/d/msg/chromium-packagers/R5rcZXWxBEQ/B6k0zzmJbvcJ.
-      'src/third_party/ffmpeg':
-         'https://chromium.googlesource.com/chromium/third_party/ffmpeg.git@408c4b08fab5cbaa284847f8c573fe939cada87c',
-
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
       # are not used and also saves some bandwidth.
