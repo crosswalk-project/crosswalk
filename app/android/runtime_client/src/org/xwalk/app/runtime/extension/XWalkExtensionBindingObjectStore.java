@@ -39,7 +39,7 @@ public class XWalkExtensionBindingObjectStore {
 
     public XWalkExtensionBindingObject removeBindingObject(int objectId) {
        XWalkExtensionBindingObject obj = bindingObjects.remove(objectId);
-       if (obj != null) obj.onJsDestoryed();
+       if (obj != null) obj.onJsDestroyed();
 
        return obj;
     }
