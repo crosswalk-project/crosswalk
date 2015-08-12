@@ -358,7 +358,7 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
   }
 
   ExtensionServerMessageFilter* message_filter =
-      new ExtensionServerMessageFilter(extension_thread_.message_loop_proxy(),
+      new ExtensionServerMessageFilter(extension_thread_.task_runner(),
                                        extension_thread_server.get(),
                                        ui_thread_server.get());
 

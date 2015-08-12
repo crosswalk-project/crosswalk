@@ -5,6 +5,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 
 #include "base/location.h"
+#include "base/thread_task_runner_handle.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
 namespace xwalk {
@@ -63,7 +64,9 @@ void XWalkExtensionFunctionHandler::HandleMessage(scoped_ptr<base::Value> msg) {
           make_scoped_ptr(static_cast<base::ListValue*>(msg.release())),
           base::Bind(&XWalkExtensionFunctionHandler::DispatchResult,
                      weak_factory_.GetWeakPtr(),
-                     base::MessageLoopProxy::current(),
+                     base::ThreadTaskRunnerHandle::IsSet()
+                         ? base::ThreadTaskRunnerHandle::Get()
+                         : nullptr,
                      callback_id)));
 
   if (!HandleFunction(info.Pass())) {
@@ -86,12 +89,15 @@ bool XWalkExtensionFunctionHandler::HandleFunction(
 // static
 void XWalkExtensionFunctionHandler::DispatchResult(
     const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
-    scoped_refptr<base::MessageLoopProxy> client_task_runner,
+    scoped_refptr<base::SingleThreadTaskRunner> client_task_runner,
     const std::string& callback_id,
     scoped_ptr<base::ListValue> result) {
   DCHECK(result);
 
-  if (client_task_runner != base::MessageLoopProxy::current()) {
+  // The client_task_runner.get() call is to support using this class on a
+  // thread without a message loop.
+  if (client_task_runner.get() &&
+      !client_task_runner->BelongsToCurrentThread()) {
     client_task_runner->PostTask(FROM_HERE,
         base::Bind(&XWalkExtensionFunctionHandler::DispatchResult,
                    handler,

@@ -13,7 +13,6 @@
 #include "base/bind_helpers.h"
 #include "base/lazy_instance.h"
 #include "base/message_loop/message_loop.h"
-#include "base/message_loop/message_loop_proxy.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/task_runner.h"
@@ -117,7 +116,7 @@ typedef base::Callback<
 
 // static
 void OpenInputStreamOnWorkerThread(
-    scoped_refptr<base::MessageLoopProxy> job_thread_proxy,
+    scoped_refptr<base::SingleThreadTaskRunner> job_thread_runner,
     scoped_ptr<AndroidStreamReaderURLRequestJob::Delegate> delegate,
     const GURL& url,
     OnInputStreamOpenedCallback callback) {
@@ -126,10 +125,10 @@ void OpenInputStreamOnWorkerThread(
   DCHECK(env);
 
   scoped_ptr<InputStream> input_stream = delegate->OpenInputStream(env, url);
-  job_thread_proxy->PostTask(FROM_HERE,
-                             base::Bind(callback,
-                                        base::Passed(delegate.Pass()),
-                                        base::Passed(input_stream.Pass())));
+  job_thread_runner->PostTask(FROM_HERE,
+                              base::Bind(callback,
+                                         base::Passed(delegate.Pass()),
+                                         base::Passed(input_stream.Pass())));
 
   DetachFromVM();
 }
@@ -179,7 +178,7 @@ void AndroidStreamReaderURLRequestJob::Start() {
       FROM_HERE,
       base::Bind(
           &OpenInputStreamOnWorkerThread,
-          base::MessageLoop::current()->message_loop_proxy(),
+          base::MessageLoop::current()->task_runner(),
           // This is intentional - the job could be deleted while the callback
           // is executing on the background thread.
           // The delegate will be "returned" to the job once the InputStream
