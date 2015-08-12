@@ -37,8 +37,8 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExt
     }
 
     @Override
-    public void onInstanceDestoryed(int instanceID) {
-        mExtension.onInstanceDestoryed(instanceID);
+    public void onInstanceDestroyed(int instanceID) {
+        mExtension.onInstanceDestroyed(instanceID);
     }
 
     public void onDestroy() {

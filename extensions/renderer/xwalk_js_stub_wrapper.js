@@ -177,7 +177,7 @@ jsStub.create = function(base) {
 jsStub.getHelper = function(base, rootStub) {
   if (!(base.__stubHelper instanceof jsStub)) {
     Object.defineProperty(base, "__stubHelper", {
-      // TODO: set to false if find good way to do clear destory.
+      // TODO: set to false if find good way to do clear destroy.
       "configurable": true,
       "enumerable": false,
       "value":new jsStub(base, rootStub) 
@@ -261,7 +261,7 @@ jsStub.prototype = {
       channel.postMessage(msg);
     };
   },
-  "destory": function() {
+  "destroy": function() {
     var objId = this.objectId;
     var msg = {
       cmd: "jsObjectCollected",
@@ -281,7 +281,7 @@ jsStub.prototype = {
     delete this.getNativeProperty;
     delete this.setNativeProperty;
     delete this.invokeCallback;;
-    delete this.destory;
+    delete this.destroy;
   },
   "getNativeProperty": function(name) {
     return this.sendSyncMessage({
@@ -337,7 +337,7 @@ jsStub.defineProperty = function(obj, prop, writable) {
   helper.properties[prop] = helper.getNativeProperty(prop);
 
   var desc = {
-    // TODO: set to false if find good way to do clear destory.
+    // TODO: set to false if find good way to do clear destroy.
     'configurable': true,
     'enumerable': true,
     'get': function() {
