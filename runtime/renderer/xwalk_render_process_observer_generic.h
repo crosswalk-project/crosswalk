@@ -56,7 +56,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   void OnEnableSecurityMode(
       const GURL& url,
       application::ApplicationSecurityPolicy::SecurityMode mode);
-  void OnSuspendJSEngine(bool is_pause);
 #if defined(OS_TIZEN)
   void OnUserAgentChanged(const std::string& userAgentString);
   std::string overriden_user_agent_;
@@ -66,7 +65,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
                                bool allow_subdomains);
 
   bool is_blink_initialized_;
-  bool is_suspended_;
   application::ApplicationSecurityPolicy::SecurityMode security_mode_;
   GURL app_url_;
   ScopedVector<AccessWhitelistItem> access_whitelist_;

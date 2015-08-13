@@ -25,8 +25,6 @@ class ApplicationTizen :  // NOLINT
   ~ApplicationTizen() override;
   void Hide();
   void Show();
-  void Suspend();
-  void Resume();
 
   void RemoveAllCookies();
   void SetUserAgentString(const std::string& user_agent_string);
@@ -50,13 +48,11 @@ class ApplicationTizen :  // NOLINT
 
   void WillProcessEvent(const ui::PlatformEvent& event) override;
   void DidProcessEvent(const ui::PlatformEvent& event) override;
-  bool CanBeSuspended() const;
 
 #if defined(OS_TIZEN_MOBILE)
   NativeAppWindow* root_window_;
 #endif
   scoped_ptr<CookieManager> cookie_manager_;
-  bool is_suspended_;
 };
 
 inline ApplicationTizen* ToApplicationTizen(Application* app) {

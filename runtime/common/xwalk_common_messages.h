@@ -42,9 +42,6 @@ IPC_MESSAGE_CONTROL2(ViewMsg_EnableSecurityMode,    // NOLINT
                      xwalk::application::ApplicationSecurityPolicy::SecurityMode
                      /* security mode */)
 
-IPC_MESSAGE_CONTROL1(ViewMsg_SuspendJSEngine,  // NOLINT
-                     bool /* is suspend */)
-
 #if defined(OS_TIZEN)
 IPC_MESSAGE_CONTROL1(ViewMsg_UserAgentStringChanged,  // NOLINT
                      std::string /*new user agent string*/)

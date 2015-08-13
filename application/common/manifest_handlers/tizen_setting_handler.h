@@ -43,19 +43,11 @@ class TizenSettingInfo : public ApplicationData::ManifestData {
   }
   bool context_menu_enabled() const { return context_menu_enabled_; }
 
-  void set_background_support_enabled(bool enabled) {
-    background_support_enabled_ = enabled;
-  }
-  bool background_support_enabled() const {
-    return background_support_enabled_;
-  }
-
  private:
   bool hwkey_enabled_;
   ScreenOrientation screen_orientation_;
   bool encryption_enabled_;
   bool context_menu_enabled_;
-  bool background_support_enabled_;
 };
 
 class TizenSettingHandler : public ManifestHandler {

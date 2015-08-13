@@ -5,8 +5,7 @@
 
 #include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
 
-#include "content/renderer/render_thread_impl.h"
-#include "content/renderer/renderer_blink_platform_impl.h"
+#include "content/public/renderer/render_thread.h"
 #include "ipc/ipc_message_macros.h"
 #include "third_party/WebKit/public/web/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
@@ -44,7 +43,6 @@ void XWalkRenderProcessObserver::AddAccessWhiteListEntry(
 
 XWalkRenderProcessObserver::XWalkRenderProcessObserver()
     : is_blink_initialized_(false),
-      is_suspended_(false),
       security_mode_(application::ApplicationSecurityPolicy::NoSecurity) {
 }
 
@@ -57,7 +55,6 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
-    IPC_MESSAGE_HANDLER(ViewMsg_SuspendJSEngine, OnSuspendJSEngine)
 #if defined(OS_TIZEN)
     IPC_MESSAGE_HANDLER(ViewMsg_UserAgentStringChanged, OnUserAgentChanged)
 #endif
@@ -93,18 +90,6 @@ void XWalkRenderProcessObserver::OnEnableSecurityMode(
     application::ApplicationSecurityPolicy::SecurityMode mode) {
   app_url_ = url;
   security_mode_ = mode;
-}
-
-void XWalkRenderProcessObserver::OnSuspendJSEngine(bool is_suspend) {
-  if (is_suspend == is_suspended_)
-    return;
-  content::RenderThreadImpl* thread = content::RenderThreadImpl::current();
-  thread->EnsureWebKitInitialized();
-  if (is_suspend)
-    thread->blink_platform_impl()->SuspendSharedTimer();
-  else
-    thread->blink_platform_impl()->ResumeSharedTimer();
-  is_suspended_ = is_suspend;
 }
 
 #if defined(OS_TIZEN)
