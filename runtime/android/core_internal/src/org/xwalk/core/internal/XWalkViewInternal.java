@@ -313,11 +313,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         mIsHidden = false;
         mContent = new XWalkContent(context, attrs, this);
-        addView(mContent,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
-
 
         // Set default XWalkClientImpl.
         setXWalkClient(new XWalkClient(this));
