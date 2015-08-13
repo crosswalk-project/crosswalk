@@ -41,11 +41,11 @@ interface XWalkRuntimeExtensionBridge {
     public void onInstanceCreated(int instanceId);
 
     /**
-     * Called when a extension instance is destoryed.
+     * Called when a extension instance is destroyed.
      *
      * @param instanceId The extension instance id.
      */
-    public void onInstanceDestoryed(int instanceId);
+    public void onInstanceDestroyed(int instanceId);
 
     /**
      * Handle the message from JavaScript side to native side.

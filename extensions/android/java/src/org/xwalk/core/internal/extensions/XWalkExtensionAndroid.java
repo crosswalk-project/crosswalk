@@ -60,7 +60,7 @@ public abstract class XWalkExtensionAndroid {
     public void onInstanceCreated(int instanceID) {}
 
     @CalledByNative
-    public void onInstanceDestoryed(int instanceID) {}
+    public void onInstanceDestroyed(int instanceID) {}
 
     @CalledByNative
     public abstract void onMessage(int instanceID, String message);

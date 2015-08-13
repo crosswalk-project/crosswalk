@@ -141,15 +141,15 @@ public class JsStubGenerator {
         return (new String[] {result, staticResult}); 
     }
 
-    String destoryBindingObject(ReflectionHelper targetReflect) {
-        String result = "exports.destory = function() {\n";
+    String destroyBindingObject(ReflectionHelper targetReflect) {
+        String result = "exports.destroy = function() {\n";
         Map<String, MemberInfo> members = targetReflect.getMembers();
         for (String key : members.keySet()) {
             result += "delete exports[\"" + key + "\"];\n";
         }
-        result += "helper.destory();\n";
+        result += "helper.destroy();\n";
         result += "delete exports[\"__stubHelper\"];\n";
-        result += "delete exports[\"destory\"];\n";
+        result += "delete exports[\"destroy\"];\n";
         result += "};";
         return result; 
     }
@@ -247,7 +247,7 @@ public class JsStubGenerator {
 
         String protoStr = String.format(
                 "function %s(exports, helper){\n" + "%s\n" + "%s\n" + "}\n",
-                protoFunc, classStr[0], destoryBindingObject(targetReflect));
+                protoFunc, classStr[0], destroyBindingObject(targetReflect));
 
         String self = String.format(
                 "function %s(%s) {\n" +

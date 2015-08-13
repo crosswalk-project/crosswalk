@@ -17,7 +17,7 @@ class Person extends XWalkExtensionBindingObject {
     int personId;
     int age;
 
-    public void onJsDestoryed() {
+    public void onJsDestroyed() {
         ((PersonExtension)extensionClient).onRemoveBindingObject(this);
     }
     

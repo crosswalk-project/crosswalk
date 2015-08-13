@@ -152,10 +152,10 @@ XWalkExtensionAndroidInstance::~XWalkExtensionAndroidInstance() {
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
-    LOG(ERROR) << "No valid Java object to notice instance destoryed.";
+    LOG(ERROR) << "No valid Java object to notice instance destroyed.";
     return;
   }
-  Java_XWalkExtensionAndroid_onInstanceDestoryed(
+  Java_XWalkExtensionAndroid_onInstanceDestroyed(
       env, obj.obj(), id_);
 }
 
