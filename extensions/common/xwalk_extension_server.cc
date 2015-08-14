@@ -25,7 +25,7 @@ const size_t kInlineMessageMaxSize = 256 * 1024;
 
 XWalkExtensionServer::XWalkExtensionServer()
     : sender_(NULL),
-      renderer_process_handle_(base::kNullProcessHandle),
+      renderer_process_pid_(0),
       permissions_delegate_(NULL) {}
 
 XWalkExtensionServer::~XWalkExtensionServer() {
@@ -54,9 +54,7 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
 }
 
 void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
-  base::Process process = base::Process::Open(peer_pid);
-  renderer_process_handle_ = process.Handle();
-  CHECK(process.IsValid());
+  renderer_process_pid_ = peer_pid;
 }
 
 void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
@@ -221,7 +219,13 @@ void XWalkExtensionServer::PostMessageToJSCallback(
   memcpy(shared_memory.memory(), message->data(), message->size());
 
   base::SharedMemoryHandle handle;
-  shared_memory.GiveReadOnlyToProcess(renderer_process_handle_, &handle);
+  base::Process process =
+      base::Process::OpenWithExtraPrivileges(renderer_process_pid_);
+  CHECK(process.IsValid());
+  if (!shared_memory.GiveReadOnlyToProcess(process.Handle(), &handle)) {
+    LOG(WARNING) << "Can't share memory handle to send out of line message";
+    return;
+  }
 
   Send(new XWalkExtensionClientMsg_PostOutOfLineMessageToJS(handle,
                                                             message->size()));
