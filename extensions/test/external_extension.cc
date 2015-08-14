@@ -24,6 +24,16 @@ class ExternalExtensionTest : public XWalkExtensionsTestBase {
   }
 };
 
+class BulkExtensionTest : public XWalkExtensionsTestBase {
+ public:
+  void SetUp() override {
+    XWalkExtensionService::SetExternalExtensionsPathForTesting(
+      GetExternalExtensionTestPath(
+        FILE_PATH_LITERAL("bulk_data_transmission")));
+    XWalkExtensionsTestBase::SetUp();
+  }
+};
+
 class RuntimeInterfaceTest : public XWalkExtensionsTestBase {
  public:
   void SetUp() override {
@@ -121,4 +131,14 @@ IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, ReplacementObjectIsUsed) {
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime, url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(BulkExtensionTest, BulkDataExtension) {
+Runtime* runtime = CreateRuntime();
+GURL url = GetExtensionsTestURL(base::FilePath(),
+base::FilePath().AppendASCII("bulk_data_transmission.html"));
+content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
+title_watcher.AlsoWaitForTitle(kFailString);
+xwalk_test_utils::NavigateToURL(runtime, url);
+EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
