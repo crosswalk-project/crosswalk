@@ -117,6 +117,7 @@ class Method(object):
     self._is_constructor = is_constructor
     self._is_static = is_static
     self._is_abstract = is_abstract
+    self._is_delegate = False
     self._method_name = method_name
     self._method_return = method_return
     self._params = OrderedDict() # Use OrderedDict to avoid parameter misorder.
@@ -165,6 +166,9 @@ class Method(object):
   @property
   def is_reservable(self):
     return self._is_reservable
+  @property
+  def is_delegate(self):
+    return self._is_delegate
 
   @property
   def method_name(self):
@@ -206,6 +210,15 @@ class Method(object):
   def ParseMethodAnnotation(self, annotation):
     if annotation.find('reservable = true') >= 0:
       self._is_reservable = True
+
+    delegate_re = re.compile('delegate\s*=\s*'
+        '(?P<delegate>(true|false))')
+    for match in re.finditer(delegate_re, annotation):
+      delegate = match.group('delegate')
+      if delegate == 'true':
+        self._is_delegate = True
+      elif delegate == 'false':
+        self._is_delegate = False
 
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
@@ -722,6 +735,12 @@ ${DOC}
         ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
     }
 """)
+    elif self._is_delegate:
+      template = Template("""\
+    private ${RETURN_TYPE} ${NAME}(${PARAMS}){
+        ${PRE_WRAP_LINES}
+    }
+""")
     else:
       template = Template("""\
 ${DOC}
@@ -747,6 +766,9 @@ ${DOC}
       else:
         params_reserving.append(param)
 
+    pre_wrap_string = self._method_annotations.get(
+        self.ANNOTATION_PRE_WRAPLINE, '')
+
     value = {'RETURN_TYPE': return_type,
              'RETURN': return_state,
              'DOC': self.GenerateDoc(self.method_doc),
@@ -755,7 +777,8 @@ ${DOC}
                   r'ValueCallback<\1>',self._wrapper_params_declare),
              'METHOD_DECLARE_NAME': self._method_declare_name,
              'PARAMS_RESERVING': ', '.join(params_reserving),
-             'PARAMS_PASSING': self._wrapper_params_pass_to_bridge}
+             'PARAMS_PASSING': self._wrapper_params_pass_to_bridge,
+             'PRE_WRAP_LINES': pre_wrap_string}
 
     return template.substitute(value)
 
@@ -798,7 +821,7 @@ ${DOC}
           self.GenerateWrapperStaticMethod(), """\
     private static ReflectMethod %s = new ReflectMethod(null, "%s");\n""" %
               (self._method_declare_name, self._method_name))
-    elif self._is_abstract:
+    elif self._is_abstract or self._is_delegate:
       return self.GenerateWrapperBridgeMethod()
     else:
       return '%s\n%s\n' % (
