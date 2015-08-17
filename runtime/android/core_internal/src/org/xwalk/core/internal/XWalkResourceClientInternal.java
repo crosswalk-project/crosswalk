@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
+import android.widget.Toast;
 
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Principal;
@@ -204,18 +205,7 @@ public class XWalkResourceClientInternal {
     @XWalkAPI
     public void onReceivedLoadError(XWalkViewInternal view, int errorCode, String description,
             String failingUrl) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(view.getContext());
-        dialogBuilder.setTitle(android.R.string.dialog_alert_title)
-                .setMessage(description)
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
+        Toast.makeText(view.getActivity(), description, Toast.LENGTH_SHORT).show();
     }
 
     /**
