@@ -4,6 +4,5 @@
 // found in the LICENSE file.
 
 // a placeholder used by Google Play to recognize architecture.
-void __no_used_dummy_function(void)
-{
+void __unused_dummy_function() {
 }
