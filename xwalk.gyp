@@ -338,9 +338,6 @@
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
             '../components/components.gyp:web_modal',
             '../components/components.gyp:renderer_context_menu',
-
-            # https://code.google.com/p/chromium/issues/detail?id=449919#c30
-            '../extensions/extensions.gyp:extensions_browser',
           ],
           'sources': [
             'runtime/browser/tizen/xwalk_web_contents_view_delegate.cc',
