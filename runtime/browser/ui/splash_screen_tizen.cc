@@ -31,7 +31,7 @@ class SplashScreenTizen::SplashScreenLayerDelegate : public ui::LayerDelegate {
 
   void OnPaintLayer(const ui::PaintContext& context) override {
     if (!image_.IsEmpty()) {
-      ui::PaintRecorder recorder(context);
+      ui::PaintRecorder recorder(context, image_.Size());
       recorder.canvas()->DrawImageInt(image_.AsImageSkia(), 0, 0);
     } else {
       LOG(WARNING) << "The splash screen image is not loaded.";
