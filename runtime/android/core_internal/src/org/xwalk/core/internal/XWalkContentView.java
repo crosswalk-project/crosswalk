@@ -72,4 +72,9 @@ public class XWalkContentView extends ContentView {
             return super.getAccessibilityNodeProvider();
         }
     }
+
+    @Override
+    public boolean performLongClick(){
+        return mXWalkView.onPerformLongClick();
+    }
 }
