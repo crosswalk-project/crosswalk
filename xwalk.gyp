@@ -643,7 +643,7 @@
         'xwalk_resources',
       ],
       'conditions': [
-        [ 'OS!="android"' and 'disable_devtools!=1', {
+        [ 'OS!="android" and disable_devtools!=1', {
           'dependencies': [
             '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
           ],
@@ -673,7 +673,7 @@
             ],
           },
           'conditions': [
-            [ 'OS!="android"' and 'disable_devtools!=1', {
+            [ 'OS!="android" and disable_devtools!=1', {
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',

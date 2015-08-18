@@ -18,7 +18,7 @@
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
-#ifdef(DISABLE_DEVTOOLS)
+#ifndef DISABLE_DEVTOOLS
 #include "xwalk/runtime/browser/android/xwalk_dev_tools_server.h"
 #endif
 #include "xwalk/runtime/browser/android/xwalk_http_auth_handler.h"
@@ -45,7 +45,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkContentsIoThreadClientImpl",
       RegisterXWalkContentsIoThreadClientImpl },
   { "XWalkContent", RegisterXWalkContent },
-#ifdef(DISABLE_DEVTOOLS)
+#ifndef DISABLE_DEVTOOLS
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
 #endif
   { "XWalkExtensionAndroid", extensions::RegisterXWalkExtensionAndroid },
