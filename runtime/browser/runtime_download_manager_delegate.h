@@ -6,14 +6,21 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
 
+#include <map>
+
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/download_manager_delegate.h"
+#include "ui/shell_dialogs/select_file_dialog.h"
+#include "xwalk/runtime/browser/runtime.h"
 
 namespace xwalk {
 
+class DownloadBarView;
+
 class RuntimeDownloadManagerDelegate
     : public content::DownloadManagerDelegate,
+      public ui::SelectFileDialog::Listener,
       public base::RefCountedThreadSafe<RuntimeDownloadManagerDelegate> {
  public:
   RuntimeDownloadManagerDelegate();
@@ -40,6 +47,31 @@ class RuntimeDownloadManagerDelegate
  private:
   friend class base::RefCountedThreadSafe<RuntimeDownloadManagerDelegate>;
 
+  struct DownloadSelectFileParams {
+    DownloadSelectFileParams(content::DownloadItem* item,
+                             const content::DownloadTargetCallback& callback);
+    ~DownloadSelectFileParams();
+
+    content::DownloadItem* item;
+    content::DownloadTargetCallback callback;
+  };
+
+  class RuntimeDownloadView : public content::WebContentsObserver {
+   public:
+    RuntimeDownloadView(content::WebContents* contents,
+                        RuntimeDownloadManagerDelegate* owner);
+    ~RuntimeDownloadView() override;
+
+    DownloadBarView* view() { return view_.get(); }
+
+    // WebContentsObserver implementation.
+    void WebContentsDestroyed() override;
+
+   private:
+    scoped_ptr<DownloadBarView> view_;
+    RuntimeDownloadManagerDelegate* owner_;
+  };
+
   void GenerateFilename(uint32 download_id,
                         const content::DownloadTargetCallback& callback,
                         const base::FilePath& generated_name,
@@ -51,9 +83,18 @@ class RuntimeDownloadManagerDelegate
                           const content::DownloadTargetCallback& callback,
                           const base::FilePath& suggested_path);
 
+  // SelectFileDialog::Listener implementation.
+  void FileSelected(const base::FilePath& path,
+                    int index,
+                    void* params) override;
+  void FileSelectionCanceled(void* params) override;
+
+
   content::DownloadManager* download_manager_;
   base::FilePath default_download_path_;
   bool suppress_prompting_;
+  scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
+  std::map<content::WebContents*, RuntimeDownloadView*> download_views_;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeDownloadManagerDelegate);
 };

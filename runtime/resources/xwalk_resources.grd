@@ -18,6 +18,12 @@
       <include name="IDR_FILE_PICKER_JS" file="file_picker/file_picker.js" type="BINDATA" />
       <include name="IDR_FILE_PICKER_CSS" file="file_picker/file_picker.css" type="BINDATA" />
     </includes>
+    <structures>
+      <structure type="chrome_scaled_image" name="IDR_CLOSE" file="close.png" />
+      <structure type="chrome_scaled_image" name="IDR_CLOSE_H" file="close_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CLOSE_P" file="close_pressed.png" />
+      <structure type="chrome_scaled_image" name="IDR_DOWNLOAD" file="download.png" />
+    </structures>
     <messages fallback_to_english="true">
       <!-- Generic terms -->
       <message name="IDS_OK" desc="Used for OK on buttons">

@@ -14,6 +14,7 @@
 #include "ui/gfx/canvas.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/button/label_button.h"
+#include "ui/views/layout/box_layout.h"
 #include "ui/views/layout/grid_layout.h"
 #include "ui/views/layout/fill_layout.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
@@ -81,6 +82,10 @@ void NativeAppWindowDesktop::ViewHierarchyChanged(
   }
 }
 
+void NativeAppWindowDesktop::OnBoundsChanged(const gfx::Rect& previous_bounds) {
+  UpdateWebViewPreferredSize();
+}
+
 void NativeAppWindowDesktop::InitStandaloneUI() {
   TopViewLayout* layout = new TopViewLayout();
   SetLayoutManager(layout);
@@ -93,8 +98,15 @@ void NativeAppWindowDesktop::InitStandaloneUI() {
 
 void NativeAppWindowDesktop::InitMinimalUI() {
   set_background(views::Background::CreateStandardPanelBackground());
-  views::GridLayout* layout = new views::GridLayout(this);
-  SetLayoutManager(layout);
+  views::BoxLayout* box_layout =
+      new views::BoxLayout(views::BoxLayout::kVertical, 0, 0, 0);
+  box_layout->SetDefaultFlex(1);
+  SetLayoutManager(box_layout);
+
+  views::View* container = new views::View();
+  views::GridLayout* layout = new views::GridLayout(container);
+  container->SetLayoutManager(layout);
+  AddChildView(container);
 
   views::ColumnSet* column_set = layout->AddColumnSet(0);
   column_set->AddPaddingColumn(0, 2);
@@ -174,8 +186,9 @@ void NativeAppWindowDesktop::InitMinimalUI() {
     contents_view_ = new views::View;
     contents_view_->SetLayoutManager(new views::FillLayout());
 
-    web_view_ = new views::WebView(NULL);
+    web_view_ = new views::WebView(web_contents_->GetBrowserContext());
     web_view_->SetWebContents(web_contents_);
+    web_contents_->Focus();
     contents_view_->AddChildView(web_view_);
     layout->StartRow(1, 0);
     layout->AddView(contents_view_);
@@ -184,7 +197,7 @@ void NativeAppWindowDesktop::InitMinimalUI() {
         base::ASCIIToUTF16(web_contents_->GetVisibleURL().spec()));
   }
 
-  layout->AddPaddingRow(0, 5);
+  layout->AddPaddingRow(0, 3);
 }
 
 void NativeAppWindowDesktop::ButtonPressed(views::Button* sender,
@@ -213,6 +226,21 @@ void NativeAppWindowDesktop::SetAddressURL(const std::string& url) {
     DCHECK(address_bar_);
     address_bar_->SetText(base::ASCIIToUTF16(url));
   }
+}
+
+void NativeAppWindowDesktop::UpdateWebViewPreferredSize() {
+  int height = this->height();
+  if (toolbar_view_) {
+    height -= toolbar_view_->GetPreferredSize().height();
+    // Minus vertical paddings.
+    height = height - 2 - 5 - 3;
+  }
+
+  views::View* download_bar = GetViewByID(VIEW_ID_DOWNLOAD_BAR);
+  if (download_bar)
+    height -= download_bar->GetPreferredSize().height();
+
+  web_view_->SetPreferredSize(gfx::Size(width(), height));
 }
 
 }  // namespace xwalk

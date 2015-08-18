@@ -217,6 +217,8 @@
         'runtime/browser/ui/color_chooser_android.cc',
         'runtime/browser/ui/color_chooser_aura.cc',
         'runtime/browser/ui/color_chooser_mac.cc',
+        'runtime/browser/ui/download_views.cc',
+        'runtime/browser/ui/download_views.h',
         'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window_aura.cc',
