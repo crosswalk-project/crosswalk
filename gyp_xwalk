@@ -220,10 +220,7 @@ if __name__ == '__main__':
   args = list(set(args))
   delist = []
   ip_media_codecs = False # Default: no third-party codecs be build in.
-  web_audio_enabled = False
   for arg in args:
-    if arg == '-Ddisable_web_audio=0':
-      web_audio_enabled = True
     if arg.startswith('-Dproprietary_codecs') or arg.startswith('-Dffmpeg_branding'):
       continue
     elif arg == '-Dmediacodecs_EULA=1':
@@ -367,12 +364,9 @@ if __name__ == '__main__':
     # Enable Sync compositor by default
     args.append('-Ddisable_sync_compositor=0')
     # Enable webaudio by default
-    if web_audio_enabled:
-      args.append('-Ddisable_webaudio_hrtf=0')
-      args.append('-Duse_openmax_dl_fft=1')
-    else:
-      args.append('-Ddisable_webaudio_hrtf=1')
-      args.append('-Duse_openmax_dl_fft=0')
+    args.append('-Ddisable_web_audio=1')
+    args.append('-Ddisable_webaudio_hrtf=1')
+    args.append('-Duse_openmax_dl_fft=0')
     # Disable use_minimum_resources by default
     args.append('-Duse_minimum_resources=0')
     # Enable buildin extension by default.
