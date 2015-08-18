@@ -11,6 +11,7 @@
 #include "base/scoped_native_library.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/public/XW_Extension.h"
+#include "xwalk/extensions/public/XW_Extension_Message_2.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
 
 namespace base {
@@ -65,6 +66,10 @@ class XWalkExternalExtension : public XWalkExtension {
   // XW_MessagingInterface_1 (from XW_Extension.h) implementation.
   void MessagingRegister(XW_HandleMessageCallback callback);
 
+  // XW_MessagingInterface_2 (from XW_Extension.h) implementation.
+  void MessagingRegisterBinaryMessageCallback(
+      XW_HandleBinaryMessageCallback callback);
+
   // XW_Internal_SyncMessagingInterface_1 (from XW_Extension.h) implementation.
   void SyncMessagingRegister(XW_HandleSyncMessageCallback callback);
 
@@ -80,6 +85,7 @@ class XWalkExternalExtension : public XWalkExtension {
   XW_ShutdownCallback shutdown_callback_;
   XW_HandleMessageCallback handle_msg_callback_;
   XW_HandleSyncMessageCallback handle_sync_msg_callback_;
+  XW_HandleBinaryMessageCallback handle_binary_msg_callback_;
 
   bool initialized_;
 

@@ -119,6 +119,12 @@ void XWalkExternalExtension::MessagingRegister(
   handle_msg_callback_ = callback;
 }
 
+void XWalkExternalExtension::MessagingRegisterBinaryMessageCallback(
+    XW_HandleBinaryMessageCallback callback) {
+  RETURN_IF_INITIALIZED("Register from MessagingInterface_2");
+  handle_binary_msg_callback_ = callback;
+}
+
 void XWalkExternalExtension::SyncMessagingRegister(
     XW_HandleSyncMessageCallback callback) {
   RETURN_IF_INITIALIZED("Register from Internal_SyncMessagingInterface");

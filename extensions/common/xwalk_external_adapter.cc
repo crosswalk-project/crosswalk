@@ -79,6 +79,16 @@ const void* XWalkExternalAdapter::GetInterface(const char* name) {
     return &messagingInterface1;
   }
 
+  if (!strcmp(name, XW_MESSAGING_INTERFACE_2)) {
+    static const XW_MessagingInterface_2 messagingInterface2 = {
+      MessagingRegister,
+      MessagingPostMessage,
+      MessagingRegisterBinaryMessageCallback,
+      MessagingPostBinaryMessage
+    };
+    return &messagingInterface2;
+  }
+
   if (!strcmp(name, XW_INTERNAL_SYNC_MESSAGING_INTERFACE_1)) {
     static const XW_Internal_SyncMessagingInterface_1
         syncMessagingInterface1 = {
