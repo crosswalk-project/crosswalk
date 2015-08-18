@@ -1182,4 +1182,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public ContentViewCore getXWalkContentForTest() {
         return mContent.getContentViewCoreForTest();
     }
+
+    // This is used to call back to XWalkView's performLongClick() so that developer can
+    // override performLongClick() or setOnLongClickListener to disable copy/paste
+    // action bar.
+    @XWalkAPI(delegate = true,
+        preWrapperLines = {
+                  "return performLongClick();"})
+    public boolean onPerformLongClick(){
+	return false;
+    }
 }

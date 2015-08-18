@@ -1,0 +1,41 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  echo2.echo("Pass", function(msg) {
+    if (msg != "Pass")
+      throw "message doesn't match.";
+    // 1 uint32 (for length) and 100 uint8 (for data)
+    var buffer = new ArrayBuffer(104);
+    var uint32View = new Uint32Array(buffer, 0, 1);
+    var uint8ArrayLength = 100;
+    uint32View[0] = uint8ArrayLength;
+    var uint8View = new Uint8Array(buffer, 4, uint8ArrayLength);
+    for (var i = 0; i < uint8ArrayLength; i++)
+      uint8View[i] = i;
+    echo2.echoBinary(buffer, function(msg) {
+      if (!(msg instanceof ArrayBuffer))
+        throw "message is not binary.";
+      var returnedUint32View = new Uint32Array(msg, 0, 1);
+      var returnedUint8ArrayLength = returnedUint32View[0];
+      if (returnedUint8ArrayLength != uint8ArrayLength)
+        throw "message doesn't match.";
+      var returnedUint8View =
+          new Uint8Array(msg, 4, returnedUint8ArrayLength);
+      for (var j = 0; j < returnedUint8ArrayLength; j++) {
+        if (returnedUint8View[j] != uint8View[j])
+          throw "message doesn't match.";
+        }
+        document.title = "Pass";
+    });
+  });
+} catch(e) {
+  console.log(e);
+  document.title = "Fail";
+}
+</script>
+</body>
+</html>

@@ -8,6 +8,7 @@ public @interface XWalkAPI {
     boolean reservable() default false;
     boolean noInstance() default false;
     boolean isConst() default false;
+    boolean delegate() default false;
     Class<?> extendClass() default Object.class;
     String[] preWrapperLines() default {};
     String[] postWrapperLines() default {};

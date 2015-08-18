@@ -48,6 +48,7 @@
         'extension_process/xwalk_extension_process_main.cc',
         'extension_process/xwalk_extension_process_main.h',
         'public/XW_Extension.h',
+        'public/XW_Extension_Message_2.h',
         'public/XW_Extension_Permissions.h',
         'public/XW_Extension_SyncMessage.h',
         'renderer/xwalk_extension_client.cc',

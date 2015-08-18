@@ -117,7 +117,7 @@ class XWalkExtensionServer : public IPC::Listener,
   typedef std::set<std::string> ExtensionSymbolsSet;
   ExtensionSymbolsSet extension_symbols_;
 
-  base::ProcessHandle renderer_process_handle_;
+  int32 renderer_process_pid_;
 
   XWalkExtension::PermissionsDelegate* permissions_delegate_;
 };
