@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkCookieManager;
+import org.xwalk.core.internal.XWalkCookieManagerInternal;
 import org.xwalk.core.internal.XWalkClient;
 
 /**
@@ -32,13 +32,13 @@ import org.xwalk.core.internal.XWalkClient;
  */
 public class CookieManagerTest extends XWalkViewTestBase {
 
-    private XWalkCookieManager mCookieManager = null;
+    private XWalkCookieManagerInternal mCookieManager = null;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
-        mCookieManager = new XWalkCookieManager();
+        mCookieManager = new XWalkCookieManagerInternal();
     }
 
     @SmallTest
