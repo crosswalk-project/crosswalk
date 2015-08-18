@@ -27,27 +27,11 @@ import org.xwalk.core.internal.R;
 import org.xwalk.core.internal.XWalkDownloadListenerInternal;
 
 class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
-    private static String DOWNLOAD_START_TOAST;
-    private static String DOWNLOAD_NO_PERMISSION_TOAST;
-    private static String DOWNLOAD_ALREADY_EXISTS_TOAST;
-    private static String DOWNLOAD_FAILED_TOAST;
-    private static String DOWNLOAD_FINISHED_TOAST;
-
     private Context mContext;
 
     public XWalkDownloadListenerImpl(Context context) {
         super(context);
         mContext = context;
-
-        DOWNLOAD_START_TOAST = mContext.getString(R.string.download_start_toast);
-        DOWNLOAD_NO_PERMISSION_TOAST =
-                mContext.getString(R.string.download_no_permission_toast);
-        DOWNLOAD_ALREADY_EXISTS_TOAST =
-                mContext.getString(R.string.download_already_exists_toast);
-        DOWNLOAD_FAILED_TOAST =
-                mContext.getString(R.string.download_failed_toast);
-        DOWNLOAD_FINISHED_TOAST =
-                mContext.getString(R.string.download_finished_toast);
     }
 
     @Override
@@ -62,10 +46,11 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
         Uri src = Uri.parse(url);
         if (src.getScheme().equals("http") || src.getScheme().equals("https")) {
             Request request = new Request(Uri.parse(url));
+            request.addRequestHeader("User-Agent", userAgent);
             request.setDestinationInExternalPublicDir(
                     Environment.DIRECTORY_DOWNLOADS, fileName);
             getDownloadManager().enqueue(request);
-            popupMessages(DOWNLOAD_START_TOAST + fileName);
+            popupMessages(mContext.getString(R.string.download_start_toast) + fileName);
         } else {
             new FileTransfer(url, fileName).execute();
         }
@@ -98,7 +83,7 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (result == PackageManager.PERMISSION_GRANTED) return true;
 
-        popupMessages(DOWNLOAD_NO_PERMISSION_TOAST);
+        popupMessages(mContext.getString(R.string.download_no_permission_toast));
         return false;
     }
 
@@ -148,11 +133,11 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("Failed")) {
-                popupMessages(DOWNLOAD_FAILED_TOAST);
+                popupMessages(mContext.getString(R.string.download_failed_toast));
             } else if (result.equals("Existed")) {
-                popupMessages(DOWNLOAD_ALREADY_EXISTS_TOAST);
+                popupMessages(mContext.getString(R.string.download_already_exists_toast));
             } else if (result.equals("Finished")) {
-                popupMessages(DOWNLOAD_FINISHED_TOAST);
+                popupMessages(mContext.getString(R.string.download_finished_toast));
             }
         }
 

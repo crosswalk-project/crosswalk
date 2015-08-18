@@ -10,11 +10,10 @@ import android.view.Window;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
 import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
-import org.xwalk.core.XWalkLibraryLoader.DockListener;
 import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
 public class XWalkActivityDelegate
-            implements DecompressListener, DockListener, ActivateListener, XWalkUpdateListener {
+            implements DecompressListener, ActivateListener, XWalkUpdateListener {
     private static final String TAG = "XWalkActivity";
 
     private Activity mActivity;
@@ -22,7 +21,6 @@ public class XWalkActivityDelegate
     private XWalkUpdater mXWalkUpdater;
     private Runnable mCancelCommand;
     private Runnable mCompleteCommand;
-    private Runnable mDecompressCancelCommand;
 
     private boolean mIsInitializing;
     private boolean mIsXWalkReady;
@@ -37,13 +35,6 @@ public class XWalkActivityDelegate
 
         mDialogManager = new XWalkDialogManager(mActivity);
         mXWalkUpdater = new XWalkUpdater(this, mActivity, mDialogManager);
-        mDecompressCancelCommand = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Cancel by XWalkActivity");
-                XWalkLibraryLoader.cancelDecompress();
-            }
-        };
 
         XWalkLibraryLoader.prepareToInit(mActivity);
     }
@@ -54,6 +45,10 @@ public class XWalkActivityDelegate
 
     public boolean isSharedMode() {
         return mIsXWalkReady && XWalkLibraryLoader.isSharedLibrary();
+    }
+
+    public void setXWalkApkUrl(String url) {
+        mXWalkUpdater.setXWalkApkUrl(url);
     }
 
     public void onResume() {
@@ -71,7 +66,13 @@ public class XWalkActivityDelegate
 
     @Override
     public void onDecompressStarted() {
-        mDialogManager.showDecompressProgress(mDecompressCancelCommand);
+        mDialogManager.showDecompressProgress(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Cancel by XWalkActivity");
+                XWalkLibraryLoader.cancelDecompress();
+            }
+        });
         mWillDecompress = true;
     }
 
@@ -91,15 +92,15 @@ public class XWalkActivityDelegate
             mWillDecompress = false;
         }
 
-        XWalkLibraryLoader.startDock(this, mActivity);
+        XWalkLibraryLoader.startActivate(this, mActivity);
     }
 
     @Override
-    public void onDockStarted() {
+    public void onActivateStarted() {
     }
 
     @Override
-    public void onDockFailed() {
+    public void onActivateFailed() {
         mIsInitializing = false;
 
         if (mXWalkUpdater.updateXWalkRuntime()) {
@@ -115,7 +116,7 @@ public class XWalkActivityDelegate
     }
 
     @Override
-    public void onDockCompleted() {
+    public void onActivateCompleted() {
         if (mDialogManager.isShowingDialog()) mDialogManager.dismissDialog();
 
         if (mBackgroundDecorated) {
@@ -124,15 +125,6 @@ public class XWalkActivityDelegate
             mBackgroundDecorated = false;
         }
 
-        XWalkLibraryLoader.startActivate(this, mActivity);
-    }
-
-    @Override
-    public void onActivateStarted() {
-    }
-
-    @Override
-    public void onActivateCompleted() {
         mIsInitializing = false;
         mIsXWalkReady = true;
         mCompleteCommand.run();

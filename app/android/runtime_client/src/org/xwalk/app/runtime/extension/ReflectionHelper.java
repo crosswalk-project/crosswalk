@@ -16,18 +16,29 @@ class ReflectionHelper {
     private static final String TAG = "JsStubReflectHelper";
     private Class<?> myClass;
     private Map<String, MemberInfo> members = new HashMap<String, MemberInfo>();
+    private Map<String, ReflectionHelper> constructorReflections = new HashMap<String, ReflectionHelper>();
     private String[] eventList = null;
+    private MemberInfo entryPoint = null;
     static Set<Class<?>> primitives = new HashSet<>();
 
     public enum MemberType {
         JS_METHOD,
         JS_PROPERTY,
+        JS_CONSTRUCTOR
     }
 
     public class MemberInfo {
         MemberType type;
         boolean isWritable;
         AccessibleObject accesser;
+        boolean isEntryPoint;
+        // jsName and javaName are only different for constructors.
+        String jsName;
+        String javaName;
+        // Only for JS_CONSTRUCTOR.
+        Class<?> mainClass;
+        boolean isStatic;
+        boolean withPromise;
     }
 
     public ReflectionHelper(Class<?> clazz) {
@@ -37,10 +48,15 @@ class ReflectionHelper {
 
     void getMemberInfo(AccessibleObject[] accessers, MemberType type) {
         for (AccessibleObject a : accessers) {
+            if (!a.isAnnotationPresent(JsApi.class) && !a.isAnnotationPresent(JsConstructor.class)) continue;
 
+            MemberInfo mInfo = new MemberInfo();
+            String name = ((Member) a).getName();
+            mInfo.javaName = name;
+            mInfo.accesser = a;
+            mInfo.isStatic = Modifier.isStatic(((Member)a).getModifiers());
             if (a.isAnnotationPresent(JsApi.class)) {
                 JsApi mAnno = a.getAnnotation(JsApi.class);
-                String name = ((Member) a).getName();
 
                 // Get eventList from properties.
                 if (type == MemberType.JS_PROPERTY && mAnno.isEventList()) {
@@ -58,18 +74,55 @@ class ReflectionHelper {
                     continue;
                 }
 
-                MemberInfo mInfo = new MemberInfo();
                 mInfo.type = type;
                 mInfo.isWritable = mAnno.isWritable();
-                mInfo.accesser = a;
-
-                if (members.containsKey(name)) {
-                    Log.w(TAG, "Conflict namespace - " + name);
+                mInfo.isEntryPoint = mAnno.isEntryPoint();
+                mInfo.withPromise = mAnno.withPromise();
+                mInfo.jsName = name; 
+            } else if (a.isAnnotationPresent(JsConstructor.class)) {
+                if (type != MemberType.JS_METHOD) {
+                    Log.w(TAG, "Invalid @JsConstructor on non-function member:" + name);
                     continue;
-                }  
-                members.put(name, mInfo);
+                }
+                JsConstructor cAnno = a.getAnnotation(JsConstructor.class);
+                mInfo.type = MemberType.JS_CONSTRUCTOR;
+                mInfo.isEntryPoint = cAnno.isEntryPoint();
+                mInfo.mainClass = cAnno.mainClass();
+                // Currently Constructor with promise is not supported.
+                mInfo.withPromise = false;
+                // TODO: more detail checking for main class.
+                // Is there a way to throw compile error if main class missing?
+                if (mInfo.mainClass == null) continue;
+
+                mInfo.jsName = mInfo.mainClass.getSimpleName(); 
+                // Create relections for constructor main classes.
+                constructorReflections.put(mInfo.jsName, new ReflectionHelper(mInfo.mainClass));
             }
+
+            if (mInfo.isEntryPoint) {
+                // Always get the first entry point setting.
+                if (entryPoint != null) {
+                    Log.w(TAG, "Entry point already exist, try to set another:" + mInfo.jsName);
+                    continue;
+                }
+                // Flag isEntryPoint only meanful for methods, constructors and BindingObjects.
+                if (type == MemberType.JS_PROPERTY && !(isBindingClass(((Field)(mInfo.accesser)).getType()))) {
+                    Log.w(TAG, "Invalid entry point setting on property:" + name);
+                    continue;
+                }
+                // The first entry point will be used.
+                entryPoint = mInfo;
+            }
+            if (members.containsKey(mInfo.jsName)) {
+                Log.w(TAG, "Conflict namespace - " + mInfo.jsName);
+                continue;
+            }  
+            members.put(mInfo.jsName, mInfo);
         }
+    }
+
+    boolean isBindingClass(Class<?> clz) {
+        return XWalkExtensionBindingObject.class.isAssignableFrom(clz);
     }
 
     void init() {
@@ -93,10 +146,17 @@ class ReflectionHelper {
         return members;
     }
 
+    ReflectionHelper getConstructorReflection(String cName) {
+        if (!constructorReflections.containsKey(cName)) return null;
+
+        return constructorReflections.get(cName);
+    }
+
     Boolean hasMethod(String name) {
         if (!members.containsKey(name)) return false;
 
-        return members.get(name).type == MemberType.JS_METHOD;
+        MemberInfo m = members.get(name);
+        return ((m.type == MemberType.JS_METHOD) || (m.type == MemberType.JS_CONSTRUCTOR));
     }
 
     Boolean hasProperty(String name) {
@@ -105,30 +165,26 @@ class ReflectionHelper {
         return members.get(name).type == MemberType.JS_PROPERTY;
     }
 
+    MemberInfo getMemberInfo(String name) {
+        return members.get(name);
+    }
+
     /*
      * Use case: construct Java object array from JSON array which is passed by JS
      * 1. restore original Java object in the array
      * 2. if the parameter is a callbackID, then combine the instanceID with it
      */
-    public static Object[] getArgsFromJson(int instanceID, Method m, JSONArray args) {
+    Object[] getArgsFromJson(XWalkExtensionClient ext, int instanceID, Method m, JSONArray args) {
         Class<?>[] pTypes = m.getParameterTypes();
         Object[] oArgs = new Object[pTypes.length];
         Annotation[][] anns = m.getParameterAnnotations();
+        boolean isStatic = Modifier.isStatic(m.getModifiers());
         for (int i = 0; i < pTypes.length; ++i) {
             try {
                 Class<?> p = pTypes[i];
-                // Identify the callback parameters, JSONObject type with @JsCallback annotation.
-                if (p.equals(JSONObject.class)) {
-                    if (anns[i].length > 0 && anns[i][0] instanceof JsCallback) {
-                        JSONObject callbackInfo = (JSONObject)(args.get(i));
-
-                        // Add extension instance ID to the callbackInfo for message back.
-                        callbackInfo.put("instanceID", instanceID);
-                        oArgs[i] = callbackInfo;
-                    } else {
-                        // For other JSONObject arguments.
-                        oArgs[i] = (JSONObject)(args.get(i));
-                    }
+                // Identify the static methods which need the information to post message back to JS.
+                if (isStatic && p.equals(JsContextInfo.class)) {
+                    oArgs[i++] = new JsContextInfo(instanceID, ext, m.getClass(), 0);
                 } else {
                     // TODO: check if this is enough for other types.
                     oArgs[i] = args.get(i);
@@ -212,23 +268,29 @@ class ReflectionHelper {
                 JSONObject.quote(sObj.toString()) : sObj.toString();
     }
 
-    Object invokeMethod(int instanceID, Object obj, String mName, JSONArray args)
+    Object invokeMethod(XWalkExtensionClient ext, int instanceID, Object obj, String mName, JSONArray args)
             throws ReflectiveOperationException {
-        if (!(myClass.isInstance(obj) && hasMethod(mName))) {
-            throw new UnsupportedOperationException("Not support:" + mName);
+        if (!hasMethod(mName)) {
+            throw new NoSuchMethodException("No such method:" + mName);
+        }
+        if (!(getMemberInfo(mName).isStatic) && !(myClass.isInstance(obj))) {
+            throw new InvocationTargetException(new Exception("Invalid target to set property:" + mName));
         }
         Method m = (Method)members.get(mName).accesser;
         if (!m.isAccessible()) {
             m.setAccessible(true);
         }
-        Object[] oArgs = getArgsFromJson(instanceID, m, args);
+        Object[] oArgs = getArgsFromJson(ext, instanceID, m, args);
         return m.invoke(obj, oArgs);
     }
 
     Object getProperty(Object obj, String pName)
             throws ReflectiveOperationException {
-        if (!(myClass.isInstance(obj) && hasProperty(pName))) {
-            throw new UnsupportedOperationException("Not support:" + pName);
+        if (!hasProperty(pName)) {
+            throw new NoSuchFieldException("No such property:" + pName);
+        }
+        if (!(getMemberInfo(pName).isStatic) && !(myClass.isInstance(obj))) {
+            throw new InvocationTargetException(new Exception("Invalid target to set property:" + pName));
         }
 
         Field f = (Field)members.get(pName).accesser;
@@ -240,8 +302,11 @@ class ReflectionHelper {
 
     void setProperty(Object obj, String pName, Object value)
             throws ReflectiveOperationException {
-        if (!(myClass.isInstance(obj) && hasProperty(pName))) {
-            throw new UnsupportedOperationException("Not support:" + pName);
+        if (!hasProperty(pName)) {
+            throw new NoSuchFieldException("No such property:" + pName);
+        }
+        if (!(getMemberInfo(pName).isStatic) && !(myClass.isInstance(obj))) {
+            throw new InvocationTargetException(new Exception("Invalid target to set property:" + pName));
         }
 
         Field f = (Field)members.get(pName).accesser;
@@ -254,6 +319,10 @@ class ReflectionHelper {
         return eventList;
     }
 
+    MemberInfo getEntryPoint() {
+        return entryPoint;
+    }
+
     boolean isEventSupported(String event) {
         if (eventList == null) return false;
         for (int i = 0; i < eventList.length; ++i) {
@@ -264,5 +333,33 @@ class ReflectionHelper {
 
     boolean isInstance(Object obj) {
         return myClass.isInstance(obj);
+    }
+
+    public Object handleMessage(XWalkExtensionClient ext, int instanceId, Object targetObj, JSONObject msg)
+            throws ReflectiveOperationException {
+        Object result = null;
+        try {
+            String cmd = msg.getString("cmd");
+            String cName = msg.getString("constructorJsName");
+            switch (cmd) {
+                case "invokeNative":
+                    result = invokeMethod(ext, instanceId,
+                            targetObj, msg.getString("name"), msg.getJSONArray("args"));
+                    break;
+                case "getProperty":
+                    result = getProperty(targetObj, msg.getString("name"));
+                    break;
+                case "setProperty":
+                    setProperty(targetObj, msg.getString("name"), msg.get("value"));
+                    break;
+                default:
+                    Log.w(TAG, "Unsupported cmd: " + cmd);
+                    break;
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Invalid message, error msg:\n" + e.toString());
+            e.printStackTrace();
+        }
+        return result;
     }
 }

@@ -9,7 +9,6 @@ import android.util.Log;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
 import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
-import org.xwalk.core.XWalkLibraryLoader.DockListener;
 
 /**
  * <p><code>XWalkInitializer</code> is an alternative to {@link XWalkActivity} with the difference
@@ -19,8 +18,8 @@ import org.xwalk.core.XWalkLibraryLoader.DockListener;
  * makes the code simpler.</p>
  *
  * <p>If the initialization failed, which means the Crosswalk runtime doesn't exist or doesn't match
- * the application, you could use {@link XWalkUpdater} to prompt the user to download the Crosswalk
- * runtime just like {@link XWalkActivity}.
+ * the app, you could use {@link XWalkUpdater} to prompt the user to download suiteble Crosswalk
+ * runtime.
  *
  * <p>For example:</p>
  *
@@ -33,22 +32,31 @@ import org.xwalk.core.XWalkLibraryLoader.DockListener;
  *     protected void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
  *
- *         mXWalkInitializer = new XWalkInitializer(this, this);
- *
  *         // Must call initAsync() before anything that involes the embedding API, including
  *         // invoking setContentView() with the layout which holds the XWalkView object.
+ *
+ *         mXWalkInitializer = new XWalkInitializer(this, this);
  *         mXWalkInitializer.initAsync();
  *
- *         // Until onXWalkInitCompleted() is invoked, you can do nothing with the embedding API
+ *         // Until onXWalkInitCompleted() is invoked, you should do nothing with the embedding API
  *         // except the following:
- *         // 1. Create the instance of XWalkView
- *         // 2. Call setUIClient()
- *         // 3. Call setResourceClient()
+ *         // 1. Instanciate the XWalkView object
+ *         // 2. Call XWalkPreferences.setValue()
+ *         // 3. Call XWalkView.setUIClient()
+ *         // 4. Call XWalkView.setResourceClient()
+ *
+ *         XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
  *
  *         setContentView(R.layout.activity_xwalkview);
  *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
  *         mXWalkView.setUIClient(new MyXWalkUIClient(mXWalkView));
  *         mXWalkView.setResourceClient(new MyXWalkResourceClient(mXWalkView));
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitCompleted() {
+ *         // Do anyting with the embedding API
+ *         mXWalkView.load("http://crosswalk-project.org/", null);
  *     }
  *
  *     &#64;Override
@@ -58,15 +66,6 @@ import org.xwalk.core.XWalkLibraryLoader.DockListener;
  *     &#64;Override
  *     public void onXWalkInitCancelled() {
  *         // Perform error handling here
- *     }
- *
- *     &#64;Override
- *     public void onXWalkInitCompleted() {
- *         // Do anyting with the embedding API
- *
- *         XWalkPreferences.setValue(XWalkPreferences.SUPPORT_MULTIPLE_WINDOWS, true);
- *
- *         mXWalkView.load("http://crosswalk-project.org/", null);
  *     }
  *
  *     &#64;Override
@@ -158,8 +157,7 @@ public class XWalkInitializer {
         return mIsInitializing && XWalkLibraryLoader.cancelDecompress();
     }
 
-    private class XWalkLibraryListener
-            implements DecompressListener, DockListener, ActivateListener {
+    private class XWalkLibraryListener implements DecompressListener, ActivateListener {
         @Override
         public void onDecompressStarted() {
         }
@@ -172,26 +170,17 @@ public class XWalkInitializer {
 
         @Override
         public void onDecompressCompleted() {
-            XWalkLibraryLoader.startDock(this, mActivity);
-        }
-
-        @Override
-        public void onDockStarted() {
-        }
-
-        @Override
-        public void onDockFailed() {
-            mIsInitializing = false;
-            mInitListener.onXWalkInitFailed();
-        }
-
-        @Override
-        public void onDockCompleted() {
             XWalkLibraryLoader.startActivate(this, mActivity);
         }
 
         @Override
         public void onActivateStarted() {
+        }
+
+        @Override
+        public void onActivateFailed() {
+            mIsInitializing = false;
+            mInitListener.onXWalkInitFailed();
         }
 
         @Override

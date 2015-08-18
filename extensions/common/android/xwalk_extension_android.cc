@@ -104,6 +104,8 @@ XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
       new XWalkExtensionAndroidInstance(this, java_ref_, next_instance_id_);
   instances_[next_instance_id_] = instance;
 
+  Java_XWalkExtensionAndroid_onInstanceCreated(
+      env, obj.obj(), next_instance_id_);
   next_instance_id_++;
 
   // Here we return the raw pointer to its caller XWalkExtensionServer. Since
@@ -145,6 +147,16 @@ XWalkExtensionAndroidInstance::XWalkExtensionAndroidInstance(
 
 XWalkExtensionAndroidInstance::~XWalkExtensionAndroidInstance() {
   extension_->RemoveInstance(id_);
+
+  // Try to notice Java side on instance removed.
+  JNIEnv* env = base::android::AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null()) {
+    LOG(ERROR) << "No valid Java object to notice instance destroyed.";
+    return;
+  }
+  Java_XWalkExtensionAndroid_onInstanceDestroyed(
+      env, obj.obj(), id_);
 }
 
 void XWalkExtensionAndroidInstance::HandleMessage(

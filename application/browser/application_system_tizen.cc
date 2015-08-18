@@ -79,20 +79,14 @@ void application_event_cb(app_event event, void* data, bundle* b) {
   switch (event) {
     case AE_UNKNOWN:
     case AE_CREATE:
+    case AE_PAUSE:
+    case AE_RESUME:
       break;
     case AE_TERMINATE:
       if (handler_data->current_app) {
         handler_data->current_app->Terminate();
         delete handler_data;
       }
-      break;
-    case AE_PAUSE:
-      if (handler_data->current_app)
-        handler_data->current_app->Suspend();
-      break;
-    case AE_RESUME:
-      if (handler_data->current_app)
-        handler_data->current_app->Resume();
       break;
     case AE_RESET: {
       const std::string& app_id = handler_data->app_id;
@@ -118,8 +112,10 @@ void application_event_cb(app_event event, void* data, bundle* b) {
 
       Application* app =
           app_service_tizen->LaunchFromAppID(app_id, encoded_bundle);
-      LOG(INFO) << "Application launched with id: " << app->id();
-      handler_data->current_app = static_cast<ApplicationTizen*>(app);
+      if (app) {
+        LOG(INFO) << "Application launched with id: " << app->id();
+        handler_data->current_app = static_cast<ApplicationTizen*>(app);
+      }
       break;
     }
     case AE_LOWMEM_POST:

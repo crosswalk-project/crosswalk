@@ -28,6 +28,7 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 
+import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkDownloadListener;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
@@ -160,6 +161,11 @@ public class XWalkViewTestBase
         @Override
         public void onDocumentLoadedInFrame(XWalkView view, long frameId) {
             mInnerContentsClient.onDocumentLoadedInFrame(frameId);
+        }
+
+        @Override
+        public void onReceivedClientCertRequest(XWalkView view, ClientCertRequest handler)  {
+            mTestHelperBridge.onReceivedClientCertRequest(view, handler);
         }
     }
 
@@ -636,6 +642,15 @@ public class XWalkViewTestBase
             @Override
             public void run() {
                 mXWalkView.setAcceptLanguages(languages);
+            }
+        });
+    }
+
+    protected void setUserAgent(final String userAgent) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.setUserAgentString(userAgent);
             }
         });
     }

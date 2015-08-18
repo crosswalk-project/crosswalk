@@ -82,6 +82,9 @@ class XWalkContent {
 
   void CreateUserPrefServiceIfNecessary(content::WebContents* contents);
   void UpdateRendererPreferences();
+  void InitAutofillIfNecessary(bool enabled);
+  void SetXWalkAutofillClient(jobject client);
+  void SetSaveFormData(bool enabled);
 
  private:
   JavaObjectWeakGlobalRef java_ref_;

@@ -21,9 +21,15 @@ import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
+import java.security.KeyStore.PrivateKeyEntry;  
+import java.security.Principal;
+import java.util.ArrayList;
+
 import org.chromium.content.browser.ContentViewClient;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.content_public.browser.WebContentsObserver;
+import org.chromium.net.AndroidPrivateKey;
+import org.chromium.net.DefaultAndroidKeyStore;
 import org.chromium.net.NetError;
 
 /**
@@ -44,6 +50,9 @@ abstract class XWalkContentsClient extends ContentViewClient {
     private XWalkWebContentsObserver mWebContentsObserver;
 
     private double mDIPScale;
+
+    protected DefaultAndroidKeyStore mLocalKeyStore;
+    protected ClientCertLookupTable mLookupTable;
 
     public class XWalkWebContentsObserver extends WebContentsObserver {
         public XWalkWebContentsObserver(WebContents webContents) {
@@ -152,6 +161,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onReceivedSslError(ValueCallback<Boolean> callback, SslError error);
 
+    public abstract void onReceivedClientCertRequest(ClientCertRequestInternal handler);    
+
     public abstract void onReceivedLoginRequest(String realm, String account, String args);
 
     public abstract void onFormResubmission(Message dontResend, Message resend);
@@ -217,6 +228,9 @@ abstract class XWalkContentsClient extends ContentViewClient {
     public abstract void onHideCustomView();
 
     public abstract void didFinishLoad(String url);
+
+    public abstract void provideClientCertificateResponse(int id, byte[][] certChain,
+            AndroidPrivateKey androidKey);
 
     //--------------------------------------------------------------------------------------------
     //                              Other XWalkViewInternal-specific methods

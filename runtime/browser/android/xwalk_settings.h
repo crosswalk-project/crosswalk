@@ -30,6 +30,7 @@ class XWalkSettings : public content::WebContentsObserver {
   void UpdateUserAgent(JNIEnv* env, jobject obj);
   void UpdateWebkitPreferences(JNIEnv* env, jobject obj);
   void UpdateAcceptLanguages(JNIEnv* env, jobject obj);
+  void UpdateFormDataPreferences(JNIEnv* env, jobject obj);
 
  private:
   struct FieldIds;

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test entry file for "constructorJsStubGen" extension.</title>
+    <script type="text/javascript">
+      function action() {
+        console.log("---------------------Testcase 1-------------------");
+        var p1 = new jsStub.person.Person("John", 30);
+        console.log("new person info: {name:" + p1.name + ",age:" + p1.getAge() + "}");
+        console.log("static members: constructorName = " + jsStub.person.Person.constructorName + ", nextPersonId:" + jsStub.person.Person.getNextPersonId());
+        console.log("Person number:" + jsStub.person.getPersonNumber());
+        console.log("Has John?" + jsStub.person.hasPersonByName("John"));
+        console.log("Has Alice?" + jsStub.person.hasPersonByName("Alice"));
+
+        console.log("---------------------Testcase 2-------------------");
+        var p2 = new jsStub.person.Person("Alice", 35);
+        console.log("new person info: {name:" + p2.name + ",age:" + p2.getAge() + "}");
+        console.log("Person number:" + jsStub.person.getPersonNumber());
+        console.log("Has John?" + jsStub.person.hasPersonByName("John"));
+        console.log("Has Alice?" + jsStub.person.hasPersonByName("Alice"));
+
+        console.log("---------------------Testcase 3-------------------");
+        console.log("John older than Alice?:" + p1.isOlder(p2.getAge()));
+        console.log("set Alice age as 28.");
+        p2.setAge(28);
+        console.log("John older than Alice?:" + p1.isOlder(p2.getAge()));
+
+        console.log("---------------------Testcase 4-------------------");
+        p1.addEventListener("event1", function(e){
+          var pEvent = document.createTextNode(p1.name + " received event:" + JSON.stringify(e) );
+          document.body.appendChild(pEvent);
+          document.body.appendChild(document.createElement("br"));
+          document.body.appendChild(document.createElement("br"));
+        });
+        p1.onevent2 = function(e) {
+          var pEvent = document.createTextNode(p1.name + " received event:" + JSON.stringify(e) );
+          document.body.appendChild(pEvent);
+          document.body.appendChild(document.createElement("br"));
+          document.body.appendChild(document.createElement("br"));
+        };
+        p1.triggerEvents();
+
+        console.log("---------------------Testcase 5-------------------");
+        console.log("Delete p2");
+        p2.destroy();
+        delete p2;
+        setTimeout(function(){
+            console.log("Person number:" + jsStub.person.getPersonNumber());
+            console.log("Has John?" + jsStub.person.hasPersonByName("John"));
+            console.log("Has Alice?" + jsStub.person.hasPersonByName("Alice"));
+        }, 10);
+      }
+    </script>
+  </head>
+  <body>
+    <button type="button" onclick="action()">Action</button>
+    <div>Test Events:</div>
+  </body>
+</html>

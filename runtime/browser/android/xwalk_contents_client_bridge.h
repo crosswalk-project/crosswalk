@@ -101,6 +101,15 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   virtual void OnIconAvailable(const GURL& icon_url);
   virtual void OnReceivedIcon(const GURL& icon_url, const SkBitmap& bitmap);
 
+  void ProvideClientCertificateResponse(JNIEnv* env, jobject object,
+      jint request_id, jobjectArray encoded_chain_ref,
+      jobject private_key_ref);
+
+  virtual void SelectClientCertificate(
+      net::SSLCertRequestInfo* cert_request_info,
+      scoped_ptr<content::ClientCertificateDelegate> delegate);
+
+  void HandleErrorInClientCertificateResponse(int id);
  private:
   JavaObjectWeakGlobalRef java_ref_;
 
@@ -108,9 +117,16 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   IDMap<CertErrorCallback, IDMapOwnPointer> pending_cert_error_callbacks_;
   IDMap<content::JavaScriptDialogManager::DialogClosedCallback, IDMapOwnPointer>
       pending_js_dialog_callbacks_;
+  // |pending_client_cert_request_delegates_| owns its pointers, but IDMap
+  // doesn't provide Release, so ownership is managed manually.
+  IDMap<content::ClientCertificateDelegate>
+      pending_client_cert_request_delegates_;
 
   typedef std::pair<int, content::RenderFrameHost*>
     NotificationDownloadRequestInfos;
+
+  IDMap<SelectCertificateCallback, IDMapOwnPointer>
+      pending_client_cert_request_callbacks_;
 
   scoped_ptr<XWalkIconHelper> icon_helper_;
 };

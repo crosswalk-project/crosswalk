@@ -74,6 +74,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private NavigationController mNavigationController;
     private WebContents mWebContents;
     private boolean mIsLoaded = false;
+    private XWalkAutofillClient mXWalkAutofillClient;
 
     long mNativeContent;
     long mNativeWebContents;
@@ -819,6 +820,21 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     public boolean canZoomOut() {
         if (mNativeContent == 0) return false;
         return mContentViewCore.canZoomOut();
+    }
+
+    /**
+     * @see android.webkit.WebView#clearFormData()
+     */
+    public void hideAutofillPopup() {
+        if (mXWalkAutofillClient != null) {
+            mXWalkAutofillClient.hideAutofillPopup();
+        }
+    }
+
+    @CalledByNative
+    private void setXWalkAutofillClient(XWalkAutofillClient client) {
+        mXWalkAutofillClient = client;
+        client.init(mContentViewCore);
     }
 
     private native long nativeInit();

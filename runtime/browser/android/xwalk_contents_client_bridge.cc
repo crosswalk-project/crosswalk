@@ -10,6 +10,7 @@
 #include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
 #include "base/callback.h"
+#include "base/callback_helpers.h"
 #include "base/containers/scoped_ptr_hash_map.h"
 #include "base/guid.h"
 #include "content/public/browser/browser_thread.h"
@@ -22,11 +23,13 @@
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/platform_notification_data.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
-#include "net/cert/x509_certificate.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "url/gurl.h"
 #include "ui/gfx/android/java_bitmap.h"
 #include "ui/shell_dialogs/selected_file_info.h"
+#include "net/android/keystore_openssl.h"
+#include "net/cert/x509_certificate.h"
+#include "net/ssl/openssl_client_key_store.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertJavaStringToUTF16;
@@ -41,6 +44,19 @@ using content::RenderViewHost;
 using content::WebContents;
 
 namespace xwalk {
+namespace {
+
+// Must be called on the I/O thread to record a client certificate
+// and its private key in the OpenSSLClientKeyStore.
+void RecordClientCertificateKey(
+    const scoped_refptr<net::X509Certificate>& client_cert,
+    crypto::ScopedEVP_PKEY private_key) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+  net::OpenSSLClientKeyStore::GetInstance()->RecordClientCertPrivateKey(
+      client_cert.get(), private_key.get());
+}
+
+}  // namespace
 
 namespace {
 
@@ -392,6 +408,156 @@ void XWalkContentsClientBridge::OnReceivedIcon(const GURL& icon_url,
 
 bool RegisterXWalkContentsClientBridge(JNIEnv* env) {
   return RegisterNativesImpl(env);
+}
+
+// This method is inspired by OnSystemRequestCompletion() in
+// chrome/browser/ui/android/ssl_client_certificate_request.cc
+void XWalkContentsClientBridge::ProvideClientCertificateResponse(
+    JNIEnv* env,
+    jobject obj,
+    int request_id,
+    jobjectArray encoded_chain_ref,
+    jobject private_key_ref) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+
+  content::ClientCertificateDelegate* delegate =
+      pending_client_cert_request_delegates_.Lookup(request_id);
+  DCHECK(delegate);
+
+  if (!encoded_chain_ref || !private_key_ref) {
+    LOG(ERROR) << "No client certificate selected";
+    pending_client_cert_request_delegates_.Remove(request_id);
+    delegate->ContinueWithCertificate(nullptr);
+    delete delegate;
+    return;
+  }
+
+  // Make sure callback is run on error.
+  base::ScopedClosureRunner guard(base::Bind(
+      &XWalkContentsClientBridge::HandleErrorInClientCertificateResponse,
+      base::Unretained(this), request_id));
+
+  // Convert the encoded chain to a vector of strings.
+  std::vector<std::string> encoded_chain_strings;
+  if (encoded_chain_ref) {
+    base::android::JavaArrayOfByteArrayToStringVector(
+       env, encoded_chain_ref, &encoded_chain_strings);
+  }
+
+  std::vector<base::StringPiece> encoded_chain;
+  for (size_t i = 0; i < encoded_chain_strings.size(); ++i)
+    encoded_chain.push_back(encoded_chain_strings[i]);
+
+  // Create the X509Certificate object from the encoded chain.
+  scoped_refptr<net::X509Certificate> client_cert(
+      net::X509Certificate::CreateFromDERCertChain(encoded_chain));
+  if (!client_cert.get()) {
+    LOG(ERROR) << "Could not decode client certificate chain";
+    return;
+  }
+
+  // Create an EVP_PKEY wrapper for the private key JNI reference.
+  crypto::ScopedEVP_PKEY private_key(
+      net::android::GetOpenSSLPrivateKeyWrapper(private_key_ref));
+  if (!private_key.get()) {
+    LOG(ERROR) << "Could not create OpenSSL wrapper for private key";
+    return;
+  }
+
+  // Release the guard and |pending_client_cert_request_delegates_| references
+  // to |delegate|.
+  pending_client_cert_request_delegates_.Remove(request_id);
+  ignore_result(guard.Release());
+
+  // RecordClientCertificateKey() must be called on the I/O thread,
+  // before the delegate is called with the selected certificate on
+  // the UI thread.
+  content::BrowserThread::PostTaskAndReply(
+      content::BrowserThread::IO, FROM_HERE,
+      base::Bind(&RecordClientCertificateKey, client_cert,
+         base::Passed(&private_key)),
+      base::Bind(&content::ClientCertificateDelegate::ContinueWithCertificate,
+      base::Owned(delegate), client_cert));
+}
+
+// Use to cleanup if there is an error in client certificate response.
+void XWalkContentsClientBridge::HandleErrorInClientCertificateResponse(
+    int request_id) {
+  content::ClientCertificateDelegate* delegate =
+      pending_client_cert_request_delegates_.Lookup(request_id);
+  pending_client_cert_request_delegates_.Remove(request_id);
+
+  delete delegate;
+}
+
+void XWalkContentsClientBridge::SelectClientCertificate(
+    net::SSLCertRequestInfo* cert_request_info,
+    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+
+  // Add the callback to id map.
+  int request_id =
+      pending_client_cert_request_delegates_.Add(delegate.release());
+  // Make sure callback is run on error.
+  base::ScopedClosureRunner guard(base::Bind(
+      &XWalkContentsClientBridge::HandleErrorInClientCertificateResponse,
+      base::Unretained(this),
+      request_id));
+
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return;
+
+  // Build the |key_types| JNI parameter, as a String[]
+  std::vector<std::string> key_types;
+  for (size_t i = 0; i < cert_request_info->cert_key_types.size(); ++i) {
+    switch (cert_request_info->cert_key_types[i]) {
+      case net::CLIENT_CERT_RSA_SIGN:
+        key_types.push_back("RSA");
+        break;
+      case net::CLIENT_CERT_ECDSA_SIGN:
+        key_types.push_back("ECDSA");
+        break;
+      default:
+        // Ignore unknown types.
+        break;
+    }
+  }
+
+  ScopedJavaLocalRef<jobjectArray> key_types_ref =
+      base::android::ToJavaArrayOfStrings(env, key_types);
+  if (key_types_ref.is_null()) {
+    LOG(ERROR) << "Could not create key types array (String[])";
+    return;
+  }
+
+  // Build the |encoded_principals| JNI parameter, as a byte[][]
+  ScopedJavaLocalRef<jobjectArray> principals_ref =
+      base::android::ToJavaArrayOfByteArray(
+          env, cert_request_info->cert_authorities);
+  if (principals_ref.is_null()) {
+    LOG(ERROR) << "Could not create principals array (byte[][])";
+    return;
+  }
+
+  // Build the |host_name| and |port| JNI parameters, as a String and
+  // a jint.
+  ScopedJavaLocalRef<jstring> host_name_ref =
+      base::android::ConvertUTF8ToJavaString(
+          env, cert_request_info->host_and_port.host());
+
+  Java_XWalkContentsClientBridge_selectClientCertificate(
+      env,
+      obj.obj(),
+      request_id,
+      key_types_ref.obj(),
+      principals_ref.obj(),
+      host_name_ref.obj(),
+      cert_request_info->host_and_port.port());
+
+  // Release the guard.
+  ignore_result(guard.Release());
 }
 
 }  // namespace xwalk

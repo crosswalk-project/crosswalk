@@ -18,4 +18,14 @@ public @interface JsApi {
      * methods will ignore this value.
      */
     public boolean isEventList() default false;
+
+    /*
+     * This property is only meanful for functions/constructors.
+     */
+    public boolean isEntryPoint() default false;
+
+    /*
+     * This property is only meanful for functions.
+     */
+    public boolean withPromise() default false;
 }

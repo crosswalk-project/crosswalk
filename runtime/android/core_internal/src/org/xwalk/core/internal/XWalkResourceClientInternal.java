@@ -8,9 +8,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.http.SslError;
+import android.util.Log;
 import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
+
+import java.security.KeyStore.PrivateKeyEntry;
+import java.security.Principal;
+import java.util.ArrayList;
 
 /**
  * This class notifies the embedder resource events/callbacks.
@@ -256,7 +261,8 @@ public class XWalkResourceClientInternal {
                         valueCallback.onReceiveValue(true);
                         dialog.dismiss();
                     }
-                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         valueCallback.onReceiveValue(false);
@@ -269,5 +275,27 @@ public class XWalkResourceClientInternal {
                     }
                 });
         dialogBuilder.create().show();
+    }
+
+    /**
+     * Notify the host application to handle a SSL client certificate request. The host application 
+     * is responsible for showing the UI if desired and providing the keys. There are three ways to 
+     * respond: proceed(), cancel() or ignore(). XWalkView remembers the response if proceed() or cancel() 
+     * is called and does not call onReceivedClientCertRequest() again for the same host and port pair.
+     * XWalkView does not remember the response if ignore() is called.
+     *
+     * This method is called on the UI thread. During the callback, the connection is suspended.
+     *
+     * The default behavior is to cancel, returning no client certificate.
+     *
+     * @param view The XWalkView that is initiating the callback
+     * @param handler An instance of a ClientCertRequestHandlerInternal
+     * 
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void onReceivedClientCertRequest(XWalkViewInternal view,
+            ClientCertRequestInternal handler) {
+        handler.cancel();
     }
 }

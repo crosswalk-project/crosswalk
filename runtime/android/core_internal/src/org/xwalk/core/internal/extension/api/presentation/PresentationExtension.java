@@ -54,7 +54,12 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
     private final static String CMD_SESSION_START_SUCCEEDED = "SessionStartSucceeded";
     private final static String CMD_SESSION_START_FAILED = "SessionStartFailed";
     private final static String CMD_DEFAULT_SESSION_STARTED = "DefaultSessionStarted";
+<<<<<<< HEAD
     private final static String CMD_SESSION_MESSAGE_RECEIVED = "SessionMessageReceived";
+=======
+    private final static String CMD_SESSION_MESSAGE_TO_HOST_RECEIVED = "SessionMessageToHostReceived";
+    private final static String CMD_SESSION_MESSAGE_TO_REMOTE_RECEIVED = "SessionMessageToRemoteReceived";
+>>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
 
     // Error messages:
     private final static String ERROR_INVALID_ACCESS = "InvalidAccessError";
@@ -318,28 +323,51 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
 
     private void handleSendMessageToRemoteDisplay(final int instanceId, final int presentationId,
                                    final String data) {
+<<<<<<< HEAD
         notifySessionMessageReceived(instanceId + 1, presentationId, data);
+=======
+        notifySessionMessageReceived(false, presentationId, data);
+>>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
     }
 
     private void handleSendMessageToHostDisplay(final int instanceId, final int presentationId,
                                    final String data) {
+<<<<<<< HEAD
         notifySessionMessageReceived(instanceId - 1, presentationId, data);
     }
 
     private void notifySessionMessageReceived(final int instanceId, final int presentationId,
+=======
+        notifySessionMessageReceived(true, presentationId, data);
+    }
+
+    private void notifySessionMessageReceived(final boolean isToHost, final int presentationId,
+>>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
         final String data) {
         StringWriter contents = new StringWriter();
         JsonWriter writer = new JsonWriter(contents);
 
         try {
             writer.beginObject();
+<<<<<<< HEAD
             writer.name(TAG_CMD).value(CMD_SESSION_MESSAGE_RECEIVED);
+=======
+            if (isToHost) {
+              writer.name(TAG_CMD).value(CMD_SESSION_MESSAGE_TO_HOST_RECEIVED);
+            } else {
+              writer.name(TAG_CMD).value(CMD_SESSION_MESSAGE_TO_REMOTE_RECEIVED);
+            }
+>>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
             writer.name(TAG_PRESENTATION_ID).value(presentationId);
             writer.name(TAG_DATA).value(data);
             writer.endObject();
             writer.close();
 
+<<<<<<< HEAD
             postMessage(instanceId, contents.toString());
+=======
+            broadcastMessage(contents.toString());
+>>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
         } catch (IOException e) {
             Log.e(TAG, "Error: " + e.toString());
         }

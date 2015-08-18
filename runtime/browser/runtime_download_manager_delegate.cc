@@ -25,6 +25,10 @@
 #include "content/shell/common/shell_switches.h"
 #include "net/base/filename_util.h"
 
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+#include "xwalk/runtime/browser/runtime_platform_util.h"
+#endif
+
 using content::BrowserThread;
 
 namespace xwalk {
@@ -51,6 +55,15 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
     content::DownloadItem* download,
     const content::DownloadTargetCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+#if defined(OS_LINUX) && !defined(OS_TIZEN)
+  // Use the platform's default application to handle the download URL
+  // when there's no download path preset.
+  if (default_download_path_.empty() &&
+      download->GetForcedFilePath().empty()) {
+    platform_util::OpenExternal(download->GetURL());
+    return false;
+  }
+#endif
   // This assignment needs to be here because even at the call to
   // SetDownloadManager, the system is not fully initialized.
   if (default_download_path_.empty()) {

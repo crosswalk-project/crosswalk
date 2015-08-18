@@ -24,6 +24,7 @@
 
 #if defined(OS_ANDROID)
 #include "base/strings/string_split.h"
+#include "xwalk/runtime/browser/android/xwalk_form_database_service.h"
 #endif
 
 namespace net {
@@ -105,6 +106,8 @@ class XWalkBrowserContext
   void RebuildTable(
       const scoped_refptr<URLEnumerator>& enumerator) override;
 
+  void InitFormDatabaseService();
+  XWalkFormDatabaseService* GetFormDatabaseService();
   void CreateUserPrefServiceIfNecessary();
 
   void UpdateAcceptLanguages(const std::string& accept_languages);
@@ -130,6 +133,7 @@ class XWalkBrowserContext
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 
   scoped_ptr<PrefService> user_pref_service_;
+  scoped_ptr<XWalkFormDatabaseService> form_database_service_;
 #endif
 
   typedef std::map<base::FilePath::StringType,

@@ -30,13 +30,7 @@ ${CLASS_EXTENDS} ${CLASS_IMPLEMENTS} {
 
 ${FIELDS_SECTION}
 ${ENUMS_SECTION}
-    private XWalkCoreWrapper coreWrapper;
-    private Object bridge;
-
-    Object getBridge() {
-        return bridge;
-    }
-
+${MEMBERSS_SECTION}
 ${INTERNALLY_CONSTRUCOR_SECTION}
 ${METHODS_SECTION}
 ${REFLECTION_SECTION}
@@ -55,6 +49,7 @@ ${REFLECTION_SECTION}
              'CLASS_IMPLEMENTS': self.GenerateClassImplements(),
              'ENUMS_SECTION': self.GenerateEnums(),
              'FIELDS_SECTION': self.GenerateFields(),
+             'MEMBERSS_SECTION': self.GenerateMembers(),
              'INTERNALLY_CONSTRUCOR_SECTION':
                   self.GenerateInternallyConstructor(),
              'METHODS_SECTION': self.GenerateMethods(),
@@ -104,9 +99,10 @@ ${DOC}
                'VALUE': field.field_value}
       fields_string += field_template.substitute(value)
 
-    fields_string += "    private ArrayList<Object> constructorTypes;\n"
-    fields_string += "    private ArrayList<Object> constructorParams;\n"
-    fields_string += "    private ReflectMethod postWrapperMethod;\n"
+    if not self._java_data.HasNoInstanceAnnotation():
+      fields_string += "    private ArrayList<Object> constructorTypes;\n"
+      fields_string += "    private ArrayList<Object> constructorParams;\n"
+      fields_string += "    private ReflectMethod postWrapperMethod;\n"
 
     return fields_string
 
@@ -132,6 +128,23 @@ ${DOC}
       enums_string += enum_template.substitute(value)
     return enums_string
 
+  def GenerateMembers(self):
+    if self._java_data.HasNoInstanceAnnotation():
+      members_string = """\
+    private static XWalkCoreWrapper coreWrapper;
+"""
+    else:
+      members_string = """\
+    private XWalkCoreWrapper coreWrapper;
+    private Object bridge;
+
+    Object getBridge() {
+        return bridge;
+    }
+"""
+
+    return members_string;
+
   def GenerateInternallyConstructor(self):
     if self._java_data.HasNoInstanceAnnotation():
       return ''
@@ -147,16 +160,66 @@ ${DOC}
     value = {'CLASS_NAME': self._java_data.wrapper_name};
     return constructor_template.substitute(value)
 
+  def GenerateWrapperDefaultConstructor(self):
+    template = Template("""\
+    public ${NAME}() {
+${WRAP_LINES}
+        reflectionInit();
+    }
+
+""")
+    wrap_string = "        constructorTypes = new ArrayList<Object>();\n"
+    wrap_string += "        constructorParams = new ArrayList<Object>();\n"
+    value = {'NAME': self._java_data.wrapper_name,
+             'WRAP_LINES': wrap_string}
+    return template.substitute(value)
+
   def GenerateMethods(self):
     methods_string = ''
     # Generate method definitions.
+    if self._java_data.need_default_constructor:
+      methods_string += self.GenerateWrapperDefaultConstructor()
     for method in self._java_data.methods:
       methods_string += method.GenerateMethodsStringForWrapper()
     return methods_string
 
   def GenerateReflectionInit(self):
     if self._java_data.HasNoInstanceAnnotation():
-      return ''
+      ref_methods_string = ''
+
+      ref_method_template = Template("""\
+        ${METHOD_DECLARE_NAME}.init(null, bridgeClass, "${METHOD_NAME}"${PARAMS});
+""")
+
+      for method in self._java_data.methods:
+        if not method.is_static:
+          continue
+        value = { 'METHOD_DECLARE_NAME': method._method_declare_name,
+                  'METHOD_NAME': method.method_name,
+                  'PARAMS': method._wrapper_params_declare_for_bridge}
+        ref_methods_string += ref_method_template.substitute(value)
+
+      ref_init_template = Template("""\
+    static void reflectionInit() {
+        if (coreWrapper != null) return;
+
+        XWalkCoreWrapper.initEmbeddedMode();
+
+        coreWrapper = XWalkCoreWrapper.getInstance();
+        if (coreWrapper == null) {
+            XWalkCoreWrapper.reserveReflectClass(${CLASS_NAME}.class);
+            return;
+        }
+
+        Class<?> bridgeClass = coreWrapper.getBridgeClass("${BRIDGE_NAME}");
+
+${REF_METHODS}    }
+  """)
+
+      value = { 'CLASS_NAME': self._java_data.wrapper_name,
+                'BRIDGE_NAME': self._java_data._bridge_name,
+                'REF_METHODS': ref_methods_string}
+      return ref_init_template.substitute(value)
 
     ref_init_string = """\
         coreWrapper = XWalkCoreWrapper.getInstance();

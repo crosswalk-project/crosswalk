@@ -9,7 +9,7 @@
 #include <string>
 #include "base/bind.h"
 #include "base/memory/weak_ptr.h"
-#include "base/message_loop/message_loop_proxy.h"
+#include "base/message_loop/message_loop.h"
 #include "base/values.h"
 
 namespace xwalk {
@@ -105,7 +105,7 @@ class XWalkExtensionFunctionHandler {
  private:
   static void DispatchResult(
       const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
-      scoped_refptr<base::MessageLoopProxy> client_task_runner,
+      scoped_refptr<base::SingleThreadTaskRunner> client_task_runner,
       const std::string& callback_id,
       scoped_ptr<base::ListValue> result);
 

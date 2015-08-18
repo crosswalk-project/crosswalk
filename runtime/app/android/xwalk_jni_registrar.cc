@@ -14,6 +14,7 @@
 #include "xwalk/runtime/browser/android/intercepted_request_data_impl.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
+#include "xwalk/runtime/browser/android/xwalk_autofill_client.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
@@ -37,6 +38,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "NetAndroid", net::android::RegisterJni },
   { "WebContentsDelegateAndroid",
       web_contents_delegate_android::RegisterWebContentsDelegateAndroidJni },
+  { "XWalkAutofillClient", RegisterXWalkAutofillClient },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
   { "XWalkContentsIoThreadClientImpl",
       RegisterXWalkContentsIoThreadClientImpl },

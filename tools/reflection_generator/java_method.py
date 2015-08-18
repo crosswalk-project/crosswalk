@@ -655,37 +655,41 @@ ${POST_WRAP_LINES}
     return ret
 
   def GenerateWrapperStaticMethod(self):
-    template = Template("""\
+    if self.is_reservable:
+      template = Template("""\
 ${DOC}
     public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        XWalkCoreWrapper.initEmbeddedMode();
-        XWalkCoreWrapper coreWrapper = \
-XWalkCoreWrapper.getInstance();
-        ReflectMethod method = new ReflectMethod(
-                coreWrapper.getBridgeClass("${BRIDGE_NAME}"),
-                "${NAME}"${PARAMS_DECLARE_FOR_BRIDGE});
-        ${RETURN}method.invoke(${PARAMS_PASSING});
+        reflectionInit();
+        if (${METHOD_DECLARE_NAME}.isNull()) {
+            ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_PASSING});
+            XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
+            return;
+        }
+        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+    }
+""")
+    else:
+      template = Template("""\
+${DOC}
+    public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        reflectionInit();
+        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
     }
 """)
 
     return_type = ConvertPrimitiveTypeToObject(self.method_return)
     if self._method_return == 'void':
       return_state = ''
-      return_null = 'return;'
     else:
       return_state = 'return (%s) ' % return_type
-      return_null = 'return (%s) null;' % return_type
 
     value = {'RETURN_TYPE': self.method_return,
+             'RETURN': return_state,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
-             'BRIDGE_NAME': self._class_java_data.GetBridgeName(),
-             'PARAMS_DECLARE_FOR_BRIDGE':
-                 self._wrapper_params_declare_for_bridge,
-             'PARAMS_PASSING': self._wrapper_params_pass_to_bridge,
              'PARAMS': self._wrapper_params_declare,
-             'RETURN_NULL': return_null,
-             'RETURN': return_state}
+             'METHOD_DECLARE_NAME': self._method_declare_name,
+             'PARAMS_PASSING': self._wrapper_params_pass_to_bridge}
     return template.substitute(value)
 
   def GenerateWrapperBridgeMethod(self):
@@ -790,7 +794,10 @@ ${DOC}
     if self._is_constructor:
       return self.GenerateWrapperConstructor()
     elif self._is_static:
-      return self.GenerateWrapperStaticMethod()
+      return '%s\n%s\n' % (
+          self.GenerateWrapperStaticMethod(), """\
+    private static ReflectMethod %s = new ReflectMethod(null, "%s");\n""" %
+              (self._method_declare_name, self._method_name))
     elif self._is_abstract:
       return self.GenerateWrapperBridgeMethod()
     else:

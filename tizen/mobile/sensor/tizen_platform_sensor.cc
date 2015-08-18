@@ -63,7 +63,7 @@ TizenPlatformSensor::~TizenPlatformSensor() {
 bool TizenPlatformSensor::Initialize() {
   // Initialize sensor provider could be time costing. Therefore, we'd better
   // not run it inside browser UI thread.
-  sensor_thread_->message_loop_proxy()->PostTask(
+  sensor_thread_->task_runner()->PostTask(
       FROM_HERE,
       base::Bind(&TizenPlatformSensor::ConnectSensor,
                  base::Unretained(this)));

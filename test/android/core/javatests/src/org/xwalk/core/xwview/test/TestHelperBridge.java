@@ -25,6 +25,7 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPage
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
+import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkUIClient.ConsoleMessageType;
 import org.xwalk.core.XWalkUIClient.LoadStatus;
 import org.xwalk.core.XWalkView;
@@ -406,6 +407,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnReceivedClientCertRequestHelper extends CallbackHelper {
+        private ClientCertRequest mHandler;
+
+        public void notifyCalled(ClientCertRequest handler) {
+            mHandler = handler;
+            notifyCalled();
+        }
+
+        public ClientCertRequest getHandler() {
+            assert getCallCount() > 0;
+            return mHandler;
+        }
+    }
+
     private String mChangedTitle;
     private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
@@ -432,6 +447,7 @@ class TestHelperBridge {
     private final OnReceivedIconHelper mOnReceivedIconHelper;
     private final OnLoadFinishedHelper mOnLoadFinishedHelper;
     private final OnDownloadStartHelper mOnDownloadStartHelper;
+    private final OnReceivedClientCertRequestHelper mOnReceivedClientCertRequestHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -456,6 +472,7 @@ class TestHelperBridge {
         mOnReceivedIconHelper = new OnReceivedIconHelper();
         mOnLoadFinishedHelper = new OnLoadFinishedHelper();
         mOnDownloadStartHelper = new OnDownloadStartHelper();
+        mOnReceivedClientCertRequestHelper = new OnReceivedClientCertRequestHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -544,6 +561,10 @@ class TestHelperBridge {
 
     public OnDownloadStartHelper getOnDownloadStartHelper() {
         return mOnDownloadStartHelper;
+    }
+
+    public OnReceivedClientCertRequestHelper getOnReceivedClientCertRequestHelper() {
+        return mOnReceivedClientCertRequestHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -641,5 +662,9 @@ class TestHelperBridge {
             String contentDisposition, String mimetype, long contentLength) {
         mOnDownloadStartHelper.notifyCalled(url, userAgent, contentDisposition,
                 mimetype, contentLength);
+    }
+
+    public void onReceivedClientCertRequest(XWalkView view, ClientCertRequest handler) {
+        mOnReceivedClientCertRequestHelper.notifyCalled(handler);
     }
 }

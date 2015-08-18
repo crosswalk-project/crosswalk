@@ -16,6 +16,7 @@
 #include "base/prefs/pref_service.h"
 #include "base/prefs/pref_service_factory.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/autofill/core/common/autofill_pref_names.h"
 #include "components/user_prefs/user_prefs.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/browser_thread.h"
@@ -83,6 +84,7 @@ XWalkBrowserContext::XWalkBrowserContext()
   InitWhileIOAllowed();
 #if defined(OS_ANDROID)
   InitVisitedLinkMaster();
+  InitFormDatabaseService();
 #endif
   CHECK(!g_browser_context);
   g_browser_context = this;
@@ -354,12 +356,32 @@ void XWalkBrowserContext::RebuildTable(
   enumerator->OnComplete(true);
 }
 
+void XWalkBrowserContext::InitFormDatabaseService() {
+  base::FilePath user_data_dir;
+  CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir));
+  form_database_service_.reset(new XWalkFormDatabaseService(user_data_dir));
+}
+
+XWalkFormDatabaseService* XWalkBrowserContext::GetFormDatabaseService() {
+  return form_database_service_.get();
+}
+
 // Create user pref service for autofill functionality.
 void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
   if (user_pref_service_) return;
 
   PrefRegistrySimple* pref_registry = new PrefRegistrySimple();
   pref_registry->RegisterStringPref("intl.accept_languages", "");
+
+  // We only use the autocomplete feature of the Autofill, which is
+  // controlled via the manager_delegate. We don't use the rest
+  // of autofill, which is why it is hardcoded as disabled here.
+  pref_registry->RegisterBooleanPref(
+      autofill::prefs::kAutofillEnabled, false);
+  pref_registry->RegisterDoublePref(
+      autofill::prefs::kAutofillPositiveUploadRate, 0.0);
+  pref_registry->RegisterDoublePref(
+      autofill::prefs::kAutofillNegativeUploadRate, 0.0);
 
   base::PrefServiceFactory pref_service_factory;
   pref_service_factory.set_user_prefs(make_scoped_refptr(new XWalkPrefStore()));

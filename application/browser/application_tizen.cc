@@ -146,11 +146,11 @@ class ScreenOrientationDelegateTizen :
 ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
     XWalkBrowserContext* browser_context)
-    : Application(data, browser_context),
+    : Application(data, browser_context)
 #if defined(OS_TIZEN_MOBILE)
-      root_window_(NULL),
+      , root_window_(NULL)
 #endif
-      is_suspended_(false) {
+      {
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
   cookie_manager_ = scoped_ptr<CookieManager>(
       new CookieManager(id(), browser_context_));
@@ -261,44 +261,6 @@ base::FilePath ApplicationTizen::GetSplashScreenPath() {
     return data()->path().Append(FILE_PATH_LITERAL(ss_info->src()));
   }
   return base::FilePath();
-}
-
-bool ApplicationTizen::CanBeSuspended() const {
-  if (TizenSettingInfo* setting = static_cast<TizenSettingInfo*>(
-          data()->GetManifestData(widget_keys::kTizenSettingKey))) {
-    return !setting->background_support_enabled();
-  }
-  return true;
-}
-
-void ApplicationTizen::Suspend() {
-  if (is_suspended_ || !CanBeSuspended())
-    return;
-
-  DCHECK(render_process_host_);
-  render_process_host_->Send(new ViewMsg_SuspendJSEngine(true));
-
-  DCHECK(!runtimes_.empty());
-  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
-    if ((*it)->web_contents())
-      (*it)->web_contents()->WasHidden();
-  }
-  is_suspended_ = true;
-}
-
-void ApplicationTizen::Resume() {
-  if (!is_suspended_ || !CanBeSuspended())
-    return;
-
-  DCHECK(render_process_host_);
-  render_process_host_->Send(new ViewMsg_SuspendJSEngine(false));
-
-  DCHECK(!runtimes_.empty());
-  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
-    if ((*it)->web_contents())
-      (*it)->web_contents()->WasShown();
-  }
-  is_suspended_ = false;
 }
 
 void ApplicationTizen::WillProcessEvent(const ui::PlatformEvent& event) {}

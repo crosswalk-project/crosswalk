@@ -18,9 +18,9 @@
         'api_files': [
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/JavascriptInterface.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkApplication.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/ClientCertRequest.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkDownloadListener.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkExtension.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkJavascriptResult.java',
@@ -200,7 +200,6 @@
         'xwalk_core_java',
       ],
       'variables': {
-        'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
       },
@@ -217,7 +216,6 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--classes-dir=<(classes_dir)',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
           ],
@@ -231,7 +229,6 @@
         'xwalk_core_internal_empty_embedder_apk',
       ],
       'variables': {
-        'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
       },
@@ -248,7 +245,6 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--classes-dir=<(classes_dir)',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
           ],
@@ -263,7 +259,6 @@
         'xwalk_core_library_java_library_part',
       ],
       'variables': {
-        'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
       },
@@ -280,7 +275,6 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--classes-dir=<(classes_dir)',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
           ],
@@ -317,7 +311,7 @@
       'target_name': 'xwalk_shared_library',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_library_java_app_part',
+        'xwalk_core_library_java',
       ],
       'actions': [
         {
@@ -435,7 +429,7 @@
       'target_name': 'xwalk_shared_library_aar',
       'type': 'none',
       'dependencies': [
-        'xwalk_shared_library',
+        'xwalk_core_empty_embedder_apk',
       ],
       'actions': [
         {
