@@ -119,12 +119,16 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         MediaPlayerBridge.setResourceLoadingFilter(
                 new XWalkMediaPlayerResourceLoadingFilter());
 
-        setNativeContent(nativeInit());
+        setNativeContent(nativeInit(), attrs);
 
         XWalkPreferencesInternal.load(this);
     }
 
     private void setNativeContent(long newNativeContent) {
+        setNativeContent(newNativeContent, null);
+    }
+
+    private void setNativeContent(long newNativeContent, AttributeSet attrs ) {
         if (mNativeContent != 0) {
             destroy();
             mContentViewCore = null;
@@ -132,9 +136,21 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
         assert mNativeContent == 0 && mCleanupReference == null && mContentViewCore == null;
 
+        boolean animated;
+        //If app developers want to assign the CompositingSurfaceType for a single xwalkview,
+        //"animatable" attribute of this namespace must be defined in activity.xml, while an attrs.xml
+        //that to define the type of "animatable" is also needed under res/values/
+        String namespace="http://schemas.android.com/apk/res-auto";
+
         // Initialize ContentViewRenderView
-        boolean animated = XWalkPreferencesInternal.getValue(
-                XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
+        if (attrs == null) {
+            Log.d(TAG, "Attributeset is null, get animated value from XWalkPreferences.");
+            animated = XWalkPreferencesInternal.getValue(
+                    XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
+        } else {
+            Log.d(TAG, "Config animated value by application xml.");
+            animated = attrs.getAttributeBooleanValue(namespace, "animatable", false);
+        }
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
         mContentViewRenderView = new ContentViewRenderView(getContext(), surfaceType) {
