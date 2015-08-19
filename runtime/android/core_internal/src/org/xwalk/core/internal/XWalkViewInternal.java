@@ -340,17 +340,12 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         mIsHidden = false;
         mContent = new XWalkContent(context, attrs, this);
+
         // If XWalkView was created in onXWalkReady(), and the activity which owns
         // XWalkView was destroyed, pauseTimers() will be invoked. Reentry the activity,
         // resumeTimers() will not be invoked since onResume() was invoked before
         // XWalkView creation. So to invoke resumeTimers() explicitly here.
         mContent.resumeTimers();
-        addView(mContent,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
-
-
         // Set default XWalkClientImpl.
         setXWalkClient(new XWalkClient(this));
         // Set default XWalkWebChromeClient and DownloadListener. The default actions
