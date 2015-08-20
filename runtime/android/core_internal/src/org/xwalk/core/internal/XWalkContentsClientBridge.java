@@ -233,6 +233,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void doUpdateVisitedHistory(String url, boolean isReload) {
+        mXWalkResourceClient.doUpdateVisitedHistory(mXWalkView, url, isReload);
     }
 
     @Override

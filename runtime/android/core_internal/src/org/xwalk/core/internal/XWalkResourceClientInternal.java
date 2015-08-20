@@ -298,4 +298,18 @@ public class XWalkResourceClientInternal {
             ClientCertRequestInternal handler) {
         handler.cancel();
     }
+
+    /**
+     * Notify the host application to update its visited links database.
+     *
+     * @param view The XWalkView that is initiating the callback.
+     * @param url The url being visited.
+     * @param isReload True if this url is being reloaded.
+     *
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void doUpdateVisitedHistory(XWalkViewInternal view, String url,
+            boolean isReload) {
+    }
 }
