@@ -825,6 +825,17 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
      * @see android.webkit.WebView#clearFormData()
      */
     public void hideAutofillPopup() {
+        if (mNativeContent == 0) return;
+        if (mIsLoaded == false) {
+            mXWalkView.post(new Runnable() {
+                @Override
+                public void run() {
+                    hideAutofillPopup();
+                }
+            });
+            return;
+        }
+
         if (mXWalkAutofillClient != null) {
             mXWalkAutofillClient.hideAutofillPopup();
         }
