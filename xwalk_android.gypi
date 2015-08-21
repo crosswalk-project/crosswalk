@@ -10,6 +10,8 @@
       'android_unmangled_name': 1,
       'dependencies': [
         '../components/components.gyp:auto_login_parser',
+        '../components/components.gyp:cdm_browser',
+        '../components/components.gyp:cdm_renderer',
         '../components/components.gyp:navigation_interception',
         '../components/components.gyp:visitedlink_browser',
         '../components/components.gyp:visitedlink_renderer',
