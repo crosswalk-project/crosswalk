@@ -19,5 +19,7 @@ include_rules = [
   "+jni",
   "+components/web_contents_delegate_android",
   "+components/navigation_interception",
+  "+components/cdm/browser",
+  "+components/cdm/renderer",
   "+cc/base/switches.h"
 ]
