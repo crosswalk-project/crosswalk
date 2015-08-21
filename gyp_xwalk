@@ -373,6 +373,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_builtin_extensions=0')
     # Enable Inspector by default
     args.append('-Ddisable_inspector=0')
+    # Disable Web Video by default.
+    args.append('-Ddisable_web_video=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
