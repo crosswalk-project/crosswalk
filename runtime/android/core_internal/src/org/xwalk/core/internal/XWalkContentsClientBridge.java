@@ -315,9 +315,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @CalledByNative
-    public void onReceivedHttpAuthRequest(XWalkHttpAuthHandler handler, String host, String realm) {
-        if (mXWalkClient != null && isOwnerActivityRunning()) {
-            mXWalkClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
+    public void onReceivedHttpAuthRequest(
+            XWalkHttpAuthHandlerInternal handler, String host, String realm) {
+        if (mXWalkResourceClient != null && isOwnerActivityRunning()) {
+            mXWalkResourceClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
         }
     }
 
