@@ -53,6 +53,9 @@ class XWalkExtensionProcessHost
 
   XWalkExtensionProcessHost(content::RenderProcessHost* render_process_host,
                             const base::FilePath& external_extensions_path,
+#if defined (OS_WIN)
+                            const base::FilePath& dotnet_extensions_path,
+#endif
                             XWalkExtensionProcessHost::Delegate* delegate,
                             scoped_ptr<base::ValueMap> runtime_variables);
   ~XWalkExtensionProcessHost() override;
@@ -101,6 +104,9 @@ class XWalkExtensionProcessHost
   scoped_refptr<RenderProcessMessageFilter> render_process_message_filter_;
 
   base::FilePath external_extensions_path_;
+#if defined (OS_WIN)
+  base::FilePath dotnet_extensions_path_;
+#endif
 
   bool is_extension_process_channel_ready_;
 

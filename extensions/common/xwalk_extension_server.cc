@@ -17,6 +17,10 @@
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 
+#if defined(OS_WIN)
+#include "xwalk/extensions/common/win/xwalk_dotnet_extension.h"
+#endif
+
 namespace xwalk {
 namespace extensions {
 
@@ -379,6 +383,48 @@ base::FilePath::StringType GetNativeLibraryPattern() {
 #endif
 }
 }  // namespace
+
+#if defined(OS_WIN)
+std::vector<std::string> RegisterDotNetExtensionsInDirectory(
+  XWalkExtensionServer* server, const base::FilePath& dir,
+  scoped_ptr<base::ValueMap> runtime_variables) {
+  CHECK(server);
+
+  std::vector<std::string> registered_extensions;
+
+  if (!base::DirectoryExists(dir)) {
+    LOG(WARNING) << "Couldn't load dotnet extensions from non-existent"
+      << " directory " << dir.AsUTF8Unsafe();
+    return registered_extensions;
+  }
+
+  base::FileEnumerator libraries(
+    dir, false, base::FileEnumerator::FILES, GetNativeLibraryPattern());
+
+  for (base::FilePath extension_path = libraries.Next();
+    !extension_path.empty(); extension_path = libraries.Next()) {
+    scoped_ptr<XWalkDotNetExtension> extension(
+      new XWalkDotNetExtension(extension_path));
+
+    // Let the extension know about its own path, so it can be used
+    // as an identifier in case you have symlinks to extensions to force it
+    // load multiple times.
+    (*runtime_variables)["extension_path"] =
+      new base::StringValue(extension_path.AsUTF8Unsafe());
+
+    extension->set_runtime_variables(*runtime_variables);
+    if (extension->Initialize()) {
+      registered_extensions.push_back(extension->name());
+      server->RegisterExtension(extension.Pass());
+    } else {
+      LOG(WARNING) << "Failed to initialize extension: "
+        << extension_path.AsUTF8Unsafe();
+    }
+  }
+
+  return registered_extensions;
+}
+#endif
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir,

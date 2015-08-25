@@ -218,6 +218,13 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
   external_extensions_path_ = path;
 }
 
+#if defined(OS_WIN)
+void XWalkExtensionService::RegisterDotNetExtensionsForPath(
+  const base::FilePath& path) {
+  dotnet_extensions_path_ = path;
+}
+#endif
+
 void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
@@ -232,10 +239,19 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess)) {
     CreateExtensionProcessHost(host, data, runtime_variables.Pass());
-  } else if (!external_extensions_path_.empty()) {
-    RegisterExternalExtensionsInDirectory(
+  } else {
+    if (!external_extensions_path_.empty()) {
+      RegisterExternalExtensionsInDirectory(
         data->in_process_ui_thread_server(),
         external_extensions_path_, runtime_variables.Pass());
+    }
+#if defined(OS_WIN)
+    if (!dotnet_extensions_path_.empty()) {
+      RegisterDotNetExtensionsInDirectory(
+        data->in_process_ui_thread_server(),
+        dotnet_extensions_path_, runtime_variables.Pass());
+    }
+#endif
   }
 
   extension_data_map_[host->GetID()] = data;
@@ -374,8 +390,11 @@ void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, XWalkExtensionData* data,
     scoped_ptr<base::ValueMap> runtime_variables) {
   data->set_extension_process_host(make_scoped_ptr(
-      new XWalkExtensionProcessHost(host, external_extensions_path_, this,
-                                    runtime_variables.Pass())));
+      new XWalkExtensionProcessHost(host, external_extensions_path_,
+#if defined (OS_WIN)
+                                    dotnet_extensions_path_,
+#endif
+                                    this, runtime_variables.Pass())));
 }
 
 void XWalkExtensionService::OnExtensionProcessDied(

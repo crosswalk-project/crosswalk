@@ -42,6 +42,10 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcess, message)
     IPC_MESSAGE_HANDLER(XWalkExtensionProcessMsg_RegisterExtensions,
                         OnRegisterExtensions)
+#if defined(OS_WIN)
+    IPC_MESSAGE_HANDLER(XWalkExtensionProcessMsg_RegisterDotNetExtensions,
+                        OnRegisterDotNetExtensions)
+#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -77,6 +81,25 @@ void XWalkExtensionProcess::OnRegisterExtensions(
   }
   CreateRenderProcessChannel();
 }
+
+#if defined(OS_WIN)
+void XWalkExtensionProcess::OnRegisterDotNetExtensions(
+  const base::FilePath& path, const base::ListValue& browser_variables_lv) {
+  if (!path.empty()) {
+    scoped_ptr<base::ValueMap> browser_variables(new base::ValueMap);
+
+    ToValueMap(&const_cast<base::ListValue&>(browser_variables_lv),
+      browser_variables.get());
+
+    RegisterDotNetExtensionsInDirectory(&extensions_server_, path,
+      browser_variables.Pass());
+  }
+
+  // Only create the render process channel if it was not created.
+  if (!browser_process_channel_)
+    CreateRenderProcessChannel();
+}
+#endif
 
 void XWalkExtensionProcess::CreateBrowserProcessChannel(
     const IPC::ChannelHandle& channel_handle) {

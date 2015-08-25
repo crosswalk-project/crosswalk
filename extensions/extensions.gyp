@@ -67,6 +67,52 @@
         'renderer/xwalk_v8tools_module.cc',
         'renderer/xwalk_v8tools_module.h',
       ],
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            'xwalk_dotnet_bridge',
+          ],
+          'sources': [
+              'common/win/xwalk_dotnet_extension.cc',
+              'common/win/xwalk_dotnet_extension.h',
+              'common/win/xwalk_dotnet_instance.cc',
+              'common/win/xwalk_dotnet_instance.h',
+            ],
+        }],
+      ],
     },
+  ],
+  'conditions': [
+    ['OS=="win"', {
+      # This is needed so that /RTC1 is not added to the
+      # compilation command line (it's not compatible with /clr)
+      'target_defaults': {
+        'variables': {
+          'win_debug_RuntimeChecks': '0',
+        },
+      },
+      'targets': [
+        {
+          'target_name': 'xwalk_dotnet_bridge',
+          'type': 'shared_library',
+          'sources': [
+            'common/win/xwalk_dotnet_bridge.cc',
+            'common/win/xwalk_dotnet_bridge.h',
+          ],
+          'defines': [
+            'DOTNET_BRIDGE_IMPLEMENTATION',
+          ],
+          'dependencies': [
+            '../../base/base.gyp:base'
+          ],
+          'msvs_settings': {
+            'VCCLCompilerTool': {
+              'RuntimeTypeInfo': 'true',
+              'CompileAsManaged':'true',
+            }
+          },
+        },
+      ],
+    }],  # OS=="win"
   ],
 }
