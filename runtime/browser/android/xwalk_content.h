@@ -48,6 +48,7 @@ class XWalkContent {
                     jobject io_thread_client,
                     jobject intercept_navigation_delegate);
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
+  void ClearCacheForSingleFile(JNIEnv* env, jobject obj, jstring url);
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
   ScopedJavaLocalRef<jstring> GetVersion(JNIEnv* env, jobject obj);
