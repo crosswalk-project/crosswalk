@@ -106,11 +106,6 @@ public class XWalkLaunchScreenManager
                 mLaunchScreenDialog = new Dialog(mLibContext,
                                                  android.R.style.Theme_Holo_Light_NoActionBar);
 
-                int parentVisibility = mActivity.getWindow().getDecorView().getSystemUiVisibility();
-                WindowManager.LayoutParams parentParams = mActivity.getWindow().getAttributes();
-                mLaunchScreenDialog.getWindow().getDecorView().setSystemUiVisibility(parentVisibility);
-                mLaunchScreenDialog.getWindow().setAttributes(parentParams);
-
                 mLaunchScreenDialog.setOnKeyListener(new Dialog.OnKeyListener() {
                     @Override
                     public boolean onKey(DialogInterface arg0, int keyCode,
