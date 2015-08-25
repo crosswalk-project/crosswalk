@@ -1,0 +1,20 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+    var echoAnswer = echo.syncEcho("Pass");
+    var echo2Answer = echo2.syncEcho2("Pass");
+    if (echoAnswer == "Pass" && echo2Answer == "Pass")
+        document.title = "Pass";
+     else
+        document.title = "Fail";
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>

@@ -759,6 +759,7 @@
         ['OS == "win"', {
           'dependencies': [
             '../sandbox/sandbox.gyp:sandbox',
+            'dotnet/dotnet_bridge.gyp:dotnet_bridge'
           ],
         }],  # OS=="win"
         ['OS=="mac"', {
