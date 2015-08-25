@@ -61,6 +61,10 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
 
+#if defined(OS_WIN)
+  void RegisterDotNetExtensionsForPath(const base::FilePath& path);
+#endif
+
   // To be called when a new RenderProcessHost is created, will plug the
   // extension system to that render process. See
   // XWalkContentBrowserClient::RenderProcessWillLaunch().
@@ -88,6 +92,9 @@ class XWalkExtensionService : public content::NotificationObserver,
       const CreateExtensionsCallback& callback);
 
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
+#if defined(OS_WIN)
+  static void SetDotNetExtensionsPathForTesting(const base::FilePath& path);
+#endif
 
  private:
   void OnRenderProcessHostCreatedInternal(
@@ -137,6 +144,9 @@ class XWalkExtensionService : public content::NotificationObserver,
   Delegate* delegate_;
 
   base::FilePath external_extensions_path_;
+#if defined(OS_WIN)
+  base::FilePath dotnet_extensions_path_;
+#endif
 
   typedef std::map<int, XWalkExtensionData*> RenderProcessToExtensionDataMap;
   RenderProcessToExtensionDataMap extension_data_map_;

@@ -30,6 +30,12 @@ IPC_MESSAGE_CONTROL2(XWalkExtensionProcessMsg_RegisterExtensions,  // NOLINT(*)
                      base::FilePath /* extensions path */,
                      base::ListValue /* browser variables */)
 
+#if defined (OS_WIN) // NOLINT
+IPC_MESSAGE_CONTROL2(XWalkExtensionProcessMsg_RegisterDotNetExtensions, // NOLINT(*)
+                     base::FilePath /* extensions path */,
+                     base::ListValue /* browser variables */)
+#endif // NOLINT
+
 // This implies that extensions are all loaded and Extension Process
 // is ready to be used.
 IPC_MESSAGE_CONTROL1(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated, // NOLINT(*)

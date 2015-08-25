@@ -122,6 +122,12 @@ class XWalkExtensionServer : public IPC::Listener,
   XWalkExtension::PermissionsDelegate* permissions_delegate_;
 };
 
+#if defined(OS_WIN)
+std::vector<std::string> RegisterDotNetExtensionsInDirectory(
+  XWalkExtensionServer* server, const base::FilePath& dir,
+  scoped_ptr<base::ValueMap> runtime_variables);
+#endif
+
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir,
     scoped_ptr<base::ValueMap> runtime_variables);
