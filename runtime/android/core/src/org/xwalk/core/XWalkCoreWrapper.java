@@ -13,6 +13,7 @@ import android.util.Log;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.HashMap;
 
@@ -32,12 +33,30 @@ class XWalkCoreWrapper {
     private static XWalkCoreWrapper sInstance;
 
     private static LinkedList<String> sReservedActivities = new LinkedList<String>();
-    private static HashMap<String, LinkedList<Object> > sReservedObjects =
-            new HashMap<String, LinkedList<Object> >();
-    private static HashMap<String, LinkedList<Class<?> > > sReservedClasses =
-            new HashMap<String, LinkedList<Class<?> > >();
-    private static HashMap<String, LinkedList<ReflectMethod> > sReservedMethods =
-            new HashMap<String, LinkedList<ReflectMethod> >();
+    private static HashMap<String, LinkedList<ReservedAction> > sReservedActions =
+            new HashMap<String, LinkedList<ReservedAction> >();
+
+    private static class ReservedAction {
+        ReservedAction(Object object) {
+            mObject = object;
+        }
+
+        ReservedAction(Class<?> clazz) {
+            mClass = clazz;
+        }
+
+        ReservedAction(ReflectMethod method) {
+            mMethod = method;
+            if (method.getArguments() != null) {
+                mArguments = Arrays.copyOf(method.getArguments(), method.getArguments().length);
+            }
+        }
+
+        Object mObject;
+        Class<?> mClass;
+        ReflectMethod mMethod;
+        Object[] mArguments;
+    }
 
     private int mApiVersion;
     private int mMinApiVersion;
@@ -64,80 +83,68 @@ class XWalkCoreWrapper {
         if (sInstance != null) return;
 
         Log.d(TAG, "Pre init xwalk core in " + tag);
-        if (sReservedObjects.containsKey(tag)) {
-            sReservedObjects.remove(tag);
-            sReservedClasses.remove(tag);
-            sReservedMethods.remove(tag);
+        if (sReservedActions.containsKey(tag)) {
+            sReservedActions.remove(tag);
         } else {
             sReservedActivities.add(tag);
         }
 
-        sReservedObjects.put(tag, new LinkedList<Object>());
-        sReservedClasses.put(tag, new LinkedList<Class<?> >());
-        sReservedMethods.put(tag, new LinkedList<ReflectMethod>());
+        sReservedActions.put(tag, new LinkedList<ReservedAction>());
     }
 
     public static void reserveReflectObject(Object object) {
         String tag = sReservedActivities.getLast();
         Log.d(TAG, "Reserve object " + object.getClass() + " to " + tag);
-        sReservedObjects.get(tag).add(object);
+        sReservedActions.get(tag).add(new ReservedAction(object));
     }
 
     public static void reserveReflectClass(Class<?> clazz) {
         String tag = sReservedActivities.getLast();
         Log.d(TAG, "Reserve class " + clazz.toString() + " to " + tag);
-        sReservedClasses.get(tag).add(clazz);
+        sReservedActions.get(tag).add(new ReservedAction(clazz));
     }
 
     public static void reserveReflectMethod(ReflectMethod method) {
         String tag = sReservedActivities.getLast();
         Log.d(TAG, "Reserve method " + method.toString() + " to " + tag);
-        sReservedMethods.get(sReservedActivities.getLast()).add(method);
+        sReservedActions.get(tag).add(new ReservedAction(method));
     }
 
     /**
      * This method must be invoked on the UI thread.
      */
     public static void handlePostInit(String tag) {
-        if (!sReservedObjects.containsKey(tag)) return;
-
+        if (!sReservedActions.containsKey(tag)) return;
         Log.d(TAG, "Post init xwalk core in " + tag);
-        LinkedList<Object> reservedObjects = sReservedObjects.get(tag);
-        for (Object object = reservedObjects.poll(); object != null;
-                object = reservedObjects.poll()) {
-            Log.d(TAG, "Init reserved object: " + object.getClass());
-            new ReflectMethod(object, "reflectionInit").invoke();
-        }
 
-        LinkedList<Class<?> > reservedClasses = sReservedClasses.get(tag);
-        for (Class<?> clazz = reservedClasses.poll(); clazz != null;
-                clazz = reservedClasses.poll()) {
-            Log.d(TAG, "Init reserved class: " + clazz.toString());
-            new ReflectMethod(clazz, "reflectionInit").invoke();
-        }
-
-        LinkedList<ReflectMethod> reservedMethods = sReservedMethods.get(tag);
-        for (ReflectMethod method = reservedMethods.poll(); method != null;
-                method = reservedMethods.poll()) {
-            Log.d(TAG, "Call reserved method: " + method.toString());
-            Object[] args = method.getArguments();
-            if (args != null) {
-                for (int i = 0; i < args.length; ++i) {
-                    if (args[i] instanceof ReflectMethod) {
-                        args[i] = ((ReflectMethod) args[i]).invokeWithArguments();
+        LinkedList<ReservedAction> reservedActions = sReservedActions.get(tag);
+        for (ReservedAction action : reservedActions) {
+            if (action.mObject != null) {
+                Log.d(TAG, "Init reserved object: " + action.mObject.getClass());
+                new ReflectMethod(action.mObject, "reflectionInit").invoke();
+            } else if (action.mClass != null) {
+                Log.d(TAG, "Init reserved class: " + action.mClass.toString());
+                new ReflectMethod(action.mClass, "reflectionInit").invoke();
+            } else {
+                Log.d(TAG, "Call reserved method: " + action.mMethod.toString());
+                Object[] args = action.mArguments;
+                if (args != null) {
+                    for (int i = 0; i < args.length; ++i) {
+                        if (args[i] instanceof ReflectMethod) {
+                            args[i] = ((ReflectMethod) args[i]).invokeWithArguments();
+                        }
                     }
                 }
+                action.mMethod.invoke(args);
             }
-            method.invokeWithArguments();
         }
 
         sReservedActivities.remove(tag);
-        sReservedMethods.remove(tag);
-        sReservedObjects.remove(tag);
+        sReservedActions.remove(tag);
     }
 
     public static int attachXWalkCore(Context context) {
-        Assert.assertNotNull(sReservedObjects);
+        Assert.assertFalse(sReservedActivities.isEmpty());
         Assert.assertNull(sInstance);
 
         Log.d(TAG, "Attach xwalk core");
