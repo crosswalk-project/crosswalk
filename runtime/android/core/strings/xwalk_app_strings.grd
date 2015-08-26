@@ -6,7 +6,7 @@
         Crosswalk Project Install
       </message>
       <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
-        Downloading the Crosswalk Project runtime from remote host...
+        Downloading the Crosswalk Project Service from remote host...
       </message>
       <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
         Download failed. A network error occurred.
@@ -21,37 +21,40 @@
         Download failed. The network connection timed out.
       </message>
       <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
-        Failed to open the app store. You need an app store to download the Crosswalk Project runtime.
+        Failed to open the app store. You need an app store to download the Crosswalk Project Service.
       </message>
       <message desc="Startup Not Found Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_TITLE">
-        Crosswalk Project Runtime Not Found
+        Crosswalk Project Service Not Found
       </message>
       <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
-        APP_NAME requires the Crosswalk Project runtime to work. Please install it from the application store, then restart APP_NAME.
+        APP_NAME requires the Crosswalk Project Service to work. Please install it from the app store, then restart APP_NAME.
       </message>
       <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
-        Mismatch of CPU Architecture for the Crosswalk Project Runtime
+        Mismatch of CPU Architecture for the Crosswalk Project Service
       </message>
       <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
-        The Crosswalk Project runtime must be updated to match the CPU architecture of the device. Please install it from the application store, then restart APP_NAME.
+        The Crosswalk Project Service must be updated to match the CPU architecture of the device. Please install it from the app store, then restart APP_NAME.
       </message>
       <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
         The Crosswalk Project Signature Verification Failed
       </message>
       <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
-        The integrity of the Crosswalk Project runtime cannot be verified. Please uninstall it and restart APP_NAME.
+        The integrity of the Crosswalk Project Service cannot be verified. Please uninstall it and restart APP_NAME.
       </message>
       <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
-        New Crosswalk Project Runtime Required
+        New Crosswalk Project Service Required
       </message>
       <message desc="Startup Older Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_MESSAGE">
-        The version of the Crosswalk Project runtime on this system must be updated. Please install it from the application store, then restart APP_NAME.
+        The version of the Crosswalk Project Service on this system must be updated. Please install it from the app store, then restart APP_NAME.
       </message>
       <message desc="Startup Newer Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_TITLE">
-        Incompatible Crosswalk Project Runtime
+        Incompatible Crosswalk Project Service
       </message>
       <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
-        APP_NAME is not compatible with the installed version of the Crosswalk Project runtime.
+        APP_NAME is not compatible with the installed version of the Crosswalk Project Service.
+      </message>
+      <message desc="Label of Get Crosswalk [CHAR-LIMIT=100]" name="IDS_XWALK_GET_CROSSWALK">
+        Get Crosswalk
       </message>
       <message desc="Label of Cancel [CHAR-LIMIT=100]" name="IDS_XWALK_CANCEL">
         Cancel
