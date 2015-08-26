@@ -337,8 +337,16 @@
             'runtime/browser/devtools/remote_debugging_server.h',
             'runtime/browser/devtools/xwalk_devtools_delegate.cc',
             'runtime/browser/devtools/xwalk_devtools_delegate.h',
+          ]
+         }],
+
+        ['disable_speech==1', {
+          'sources!': [
+            'runtime/browser/speech/speech_recognition_manager_delegate.cc',
+            'runtime/browser/speech/speech_recognition_manager_delegate.h',
           ],
         }],
+
         ['tizen==1', {
           'dependencies': [
             '../content/app/resources/content_resources.gyp:content_resources',
