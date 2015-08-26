@@ -338,10 +338,12 @@ void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
 }
 #endif
 
+#ifndef DISABLE_SPEECH
 content::SpeechRecognitionManagerDelegate*
     XWalkContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
   return new xwalk::XWalkSpeechRecognitionManagerDelegate();
 }
+#endif
 
 #if !defined(OS_ANDROID)
 bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,

@@ -91,8 +91,10 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const base::Callback<void(bool)>& callback, // NOLINT
       content::CertificateRequestResultType* result) override;
 
+#ifndef DISABLE_SPEECH
   content::SpeechRecognitionManagerDelegate*
       CreateSpeechRecognitionManagerDelegate() override;
+#endif
 
   content::PlatformNotificationService* GetPlatformNotificationService()
       override;
