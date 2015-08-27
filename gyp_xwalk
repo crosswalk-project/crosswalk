@@ -348,34 +348,32 @@ if __name__ == '__main__':
   if gyp_vars_dict.get('OS') == 'android':
     args.append('-Dnotifications=1')
     args.append('-Drelease_unwind_tables=0')
-    # Disable LZMA by default.
-    args.append('-Duse_lzma=0')
+    # Eanble LZMA by default.
+    args.append('-Duse_lzma=1')
     # Disable ICU by default
     args.append('-Duse_icu_alternatives_on_android=1')
     # Disable WebRTC by default
     args.append('-Denable_webrtc=0')
-    # Enable MediaStream by default
-    args.append('-Ddisable_media_stream=0')
-    # Enable XSLT by default
-    args.append('-Ddisable_xslt=0')
-    # Enable WebP by default
-    args.append('-Ddisable_webp=0')
-    # Enable Angle by default
-    args.append('-Ddisable_angle=0')
-    # Enable QUIC by default
-    args.append('-Ddisable_quic_support=0')
-    # Enable Sync compositor by default
-    args.append('-Ddisable_sync_compositor=0')
-    # Enable webaudio by default
+    # Disable XSLT by default
+    args.append('-Ddisable_xslt=1')
+    # Disable WebP by default
+    args.append('-Ddisable_webp=1')
+    # Disable Angle by default
+    args.append('-Ddisable_angle=1')
+    # Disable QUIC by default
+    args.append('-Ddisable_quic_support=1')
+    # Disable Sync compositor by default
+    args.append('-Ddisable_sync_compositor=1')
+    # Disable webaudio by default
     args.append('-Ddisable_web_audio=1')
     args.append('-Ddisable_webaudio_hrtf=1')
     args.append('-Duse_openmax_dl_fft=0')
-    # Disable use_minimum_resources by default
-    args.append('-Duse_minimum_resources=0')
-    # Enable buildin extension by default.
-    args.append('-Ddisable_builtin_extensions=0')
-    # Enable Inspector by default
-    args.append('-Ddisable_inspector=0')
+    # Enable use_minimum_resources by default
+    args.append('-Duse_minimum_resources=1')
+    # Disable buildin extension by default.
+    args.append('-Ddisable_builtin_extensions=1')
+    # Disable Devtools by default
+    args.append('-Ddisable_devtools=1')
     # Disable Web Video by default.
     args.append('-Ddisable_web_video=1')
     # Disable webspeech by default
