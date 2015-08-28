@@ -572,8 +572,10 @@ public class XWalkLaunchScreenManager
     }
 
     private void performHideLaunchScreen() {
-        mLaunchScreenDialog.dismiss();
-        mLaunchScreenDialog = null;
+        if (mLaunchScreenDialog != null) {
+            mLaunchScreenDialog.dismiss();
+            mLaunchScreenDialog = null;
+        }
         if (mReadyWhen == ReadyWhenType.CUSTOM) {
             mActivity.unregisterReceiver(mLaunchScreenReadyWhenReceiver);
         }
