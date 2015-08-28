@@ -100,7 +100,12 @@ public class XWalkLaunchScreenManager
                 int bgResId = mActivity.getResources().getIdentifier(
                         "launchscreen_bg", "drawable", mActivity.getPackageName());
                 if (bgResId == 0) return;
-                Drawable bgDrawable = mActivity.getResources().getDrawable(bgResId);
+                Drawable bgDrawable = null;
+                try {
+                    bgDrawable = mActivity.getResources().getDrawable(bgResId);
+                } catch (OutOfMemoryError e) {
+                    e.printStackTrace();
+                }
                 if (bgDrawable == null) return;
 
                 mLaunchScreenDialog = new Dialog(mLibContext,
