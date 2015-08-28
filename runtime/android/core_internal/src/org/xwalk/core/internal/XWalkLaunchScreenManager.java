@@ -49,7 +49,7 @@ import org.chromium.content.browser.ContentViewRenderView.FirstRenderedFrameList
  */
 public class XWalkLaunchScreenManager
         implements FirstRenderedFrameListener, DialogInterface.OnShowListener,
-	           DialogInterface.OnDismissListener, PageLoadListener {
+                DialogInterface.OnDismissListener, PageLoadListener {
     // This string will be initialized before extension initialized,
     // and used by LaunchScreenExtension.
     private static String mIntentFilterStr;
@@ -135,7 +135,7 @@ public class XWalkLaunchScreenManager
                         if (mLaunchScreenDialog == null || !mLaunchScreenDialog.isShowing()) {
                             return;
                         }
-		        int orientation = getScreenOrientation();
+                        int orientation = getScreenOrientation();
                         if (orientation != mCurrentOrientation) {
                             RelativeLayout root = getLaunchScreenLayout(imageBorderList);
                             if (root == null) return;
@@ -532,7 +532,7 @@ public class XWalkLaunchScreenManager
         // Image section-9 bottom right
         subImageView = getSubImageView(img, img.getWidth() - rightBorder,
                 img.getHeight() - bottomBorder, rightBorder, bottomBorder,
-	        BorderModeType.NONE, 0, 0);
+                BorderModeType.NONE, 0, 0);
         if (subImageView != null) {
             params = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
