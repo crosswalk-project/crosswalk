@@ -154,7 +154,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *
  *       &#64;Override
  *       protected void onCreate(Bundle savedInstanceState) {
- *           mXwalkView = new XWalkViewInternal(this, null);
+ *           mXwalkView = new XWalkViewInternal(this);
  *           setContentView(mXwalkView);
  *           mXwalkView.setResourceClient(new MyResourceClient(mXwalkView));
  *           mXwalkView.setUIClient(new MyUIClient(mXwalkView));
