@@ -52,8 +52,7 @@ solutions = [
 
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
-        'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
-           '28150',
+        crosswalk_git + '/khronos-cl-api-1.2.git@6f4be98d10f03ce2b12c769cd9835c73a441c00f',
 
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
