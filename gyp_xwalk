@@ -386,19 +386,24 @@ if __name__ == '__main__':
     args.append('-Ddisable_web_video=0')
     # Enable webspeech by default
     args.append('-Ddisable_speech=0')
+    # Enable notifications by default
+    args.append('-Ddisable_notifications=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
     sys.stdout.flush()
 
   disable_speech = 0
+  disable_notifications = 0
   for arg in args:
     if arg == '-Ddisable_speech=1':
       disable_speech = 1
+    elif arg == '-Ddisable_notifications=1':
+      disable_notifications = 1
 
-  # Synthesize the 'third_party/WebKit/Source/modules/modules.gypi'
+  # Synthesize modules.gypi in WebKit to exclude disabled idl files
   from modules_gypi_generator import  generate_modules_gypi
-  generate_modules_gypi(disable_speech)
+  generate_modules_gypi(disable_speech, disable_notifications)
 
   # Off we go...
   gyp_rc = gyp.main(args)
