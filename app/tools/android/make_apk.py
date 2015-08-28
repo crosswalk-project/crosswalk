@@ -472,6 +472,8 @@ def Execution(options, app_info):
     ant_cmd.extend(['-Dkey.store.password=%s' % key_code])
   if key_alias_code:
     ant_cmd.extend(['-Dkey.alias.password=%s' % key_alias_code])
+  ignore_properties = "!.svn:!.git:.*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~"
+  ant_cmd.extend(['-Daapt.ignore.assets=%s' % ignore_properties])
 
   cmd_display = ' '.join([str(item) for item in ant_cmd])
   if options.verbose:
