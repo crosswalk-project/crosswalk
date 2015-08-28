@@ -37,6 +37,10 @@
         'defines': ['DISABLE_SPEECH'],
       }],
 
+      ['disable_notifications==1', {
+        'defines' : ['DISABLE_NOTIFICATIONS'],
+      }],
+
       ['tizen==1', {
         'defines': ['OS_TIZEN=1'],
       }],
