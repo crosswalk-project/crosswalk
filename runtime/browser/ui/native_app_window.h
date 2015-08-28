@@ -63,8 +63,8 @@ class NativeAppWindow {
     // The absolute path of splash screen.
     // Empty if splash screen is not to be shown.
     base::FilePath splash_screen_path;
-    // The display mode. Currently only used by Linux desktop platform.
-    blink::WebDisplayMode mode;
+    // The display mode. Used on Desktop platforms.
+    blink::WebDisplayMode display_mode;
   };
 
   // Do one time initialization at application startup.

@@ -170,6 +170,12 @@ bool Runtime::IsFullscreenForTabOrPending(
   return (fullscreen_options_ & FULLSCREEN_FOR_TAB) != 0;
 }
 
+blink::WebDisplayMode Runtime::GetDisplayMode(
+    const content::WebContents* web_contents) const {
+  return (ui_delegate_) ? ui_delegate_->GetDisplayMode()
+                        : blink::WebDisplayModeUndefined;
+}
+
 void Runtime::RequestToLockMouse(content::WebContents* web_contents,
                                  bool user_gesture,
                                  bool last_unlocked_by_target) {

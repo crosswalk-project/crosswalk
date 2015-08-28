@@ -123,4 +123,10 @@ bool DefaultRuntimeUIDelegate::AddDownloadItem(
   return false;
 }
 
+blink::WebDisplayMode DefaultRuntimeUIDelegate::GetDisplayMode() const {
+  if (window_ && window_->IsFullscreen())
+      return blink::WebDisplayModeFullscreen;
+  return window_params_.display_mode;
+}
+
 }  // namespace xwalk
