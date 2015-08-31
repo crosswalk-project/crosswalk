@@ -51,49 +51,11 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
  * android.view.SurfaceView</a> for rendering web pages by default, it can't be resized,
  * rotated, transformed and animated due to the limitations of SurfaceView.
- * Alternatively, XWalkViewInternal can be transformed and animated by using
+ * Alternatively, if the preference key {@link XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW}
+ * is set to True, XWalkViewInternal can be transformed and animated because
  * <a href="http://developer.android.com/reference/android/view/TextureView.html">
- * TextureView</a>, which is intentionally used to render web pages for animation support.
+ * TextureView</a> is intentionally used to render web pages for animation support.
  * Besides, XWalkViewInternal won't be rendered if it's invisible.</p>
- *
- * <p>Crosswalk provides two ways for developer to choose TextureView or SurfaceView:</p>
- * <ol><li>[To Be Deprecated]Set preference key
- * {@link XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW} to True to use TextureView,
- * and vice versa. *Notice* that the key is valid for the global-scope.</li>
- * <li>Application developer can set a single XWalkView to use TextureView or SurfaceView by
- * XML without impact on other XWalkViews, see below steps for detail:
- *  <ul type="disc">
- *   <li> Create an attrs.xml under res/values/ as below, the name must be "animatable":
- *    <pre>
- *    &lt;?xml version="1.0" encoding="utf-8"?&gt;
- *    &lt;resources&gt;
- *      &lt;declare-styleable name="AnimatableView"&gt;
- *        &lt;attr name="animatable" format="boolean" /&gt;
- *      &lt;/declare-styleable&gt;
- *    &lt;/resources&gt;</pre>
- *   </li>
- *   <li>Add xwalk namespace into activity layout file, such as layout/activity_main.xml.
- *    <pre>
- *    &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
- *        xmlns:xwalk="http://schemas.android.com/apk/res-auto"
- *        ......</pre>
- *   </li>
- *   <li>Set xwalk attribute to true or false in the same xml as above, such as
- *         layout/activity_main.xml. True for TextureView, false for SurfaceView,
- *         and SurfaceView is the default.
- *    <pre>
- *    &lt;org.xwalk.core.XWalkView xmlns:android="http://schemas.android.com/apk/res/android"
- *        android:id="@+id/xwalkview"
- *        android:layout_width="match_parent"
- *        android:layout_height="match_parent"
- *        xwalk:animatable="true" &gt;
- *    &lt;/org.xwalk.core.XWalkView&gt;</pre>
- *   </li>
- *   <li>Use XWalkView in MainActivity.java.
- *    <pre>mXWalkView = (XWalkView) findViewById(R.id.xwalkview);</pre>
- *    There is debug message on logcat like below according to your "animatable" values:
- *    "XWalkContent: CompositingSurfaceType is TextureView"
- *   </li></ul></li></ol>
  *
  * <p>XWalkViewInternal needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
@@ -103,7 +65,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *     android:hardwareAccelerated="true"&gt;
  * </pre>
  *
- * <p>Crosswalk provides two major callback classes, namely {@link XWalkResourceClientInternal} and
+ * <p>Crosswalk provides 2 major callback classes, namely {@link XWalkResourceClientInternal} and
  * {@link XWalkUIClientInternal} for listening to the events related to resource loading and UI.
  * By default, Crosswalk has a default implementation. Callers can override them if needed.</p>
  *
