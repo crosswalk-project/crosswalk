@@ -560,7 +560,7 @@ def CheckSystemRequirements():
 def MakeCompressedLibrary(lib_dir):
   # use lzma to compress the native library.
   native_library = os.path.join(lib_dir, NATIVE_LIBRARY)
-  RunCommand(['lzma', '-f', native_library])
+  RunCommand(['lzma', '-7', '-f', native_library])
   return True
 
 
