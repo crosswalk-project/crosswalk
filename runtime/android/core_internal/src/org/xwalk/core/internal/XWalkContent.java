@@ -57,7 +57,6 @@ import org.chromium.ui.gfx.DeviceDisplayInfo;
  */
 class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private static String TAG = "XWalkContent";
-    private static final String XWALK_ATTRS_NAMESPACE = "http://schemas.android.com/apk/res-auto";
     private static Class<? extends Annotation> javascriptInterfaceClass = null;
 
     private ContentViewCore mContentViewCore;
@@ -120,12 +119,12 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         MediaPlayerBridge.setResourceLoadingFilter(
                 new XWalkMediaPlayerResourceLoadingFilter());
 
-        setNativeContent(nativeInit(), attrs);
+        setNativeContent(nativeInit());
 
         XWalkPreferencesInternal.load(this);
     }
 
-    private void setNativeContent(long newNativeContent, AttributeSet attrs) {
+    private void setNativeContent(long newNativeContent) {
         if (mNativeContent != 0) {
             destroy();
             mContentViewCore = null;
@@ -136,16 +135,8 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // Initialize ContentViewRenderView
         boolean animated = XWalkPreferencesInternal.getValue(
                 XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
-       if (attrs != null) {
-            // This means developer wants to assign the CompositingSurfaceType for a
-            // single XWalkView, "animatable" attribute of xwalk namespace must be defined
-            // in activity.xml, while an attrs.xml that to define the type of "animatable" is
-            // also needed under res/values/
-            animated = attrs.getAttributeBooleanValue(XWALK_ATTRS_NAMESPACE, "animatable", animated);
-        }
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        Log.d(TAG, "CompositingSurfaceType is " + (animated ? "TextureView" : "SurfaceView"));
         mContentViewRenderView = new ContentViewRenderView(mViewContext, surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
@@ -221,7 +212,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     private void receivePopupContents(long popupNativeXWalkContents) {
-        setNativeContent(popupNativeXWalkContents, null);
+        setNativeContent(popupNativeXWalkContents);
 
         mContentViewCore.onShow();
     }
