@@ -32,6 +32,7 @@ class RuntimeUIDelegate {
   virtual bool AddDownloadItem(content::DownloadItem* download_item,
       const content::DownloadTargetCallback& callback,
       const base::FilePath& suggested_path) = 0;
+  virtual blink::WebDisplayMode GetDisplayMode() const = 0;
 };
 
 // The default implementation displays WebContents in a separate window.
@@ -56,6 +57,7 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
   bool AddDownloadItem(content::DownloadItem* download_item,
       const content::DownloadTargetCallback& callback,
       const base::FilePath& suggested_path) override;
+  blink::WebDisplayMode GetDisplayMode() const override;
 
   Runtime* runtime_;
 

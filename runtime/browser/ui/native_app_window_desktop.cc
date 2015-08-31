@@ -89,7 +89,7 @@ NativeAppWindowDesktop::~NativeAppWindowDesktop() {
 void NativeAppWindowDesktop::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
-    if (create_params().mode == blink::WebDisplayModeMinimalUi)
+    if (create_params().display_mode == blink::WebDisplayModeMinimalUi)
       InitMinimalUI();
     else
       InitStandaloneUI();

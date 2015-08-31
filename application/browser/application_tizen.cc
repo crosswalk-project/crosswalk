@@ -106,7 +106,7 @@ class ScreenOrientationDelegateTizen :
       LOG(ERROR) << "Invalid app error";
       return false;
     }
-    return app_->IsFullScreenRequired();
+    return ToApplicationTizen(app_.get())->IsFullScreenRequired();
   }
 
   void Lock(content::WebContents* web_contents,
