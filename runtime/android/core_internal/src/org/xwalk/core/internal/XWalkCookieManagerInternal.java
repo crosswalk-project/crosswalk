@@ -7,10 +7,8 @@ package org.xwalk.core.internal;
 import org.chromium.base.JNINamespace;
 
 /**
- * XWalkCookieManagerInternal manages cookies according to RFC2109 spec.
- *
+ * XWalkCookieManager manages cookies according to RFC2109 spec.
  * Methods in this class are thread safe.
- *
  * @hide
  */
 @JNINamespace("xwalk")
@@ -19,6 +17,7 @@ public class XWalkCookieManagerInternal {
     /**
      * Control whether cookie is enabled or disabled
      * @param accept TRUE if accept cookie
+     * @since 5.0
      */
     @XWalkAPI
     public void setAcceptCookie(boolean accept) {
@@ -28,6 +27,7 @@ public class XWalkCookieManagerInternal {
     /**
      * Return whether cookie is enabled
      * @return TRUE if accept cookie
+     * @since 5.0
      */
     @XWalkAPI
     public boolean acceptCookie() {
@@ -40,6 +40,7 @@ public class XWalkCookieManagerInternal {
      * not have expiration which implies it is session cookie.
      * @param url The url which cookie is set for
      * @param value The value for set-cookie: in http response header
+     * @since 5.0
      */
     @XWalkAPI
     public void setCookie(final String url, final String value) {
@@ -51,6 +52,7 @@ public class XWalkCookieManagerInternal {
      * request header.
      * @param url The url needs cookie
      * @return The cookies in the format of NAME=VALUE [; NAME=VALUE]
+     * @since 5.0
      */
     @XWalkAPI
     public String getCookie(final String url) {
@@ -61,6 +63,7 @@ public class XWalkCookieManagerInternal {
 
     /**
      * Remove all session cookies, which are cookies without expiration date
+     * @since 5.0
      */
     @XWalkAPI
     public void removeSessionCookie() {
@@ -69,6 +72,7 @@ public class XWalkCookieManagerInternal {
 
     /**
      * Remove all cookies
+     * @since 5.0
      */
     @XWalkAPI
     public void removeAllCookie() {
@@ -77,6 +81,7 @@ public class XWalkCookieManagerInternal {
 
     /**
      *  Return true if there are stored cookies.
+     * @since 5.0
      */
     @XWalkAPI
     public boolean hasCookies() {
@@ -85,12 +90,17 @@ public class XWalkCookieManagerInternal {
 
     /**
      * Remove all expired cookies
+     * @since 5.0
      */
     @XWalkAPI
     public void removeExpiredCookie() {
         nativeRemoveExpiredCookie();
     }
 
+    /**
+     * Flush cookies store
+     * @since 5.0
+     */
     @XWalkAPI
     public void flushCookieStore() {
         nativeFlushCookieStore();
@@ -98,6 +108,7 @@ public class XWalkCookieManagerInternal {
 
     /**
      * Whether cookies are accepted for file scheme URLs.
+     * @since 5.0
      */
     @XWalkAPI
     public boolean allowFileSchemeCookies() {
@@ -113,6 +124,8 @@ public class XWalkCookieManagerInternal {
      * <p>
      * Note that calls to this method will have no effect if made after a
      * WebView or CookieManager instance has been created.
+     * @param accept Whether accept cookies for file scheme URLs
+     * @since 5.0
      */
     @XWalkAPI
     public void setAcceptFileSchemeCookies(boolean accept) {
