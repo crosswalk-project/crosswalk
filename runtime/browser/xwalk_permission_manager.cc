@@ -55,9 +55,11 @@ void XWalkPermissionManager::RequestPermission(
       callback.Run(content::PERMISSION_STATUS_DENIED);
 #endif
       break;
+    case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
+      callback.Run(content::PERMISSION_STATUS_GRANTED);
+      break;
     case content::PermissionType::MIDI_SYSEX:
     case content::PermissionType::NOTIFICATIONS:
-    case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
     case content::PermissionType::PUSH_MESSAGING:
       NOTIMPLEMENTED() << "RequestPermission is not implemented for "
                        << static_cast<int>(permission);
@@ -83,6 +85,7 @@ void XWalkPermissionManager::CancelPermissionRequest(
 #endif
       break;
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
+      break;
     case content::PermissionType::MIDI_SYSEX:
     case content::PermissionType::NOTIFICATIONS:
     case content::PermissionType::PUSH_MESSAGING:
@@ -105,6 +108,9 @@ content::PermissionStatus XWalkPermissionManager::GetPermissionStatus(
     content::PermissionType permission,
     const GURL& requesting_origin,
     const GURL& embedding_origin) {
+  if (permission == content::PermissionType::PROTECTED_MEDIA_IDENTIFIER)
+    return content::PERMISSION_STATUS_GRANTED;
+
   return content::PERMISSION_STATUS_DENIED;
 }
 

@@ -59,7 +59,7 @@ class XWalkDialogManager {
             Runnable downloadCommand) {
         AlertDialog dialog = buildAlertDialog();
         String cancelText = mContext.getString(R.string.xwalk_close);
-        String downloadText = mContext.getString(R.string.xwalk_continue);
+        String downloadText = mContext.getString(R.string.xwalk_get_crosswalk);
 
         if (status == XWalkLibraryInterface.STATUS_NOT_FOUND) {
             dialog.setTitle(mContext.getString(R.string.startup_not_found_title));

@@ -183,7 +183,7 @@ GURL Application::GetStartURL(Manifest::Type type) const {
 }
 
 template<>
-void Application::GetWindowShowState<Manifest::TYPE_WIDGET>(
+void Application::SetWindowShowState<Manifest::TYPE_WIDGET>(
     NativeAppWindow::CreateParams* params) {
   const Manifest* manifest = data_->GetManifest();
   std::string view_modes_string;
@@ -200,23 +200,23 @@ void Application::GetWindowShowState<Manifest::TYPE_WIDGET>(
 }
 
 template<>
-void Application::GetWindowShowState<Manifest::TYPE_MANIFEST>(
+void Application::SetWindowShowState<Manifest::TYPE_MANIFEST>(
     NativeAppWindow::CreateParams* params) {
   const Manifest* manifest = data_->GetManifest();
   std::string display_string;
 
   // FIXME: As we do not support browser mode, the default fallback will be
   // minimal-ui mode.
-  params->mode = blink::WebDisplayModeMinimalUi;
+  params->display_mode = blink::WebDisplayModeMinimalUi;
   params->state = ui::SHOW_STATE_DEFAULT;
   if (!manifest->GetString(keys::kDisplay, &display_string))
     return;
 
   if (display_string == values::kDisplayModeFullscreen) {
-    params->mode = blink::WebDisplayModeFullscreen;
+    params->display_mode = blink::WebDisplayModeFullscreen;
     params->state = ui::SHOW_STATE_FULLSCREEN;
   } else if (display_string == values::kDisplayModeStandalone) {
-    params->mode = blink::WebDisplayModeStandalone;
+    params->display_mode = blink::WebDisplayModeStandalone;
   }
 }
 
@@ -245,8 +245,8 @@ bool Application::Launch() {
 
   NativeAppWindow::CreateParams params;
   data_->manifest_type() == Manifest::TYPE_WIDGET ?
-      GetWindowShowState<Manifest::TYPE_WIDGET>(&params) :
-      GetWindowShowState<Manifest::TYPE_MANIFEST>(&params);
+      SetWindowShowState<Manifest::TYPE_WIDGET>(&params) :
+      SetWindowShowState<Manifest::TYPE_MANIFEST>(&params);
 
   params.bounds = data_->window_bounds();
   params.minimum_size.set_width(data_->window_min_size().width());

@@ -30,6 +30,7 @@
 #include "xwalk/runtime/renderer/pepper/pepper_helper.h"
 
 #if defined(OS_ANDROID)
+#include "components/cdm/renderer/android_key_systems.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
@@ -296,6 +297,13 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
   if (error_description) {
     *error_description = LocalizedError::GetErrorDetails(error, is_post);
   }
+}
+
+void XWalkContentRendererClient::AddKeySystems(
+    std::vector<media::KeySystemInfo>* key_systems) {
+#if defined(OS_ANDROID)
+  cdm::AddAndroidWidevine(key_systems);
+#endif  // defined(OS_ANDROID)
 }
 
 }  // namespace xwalk

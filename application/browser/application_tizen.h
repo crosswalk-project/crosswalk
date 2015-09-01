@@ -28,6 +28,8 @@ class ApplicationTizen :  // NOLINT
 
   void RemoveAllCookies();
   void SetUserAgentString(const std::string& user_agent_string);
+  bool IsFullScreenRequired() const {
+      return window_show_params_.state == ui::SHOW_STATE_FULLSCREEN; }
 
  protected:
   GURL GetStartURL(Manifest::Type type) const override;

@@ -99,8 +99,6 @@ class Application : public Runtime::Observer,
                      const std::string& permission_name,
                      StoredPermission perm);
   bool CanRequestURL(const GURL& url) const;
-  bool IsFullScreenRequired() const {
-      return window_show_params_.state == ui::SHOW_STATE_FULLSCREEN; }
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
@@ -151,7 +149,7 @@ class Application : public Runtime::Observer,
   // manifest, returns it and the entry point used.
   template <Manifest::Type> GURL GetStartURL() const;
 
-  template <Manifest::Type> void GetWindowShowState(
+  template <Manifest::Type> void SetWindowShowState(
       NativeAppWindow::CreateParams* params);
 
   GURL GetAbsoluteURLFromKey(const std::string& key) const;

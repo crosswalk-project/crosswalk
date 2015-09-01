@@ -116,4 +116,17 @@ void DefaultRuntimeUIDelegate::OnWindowDestroyed() {
   delete this;
 }
 
+bool DefaultRuntimeUIDelegate::AddDownloadItem(
+    content::DownloadItem* download_item,
+    const content::DownloadTargetCallback& callback,
+    const base::FilePath& suggested_path) {
+  return false;
+}
+
+blink::WebDisplayMode DefaultRuntimeUIDelegate::GetDisplayMode() const {
+  if (window_ && window_->IsFullscreen())
+      return blink::WebDisplayModeFullscreen;
+  return window_params_.display_mode;
+}
+
 }  // namespace xwalk

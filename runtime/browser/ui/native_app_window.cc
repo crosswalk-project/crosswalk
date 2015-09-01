@@ -13,7 +13,7 @@ NativeAppWindow::CreateParams::CreateParams()
     resizable(true),
     net_wm_pid(0),
     parent(NULL),
-    mode(blink::WebDisplayModeUndefined) {
+    display_mode(blink::WebDisplayModeUndefined) {
 }
 
 NativeAppWindow::CreateParams::~CreateParams() {

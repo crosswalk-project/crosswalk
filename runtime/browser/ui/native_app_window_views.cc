@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 
+#include <vector>
+
 #include "base/command_line.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/web_contents.h"
@@ -229,7 +231,17 @@ gfx::ImageSkia NativeAppWindowViews::GetWindowAppIcon() {
 }
 
 gfx::ImageSkia NativeAppWindowViews::GetWindowIcon() {
-  return *icon_.ToImageSkia();
+  const gfx::ImageSkia *result =  icon_.ToImageSkia();
+
+  const std::vector<float> oldSupportedScales =
+      gfx::ImageSkia::GetSupportedScales();
+  std::vector<float> scale = { 1.0f };
+  gfx::ImageSkia::SetSupportedScales(scale);
+  // Ensure at least the ImageSkiaRep for the default 1x scale is attached to
+  // ImageSkia's storage
+  result->EnsureRepsForSupportedScales();
+  gfx::ImageSkia::SetSupportedScales(oldSupportedScales);
+  return *result;
 }
 
 bool NativeAppWindowViews::ShouldShowWindowTitle() const {

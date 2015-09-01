@@ -55,11 +55,12 @@ import org.chromium.ui.gfx.DeviceDisplayInfo;
  * This class is the implementation class for XWalkViewInternal by calling internal
  * various classes.
  */
-class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyValueChangeListener {
+class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private static String TAG = "XWalkContent";
     private static Class<? extends Annotation> javascriptInterfaceClass = null;
 
     private ContentViewCore mContentViewCore;
+    private Context mViewContext;
     private XWalkContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private ActivityWindowAndroid mWindow;
@@ -101,10 +102,9 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private CleanupReference mCleanupReference;
 
     public XWalkContent(Context context, AttributeSet attrs, XWalkViewInternal xwView) {
-        super(context, attrs);
-
         // Initialize the WebContensDelegate.
         mXWalkView = xwView;
+        mViewContext = mXWalkView.getContext();
         mContentsClientBridge = new XWalkContentsClientBridge(mXWalkView);
         mXWalkContentsDelegateAdapter = new XWalkWebContentsDelegateAdapter(
             mContentsClientBridge);
@@ -137,16 +137,16 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                 XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        mContentViewRenderView = new ContentViewRenderView(getContext(), surfaceType) {
+        mContentViewRenderView = new ContentViewRenderView(mViewContext, surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
                 // be placed here.
             }
         };
         mContentViewRenderView.onNativeLibraryLoaded(mWindow);
-        mLaunchScreenManager = new XWalkLaunchScreenManager(getContext(), mXWalkView);
+        mLaunchScreenManager = new XWalkLaunchScreenManager(mViewContext, mXWalkView);
         mContentViewRenderView.registerFirstRenderedFrameListener(mLaunchScreenManager);
-        addView(mContentViewRenderView, new FrameLayout.LayoutParams(
+        mXWalkView.addView(mContentViewRenderView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
 
@@ -159,12 +159,12 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         WebContents webContents = nativeGetWebContents(mNativeContent);
 
         // Initialize ContentView.
-        mContentViewCore = new ContentViewCore(getContext());
-        mContentView = new XWalkContentView(getContext(), mContentViewCore, mXWalkView);
+        mContentViewCore = new ContentViewCore(mViewContext);
+        mContentView = new XWalkContentView(mViewContext, mContentViewCore, mXWalkView);
         mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
         mWebContents = mContentViewCore.getWebContents();
         mNavigationController = mWebContents.getNavigationController();
-        addView(mContentView, new FrameLayout.LayoutParams(
+        mXWalkView.addView(mContentView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
         mContentViewCore.setContentViewClient(mContentsClientBridge);
@@ -173,7 +173,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentsClientBridge.installWebContentsObserver(mWebContents);
 
         // Set DIP scale.
-        mContentsClientBridge.setDIPScale(DeviceDisplayInfo.create(getContext()).getDIPScale());
+        mContentsClientBridge.setDIPScale(DeviceDisplayInfo.create(mViewContext).getDIPScale());
 
         mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
@@ -181,7 +181,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
         // won't be changed from false to true at the same time in the constructor of
         // XWalkSettings class.
-        mSettings = new XWalkSettings(getContext(), webContents, false);
+        mSettings = new XWalkSettings(mViewContext, webContents, false);
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
@@ -439,7 +439,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     public void setBackgroundColor(final int color) {
         if (mNativeContent == 0) return;
         if (mIsLoaded == false) {
-            post(new Runnable() {
+            mXWalkView.post(new Runnable() {
                 @Override
                 public void run() {
                     setBackgroundColor(color);
@@ -601,8 +601,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // Reset existing notification service in order to destruct it.
         setNotificationService(null);
         // Remove its children used for page rendering from view hierarchy.
-        removeView(mContentView);
-        removeView(mContentViewRenderView);
+        mXWalkView.removeView(mContentView);
+        mXWalkView.removeView(mContentViewRenderView);
         mContentViewRenderView.setCurrentContentViewCore(null);
 
         // Destroy the native resources.
@@ -618,7 +618,6 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         return nativeGetRoutingID(mNativeContent);
     }
 
-    @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         return mContentView.onCreateInputConnectionSuper(outAttrs);
     }
@@ -734,7 +733,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     public void enableRemoteDebugging() {
         // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
         // to identify a debugging page
-        final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
+        final String socketName = mViewContext.getApplicationContext().getPackageName() + "_devtools_remote";
         if (mDevToolsServer == null) {
             mDevToolsServer = new XWalkDevToolsServer(socketName);
             mDevToolsServer.setRemoteDebuggingEnabled(
@@ -826,6 +825,17 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
      * @see android.webkit.WebView#clearFormData()
      */
     public void hideAutofillPopup() {
+        if (mNativeContent == 0) return;
+        if (mIsLoaded == false) {
+            mXWalkView.post(new Runnable() {
+                @Override
+                public void run() {
+                    hideAutofillPopup();
+                }
+            });
+            return;
+        }
+
         if (mXWalkAutofillClient != null) {
             mXWalkAutofillClient.hideAutofillPopup();
         }

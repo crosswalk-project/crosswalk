@@ -7,12 +7,14 @@
 #define XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 
 #include <string>
+#include <vector>
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/files/file.h"
 #include "base/strings/string16.h"
 #include "content/public/renderer/content_renderer_client.h"
+#include "media/base/key_system_info.h"
 #include "ui/base/page_transition_types.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 #if defined(OS_ANDROID)
@@ -58,6 +60,8 @@ class XWalkContentRendererClient
                        const GURL& url,
                        const GURL& first_party_for_cookies,
                        GURL* new_url) override;
+
+  void AddKeySystems(std::vector<media::KeySystemInfo>* key_systems) override;
 
  protected:
   scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;

@@ -92,6 +92,9 @@ class Runtime : public content::WebContentsDelegate,
   }
 
   content::RenderProcessHost* GetRenderProcessHost();
+  bool AddDownloadItem(content::DownloadItem* download_item,
+      const content::DownloadTargetCallback& callback,
+      const base::FilePath& suggested_path);
 
  protected:
   explicit Runtime(content::WebContents* web_contents);
@@ -107,6 +110,8 @@ class Runtime : public content::WebContentsDelegate,
   void ExitFullscreenModeForTab(
       content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
+      const content::WebContents* web_contents) const override;
+  blink::WebDisplayMode GetDisplayMode(
       const content::WebContents* web_contents) const override;
   void RequestToLockMouse(content::WebContents* web_contents,
                           bool user_gesture,

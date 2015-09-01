@@ -12,11 +12,13 @@ import org.chromium.base.JNINamespace;
  * @hide
  */
 @JNINamespace("xwalk")
-public class XWalkHttpAuthHandler {
+@XWalkAPI(createExternally = true)
+public class XWalkHttpAuthHandlerInternal {
 
     private long mNativeXWalkHttpAuthHandler;
     private final boolean mFirstAttempt;
 
+    @XWalkAPI
     public void proceed(String username, String password) {
         if (mNativeXWalkHttpAuthHandler != 0) {
             nativeProceed(mNativeXWalkHttpAuthHandler, username, password);
@@ -24,6 +26,7 @@ public class XWalkHttpAuthHandler {
         }
     }
 
+    @XWalkAPI
     public void cancel() {
         if (mNativeXWalkHttpAuthHandler != 0) {
             nativeCancel(mNativeXWalkHttpAuthHandler);
@@ -36,11 +39,12 @@ public class XWalkHttpAuthHandler {
     }
 
     @CalledByNative
-    public static XWalkHttpAuthHandler create(long nativeXWalkAuthHandler, boolean firstAttempt) {
-        return new XWalkHttpAuthHandler(nativeXWalkAuthHandler, firstAttempt);
+    public static XWalkHttpAuthHandlerInternal create(long nativeXWalkAuthHandler, boolean firstAttempt) {
+        return new XWalkHttpAuthHandlerInternal(nativeXWalkAuthHandler, firstAttempt);
     }
 
-    private XWalkHttpAuthHandler(long nativeXWalkHttpAuthHandler, boolean firstAttempt) {
+    @XWalkAPI
+    public XWalkHttpAuthHandlerInternal(long nativeXWalkHttpAuthHandler, boolean firstAttempt) {
         mNativeXWalkHttpAuthHandler = nativeXWalkHttpAuthHandler;
         mFirstAttempt = firstAttempt;
     }

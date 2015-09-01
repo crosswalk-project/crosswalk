@@ -14,11 +14,25 @@
 #include "ui/gfx/canvas.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/button/label_button.h"
+#include "ui/views/layout/box_layout.h"
 #include "ui/views/layout/grid_layout.h"
 #include "ui/views/layout/fill_layout.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
+#include "xwalk/runtime/browser/ui/desktop/download_views.h"
+#include "xwalk/runtime/browser/runtime_select_file_policy.h"
 
 namespace xwalk {
+
+struct DownloadSelectFileParams {
+  DownloadSelectFileParams(content::DownloadItem* item,
+      const content::DownloadTargetCallback& callback)
+      : item(item),
+        callback(callback) {}
+  ~DownloadSelectFileParams() {}
+
+  content::DownloadItem* item;
+  content::DownloadTargetCallback callback;
+};
 
 class NativeAppWindowDesktop::AddressView : public views::Label {
  public:
@@ -65,7 +79,8 @@ NativeAppWindowDesktop::NativeAppWindowDesktop(
       refresh_button_(nullptr),
       stop_button_(nullptr),
       address_bar_(nullptr),
-      contents_view_(nullptr) {
+      contents_view_(nullptr),
+      download_bar_view_(nullptr) {
 }
 
 NativeAppWindowDesktop::~NativeAppWindowDesktop() {
@@ -74,11 +89,15 @@ NativeAppWindowDesktop::~NativeAppWindowDesktop() {
 void NativeAppWindowDesktop::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
-    if (create_params().mode == blink::WebDisplayModeMinimalUi)
+    if (create_params().display_mode == blink::WebDisplayModeMinimalUi)
       InitMinimalUI();
     else
       InitStandaloneUI();
   }
+}
+
+void NativeAppWindowDesktop::OnBoundsChanged(const gfx::Rect& previous_bounds) {
+  UpdateWebViewPreferredSize();
 }
 
 void NativeAppWindowDesktop::InitStandaloneUI() {
@@ -93,8 +112,15 @@ void NativeAppWindowDesktop::InitStandaloneUI() {
 
 void NativeAppWindowDesktop::InitMinimalUI() {
   set_background(views::Background::CreateStandardPanelBackground());
-  views::GridLayout* layout = new views::GridLayout(this);
-  SetLayoutManager(layout);
+  views::BoxLayout* box_layout =
+      new views::BoxLayout(views::BoxLayout::kVertical, 0, 0, 0);
+  box_layout->SetDefaultFlex(1);
+  SetLayoutManager(box_layout);
+
+  views::View* container = new views::View();
+  views::GridLayout* layout = new views::GridLayout(container);
+  container->SetLayoutManager(layout);
+  AddChildView(container);
 
   views::ColumnSet* column_set = layout->AddColumnSet(0);
   column_set->AddPaddingColumn(0, 2);
@@ -174,8 +200,9 @@ void NativeAppWindowDesktop::InitMinimalUI() {
     contents_view_ = new views::View;
     contents_view_->SetLayoutManager(new views::FillLayout());
 
-    web_view_ = new views::WebView(NULL);
+    web_view_ = new views::WebView(web_contents_->GetBrowserContext());
     web_view_->SetWebContents(web_contents_);
+    web_contents_->Focus();
     contents_view_->AddChildView(web_view_);
     layout->StartRow(1, 0);
     layout->AddView(contents_view_);
@@ -184,7 +211,7 @@ void NativeAppWindowDesktop::InitMinimalUI() {
         base::ASCIIToUTF16(web_contents_->GetVisibleURL().spec()));
   }
 
-  layout->AddPaddingRow(0, 5);
+  layout->AddPaddingRow(0, 3);
 }
 
 void NativeAppWindowDesktop::ButtonPressed(views::Button* sender,
@@ -213,6 +240,67 @@ void NativeAppWindowDesktop::SetAddressURL(const std::string& url) {
     DCHECK(address_bar_);
     address_bar_->SetText(base::ASCIIToUTF16(url));
   }
+}
+
+void NativeAppWindowDesktop::UpdateWebViewPreferredSize() {
+  int h = height();
+  if (toolbar_view_) {
+    h -= toolbar_view_->GetPreferredSize().height();
+  }
+
+  if (download_bar_view_) {
+    h -= download_bar_view_->GetPreferredSize().height();
+  }
+  web_view_->SetPreferredSize(gfx::Size(width(), h));
+}
+
+void NativeAppWindowDesktop::AddDownloadItem(
+    content::DownloadItem* download_item,
+    const content::DownloadTargetCallback& callback,
+    const base::FilePath& suggested_path) {
+  select_file_dialog_ =
+      ui::SelectFileDialog::Create(this, new RuntimeSelectFilePolicy);
+  ui::SelectFileDialog::FileTypeInfo file_type_info;
+  file_type_info.include_all_files = true;
+  file_type_info.support_drive = true;
+  DownloadSelectFileParams* params =
+      new DownloadSelectFileParams(download_item, callback);
+  select_file_dialog_->SelectFile(ui::SelectFileDialog::SELECT_SAVEAS_FILE,
+      base::string16(),
+      suggested_path,
+      &file_type_info,
+      0,
+      base::FilePath::StringType(),
+      GetNativeWindow(),
+      params);
+}
+
+void NativeAppWindowDesktop::FileSelected(const base::FilePath& path,
+    int index,
+    void* params) {
+  scoped_ptr<DownloadSelectFileParams> scoped_params(
+      static_cast<DownloadSelectFileParams*>(params));
+  content::DownloadItem* item = scoped_params->item;
+  content::DownloadTargetCallback& callback = scoped_params->callback;
+
+  if (!download_bar_view_) {
+    download_bar_view_ = new DownloadBarView(this);
+    AddChildView(download_bar_view_);
+  }
+  download_bar_view_->AddDownloadItem(item, path);
+
+  callback.Run(path, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
+               content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, path);
+}
+
+void NativeAppWindowDesktop::FileSelectionCanceled(void* params) {
+  scoped_ptr<DownloadSelectFileParams> scoped_params(
+      static_cast<DownloadSelectFileParams*>(params));
+  const base::FilePath empty;
+  scoped_params->callback.Run(empty,
+      content::DownloadItem::TARGET_DISPOSITION_PROMPT,
+      content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+      empty);
 }
 
 }  // namespace xwalk

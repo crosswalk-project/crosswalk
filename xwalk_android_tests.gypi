@@ -725,7 +725,7 @@
       'target_name': 'libxwalkdummy',
       'type': 'shared_library',
       'sources': [
-        'dummy/dummy.cc',
+        'runtime/android/dummy_lib/dummy_lib.cc',
       ],
     },
   ],

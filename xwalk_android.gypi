@@ -10,6 +10,8 @@
       'android_unmangled_name': 1,
       'dependencies': [
         '../components/components.gyp:auto_login_parser',
+        '../components/components.gyp:cdm_browser',
+        '../components/components.gyp:cdm_renderer',
         '../components/components.gyp:navigation_interception',
         '../components/components.gyp:visitedlink_browser',
         '../components/components.gyp:visitedlink_renderer',
@@ -178,7 +180,7 @@
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkCookieManagerInternal.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkDevToolsServer.java',
-        'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkHttpAuthHandler.java',
+        'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkHttpAuthHandlerInternal.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkPathHelper.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkSettings.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkViewDelegate.java',

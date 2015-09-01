@@ -39,6 +39,7 @@
         '../components/components.gyp:autofill_content_browser',
         '../components/components.gyp:autofill_content_renderer',
         '../components/components.gyp:autofill_core_browser',
+        '../components/components.gyp:cdm_renderer',
         '../components/components.gyp:devtools_http_handler',
         '../components/components.gyp:user_prefs',
         '../components/components.gyp:visitedlink_browser',
@@ -357,6 +358,7 @@
         }],
         ['OS=="android"',{
           'dependencies':[
+            '../components/components.gyp:cdm_browser',
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
           ],
@@ -397,6 +399,8 @@
           'sources': [
             'runtime/browser/linux/xwalk_notification_manager.cc',
             'runtime/browser/linux/xwalk_notification_manager.h',
+            'runtime/browser/ui/desktop/download_views.cc',
+            'runtime/browser/ui/desktop/download_views.h',
           ]
         }],  # OS=="linux" and tizen!=1
         ['OS=="linux"', {

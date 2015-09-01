@@ -116,7 +116,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *
  *       &#64;Override
  *       protected void onCreate(Bundle savedInstanceState) {
- *           mXwalkView = new XWalkViewInternal(this, null);
+ *           mXwalkView = new XWalkViewInternal(this);
  *           setContentView(mXwalkView);
  *           mXwalkView.setResourceClient(new MyResourceClient(mXwalkView));
  *           mXwalkView.setUIClient(new MyUIClient(mXwalkView));
@@ -313,12 +313,12 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         mIsHidden = false;
         mContent = new XWalkContent(context, attrs, this);
-        addView(mContent,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
 
-
+        // If XWalkView was created in onXWalkReady(), and the activity which owns
+        // XWalkView was destroyed, pauseTimers() will be invoked. Reentry the activity,
+        // resumeTimers() will not be invoked since onResume() was invoked before
+        // XWalkView creation. So to invoke resumeTimers() explicitly here.
+        mContent.resumeTimers();
         // Set default XWalkClientImpl.
         setXWalkClient(new XWalkClient(this));
         // Set default XWalkWebChromeClient and DownloadListener. The default actions
@@ -998,6 +998,20 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void setZOrderOnTop(boolean onTop) {
         if (mContent == null) return;
         mContent.setZOrderOnTop(onTop);
+    }
+
+    /**
+     * Removes the autocomplete popup from the currently focused form field, if present.
+     * Note this only affects the display of the autocomplete popup, it does not remove
+     * any saved form data from this WebView's store.
+     * This is a poorly named method, but we keep it for historical reasons.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void clearFormData() {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.hideAutofillPopup();
     }
 
     // Below methods are for test shell and instrumentation tests.

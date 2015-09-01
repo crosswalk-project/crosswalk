@@ -17,8 +17,8 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '97959a5c98a1e18513f3ea21697323634d2fd696'
-v8_crosswalk_rev = 'af82ca6ca297677b03c6a9be952633b5b1b28b5a'
+chromium_crosswalk_rev = '5f0a6bcaebd95beeeb8b19aace7cbc7bf4f7f3e5'
+v8_crosswalk_rev = 'c62f30d641bc3bbb3f26e33878336269d15413fd'
 ozone_wayland_rev = '1cde4077b26fb5cbb2661b465b496550a587df55'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
@@ -27,8 +27,8 @@ ozone_wayland_rev = '1cde4077b26fb5cbb2661b465b496550a587df55'
 # the blink-crosswalk repository, so that the devtools code can use it to fetch
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = '59d6385d2b0d8a6f9a181f5f2ac5aefa80d4cad6'
-blink_upstream_rev = '199588'
+blink_crosswalk_rev = '017eb29c0f8292afc8f14df58c5af0b8affa3e88'
+blink_upstream_rev = '200670'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
@@ -52,8 +52,7 @@ solutions = [
 
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
-        'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
-           '28150',
+        crosswalk_git + '/khronos-cl-api-1.2.git@6f4be98d10f03ce2b12c769cd9835c73a441c00f',
 
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
