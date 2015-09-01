@@ -1,9 +1,29 @@
-<html>
+<html>                                                                                                             
 <head>
 <title></title>
 </head>
 <body>
 <script>
+/*
+var session = null;
+
+var endSession = function () {
+  return session && session.close();
+}
+var setSession = function (theSession) {
+  endSession();
+  session = theSession;
+};
+
+session = new navigator.presentation.startSession("remote.html");
+/*
+navigator.presentation.getAvailability();
+
+session.start().then(setSession).catch(endSession);
+
+
+navigator.presentation.getAvailability();
+*/
   try {
     if (navigator.presentation.displayAvailable) {
       document.write("Secondary display <font color=green>Available</font>.");
@@ -20,4 +40,3 @@
 Presentation API: displayAvailable test
 </body>
 </html>
-

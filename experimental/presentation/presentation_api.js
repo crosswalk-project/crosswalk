@@ -12,11 +12,6 @@ var _listeners = {};
 var _displayAvailable = false;
 var _nextRequestId = 0;
 var _sessionRequests = {};
-<<<<<<< HEAD
-
-debugger;
-=======
->>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
 
 function DOMError(msg) {
   this.name = msg;
@@ -36,15 +31,9 @@ function Session(presentationId) {
   });
   this.__defineSetter__('onmessage', function(callback) {
     if (callback) {
-<<<<<<< HEAD
-      addEventListener("message", callback);
-    } else {
-      removeEventListener("message", this.onmessage);
-=======
       addEventListener("messagetohost", callback);
     } else {
       removeEventListener("messagetohost", this.onmessage);
->>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
     }
   });
   this.send = function(data) {
@@ -61,15 +50,9 @@ exports.PresentationSession = function(presentationId) {
   });
   this.__defineSetter__('onmessage', function(callback) {
     if (callback) {
-<<<<<<< HEAD
-      addEventListener("message", callback);
-    } else {
-      removeEventListener("message", this.onmessage);
-=======
       addEventListener("messagetoremote", callback);
     } else {
       removeEventListener("messagetoremote", this.onmessage);
->>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
     }
   });
   this.send = function(data) {
@@ -138,6 +121,8 @@ exports.startSession = function(presentationUrl) {
 exports.joinSession = function(url, presentationId) {
   return new Promise(function(resolve, reject) {
     // TODO: to be implemented.
+    console.warn("TODO: joinSession need to be implemented");
+    reject(null);
   });
 }
 
@@ -186,13 +171,8 @@ function handleSessionStartFailed(requestId, errorMessage) {
 }
 
 function handleDefaultSessionStarted(requestId, viewId) {
-<<<<<<< HEAD
-}
-
-function handleSessionMessageReceived(presentationId, data) {
-  var event = new Event('message');
-=======
   // TODO: to be implemented.
+  console.warn("TODO: DefaultSesionStarted need to be implemented")
 }
 
 function handleSessionMessageToHostReceived(presentationId, data) {
@@ -203,17 +183,12 @@ function handleSessionMessageToHostReceived(presentationId, data) {
 
 function handleSessionMessageToRemoteReceived(presentationId, data) {
   var event = new Event('messagetoremote');
->>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
   event.data = data;
   dispatchEvent(event);
 }
 
 extension.setMessageListener(function(json) {
   var msg = JSON.parse(json);
-<<<<<<< HEAD
-  debugger;
-=======
->>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
   if (msg.cmd == "AvailabilityChange") {
     /* Using setTimeout here to ensure the error in user-defined event handler
        would be captured in developer tools. */
@@ -232,17 +207,11 @@ extension.setMessageListener(function(json) {
     setTimeout(function() {
       handleDefaultSessionStarted(msg.requestId, parseInt(msg.data) /* view id */);
     }, 0);
-<<<<<<< HEAD
-  } else if (msg.cmd == "SessionMessageReceived") {
-    handleSessionMessageReceived(msg.presentationId, msg.data);
-=======
   } else if (msg.cmd == "SessionMessageToHostReceived") {
     handleSessionMessageToHostReceived(msg.presentationId, msg.data);
   } else if (msg.cmd == "SessionMessageToRemoteReceived") {
     handleSessionMessageToRemoteReceived(msg.presentationId, msg.data);
->>>>>>> bf08e256f8ec2733853ba9e8bb03969fc0e135c8
   } else {
     console.error("Invalid message : " + msg.cmd);
   }
 });
-
