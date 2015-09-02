@@ -46,6 +46,12 @@ const char kLaunchScreenPortrait[] =
     "launch_screen.portrait";
 const char kLaunchScreenReadyWhen[] =
     "launch_screen.ready_when";
+const char kView[] = "view";
+const char kViewBackgroundColor[] = "view.background_color";
+
+// XWalk View Manifest extensions:
+const char kXWalkView[] = "xwalk_view";
+const char kXWalkViewBackgroundColor[] = "xwalk_view.background_color";
 
 // XWalk W3C Manifest (XPK) extensions:
 
