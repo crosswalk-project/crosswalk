@@ -9,8 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.StringBuilder;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -18,10 +17,14 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
+import junit.framework.Assert;
+
 import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ResourceExtractor;
+import org.chromium.base.ResourceExtractor.ResourceEntry;
+import org.chromium.base.ResourceExtractor.ResourceInterceptor;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.LibraryProcessType;
@@ -35,9 +38,13 @@ class XWalkViewDelegate {
     private static boolean sLibraryLoaded = false;
     private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
+    // In previous versions, MANDATORY_PAKS is actually not mandatory, it's just a list of
+    // candidats. Among the files located in the "assets" or "res/raw" directory, only the files
+    // in MANDATORY_PAKS are to be extracted. And the file "en-US.pak" exists in neither of theses
+    // directories. In latest version, MANDATORY_PAKS is truly mandatory, so "en-US.pak" is
+    // excluded from this list.
     private static final String[] MANDATORY_PAKS = {
             "xwalk.pak",
-            "en-US.pak",
             "icudtl.dat",
             // Please refer to XWALK-3516, disable v8 use external startup data,
             // reopen it if needed later.
@@ -50,6 +57,7 @@ class XWalkViewDelegate {
     };
     private static final String TAG = "XWalkViewDelegate";
     private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
+    private static final String XWALK_PAK_NAME = "xwalk.pak";
 
     private static final String COMMAND_LINE_FILE = "xwalk-command-line";
 
@@ -145,13 +153,87 @@ class XWalkViewDelegate {
             CommandLine.init(readCommandLine(context.getApplicationContext()));
         }
 
-        ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
-        int resListResId = context.getResources().getIdentifier(
-                XWALK_RESOURCES_LIST_RES_NAME, "array", context.getClass().getPackage().getName());
-        if (resListResId == 0) {
-            resListResId = context.getResources().getIdentifier(
-                    XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
+        final boolean isSharedMode = !context.getPackageName().equals(
+                context.getApplicationContext().getPackageName());
+
+        boolean isTestApk = false;
+        if (!isSharedMode) {
+            try {
+                for (String resource : context.getAssets().list("")) {
+                    if (resource.equals(XWALK_PAK_NAME)) {
+                        isTestApk = true;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+            }
         }
+        final boolean isTestMode = isTestApk;
+
+        HashMap<String, ResourceEntry> resourceList = new HashMap<String, ResourceEntry>();
+        if (isSharedMode || isTestMode) {
+            for (String resource : MANDATORY_PAKS) {
+                resourceList.put(resource, new ResourceEntry(0, "", resource));
+            }
+        } else {
+            int resListId = context.getResources().getIdentifier(
+                XWALK_RESOURCES_LIST_RES_NAME, "array", context.getClass().getPackage().getName());
+            if (resListId == 0) {
+                resListId = context.getResources().getIdentifier(
+                    XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
+            }
+
+            try {
+                String[] resList = context.getResources().getStringArray(resListId);
+                for (String resource : resList) {
+                    resourceList.put(resource, new ResourceEntry(0, "", resource));
+                }
+            } catch (NotFoundException e) {
+                Assert.fail("R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+            }
+        }
+
+        final HashMap<String, ResourceEntry> resourcesToExtract = resourceList;
+        ResourceEntry[] resourceEntries = new ResourceEntry[resourcesToExtract.size()];
+        resourcesToExtract.values().toArray(resourceEntries);
+        ResourceExtractor.setResourcesToExtract(resourceEntries);
+
+        // For shared mode, assets are in library package.
+        // For embedding API usage, assets are in res/raw.
+        ResourceExtractor.setResourceInterceptor(new ResourceInterceptor() {
+            @Override
+            public boolean shouldInterceptLoadRequest(String resource) {
+                return resourcesToExtract.containsKey(resource);
+            }
+
+            @Override
+            public InputStream openRawResource(String resource) {
+                if (isSharedMode || isTestMode) {
+                    try {
+                        return context.getAssets().open(resource);
+                    } catch (IOException e) {
+                        Assert.fail(resource + " can't be found in assets.");
+                    }
+                } else {
+                    String resourceName = resource.split("\\.")[0];
+                    int resId = context.getResources().getIdentifier(
+                            resourceName, "raw", context.getClass().getPackage().getName());
+                    if (resId == 0) {
+                        resId = context.getResources().getIdentifier(
+                                resourceName, "raw", context.getPackageName());
+                    }
+
+                    try {
+                        return context.getResources().openRawResource(resId);
+                    } catch (NotFoundException e) {
+                        Assert.fail("R.raw." + resourceName + " can't be found.");
+                    }
+                }
+
+                return null;
+            }
+        });
+
         // Use MixedContext to initialize the ResourceExtractor, as the pak file
         // is in the library apk if in shared apk mode.
         ResourceExtractor.get(context);
