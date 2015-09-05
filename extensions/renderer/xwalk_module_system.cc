@@ -219,8 +219,8 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
     v8::Handle<v8::Context> context,
     const std::string& entry_point,
     v8::Local<v8::External> user_data) {
-  std::vector<std::string> path;
-  base::SplitString(entry_point, '.', &path);
+  std::vector<std::string> path = base::SplitString(
+      entry_point, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   std::string basename = path.back();
   path.pop_back();
 
@@ -251,8 +251,8 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
 bool XWalkModuleSystem::DeleteAccessorForEntryPoint(
     v8::Handle<v8::Context> context,
     const std::string& entry_point) {
-  std::vector<std::string> path;
-  base::SplitString(entry_point, '.', &path);
+  std::vector<std::string> path = base::SplitString(
+      entry_point, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   std::string basename = path.back();
   path.pop_back();
 
@@ -399,8 +399,8 @@ v8::Handle<v8::Value> XWalkModuleSystem::RefetchHolder(
   const std::string entry_point = *v8::String::Utf8Value(
       params->Get(v8::Integer::New(isolate, 1)).As<v8::String>());
 
-  std::vector<std::string> path;
-  base::SplitString(entry_point, '.', &path);
+  std::vector<std::string> path = base::SplitString(
+      entry_point, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   path.pop_back();
 
   std::string error;
@@ -479,8 +479,8 @@ void XWalkModuleSystem::MarkModulesWithTrampoline() {
 void XWalkModuleSystem::EnsureExtensionNamespaceIsReadOnly(
     v8::Handle<v8::Context> context,
     const std::string& extension_name) {
-  std::vector<std::string> path;
-  base::SplitString(extension_name, '.', &path);
+  std::vector<std::string> path = base::SplitString(
+      extension_name, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   std::string basename = path.back();
   path.pop_back();
 
