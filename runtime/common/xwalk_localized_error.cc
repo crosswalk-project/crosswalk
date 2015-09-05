@@ -161,27 +161,27 @@ const LocalizedErrorMap http_error_options[] = {
 };
 
 const LocalizedErrorMap dns_probe_error_options[] = {
-  { chrome_common_net::DNS_PROBE_POSSIBLE,
+  { error_page::DNS_PROBE_POSSIBLE,
     IDS_ERRORPAGES_DETAILS_DNS_PROBE_RUNNING,
   },
 
   // DNS_PROBE_NOT_RUN is not here; NetErrorHelper will restore the original
   // error, which might be one of several DNS-related errors.
 
-  { chrome_common_net::DNS_PROBE_STARTED,
+  { error_page::DNS_PROBE_STARTED,
     IDS_ERRORPAGES_DETAILS_DNS_PROBE_RUNNING,
   },
 
   // DNS_PROBE_FINISHED_UNKNOWN is not here; NetErrorHelper will restore the
   // original error, which might be one of several DNS-related errors.
 
-  { chrome_common_net::DNS_PROBE_FINISHED_NO_INTERNET,
+  { error_page::DNS_PROBE_FINISHED_NO_INTERNET,
     IDS_ERRORPAGES_DETAILS_INTERNET_DISCONNECTED,
   },
-  { chrome_common_net::DNS_PROBE_FINISHED_BAD_CONFIG,
+  { error_page::DNS_PROBE_FINISHED_BAD_CONFIG,
     IDS_ERRORPAGES_DETAILS_NAME_NOT_RESOLVED,
   },
-  { chrome_common_net::DNS_PROBE_FINISHED_NXDOMAIN,
+  { error_page::DNS_PROBE_FINISHED_NXDOMAIN,
     IDS_ERRORPAGES_DETAILS_NAME_NOT_RESOLVED,
   },
 };

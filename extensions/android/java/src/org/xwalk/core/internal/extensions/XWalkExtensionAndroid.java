@@ -8,8 +8,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 
 /**
  * This class is the implementation class for XWalkExtension by calling internal

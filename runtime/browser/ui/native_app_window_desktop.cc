@@ -12,6 +12,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "grit/xwalk_strings.h"
 #include "third_party/skia/include/core/SkPaint.h"
+#include "third_party/skia/include/core/SkPath.h"
 #include "ui/aura/client/screen_position_client.h"
 #include "ui/aura/window.h"
 #include "ui/base/l10n/l10n_util.h"
