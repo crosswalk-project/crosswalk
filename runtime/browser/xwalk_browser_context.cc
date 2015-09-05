@@ -321,8 +321,8 @@ net::URLRequestContextGetter*
 #if defined(OS_ANDROID)
 void XWalkBrowserContext::SetCSPString(const std::string& csp) {
   // Check format of csp string.
-  std::vector<std::string> policies;
-  base::SplitString(csp, ';', &policies);
+  std::vector<std::string> policies = base::SplitString(
+      csp, ";", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   for (size_t i = 0; i < policies.size(); ++i) {
     size_t found = policies[i].find(' ');
     if (found == std::string::npos) {

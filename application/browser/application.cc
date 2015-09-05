@@ -170,8 +170,8 @@ void Application::SetWindowShowState<Manifest::TYPE_WIDGET>(
     // FIXME: ATM only 'fullscreen' and 'windowed' values are supported.
     // If the first user prefererence is 'fullscreen', set window show state
     // FULLSCREEN, otherwise set the default window show state.
-    std::vector<std::string> modes;
-    base::SplitString(view_modes_string, ' ', &modes);
+    std::vector<std::string> modes = base::SplitString(
+        view_modes_string, " ", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
     if (!modes.empty() && modes[0] == "fullscreen")
       params->state = ui::SHOW_STATE_FULLSCREEN;
   }
