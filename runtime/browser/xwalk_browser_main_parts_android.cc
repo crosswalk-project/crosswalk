@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -119,9 +119,11 @@ using extensions::XWalkExtension;
 XWalkBrowserMainPartsAndroid::XWalkBrowserMainPartsAndroid(
     const content::MainFunctionParams& parameters)
     : XWalkBrowserMainParts(parameters) {
+    pXWalkExtensionManager = extensions::XWalkExtensionManager::Get();
 }
 
 XWalkBrowserMainPartsAndroid::~XWalkBrowserMainPartsAndroid() {
+    if (pXWalkExtensionManager) delete pXWalkExtensionManager;
 }
 
 void XWalkBrowserMainPartsAndroid::PreEarlyInitialization() {
@@ -232,31 +234,10 @@ void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
   // to XWalkExtensionServer after this method is called. It is a rule enforced
   // by extension system that XWalkExtensionServer must own the extension
   // objects and extension instances.
-  extensions::XWalkExtensionVector::const_iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it)
+  extensions::XWalkExtensionVector::const_iterator it =
+      pXWalkExtensionManager->Begin();
+  for (; it != pXWalkExtensionManager->End(); ++it)
     extensions->push_back(*it);
-}
-
-void XWalkBrowserMainPartsAndroid::RegisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
-  // Since the creation of extension object is driven by Java side, and each
-  // Java extension is backed by a native extension object. However, the Java
-  // object may be destroyed by Android lifecycle management without destroying
-  // the native side object. We keep the reference to native extension object
-  // to make sure we can reuse the native object if Java extension is re-created
-  // on resuming.
-  extensions_.push_back(extension.release());
-}
-
-XWalkExtension* XWalkBrowserMainPartsAndroid::LookupExtension(
-    const std::string& name) {
-  extensions::XWalkExtensionVector::const_iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it) {
-    XWalkExtension* extension = *it;
-    if (name == extension->name()) return extension;
-  }
-
-  return NULL;
 }
 
 }  // namespace xwalk

@@ -27,6 +27,8 @@
         'common/android/xwalk_extension_android.h',
         'common/xwalk_extension.cc',
         'common/xwalk_extension.h',
+        'common/xwalk_extension_manager.cc',
+        'common/xwalk_extension_manager.h',
         'common/xwalk_extension_messages.cc',
         'common/xwalk_extension_messages.h',
         'common/xwalk_extension_server.cc',

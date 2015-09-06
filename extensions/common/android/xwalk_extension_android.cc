@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,8 +12,7 @@
 #include "base/logging.h"
 #include "jni/XWalkExtensionAndroid_jni.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/extensions/common/xwalk_extension_manager.h"
 
 namespace xwalk {
 namespace extensions {
@@ -211,18 +210,17 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
 
 static jlong GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
                                  jstring js_api, jobjectArray js_entry_points) {
-  xwalk::XWalkBrowserMainPartsAndroid* main_parts =
-      ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());
+  XWalkExtensionManager* pXWalkExtensionManager = XWalkExtensionManager::Get();
 
   const char *str = env->GetStringUTFChars(name, 0);
-  XWalkExtension* extension = main_parts->LookupExtension(str);
+  XWalkExtension* extension = pXWalkExtensionManager->LookupExtension(str);
   env->ReleaseStringUTFChars(name, str);
 
   // Create a new extension object if no existing one is found.
   if (!extension) {
     extension = new XWalkExtensionAndroid(env, obj, name,
                                           js_api, js_entry_points);
-    main_parts->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
+    pXWalkExtensionManager->RegisterExtension(extension);
   } else {
     static_cast<XWalkExtensionAndroid*>(extension)->BindToJavaObject(env, obj);
   }
