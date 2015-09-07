@@ -289,7 +289,22 @@ void XWalkContent::ClearCache(
 
   if (include_disk_files) {
     RemoveHttpDiskCache(web_contents_->GetBrowserContext(),
-                        web_contents_->GetRoutingID());
+                        web_contents_->GetRoutingID(),
+                        std::string());
+  }
+}
+
+void XWalkContent::ClearCacheForSingleFile(
+    JNIEnv* env,
+    jobject obj,
+    jstring url) {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+  std::string key = base::android::ConvertJavaStringToUTF8(env, url);
+
+  if (!key.empty()) {
+    RemoveHttpDiskCache(web_contents_->GetBrowserContext(),
+                        web_contents_->GetRoutingID(),
+                        key);
   }
 }
 

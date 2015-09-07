@@ -511,6 +511,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Clear the resource cache. Note that it only clear the cache for the specified
+     * url.
+     * @param url indicate which cache will be cleared.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void clearCacheForSingleFile(String url) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.clearCacheForSingleFile(url);
+    }
+
+    /**
      * Indicate that a HTML element is occupying the whole screen.
      * @return true if any HTML element is occupying the whole screen.
      * @since 1.0

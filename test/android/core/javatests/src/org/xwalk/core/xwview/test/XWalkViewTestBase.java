@@ -564,6 +564,15 @@ public class XWalkViewTestBase
         });
     }
 
+    protected void clearSingleCacheOnUiThread(final String url) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.clearCacheForSingleFile(url);
+            }
+        });
+    }
+
     protected String getAPIVersionOnUiThread() throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
