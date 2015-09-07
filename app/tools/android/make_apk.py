@@ -301,13 +301,7 @@ def Customize(options, app_info, manifest):
                options.xwalk_command_line, options.compressor)
 
 
-def CleanCompressedLibrary(library_path, arch):
-  useless = os.path.join(library_path, NATIVE_LIBRARY + '.' + arch)
-  if os.path.isfile(useless):
-    os.remove(useless)
-
-
-def CleanNativeLibrary(library_path, arch):
+def CleanLibrary(library_path, arch):
   lib_dir = os.path.join(library_path, arch)
   if os.path.isdir(lib_dir):
     shutil.rmtree(lib_dir)
@@ -326,6 +320,10 @@ def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
 
 
 def CopyNativeLibrary(native_path, library_path, raw_path, arch):
+  dummy_library = os.path.join(native_path, DUMMY_LIBRARY);
+  if os.path.isfile(dummy_library):
+    os.remove(dummy_library)
+
   shutil.copytree(native_path, os.path.join(library_path, arch))
 
 
@@ -436,16 +434,14 @@ def Execution(options, app_info):
 
     if options.enable_lzma:
       contains_library = ContainsCompressedLibrary
-      clean_library = CleanCompressedLibrary
       copy_library = CopyCompressedLibrary
     else:
       contains_library = ContainsNativeLibrary
-      clean_library = CleanNativeLibrary
       copy_library = CopyNativeLibrary
 
     # cleanup previous build's library first.
     for dir_name in os.listdir(library_path):
-      clean_library(library_path, dir_name)
+      CleanLibrary(library_path, dir_name)
 
     if contains_library(native_path):
       copy_library(native_path, library_path, raw_path, arch)

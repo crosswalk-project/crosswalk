@@ -289,15 +289,6 @@
         'xwalk_core_library_java',
       ],
       'conditions': [
-        ['use_lzma==1', {
-          'variables': {
-            'use_lzma_param': ' --use-lzma',
-          },
-        }, {
-          'variables': {
-            'use_lzma_param': '',
-          },
-        }],
         ['use_icu_alternatives_on_android==1', {
           'variables': {
             'icu_data_param': '--no-icu-data',
@@ -333,7 +324,6 @@
             '-s', '<(DEPTH)',
             '-t', '<(PRODUCT_DIR)',
             '<(icu_data_param)',
-            '<(use_lzma_param)',
             '<(disable_builtin_ext_param)',
           ],
         },

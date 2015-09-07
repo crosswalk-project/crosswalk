@@ -29,14 +29,9 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('--src-package', action='store_true',
                            default=False,
                            help='Use java sources instead of java libs.')
-
-  option_parser.add_option('--use-lzma', action='store_true',
-                           default=False,
-                           help='Use LZMA compress native library when specified')
   option_parser.add_option('--no-icu-data', action='store_true',
                            default=False,
                            help='Exclude icudtl.dat when specified')
-
   option_parser.add_option('--disable-builtin-ext', action='store_true',
                            default=False,
                            help='Disable builtin extensions.')
@@ -101,7 +96,7 @@ def CopyJSBindingFiles(project_source, out_project_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, out_project_dir, src_package, shared, use_lzma, no_icu_data):
+def CopyBinaries(out_dir, out_project_dir, src_package, shared, no_icu_data):
   # Copy jar files to libs.
   libs_dir = os.path.join(out_project_dir, 'libs')
   if not os.path.exists(libs_dir):
@@ -320,7 +315,7 @@ def main(argv):
   CopyProjectFiles(options.source, out_project_dir, options.shared)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
-  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared, options.use_lzma, options.no_icu_data)
+  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared, options.no_icu_data)
   # Copy JS API binding files.
   if not options.shared and not options.disable_builtin_ext:
     CopyJSBindingFiles(options.source, out_project_dir)
