@@ -30,11 +30,6 @@ def AddGeneratorOptions(option_parser):
                            default=False,
                            help='Use java sources instead of java libs.')
 
-  option_parser.add_option('--use-lzma', action='store_true',
-                           default=False,
-                           help='Use LZMA compress native library when specified')
-
-
 def CleanLibraryProject(out_project_dir):
   if os.path.exists(out_project_dir):
     for item in os.listdir(out_project_dir):
