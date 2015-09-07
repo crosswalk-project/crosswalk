@@ -478,12 +478,12 @@ def Execution(options, app_info):
     library_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'libs')
     raw_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'res', 'raw')
 
-    if options.enable_lzma:
-      contains_library = ContainsCompressedLibrary
-      copy_library = CopyCompressedLibrary
-    else:
+    if options.disable_lzma:
       contains_library = ContainsNativeLibrary
       copy_library = CopyNativeLibrary
+    else:
+      contains_library = ContainsCompressedLibrary
+      copy_library = CopyCompressedLibrary
 
     # cleanup previous build's library first.
     for dir_name in os.listdir(library_path):
@@ -654,12 +654,12 @@ def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
   os.makedirs(native_path)
   available_archs = []
 
-  if options.enable_lzma:
-    contains_library = ContainsCompressedLibrary
-    make_library = MakeCompressedLibrary
-  else:
+  if options.disable_lzma:
     contains_library = ContainsNativeLibrary
     make_library = MakeNativeLibrary
+  else:
+    contains_library = ContainsCompressedLibrary
+    make_library = MakeCompressedLibrary
 
   for dir_name in os.listdir(library_path):
     lib_dir = os.path.join(library_path, dir_name)
@@ -894,8 +894,8 @@ def main(argv):
                    callback=ParseParameterForCompressor, type='string',
                    nargs=0, help=info)
   parser.add_option_group(group)
-  parser.add_option('--enable-lzma', action='store_true', dest='enable_lzma',
-          default=False, help='Enable LZMA.')
+  parser.add_option('--disable-lzma', action='store_true', dest='disable_lzma',
+          default=False, help='Disable LZMA.')
 
   options, _ = parser.parse_args()
   if len(argv) == 1:
@@ -966,7 +966,7 @@ def main(argv):
 
   VerifyPackageName(options.package)
 
-  if options.mode != 'embedded' and options.enable_lzma:
+  if options.mode != 'embedded' and not options.disable_lzma:
     parser.error('LZMA is only available in embedded mode.')
 
   if options.mode == 'download' and not options.xwalk_apk_url:
