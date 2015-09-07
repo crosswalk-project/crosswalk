@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -185,17 +186,29 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public static final int RELOAD_IGNORE_CACHE = 1;
 
+    // The moment when the XWalkViewBridge is added to the XWalkView, the screen flashes black. The
+    // reason is when the SurfaceView appears in the window the fist time, it requests the window's
+    // parameters changing by calling IWindowSession.relayout(). But if the window already has
+    // appropriate parameters, it will not refresh all the window's stuff and the screen will not
+    // blink. So we add a 0px SurfaceView at first. This will recreate the window before the
+    // activity is shown on the screen, and when the actual XWalkViewBridge is added, it will just
+    // continue to use the window with current parameters. The temporary SurfaceView can be removed
+    // at last.
     /**
      * Constructs a new XWalkView with a Context object.
      * @param context a Context object used to access application assets.
      * @since 6.0
      */
     @XWalkAPI(preWrapperLines = {
-                  "        super(${param1}, null);"},
+                  "        super(${param1}, null);",
+                  "        SurfaceView surfaceView = new SurfaceView(${param1});",
+                  "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
+                  "        addView(surfaceView);"},
               postWrapperLines = {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
-                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
+                  "        removeViewAt(0);"})
     public XWalkViewInternal(Context context) {
         super(context, null);
 
@@ -214,11 +227,15 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @since 1.0
      */
     @XWalkAPI(preWrapperLines = {
-                  "        super(${param1}, ${param2});"},
+                  "        super(${param1}, ${param2});",
+                  "        SurfaceView surfaceView = new SurfaceView(${param1});",
+                  "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
+                  "        addView(surfaceView);"},
               postWrapperLines = {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
-                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
+                  "        removeViewAt(0);"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -238,11 +255,15 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @since 1.0
      */
     @XWalkAPI(preWrapperLines = {
-                  "        super(${param1}, null);"},
+                  "        super(${param1}, null);",
+                  "        SurfaceView surfaceView = new SurfaceView(${param1});",
+                  "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
+                  "        addView(surfaceView);"},
               postWrapperLines = {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
-                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
+                  "        removeViewAt(0);"})
     public XWalkViewInternal(Context context, Activity activity) {
         super(context, null);
 
