@@ -79,6 +79,9 @@ public class XWalkSettings {
 
     private boolean mAutoCompleteEnabled = true;
 
+    private float mInitialPageScalePercent = 0;
+    private double mDIPScale = 1.0;
+
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
     }
@@ -718,6 +721,44 @@ public class XWalkSettings {
         return mAutoCompleteEnabled;
     }
 
+    void setDIPScale(double dipScale) {
+        synchronized (mXWalkSettingsLock) {
+            mDIPScale = dipScale;
+            // TODO(hengzhi.wu): This should also be synced over to native side, but right now
+            // the setDIPScale call is always followed by a setWebContents() which covers this.
+        }
+    }
+
+    /**
+     * See {@link android.webkit.WebView#setInitialScale}.
+     */
+    public void setInitialPageScale(final float scaleInPercent) {
+        synchronized (mXWalkSettingsLock) {
+            if (mInitialPageScalePercent == scaleInPercent) return;
+            mInitialPageScalePercent = scaleInPercent;
+            mEventHandler.maybeRunOnUiThreadBlocking(new Runnable() {
+                @Override
+                public void run() {
+                    if (mNativeXWalkSettings != 0) {
+                        nativeUpdateInitialPageScale(mNativeXWalkSettings);
+                    }
+                }
+            });
+        }
+    }
+
+    @CalledByNative
+    private float getInitialPageScalePercentLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mInitialPageScalePercent;
+    }
+
+    @CalledByNative
+    private double getDIPScaleLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mDIPScale;
+    }
+
     private native long nativeInit(WebContents webContents);
 
     private native void nativeDestroy(long nativeXWalkSettings);
@@ -733,4 +774,6 @@ public class XWalkSettings {
     private native void nativeUpdateAcceptLanguages(long nativeXWalkSettings);
 
     private native void nativeUpdateFormDataPreferences(long nativeXWalkSettings);
+
+    private native void nativeUpdateInitialPageScale(long nativeXWalkSettings);
 }

@@ -964,6 +964,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Sets the initial scale for this XWalkView.
+     * @param scaleInPercent the initial scale in percent.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setInitialScale(int scaleInPercent) {
+        checkThreadSafety();
+        XWalkSettings settings = getSettings();
+        if (settings == null) return;
+        settings.setInitialPageScale(scaleInPercent);
+    }
+
+    /**
      * It's used for Presentation API.
      * @hide
      */
