@@ -9,7 +9,7 @@ import org.xwalk.core.internal.extensions.XWalkExtensionAndroid;
 public class ExtensionEchoInternal extends XWalkExtensionAndroid {
 
     public ExtensionEchoInternal() {
-        super("echo",
+        super("echoJava",
               "var echoListener = null;"
               + "extension.setMessageListener(function(msg) {"
               + "  if (echoListener instanceof Function) {"

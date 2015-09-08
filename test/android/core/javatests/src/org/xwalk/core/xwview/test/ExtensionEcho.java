@@ -9,7 +9,7 @@ import org.xwalk.core.XWalkExtension;
 public class ExtensionEcho extends XWalkExtension {
 
     public ExtensionEcho() {
-        super("echo",
+        super("echoJava",
               "var echoListener = null;"
               + "extension.setMessageListener(function(msg) {"
               + "  if (echoListener instanceof Function) {"
