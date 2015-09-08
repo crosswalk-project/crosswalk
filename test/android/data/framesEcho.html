@@ -13,7 +13,7 @@
         + " <script>\n"
         + "   try {\n"
         + "     var d = new Date().toString();\n"
-        + "     echo.echo(d, function(msg) {\n"
+        + "     echoJava.echo(d, function(msg) {\n"
         + "       document.write(msg + '<br>');\n"
         + "       var expected = 'From java:' + d;\n"
         + "       if (msg === expected) {\n"
@@ -52,7 +52,7 @@
         */
         var topMsg = "top-frame msg";
         try {
-          echo.echo(topMsg, function(msg) {
+          echoJava.echo(topMsg, function(msg) {
             var expected = "From java:" + topMsg;
             setTestResult(msg === expected);
           });

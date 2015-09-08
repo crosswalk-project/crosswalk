@@ -306,13 +306,13 @@ public class RuntimeClientApiTestBase<T extends Activity> {
 
     // For external extension mechanism: async mode.
     public void testExternalExtensionAsync() throws Throwable {
-        String title = mTestUtil.loadAssetFileAndWaitForTitle("echo.html");
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("echo_java.html");
         mTestCase.assertEquals("Pass", title);
     }
 
     // For external extension mechanism: sync mode.
     public void testExternalExtensionSync() throws Throwable {
-        mTestUtil.loadAssetFile("echoSync.html");
+        mTestUtil.loadAssetFile("echo_sync_java.html");
         mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

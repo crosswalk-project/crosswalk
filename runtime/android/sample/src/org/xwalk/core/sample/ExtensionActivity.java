@@ -19,6 +19,6 @@ public class ExtensionActivity extends XWalkBaseActivity {
         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
         mExtension = new ExtensionEcho();
 
-        mXWalkView.load("file:///android_asset/echo.html", null);
+        mXWalkView.load("file:///android_asset/echo_java.html", null);
     }
 }

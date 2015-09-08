@@ -24,7 +24,7 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
     public void testAsync() throws Throwable {
         ExtensionEcho echo = new ExtensionEcho();
 
-        loadAssetFileAndWaitForTitle("echo.html");
+        loadAssetFileAndWaitForTitle("echo_java.html");
         assertEquals(PASS_STRING, getTitleOnUiThread());
     }
 
@@ -33,7 +33,7 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
     public void testSync() throws Throwable {
         ExtensionEcho echo = new ExtensionEcho();
 
-        loadAssetFile("echoSync.html");
+        loadAssetFile("echo_sync_java.html");
         assertEquals(PASS_STRING, getTitleOnUiThread());
     }
 
