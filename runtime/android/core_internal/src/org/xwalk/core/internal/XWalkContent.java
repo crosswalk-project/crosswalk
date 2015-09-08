@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -227,8 +228,18 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             if (content == null || content.isEmpty()) {
                 params = new LoadUrlParams(url);
             } else {
-                params = LoadUrlParams.createLoadDataParamsWithBaseUrl(
-                        content, "text/html", false, url, null);
+                // When loading data with a non-data: base URL, the classic WebView would effectively
+                // "dump" that string of data into the WebView without going through regular URL
+                // loading steps such as decoding URL-encoded entities. We achieve this same behavior by
+                // base64 encoding the data that is passed here and then loading that as a data: URL.
+                try {
+                    params = LoadUrlParams.createLoadDataParamsWithBaseUrl(
+                            Base64.encodeToString(content.getBytes("utf-8"),
+                            Base64.DEFAULT), "text/html", true, url, null, "utf-8");
+                } catch (java.io.UnsupportedEncodingException e) {
+                    Log.w(TAG, "Unable to load data string " + content, e);
+                    return;
+                }
             }
             params.setOverrideUserAgent(UserAgentOverrideOption.TRUE);
             mNavigationController.loadUrl(params);
