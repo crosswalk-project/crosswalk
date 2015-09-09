@@ -27,16 +27,17 @@ import android.os.Bundle;
  * tag in the Android manifest.
  *
  * <pre>
- * &lt;application android:name="org.xwalk.core.XWalkApplication"&gt;
+ * &lt;application&gt;
  *     &lt;meta-data android:name="xwalk_apk_url" android:value="http://host/XWalkRuntimeLib.apk" /&gt;
+ * &lt;/&gt;
  * </pre>
  *
- * <p>In old versions, the developer can use the embedding API in <code>onCreate()</code> directly
- * or any where at any time as they wish. But in latest version, the Crosswalk runtime isn't loaded
- * yet at the moment the activity is created, so the embedding API won't be usable immediately.
- * To make your code compatible with new implementation somtimes, all routines using the embedding
- * API should be inside {@link #onXWalkReady} or after {@link #onXWalkReady} is invoked. Please
- * refer to following example for more details.</p>
+ * <p>In embedded mode, the developer can use the embedding API in <code>onCreate()</code> directly.
+ * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
+ * activity is created, so the embedding API won't be usable immediately. To make your code
+ * compatible with all modes, it's recommended that all routines using the embedding API should be
+ * inside {@link #onXWalkReady} or after {@link #onXWalkReady} is invoked. Please refer to following
+ * example for more details.</p>
  *
  * <p>For example:</p>
  *
