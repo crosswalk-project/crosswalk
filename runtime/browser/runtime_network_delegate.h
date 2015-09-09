@@ -55,8 +55,6 @@ class RuntimeNetworkDelegate : public net::NetworkDelegateImpl {
                       net::CookieOptions* options) override;
   bool OnCanAccessFile(const net::URLRequest& request,
                        const base::FilePath& path) const override;
-  bool OnCanThrottleRequest(
-      const net::URLRequest& request) const override;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeNetworkDelegate);
 };

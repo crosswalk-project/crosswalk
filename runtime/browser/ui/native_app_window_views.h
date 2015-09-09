@@ -12,6 +12,7 @@
 #include "ui/gfx/image/image_skia.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
+#include "ui/views/views_delegate.h"
 
 namespace views {
 class WebView;

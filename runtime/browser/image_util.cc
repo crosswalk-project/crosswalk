@@ -24,7 +24,7 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
   const base::FilePath::StringType kJPGFormat(FILE_PATH_LITERAL(".jpg"));
   const base::FilePath::StringType kJPEGFormat(FILE_PATH_LITERAL(".jpeg"));
 
-  if (EndsWith(filename.value(), kPNGFormat, false)) {
+  if (base::EndsWith(filename.value(), kPNGFormat, false)) {
     std::string contents;
     base::ReadFileToString(filename, &contents);
     return gfx::Image::CreateFrom1xPNGBytes(
@@ -32,8 +32,8 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
             contents.size());
   }
 
-  if (EndsWith(filename.value(), kJPGFormat, false) ||
-      EndsWith(filename.value(), kJPEGFormat, false)) {
+  if (base::EndsWith(filename.value(), kJPGFormat, false) ||
+      base::EndsWith(filename.value(), kJPEGFormat, false)) {
     std::string contents;
     base::ReadFileToString(filename, &contents);
     return gfx::ImageFrom1xJPEGEncodedData(
@@ -41,7 +41,7 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
         contents.size());
   }
 
-  if (EndsWith(filename.value(), kICOFormat, false)) {
+  if (base::EndsWith(filename.value(), kICOFormat, false)) {
 #if defined(OS_WIN)
     HICON icon = static_cast<HICON>(LoadImage(NULL,
                                     filename.value().c_str(),

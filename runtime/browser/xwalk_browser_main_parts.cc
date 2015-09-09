@@ -128,7 +128,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
         command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
   }
   command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
-
   startup_url_ = GetURLFromCommandLine(*command_line);
 }
 

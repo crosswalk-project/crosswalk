@@ -333,8 +333,7 @@ bool Application::RegisterPermissions(const std::string& extension_name,
   // TODO(Bai): Parse the permission table and fill in the name_perm_map_
   // The perm_table format is a simple JSON string, like
   // [{"permission_name":"echo","apis":["add","remove","get"]}]
-  scoped_ptr<base::Value> root;
-  root.reset(base::JSONReader().ReadToValue(perm_table));
+  scoped_ptr<base::Value> root = base::JSONReader().ReadToValue(perm_table);
   if (root.get() == NULL || !root->IsType(base::Value::TYPE_LIST))
     return false;
 

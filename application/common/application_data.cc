@@ -151,7 +151,7 @@ GURL ApplicationData::GetResourceURL(const GURL& application_url,
     path = relative_path.substr(1);
 
   GURL ret_val = GURL(application_url.spec() + path);
-  DCHECK(StartsWithASCII(ret_val.spec(), application_url.spec(), false));
+  DCHECK(base::StartsWithASCII(ret_val.spec(), application_url.spec(), false));
 
   return ret_val;
 }

@@ -107,9 +107,4 @@ bool RuntimeNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
   return true;
 }
 
-bool RuntimeNetworkDelegate::OnCanThrottleRequest(
-    const net::URLRequest& request) const {
-  return false;
-}
-
 }  // namespace xwalk

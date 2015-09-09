@@ -636,6 +636,11 @@
             '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
           ],
         }],
+        ['toolkit_views==1', {
+          'dependencies': [
+            '<(DEPTH)/ui/views/resources/views_resources.gyp:views_resources',
+          ],
+        }],
       ],
       'variables': {
         'repack_path': '../tools/grit/grit/format/repack.py',
@@ -665,6 +670,13 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
+                ],
+              },
+            }],
+            ['toolkit_views==1', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/views/resources/views_resources_100_percent.pak',
                 ],
               },
             }],

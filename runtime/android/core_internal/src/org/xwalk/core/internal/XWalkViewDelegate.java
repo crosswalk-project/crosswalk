@@ -10,8 +10,8 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.StringBuilder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -25,7 +25,8 @@ import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ResourceExtractor;
-import org.chromium.base.ResourceExtractor.ResourceIntercepter;
+import org.chromium.base.ResourceExtractor.ResourceEntry;
+import org.chromium.base.ResourceExtractor.ResourceInterceptor;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.LibraryProcessType;
@@ -130,7 +131,7 @@ class XWalkViewDelegate {
         // with System.loadLibrary("xwalkcore") above, but same library won't be loaded repeatedly.
         try {
             LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
-            libraryLoader.loadNow(context, true);
+            libraryLoader.loadNow(context);
         } catch (ProcessInitException e) {
         }
 
@@ -156,9 +157,6 @@ class XWalkViewDelegate {
             CommandLine.init(readCommandLine(context.getApplicationContext()));
         }
 
-        ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
-        ResourceExtractor.setExtractImplicitLocaleForTesting(false);
-
         setupResourceInterceptor(context);
 
         // Use MixedContext to initialize the ResourceExtractor, as the pak file
@@ -174,7 +172,7 @@ class XWalkViewDelegate {
             @Override
             public void run() {
                 try {
-                    LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER).ensureInitialized();
+                    LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER).ensureInitialized(context);
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
@@ -215,36 +213,38 @@ class XWalkViewDelegate {
         final boolean isTestApk =
                 !isSharedMode && Arrays.asList(context.getAssets().list("")).contains(XWALK_PAK_NAME);
 
-        Set<String> interceptableResources = new HashSet<String>();
+        HashMap<String, ResourceEntry> resourceList = new HashMap<String, ResourceEntry>();
         if (isSharedMode || isTestApk) {
             for (String resource : MANDATORY_PAKS) {
-                interceptableResources.add(resource);
+                resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
         } else {
             int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
             try {
                 final String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
                 for (String resource : crosswalkResources) {
-                    interceptableResources.add(resource);
+                    resourceList.put(resource, new ResourceEntry(0, "", resource));
                 }
             } catch (NotFoundException e) {
                 Assert.fail("R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
             }
         }
+        ResourceExtractor.setResourcesToExtract(
+                resourceList.values().toArray(new ResourceEntry[resourceList.size()]));
 
-        // For getInterceptableResourceList(), which needs a final value.
-        final Set<String> finalInterceptableResources = interceptableResources;
+        // For shouldInterceptLoadRequest(), which needs a final value.
+        final HashSet<String> interceptableResources = new HashSet<String>(resourceList.keySet());
 
         // For shared mode, assets are in library package.
         // For embedded mode, assets are in res/raw.
-        ResourceExtractor.setResourceIntercepter(new ResourceIntercepter() {
+        ResourceExtractor.setResourceInterceptor(new ResourceInterceptor() {
             @Override
-            public Set<String> getInterceptableResourceList() {
-                return finalInterceptableResources;
+            public boolean shouldInterceptLoadRequest(String resource) {
+                return interceptableResources.contains(resource);
             }
 
             @Override
-            public InputStream interceptLoadingForResource(String resource) {
+            public InputStream openRawResource(String resource) {
                 if (isSharedMode || isTestApk) {
                     try {
                         return context.getAssets().open(resource);
