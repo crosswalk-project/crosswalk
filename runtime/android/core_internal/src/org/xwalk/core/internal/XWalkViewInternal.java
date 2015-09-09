@@ -57,6 +57,12 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * TextureView</a> is intentionally used to render web pages for animation support.
  * Besides, XWalkViewInternal won't be rendered if it's invisible.</p>
  *
+ * <p>In embedded mode, the developer can use XWalkViewInternal in <code>onCreate()</code> directly.
+ * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
+ * activity is created, so the embedding API won't be usable immediately. To make your code
+ * compatible with all modes, please refer to the examples in {@link XWalkActivity} or
+ * {@link XWalkInitializer}.</p>
+ *
  * <p>XWalkViewInternal needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
  * "android:hardwareAccelerated" and its value must be set as "true".</p>
@@ -69,8 +75,8 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * {@link XWalkUIClientInternal} for listening to the events related to resource loading and UI.
  * By default, Crosswalk has a default implementation. Callers can override them if needed.</p>
  *
- * <p>Unlike other Android views, this class has to listen to system events like intents and activity result.
- * The web engine inside this view need to get and handle them.
+ * <p>Unlike other Android views, this class has to listen to system events like intents and
+ * activity result. The web engine inside this view need to get and handle them.
  * With contianer activity's lifecycle change, XWalkViewInternal will pause all timers and other
  * components like videos when activity paused, resume back them when activity resumed.
  * When activity is about to destroy, XWalkViewInternal will destroy itself as well.
