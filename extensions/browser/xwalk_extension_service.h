@@ -92,6 +92,9 @@ class XWalkExtensionService : public content::NotificationObserver,
       const CreateExtensionsCallback& callback);
 
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
+#if defined(OS_WIN)
+  static void SetDotNetExtensionsPathForTesting(const base::FilePath& path);
+#endif
 
  private:
   void OnRenderProcessHostCreatedInternal(

@@ -37,18 +37,19 @@ class XWalkDotNetExtension : public XWalkExtension {
     runtime_variables_ = runtime_variables;
   }
 
+ protected:
+  // XWalkExtension implementation.
+  XWalkExtensionInstance* CreateInstance() override;
+
  private:
   // Variables from the browser process. Usually things like currently-running
   // application ID.
   base::ValueMap runtime_variables_;
 
-  // XWalkExtension implementation.
-  XWalkExtensionInstance* CreateInstance() override;
   static void set_name_callback(void* extension, const std::string& name);
   static void set_javascript_api_callback(
     void* extension, const std::string& api);
 
-  friend class XWalkDotNetAdapter;
   base::FilePath library_path_;
   XWalkDotNetBridge* bridge_;
 

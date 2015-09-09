@@ -7,6 +7,8 @@
 
 #include "xwalk/extensions/common/xwalk_extension.h"
 
+#include <string>
+
 namespace xwalk {
 namespace extensions {
 
@@ -16,7 +18,7 @@ class XWalkDotNetInstance : public XWalkExtensionInstance {
  public:
   explicit XWalkDotNetInstance(XWalkDotNetExtension* extension);
   ~XWalkDotNetInstance() override;
-
+  bool isValid() const { return instance_dotnet_ && extension_; }
  private:
   // XWalkExtensionInstance implementation.
   void HandleMessage(scoped_ptr<base::Value> msg) override;
@@ -25,7 +27,7 @@ class XWalkDotNetInstance : public XWalkExtensionInstance {
     void* instance, const std::string& message);
   static void SetSyncReply(void* instance, const std::string& message);
 
-  friend class XWalkDotNetAdapter;
+  friend class XWalkDotNetExtensionTest;
   XWalkDotNetExtension* extension_;
   void* instance_dotnet_;
   DISALLOW_COPY_AND_ASSIGN(XWalkDotNetInstance);

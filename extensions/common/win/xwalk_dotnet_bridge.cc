@@ -123,12 +123,22 @@ bool XWalkDotNetBridge::Initialize() {
     Object^ extension_name_clr =
       extension_name_method->Invoke(extension_object,
                                     gcnew array<Object^>(0){});
+    if (extension_name_clr->GetType() != String::typeid) {
+      LOG(WARNING) << "Error loading extension "
+        << library_path_ << "': ExtensionName return type is not valid";
+      return false;
+    }
     std::string extension_name;
     MarshalString(extension_name_clr->ToString(), &extension_name);
     set_name_callback_(extension_, extension_name);
 
     Object^ api_clr = extension_api_method->Invoke(extension_object,
                                                    gcnew array<Object^>(0){});
+    if (api_clr->GetType() != String::typeid) {
+      LOG(WARNING) << "Error loading extension "
+        << library_path_ << "': ExtensionAPI return type is not valid";
+      return false;
+    }
     std::string api;
     MarshalString(api_clr->ToString(), &api);
     set_javacript_api_callback_(extension_, api);
@@ -188,6 +198,25 @@ void* XWalkDotNetBridge::CreateInstance(void* native_instance) {
         << "': XWalkExtensionInstance constructor is not defined";
       return 0;
     }
+
+    array<Type^>^types_string = gcnew array<Type^>(1);
+    types_string[0] = String::typeid;
+    MethodInfo^ handle_sync_message_method =
+      extension_instance_type->GetMethod("HandleSyncMessage", types_string);
+    if (!handle_sync_message_method) {
+      LOG(WARNING) << "Error loading extension instance " << library_path_
+        << "': HandleSyncMessage is not defined or has an incorrect prototype";
+      return 0;
+    }
+
+    MethodInfo^ handle_message_method =
+      extension_instance_type->GetMethod("HandleMessage", types_string);
+    if (!handle_message_method) {
+      LOG(WARNING) << "Error loading extension instance " << library_path_
+        << "': HandleMessage is not defined or has an incorrect prototype";
+      return 0;
+    }
+
     Bridge^ callback = gcnew Bridge(this);
     Object^ extension_instance_object =
       extension_instance_constructor->Invoke(
