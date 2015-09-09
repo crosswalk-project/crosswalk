@@ -6,7 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 
 #include "base/memory/scoped_ptr.h"
-#include "third_party/WebKit/public/platform/WebScreenOrientationLockType.h"
+#include "third_party/WebKit/public/platform/modules/screen_orientation/WebScreenOrientationLockType.h"
 #include "ui/aura/window_observer.h"
 #include "xwalk/runtime/browser/ui/screen_orientation.h"
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"

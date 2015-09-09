@@ -851,7 +851,7 @@ BUG=XWALK-2571
        'dependencies': [
 --- src/ui/views/views.gyp
 +++ src/ui/views/views.gyp
-@@ -570,6 +570,23 @@
+@@ -570,6 +570,28 @@
      {
        # GN version: //ui/views
        'target_name': 'views',
@@ -864,6 +864,11 @@ BUG=XWALK-2571
 +      'dependencies': [
 +        '../accessibility/accessibility.gyp:ax_gen',
 +      ],
++      'all_dependent_settings': {
++        'defines': [
++          'TOOLKIT_VIEWS=1',
++        ],
++      },
 +      'export_dependent_settings': [
 +        '../accessibility/accessibility.gyp:ax_gen',
 +      ],

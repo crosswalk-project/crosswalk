@@ -32,10 +32,10 @@ const base::FilePath::StringType kCSSFormat(FILE_PATH_LITERAL(".css"));
 }
 
 bool RequiresEncryption(const base::FilePath& file_path) {
-  return EndsWith(file_path.value(), kHTMLFormat, false) ||
-    EndsWith(file_path.value(), kHTMFormat, false) ||
-    EndsWith(file_path.value(), kJSFormat, false) ||
-    EndsWith(file_path.value(), kCSSFormat, false);
+  return base::EndsWith(file_path.value(), kHTMLFormat, false) ||
+    base::EndsWith(file_path.value(), kHTMFormat, false) ||
+    base::EndsWith(file_path.value(), kJSFormat, false) ||
+    base::EndsWith(file_path.value(), kCSSFormat, false);
 }
 
 bool EncryptData(const char* plain_data, int len,

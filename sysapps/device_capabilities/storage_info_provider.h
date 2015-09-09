@@ -55,7 +55,7 @@ class StorageInfoProvider {
  private:
   bool is_initialized_;
   std::vector<base::Closure> callbacks_;
-  ObserverList<Observer> observer_list_;
+  base::ObserverList<Observer> observer_list_;
 
   DISALLOW_COPY_AND_ASSIGN(StorageInfoProvider);
 };

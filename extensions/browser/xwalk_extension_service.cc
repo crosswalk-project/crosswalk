@@ -72,12 +72,12 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
   ~ExtensionServerMessageFilter() override {}
 
   int64_t GetInstanceIDFromMessage(const IPC::Message& message) {
-    PickleIterator iter;
+    base::PickleIterator iter;
 
     if (message.is_sync())
       iter = IPC::SyncMessage::GetDataIterator(&message);
     else
-      iter = PickleIterator(message);
+      iter = base::PickleIterator(message);
 
     int64_t instance_id;
     if (!iter.ReadInt64(&instance_id))

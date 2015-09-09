@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -115,7 +116,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                        bool opener_suppressed,
                        content::ResourceContext* context,
                        int render_process_id,
-                       int opener_id,
+                       int opener_render_view_id,
+                       int opener_render_frame_id,
                        bool* no_javascript_access) override;
 #endif
 
@@ -140,12 +142,17 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   content::DevToolsManagerDelegate*
       GetDevToolsManagerDelegate() override;
-
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_ANDROID)
+  virtual void GetAdditionalMappedFilesForChildProcess(
+      const base::CommandLine& command_line,
+      int child_process_id,
+      content::FileDescriptorInfo* mappings,
+      std::map<int, base::MemoryMappedFile::Region>* regions) override {}
+#elif defined(OS_POSIX) && !defined(OS_MACOSX)
   void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
       int child_process_id,
-      content::FileDescriptorInfo* mappings) override;
+      content::FileDescriptorInfo* mappings) override {}
 #endif
 
   XWalkBrowserMainParts* main_parts() { return main_parts_; }

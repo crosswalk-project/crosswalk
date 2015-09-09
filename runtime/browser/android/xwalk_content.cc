@@ -338,7 +338,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string json_input =
       base::android::ConvertJavaStringToUTF8(env, manifest_string);
 
-  base::Value* manifest_value = base::JSONReader::Read(json_input);
+  base::Value* manifest_value = base::JSONReader::DeprecatedRead(json_input);
   if (!manifest_value) return false;
 
   base::DictionaryValue* manifest_dictionary;
@@ -374,7 +374,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   const base::ListValue* xwalk_hosts = NULL;
   if (manifest.GetList(
           xwalk::application_manifest_keys::kXWalkHostsKey, &xwalk_hosts)) {
-      base::JSONWriter::Write(xwalk_hosts, &match_patterns);
+      base::JSONWriter::Write(*xwalk_hosts, &match_patterns);
   }
   render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
@@ -394,7 +394,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       // TODO(David): update the handling process of the display strings
       // including fullscreen etc.
       bool display_as_fullscreen =
-          LowerCaseEqualsASCII(display_string, "fullscreen");
+          base::LowerCaseEqualsASCII(display_string, "fullscreen");
       Java_XWalkContent_onGetFullscreenFlagFromManifest(
           env, obj, display_as_fullscreen ? JNI_TRUE : JNI_FALSE);
     }
@@ -481,7 +481,7 @@ base::android::ScopedJavaLocalRef<jbyteArray> XWalkContent::GetState(
   if (!web_contents_->GetController().GetEntryCount())
     return ScopedJavaLocalRef<jbyteArray>();
 
-  Pickle pickle;
+  base::Pickle pickle;
   if (!WriteToPickle(*web_contents_, &pickle)) {
     return ScopedJavaLocalRef<jbyteArray>();
   } else {
@@ -496,9 +496,9 @@ jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
   std::vector<uint8> state_vector;
   base::android::JavaByteArrayToByteVector(env, state, &state_vector);
 
-  Pickle pickle(reinterpret_cast<const char*>(state_vector.begin()),
+  base::Pickle pickle(reinterpret_cast<const char*>(&state_vector[0]),
                 state_vector.size());
-  PickleIterator iterator(pickle);
+  base::PickleIterator iterator(pickle);
 
   return RestoreFromPickle(&iterator, web_contents_.get());
 }

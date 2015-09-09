@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 
+#include "base/thread_task_runner_handle.h"
 #include "components/devtools_http_handler/devtools_http_handler.h"
 #include "components/devtools_http_handler/devtools_http_handler_delegate.h"
 #include "content/public/browser/devtools_agent_host.h"

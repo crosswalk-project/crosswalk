@@ -55,6 +55,8 @@ public class XWalkAutofillClient {
                     public void suggestionSelected(int listIndex) {
                         nativeSuggestionSelected(mNativeXWalkAutofillClient, listIndex);
                     }
+                    @Override
+                    public void deleteSuggestion(int listIndex) { }
                 });
         }
         mAutofillPopup.setAnchorRect(x, y, width, height);
@@ -83,7 +85,7 @@ public class XWalkAutofillClient {
     @CalledByNative
     private static void addToAutofillSuggestionArray(AutofillSuggestion[] array, int index,
             String name, String label, int uniqueId) {
-        array[index] = new AutofillSuggestion(name, label, DropdownItem.NO_ICON, uniqueId);
+        array[index] = new AutofillSuggestion(name, label, DropdownItem.NO_ICON, uniqueId, false);
     }
 
     private native void nativeSuggestionSelected(long nativeXWalkAutofillClient,

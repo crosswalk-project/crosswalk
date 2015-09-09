@@ -34,10 +34,10 @@ class XWalkPrefStore : public PersistentPrefStore {
   bool GetMutableValue(const std::string& key, base::Value** result) override;
   void ReportValueChanged(const std::string& key, uint32 flags) override;
   void SetValue(const std::string& key,
-                base::Value* value,
+                scoped_ptr<base::Value> value,
                 uint32 flags) override;
   void SetValueSilently(const std::string& key,
-                        base::Value* value,
+                        scoped_ptr<base::Value> value,
                         uint32 flags) override;
   void RemoveValue(const std::string& key, uint32 flags) override;
   bool ReadOnly() const override;
@@ -45,6 +45,7 @@ class XWalkPrefStore : public PersistentPrefStore {
   PersistentPrefStore::PrefReadError ReadPrefs() override;
   void ReadPrefsAsync(ReadErrorDelegate* error_delegate) override;
   void CommitPendingWrite() override {}
+  void SchedulePendingLossyWrites() override {}
 
  protected:
   ~XWalkPrefStore() override;
@@ -53,7 +54,7 @@ class XWalkPrefStore : public PersistentPrefStore {
   // Stores the preference values.
   PrefValueMap prefs_;
 
-  ObserverList<PrefStore::Observer, true> observers_;
+  base::ObserverList<PrefStore::Observer, true> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkPrefStore);
 };

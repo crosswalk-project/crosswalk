@@ -127,9 +127,6 @@
       <message name="IDS_ERRORPAGES_DETAILS_SSL_PROTOCOL_ERROR" desc="The error message displayed for SSL protocol errors.">
         SSL protocol error.
       </message>
-      <message name="IDS_ERRORPAGES_DETAILS_SSL_UNSAFE_NEGOTIATION" desc="The error message displayed when the SSL renegotiation extension is missing.">
-        The SSL renegotiation extension was missing from the secure handshake. For some sites, which are known to support the renegotiation extension, Chrome requires a more secure handshake to prevent a class of known attacks. The omission of this extension suggests that your connection was intercepted and manipulated in transit.
-      </message>
       <message name="IDS_ERRORPAGES_DETAILS_BAD_SSL_CLIENT_AUTH_CERT" desc="The error message for SSL client certificate authentication failure.">
         Bad SSL client authentication certificate.
       </message>

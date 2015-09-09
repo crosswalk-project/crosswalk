@@ -31,7 +31,6 @@
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/base/net_errors.h"
-#include "net/socket/unix_domain_listen_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 

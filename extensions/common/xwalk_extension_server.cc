@@ -131,7 +131,7 @@ bool ValidateExtensionIdentifier(const std::string& name) {
   bool digit_or_underscore_allowed = false;
   for (size_t i = 0; i < name.size(); ++i) {
     char c = name[i];
-    if (IsAsciiDigit(c)) {
+    if (base::IsAsciiDigit(c)) {
       if (!digit_or_underscore_allowed)
         return false;
     } else if (c == '_') {
@@ -142,7 +142,7 @@ bool ValidateExtensionIdentifier(const std::string& name) {
         return false;
       dot_allowed = false;
       digit_or_underscore_allowed = false;
-    } else if (IsAsciiAlpha(c)) {
+    } else if (base::IsAsciiAlpha(c)) {
       dot_allowed = true;
       digit_or_underscore_allowed = true;
     } else {
