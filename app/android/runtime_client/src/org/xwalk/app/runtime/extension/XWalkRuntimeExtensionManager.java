@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.xwalk.core.XWalkNativeExtensionLoader;
+
 /**
  * This internal class acts a manager to manage extensions.
  */
@@ -37,11 +39,13 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
     private final HashMap<String, XWalkRuntimeExtensionBridge> mExtensions = new HashMap<String, XWalkRuntimeExtensionBridge>();
     // This variable is to set whether to load external extensions. The default is true.
     private boolean mLoadExternalExtensions;
+    private final XWalkNativeExtensionLoader mNativeExtensionLoader;
 
     public XWalkRuntimeExtensionManager(Context context, Activity activity) {
         mContext = context;
         mActivity = activity;
         mLoadExternalExtensions = true;
+        mNativeExtensionLoader = new XWalkNativeExtensionLoader();
     }
 
     @Override
@@ -138,6 +142,14 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
 
     private void loadExternalExtensions() {
         if (!mLoadExternalExtensions) return;
+
+        // If there is a native external extension, register the path. The
+        // extensions under the path will be loaded automatically when the
+        // native service starts.
+        String path = "/data/data/" + mActivity.getPackageName() + "/lib";
+        File libraryDir = new File(path);
+        if (libraryDir.listFiles().length > 0)
+            mNativeExtensionLoader.registerNativeExtensionsInPath(path);
 
         // Read extensions-config.json and create external extensions.
         String configFileContent;

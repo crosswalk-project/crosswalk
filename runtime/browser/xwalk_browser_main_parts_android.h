@@ -41,6 +41,8 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
   // already registered. Returns NULL if no such extension exists.
   extensions::XWalkExtension* LookupExtension(const std::string& name);
 
+  void RegisterExtensionInPath(const std::string& path);
+
  private:
   extensions::XWalkExtensionVector extensions_;
   scoped_refptr<net::CookieStore> cookie_store_;

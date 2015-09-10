@@ -10,6 +10,7 @@
 #include "components/web_contents_delegate_android/component_jni_registrar.h"
 #include "net/android/net_jni_registrar.h"
 #include "xwalk/extensions/common/android/xwalk_extension_android.h"
+#include "xwalk/extensions/common/android/xwalk_native_extension_loader_android.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/android/intercepted_request_data_impl.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
@@ -46,6 +47,8 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
   { "XWalkExtensionAndroid", extensions::RegisterXWalkExtensionAndroid },
   { "XWalkHttpAuthHandler", RegisterXWalkHttpAuthHandler },
+  { "XWalkNativeExtensionLoaderAndroid",
+      extensions::RegisterXWalkNativeExtensionLoaderAndroid },
   { "XWalkPathHelper", RegisterXWalkPathHelper },
   { "XWalkSettings", RegisterXWalkSettings },
   { "XWalkViewDelegate", RegisterXWalkViewDelegate },

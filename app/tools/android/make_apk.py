@@ -10,6 +10,7 @@ import optparse
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -62,6 +63,16 @@ def ConvertArchNameToArchFolder(arch):
   }
   return arch_dict.get(arch, None)
 
+def ConvertArchNameToArchValue(arch):
+  # The processor types represented in ELF file header follow
+  # http://www.sco.com/developers/gabi/latest/ch4.eheader.html
+  arch_dict = {
+      'x86': 3,
+      'x86_64': 50,
+      'arm': 40,
+      'arm64': 183
+  }
+  return arch_dict.get(arch, None)
 
 def AddExeExtensions(name):
   exts_str = os.environ.get('PATHEXT', '').lower()
@@ -95,6 +106,21 @@ def GetAndroidApiLevel(android_path):
   targets.extend([-1])
   return max(targets)
 
+def GetNativeLibraryArchValueInELFHeader(path):
+  library = open(path, 'rb')
+  # The offset of the architecture value is 0x12 from the ELF header,
+  # the length is 2 bytes.
+  header = library.read(20)
+  return struct.unpack_from('H', header, 18)[0]
+
+def CheckValidationOfExpectedLibraryArch(path, expected_arch):
+  extension_path_list = FindNativeExtensionFiles(path);
+  for extension_path in extension_path_list:
+    if not ConvertArchNameToArchValue(expected_arch) == \
+        GetNativeLibraryArchValueInELFHeader(extension_path):
+      print('Invalid CPU arch of %s, %s is expected.' % (extension_path,
+                                                         expected_arch))
+      sys.exit(10)
 
 def ContainsNativeLibrary(path):
   return os.path.isfile(os.path.join(path, NATIVE_LIBRARY))
@@ -328,6 +354,23 @@ def CopyCompressedLibrary(native_path, library_path, raw_path, arch):
 def CopyNativeLibrary(native_path, library_path, raw_path, arch):
   shutil.copytree(native_path, os.path.join(library_path, arch))
 
+def CopyNativeExtensionFile(suffix, src_path, dest_path):
+  if os.path.exists(src_path):
+    for afile in os.listdir(src_path):
+      if afile.endswith(suffix):
+        shutil.copy(os.path.join(src_path, afile), dest_path)
+
+def FindNativeExtensionFiles(path):
+  ''' Find all .so files for native external extensions. '''
+  extension_list = []
+  if not os.path.exists(path):
+    return extension_list
+
+  for afile in os.listdir(path):
+    if os.path.isfile(os.path.join(path, afile)) and afile.endswith('.so'):
+      extension_list.append(os.path.join(path, afile))
+
+  return extension_list
 
 def Execution(options, app_info):
   # Now we've got correct app_version and correct ABI value,
@@ -447,12 +490,30 @@ def Execution(options, app_info):
     for dir_name in os.listdir(library_path):
       clean_library(library_path, dir_name)
 
+    if options.native_extensions:
+      CheckValidationOfExpectedLibraryArch(options.native_extensions,
+                                           options.arch)
+      CopyNativeExtensionFile('.so', os.path.join(options.native_extensions,
+                                                  arch),
+                              native_path)
+
     if contains_library(native_path):
       copy_library(native_path, library_path, raw_path, arch)
     else:
       print('No %s native library has been found for creating a Crosswalk '
             'embedded APK.' % arch)
       sys.exit(10)
+  else:
+    if options.native_extensions:
+      for arch_name in ALL_ARCHITECTURES:
+        arch = ConvertArchNameToArchFolder(arch_name)
+        extension_path = os.path.join(app_dir, SHARED_LIBRARY, 'libs', arch)
+        library_path = os.path.join(options.native_extensions, arch)
+        CheckValidationOfExpectedLibraryArch(library_path, arch_name)
+        os.mkdir(extension_path)
+        CopyNativeExtensionFile('.so', os.path.join(options.native_extensions,
+                                                    arch),
+                                extension_path)
 
   if options.project_only:
     print (' (Skipping apk package creation)')
@@ -757,6 +818,14 @@ def main(argv):
           'Mac OS respectively. For example, '
           '--extensions=/path/to/extension1:/path/to/extension2.')
   group.add_option('--extensions', help=info)
+  info = ('The native external extension path. Put the architecture-specific '
+          'library file in the corresponding architecture folder '
+          '(armeabi-v7a/arm64-v8a/x86/x86_64) under '
+          'the path. For example, '
+          '--native-extensions=/path/to/native_extension, '
+          'architecture-specific folders, which contain the library, can be '
+          'found under the path.')
+  group.add_option('--native-extensions', help=info)
   group.add_option('-f', '--fullscreen', action='store_true',
                    dest='fullscreen', default=False,
                    help='Make application fullscreen.')
