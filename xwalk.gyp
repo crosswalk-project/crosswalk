@@ -645,9 +645,6 @@
           ],
         }],
       ],
-      'variables': {
-        'repack_path': '../tools/grit/grit/format/repack.py',
-      },
       'actions': [
         {
           'action_name': 'repack_xwalk_resources',
@@ -667,6 +664,7 @@
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/strings/content_strings_en-US.pak',
             ],
+            'pak_output': '<(PRODUCT_DIR)/xwalk.pak',
           },
           'conditions': [
             [ 'OS!="android"', {
@@ -700,15 +698,7 @@
               },
             }],
           ],
-          'inputs': [
-            '<(repack_path)',
-            '<@(pak_inputs)',
-          ],
-          'action': ['python', '<(repack_path)', '<@(_outputs)',
-                     '<@(pak_inputs)'],
-          'outputs':[
-            '<(PRODUCT_DIR)/xwalk.pak',
-          ],
+          'includes': ['../build/repack_action.gypi'],
         },
       ],
     },
