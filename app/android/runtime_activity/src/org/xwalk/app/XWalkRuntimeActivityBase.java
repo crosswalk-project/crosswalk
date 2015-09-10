@@ -30,11 +30,19 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tryLoadRuntimeView();
     }
 
     @Override
     public void onXWalkReady() {
-        tryLoadRuntimeView();
+        // XWalkPreferences.ENABLE_EXTENSIONS
+        if (XWalkPreferences.getValue("enable-extensions")) {
+                // Enable xwalk extension mechanism and start load extensions here.
+                // Note that it has to be after above initialization.
+            mExtensionManager = new XWalkRuntimeExtensionManager(getApplicationContext(), this);
+            mExtensionManager.loadExtensions();
+        }
+        didTryLoadRuntimeView(mRuntimeView);
         // TODO(sunlin): In shared mode, mRuntimeView.onCreate() will be
         // called after onResume(). Currently, there is no impact because
         // both of onCreate and onResume in XWalkRuntimeView is empty.
@@ -99,17 +107,10 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
             } else {
                 XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
             }
-            // XWalkPreferences.ENABLE_EXTENSIONS
-            if (XWalkPreferences.getValue("enable-extensions")) {
-                // Enable xwalk extension mechanism and start load extensions here.
-                // Note that it has to be after above initialization.
-                mExtensionManager = new XWalkRuntimeExtensionManager(getApplicationContext(), this);
-                mExtensionManager.loadExtensions();
-            }
+            setContentView(mRuntimeView);
         } catch (Exception e) {
             handleException(e);
         }
-        didTryLoadRuntimeView(mRuntimeView);
     }
 
     public XWalkRuntimeView getRuntimeView() {
