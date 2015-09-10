@@ -223,9 +223,8 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
             reader.endObject();
             reader.close();
 
-            if (cmd == null) {
-              return;
-            }
+            if (cmd == null) return;
+
             if (cmd.equals(CMD_START_SESSION) && requestId >= 0) {
                 handleStartSession(instanceId, requestId, url, baseUrl);
             } else if (cmd.equals(CMD_SEND_MESSAGE_TO_REMOTE_DISPLAY)) {
@@ -240,7 +239,7 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
 
 
     private void handleStartSession(final int instanceId, final int requestId,
-                                   final String url, final String baseUrl) {
+                                    final String url, final String baseUrl) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             notifyStartSessionFail(instanceId, requestId, ERROR_NOT_SUPPORTED);
             return;
@@ -318,17 +317,17 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
     }
 
     private void handleSendMessageToRemoteDisplay(final int instanceId, final int presentationId,
-                                   final String data) {
+                                                  final String data) {
         notifySessionMessageReceived(false, presentationId, data);
     }
 
     private void handleSendMessageToHostDisplay(final int instanceId, final int presentationId,
-                                   final String data) {
+                                                final String data) {
         notifySessionMessageReceived(true, presentationId, data);
     }
 
     private void notifySessionMessageReceived(final boolean isToHost, final int presentationId,
-        final String data) {
+                                              final String data) {
         StringWriter contents = new StringWriter();
         JsonWriter writer = new JsonWriter(contents);
 
