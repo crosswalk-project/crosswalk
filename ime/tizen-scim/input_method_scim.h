@@ -61,7 +61,7 @@ class UI_BASE_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
  private:
   internal::InputMethodDelegate* delegate_;
   TextInputClient* text_input_client_;
-  ObserverList<InputMethodObserver> observers_;
+  base::ObserverList<InputMethodObserver> observers_;
   scoped_ptr<SCIMBridge> scim_bridge_;
 
   DISALLOW_COPY_AND_ASSIGN(InputMethodSCIM);

@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -57,6 +58,12 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * TextureView</a> is intentionally used to render web pages for animation support.
  * Besides, XWalkViewInternal won't be rendered if it's invisible.</p>
  *
+ * <p>In embedded mode, the developer can use XWalkViewInternal in <code>onCreate()</code> directly.
+ * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
+ * activity is created, so the embedding API won't be usable immediately. To make your code
+ * compatible with all modes, please refer to the examples in {@link XWalkActivity} or
+ * {@link XWalkInitializer}.</p>
+ *
  * <p>XWalkViewInternal needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
  * "android:hardwareAccelerated" and its value must be set as "true".</p>
@@ -69,8 +76,8 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * {@link XWalkUIClientInternal} for listening to the events related to resource loading and UI.
  * By default, Crosswalk has a default implementation. Callers can override them if needed.</p>
  *
- * <p>Unlike other Android views, this class has to listen to system events like intents and activity result.
- * The web engine inside this view need to get and handle them.
+ * <p>Unlike other Android views, this class has to listen to system events like intents and
+ * activity result. The web engine inside this view need to get and handle them.
  * With contianer activity's lifecycle change, XWalkViewInternal will pause all timers and other
  * components like videos when activity paused, resume back them when activity resumed.
  * When activity is about to destroy, XWalkViewInternal will destroy itself as well.
@@ -185,17 +192,29 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public static final int RELOAD_IGNORE_CACHE = 1;
 
+    // The moment when the XWalkViewBridge is added to the XWalkView, the screen flashes black. The
+    // reason is when the SurfaceView appears in the window the fist time, it requests the window's
+    // parameters changing by calling IWindowSession.relayout(). But if the window already has
+    // appropriate parameters, it will not refresh all the window's stuff and the screen will not
+    // blink. So we add a 0px SurfaceView at first. This will recreate the window before the
+    // activity is shown on the screen, and when the actual XWalkViewBridge is added, it will just
+    // continue to use the window with current parameters. The temporary SurfaceView can be removed
+    // at last.
     /**
      * Constructs a new XWalkView with a Context object.
      * @param context a Context object used to access application assets.
      * @since 6.0
      */
     @XWalkAPI(preWrapperLines = {
-                  "        super(${param1}, null);"},
+                  "        super(${param1}, null);",
+                  "        SurfaceView surfaceView = new SurfaceView(${param1});",
+                  "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
+                  "        addView(surfaceView);"},
               postWrapperLines = {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
-                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
+                  "        removeViewAt(0);"})
     public XWalkViewInternal(Context context) {
         super(context, null);
 
@@ -214,11 +233,15 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @since 1.0
      */
     @XWalkAPI(preWrapperLines = {
-                  "        super(${param1}, ${param2});"},
+                  "        super(${param1}, ${param2});",
+                  "        SurfaceView surfaceView = new SurfaceView(${param1});",
+                  "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
+                  "        addView(surfaceView);"},
               postWrapperLines = {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
-                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
+                  "        removeViewAt(0);"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -238,11 +261,15 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @since 1.0
      */
     @XWalkAPI(preWrapperLines = {
-                  "        super(${param1}, null);"},
+                  "        super(${param1}, null);",
+                  "        SurfaceView surfaceView = new SurfaceView(${param1});",
+                  "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
+                  "        addView(surfaceView);"},
               postWrapperLines = {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
-                  "                FrameLayout.LayoutParams.MATCH_PARENT));"})
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
+                  "        removeViewAt(0);"})
     public XWalkViewInternal(Context context, Activity activity) {
         super(context, null);
 
@@ -508,6 +535,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.clearCache(includeDiskFiles);
+    }
+
+    /**
+     * Clear the resource cache. Note that it only clear the cache for the specified
+     * url.
+     * @param url indicate which cache will be cleared.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void clearCacheForSingleFile(String url) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.clearCacheForSingleFile(url);
     }
 
     /**

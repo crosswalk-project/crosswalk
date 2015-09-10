@@ -194,7 +194,11 @@ DownloadItemView::DownloadItemView(
   item->AddObserver(this);
 
   progress_view_ = new DownloadProgressView();
+#if defined (OS_WIN)
+  progress_view_->SetText(path.BaseName().value());
+#else
   progress_view_->SetText(base::UTF8ToUTF16(path.BaseName().value()));
+#endif
   OnDownloadUpdated(item);
   AddChildView(progress_view_);
 

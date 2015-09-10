@@ -39,16 +39,16 @@ bool XWalkPrefStore::IsInitializationComplete() const {
 }
 
 void XWalkPrefStore::SetValue(const std::string& key,
-                              base::Value* value,
+                              scoped_ptr<base::Value> value,
                               uint32 flags) {
   DCHECK(value);
-  if (prefs_.SetValue(key, value))
+  if (prefs_.SetValue(key, value.Pass()))
       ReportValueChanged(key, flags);
 }
 
 void XWalkPrefStore::SetValueSilently(
-    const std::string& key, base::Value* value, uint32 flags) {
-  prefs_.SetValue(key, value);
+    const std::string& key, scoped_ptr<base::Value> value, uint32 flags) {
+  prefs_.SetValue(key, value.Pass());
 }
 
 void XWalkPrefStore::RemoveValue(const std::string& key, uint32 flags) {

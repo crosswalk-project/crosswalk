@@ -7,7 +7,7 @@
 try {
   var d = new Date().toString();
   var expected = "From java sync:" + d;
-  var r = echo.echoSync(d);
+  var r = echoJava.echoSync(d);
   document.write(r + "<br>");
   if (r === expected) {
     document.write("Sync echo <font color=green>passed</font>.");

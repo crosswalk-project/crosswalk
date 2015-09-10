@@ -1,6 +1,6 @@
 [
   {
-    "name":  "echo",
+    "name":  "echoJava",
     "class": "com.example.extension.MyExtension",
     "jsapi": "myextension/myextension.js"
   }

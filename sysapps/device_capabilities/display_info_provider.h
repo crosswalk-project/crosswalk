@@ -47,7 +47,7 @@ class DisplayInfoProvider : public gfx::DisplayObserver {
   void OnDisplayAdded(const gfx::Display& display) override;
   void OnDisplayRemoved(const gfx::Display& display) override;
 
-  ObserverList<Observer> observer_list_;
+  base::ObserverList<Observer> observer_list_;
 
   DISALLOW_COPY_AND_ASSIGN(DisplayInfoProvider);
 };

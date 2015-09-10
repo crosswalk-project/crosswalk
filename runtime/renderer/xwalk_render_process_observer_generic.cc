@@ -115,14 +115,15 @@ bool XWalkRenderProcessObserver::CanRequest(const GURL& orig,
       continue;
     if (!whitelist_entry->allow_subdomains_ &&
         whitelist_entry->dest_.GetOrigin() == dest.GetOrigin() &&
-        StartsWithASCII(dest.path(), whitelist_entry->dest_.path(), false))
+        base::StartsWithASCII(
+            dest.path(), whitelist_entry->dest_.path(), false))
       return true;
     const GURL& rule = whitelist_entry->dest_;
     if (whitelist_entry->allow_subdomains_ &&
         dest.scheme() == rule.scheme() &&
         dest.DomainIs(rule.host().c_str()) &&
         dest.port() == rule.port() &&
-        StartsWithASCII(dest.path(), rule.path(), false))
+        base::StartsWithASCII(dest.path(), rule.path(), false))
       return true;
   }
   return false;

@@ -24,7 +24,7 @@ public class ExtensionEchoInternalTest extends XWalkViewInternalTestBase {
     public void testAsync() throws Throwable {
         ExtensionEchoInternal echo = new ExtensionEchoInternal();
 
-        loadAssetFileAndWaitForTitle("echo.html");
+        loadAssetFileAndWaitForTitle("echo_java.html");
         assertEquals(PASS_STRING, getTitleOnUiThread());
     }
 
@@ -33,7 +33,7 @@ public class ExtensionEchoInternalTest extends XWalkViewInternalTestBase {
     public void testSync() throws Throwable {
         ExtensionEchoInternal echo = new ExtensionEchoInternal();
 
-        loadAssetFile("echoSync.html");
+        loadAssetFile("echo_sync_java.html");
         assertEquals(PASS_STRING, getTitleOnUiThread());
     }
 

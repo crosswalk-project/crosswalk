@@ -9,8 +9,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.StringBuilder;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -18,11 +19,14 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
+import junit.framework.Assert;
+
 import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ResourceExtractor;
-import org.chromium.base.ResourceExtractor.ResourceIntercepter;
+import org.chromium.base.ResourceExtractor.ResourceEntry;
+import org.chromium.base.ResourceExtractor.ResourceInterceptor;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.LibraryProcessType;
@@ -36,9 +40,11 @@ class XWalkViewDelegate {
     private static boolean sLibraryLoaded = false;
     private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
+
+    // TODO(rakuco,lincsoon): This list is also in generate_xwalk_core_library.py.
+    // We should remove it from one of the places to avoid duplication.
     private static final String[] MANDATORY_PAKS = {
             "xwalk.pak",
-            "en-US.pak",
             "icudtl.dat",
             // Please refer to XWALK-3516, disable v8 use external startup data,
             // reopen it if needed later.
@@ -51,6 +57,7 @@ class XWalkViewDelegate {
     };
     private static final String TAG = "XWalkViewDelegate";
     private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
+    private static final String XWALK_PAK_NAME = "xwalk.pak";
 
     private static final String COMMAND_LINE_FILE = "xwalk-command-line";
 
@@ -86,10 +93,14 @@ class XWalkViewDelegate {
     public static void init(Context bridgeContext, Context context) {
         loadXWalkLibrary(bridgeContext);
 
-        if (bridgeContext == null) {
-            init(context);
-        } else {
-            init(new MixedContext(bridgeContext, context));
+        try {
+            if (bridgeContext == null) {
+                init(context);
+            } else {
+                init(new MixedContext(bridgeContext, context));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -120,7 +131,7 @@ class XWalkViewDelegate {
         // with System.loadLibrary("xwalkcore") above, but same library won't be loaded repeatedly.
         try {
             LibraryLoader libraryLoader = LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER);
-            libraryLoader.loadNow(context, true);
+            libraryLoader.loadNow(context);
         } catch (ProcessInitException e) {
         }
 
@@ -130,7 +141,7 @@ class XWalkViewDelegate {
         sLibraryLoaded = true;
     }
 
-    private static void init(final Context context) {
+    private static void init(final Context context) throws IOException {
         if (sInitialized) return;
 
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
@@ -146,77 +157,8 @@ class XWalkViewDelegate {
             CommandLine.init(readCommandLine(context.getApplicationContext()));
         }
 
-        ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
-        int resListResId = context.getResources().getIdentifier(
-                XWALK_RESOURCES_LIST_RES_NAME, "array", context.getClass().getPackage().getName());
-        if (resListResId == 0) {
-            resListResId = context.getResources().getIdentifier(
-                    XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
-        }
-        final int resourcesListResId = resListResId;
-        final AssetManager assets = context.getAssets();
-        if (!context.getPackageName().equals(context.getApplicationContext().getPackageName()) ||
-                resourcesListResId != 0) {
-            // For shared mode, assets are in library package.
-            // For embedding API usage, assets are in res/raw.
-            ResourceExtractor.setResourceIntercepter(new ResourceIntercepter() {
+        setupResourceInterceptor(context);
 
-                @Override
-                public Set<String> getInterceptableResourceList() {
-                    Set<String> resourcesList = new HashSet<String>();
-                    if (!context.getPackageName().equals(
-                            context.getApplicationContext().getPackageName())) {
-                        try {
-                            for (String resource : assets.list("")) {
-                                resourcesList.add(resource);
-                            }
-                        } catch (IOException e){}
-                    }
-                    if (resourcesListResId != 0) {
-                        try {
-                            String[] resources = context.getResources().getStringArray(resourcesListResId);
-                            for (String resource : resources) {
-                                resourcesList.add(resource);
-                            }
-                        } catch (NotFoundException e) {
-                            Log.w(TAG, "R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
-                        }
-                    }
-                    return resourcesList;
-                }
-
-                @Override
-                public InputStream interceptLoadingForResource(String resource) {
-                    if (!context.getPackageName().equals(
-                            context.getApplicationContext().getPackageName())) {
-                        try {
-                            InputStream fromAsset = context.getAssets().open(resource);
-                            if (fromAsset != null) return fromAsset;
-                        } catch (IOException e) {
-                            Log.w(TAG, resource + " can't be found in assets.");
-                        }
-                    }
-
-                    if (resourcesListResId != 0) {
-                        String resourceName = resource.split("\\.")[0];
-                        int resId = context.getResources().getIdentifier(
-                                resourceName, "raw", context.getClass().getPackage().getName());
-                        if (resId == 0) {
-                            resId = context.getResources().getIdentifier(
-                                    resourceName, "raw", context.getPackageName());
-                        }
-                        try {
-                            if (resId != 0) return context.getResources().openRawResource(resId);
-                        } catch (NotFoundException e) {
-                            Log.w(TAG, "R.raw." + resourceName + " can't be found.");
-                        }
-                    }
-
-                    return null;
-                }
-            });
-        }
-        ResourceExtractor.setExtractImplicitLocaleForTesting(false);
         // Use MixedContext to initialize the ResourceExtractor, as the pak file
         // is in the library apk if in shared apk mode.
         ResourceExtractor.get(context);
@@ -230,7 +172,7 @@ class XWalkViewDelegate {
             @Override
             public void run() {
                 try {
-                    LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER).ensureInitialized();
+                    LibraryLoader.get(LibraryProcessType.PROCESS_BROWSER).ensureInitialized(context);
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
@@ -252,6 +194,91 @@ class XWalkViewDelegate {
                 }
             }
         });
+    }
+
+    /**
+     * Plugs an instance of ResourceExtractor.ResourceIntercepter() into ResourceExtractor.
+     *
+     * It is responsible for loading resources from the right locations depending on whether
+     * Crosswalk is being used in shared or embedded mode.
+     */
+    private static void setupResourceInterceptor(final Context context) throws IOException {
+        final boolean isSharedMode =
+                !context.getPackageName().equals(context.getApplicationContext().getPackageName());
+
+        // The test APKs (XWalkCoreShell, XWalkCoreInternalShell etc) are different from normal
+        // Crosswalk apps: even though they use Crosswalk in embedded mode, the resources are stored
+        // in assets/ with the rest of the app's assets.
+        // XWalkRuntimeClientShell is the only exception, as it uses Crosswalk in shared mode.
+        final boolean isTestApk =
+                !isSharedMode && Arrays.asList(context.getAssets().list("")).contains(XWALK_PAK_NAME);
+
+        HashMap<String, ResourceEntry> resourceList = new HashMap<String, ResourceEntry>();
+        if (isSharedMode || isTestApk) {
+            for (String resource : MANDATORY_PAKS) {
+                resourceList.put(resource, new ResourceEntry(0, "", resource));
+            }
+        } else {
+            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
+            try {
+                final String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
+                for (String resource : crosswalkResources) {
+                    resourceList.put(resource, new ResourceEntry(0, "", resource));
+                }
+            } catch (NotFoundException e) {
+                Assert.fail("R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+            }
+        }
+        ResourceExtractor.setResourcesToExtract(
+                resourceList.values().toArray(new ResourceEntry[resourceList.size()]));
+
+        // For shouldInterceptLoadRequest(), which needs a final value.
+        final HashSet<String> interceptableResources = new HashSet<String>(resourceList.keySet());
+
+        // For shared mode, assets are in library package.
+        // For embedded mode, assets are in res/raw.
+        ResourceExtractor.setResourceInterceptor(new ResourceInterceptor() {
+            @Override
+            public boolean shouldInterceptLoadRequest(String resource) {
+                return interceptableResources.contains(resource);
+            }
+
+            @Override
+            public InputStream openRawResource(String resource) {
+                if (isSharedMode || isTestApk) {
+                    try {
+                        return context.getAssets().open(resource);
+                    } catch (IOException e) {
+                        Assert.fail(resource + " can't be found in assets.");
+                    }
+                } else {
+                    String resourceName = resource.split("\\.")[0];
+                    int resourceId = getResourceId(context, resourceName, "raw");
+                    try {
+                        return context.getResources().openRawResource(resourceId);
+                    } catch (NotFoundException e) {
+                        Assert.fail("R.raw." + resourceName + " can't be found.");
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Returns a resource identifier for a given resource name and type.
+     *
+     * Basically a wrapper around Resources.getIdentifier() that also works with applications that
+     * change their package name at build time (see XWALK-3569).
+     */
+    private static int getResourceId(final Context context, final String resourceName, final String resourceType) {
+        int resourceId = context.getResources().getIdentifier(
+                resourceName, resourceType, context.getClass().getPackage().getName());
+        if (resourceId == 0) {
+            resourceId = context.getResources().getIdentifier(
+                    resourceName, resourceType, context.getPackageName());
+        }
+        return resourceId;
     }
 
     public static boolean isRunningOnIA() {

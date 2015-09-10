@@ -14,7 +14,7 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/url_constants.h"
-#include "net/socket/tcp_listen_socket.h"
+#include "net/test/embedded_test_server/tcp_listen_socket.h"
 
 namespace xwalk {
 

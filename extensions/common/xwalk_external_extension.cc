@@ -149,7 +149,7 @@ void XWalkExternalExtension::RuntimeGetStringVariable(const char* key,
   const base::ValueMap::const_iterator it = runtime_variables_.find(key);
   if (it != runtime_variables_.end()) {
     std::string json;
-    base::JSONWriter::Write(it->second, &json);
+    base::JSONWriter::Write(*(it->second), &json);
     strncpy(value, json.c_str(), value_len);
   } else {
     strncpy(value, "", 1);

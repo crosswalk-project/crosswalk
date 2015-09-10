@@ -7,14 +7,14 @@
 
 #include "base/compiler_specific.h"
 
+namespace base {
 class Pickle;
 class PickleIterator;
+}
 
 namespace content {
-
 class NavigationEntry;
 class WebContents;
-
 }  // namespace content
 
 namespace xwalk {
@@ -24,23 +24,24 @@ namespace xwalk {
 
 // Note that |pickle| may be changed even if function returns false.
 bool WriteToPickle(const content::WebContents& web_contents,
-                   Pickle* pickle) WARN_UNUSED_RESULT;
+                   base::Pickle* pickle) WARN_UNUSED_RESULT;
 
 // |web_contents| will not be modified if function returns false.
-bool RestoreFromPickle(PickleIterator* iterator,
+bool RestoreFromPickle(base::PickleIterator* iterator,
                        content::WebContents* web_contents) WARN_UNUSED_RESULT;
 
-
 namespace internal {
+
 // Functions below are individual helper functiosn called by functions above.
 // They are broken up for unit testing, and should not be called out side of
 // tests.
-bool WriteHeaderToPickle(Pickle* pickle) WARN_UNUSED_RESULT;
-bool RestoreHeaderFromPickle(PickleIterator* iterator) WARN_UNUSED_RESULT;
+bool WriteHeaderToPickle(base::Pickle* pickle) WARN_UNUSED_RESULT;
+bool RestoreHeaderFromPickle(
+    base::PickleIterator* iterator) WARN_UNUSED_RESULT;
 bool WriteNavigationEntryToPickle(const content::NavigationEntry& entry,
-                                  Pickle* pickle) WARN_UNUSED_RESULT;
+                                  base::Pickle* pickle) WARN_UNUSED_RESULT;
 bool RestoreNavigationEntryFromPickle(
-    PickleIterator* iterator,
+    base::PickleIterator* iterator,
     content::NavigationEntry* entry) WARN_UNUSED_RESULT;
 
 }  // namespace internal

@@ -12,7 +12,6 @@
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/screen.h"
-#include "ui/views/views_delegate.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
@@ -153,7 +152,7 @@ void NativeAppWindowViews::Minimize() {
 }
 
 void NativeAppWindowViews::SetFullscreen(bool fullscreen) {
-  views::ViewsDelegate::views_delegate->SetShouldShowTitleBar(!fullscreen);
+  views::ViewsDelegate::GetInstance()->SetShouldShowTitleBar(!fullscreen);
 
   if (is_fullscreen_ == fullscreen)
     return;
@@ -349,10 +348,11 @@ NativeAppWindow* NativeAppWindow::Create(
 
 // static
 void NativeAppWindow::Initialize() {
-  CHECK(!views::ViewsDelegate::views_delegate);
+  static scoped_ptr<views::ViewsDelegate> views_delegate_;
+  CHECK(!views::ViewsDelegate::GetInstance());
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
-  views::ViewsDelegate::views_delegate = new XWalkViewsDelegate();
+  views_delegate_.reset(new XWalkViewsDelegate);
 }
 
 }  // namespace xwalk

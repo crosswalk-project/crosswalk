@@ -6,7 +6,7 @@
 <script>
 try {
   var d = new Date().toString();
-  echo.echo(d, function(msg) {
+  echoJava.echo(d, function(msg) {
     document.write(msg + "<br>");
     var expected = "From java:" + d;
     if (msg === expected) {

@@ -77,7 +77,6 @@ class ErrorCodeConversionHelper {
             case NetError.ERR_SSL_NO_RENEGOTIATION:
             case NetError.ERR_SSL_DECOMPRESSION_FAILURE_ALERT:
             case NetError.ERR_SSL_BAD_RECORD_MAC_ALERT:
-            case NetError.ERR_SSL_UNSAFE_NEGOTIATION:
             case NetError.ERR_SSL_WEAK_SERVER_EPHEMERAL_DH_KEY:
             case NetError.ERR_SSL_CLIENT_AUTH_PRIVATE_KEY_ACCESS_DENIED:
             case NetError.ERR_SSL_CLIENT_AUTH_CERT_NO_PRIVATE_KEY:

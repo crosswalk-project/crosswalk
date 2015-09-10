@@ -363,6 +363,20 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         nativeClearCache(mNativeContent, includeDiskFiles);
     }
 
+    public void clearCacheForSingleFile(final String url) {
+        if (mNativeContent == 0) return;
+        if (mIsLoaded == false) {
+            mXWalkView.post(new Runnable() {
+                @Override
+                public void run() {
+                    clearCacheForSingleFile(url);
+                }
+            });
+            return;
+        }
+        nativeClearCacheForSingleFile(mNativeContent, url);
+    }
+
     public void clearHistory() {
         if (mNativeContent == 0) return;
         mNavigationController.clearHistory();
@@ -859,6 +873,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             XWalkContentsIoThreadClient ioThreadClient,
             InterceptNavigationDelegate navigationInterceptionDelegate);
     private native void nativeClearCache(long nativeXWalkContent, boolean includeDiskFiles);
+    private native void nativeClearCacheForSingleFile(long nativeXWalkContent, String url);
     private native String nativeDevToolsAgentId(long nativeXWalkContent);
     private native String nativeGetVersion(long nativeXWalkContent);
     private native void nativeSetJsOnlineProperty(long nativeXWalkContent, boolean networkUp);

@@ -70,8 +70,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
         }
 
         @Override
-        public void didFailLoad(boolean isProvisionalLoad,
-                boolean isMainFrame, int errorCode, String description, String failingUrl) {
+        public void didFailLoad(boolean isProvisionalLoad, boolean isMainFrame, int errorCode,
+                String description, String failingUrl, boolean wasIgnoredByHandler) {
             if (errorCode == NetError.ERR_ABORTED || !isMainFrame) {
                 // This error code is generated for the following reasons:
                 // - XWalkViewInternal.stopLoading is called,

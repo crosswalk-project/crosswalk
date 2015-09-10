@@ -231,6 +231,8 @@
         'runtime/browser/ui/native_app_window_tizen.h',
         'runtime/browser/ui/native_app_window_views.cc',
         'runtime/browser/ui/native_app_window_views.h',
+        'runtime/browser/ui/desktop/download_views.cc',
+        'runtime/browser/ui/desktop/download_views.h',
         'runtime/browser/ui/splash_screen_tizen.cc',
         'runtime/browser/ui/splash_screen_tizen.h',
         'runtime/browser/ui/taskbar_util.h',
@@ -352,6 +354,8 @@
             'runtime/browser/runtime_ui_delegate_desktop.h',
             'runtime/browser/ui/native_app_window_desktop.cc',
             'runtime/browser/ui/native_app_window_desktop.h',
+            'runtime/browser/ui/desktop/download_views.cc',
+            'runtime/browser/ui/desktop/download_views.h',
             'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
             'runtime/browser/android/xwalk_web_contents_view_delegate.h',
           ],
@@ -368,6 +372,8 @@
           'sources!':[
             'runtime/browser/runtime_ui_delegate_desktop.cc',
             'runtime/browser/runtime_ui_delegate_desktop.h',
+            'runtime/browser/ui/desktop/download_views.cc',
+            'runtime/browser/ui/desktop/download_views.h',
             'runtime/browser/ui/native_app_window_desktop.cc',
             'runtime/browser/ui/native_app_window_desktop.h',
             'runtime/renderer/xwalk_render_process_observer_generic.cc',
@@ -399,8 +405,6 @@
           'sources': [
             'runtime/browser/linux/xwalk_notification_manager.cc',
             'runtime/browser/linux/xwalk_notification_manager.h',
-            'runtime/browser/ui/desktop/download_views.cc',
-            'runtime/browser/ui/desktop/download_views.h',
           ]
         }],  # OS=="linux" and tizen!=1
         ['OS=="linux"', {
@@ -632,6 +636,11 @@
             '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
           ],
         }],
+        ['toolkit_views==1', {
+          'dependencies': [
+            '<(DEPTH)/ui/views/resources/views_resources.gyp:views_resources',
+          ],
+        }],
       ],
       'variables': {
         'repack_path': '../tools/grit/grit/format/repack.py',
@@ -661,6 +670,13 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
+                ],
+              },
+            }],
+            ['toolkit_views==1', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/views/resources/views_resources_100_percent.pak',
                 ],
               },
             }],
