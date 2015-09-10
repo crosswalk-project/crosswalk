@@ -8,8 +8,9 @@ found in the LICENSE file.
 
 <resources>
     <!-- Application theme. -->
+    <color name="white">#FFFFFFFF</color>
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light.NoActionBar">
         <item name="android:windowFullscreen">false</item>
-        <item name="android:windowBackground">@null</item>
+        <item name="android:windowBackground">@color/white</item>
     </style>
 </resources>
