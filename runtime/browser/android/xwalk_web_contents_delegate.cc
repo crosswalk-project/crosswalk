@@ -125,7 +125,7 @@ void XWalkWebContentsDelegate::RunFileChooser(
           web_contents->GetRenderViewHost()->GetRoutingID(),
           mode,
           ConvertUTF16ToJavaString(env,
-              JoinString(params.accept_types, ',')).obj(),
+              base::JoinString(params.accept_types, base::ASCIIToUTF16(","))).obj(),
           params.capture);
   if (overridden == JNI_FALSE)
     RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
