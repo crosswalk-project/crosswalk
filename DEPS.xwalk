@@ -18,17 +18,9 @@
 # -----------------------------------
 
 chromium_crosswalk_rev = 'c49f56a5be8197ef7030d27da1d93eddf24a4ab1'
+blink_crosswalk_rev = '6912fdebf2d817710c0afd30c0d163ddf0d9bf92'
 v8_crosswalk_rev = '666c0e07fd8ba87a987826d51913e074fb9aec70'
 ozone_wayland_rev = 'd6ad1b8bb4e2c71427283ffc21ac8d66cb576730'
-
-# |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
-# we want to point to, very much like the variables above.
-# |blink_upstream_rev| indicates the revision of the latest upstream commit in
-# the blink-crosswalk repository, so that the devtools code can use it to fetch
-# assets from Chromium's servers with a revision that exists there. We need an
-# SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = '6912fdebf2d817710c0afd30c0d163ddf0d9bf92'
-blink_upstream_rev = '201276'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
@@ -99,10 +91,11 @@ hooks = [
   {
     'action': [
       'python',
-      'src/xwalk/tools/upstream_revision.py',
-      '-r',
-      blink_upstream_rev,
-      '-o',
+      'src/build/util/lastchange.py',
+      '--git-svn-go-deeper',
+      '--source-dir',
+      'src/third_party/WebKit',
+      '--output',
       'src/xwalk/build/UPSTREAM.blink'
     ],
     'pattern': '.',
