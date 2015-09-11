@@ -21,7 +21,6 @@
         'xwalk_core_extensions_native_jni',
         'xwalk_core_jar_jni',
         'xwalk_core_native_jni',
-        'xwalk_pak',
         'xwalk_runtime',
       ],
       'include_dirs': [
