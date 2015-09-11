@@ -63,7 +63,7 @@
 # Rules for org.chromium classes:
 # Keep annotations used by chromium to keep members referenced by native code
 -keep class org.chromium.base.*Native*
--keep class org.chromium.base.JNINamespace
+-keep class org.chromium.base.annotations.JNINamespace
 -keepclasseswithmembers class org.chromium.** {
     @org.chromium.base.AccessedByNative <fields>;
 }
@@ -82,9 +82,9 @@
     @org.chromium.base.UsedBy* *;
 }
 
--keep @org.chromium.base.JNINamespace* class *
+-keep @org.chromium.base.annotations.JNINamespace* class *
 -keepclassmembers class * {
-    @org.chromium.base.CalledByNative* *;
+    @org.chromium.base.annotations.CalledByNative* *;
 }
 
 # Suppress unnecessary warnings.
