@@ -70,6 +70,7 @@
         '../v8/tools/gyp/v8.gyp:v8',
         'generate_upstream_blink_version',
         'xwalk_application_lib',
+        'xwalk_pak',
         'xwalk_resources',
         'extensions/extensions.gyp:xwalk_extensions',
         'sysapps/sysapps.gyp:sysapps',
@@ -709,7 +710,6 @@
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
         'xwalk_runtime',
-        'xwalk_pak',
       ],
       'include_dirs': [
         '..',
