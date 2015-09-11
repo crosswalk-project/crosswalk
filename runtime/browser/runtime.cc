@@ -64,9 +64,10 @@ Runtime::Runtime(content::WebContents* web_contents)
       observer_(nullptr),
       weak_ptr_factory_(this) {
   web_contents_->SetDelegate(this);
-  registrar_.Add(this,
-                 content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-                 content::Source<content::WebContents>(web_contents_.get()));
+// FIXME(jon):
+//  registrar_.Add(this,
+//                 content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
+//                 content::Source<content::WebContents>(web_contents_.get()));
 }
 
 Runtime::~Runtime() {
@@ -315,7 +316,8 @@ void Runtime::DidDownloadFavicon(int id,
 void Runtime::Observe(int type,
                       const content::NotificationSource& source,
                       const content::NotificationDetails& details) {
-  if (type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
+  // FIXME(jon):
+  if (false /*type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED*/) {
     std::pair<content::NavigationEntry*, bool>* title =
         content::Details<std::pair<content::NavigationEntry*, bool> >(
             details).ptr();
