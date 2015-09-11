@@ -4,7 +4,7 @@
 
 package org.xwalk.core.internal;
 
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.JNINamespace;
 
 /**
  * XWalkCookieManager manages cookies according to RFC2109 spec.

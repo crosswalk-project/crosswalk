@@ -22,7 +22,7 @@ import android.util.Log;
 import junit.framework.Assert;
 
 import org.chromium.base.CommandLine;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ResourceExtractor;
 import org.chromium.base.ResourceExtractor.ResourceEntry;
