@@ -450,6 +450,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return ((color >> 24) & 0xFF) == 0xFF;
     }
 
+    @CalledByNative
     public void setBackgroundColor(final int color) {
         if (mNativeContent == 0) return;
         if (mIsLoaded == false) {

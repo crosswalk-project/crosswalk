@@ -45,6 +45,12 @@ namespace application_manifest_keys {
   extern const char kLaunchScreenLandscape[];
   extern const char kLaunchScreenPortrait[];
   extern const char kLaunchScreenReadyWhen[];
+  extern const char kView[];
+  extern const char kViewBackgroundColor[];
+
+  // XWalk View extensions:
+  extern const char kXWalkView[];
+  extern const char kXWalkViewBackgroundColor[];
 
   // XWalk extensions:
 

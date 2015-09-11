@@ -19,6 +19,7 @@
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "base/prefs/pref_service.h"
+#include "base/strings/string_number_conversions.h"
 #include "components/autofill/content/browser/content_autofill_driver_factory.h"
 #include "components/autofill/core/browser/autofill_manager.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
@@ -467,6 +468,22 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     // No need to display launch screen, load the url directly.
     Java_XWalkContent_onGetUrlFromManifest(env, obj, url_buffer.obj());
   }
+  std::string view_background_color;
+  ManifestGetString(manifest,
+                    keys::kXWalkViewBackgroundColor,
+                    keys::kViewBackgroundColor,
+                    &view_background_color);
+
+  if (view_background_color.empty())
+    return true;
+  unsigned int view_background_color_int = 0;
+  if (!base::HexStringToUInt(view_background_color.substr(1),
+      &view_background_color_int)) {
+    LOG(ERROR) << "Background color format error! Valid background color"
+               "should be(Alpha Red Green Blue): #ff01abcd";
+    return false;
+  }
+  Java_XWalkContent_setBackgroundColor(env, obj, view_background_color_int);
   return true;
 }
 
