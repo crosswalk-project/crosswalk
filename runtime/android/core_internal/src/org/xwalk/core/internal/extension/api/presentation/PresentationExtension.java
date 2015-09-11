@@ -42,14 +42,20 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
     private final static String TAG_CMD = "cmd";
     private final static String TAG_DATA = "data";
     private final static String TAG_REQUEST_ID = "requestId";
+    private final static String TAG_PRESENTATION_ID = "presentationId";
     private final static String TAG_URL = "url";
 
     // Command messages:
-    private final static String CMD_DISPLAY_AVAILABLE_CHANGE = "DisplayAvailableChange";
-    private final static String CMD_QUERY_DISPLAY_AVAILABILITY = "QueryDisplayAvailability";
-    private final static String CMD_REQUEST_SHOW = "RequestShow";
-    private final static String CMD_SHOW_SUCCEEDED = "ShowSucceeded";
-    private final static String CMD_SHOW_FAILED = "ShowFailed";
+    private final static String CMD_AVAILABILITY_CHANGE = "AvailabilityChange";
+    private final static String CMD_GET_AVAILABILITY = "GetAvailability";
+    private final static String CMD_START_SESSION = "StartSession";
+    private final static String CMD_SEND_MESSAGE_TO_REMOTE_DISPLAY = "SendMessageToRemoteDisplay";
+    private final static String CMD_SEND_MESSAGE_TO_HOST_DISPLAY = "SendMessageToHostDisplay";
+    private final static String CMD_SESSION_START_SUCCEEDED = "SessionStartSucceeded";
+    private final static String CMD_SESSION_START_FAILED = "SessionStartFailed";
+    private final static String CMD_DEFAULT_SESSION_STARTED = "DefaultSessionStarted";
+    private final static String CMD_SESSION_MESSAGE_TO_HOST_RECEIVED = "SessionMessageToHostReceived";
+    private final static String CMD_SESSION_MESSAGE_TO_REMOTE_RECEIVED = "SessionMessageToRemoteReceived";
 
     // Error messages:
     private final static String ERROR_INVALID_ACCESS = "InvalidAccessError";
@@ -136,7 +142,7 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
 
         try {
             writer.beginObject();
-            writer.name(TAG_CMD).value(CMD_DISPLAY_AVAILABLE_CHANGE);
+            writer.name(TAG_CMD).value(CMD_AVAILABILITY_CHANGE);
             writer.name(TAG_DATA).value(isAvailable);
             writer.endObject();
             writer.close();
@@ -147,13 +153,13 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
         }
     }
 
-    private void notifyRequestShowSucceed(int instanceId, int requestId, int presentationId) {
+    private void notifyStartSessionSucceed(int instanceId, int requestId, int presentationId) {
         StringWriter contents = new StringWriter();
         JsonWriter writer = new JsonWriter(contents);
 
         try {
             writer.beginObject();
-            writer.name(TAG_CMD).value(CMD_SHOW_SUCCEEDED);
+            writer.name(TAG_CMD).value(CMD_SESSION_START_SUCCEEDED);
             writer.name(TAG_REQUEST_ID).value(requestId);
             writer.name(TAG_DATA).value(presentationId);
             writer.endObject();
@@ -165,13 +171,13 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
         }
     }
 
-    private void notifyRequestShowFail(int instanceId, int requestId, String errorMessage) {
+    private void notifyStartSessionFail(int instanceId, int requestId, String errorMessage) {
         StringWriter contents = new StringWriter();
         JsonWriter writer = new JsonWriter(contents);
 
         try {
             writer.beginObject();
-            writer.name(TAG_CMD).value(CMD_SHOW_FAILED);
+            writer.name(TAG_CMD).value(CMD_SESSION_START_FAILED);
             writer.name(TAG_REQUEST_ID).value(requestId);
             writer.name(TAG_DATA).value(errorMessage);
             writer.endObject();
@@ -192,6 +198,8 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
         String cmd = null;
         String url = null;
         String baseUrl = null;
+        int presentationId = -1;
+        String data = null;
         try {
             reader.beginObject();
             while (reader.hasNext()) {
@@ -204,6 +212,10 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
                     url = reader.nextString();
                 } else if (name.equals(TAG_BASE_URL)) {
                     baseUrl = reader.nextString();
+                } else if (name.equals(TAG_PRESENTATION_ID)) {
+                    presentationId = reader.nextInt();
+                } else if (name.equals(TAG_DATA)) {
+                    data = reader.nextString();
                 } else {
                     reader.skipValue();
                 }
@@ -211,24 +223,31 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
             reader.endObject();
             reader.close();
 
-            if (cmd != null && cmd.equals(CMD_REQUEST_SHOW) && requestId >= 0) {
-                handleRequestShow(instanceId, requestId, url, baseUrl);
+            if (cmd == null) return;
+
+            if (cmd.equals(CMD_START_SESSION) && requestId >= 0) {
+                handleStartSession(instanceId, requestId, url, baseUrl);
+            } else if (cmd.equals(CMD_SEND_MESSAGE_TO_REMOTE_DISPLAY)) {
+                handleSendMessageToRemoteDisplay(instanceId, presentationId, data);
+            } else if (cmd.equals(CMD_SEND_MESSAGE_TO_HOST_DISPLAY)) {
+                handleSendMessageToHostDisplay(instanceId, presentationId, data);
             }
         } catch (IOException e) {
             Log.d(TAG, "Error: " + e);
         }
     }
 
-    private void handleRequestShow(final int instanceId, final int requestId,
-                                   final String url, final String baseUrl) {
+
+    private void handleStartSession(final int instanceId, final int requestId,
+                                    final String url, final String baseUrl) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            notifyRequestShowFail(instanceId, requestId, ERROR_NOT_SUPPORTED);
+            notifyStartSessionFail(instanceId, requestId, ERROR_NOT_SUPPORTED);
             return;
         }
 
         if (mAvailableDisplayCount == 0) {
             Log.d(TAG, "No available presentation display is found.");
-            notifyRequestShowFail(instanceId, requestId, ERROR_NOT_FOUND);
+            notifyStartSessionFail(instanceId, requestId, ERROR_NOT_FOUND);
             return;
         }
 
@@ -241,14 +260,14 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
 
                 // No availble display is found.
                 if (preferredDisplay == null) {
-                    notifyRequestShowFail(instanceId, requestId, ERROR_NOT_FOUND);
+                    notifyStartSessionFail(instanceId, requestId, ERROR_NOT_FOUND);
                     return;
                 }
 
                 // Only one presentation is allowed to show on the presentation display. Notify
                 // the JS side that an error occurs if there is already one presentation showed.
                 if (mPresentationContent != null) {
-                    notifyRequestShowFail(instanceId, requestId, ERROR_INVALID_ACCESS);
+                    notifyStartSessionFail(instanceId, requestId, ERROR_INVALID_ACCESS);
                     return;
                 }
 
@@ -265,7 +284,7 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
                     }
                 } catch (URISyntaxException e) {
                     Log.e(TAG, "Invalid url passed to requestShow");
-                    notifyRequestShowFail(instanceId, requestId, ERROR_INVALID_PARAMETER);
+                    notifyStartSessionFail(instanceId, requestId, ERROR_INVALID_PARAMETER);
                     return;
                 }
 
@@ -275,7 +294,7 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
                         new XWalkPresentationContent.PresentationDelegate() {
                     @Override
                     public void onContentLoaded(XWalkPresentationContent content) {
-                        notifyRequestShowSucceed(instanceId, requestId, content.getPresentationId());
+                        notifyStartSessionSucceed(instanceId, requestId, content.getPresentationId());
                     }
 
                     @Override
@@ -297,9 +316,42 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
         });
     }
 
+    private void handleSendMessageToRemoteDisplay(final int instanceId, final int presentationId,
+                                                  final String data) {
+        notifySessionMessageReceived(false, presentationId, data);
+    }
+
+    private void handleSendMessageToHostDisplay(final int instanceId, final int presentationId,
+                                                final String data) {
+        notifySessionMessageReceived(true, presentationId, data);
+    }
+
+    private void notifySessionMessageReceived(final boolean isToHost, final int presentationId,
+                                              final String data) {
+        StringWriter contents = new StringWriter();
+        JsonWriter writer = new JsonWriter(contents);
+
+        try {
+            writer.beginObject();
+            if (isToHost) {
+              writer.name(TAG_CMD).value(CMD_SESSION_MESSAGE_TO_HOST_RECEIVED);
+            } else {
+              writer.name(TAG_CMD).value(CMD_SESSION_MESSAGE_TO_REMOTE_RECEIVED);
+            }
+            writer.name(TAG_PRESENTATION_ID).value(presentationId);
+            writer.name(TAG_DATA).value(data);
+            writer.endObject();
+            writer.close();
+
+            broadcastMessage(contents.toString());
+        } catch (IOException e) {
+            Log.e(TAG, "Error: " + e.toString());
+        }
+    }
+
     @Override
     public String onSyncMessage(int instanceId, String message) {
-        if (message.equals(CMD_QUERY_DISPLAY_AVAILABILITY)) {
+        if (message.equals(CMD_GET_AVAILABILITY)) {
             return mAvailableDisplayCount != 0 ? "true" : "false";
         } else {
             Log.e(TAG, "Unexpected sync message received: " + message);
