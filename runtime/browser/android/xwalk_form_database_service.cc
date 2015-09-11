@@ -33,8 +33,7 @@ XWalkFormDatabaseService::XWalkFormDatabaseService(const base::FilePath path) {
       BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI),
       BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB));
   web_database_->AddTable(
-      scoped_ptr<WebDatabaseTable>(new autofill::AutofillTable(
-          base::android::GetDefaultLocale())));
+      scoped_ptr<WebDatabaseTable>(new autofill::AutofillTable()));
   web_database_->LoadDatabase();
   autofill_data_ = new autofill::AutofillWebDataService(
       web_database_,
