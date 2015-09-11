@@ -30,8 +30,8 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.util.Locale;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.content.browser.ContentView;
