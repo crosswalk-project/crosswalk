@@ -102,8 +102,11 @@ abstract class XWalkContentsClient extends ContentViewClient {
         }
 
         @Override
-        public void documentLoadedInFrame(long frameId) {
-            onDocumentLoadedInFrame(frameId);
+        public void documentLoadedInFrame(long frameId, boolean isMainFrame) {
+            // TODO(jon): ensure that this is the proper thing to do.
+            if (!isMainFrame) {
+                onDocumentLoadedInFrame(frameId);
+            }
         }
     }
 
