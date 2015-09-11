@@ -114,12 +114,18 @@ bool XWalkExtensionProcessHost::Delegate::OnRegisterPermissions(
 XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,
+#if defined (OS_WIN)
+    const base::FilePath& dotnet_extensions_path,
+#endif
     XWalkExtensionProcessHost::Delegate* delegate,
     scoped_ptr<base::ValueMap> runtime_variables)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
       external_extensions_path_(external_extensions_path),
+#if defined (OS_WIN)
+      dotnet_extensions_path_(dotnet_extensions_path),
+#endif
       is_extension_process_channel_ready_(false),
       delegate_(delegate),
       runtime_variables_(runtime_variables.Pass()) {
@@ -196,6 +202,10 @@ void XWalkExtensionProcessHost::StartProcess() {
       &runtime_variables_lv);
   Send(new XWalkExtensionProcessMsg_RegisterExtensions(
         external_extensions_path_, runtime_variables_lv));
+#if defined (OS_WIN)
+  Send(new XWalkExtensionProcessMsg_RegisterDotNetExtensions(
+        dotnet_extensions_path_, runtime_variables_lv));
+#endif
 }
 
 void XWalkExtensionProcessHost::StopProcess() {

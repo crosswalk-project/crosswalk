@@ -42,6 +42,10 @@ solutions = [
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
 
+      # Temporary roll GYP forward so we can have support to compile managed code on Windows.
+      'src/tools/gyp':
+        'https://chromium.googlesource.com/external/gyp.git@1f374df95de1c0a125485496e8d23d36303a93fd',
+
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
         crosswalk_git + '/khronos-cl-api-1.2.git@6f4be98d10f03ce2b12c769cd9835c73a441c00f',

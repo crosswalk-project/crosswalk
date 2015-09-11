@@ -198,13 +198,42 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
   extension_service_->RegisterExternalExtensionsForPath(extensions_dir);
 }
 
+#if defined(OS_WIN)
+void XWalkBrowserMainParts::RegisterDotNetExtensions() {
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
+  if (!cmd_line->HasSwitch(switches::kXWalkDotNetExtensionsPath))
+    return;
+
+  if (!cmd_line->HasSwitch(
+    switches::kXWalkAllowExternalExtensionsForRemoteSources) &&
+    (!startup_url_.is_empty() && !startup_url_.SchemeIsFile())) {
+    VLOG(0) << "Unsupported scheme for .NET extensions: " <<
+      startup_url_.scheme();
+    return;
+  }
+
+  base::FilePath extensions_dir =
+    cmd_line->GetSwitchValuePath(switches::kXWalkDotNetExtensionsPath);
+  if (!base::DirectoryExists(extensions_dir)) {
+    LOG(WARNING) << "Ignoring non-existent extension directory: "
+      << extensions_dir.AsUTF8Unsafe();
+    return;
+  }
+  extension_service_->RegisterDotNetExtensionsForPath(extensions_dir);
+}
+#endif
+
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   xwalk_runner_->PreMainMessageLoopRun();
 
   extension_service_ = xwalk_runner_->extension_service();
 
-  if (extension_service_)
+  if (extension_service_) {
     RegisterExternalExtensions();
+#if defined(OS_WIN)
+    RegisterDotNetExtensions();
+#endif
+  }
 
 #if !defined(DISABLE_NACL)
   NaClBrowserDelegateImpl* delegate = new NaClBrowserDelegateImpl();

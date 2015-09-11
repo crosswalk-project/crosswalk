@@ -38,6 +38,10 @@ XWalkExtensionService::CreateExtensionsCallback
 
 base::FilePath g_external_extensions_path_for_testing_;
 
+#if defined(OS_WIN)
+base::FilePath g_dotnet_extensions_path_for_testing_;
+#endif
+
 }  // namespace
 
 // This object intercepts messages destined to a XWalkExtensionServer and
@@ -198,6 +202,11 @@ XWalkExtensionService::XWalkExtensionService(Delegate* delegate)
       delegate_(delegate) {
   if (!g_external_extensions_path_for_testing_.empty())
     external_extensions_path_ = g_external_extensions_path_for_testing_;
+#if defined (OS_WIN)
+  if (!g_dotnet_extensions_path_for_testing_.empty())
+    dotnet_extensions_path_ = g_dotnet_extensions_path_for_testing_;
+#endif
+
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
@@ -218,6 +227,13 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
   external_extensions_path_ = path;
 }
 
+#if defined(OS_WIN)
+void XWalkExtensionService::RegisterDotNetExtensionsForPath(
+  const base::FilePath& path) {
+  dotnet_extensions_path_ = path;
+}
+#endif
+
 void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
@@ -232,10 +248,19 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess)) {
     CreateExtensionProcessHost(host, data, runtime_variables.Pass());
-  } else if (!external_extensions_path_.empty()) {
-    RegisterExternalExtensionsInDirectory(
+  } else {
+    if (!external_extensions_path_.empty()) {
+      RegisterExternalExtensionsInDirectory(
         data->in_process_ui_thread_server(),
         external_extensions_path_, runtime_variables.Pass());
+    }
+#if defined(OS_WIN)
+    if (!dotnet_extensions_path_.empty()) {
+      RegisterDotNetExtensionsInDirectory(
+        data->in_process_ui_thread_server(),
+        dotnet_extensions_path_, runtime_variables.Pass());
+    }
+#endif
   }
 
   extension_data_map_[host->GetID()] = data;
@@ -248,7 +273,11 @@ void XWalkExtensionService::OnRenderProcessWillLaunch(
     scoped_ptr<base::ValueMap> runtime_variables) {
   CHECK(host);
 
-  if (!g_external_extensions_path_for_testing_.empty()) {
+  if (!g_external_extensions_path_for_testing_.empty()
+#if defined (OS_WIN)
+    || !g_dotnet_extensions_path_for_testing_.empty()
+#endif
+    ) {
     (*runtime_variables)["runtime_name"] =
         new base::StringValue("xwalk");
     OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
@@ -279,6 +308,13 @@ void XWalkExtensionService::SetExternalExtensionsPathForTesting(
     const base::FilePath& path) {
   g_external_extensions_path_for_testing_ = path;
 }
+
+#if defined(OS_WIN)
+void XWalkExtensionService::SetDotNetExtensionsPathForTesting(
+  const base::FilePath& path) {
+  g_dotnet_extensions_path_for_testing_ = path;
+}
+#endif
 
 // We use this to keep track of the RenderProcess shutdown events.
 // This is _very_ important so we can clean up all we need gracefully,
@@ -374,8 +410,11 @@ void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, XWalkExtensionData* data,
     scoped_ptr<base::ValueMap> runtime_variables) {
   data->set_extension_process_host(make_scoped_ptr(
-      new XWalkExtensionProcessHost(host, external_extensions_path_, this,
-                                    runtime_variables.Pass())));
+      new XWalkExtensionProcessHost(host, external_extensions_path_,
+#if defined (OS_WIN)
+                                    dotnet_extensions_path_,
+#endif
+                                    this, runtime_variables.Pass())));
 }
 
 void XWalkExtensionService::OnExtensionProcessDied(
