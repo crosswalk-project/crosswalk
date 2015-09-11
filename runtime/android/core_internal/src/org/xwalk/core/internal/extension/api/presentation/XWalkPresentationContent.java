@@ -51,10 +51,18 @@ public class XWalkPresentationContent {
                 }
 
                 @Override
+                public void onPageLoadStarted(XWalkViewInternal view, String url) {
+                    mPresentationId = mContentView.getContentID();
+                    String script = "navigator.presentation.session = new navigator.presentation.PresentationSession(";
+                    script += mPresentationId;
+                    script += ");";
+                    view.evaluateJavascript(script, null);
+                }
+
+                @Override
                 public void onPageLoadStopped(
                         XWalkViewInternal view, String url, LoadStatusInternal status) {
                     if (status == LoadStatusInternal.FINISHED) {
-                        mPresentationId = mContentView.getContentID();
                         onContentLoaded();
                     }
                 }
