@@ -111,7 +111,7 @@ exports.startSession = function(presentationUrl) {
     var request = new SessionRequest(requestId, resolve, reject);
     _sessionRequests[requestId] = request;
 
-    var baseUrl = location.href.substring(0, location.href.lastIndexOf("/")+1);
+    var baseUrl = location.protocol + "//" + location.host;
     var message = { "cmd": "StartSession", "requestId": requestId, "url": presentationUrl, "baseUrl": baseUrl };
 
     extension.postMessage(JSON.stringify(message));
