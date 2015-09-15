@@ -663,4 +663,13 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected String getUserAgent() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return mXWalkView.getUserAgentString();
+            }
+        });
+    }
 }
