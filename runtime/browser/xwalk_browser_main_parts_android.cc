@@ -259,4 +259,10 @@ XWalkExtension* XWalkBrowserMainPartsAndroid::LookupExtension(
   return NULL;
 }
 
+void XWalkBrowserMainPartsAndroid::RegisterExtensionInPath(
+    const std::string& path) {
+  extension_service_->RegisterExternalExtensionsForPath(
+      base::FilePath(path));
+}
+
 }  // namespace xwalk

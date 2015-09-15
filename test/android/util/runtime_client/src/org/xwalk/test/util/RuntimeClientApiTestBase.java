@@ -322,6 +322,12 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         });
     }
 
+    // For native external extension mechanism.
+    public void testNativeExternalExtension() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("echo.html");
+        mTestCase.assertEquals("Pass", title);
+    }
+
     // For internal extension implementation of Messaging.
     public void testMessaging() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("messaging_mini.html");

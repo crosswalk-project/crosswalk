@@ -209,6 +209,7 @@
       },
       'sources': [
         'extensions/android/java/src/org/xwalk/core/internal/extensions/XWalkExtensionAndroid.java',
+        'extensions/android/java/src/org/xwalk/core/internal/extensions/XWalkNativeExtensionLoaderAndroid.java',
       ],
       'includes': ['../build/jni_generator.gypi'],
     },

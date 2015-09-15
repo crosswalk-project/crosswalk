@@ -26,6 +26,7 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkExtension.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkHttpAuthHandler.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkJavascriptResult.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNativeExtensionLoader.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNavigationHistory.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNavigationItem.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkPreferences.java',

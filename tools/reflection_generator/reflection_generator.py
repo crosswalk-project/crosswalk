@@ -27,6 +27,7 @@ CLASSES_TO_BE_PROCESS = [
     'XWalkPreferencesInternal',
     'XWalkNavigationItemInternal',
     'XWalkNavigationHistoryInternal',
+    'XWalkNativeExtensionLoaderInternal',
     'XWalkJavascriptResultHandlerInternal',
     'XWalkJavascriptResultInternal',
     'ClientCertRequestHandlerInternal',

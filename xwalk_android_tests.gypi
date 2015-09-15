@@ -246,6 +246,7 @@
       'target_name': 'xwalk_runtime_client_shell_apk',
       'type': 'none',
       'dependencies': [
+        'extensions/external_extension_sample.gyp:echo_extension',
         'xwalk_app_runtime_java',
         'xwalk_runtime_client_test_utils_java',
       ],
@@ -254,6 +255,10 @@
         'java_in_dir': 'app/android/runtime_client_shell',
         'resource_dir': 'app/android/runtime_client_shell/res',
         'is_test_apk': 1,
+        'native_lib_target': 'libxwalkdummy',
+        'additional_bundled_libs': [
+          '<(PRODUCT_DIR)/lib/libecho_extension.>(android_product_extension)',
+        ],
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/index.html',
@@ -309,11 +314,12 @@
       'target_name': 'xwalk_runtime_client_embedded_shell_apk',
       'type': 'none',
       'dependencies': [
+        'extensions/external_extension_sample.gyp:echo_extension',
+        'libxwalkdummy',
         'xwalk_app_runtime_java',
         'xwalk_core_internal_java',
         'xwalk_runtime_client_embedded_shell_apk_pak',
         'xwalk_runtime_client_test_utils_java',
-        'libxwalkdummy',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeClientEmbeddedShell',
@@ -321,6 +327,7 @@
         'resource_dir': 'app/android/runtime_client_embedded_shell/res',
         'native_lib_target': 'libxwalkdummy',
         'additional_bundled_libs': [
+          '<(PRODUCT_DIR)/lib/libecho_extension.>(android_product_extension)',
           '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
         ],
         'additional_input_paths': [
@@ -352,6 +359,10 @@
         'asset_location': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
       },
       'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/lib',
+          'files': ['<(PRODUCT_DIR)/tests/extension/echo_extension/libecho_extension.>(android_product_extension)'],
+        },
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
           'files': [
@@ -437,6 +448,7 @@
           '<(PRODUCT_DIR)/runtime_client_test/assets/contacts.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/device_capabilities.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/displayAvailableTest.html',
+          '<(PRODUCT_DIR)/runtime_client_test/assets/echo.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/echo_java.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/echo_sync_java.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/messaging_mini.html',
@@ -450,6 +462,7 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_test/assets',
           'files': [
+            'extensions/test/data/echo.html',
             'test/android/data/contacts.html',
             'test/android/data/device_capabilities.html',
             'test/android/data/displayAvailableTest.html',
@@ -492,6 +505,7 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/contacts.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/device_capabilities.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/displayAvailableTest.html',
+          '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echo.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echo_java.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echo_sync_java.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/messaging_mini.html',
@@ -505,6 +519,7 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_test/assets',
           'files': [
+            'extensions/test/data/echo.html',
             'test/android/data/contacts.html',
             'test/android/data/device_capabilities.html',
             'test/android/data/displayAvailableTest.html',

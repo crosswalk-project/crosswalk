@@ -25,6 +25,8 @@
         'browser/xwalk_extension_service.h',
         'common/android/xwalk_extension_android.cc',
         'common/android/xwalk_extension_android.h',
+        'common/android/xwalk_native_extension_loader_android.cc',
+        'common/android/xwalk_native_extension_loader_android.h',
         'common/xwalk_extension.cc',
         'common/xwalk_extension.h',
         'common/xwalk_extension_messages.cc',
