@@ -75,6 +75,6 @@ public class XWalkContentView extends ContentView {
 
     @Override
     public boolean performLongClick(){
-        return mXWalkView.onPerformLongClick();
+        return mXWalkView.performLongClickDelegate();
     }
 }

@@ -1241,9 +1241,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     // override performLongClick() or setOnLongClickListener to disable copy/paste
     // action bar.
     @XWalkAPI(delegate = true,
-        preWrapperLines = {
-                  "return performLongClick();"})
-    public boolean onPerformLongClick(){
-	return false;
+              preWrapperLines = {"return performLongClick();"})
+    public boolean performLongClickDelegate(){
+        return false;
     }
 }
