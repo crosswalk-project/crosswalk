@@ -186,7 +186,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
 
-        String language = Locale.getDefault().toString();
+        String language = Locale.getDefault().toString().replaceAll("_", "-").toLowerCase();
         if (language.isEmpty()) language = "en";
         mSettings.setAcceptLanguages(language);
 
