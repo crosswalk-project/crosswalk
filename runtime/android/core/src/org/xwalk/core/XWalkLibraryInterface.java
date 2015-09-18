@@ -24,22 +24,29 @@ interface XWalkLibraryInterface {
     public static final int STATUS_NOT_FOUND = 2;
 
     /**
-     * Mismatch of CPU Architecture for the Crosswalk Runtime.
-     */
-    public static final int STATUS_ARCHITECTURE_MISMATCH = 3;
-
-    /**
-     * The Crosswalk signature verification failed.
-     */
-    public static final int STATUS_SIGNATURE_CHECK_ERROR = 4;
-
-    /**
      * The version of the Crosswalk runtime is older than the application.
      */
-    public static final int STATUS_OLDER_VERSION = 5;
+    public static final int STATUS_OLDER_VERSION = 3;
 
     /**
      * The version of the Crosswalk runtime is newer than the application.
      */
-    public static final int STATUS_NEWER_VERSION = 6;
+    public static final int STATUS_NEWER_VERSION = 4;
+
+    /**
+     * Missing certain necessary native library
+     */
+    public static final int STATUS_INCOMPLETE_LIBRARY = 5;
+
+    /**
+     * Mismatch of CPU Architecture for the Crosswalk Runtime.
+     */
+    public static final int STATUS_ARCHITECTURE_MISMATCH = 6;
+
+    /**
+     * The Crosswalk signature verification failed.
+     */
+    public static final int STATUS_SIGNATURE_CHECK_ERROR = 7;
+
+    public static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
 }

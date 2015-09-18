@@ -32,18 +32,6 @@
       <message desc="Startup Not Found Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_MESSAGE">
         APP_NAME requires the Crosswalk Project Service to work. Please install it from the app store, then restart APP_NAME.
       </message>
-      <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
-        Mismatch of CPU Architecture for the Crosswalk Project Service
-      </message>
-      <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
-        The Crosswalk Project Service must be updated to match the CPU architecture of the device. Please install it from the app store, then restart APP_NAME.
-      </message>
-      <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
-        The Crosswalk Project Signature Verification Failed
-      </message>
-      <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
-        The integrity of the Crosswalk Project Service cannot be verified. Please uninstall it and restart APP_NAME.
-      </message>
       <message desc="Startup Older Version Title [CHAR-LIMIT=100]" name="IDS_STARTUP_OLDER_VERSION_TITLE">
         New Crosswalk Project Service Required
       </message>
@@ -55,6 +43,24 @@
       </message>
       <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
         APP_NAME is not compatible with the installed version of the Crosswalk Project Service.
+      </message>
+      <message desc="Startup Incomplete Library Title [CHAR-LIMIT=100]" name="IDS_STARTUP_INCOMPLETE_LIBRARY_TITLE">
+        Incomplete Crosswalk Project Service
+      </message>
+      <message desc="Startup Incomplete Library Message [CHAR-LIMIT=100]" name="IDS_STARTUP_INCOMPLETE_LIBRARY_MESSAGE">
+        Please repackage APP_NAME.
+      </message>
+      <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
+        Mismatch of CPU Architecture for the Crosswalk Project Service
+      </message>
+      <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
+        The Crosswalk Project Service must be updated to match the CPU architecture of the device. Please install it from the app store, then restart APP_NAME.
+      </message>
+      <message desc="Startup Signature Check Error Title [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_TITLE">
+        The Crosswalk Project Signature Verification Failed
+      </message>
+      <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
+        The integrity of the Crosswalk Project Service cannot be verified. Please uninstall it and restart APP_NAME.
       </message>
       <message desc="Label of Get Crosswalk [CHAR-LIMIT=100]" name="IDS_XWALK_GET_CROSSWALK">
         Get Crosswalk

@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.util.Log;
 
 import java.security.MessageDigest;
@@ -150,15 +151,7 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
-            int status = sProvisionalInstance.mCoreStatus;
-
-            if (!sProvisionalInstance.findSharedCore()) {
-                if (sProvisionalInstance.mCoreStatus != XWalkLibraryInterface.STATUS_NOT_FOUND) {
-                    status = sProvisionalInstance.mCoreStatus;
-                }
-                Log.d(TAG, "core status: " + status);
-                return status;
-            }
+            sProvisionalInstance.findSharedCore();
         }
         return sProvisionalInstance.mCoreStatus;
     }
@@ -197,7 +190,7 @@ class XWalkCoreWrapper {
         mApiVersion = XWalkAppVersion.API_VERSION;
         mMinApiVersion = (minApiVersion > 0 && minApiVersion <= mApiVersion) ?
                 minApiVersion : mApiVersion;
-        mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
+        mCoreStatus = XWalkLibraryInterface.STATUS_PENDING;
         mWrapperContext = context;
     }
 
@@ -260,34 +253,62 @@ class XWalkCoreWrapper {
                 return false;
             }
         } catch (RuntimeException e) {
-            Log.d(TAG, "Failed to check library version");
+            Log.d(TAG, "XWalk core not found");
             mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
             return false;
         }
 
+        Log.d(TAG, "XWalk core version matched");
         return true;
     }
 
     private boolean checkCoreArchitecture() {
         try {
             Class<?> clazz = getBridgeClass("XWalkViewDelegate");
-            new ReflectMethod(clazz, "loadXWalkLibrary", Context.class).invoke(mBridgeContext);
+            ReflectMethod method = new ReflectMethod(clazz, "loadXWalkLibrary",
+                    Context.class, String.class);
+
+            boolean architectureMatched = false;
+            String libDir = null;
+            if (mBridgeContext != null) {
+                // Only load the native library from /data/data if in shared mode and the Android
+                // version is lower than 4.2. Android enables a system path /data/app-lib to store
+                // native libraries starting from 4.2 and load them automatically.
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    libDir = "/data/data/" + mBridgeContext.getPackageName() + "/lib";
+                }
+                architectureMatched = (boolean) method.invoke(mBridgeContext, libDir);
+            } else {
+                try {
+                    architectureMatched = (boolean) method.invoke(mBridgeContext, libDir);
+                } catch (RuntimeException ex) {
+                    Log.d(TAG, ex.getLocalizedMessage());
+                }
+
+                if (!architectureMatched && mWrapperContext != null) {
+                    libDir = mWrapperContext.getDir(
+                            XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
+                            Context.MODE_PRIVATE).toString();
+                    architectureMatched = (boolean) method.invoke(mBridgeContext, libDir);
+                }
+            }
+
+            if (!architectureMatched) {
+                Log.d(TAG, "Mismatch of CPU architecture");
+                mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
+                return false;
+            }
         } catch (RuntimeException e) {
-            Log.d(TAG, "Failed to load native library");
-            mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
+            Log.d(TAG, e.getLocalizedMessage());
+            mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
             return false;
         }
 
+        Log.d(TAG, "XWalk core architecture matched");
         return true;
     }
 
     private boolean checkCorePackage() {
-        if (mWrapperContext == null) {
-            Log.d(TAG, "No application context");
-            mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
-            return false;
-        }
-
         if (!XWalkAppVersion.VERIFY_XWALK_APK) {
             Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
         } else {
@@ -302,7 +323,6 @@ class XWalkCoreWrapper {
                 }
             } catch (NameNotFoundException e) {
                 Log.d(TAG, "Crosswalk package not found");
-                mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
                 return false;
             }
         }
@@ -310,13 +330,12 @@ class XWalkCoreWrapper {
         try {
             mBridgeContext = mWrapperContext.createPackageContext(XWALK_APK_PACKAGE,
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-            Log.d(TAG, "Created bridge context");
         } catch (NameNotFoundException e) {
             Log.d(TAG, "Crosswalk package not found");
-            mCoreStatus = XWalkLibraryInterface.STATUS_NOT_FOUND;
             return false;
         }
 
+        Log.d(TAG, "Created package context for " + XWALK_APK_PACKAGE);
         return true;
     }
 
