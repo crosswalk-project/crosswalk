@@ -34,6 +34,10 @@ public class ExtensionEchoInternal extends XWalkExtensionAndroid {
         return "From java sync:" + message;
     }
 
+    public void onBinaryMessage(int instanceId, byte[] message) {
+        postBinaryMessage(instanceId, message);
+    }
+
     public void onDestroy() {
     }
 }
