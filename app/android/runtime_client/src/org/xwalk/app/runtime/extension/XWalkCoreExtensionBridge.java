@@ -27,6 +27,10 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExt
         mExtension.onMessage(instanceID, message);
     }
 
+    public void onBinaryMessage(int instanceID, byte[] message) {
+        mExtension.onBinaryMessage(instanceID, message);
+    }
+
     public String onSyncMessage(int instanceID, String message) {
         return mExtension.onSyncMessage(instanceID, message);
     }
@@ -75,6 +79,11 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExt
     @Override
     public void postMessage(int instanceId, String message) {
         super.postMessage(instanceId, message);
+    }
+
+    @Override
+    public void postBinaryMessage(int instanceId, byte[] message) {
+        super.postBinaryMessage(instanceId, message);
     }
 
     @Override

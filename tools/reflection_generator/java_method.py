@@ -431,6 +431,7 @@ class Method(object):
       # Remove modifier and generic type.
       name += ConvertClassExpressionToClassType(
           self.params[param_name]).replace('.class', '')
+    name = name.replace('[]', 'Array');
     if self._is_constructor:
       return '%sConstructor' % name
     else:

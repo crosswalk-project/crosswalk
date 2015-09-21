@@ -180,6 +180,16 @@ public class XWalkExtensionClient {
     }
 
     /**
+     * JavaScript calls into Java code. The message is handled by
+     * the extension implementation. The inherited classes should
+     * override and add its implementation.
+     * JavaScript wraps the binary message into an ArrayBuffer.
+     * @param extensionInstanceID the ID of extension instance where the message came from.
+     * @param message the binary message from JavaScript code.
+     */
+    public void onBinaryMessage(int extensionInstanceID, byte[] message) {}
+
+    /**
      * Synchronized JavaScript calls into Java code. Similar to
      * onMessage. The only difference is it's a synchronized
      * message.
@@ -279,6 +289,18 @@ public class XWalkExtensionClient {
      */
     public final void postMessage(int instanceID, String message) {
         mExtensionContext.postMessage(this, instanceID, message);
+    }
+
+    /**
+     * Post binary messages to JavaScript via extension's context.
+     * It's used by child classes to post message from Java side
+     * to JavaScript side.
+     * JavaScript recevies the binary message in an ArrayBuffer.
+     * @param instanceID the ID of target extension instance.
+     * @param message the binary message to be passed to Javascript.
+     */
+    public final void postBinaryMessage(int instanceID, byte[] message) {
+        mExtensionContext.postBinaryMessage(this, instanceID, message);
     }
 
     /**

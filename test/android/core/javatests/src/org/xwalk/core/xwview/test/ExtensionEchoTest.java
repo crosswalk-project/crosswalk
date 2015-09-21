@@ -45,4 +45,13 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
         loadAssetFileAndWaitForTitle("framesEcho.html");
         assertEquals(PASS_STRING, getTitleOnUiThread());
     }
+
+    @SmallTest
+    @Feature({"ExtensionEcho"})
+    public void testBinary() throws Throwable {
+        ExtensionEcho echo = new ExtensionEcho();
+
+        loadAssetFileAndWaitForTitle("echo_binary_java.html");
+        assertEquals(PASS_STRING, getTitleOnUiThread());
+    }
 }

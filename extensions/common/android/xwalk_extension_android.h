@@ -52,6 +52,8 @@ class XWalkExtensionAndroid : public XWalkExtension {
 
   // JNI interface to post message from Java to JS
   void PostMessage(JNIEnv* env, jobject obj, jint instance, jstring msg);
+  void PostBinaryMessage(JNIEnv* env, jobject obj, jint instance,
+                         jbyteArray msg);
   void BroadcastMessage(JNIEnv* env, jobject obj, jstring msg);
 
   void DestroyExtension(JNIEnv* env, jobject obj);
@@ -89,6 +91,10 @@ class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
 
   void PostMessageWrapper(const char* msg) {
     PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
+  }
+  void PostBinaryMessageWrapper(const char* msg, const size_t size) {
+    PostMessageToJS(scoped_ptr<base::Value>(
+        base::BinaryValue::CreateWithCopiedBuffer(msg, size)));
   }
 
   int getID() {
