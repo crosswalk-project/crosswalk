@@ -4,14 +4,27 @@
 </head>
 <body>
 <script>
-  try {
-    if (navigator.presentation.displayAvailable) {
-      document.write("Secondary display <font color=green>Available</font>.");
-      document.title = "Available";
-    } else {
-      document.write("Secondary display <font color=green>Unavailable</font>.");
-      document.title = "Unavailable";
-    }
+var session = null;
+var endSession = function () {
+  return session;
+}
+var setSession = function (theSession) {
+  endSession();
+  session = theSession;
+};
+
+navigator.presentation.startSession("remote.html").then(setSession).catch(endSession);
+
+try {
+    navigator.presentation.getAvailability().then(function() {
+       document.write("Secondary display <font color=green>Available</font>.");
+       document.title = "Available";
+       done();
+    }).catch(function() {
+       document.write("Secondary display <font color=green>Unavailable</font>.");
+       document.title = "Unavailable";
+       done();
+    });
     document.close();
   } catch(e) {
       document.title = "Fail";
@@ -20,4 +33,3 @@
 Presentation API: displayAvailable test
 </body>
 </html>
-
