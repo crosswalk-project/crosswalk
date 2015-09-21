@@ -52,7 +52,6 @@ class XWalkExtensionServer : public IPC::Listener,
 
   // IPC::Listener Implementation.
   bool OnMessageReceived(const IPC::Message& message) override;
-  void OnChannelConnected(int32 peer_pid) override;
 
   // Different types of ExtensionServers are initialized with different
   // permission delegates: For out-of-process extensions the extension
@@ -60,7 +59,7 @@ class XWalkExtensionServer : public IPC::Listener,
   // IPC; For in-process extensions running in extension thread, we will
   // give a delegate that will do an async method call and for UI thread
   // extensions, doing synchronous request is not allowed.
-  void Initialize(IPC::Sender* sender);
+  void Initialize(IPC::ChannelProxy* channelProxy);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
@@ -104,8 +103,8 @@ class XWalkExtensionServer : public IPC::Listener,
   bool ValidateExtensionEntryPoints(
       const std::vector<std::string>& entry_points);
 
-  base::Lock sender_lock_;
-  IPC::Sender* sender_;
+  base::Lock channel_proxy_lock_;
+  IPC::ChannelProxy* channel_proxy_;
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
@@ -116,8 +115,6 @@ class XWalkExtensionServer : public IPC::Listener,
   // The exported symbols for extensions already registered.
   typedef std::set<std::string> ExtensionSymbolsSet;
   ExtensionSymbolsSet extension_symbols_;
-
-  int32 renderer_process_pid_;
 
   XWalkExtension::PermissionsDelegate* permissions_delegate_;
 };
