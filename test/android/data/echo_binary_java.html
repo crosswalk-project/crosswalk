@@ -5,7 +5,7 @@
 <body>
 <script>
 try {
-    // 1 uint32 (for length) and 100 uint8 (for data)
+    /* 1 uint32 (for length) and 100 uint8 (for data) */
     var buffer = new ArrayBuffer(104);
     var uint32View = new Uint32Array(buffer, 0, 1);
     var uint8ArrayLength = 100;
