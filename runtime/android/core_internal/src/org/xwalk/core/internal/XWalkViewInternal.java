@@ -816,6 +816,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         settings.setUserAgentString(userAgent);
     }
 
+      /**
+      * Get the user agent of web page/app.
+      * @return the XWalkView's user-agent string.
+      * @since 6.0
+      */
+     @XWalkAPI
+     public String getUserAgentString() {
+         XWalkSettings settings = getSettings();
+         if (settings == null) return null;
+         checkThreadSafety();
+         return settings.getUserAgentString();
+     }
+
      /**
      * Set the accept languages of XWalkView.
      * @param acceptLanguages the accept languages string passed from client.
