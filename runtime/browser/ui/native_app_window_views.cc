@@ -331,6 +331,11 @@ void NativeAppWindowViews::OnWidgetBoundsChanged(views::Widget* widget,
     const gfx::Rect& new_bounds) {
 }
 
+bool NativeAppWindowViews::PlatformHandleContextMenu(
+    const content::ContextMenuParams& params) {
+  return false;
+}
+
 // static
 NativeAppWindow* NativeAppWindow::Create(
     const NativeAppWindow::CreateParams& create_params) {

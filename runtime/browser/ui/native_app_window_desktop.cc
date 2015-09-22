@@ -6,9 +6,13 @@
 #include "xwalk/runtime/browser/ui/native_app_window_desktop.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_observer.h"
 #include "grit/xwalk_strings.h"
 #include "third_party/skia/include/core/SkPaint.h"
+#include "ui/aura/client/screen_position_client.h"
+#include "ui/aura/window.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/gfx/canvas.h"
@@ -17,6 +21,7 @@
 #include "ui/views/layout/box_layout.h"
 #include "ui/views/layout/grid_layout.h"
 #include "ui/views/layout/fill_layout.h"
+#include "xwalk/runtime/browser/devtools/xwalk_devtools_frontend.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 #include "xwalk/runtime/browser/ui/desktop/download_views.h"
 #include "xwalk/runtime/browser/runtime_select_file_policy.h"
@@ -70,6 +75,64 @@ class NativeAppWindowDesktop::AddressView : public views::Label {
   double progress_;
 };
 
+class NativeAppWindowDesktop::DevToolsWebContentsObserver
+    : public content::WebContentsObserver {
+ public:
+  DevToolsWebContentsObserver(NativeAppWindowDesktop* window,
+                              content::WebContents* web_contents)
+    : WebContentsObserver(web_contents),
+    window_(window) {
+  }
+
+  // WebContentsObserver
+  void WebContentsDestroyed() override {
+    window_->OnDevToolsWebContentsDestroyed();
+  }
+
+ private:
+  NativeAppWindowDesktop* window_;
+
+  DISALLOW_COPY_AND_ASSIGN(DevToolsWebContentsObserver);
+};
+
+// Model for the "Debug" menu
+class NativeAppWindowDesktop::ContextMenuModel : public ui::SimpleMenuModel,
+  public ui::SimpleMenuModel::Delegate {
+ public:
+  explicit ContextMenuModel(
+    NativeAppWindowDesktop* shell, const content::ContextMenuParams& params)
+    : ui::SimpleMenuModel(this),
+    shell_(shell),
+    params_(params) {
+    AddItem(COMMAND_OPEN_DEVTOOLS, base::ASCIIToUTF16("Inspect Element"));
+  }
+
+  // ui::SimpleMenuModel::Delegate:
+  bool IsCommandIdChecked(int command_id) const override { return false; }
+  bool IsCommandIdEnabled(int command_id) const override { return true; }
+  bool GetAcceleratorForCommandId(int command_id,
+    ui::Accelerator* accelerator) override {
+    return false;
+  }
+  void ExecuteCommand(int command_id, int event_flags) override {
+    switch (command_id) {
+    case COMMAND_OPEN_DEVTOOLS:
+      shell_->ShowDevToolsForElementAt(params_.x, params_.y);
+      break;
+    }
+  }
+
+ private:
+  enum CommandID {
+    COMMAND_OPEN_DEVTOOLS
+  };
+
+  NativeAppWindowDesktop* shell_;
+  content::ContextMenuParams params_;
+
+  DISALLOW_COPY_AND_ASSIGN(ContextMenuModel);
+};
+
 NativeAppWindowDesktop::NativeAppWindowDesktop(
     const NativeAppWindow::CreateParams& create_params)
     : NativeAppWindowViews(create_params),
@@ -80,10 +143,17 @@ NativeAppWindowDesktop::NativeAppWindowDesktop(
       stop_button_(nullptr),
       address_bar_(nullptr),
       contents_view_(nullptr),
-      download_bar_view_(nullptr) {
+      download_bar_view_(nullptr),
+      devtools_frontend_(nullptr) {
 }
 
 NativeAppWindowDesktop::~NativeAppWindowDesktop() {
+}
+
+bool NativeAppWindowDesktop::PlatformHandleContextMenu(
+  const content::ContextMenuParams& params) {
+  ShowWebViewContextMenu(params);
+  return true;
 }
 
 void NativeAppWindowDesktop::ViewHierarchyChanged(
@@ -226,6 +296,61 @@ void NativeAppWindowDesktop::ButtonPressed(views::Button* sender,
     delegate_->OnStopPressed();
   else
     NOTREACHED();
+}
+
+void NativeAppWindowDesktop::FocusContent() {
+  web_contents_->GetRenderViewHost()->Focus();
+}
+
+void NativeAppWindowDesktop::ShowWebViewContextMenu(
+    const content::ContextMenuParams& params) {
+  gfx::Point screen_point(params.x, params.y);
+
+  // Convert from content coordinates to window coordinates.
+  // This code copied from chrome_web_contents_view_delegate_views.cc
+  aura::Window* web_contents_window =
+      web_contents_->GetNativeView();
+  aura::Window* root_window = web_contents_window->GetRootWindow();
+  aura::client::ScreenPositionClient* screen_position_client =
+      aura::client::GetScreenPositionClient(root_window);
+  if (screen_position_client) {
+    screen_position_client->ConvertPointToScreen(web_contents_window,
+        &screen_point);
+  }
+
+  context_menu_model_ = new ContextMenuModel(this, params);
+  context_menu_runner_.reset(new views::MenuRunner(
+      context_menu_model_, views::MenuRunner::CONTEXT_MENU));
+
+  if (context_menu_runner_->RunMenuAt(web_view_->GetWidget(),
+    NULL,
+    gfx::Rect(screen_point, gfx::Size()),
+    views::MENU_ANCHOR_TOPRIGHT,
+    ui::MENU_SOURCE_NONE) ==
+    views::MenuRunner::MENU_DELETED) {
+    return;
+  }
+}
+
+void NativeAppWindowDesktop::ShowDevToolsForElementAt(int x, int y) {
+  InnerShowDevTools();
+  devtools_frontend_->InspectElementAt(x, y);
+}
+
+void NativeAppWindowDesktop::InnerShowDevTools() {
+  if (!devtools_frontend_) {
+    devtools_frontend_ = XWalkDevToolsFrontend::Show(web_contents_);
+    devtools_observer_.reset(new DevToolsWebContentsObserver(
+      this, devtools_frontend_->frontend_shell()->web_contents_));
+  }
+
+  devtools_frontend_->Activate();
+  devtools_frontend_->Focus();
+}
+
+void NativeAppWindowDesktop::OnDevToolsWebContentsDestroyed() {
+  devtools_observer_.reset();
+  devtools_frontend_ = nullptr;
 }
 
 void NativeAppWindowDesktop::SetLoadProgress(double progress) {

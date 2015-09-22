@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/strings/string16.h"
+#include "content/public/common/context_menu_params.h"
 #include "third_party/WebKit/public/platform/WebDisplayMode.h"
 #include "ui/base/ui_base_types.h"
 #include "ui/gfx/geometry/rect.h"
@@ -114,6 +115,9 @@ class NativeAppWindow {
   virtual bool IsMaximized() const = 0;
   virtual bool IsMinimized() const = 0;
   virtual bool IsFullscreen() const = 0;
+
+  virtual bool PlatformHandleContextMenu(
+      const content::ContextMenuParams& params) = 0;
 
  protected:
   virtual ~NativeAppWindow() {}

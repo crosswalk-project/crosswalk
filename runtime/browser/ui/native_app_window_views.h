@@ -55,6 +55,9 @@ class NativeAppWindowViews : public NativeAppWindow,
   views::Widget* GetWidget() override;
   const views::Widget* GetWidget() const override;
 
+  bool PlatformHandleContextMenu(
+    const content::ContextMenuParams& params) override;
+
  protected:
   TopViewLayout* top_view_layout();
   const NativeAppWindow::CreateParams& create_params() const {

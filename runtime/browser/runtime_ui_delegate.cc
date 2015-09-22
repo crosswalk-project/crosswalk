@@ -129,4 +129,9 @@ blink::WebDisplayMode DefaultRuntimeUIDelegate::GetDisplayMode() const {
   return window_params_.display_mode;
 }
 
+bool DefaultRuntimeUIDelegate::HandleContextMenu(
+    const content::ContextMenuParams& params) {
+  return window_ ? window_->PlatformHandleContextMenu(params) : false;
+}
+
 }  // namespace xwalk

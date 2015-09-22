@@ -33,6 +33,7 @@ class RuntimeUIDelegate {
       const content::DownloadTargetCallback& callback,
       const base::FilePath& suggested_path) = 0;
   virtual blink::WebDisplayMode GetDisplayMode() const = 0;
+  virtual bool HandleContextMenu(const content::ContextMenuParams& params) = 0;
 };
 
 // The default implementation displays WebContents in a separate window.
@@ -58,6 +59,7 @@ class DefaultRuntimeUIDelegate : public RuntimeUIDelegate,
       const content::DownloadTargetCallback& callback,
       const base::FilePath& suggested_path) override;
   blink::WebDisplayMode GetDisplayMode() const override;
+  bool HandleContextMenu(const content::ContextMenuParams& params) override;
 
   Runtime* runtime_;
 

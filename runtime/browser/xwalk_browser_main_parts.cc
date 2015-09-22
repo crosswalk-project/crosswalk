@@ -15,6 +15,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "cc/base/switches.h"
+#include "components/devtools_http_handler/devtools_http_handler.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -30,6 +31,7 @@
 #if defined(USE_GTK_UI)
 #include "xwalk/runtime/browser/ui/gtk2_ui.h"
 #endif
+#include "xwalk/runtime/browser/devtools/xwalk_devtools_manager_delegate.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -89,7 +91,8 @@ XWalkBrowserMainParts::XWalkBrowserMainParts(
       extension_service_(NULL),
       startup_url_(url::kAboutBlankURL),
       parameters_(parameters),
-      run_default_message_loop_(true) {
+      run_default_message_loop_(true),
+      devtools_http_handler_(nullptr) {
 #if defined(OS_LINUX)
   // FIXME: We disable the setuid sandbox on Linux because we don't ship
   // the setuid binary. It is important to remember that the seccomp-bpf
@@ -105,6 +108,7 @@ XWalkBrowserMainParts::XWalkBrowserMainParts(
 }
 
 XWalkBrowserMainParts::~XWalkBrowserMainParts() {
+  DCHECK(!devtools_http_handler_);
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
@@ -201,6 +205,10 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   xwalk_runner_->PreMainMessageLoopRun();
 
+  devtools_http_handler_.reset(
+      XWalkDevToolsManagerDelegate::CreateHttpHandler(
+          xwalk_runner_->browser_context()));
+
   extension_service_ = xwalk_runner_->extension_service();
 
   if (extension_service_)
@@ -258,6 +266,7 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   xwalk_runner_->PostMainMessageLoopRun();
+  devtools_http_handler_.reset();
 }
 
 void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
