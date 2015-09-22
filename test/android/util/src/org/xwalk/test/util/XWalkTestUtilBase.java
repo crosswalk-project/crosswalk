@@ -75,8 +75,7 @@ public class XWalkTestUtilBase<T> {
     }
 
     public void loadAssetFile(String fileName) throws Exception {
-        //The content of "Data URI scheme" should be escaped when data type is "text/html".
-        String fileContent = Uri.encode(getFileContent(fileName));
+        String fileContent = getFileContent(fileName);
         loadDataSync(fileContent, "text/html", false);
     }
 
