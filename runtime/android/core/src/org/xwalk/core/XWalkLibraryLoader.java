@@ -9,13 +9,19 @@ import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.app.DownloadManager.Query;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PermissionInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import java.io.File;
 import java.lang.Thread;
+import java.util.Arrays;
 
 import junit.framework.Assert;
 
@@ -112,7 +118,8 @@ class XWalkLibraryLoader {
         public void onDownloadFailed(int status, int error);
     }
 
-    private static final String XWALK_APK_NAME = "XWalkRuntimeLib.apk";
+    private static final String DOWNLOAD_WITHOUT_NOTIFICATION =
+            "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION";
     private static final String TAG = "XWalkLib";
 
     private static AsyncTask<Void, Integer, Integer> sActiveTask;
@@ -192,6 +199,7 @@ class XWalkLibraryLoader {
      * @param listener The {@link DownloadListener} to use
      * @param context The context to get DownloadManager
      * @param url The URL of the Crosswalk runtime
+     * @param savedFile The name of the saved file
      */
     public static void startDownload(DownloadListener listener, Context context, String url) {
         new DownloadTask(listener, context, url).execute();
@@ -237,9 +245,6 @@ class XWalkLibraryLoader {
                 return 1;
             }
 
-            if (!isCancelled() && !XWalkLibraryDecompressor.loadDecompressedLibrary(mContext)) {
-                return 2;
-            }
             return 0;
         }
 
@@ -306,6 +311,7 @@ class XWalkLibraryLoader {
         private static final int MAX_PAUSED_COUNT = 6000; // 10 minutes
 
         private DownloadListener mListener;
+        private Context mContext;
         private String mDownloadUrl;
         private DownloadManager mDownloadManager;
         private long mDownloadId;
@@ -313,6 +319,7 @@ class XWalkLibraryLoader {
         DownloadTask(DownloadListener listener, Context context, String url) {
             super();
             mListener = listener;
+            mContext = context;
             mDownloadUrl = url;
             mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         }
@@ -322,9 +329,27 @@ class XWalkLibraryLoader {
             Log.d(TAG, "DownloadTask started, " + mDownloadUrl);
             sActiveTask = this;
 
+            String savedFile = mDownloadUrl.substring(mDownloadUrl.lastIndexOf('/') + 1);
+            File downloadDir = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+            File downloadFile = new File(downloadDir, savedFile);
+            if (downloadFile.isFile()) downloadFile.delete();
+
+            boolean silent = false;
+            try {
+                PackageManager packageManager = mContext.getPackageManager();
+                PackageInfo packageInfo = packageManager.getPackageInfo(
+                        mContext.getPackageName(), PackageManager.GET_PERMISSIONS);
+                silent = Arrays.asList(packageInfo.requestedPermissions).contains(
+                        DOWNLOAD_WITHOUT_NOTIFICATION);
+            } catch (NameNotFoundException | NullPointerException e) {
+            }
+
             Request request = new Request(Uri.parse(mDownloadUrl));
-            request.setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_DOWNLOADS, XWALK_APK_NAME);
+            request.setDestinationInExternalFilesDir(
+                    mContext, Environment.DIRECTORY_DOWNLOADS, savedFile);
+            if (silent) {
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+            }
             mDownloadId = mDownloadManager.enqueue(request);
 
             mListener.onDownloadStarted();

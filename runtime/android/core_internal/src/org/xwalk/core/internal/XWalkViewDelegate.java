@@ -5,6 +5,9 @@
 package org.xwalk.core.internal;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources.NotFoundException;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import junit.framework.Assert;
@@ -41,6 +45,8 @@ class XWalkViewDelegate {
     private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
 
+    private static final String PRIVATE_LIB_DIR = "xwalkcorelib";
+
     // TODO(rakuco,lincsoon): This list is also in generate_xwalk_core_library.py.
     // We should remove it from one of the places to avoid duplication.
     private static final String[] MANDATORY_PAKS = {
@@ -53,7 +59,7 @@ class XWalkViewDelegate {
     };
 
     private static final String[] MANDATORY_LIBRARIES = {
-        "xwalkcore"
+        "xwalkcore",
     };
     private static final String TAG = "XWalkViewDelegate";
     private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
@@ -90,41 +96,33 @@ class XWalkViewDelegate {
         }
     }
 
-    public static void init(Context bridgeContext, Context context) {
-        loadXWalkLibrary(bridgeContext);
+    public static void init(Context libContext, Context appContext) {
+        if (!loadXWalkLibrary(libContext, null)) Assert.fail();
 
         try {
-            if (bridgeContext == null) {
-                init(context);
+            if (libContext == null) {
+                init(appContext);
             } else {
-                init(new MixedContext(bridgeContext, context));
+                init(new MixedContext(libContext, appContext));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
-        if (sLibraryLoaded) return;
+    // If context is null, it's running in embedded mode, otherwise in shared mode.
+    public static boolean loadXWalkLibrary(Context context, String libDir)
+            throws UnsatisfiedLinkError {
+        if (sLibraryLoaded) return true;
 
-        // If context is null, it's running in embedded mode, otherwise in shared mode.
-        // Only load the native library from /data/data if in shared mode and the Android version
-        // is lower than 4.2. Android enables a system path /data/app-lib to store native
-        // libraries starting from 4.2 and load them automatically.
-        try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null) {
-                String path = "/data/data/" + context.getPackageName() + "/lib/";
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.load(path + "lib" + library + ".so");
-                }
-            } else {
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.loadLibrary(library);
-                }
+        if (libDir != null) {
+            for (String library : MANDATORY_LIBRARIES) {
+                System.load(libDir + File.separator + "lib" + library + ".so");
             }
-        } catch (UnsatisfiedLinkError e) {
-            // The libxwalkcore.so doesn't exist in default directory if it's decompressed. In this
-            // case, it will be loaded through org.xwalk.core.XWalkLibraryDecompressor.
+        } else {
+            for (String library : MANDATORY_LIBRARIES) {
+                System.loadLibrary(library);
+            }
         }
 
         // Load libraries what is wrote in NativeLibraries.java at compile time. It may duplicate
@@ -135,10 +133,10 @@ class XWalkViewDelegate {
         } catch (ProcessInitException e) {
         }
 
-        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
-            throw new UnsatisfiedLinkError();
-        }
+        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) return false;
+
         sLibraryLoaded = true;
+        return true;
     }
 
     private static void init(final Context context) throws IOException {
@@ -214,19 +212,15 @@ class XWalkViewDelegate {
                 !isSharedMode && Arrays.asList(context.getAssets().list("")).contains(XWALK_PAK_NAME);
 
         HashMap<String, ResourceEntry> resourceList = new HashMap<String, ResourceEntry>();
-        if (isSharedMode || isTestApk) {
-            for (String resource : MANDATORY_PAKS) {
+        try {
+            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
+            String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
+            for (String resource : crosswalkResources) {
                 resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
-        } else {
-            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
-            try {
-                final String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
-                for (String resource : crosswalkResources) {
-                    resourceList.put(resource, new ResourceEntry(0, "", resource));
-                }
-            } catch (NotFoundException e) {
-                Assert.fail("R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+        } catch (NotFoundException e) {
+            for (String resource : MANDATORY_PAKS) {
+                resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
         }
         ResourceExtractor.setResourcesToExtract(
@@ -257,7 +251,14 @@ class XWalkViewDelegate {
                     try {
                         return context.getResources().openRawResource(resourceId);
                     } catch (NotFoundException e) {
-                        Assert.fail("R.raw." + resourceName + " can't be found.");
+                        try {
+                            String resDir = context.getApplicationContext().getDir(
+                                PRIVATE_LIB_DIR, Context.MODE_PRIVATE).toString();
+                            File file = new File(resDir, resource);
+                            return new FileInputStream(file);
+                        } catch (FileNotFoundException ex) {
+                            Assert.fail("R.raw." + resourceName + " can't be found.");
+                        }
                     }
                 }
                 return null;

@@ -140,7 +140,6 @@
       'dependencies': [
         'xwalk_core_reflection_layer_java_gen',
         'xwalk_app_strings',
-        '../content/content.gyp:content_java',
         'third_party/lzma_sdk/lzma_sdk_android.gyp:lzma_sdk_java',
       ],
       'variables': {
