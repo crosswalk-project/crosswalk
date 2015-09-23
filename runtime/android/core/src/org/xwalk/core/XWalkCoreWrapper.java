@@ -151,7 +151,19 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
-            sProvisionalInstance.findSharedCore();
+            int status = sProvisionalInstance.mCoreStatus;
+
+            if (sProvisionalInstance.findExpansionCore()) {
+                return sProvisionalInstance.mCoreStatus;
+            }
+
+            if (!sProvisionalInstance.findSharedCore()) {
+                if (sProvisionalInstance.mCoreStatus != XWalkLibraryInterface.STATUS_NOT_FOUND) {
+                    status = sProvisionalInstance.mCoreStatus;
+                }
+                Log.d(TAG, "core status: " + status);
+                return status;
+            }
         }
         return sProvisionalInstance.mCoreStatus;
     }
@@ -202,7 +214,7 @@ class XWalkCoreWrapper {
     }
 
     private void initXWalkView() {
-        Log.d(TAG, "Init xwalk view");
+        Log.d(TAG, "Init xwalk view, bridge " + mBridgeContext + " wrapper " + mWrapperContext);
         Class<?> clazz = getBridgeClass("XWalkViewDelegate");
         ReflectMethod method = new ReflectMethod(clazz, "init", Context.class, Context.class);
         method.invoke(mBridgeContext, mWrapperContext);
@@ -218,6 +230,25 @@ class XWalkCoreWrapper {
         }
 
         Log.d(TAG, "Running in embedded mode");
+        mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
+        return true;
+    }
+
+    private boolean findExpansionCore() {
+        mBridgeContext = new XWalkExpansionContext(mWrapperContext);
+        mBridgeLoader = mBridgeContext.getClassLoader();
+        if (mBridgeLoader == null) {
+            mBridgeContext = null;
+            return false;
+        }
+
+        if (!checkCoreVersion() || !checkCoreArchitecture()) {
+            mBridgeContext = null;
+            mBridgeLoader = null;
+            return false;
+        }
+
+        Log.d(TAG, "Running in expansion mode");
         mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
         return true;
     }
@@ -300,6 +331,7 @@ class XWalkCoreWrapper {
             }
         } catch (RuntimeException e) {
             Log.d(TAG, e.getLocalizedMessage());
+            e.printStackTrace();
             mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
             return false;
         }

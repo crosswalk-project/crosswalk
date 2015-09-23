@@ -96,8 +96,10 @@ class XWalkViewDelegate {
 
         try {
             if (libContext == null) {
-                init(appContext);
+                Log.d(TAG, "Initializing plain context");
+                init(libContext);
             } else {
+                Log.d(TAG, "Initializing mixed context");
                 init(new MixedContext(libContext, appContext));
             }
         } catch (IOException e) {
@@ -197,7 +199,10 @@ class XWalkViewDelegate {
      */
     private static void setupResourceInterceptor(final Context context) throws IOException {
         final boolean isSharedMode =
-                !context.getPackageName().equals(context.getApplicationContext().getPackageName());
+                !context.getPackageName().equals(context.getApplicationContext().getPackageName()) ||
+                context.getClass() == MixedContext.class;
+
+        Log.d(TAG, "setupResourceInterceptor class: " + context.getClass().getName());
 
         // The test APKs (XWalkCoreShell, XWalkCoreInternalShell etc) are different from normal
         // Crosswalk apps: even though they use Crosswalk in embedded mode, the resources are stored
