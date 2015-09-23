@@ -5,6 +5,7 @@
 package org.xwalk.core.internal;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -90,41 +91,33 @@ class XWalkViewDelegate {
         }
     }
 
-    public static void init(Context bridgeContext, Context context) {
-        loadXWalkLibrary(bridgeContext);
+    public static void init(Context libContext, Context appContext) {
+        if (!loadXWalkLibrary(libContext, null)) Assert.fail();
 
         try {
-            if (bridgeContext == null) {
-                init(context);
+            if (libContext == null) {
+                init(appContext);
             } else {
-                init(new MixedContext(bridgeContext, context));
+                init(new MixedContext(libContext, appContext));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void loadXWalkLibrary(Context context) throws UnsatisfiedLinkError {
-        if (sLibraryLoaded) return;
+    // If context is null, it's running in embedded mode, otherwise in shared mode.
+    public static boolean loadXWalkLibrary(Context context, String libDir)
+            throws UnsatisfiedLinkError {
+        if (sLibraryLoaded) return true;
 
-        // If context is null, it's running in embedded mode, otherwise in shared mode.
-        // Only load the native library from /data/data if in shared mode and the Android version
-        // is lower than 4.2. Android enables a system path /data/app-lib to store native
-        // libraries starting from 4.2 and load them automatically.
-        try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && context != null) {
-                String path = "/data/data/" + context.getPackageName() + "/lib/";
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.load(path + "lib" + library + ".so");
-                }
-            } else {
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.loadLibrary(library);
-                }
+        if (libDir != null) {
+            for (String library : MANDATORY_LIBRARIES) {
+                System.load(libDir + File.separator + "lib" + library + ".so");
             }
-        } catch (UnsatisfiedLinkError e) {
-            // The libxwalkcore.so doesn't exist in default directory if it's decompressed. In this
-            // case, it will be loaded through org.xwalk.core.XWalkLibraryDecompressor.
+        } else {
+            for (String library : MANDATORY_LIBRARIES) {
+                System.loadLibrary(library);
+            }
         }
 
         // Load libraries what is wrote in NativeLibraries.java at compile time. It may duplicate
@@ -135,10 +128,10 @@ class XWalkViewDelegate {
         } catch (ProcessInitException e) {
         }
 
-        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
-            throw new UnsatisfiedLinkError();
-        }
+        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) return false;
+
         sLibraryLoaded = true;
+        return true;
     }
 
     private static void init(final Context context) throws IOException {

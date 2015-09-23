@@ -231,15 +231,10 @@ class XWalkLibraryLoader {
 
         @Override
         protected Integer doInBackground(Void... params) {
-            if (!mIsCompressed) return 0;
+            if (!mIsCompressed || mIsDecompressed) return 0;
 
-            if (!mIsDecompressed && !XWalkLibraryDecompressor.decompressLibrary(mContext)) {
-                return 1;
-            }
+            if (!XWalkLibraryDecompressor.decompressLibrary(mContext)) return 1;
 
-            if (!isCancelled() && !XWalkLibraryDecompressor.loadDecompressedLibrary(mContext)) {
-                return 2;
-            }
             return 0;
         }
 

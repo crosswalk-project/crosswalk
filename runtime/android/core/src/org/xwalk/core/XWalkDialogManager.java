@@ -67,17 +67,6 @@ class XWalkDialogManager {
                     R.string.startup_not_found_message)));
             setPositiveButton(dialog, downloadText, downloadCommand);
             setNegativeButton(dialog, cancelText, cancelCommand);
-        } else if (status == XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH) {
-            dialog.setTitle(mContext.getString(R.string.startup_architecture_mismatch_title));
-            dialog.setMessage(replaceApplicationName(mContext.getString(
-                    R.string.startup_architecture_mismatch_message)));
-            setPositiveButton(dialog, downloadText, downloadCommand);
-            setNegativeButton(dialog, cancelText, cancelCommand);
-        } else if (status == XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR) {
-            dialog.setTitle(mContext.getString(R.string.startup_signature_check_error_title));
-            dialog.setMessage(replaceApplicationName(mContext.getString(
-                    R.string.startup_signature_check_error_message)));
-            setNegativeButton(dialog, cancelText, cancelCommand);
         } else if (status == XWalkLibraryInterface.STATUS_OLDER_VERSION) {
             dialog.setTitle(mContext.getString(R.string.startup_older_version_title));
             dialog.setMessage(replaceApplicationName(mContext.getString(
@@ -89,8 +78,24 @@ class XWalkDialogManager {
             dialog.setMessage(replaceApplicationName(mContext.getString(
                     R.string.startup_newer_version_message)));
             setNegativeButton(dialog, cancelText, cancelCommand);
+        } else if (status == XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY) {
+            dialog.setTitle(mContext.getString(R.string.startup_incomplete_library_title));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_incomplete_library_message)));
+            setNegativeButton(dialog, cancelText, cancelCommand);
+        } else if (status == XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH) {
+            dialog.setTitle(mContext.getString(R.string.startup_architecture_mismatch_title));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_architecture_mismatch_message)));
+            setPositiveButton(dialog, downloadText, downloadCommand);
+            setNegativeButton(dialog, cancelText, cancelCommand);
+        } else if (status == XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR) {
+            dialog.setTitle(mContext.getString(R.string.startup_signature_check_error_title));
+            dialog.setMessage(replaceApplicationName(mContext.getString(
+                    R.string.startup_signature_check_error_message)));
+            setNegativeButton(dialog, cancelText, cancelCommand);
         } else {
-            Assert.fail();
+            Assert.fail("Invalid status for alert dialog " + status);
         }
         showDialog(dialog);
     }
