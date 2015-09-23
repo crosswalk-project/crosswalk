@@ -6,30 +6,47 @@ package org.xwalk.core;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
+import junit.framework.Assert;
 
 import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
 
 /**
  * <p><code>XWalkUpdater</code> is a follow-up solution for {@link XWalkInitializer} in case the
- * initialization has failed. The users of {@link XWalkActivity} don't need to use this class.</p>
+ * initialization failed. The users of {@link XWalkActivity} don't need to use this class.</p>
  *
- * <p><code>XWalkUpdater</code> helps to donwload the Crosswalk runtime and displays dialogs to
+ * <p><code>XWalkUpdater</code> helps to download the Crosswalk runtime and displays dialogs to
  * interact with the user. By default, it will navigate to the Crosswalk runtime's page on the
  * default application store, subsequent process will be up to the user. If the developer specified
  * the download URL of the Crosswalk runtime, it will launch the download manager to fetch the APK.
- * To specify the download URL, insert a meta-data element with the name "xwalk_apk_url" inside the
- * application tag in the Android manifest.
+ * To specify the download URL, insert a meta-data element named "xwalk_apk_url" inside the
+ * application tag in the Android manifest.</p>
  *
  * <pre>
- * &lt;application android:name="org.xwalk.core.XWalkApplication"&gt;
+ * &lt;application&gt;
  *     &lt;meta-data android:name="xwalk_apk_url" android:value="http://host/XWalkRuntimeLib.apk" /&gt;
+ * &lt;/application&gt;
  * </pre>
  *
  * <p>After the proper Crosswalk runtime is downloaded and installed, the user will return to
@@ -50,9 +67,9 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *     protected void onResume() {
  *         super.onResume();
  *
- *         // Try to initialize again when the user completed updating and returned to current
+ *         // Try to initialize again when the user completed update and returned to current
  *         // activity. The initAsync() will do nothing if the initialization has already been
- *         // completed successfully.
+ *         // completed successfully or previous update dialog is still being displayed.
  *         mXWalkInitializer.initAsync();
  *     }
  *
@@ -66,7 +83,8 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *
  *     &#64;Override
  *     public void onXWalkUpdateCancelled() {
- *         // Perform error handling here
+ *         // The user clicked the "Cancel" button during download.
+ *         // Perform error handling here.
  *     }
  * }
  * </pre>
@@ -79,6 +97,61 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  * &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /&gt;
  * &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
  * &lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+ * </pre>
+ *
+ * <p>There is an experimental way to update the Crosswalk runtime. All of the download process are
+ * executed in background silently without interrupting the user.</p>
+ *
+ * <p>For example:</p>
+ *
+ * <pre>
+ * public class MyActivity extends Activity
+ *         implements XWalkInitializer.XWalkInitListener, XWalkUpdater.XWalkSilentUpdateListener {
+ *     XWalkUpdater mXWalkUpdater;
+ *
+ *     ......
+ *
+ *     &#64;Override
+ *     protected void onResume() {
+ *         super.onResume();
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitFailed() {
+ *         if (mXWalkUpdater == null) mXWalkUpdater = new mXWalkUpdater(this, this);
+ *         mXWalkUpdater.updateXWalkLibrary();
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkUpdateStarted() {
+ *         // Download started in background
+ *         // Nothing particular to do here.
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkUpdateCancelled() {
+ *         // Background download is cancelled by invoking cancelSilentDownload().
+ *         // Perform error handling here
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkUpdateFailed() {
+ *         // Background download failed.
+ *         // Perform error handling here
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkUpdateCompleted() {
+ *         // Try to initialize again when the Crosswalk libraries are ready.
+ *         mXWalkInitializer.initAsync();
+ *     }
+ * }
+ * </pre>
+ *
+ * <p>If you grant following permission further, the download doesn't show in the notifications.</p>
+ *
+ * <pre>
+ * &lt;uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" /&gt;
  * </pre>
  */
 
@@ -94,15 +167,59 @@ public class XWalkUpdater {
         public void onXWalkUpdateCancelled();
     }
 
+    /**
+     * Interface used to update the Crosswalk runtime silently
+     */
+    public interface XWalkSilentUpdateListener {
+        /**
+         * Run on the UI thread to notify the update is started.
+         */
+        public void onXWalkUpdateStarted();
+
+        /**
+         * Run on the UI thread to notify the update is cancelled.
+         */
+        public void onXWalkUpdateCancelled();
+
+        /**
+         * Run on the UI thread to notify the update failed.
+         */
+        public void onXWalkUpdateFailed();
+
+        /**
+         * Run on the UI thread to notify the update is completed.
+         */
+        public void onXWalkUpdateCompleted();
+    }
+
     private static final String XWALK_APK_MARKET_URL = "market://details?id=org.xwalk.core";
-    private static final String TAG = "XWalkActivity";
+
+    private static final String META_XWALK_LIB_URL = "xwalk_lib_url";
+    private static final String META_XWALK_APK_URL = "xwalk_apk_url";
+
+    private static final String XWALK_LIB_DIR =
+            Environment.getExternalStorageDirectory().getAbsolutePath()
+            + File.separator + "XWalkRuntimeLib";
+
+    private static final String[] XWALK_LIB_RESOURCES = {
+        "libxwalkcore.so",
+        "icudtl.dat",
+        "xwalk.pak",
+    };
+
+    private static final String TAG = "XWalkLib";
+
+    private static final int STREAM_BUFFER_SIZE = 0x1000;
 
     private XWalkUpdateListener mUpdateListener;
+    private XWalkSilentUpdateListener mSilentUpdateListener;
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
     private Runnable mDownloadCommand;
     private Runnable mCancelCommand;
     private String mXWalkApkUrl;
+    private String mXWalkLibUrl;
+    private boolean mIsDownloading;
 
     /**
      * Create XWalkUpdater for single activity
@@ -111,28 +228,28 @@ public class XWalkUpdater {
      * @param activity The activity which initiate the update
      */
     public XWalkUpdater(XWalkUpdateListener listener, Activity activity) {
-        this(listener, activity, new XWalkDialogManager(activity));
+        mUpdateListener = listener;
+        mActivity = activity;
+        mDialogManager = new XWalkDialogManager(activity);
     }
 
+    // This constructor is for XWalkActivityDelegate
     XWalkUpdater(XWalkUpdateListener listener, Activity activity,
             XWalkDialogManager dialogManager) {
         mUpdateListener = listener;
         mActivity = activity;
         mDialogManager = dialogManager;
+    }
 
-        mDownloadCommand = new Runnable() {
-            @Override
-            public void run() {
-                downloadXWalkApk();
-            }
-        };
-        mCancelCommand = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "XWalkUpdater cancelled");
-                mUpdateListener.onXWalkUpdateCancelled();
-            }
-        };
+    /**
+     * Create XWalkUpdater for single activity. This updater will download silently.
+     *
+     * @param listener The {@link XWalkSilentUpdateListener} to use
+     * @param activity The activity which initiate the update
+     */
+    public XWalkUpdater(XWalkSilentUpdateListener listener, Activity activity) {
+        mSilentUpdateListener = listener;
+        mActivity = activity;
     }
 
     /**
@@ -148,14 +265,36 @@ public class XWalkUpdater {
      *         doesn't need to be updated, or the Crosswalk runtime has not been initialized yet.
      */
     public boolean updateXWalkRuntime() {
-        if (mDialogManager.isShowingDialog()) return false;
+        if (mIsDownloading || (mDialogManager != null && mDialogManager.isShowingDialog())) {
+            return false;
+        }
 
         int status = XWalkLibraryLoader.getLibraryStatus();
         if (status == XWalkLibraryInterface.STATUS_PENDING ||
                 status == XWalkLibraryInterface.STATUS_MATCH) return false;
 
-        Log.d(TAG, "Update the Crosswalk runtime with status " + status);
-        mDialogManager.showInitializationError(status, mCancelCommand, mDownloadCommand);
+        if (mUpdateListener != null) {
+            mDownloadCommand = new Runnable() {
+                @Override
+                public void run() {
+                    downloadXWalkApk();
+                }
+            };
+            mCancelCommand = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "XWalkUpdater cancelled");
+                    mUpdateListener.onXWalkUpdateCancelled();
+                }
+            };
+
+            mDialogManager.showInitializationError(status, mCancelCommand, mDownloadCommand);
+        } else if (mSilentUpdateListener != null) {
+            downloadXWalkApkSilently();
+        } else {
+            Assert.fail();
+        }
+
         return true;
     }
 
@@ -165,7 +304,7 @@ public class XWalkUpdater {
      * @return Return false if no dialog is being displayed, true if dismissed the showing dialog.
      */
     public boolean dismissDialog() {
-        if (!mDialogManager.isShowingDialog()) return false;
+        if (mDialogManager == null || !mDialogManager.isShowingDialog()) return false;
         mDialogManager.dismissDialog();
         return true;
     }
@@ -180,10 +319,28 @@ public class XWalkUpdater {
         mXWalkApkUrl = url;
     }
 
+    /**
+     * Cancel the silent download
+     *
+     * @param Return false if it is not a silent updater or is not downloading, true otherwise.
+     */
+    public boolean cancelSilentDownload() {
+        if (mSilentUpdateListener == null || !mIsDownloading) return false;
+        return XWalkLibraryLoader.cancelDownload();
+    }
+
     private void downloadXWalkApk() {
-        String downloadUrl = getXWalkApkUrl();
-        if (!downloadUrl.isEmpty()) {
-            XWalkLibraryLoader.startDownload(new XWalkLibraryListener(), mActivity, downloadUrl);
+        // The download url is defined by the meta-data element with the name "xwalk_apk_url"
+        // inside the application tag in the Android manifest. It can also be specified via
+        // the option --xwalk-apk-url of the script make_apk.
+        if (mXWalkApkUrl == null) {
+            mXWalkApkUrl = getAppMetaData(META_XWALK_APK_URL);
+            if (mXWalkApkUrl == null) mXWalkApkUrl = "";
+            Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
+        }
+
+        if (!mXWalkApkUrl.isEmpty()) {
+            XWalkLibraryLoader.startDownload(new ForegroundListener(), mActivity, mXWalkApkUrl);
             return;
         }
 
@@ -199,26 +356,38 @@ public class XWalkUpdater {
         }
     }
 
-    private String getXWalkApkUrl() {
-        if (mXWalkApkUrl != null) return mXWalkApkUrl;
+    private void downloadXWalkApkSilently() {
+        File dir = new File(XWALK_LIB_DIR);
+        if (dir.isDirectory()) {
+            if (checkLibResources()) {
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        if (!copyNativeLibraries()) Assert.fail();
+                        return null;
+                    }
 
-        // The download url is defined by the meta-data element with the name "xwalk_apk_url"
-        // inside the application tag in the Android manifest. It can also be specified via
-        // the option --xwalk-apk-url of the script make_apk.
-        try {
-            PackageManager packageManager = mActivity.getPackageManager();
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(
-                    mActivity.getPackageName(), PackageManager.GET_META_DATA);
-            mXWalkApkUrl = appInfo.metaData.getString("xwalk_apk_url");
-        } catch (NameNotFoundException | NullPointerException e) {
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        mSilentUpdateListener.onXWalkUpdateCompleted();
+                    }
+                }.execute();
+                return;
+            }
+        } else {
+            dir.mkdir();
         }
 
-        if (mXWalkApkUrl == null) mXWalkApkUrl = "";
-        Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
-        return mXWalkApkUrl;
+        if (mXWalkLibUrl == null) {
+            mXWalkLibUrl = getAppMetaData(META_XWALK_LIB_URL);
+            Assert.assertNotNull(mXWalkLibUrl);
+            Log.d(TAG, "Crosswalk lib download URL: " + mXWalkLibUrl);
+        }
+
+        XWalkLibraryLoader.startDownload(new BackgroundListener(), mActivity, mXWalkLibUrl);
     }
 
-    private class XWalkLibraryListener implements DownloadListener {
+    private class ForegroundListener implements DownloadListener {
         @Override
         public void onDownloadStarted() {
             mDialogManager.showDownloadProgress(new Runnable() {
@@ -240,6 +409,12 @@ public class XWalkUpdater {
         }
 
         @Override
+        public void onDownloadFailed(int status, int error) {
+            mDialogManager.dismissDialog();
+            mDialogManager.showDownloadError(status, error, mCancelCommand, mDownloadCommand);
+        }
+
+        @Override
         public void onDownloadCompleted(Uri uri) {
             mDialogManager.dismissDialog();
 
@@ -248,11 +423,174 @@ public class XWalkUpdater {
             install.setDataAndType(uri, "application/vnd.android.package-archive");
             mActivity.startActivity(install);
         }
+    }
+
+    private class BackgroundListener implements DownloadListener {
+        @Override
+        public void onDownloadStarted() {
+            mIsDownloading = true;
+            mSilentUpdateListener.onXWalkUpdateStarted();
+        }
+
+        @Override
+        public void onDownloadUpdated(int percentage) {
+        }
+
+        @Override
+        public void onDownloadCancelled() {
+            mIsDownloading = false;
+            mSilentUpdateListener.onXWalkUpdateCancelled();
+        }
 
         @Override
         public void onDownloadFailed(int status, int error) {
-            mDialogManager.dismissDialog();
-            mDialogManager.showDownloadError(status, error, mCancelCommand, mDownloadCommand);
+            mIsDownloading = false;
+            mSilentUpdateListener.onXWalkUpdateFailed();
+        }
+
+        @Override
+        public void onDownloadCompleted(Uri uri) {
+            mIsDownloading = false;
+
+            final Uri downloadedUri = uri;
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    if (!extractLibResources(downloadedUri.getPath(), XWALK_LIB_DIR)) Assert.fail();
+                    if (!checkLibResources()) Assert.fail();
+                    if (!copyNativeLibraries()) Assert.fail();
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void result) {
+                    mSilentUpdateListener.onXWalkUpdateCompleted();
+                }
+            }.execute();
+        }
+    }
+
+    private String getAppMetaData(String name) {
+        try {
+            PackageManager packageManager = mActivity.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(
+                    mActivity.getPackageName(), PackageManager.GET_META_DATA);
+            return appInfo.metaData.getString(name);
+        } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return null;
+    }
+
+    private boolean extractLibResources(String libFile, String destDir) {
+        Log.d(TAG, "Extract from " + libFile);
+        ZipFile zipFile = null;
+
+        try {
+            zipFile = new ZipFile(libFile);
+            Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+
+            while (zipEntries.hasMoreElements()) {
+                ZipEntry entry = zipEntries.nextElement();
+                Log.d(TAG, "Extract " + entry.getName());
+                saveStreamToFile(zipFile.getInputStream(entry), new File(destDir, entry.getName()));
+            }
+
+        } catch (IOException e) {
+            Log.d(TAG, e.getLocalizedMessage());
+            return false;
+        } finally {
+            try {
+                zipFile.close();
+            } catch (IOException | NullPointerException e) {
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkLibResources() {
+        for (String resource : XWALK_LIB_RESOURCES) {
+            File file = new File(XWALK_LIB_DIR, resource);
+            if (!file.isFile()) {
+                Log.d(TAG, file.getAbsolutePath() + " doesn't exist");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean copyNativeLibraries() {
+        String libDir = mActivity.getDir(
+                XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
+                Context.MODE_PRIVATE).getAbsolutePath();
+
+        for (String resource : XWALK_LIB_RESOURCES) {
+            if (isNativeLibrary(resource)) {
+                try {
+                    copyFile(new File(XWALK_LIB_DIR, resource), new File(libDir, resource));
+                } catch (IOException e) {
+                    Log.d(TAG, e.getLocalizedMessage());
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isNativeLibrary(String name) {
+        int index = name.lastIndexOf('.');
+        return index > 0 && name.substring(index + 1).equals("so");
+    }
+
+    private void copyFile(File src, File dest) throws IOException {
+        Log.d(TAG, "Copy from " + src.getAbsolutePath());
+        saveStreamToFile(new FileInputStream(src), dest);
+    }
+
+    private void saveStreamToFile(InputStream input, File file) throws IOException {
+        Log.d(TAG, "Save to " + file.getAbsolutePath());
+        IOException outputException = null;
+
+        try {
+            // If the input stream is already closed, this method will throw an IOException so that
+            // we don't create an unused output stream.
+            input.available();
+
+            FileOutputStream output = new FileOutputStream(file);
+
+            try {
+                byte[] buffer = new byte[STREAM_BUFFER_SIZE];
+                for (int len = 0; (len = input.read(buffer)) >= 0;) {
+                    output.write(buffer, 0, len);
+                }
+            } catch (IOException e) {
+                outputException = e;
+            }
+
+            try {
+                output.flush();
+            } catch (IOException e) {
+                if (outputException == null) outputException = e;
+            }
+
+            try {
+                output.close();
+            } catch (IOException e) {
+                if (outputException == null) outputException = e;
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+            }
+        }
+
+        if (outputException != null) {
+            if (file.isFile()) file.delete();
+            throw outputException;
         }
     }
 }
