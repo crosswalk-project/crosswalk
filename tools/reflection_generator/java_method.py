@@ -462,7 +462,8 @@ class Method(object):
       return '%sMethod' % name
 
   def GenerateBridgeConstructor(self):
-    template = Template("""\
+    if (self._bridge_params_declare != ''):
+      template = Template("""\
     public ${NAME}(${PARAMS}, Object wrapper) {
         super(${PARAMS_PASSING});
 
@@ -470,11 +471,25 @@ class Method(object):
         reflectionInit();
     }
 
-""")
-    value = {'NAME': self._class_java_data.bridge_name,
-             'PARAMS': self._bridge_params_declare,
-             'PARAMS_PASSING': self._bridge_params_pass_to_super}
-    return template.substitute(value)
+    """)
+      value = {'NAME': self._class_java_data.bridge_name,
+               'PARAMS': self._bridge_params_declare,
+               'PARAMS_PASSING': self._bridge_params_pass_to_super}
+      return template.substitute(value)
+    else:
+      template = Template("""\
+    public ${NAME}(Object wrapper) {
+        super();
+
+        this.wrapper = wrapper;
+        reflectionInit();
+    }
+
+    """)
+      value = {'NAME': self._class_java_data.bridge_name,
+               'PARAMS': self._bridge_params_declare,
+               'PARAMS_PASSING': self._bridge_params_pass_to_super}
+      return template.substitute(value)
 
   def GenerateBridgeStaticMethod(self):
     template = Template("""\
@@ -665,8 +680,9 @@ ${PRE_WRAP_LINES}
     pre_wrap_string += "\n"
     pre_wrap_string += "        constructorParams = new ArrayList<Object>();\n"
     for param_name in self._wrapper_params_pass_to_bridge.split(', '):
-      param_name = param_name.replace('.getBridge()', '')
-      pre_wrap_string += "        constructorParams.add(%s);\n" % param_name
+      if (param_name != ''):
+        param_name = param_name.replace('.getBridge()', '')
+        pre_wrap_string += "        constructorParams.add(%s);\n" % param_name
 
     if (post_wrap_string != ''):
       pre_wrap_string += ("""

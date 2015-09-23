@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
@@ -43,6 +44,8 @@ import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
 import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType;
 import org.chromium.content.browser.ContentViewStatics;
+import org.chromium.content.browser.ContentReadbackHandler;
+import org.chromium.content.browser.ContentReadbackHandler.GetBitmapCallback;
 import org.chromium.content.common.CleanupReference;
 import org.chromium.content_public.browser.JavaScriptCallback;
 import org.chromium.content_public.browser.LoadUrlParams;
@@ -80,6 +83,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private WebContents mWebContents;
     private boolean mIsLoaded = false;
     private XWalkAutofillClient mXWalkAutofillClient;
+    private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
+    private ContentReadbackHandler mContentReadbackHandler;
+    private GetBitmapCallback mGetBitmapCallback;
 
     long mNativeContent;
     long mNativeWebContents;
@@ -129,6 +135,25 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         setNativeContent(nativeInit());
 
         XWalkPreferencesInternal.load(this);
+        initCaptureBitmapAsync();
+    }
+
+    private void initCaptureBitmapAsync() {
+        mContentReadbackHandler = mContentViewRenderView.getContentReadbackHandler();
+        mGetBitmapCallback = new GetBitmapCallback() {
+            @Override
+            public void onFinishGetBitmap(Bitmap bitmap, int response) {
+                if (mXWalkGetBitmapCallbackInternal == null) return;
+                mXWalkGetBitmapCallbackInternal.onFinishGetBitmap(bitmap, response);
+            }
+        };
+    }
+
+    public void captureBitmapAsync(XWalkGetBitmapCallbackInternal callback) {
+        if (mContentReadbackHandler == null) return;
+        mXWalkGetBitmapCallbackInternal = callback;
+        mContentReadbackHandler.getContentBitmapAsync(1.0f, new Rect(), mContentViewCore,
+            Bitmap.Config.ARGB_8888, mGetBitmapCallback);
     }
 
     private void setNativeContent(long newNativeContent) {
