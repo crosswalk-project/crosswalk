@@ -12,8 +12,8 @@ import org.chromium.base.annotations.JNINamespace;
  * @hide
  */
 @JNINamespace("xwalk")
-@XWalkAPI(createExternally = true)
-public class XWalkHttpAuthHandlerInternal {
+@XWalkAPI(impl = XWalkHttpAuthInternal.class, createInternally = true)
+public class XWalkHttpAuthHandlerInternal implements XWalkHttpAuthInternal {
 
     private long mNativeXWalkHttpAuthHandler;
     private final boolean mFirstAttempt;
@@ -43,10 +43,16 @@ public class XWalkHttpAuthHandlerInternal {
         return new XWalkHttpAuthHandlerInternal(nativeXWalkAuthHandler, firstAttempt);
     }
 
-    @XWalkAPI
     public XWalkHttpAuthHandlerInternal(long nativeXWalkHttpAuthHandler, boolean firstAttempt) {
         mNativeXWalkHttpAuthHandler = nativeXWalkHttpAuthHandler;
         mFirstAttempt = firstAttempt;
+    }
+
+    // Never use this constructor.
+    // It is only used in XWalkHttpAuthHandlerBridge.
+    XWalkHttpAuthHandlerInternal() {
+        mNativeXWalkHttpAuthHandler = 0;
+        mFirstAttempt = false;
     }
 
     @CalledByNative

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.internal.xwview.test;
+package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -12,7 +12,7 @@ import org.chromium.base.test.util.Feature;
 /**
  * Tests for the OnReceivedHttpAuthRequest.
  */
-public class OnReceivedHttpAuthRequestTest extends XWalkViewInternalTestBase {
+public class OnReceivedHttpAuthRequestTest extends XWalkViewTestBase {
     TestHelperBridge.OnReceivedHttpAuthRequestHelper mOnReceivedHttpAuthRequestHelper;
 
     @Override

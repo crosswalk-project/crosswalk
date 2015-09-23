@@ -106,12 +106,6 @@ public class XWalkViewInternalTestBase
                 XWalkWebResourceRequestInternal request) {
             return mInnerContentsClient.shouldInterceptLoadRequest(request.getUrl().toString());
         }
-
-        @Override
-        public void onReceivedHttpAuthRequest(XWalkViewInternal view,
-                XWalkHttpAuthHandlerInternal handler, String host, String realm) {
-            mInnerContentsClient.onReceivedHttpAuthRequest(host);
-        }
     }
 
     class TestXWalkResourceClient extends TestXWalkResourceClientBase {
