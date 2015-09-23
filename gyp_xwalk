@@ -376,6 +376,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_web_video=1')
     # Disable webspeech by default
     args.append('-Ddisable_speech=1')
+    # Enable "Optimize for size, Os" compile option by default
+    args.append('-Duse_optimize_for_size_compile_option=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
