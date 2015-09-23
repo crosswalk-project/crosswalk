@@ -61,6 +61,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
       extensions::XWalkExtensionVector* extensions);
 
  protected:
+#if defined(OS_WIN)
+  void RegisterDotNetExtensions();
+#endif
   void RegisterExternalExtensions();
 
   XWalkRunner* xwalk_runner_;

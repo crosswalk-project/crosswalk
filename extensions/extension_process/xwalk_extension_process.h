@@ -57,6 +57,11 @@ class XWalkExtensionProcess : public IPC::Listener,
   void OnRegisterExtensions(const base::FilePath& extension_path,
                             const base::ListValue& browser_variables);
 
+#if defined (OS_WIN)
+  void OnRegisterDotNetExtensions(const base::FilePath& extension_path,
+                                  const base::ListValue& browser_variables);
+#endif
+
   void CreateBrowserProcessChannel(const IPC::ChannelHandle& channel_handle);
 
   void CreateRenderProcessChannel();

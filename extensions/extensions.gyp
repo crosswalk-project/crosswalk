@@ -69,6 +69,16 @@
         'renderer/xwalk_v8tools_module.cc',
         'renderer/xwalk_v8tools_module.h',
       ],
+      'conditions': [
+        ['OS=="win"', {
+          'sources': [
+              'common/win/xwalk_dotnet_extension.cc',
+              'common/win/xwalk_dotnet_extension.h',
+              'common/win/xwalk_dotnet_instance.cc',
+              'common/win/xwalk_dotnet_instance.h',
+            ],
+        }],
+      ],
     },
   ],
 }

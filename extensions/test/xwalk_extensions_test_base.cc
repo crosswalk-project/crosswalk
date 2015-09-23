@@ -58,3 +58,16 @@ base::FilePath GetExternalExtensionTestPath(
                   .Append(test);
   return extension_dir;
 }
+
+#if defined(OS_WIN)
+base::FilePath GetDotNetExtensionTestPath(
+  const base::FilePath::CharType test[]) {
+  base::FilePath extension_dir;
+  PathService::Get(base::DIR_EXE, &extension_dir);
+  extension_dir = extension_dir
+    .Append(FILE_PATH_LITERAL("tests"))
+    .Append(FILE_PATH_LITERAL("dotnet_extension"))
+    .Append(test);
+  return extension_dir;
+}
+#endif
