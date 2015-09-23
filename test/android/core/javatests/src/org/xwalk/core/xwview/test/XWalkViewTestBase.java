@@ -27,6 +27,7 @@ import org.chromium.content_public.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
+import org.chromium.ui.gfx.DeviceDisplayInfo;
 
 import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkDownloadListener;
@@ -75,7 +76,7 @@ public class XWalkViewTestBase
 
         @Override
         public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
-            mInnerContentsClient.onScaleChanged(newScale);
+            mInnerContentsClient.onScaleChanged(oldScale, newScale);
         }
 
         @Override
@@ -669,6 +670,36 @@ public class XWalkViewTestBase
             @Override
             public String call() throws Exception {
                 return mXWalkView.getUserAgentString();
+            }
+        });
+    }
+
+    protected void setInitialScale(final int scaleInPercent) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.setInitialScale(scaleInPercent);
+            }
+        });
+    }
+
+    protected double getDipScale() {
+        return DeviceDisplayInfo.create(mXWalkView.getContext()).getDIPScale();
+    }
+
+    protected float getScaleFactor() {
+        return getPixelScale() / (float) getDipScale();
+    }
+
+    public float getPixelScale() {
+        return mTestHelperBridge.getOnScaleChangedHelper().getNewScale();
+    }
+
+    protected void ensureScaleBecomes(final float targetScale) throws Throwable {
+        pollOnUiThread(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return targetScale == getScaleFactor();
             }
         });
     }
