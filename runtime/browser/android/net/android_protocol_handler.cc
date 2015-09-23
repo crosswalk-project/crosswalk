@@ -293,8 +293,8 @@ bool AssetFileRequestInterceptor::ShouldHandleRequest(
     return false;
 
   const std::string& url = request->url().spec();
-  if (!base::StartsWithASCII(url, asset_prefix_, /*case_sensitive=*/ true) &&
-      !base::StartsWithASCII(url, resource_prefix_, /*case_sensitive=*/ true)) {
+  if (!base::StartsWith(url, asset_prefix_, base::CompareCase::SENSITIVE) &&
+      !base::StartsWith(url, resource_prefix_, base::CompareCase::SENSITIVE)) {
     return false;
   }
 
