@@ -24,6 +24,7 @@ import android.view.SurfaceView;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.view.MotionEvent;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
@@ -1258,4 +1259,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public boolean performLongClickDelegate(){
         return false;
     }
+
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"return onTouchEvent(event);"})
+    public boolean onTouchEventDelegate(MotionEvent event){
+        return false;
+    }
+
+    // Usually super.onTouchEvent is called within XWalkView.onTouchEvent override
+    // This is used as our default touch event handler.
+    @Override
+    @XWalkAPI
+    public boolean onTouchEvent(MotionEvent event) {
+        return mContent.onTouchEvent(event);
+    }
+
 }
