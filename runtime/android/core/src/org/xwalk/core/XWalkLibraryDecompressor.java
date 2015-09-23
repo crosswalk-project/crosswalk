@@ -18,12 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.chromium.base.PathUtils;
-
 import SevenZip.Compression.LZMA.Decoder;
 
 class XWalkLibraryDecompressor {
-    private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
+    private static final String PRIVATE_LIB_DIR = "xwalkcore";
     private static final String[] MANDATORY_LIBRARIES = { "libxwalkcore.so" };
     private static final String TAG = "XWalkLib";
 
@@ -45,8 +43,7 @@ class XWalkLibraryDecompressor {
     }
 
     public static boolean decompressLibrary(Context context) {
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
-        String lib = PathUtils.getDataDirectory(context.getApplicationContext());
+        String lib = context.getDir(PRIVATE_LIB_DIR, Context.MODE_PRIVATE).toString();
 
         long start = System.currentTimeMillis();
         boolean success = decompress(context, lib);
@@ -55,22 +52,6 @@ class XWalkLibraryDecompressor {
 
         if (success) setLocalVersion(context, XWalkAppVersion.API_VERSION);
         return success;
-    }
-
-    public static boolean loadDecompressedLibrary(Context context) {
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
-        String lib = PathUtils.getDataDirectory(context.getApplicationContext());
-
-        try {
-            for (String library : MANDATORY_LIBRARIES) {
-                System.load(lib + "/" + library);
-            }
-        } catch (UnsatisfiedLinkError e) {
-            Log.d(TAG, "Failed to load decompressed library");
-            return false;
-        }
-
-        return true;
     }
 
     private static boolean decompress(Context context, String libDir) {

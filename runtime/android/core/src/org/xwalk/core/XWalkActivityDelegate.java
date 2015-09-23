@@ -12,13 +12,11 @@ import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
 import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
-public class XWalkActivityDelegate
-            implements DecompressListener, ActivateListener, XWalkUpdateListener {
+public class XWalkActivityDelegate implements DecompressListener, ActivateListener {
     private static final String TAG = "XWalkActivity";
 
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
-    private XWalkUpdater mXWalkUpdater;
     private Runnable mCancelCommand;
     private Runnable mCompleteCommand;
 
@@ -34,7 +32,6 @@ public class XWalkActivityDelegate
         mCompleteCommand = completeCommand;
 
         mDialogManager = new XWalkDialogManager(mActivity);
-        mXWalkUpdater = new XWalkUpdater(this, mActivity, mDialogManager);
 
         XWalkLibraryLoader.prepareToInit(mActivity);
     }
@@ -45,10 +42,6 @@ public class XWalkActivityDelegate
 
     public boolean isSharedMode() {
         return mIsXWalkReady && XWalkLibraryLoader.isSharedLibrary();
-    }
-
-    public void setXWalkApkUrl(String url) {
-        mXWalkUpdater.setXWalkApkUrl(url);
     }
 
     public void onResume() {
@@ -103,14 +96,22 @@ public class XWalkActivityDelegate
     public void onActivateFailed() {
         mIsInitializing = false;
 
-        if (mXWalkUpdater.updateXWalkRuntime()) {
-            // Set the background to screen_background_dark temporarily if the default background
-            // is null in order to avoid the visual artifacts around the alert dialog
-            Window window = mActivity.getWindow();
-            if (window != null && window.getDecorView().getBackground() == null) {
-                Log.d(TAG, "Set the background to screen_background_dark");
-                window.setBackgroundDrawableResource(android.R.drawable.screen_background_dark);
-                mBackgroundDecorated = true;
+        int status = XWalkLibraryLoader.getLibraryStatus();
+        if (status == XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY) {
+            XWalkUpdater updater = new XWalkUpdater(new BackgroundListener(), mActivity);
+            updater.updateXWalkRuntime();
+        } else {
+            XWalkUpdater updater =
+                    new XWalkUpdater(new ForegroundListener(), mActivity, mDialogManager);
+            if (updater.updateXWalkRuntime()) {
+                // Set the background to screen_background_dark temporarily if the default
+                // background is null in order to avoid the visual artifacts around the alert dialog
+                Window window = mActivity.getWindow();
+                if (window != null && window.getDecorView().getBackground() == null) {
+                    Log.d(TAG, "Set the background to screen_background_dark");
+                    window.setBackgroundDrawableResource(android.R.drawable.screen_background_dark);
+                    mBackgroundDecorated = true;
+                }
             }
         }
     }
@@ -130,8 +131,43 @@ public class XWalkActivityDelegate
         mCompleteCommand.run();
     }
 
-    @Override
-    public void onXWalkUpdateCancelled() {
-        mCancelCommand.run();
+    private class ForegroundListener implements XWalkUpdater.XWalkUpdateListener {
+        @Override
+        public void onXWalkUpdateStarted() {
+        }
+
+        @Override
+        public void onXWalkUpdateCancelled() {
+            mCancelCommand.run();
+        }
+
+        @Override
+        public void onXWalkUpdateFailed() {
+        }
+
+        @Override
+        public void onXWalkUpdateCompleted() {
+        }
+    }
+
+    private class BackgroundListener implements XWalkUpdater.XWalkUpdateListener {
+        @Override
+        public void onXWalkUpdateStarted() {
+        }
+
+        @Override
+        public void onXWalkUpdateCancelled() {
+            mCancelCommand.run();
+        }
+
+        @Override
+        public void onXWalkUpdateFailed() {
+            mCancelCommand.run();
+        }
+
+        @Override
+        public void onXWalkUpdateCompleted() {
+            XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this, mActivity);
+        }
     }
 }
