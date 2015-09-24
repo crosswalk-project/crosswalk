@@ -261,7 +261,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
           policies.begin();
       for (; it != policies.end(); ++it) {
         content_security_policy.append(
-            it->first + ' ' + JoinString(it->second, ' ') + ';');
+              it->first + ' ' + base::JoinString(it->second, ",") + ';');
       }
     }
   }
