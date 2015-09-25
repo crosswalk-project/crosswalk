@@ -44,9 +44,7 @@ class XWalkViewDelegate {
     private static boolean sLibraryLoaded = false;
     private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
-
-    private static final String XWALK_LIB_DIR = Environment.getExternalStorageDirectory().toString()
-            + File.separator + "XWalkRuntimeLib";
+    private static final String XWALK_CORE_LIB_DIR = "extracted_xwalkcore";
 
     // TODO(rakuco,lincsoon): This list is also in generate_xwalk_core_library.py.
     // We should remove it from one of the places to avoid duplication.
@@ -253,7 +251,9 @@ class XWalkViewDelegate {
                         try {
                             return context.getResources().openRawResource(resourceId);
                         } catch (NotFoundException e) {
-                            return new FileInputStream(new File(XWALK_LIB_DIR, resource));
+                            String resDir = context.getApplicationContext().getDir(
+                                    XWALK_CORE_LIB_DIR, Context.MODE_PRIVATE).toString();                        
+                            return new FileInputStream(new File(resDir, resource));
                         }
                     } catch (FileNotFoundException e) {
                         Assert.fail("R.raw." + resourceName + " can't be found.");

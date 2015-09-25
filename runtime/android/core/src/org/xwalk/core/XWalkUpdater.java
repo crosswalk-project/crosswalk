@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
@@ -194,15 +195,12 @@ public class XWalkUpdater {
 
     private static final String XWALK_APK_MARKET_URL = "market://details?id=org.xwalk.core";
 
-    private static final String META_XWALK_LIB_URL = "xwalk_lib_url";
     private static final String META_XWALK_APK_URL = "xwalk_apk_url";
-
-    private static final String XWALK_LIB_DIR =
-            Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "XWalkRuntimeLib";
+    private static final String XWALK_CORE_LIB_DIR = "extracted_xwalkcore";
 
     private static final String[] XWALK_LIB_RESOURCES = {
         "libxwalkcore.so",
+        "classes.dex",
         "icudtl.dat",
         "xwalk.pak",
     };
@@ -218,7 +216,6 @@ public class XWalkUpdater {
     private Runnable mDownloadCommand;
     private Runnable mCancelCommand;
     private String mXWalkApkUrl;
-    private String mXWalkLibUrl;
     private boolean mIsDownloading;
 
     /**
@@ -322,7 +319,7 @@ public class XWalkUpdater {
     /**
      * Cancel the silent download
      *
-     * @param Return false if it is not a silent updater or is not downloading, true otherwise.
+     * @return Return false if it is not a silent updater or is not downloading, true otherwise.
      */
     public boolean cancelSilentDownload() {
         if (mSilentUpdateListener == null || !mIsDownloading) return false;
@@ -357,34 +354,12 @@ public class XWalkUpdater {
     }
 
     private void downloadXWalkApkSilently() {
-        File dir = new File(XWALK_LIB_DIR);
-        if (dir.isDirectory()) {
-            if (checkLibResources()) {
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        if (!copyNativeLibraries()) Assert.fail();
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void result) {
-                        mSilentUpdateListener.onXWalkUpdateCompleted();
-                    }
-                }.execute();
-                return;
-            }
-        } else {
-            dir.mkdir();
+        if (mXWalkApkUrl == null) {
+            mXWalkApkUrl = getAppMetaData(META_XWALK_APK_URL);
+            Assert.assertNotNull(mXWalkApkUrl);
+            Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
         }
-
-        if (mXWalkLibUrl == null) {
-            mXWalkLibUrl = getAppMetaData(META_XWALK_LIB_URL);
-            Assert.assertNotNull(mXWalkLibUrl);
-            Log.d(TAG, "Crosswalk lib download URL: " + mXWalkLibUrl);
-        }
-
-        XWalkLibraryLoader.startDownload(new BackgroundListener(), mActivity, mXWalkLibUrl);
+        XWalkLibraryLoader.startDownload(new BackgroundListener(), mActivity, mXWalkApkUrl);
     }
 
     private class ForegroundListener implements DownloadListener {
@@ -456,9 +431,9 @@ public class XWalkUpdater {
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
-                    if (!extractLibResources(downloadedUri.getPath(), XWALK_LIB_DIR)) Assert.fail();
-                    if (!checkLibResources()) Assert.fail();
-                    if (!copyNativeLibraries()) Assert.fail();
+                    final String destDir = mActivity.getDir(XWALK_CORE_LIB_DIR,
+                            Context.MODE_PRIVATE).toString();
+                    if (!extractLibResources(downloadedUri.getPath(), destDir)) Assert.fail();
                     return null;
                 }
 
@@ -484,18 +459,25 @@ public class XWalkUpdater {
     private boolean extractLibResources(String libFile, String destDir) {
         Log.d(TAG, "Extract from " + libFile);
         ZipFile zipFile = null;
-
         try {
             zipFile = new ZipFile(libFile);
-            Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
-
-            while (zipEntries.hasMoreElements()) {
-                ZipEntry entry = zipEntries.nextElement();
-                Log.d(TAG, "Extract " + entry.getName());
-                saveStreamToFile(zipFile.getInputStream(entry), new File(destDir, entry.getName()));
+            for (String resource : XWALK_LIB_RESOURCES) {
+                String entryDir = "";
+                if (isNativeLibrary(resource)) {
+                    if(Build.CPU_ABI.equalsIgnoreCase("armeabi")) {
+                        // We build armeabi-v7a native lib for both armeabi & armeabi-v7a
+                        entryDir = "lib" + File.separator + "armeabi-v7a" + File.separator;
+                    } else {
+                        entryDir = "lib" + File.separator + Build.CPU_ABI + File.separator;
+                    }
+                } else if (isAsset(resource)) {
+                    entryDir = "assets" + File.separator;
+                }
+                Log.d(TAG, "unzip " + entryDir + resource);
+                ZipEntry entry = zipFile.getEntry(entryDir + resource);
+                saveStreamToFile(zipFile.getInputStream(entry), new File(destDir, resource));
             }
-
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             Log.d(TAG, e.getLocalizedMessage());
             return false;
         } finally {
@@ -504,48 +486,15 @@ public class XWalkUpdater {
             } catch (IOException | NullPointerException e) {
             }
         }
-
         return true;
     }
 
-    private boolean checkLibResources() {
-        for (String resource : XWALK_LIB_RESOURCES) {
-            File file = new File(XWALK_LIB_DIR, resource);
-            if (!file.isFile()) {
-                Log.d(TAG, file.getAbsolutePath() + " doesn't exist");
-                return false;
-            }
-        }
-        return true;
+    private boolean isNativeLibrary(String resource) {
+        return resource.endsWith(".so");
     }
 
-    private boolean copyNativeLibraries() {
-        String libDir = mActivity.getDir(
-                XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
-                Context.MODE_PRIVATE).getAbsolutePath();
-
-        for (String resource : XWALK_LIB_RESOURCES) {
-            if (isNativeLibrary(resource)) {
-                try {
-                    copyFile(new File(XWALK_LIB_DIR, resource), new File(libDir, resource));
-                } catch (IOException e) {
-                    Log.d(TAG, e.getLocalizedMessage());
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private boolean isNativeLibrary(String name) {
-        int index = name.lastIndexOf('.');
-        return index > 0 && name.substring(index + 1).equals("so");
-    }
-
-    private void copyFile(File src, File dest) throws IOException {
-        Log.d(TAG, "Copy from " + src.getAbsolutePath());
-        saveStreamToFile(new FileInputStream(src), dest);
+    private boolean isAsset(String resource) {
+        return resource.endsWith(".dat") || resource.endsWith(".pak");
     }
 
     private void saveStreamToFile(InputStream input, File file) throws IOException {
