@@ -61,4 +61,55 @@
       ],
     },
   ],
+  'conditions': [
+    ['OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'xwalk_dotnet_extensions_browsertest',
+          'type': 'executable',
+          'dependencies': [
+            '../../base/base.gyp:base',
+            '../../content/content.gyp:content_browser',
+            '../../content/content_shell_and_tests.gyp:test_support_content',
+            '../../net/net.gyp:net',
+            '../../skia/skia.gyp:skia',
+            '../../testing/gtest.gyp:gtest',
+            '../test/base/base.gyp:xwalk_test_base',
+            '../xwalk.gyp:xwalk_runtime',
+            'dotnet_extension_sample.gyp:*',
+            'extensions.gyp:xwalk_extensions',
+          ],
+          'defines': [
+            'HAS_OUT_OF_PROC_TEST_RUNNER',
+          ],
+          'sources': [
+            'test/win/xwalk_dotnet_extensions_browsertest.cc',
+            'test/xwalk_extensions_test_base.cc',
+            'test/xwalk_extensions_test_base.h',
+          ],
+        },
+        {
+          'target_name': 'xwalk_dotnet_extensions_unittest',
+          'type': 'executable',
+          'dependencies': [
+           '../../base/base.gyp:base',
+            '../../content/content.gyp:content_browser',
+            '../../content/content_shell_and_tests.gyp:test_support_content',
+            '../../net/net.gyp:net',
+            '../../skia/skia.gyp:skia',
+            '../../testing/gtest.gyp:gtest',
+            '../test/base/base.gyp:xwalk_test_base',
+            '../xwalk.gyp:xwalk_runtime',
+            'dotnet_extension_sample.gyp:*',
+            'extensions.gyp:xwalk_extensions',
+          ],
+          'sources': [
+            'test/win/xwalk_dotnet_extension_unittest.cc',
+            'test/xwalk_extensions_test_base.cc',
+            'test/xwalk_extensions_test_base.h',
+          ],
+        },
+      ],
+    }],
+  ],
 }
