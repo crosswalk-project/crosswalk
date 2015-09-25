@@ -17,6 +17,8 @@ namespace extensions {
 class XWalkExternalAdapter;
 class XWalkExternalExtension;
 
+typedef void* InstanceData;
+
 // XWalkExternalInstance implements the concrete context of execution of an
 // external extension.
 //
@@ -29,6 +31,8 @@ class XWalkExternalInstance : public XWalkExtensionInstance {
   XWalkExternalInstance(XWalkExternalExtension* extension,
                         XW_Instance xw_instance);
   ~XWalkExternalInstance() override;
+
+  InstanceData GetInstanceData() const { return instance_data_; }
 
  private:
   friend class XWalkExternalAdapter;
@@ -54,7 +58,7 @@ class XWalkExternalInstance : public XWalkExtensionInstance {
   XW_Instance xw_instance_;
   std::string sync_reply_;
   XWalkExternalExtension* extension_;
-  void* instance_data_;
+  InstanceData instance_data_;
   bool is_handling_sync_msg_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExternalInstance);
