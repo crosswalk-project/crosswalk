@@ -34,7 +34,7 @@ class XWalkContentClient : public content::ContentClient {
       int resource_id) const override;
   gfx::Image& GetNativeImageNamed(int resource_id) const override;
   void AddAdditionalSchemes(
-      std::vector<std::string>* standard_schemes,
+      std::vector<url::SchemeWithType>* standard_schemes,
       std::vector<std::string>* saveable_shemes) override;
   std::string GetProcessTypeNameInEnglish(int type) override;
 
