@@ -129,15 +129,22 @@ XWalkDevToolsServer::~XWalkDevToolsServer() {
 // process and connects to the devtools server.
 bool XWalkDevToolsServer::CanUserConnectToDevTools(
     const net::UnixDomainServerSocket::Credentials& credentials) {
+#ifndef DISABLE_DEVTOOLS
   if (allow_socket_access_)
     return true;
   if (allow_debug_permission_)
     return AuthorizeSocketAccessWithDebugPermission(credentials);
   return content::CanUserConnectToDevTools(credentials);
+#else
+  (void) credentials;
+  (void) AuthorizeSocketAccessWithDebugPermission;
+  return false;
+#endif
 }
 
 void XWalkDevToolsServer::Start(bool allow_debug_permission,
                                 bool allow_socket_access) {
+#ifndef DISABLE_DEVTOOLS
   allow_debug_permission_ = allow_debug_permission;
   allow_socket_access_ = allow_socket_access;
   if (devtools_http_handler_)
@@ -157,16 +164,26 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission,
       base::FilePath(),
       std::string(),
       xwalk::GetUserAgent()));
+#else
+  (void) allow_debug_permission;
+  (void) allow_socket_access;
+#endif
 }
 
 void XWalkDevToolsServer::Stop() {
+#ifndef DISABLE_DEVTOOLS
   devtools_http_handler_.reset();
   allow_socket_access_ = false;
   allow_debug_permission_ = false;
+#endif
 }
 
 bool XWalkDevToolsServer::IsStarted() const {
+#ifndef DISABLE_DEVTOOLS
   return devtools_http_handler_;
+#else
+  return false;
+#endif
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {
@@ -176,19 +193,39 @@ bool RegisterXWalkDevToolsServer(JNIEnv* env) {
 static jlong InitRemoteDebugging(JNIEnv* env,
                                 jobject obj,
                                 jstring socketName) {
+#ifndef DISABLE_DEVTOOLS
   XWalkDevToolsServer* server = new XWalkDevToolsServer(
       base::android::ConvertJavaStringToUTF8(env, socketName));
   return reinterpret_cast<intptr_t>(server);
+#else
+  (void) env;
+  (void) obj;
+  (void) socketName;
+  return 0;
+#endif
 }
 
 static void DestroyRemoteDebugging(JNIEnv* env, jobject obj, jlong server) {
+#ifndef DISABLE_DEVTOOLS
   delete reinterpret_cast<XWalkDevToolsServer*>(server);
+#else
+  (void) env;
+  (void) obj;
+  (void) server;
+#endif
 }
 
 static jboolean IsRemoteDebuggingEnabled(JNIEnv* env,
                                          jobject obj,
                                          jlong server) {
+#ifndef DISABLE_DEVTOOLS
   return reinterpret_cast<XWalkDevToolsServer*>(server)->IsStarted();
+#else
+  (void) env;
+  (void) obj;
+  (void) server;
+  return false;
+#endif
 }
 
 static void SetRemoteDebuggingEnabled(JNIEnv* env,
@@ -197,6 +234,7 @@ static void SetRemoteDebuggingEnabled(JNIEnv* env,
                                       jboolean enabled,
                                       jboolean allow_debug_permission,
                                       jboolean allow_socket_access) {
+#ifndef DISABLE_DEVTOOLS
   XWalkDevToolsServer* devtools_server =
       reinterpret_cast<XWalkDevToolsServer*>(server);
   if (enabled == JNI_TRUE) {
@@ -205,6 +243,14 @@ static void SetRemoteDebuggingEnabled(JNIEnv* env,
   } else {
     devtools_server->Stop();
   }
+#else
+  (void) env;
+  (void) obj;
+  (void) server;
+  (void) enabled;
+  (void) allow_debug_permission;
+  (void) allow_socket_access;
+#endif
 }
 
 }  // namespace xwalk

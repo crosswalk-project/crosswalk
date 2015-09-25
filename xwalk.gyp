@@ -331,8 +331,6 @@
       'conditions': [
         ['disable_devtools==1', {
           'sources!': [
-            'runtime/browser/android/xwalk_dev_tools_server.cc',
-            'runtime/browser/android/xwalk_dev_tools_server.h',
             'runtime/browser/devtools/remote_debugging_server.cc',
             'runtime/browser/devtools/remote_debugging_server.h',
             'runtime/browser/devtools/xwalk_devtools_delegate.cc',
