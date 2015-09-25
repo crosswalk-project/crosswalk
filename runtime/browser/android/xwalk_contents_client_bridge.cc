@@ -58,6 +58,7 @@ void RecordClientCertificateKey(
 
 }  // namespace
 
+#ifndef DISABLE_NOTIFICATIONS
 namespace {
 
 int g_next_notification_id_ = 1;
@@ -66,6 +67,7 @@ ScopedPtrHashMap<int, scoped_ptr<content::DesktopNotificationDelegate>>
     g_notification_map_;
 
 }  // namespace
+#endif
 
 
 XWalkContentsClientBridge::XWalkContentsClientBridge(
@@ -224,6 +226,7 @@ bool XWalkContentsClientBridge::OnReceivedHttpAuthRequest(
 
 static void CancelNotification(
     JavaObjectWeakGlobalRef java_ref, int notification_id) {
+#ifndef DISABLE_NOTIFICATIONS
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref.get(env);
@@ -232,6 +235,11 @@ static void CancelNotification(
 
   Java_XWalkContentsClientBridge_cancelNotification(
       env, obj.obj(), notification_id);
+#else
+  (void) Java_XWalkContentsClientBridge_cancelNotification;
+  (void) java_ref;
+  (void) notification_id;
+#endif
 }
 
 void XWalkContentsClientBridge::ShowNotification(
@@ -239,6 +247,7 @@ void XWalkContentsClientBridge::ShowNotification(
     const SkBitmap& icon,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
+#ifndef DISABLE_NOTIFICATIONS
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
 
@@ -265,6 +274,14 @@ void XWalkContentsClientBridge::ShowNotification(
   if (cancel_callback)
     *cancel_callback = base::Bind(
         &CancelNotification, java_ref_, notification_id);
+#else
+  (void) CancelNotification;
+  (void) Java_XWalkContentsClientBridge_showNotification;
+  (void) notification_data;
+  (void) icon;
+  (void) delegate;
+  (void) cancel_callback;
+#endif
 }
 
 void XWalkContentsClientBridge::OnWebLayoutPageScaleFactorChanged(
@@ -313,29 +330,42 @@ void XWalkContentsClientBridge::ExitFullscreen(
 
 void XWalkContentsClientBridge::NotificationDisplayed(
     JNIEnv*, jobject, jint notification_id) {
+#ifndef DISABLE_NOTIFICATIONS
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   content::DesktopNotificationDelegate* notification_delegate =
       g_notification_map_.get(notification_id);
   if (notification_delegate)
     notification_delegate->NotificationDisplayed();
+#else
+  (void) notification_id;
+#endif
 }
 
 void XWalkContentsClientBridge::NotificationClicked(
     JNIEnv*, jobject, jint id) {
+#ifndef DISABLE_NOTIFICATIONS
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
     notification_delegate->NotificationClick();
+#else
+  (void) id;
+#endif
 }
 
 void XWalkContentsClientBridge::NotificationClosed(
     JNIEnv*, jobject, jint id, bool by_user) {
+#ifndef DISABLE_NOTIFICATIONS
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
     notification_delegate->NotificationClosed();
+#else
+  (void) id;
+  (void) by_user;
+#endif
 }
 
 void XWalkContentsClientBridge::OnFilesSelected(
