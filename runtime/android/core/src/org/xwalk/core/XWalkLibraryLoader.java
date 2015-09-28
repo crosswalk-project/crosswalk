@@ -9,20 +9,13 @@ import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.app.DownloadManager.Query;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
-import java.io.File;
 import java.lang.Thread;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.Arrays;
 
 import junit.framework.Assert;
 
@@ -119,9 +112,7 @@ class XWalkLibraryLoader {
         public void onDownloadFailed(int status, int error);
     }
 
-    private static final String DEFAULT_DOWNLOAD_FILE_NAME = "xwalk_download.tmp";
-    private static final String DOWNLOAD_WITHOUT_NOTIFICATION =
-            "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION";
+    private static final String XWALK_APK_NAME = "XWalkRuntimeLib.apk";
     private static final String TAG = "XWalkLib";
 
     private static AsyncTask<Void, Integer, Integer> sActiveTask;
@@ -310,7 +301,6 @@ class XWalkLibraryLoader {
         private static final int MAX_PAUSED_COUNT = 6000; // 10 minutes
 
         private DownloadListener mListener;
-        private Context mContext;
         private String mDownloadUrl;
         private DownloadManager mDownloadManager;
         private long mDownloadId;
@@ -318,7 +308,6 @@ class XWalkLibraryLoader {
         DownloadTask(DownloadListener listener, Context context, String url) {
             super();
             mListener = listener;
-            mContext = context;
             mDownloadUrl = url;
             mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         }
@@ -328,26 +317,9 @@ class XWalkLibraryLoader {
             Log.d(TAG, "DownloadTask started, " + mDownloadUrl);
             sActiveTask = this;
 
-            String savedFile = DEFAULT_DOWNLOAD_FILE_NAME;
-            try {
-                String name = new File(new URL(mDownloadUrl).getPath()).getName();
-                if (!name.isEmpty()) savedFile = name;
-            } catch (MalformedURLException | NullPointerException e) {
-                Log.e(TAG, "Invalid download URL " + mDownloadUrl);
-                mDownloadUrl = null;
-                return;
-            }
-
-            File downloadDir = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-            File downloadFile = new File(downloadDir, savedFile);
-            if (downloadFile.isFile()) downloadFile.delete();
-
             Request request = new Request(Uri.parse(mDownloadUrl));
-            request.setDestinationInExternalFilesDir(
-                    mContext, Environment.DIRECTORY_DOWNLOADS, savedFile);
-            if (isSilentDownload()) {
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
-            }
+            request.setDestinationInExternalPublicDir(
+                    Environment.DIRECTORY_DOWNLOADS, XWALK_APK_NAME);
             mDownloadId = mDownloadManager.enqueue(request);
 
             mListener.onDownloadStarted();
@@ -355,8 +327,6 @@ class XWalkLibraryLoader {
 
         @Override
         protected Integer doInBackground(Void... params) {
-            if (mDownloadUrl == null) return DownloadManager.STATUS_FAILED;
-
             Query query = new Query().setFilterById(mDownloadId);
             int pausedCount = 0;
 
@@ -416,7 +386,7 @@ class XWalkLibraryLoader {
                 Uri uri = mDownloadManager.getUriForDownloadedFile(mDownloadId);
                 mListener.onDownloadCompleted(uri);
             } else {
-                int error = DownloadManager.ERROR_UNKNOWN;
+                int error = -1;
                 if (result == DownloadManager.STATUS_FAILED) {
                     Query query = new Query().setFilterById(mDownloadId);
                     Cursor cursor = mDownloadManager.query(query);
@@ -427,18 +397,6 @@ class XWalkLibraryLoader {
                 }
                 mListener.onDownloadFailed(result, error);
             }
-        }
-
-        private boolean isSilentDownload() {
-            try {
-                PackageManager packageManager = mContext.getPackageManager();
-                PackageInfo packageInfo = packageManager.getPackageInfo(
-                        mContext.getPackageName(), PackageManager.GET_PERMISSIONS);
-                return Arrays.asList(packageInfo.requestedPermissions).contains(
-                        DOWNLOAD_WITHOUT_NOTIFICATION);
-            } catch (NameNotFoundException | NullPointerException e) {
-            }
-            return false;
         }
     }
 }
