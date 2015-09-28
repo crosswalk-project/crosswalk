@@ -8,14 +8,18 @@ package org.xwalk.core.internal;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.view.MotionEvent;
+import android.view.View;
 
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 
 public class XWalkContentView extends ContentView {
+    private static final String TAG = "XWalkContentView";
     private XWalkViewInternal mXWalkView;
 
     XWalkContentView(Context context, ContentViewCore cvc, XWalkViewInternal xwView) {
@@ -77,4 +81,14 @@ public class XWalkContentView extends ContentView {
     public boolean performLongClick(){
         return mXWalkView.performLongClickDelegate();
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // Give XWalkView a chance to handle touch event
+        if(mXWalkView.onTouchEventDelegate(event)) {
+            return true;
+        }
+        return mContentViewCore.onTouchEvent(event);
+    }
+
 }
