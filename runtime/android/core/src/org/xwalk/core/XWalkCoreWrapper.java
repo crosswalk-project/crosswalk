@@ -11,7 +11,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.os.Build;
 import android.util.Log;
+import dalvik.system.DexClassLoader;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -29,6 +31,9 @@ class XWalkCoreWrapper {
     private static final String WRAPPER_PACKAGE = "org.xwalk.core";
     private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
     private static final String TAG = "XWalkLib";
+    private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
+    private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
+    private static final String OPTIMIZED_DEX_DIR = "dex";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -151,7 +156,9 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
-            sProvisionalInstance.findSharedCore();
+            if (!sProvisionalInstance.findDownloadedCore()) {
+                sProvisionalInstance.findSharedCore();
+            }
         }
         return sProvisionalInstance.mCoreStatus;
     }
@@ -233,6 +240,25 @@ class XWalkCoreWrapper {
         }
 
         Log.d(TAG, "Running in shared mode");
+        mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
+        return true;
+    }
+
+    private boolean findDownloadedCore() {
+        String libDir = mWrapperContext.getDir(XWALK_CORE_EXTRACTED_DIR, Context.MODE_PRIVATE).
+                toString();
+        String dexPath = libDir + File.separator + XWALK_CORE_CLASSES_DEX;
+        String dexOutputPath = mWrapperContext.getDir(OPTIMIZED_DEX_DIR, Context.MODE_PRIVATE).
+                getAbsolutePath();
+        ClassLoader localClassLoader = ClassLoader.getSystemClassLoader();
+        mBridgeLoader = new DexClassLoader(dexPath, dexOutputPath, libDir, localClassLoader);
+
+        if (!checkCoreVersion() || !checkCoreArchitecture()) {
+            mBridgeLoader = null;
+            return false;
+        }
+
+        Log.d(TAG, "Running in downloaded mode");
         mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
         return true;
     }
