@@ -112,7 +112,7 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *
  * <pre>
  * public class MyActivity extends Activity
- *         implements XWalkInitializer.XWalkInitListener, XWalkUpdater.XWalkSilentUpdateListener {
+ *         implements XWalkInitializer.XWalkInitListener, XWalkUpdater.XWalkBackgroundUpdateListener {
  *     XWalkUpdater mXWalkUpdater;
  *
  *     ......
@@ -135,8 +135,14 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *     }
  *
  *     &#64;Override
+ *     public void onXWalkUpdateProgress(int percentage) {
+ *         // Update the progress of download
+ *         // Nothing particular to do here.
+ *     }
+ *
+ *     &#64;Override
  *     public void onXWalkUpdateCancelled() {
- *         // Background download is cancelled by invoking cancelSilentDownload().
+ *         // Background download is cancelled by invoking cancelBackgroundDownload().
  *         // Perform error handling here
  *     }
  *
@@ -176,11 +182,17 @@ public class XWalkUpdater {
     /**
      * Interface used to update the Crosswalk runtime silently
      */
-    public interface XWalkSilentUpdateListener {
+    public interface XWalkBackgroundUpdateListener {
         /**
          * Run on the UI thread to notify the update is started.
          */
         public void onXWalkUpdateStarted();
+
+        /**
+         * Run on the UI thread to notify the update progress.
+         * @param percentage Shows the update progress in percentage.
+         */
+        public void onXWalkUpdateProgress(int percentage);
 
         /**
          * Run on the UI thread to notify the update is cancelled.
@@ -216,7 +228,7 @@ public class XWalkUpdater {
     private static final int STREAM_BUFFER_SIZE = 0x1000;
 
     private XWalkUpdateListener mUpdateListener;
-    private XWalkSilentUpdateListener mSilentUpdateListener;
+    private XWalkBackgroundUpdateListener mBackgroundUpdateListener;
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
     private Runnable mDownloadCommand;
@@ -247,11 +259,11 @@ public class XWalkUpdater {
     /**
      * Create XWalkUpdater for single activity. This updater will download silently.
      *
-     * @param listener The {@link XWalkSilentUpdateListener} to use
+     * @param listener The {@link XWalkBackgroundUpdateListener} to use
      * @param activity The activity which initiate the update
      */
-    public XWalkUpdater(XWalkSilentUpdateListener listener, Activity activity) {
-        mSilentUpdateListener = listener;
+    public XWalkUpdater(XWalkBackgroundUpdateListener listener, Activity activity) {
+        mBackgroundUpdateListener = listener;
         mActivity = activity;
     }
 
@@ -292,7 +304,7 @@ public class XWalkUpdater {
             };
 
             mDialogManager.showInitializationError(status, mCancelCommand, mDownloadCommand);
-        } else if (mSilentUpdateListener != null) {
+        } else if (mBackgroundUpdateListener != null) {
             downloadXWalkApkSilently();
         } else {
             Assert.fail();
@@ -323,12 +335,12 @@ public class XWalkUpdater {
     }
 
     /**
-     * Cancel the silent download
+     * Cancel the background download
      *
-     * @return Return false if it is not a silent updater or is not downloading, true otherwise.
+     * @return Return false if it is not a background updater or is not downloading, true otherwise.
      */
-    public boolean cancelSilentDownload() {
-        if (mSilentUpdateListener == null || !mIsDownloading) return false;
+    public boolean cancelBackgroundDownload() {
+        if (mBackgroundUpdateListener == null || !mIsDownloading) return false;
         return XWalkLibraryLoader.cancelDownload();
     }
 
@@ -413,23 +425,24 @@ public class XWalkUpdater {
         @Override
         public void onDownloadStarted() {
             mIsDownloading = true;
-            mSilentUpdateListener.onXWalkUpdateStarted();
+            mBackgroundUpdateListener.onXWalkUpdateStarted();
         }
 
         @Override
         public void onDownloadUpdated(int percentage) {
+            mBackgroundUpdateListener.onXWalkUpdateProgress(percentage);
         }
 
         @Override
         public void onDownloadCancelled() {
             mIsDownloading = false;
-            mSilentUpdateListener.onXWalkUpdateCancelled();
+            mBackgroundUpdateListener.onXWalkUpdateCancelled();
         }
 
         @Override
         public void onDownloadFailed(int status, int error) {
             mIsDownloading = false;
-            mSilentUpdateListener.onXWalkUpdateFailed();
+            mBackgroundUpdateListener.onXWalkUpdateFailed();
         }
 
         @Override
@@ -448,7 +461,7 @@ public class XWalkUpdater {
 
                 @Override
                 protected void onPostExecute(Void result) {
-                    mSilentUpdateListener.onXWalkUpdateCompleted();
+                    mBackgroundUpdateListener.onXWalkUpdateCompleted();
                 }
             }.execute();
         }
