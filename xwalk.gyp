@@ -221,8 +221,6 @@
         'runtime/browser/ui/color_chooser_mac.cc',
         'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window.h',
-        'runtime/browser/ui/native_app_window_aura.cc',
-        'runtime/browser/ui/native_app_window_aura.h',
         'runtime/browser/ui/native_app_window_android.cc',
         'runtime/browser/ui/native_app_window_desktop.cc',
         'runtime/browser/ui/native_app_window_desktop.h',
@@ -430,9 +428,6 @@
             '../ui/views/controls/webview/webview.gyp:webview',
             '../ui/views/views.gyp:views',
             '../ui/resources/ui_resources.gyp:ui_resources',
-          ],
-          'sources/': [
-            ['exclude', 'runtime/browser/ui/native_app_window_aura.cc'],
           ],
         }, { # toolkit_views==0
           'sources/': [
