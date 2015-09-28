@@ -50,6 +50,11 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  * &lt;/application&gt;
  * </pre>
  *
+ * <p>To download the Crosswalk runtime APK for the specified CPU architecture, <code>xwalk_apk_url<code>
+ * will be appended with a query string named "?arch=CPU_ABI" when the download request is sent to server,
+ * then server can send back the APK which is exactly built for the specified CPU architecture. The CPU_ABI
+ * here is exactly same as the value returned from "getprop ro.product.cpu.abi".</p>
+ *
  * <p>After the proper Crosswalk runtime is downloaded and installed, the user will return to
  * current activity from the application store or the installer. The developer should check this
  * point and invoke <code>XWalkInitializer.initAsync()</code> again to repeat the initialization
@@ -197,6 +202,7 @@ public class XWalkUpdater {
 
     private static final String META_XWALK_APK_URL = "xwalk_apk_url";
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
+    private static final String ARCH_QUERY_STRING = "?arch=";
 
     private static final String[] XWALK_LIB_RESOURCES = {
         "libxwalkcore.so",
@@ -331,8 +337,7 @@ public class XWalkUpdater {
         // inside the application tag in the Android manifest. It can also be specified via
         // the option --xwalk-apk-url of the script make_apk.
         if (mXWalkApkUrl == null) {
-            mXWalkApkUrl = getAppMetaData(META_XWALK_APK_URL);
-            if (mXWalkApkUrl == null) mXWalkApkUrl = "";
+            mXWalkApkUrl = getXWalkApkUrl();
             Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
         }
 
@@ -355,11 +360,15 @@ public class XWalkUpdater {
 
     private void downloadXWalkApkSilently() {
         if (mXWalkApkUrl == null) {
-            mXWalkApkUrl = getAppMetaData(META_XWALK_APK_URL);
-            Assert.assertNotNull(mXWalkApkUrl);
+            mXWalkApkUrl = getXWalkApkUrl();
             Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
         }
         XWalkLibraryLoader.startDownload(new BackgroundListener(), mActivity, mXWalkApkUrl);
+    }
+
+    private String getXWalkApkUrl() {
+        String url = getAppMetaData(META_XWALK_APK_URL);
+        return url == null ? "" : url + ARCH_QUERY_STRING + Build.CPU_ABI;
     }
 
     private class ForegroundListener implements DownloadListener {
