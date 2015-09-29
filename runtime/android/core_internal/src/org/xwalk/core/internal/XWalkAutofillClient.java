@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import org.chromium.base.annotations.CalledByNative;
 import org.chromium.base.annotations.JNINamespace;
 import org.chromium.content.browser.ContentViewCore;
+import org.chromium.ui.autofill.AutofillDelegate;
 import org.chromium.ui.autofill.AutofillPopup;
 import org.chromium.ui.autofill.AutofillSuggestion;
 import org.chromium.ui.DropdownItem;
@@ -48,7 +49,7 @@ public class XWalkAutofillClient {
             mAutofillPopup = new AutofillPopup(
                 mContentViewCore.getContext(),
                 mContentViewCore.getViewAndroidDelegate(),
-                new AutofillPopup.AutofillPopupDelegate() {
+                new AutofillDelegate() {
                     @Override
                     public void dismissed() { }
                     @Override
