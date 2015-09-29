@@ -58,9 +58,6 @@ Runtime::Runtime(content::WebContents* web_contents)
       observer_(nullptr),
       weak_ptr_factory_(this) {
   web_contents_->SetDelegate(this);
-  registrar_.Add(this,
-                 content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-                 content::Source<content::WebContents>(web_contents_.get()));
 }
 
 Runtime::~Runtime() {
@@ -297,6 +294,11 @@ void Runtime::DidUpdateFaviconURL(const std::vector<FaviconURL>& candidates) {
           &Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
 }
 
+void Runtime::TitleWasSet(content::NavigationEntry* entry, bool explicit_set) {
+  if (ui_delegate_)
+    ui_delegate_->UpdateTitle(entry->GetTitle());
+}
+
 void Runtime::DidDownloadFavicon(int id,
                                  int http_status_code,
                                  const GURL& image_url,
@@ -318,14 +320,6 @@ bool Runtime::HandleContextMenu(const content::ContextMenuParams& params) {
 void Runtime::Observe(int type,
                       const content::NotificationSource& source,
                       const content::NotificationDetails& details) {
-  if (type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    std::pair<content::NavigationEntry*, bool>* title =
-        content::Details<std::pair<content::NavigationEntry*, bool> >(
-            details).ptr();
-
-    if (title->first && ui_delegate_)
-      ui_delegate_->UpdateTitle(title->first->GetTitle());
-  }
 }
 
 void Runtime::RequestMediaAccessPermission(
