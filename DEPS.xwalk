@@ -17,7 +17,7 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '1eae1549f0034045812b5cbb5433aed922c1f8cd'
+chromium_crosswalk_rev = 'ea5661d69d1d08fb90bb75414d63d38577f86ffc'
 blink_crosswalk_rev = '078ef34e78253f432d69c590ee89e0c48c057e95'
 v8_crosswalk_rev = '3a432a5ac171dd76f16ddc650a8b81c3b645e2d6'
 ozone_wayland_rev = 'd6ad1b8bb4e2c71427283ffc21ac8d66cb576730'
