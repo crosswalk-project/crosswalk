@@ -17,8 +17,8 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '618ee5da713cbe6f2c909364a19083dbe954a1ee'
-v8_crosswalk_rev = '661a7c85da84d5212664594a28bfe8ba50d2c260'
+chromium_crosswalk_rev = 'e8ee4cc888e75a82171f06152447e86a30ca8e15'
+v8_crosswalk_rev = '255b844a25c36e84145bab3751adde7c0e8f5dd6'
 ozone_wayland_rev = '1cde4077b26fb5cbb2661b465b496550a587df55'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
