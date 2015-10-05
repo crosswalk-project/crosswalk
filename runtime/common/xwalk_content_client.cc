@@ -62,8 +62,8 @@ content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
   plugin.path = path;
   plugin.permissions = kPepperFlashPermissions;
 
-  std::vector<std::string> flash_version_numbers;
-  base::SplitString(version, '.', &flash_version_numbers);
+  std::vector<std::string> flash_version_numbers = base::SplitString(
+      version, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   if (flash_version_numbers.size() < 1)
     flash_version_numbers.push_back("11");
   // |SplitString()| puts in an empty string given an empty string. :(
@@ -78,7 +78,7 @@ content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
   // E.g., "Shockwave Flash 10.2 r154":
   plugin.description = plugin.name + " " + flash_version_numbers[0] + "." +
       flash_version_numbers[1] + " r" + flash_version_numbers[2];
-  plugin.version = JoinString(flash_version_numbers, '.');
+  plugin.version = base::JoinString(flash_version_numbers, ".");
   content::WebPluginMimeType swf_mime_type(content::kFlashPluginSwfMimeType,
                                            content::kFlashPluginSwfExtension,
                                            content::kFlashPluginSwfDescription);
