@@ -19,7 +19,6 @@
 #include "net/socket/tcp_server_socket.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/snapshot/snapshot.h"
-#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 

@@ -8,8 +8,10 @@
 #include <string>
 
 #include "content/public/browser/download_manager_delegate.h"
+#include "ui/base/models/simple_menu_model.h"
 #include "ui/views/controls/button/label_button.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
+#include "ui/views/controls/menu/menu_runner.h"
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 
 namespace views {
@@ -24,6 +26,7 @@ class DownloadItem;
 
 namespace xwalk {
 class DownloadBarView;
+class XWalkDevToolsFrontend;
 
 class NativeAppWindowDesktop : public NativeAppWindowViews,
                                public views::ButtonListener,
@@ -38,17 +41,28 @@ class NativeAppWindowDesktop : public NativeAppWindowViews,
   void AddDownloadItem(content::DownloadItem* download_item,
       const content::DownloadTargetCallback& callback,
       const base::FilePath& suggested_path);
+  void FocusContent();
 
  private:
   class AddressView;
+  class ContextMenuModel;
+  class DevToolsWebContentsObserver;
 
   // NativeAppWindowViews implementation.
+  // User right-clicked on the web view
+  bool PlatformHandleContextMenu(
+      const content::ContextMenuParams& params) override;
   void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) override;
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
 
   // ButtonListener implementation.
   void ButtonPressed(views::Button* sender, const ui::Event& event) override;
+
+  void ShowWebViewContextMenu(const content::ContextMenuParams& params);
+  void OnDevToolsWebContentsDestroyed();
+  void InnerShowDevTools();
+  void ShowDevToolsForElementAt(int x, int y);
 
   // SelectFileDialog::Listener implementation.
   void FileSelected(const base::FilePath& path,
@@ -69,6 +83,11 @@ class NativeAppWindowDesktop : public NativeAppWindowViews,
   views::View* contents_view_;
   DownloadBarView* download_bar_view_;
   scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
+  ContextMenuModel* context_menu_model_;
+  scoped_ptr<views::MenuRunner> context_menu_runner_;
+
+  scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
+  XWalkDevToolsFrontend* devtools_frontend_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowDesktop);
 };

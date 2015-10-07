@@ -312,6 +312,12 @@ void Runtime::DidDownloadFavicon(int id,
     ui_delegate_->UpdateIcon(app_icon_);
 }
 
+bool Runtime::HandleContextMenu(const content::ContextMenuParams& params) {
+  if (ui_delegate_)
+    return ui_delegate_->HandleContextMenu(params);
+  return false;
+}
+
 void Runtime::Observe(int type,
                       const content::NotificationSource& source,
                       const content::NotificationDetails& details) {

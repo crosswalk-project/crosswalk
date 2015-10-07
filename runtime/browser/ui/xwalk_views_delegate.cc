@@ -42,19 +42,17 @@ XWalkViewsDelegate::GetDefaultTextfieldObscuredRevealDuration() {
 void XWalkViewsDelegate::OnBeforeWidgetInit(
     views::Widget::InitParams* params,
     views::internal::NativeWidgetDelegate* delegate) {
-  // If we already have a native_widget, we are done here.
+  // If we already have a native_widget, we don't have to try to come
+  // up with one.
   if (params->native_widget)
     return;
 
-  bool use_non_toplevel_window = params->parent
-      && params->type != views::Widget::InitParams::TYPE_MENU;
-
-  if (!params->parent && !params->context) {
-    views::DesktopNativeWidgetAura* native_widget =
-        new views::DesktopNativeWidgetAura(delegate);
-    params->native_widget = native_widget;
-  } else if (use_non_toplevel_window) {
+  if (params->parent &&
+    params->type != views::Widget::InitParams::TYPE_MENU &&
+    params->type != views::Widget::InitParams::TYPE_TOOLTIP) {
     params->native_widget = new views::NativeWidgetAura(delegate);
+  } else {
+    params->native_widget = new views::DesktopNativeWidgetAura(delegate);
   }
 }
 

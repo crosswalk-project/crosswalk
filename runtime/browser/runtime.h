@@ -167,6 +167,7 @@ class Runtime : public content::WebContentsDelegate,
                           const GURL& image_url,
                           const std::vector<SkBitmap>& bitmaps,
                           const std::vector<gfx::Size>& sizes);
+  bool HandleContextMenu(const content::ContextMenuParams& params) override;
 
   // NotificationObserver
   void Observe(int type,

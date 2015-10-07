@@ -140,8 +140,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       std::string* partition_name,
       bool* in_memory) override;
 
-  content::DevToolsManagerDelegate*
-      GetDevToolsManagerDelegate() override;
 #if defined(OS_ANDROID)
   virtual void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
