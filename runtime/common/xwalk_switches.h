@@ -17,6 +17,9 @@ extern const char kExperimentalFeatures[];
 extern const char kListFeaturesFlags[];
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
+#if !defined(OS_ANDROID)
+extern const char kXWalkEnableInspector[];
+#endif
 extern const char kAllowRunningInsecureContent[];
 extern const char kNoDisplayingInsecureContent[];
 
