@@ -76,7 +76,6 @@ void NativeAppWindowViews::Initialize() {
     params.bounds = create_params_.bounds;
   }
 #endif
-  params.net_wm_pid = create_params_.net_wm_pid;
   // Set the app icon if it is passed from command line.
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kAppIcon)) {
@@ -152,8 +151,6 @@ void NativeAppWindowViews::Minimize() {
 }
 
 void NativeAppWindowViews::SetFullscreen(bool fullscreen) {
-  views::ViewsDelegate::GetInstance()->SetShouldShowTitleBar(!fullscreen);
-
   if (is_fullscreen_ == fullscreen)
     return;
   is_fullscreen_ = fullscreen;
