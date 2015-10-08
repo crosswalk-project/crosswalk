@@ -156,7 +156,9 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
-            if (!sProvisionalInstance.findDownloadedCore()) {
+            if (XWalkUpdater.isDownloadModeEnabled()) {
+                sProvisionalInstance.findDownloadedCore();
+            } else {
                 sProvisionalInstance.findSharedCore();
             }
         }

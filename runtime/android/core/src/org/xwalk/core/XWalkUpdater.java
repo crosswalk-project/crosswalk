@@ -233,6 +233,8 @@ public class XWalkUpdater {
 
     private static final int STREAM_BUFFER_SIZE = 0x1000;
 
+    private static boolean sDownloadModeEnabled = false;
+
     private XWalkUpdateListener mUpdateListener;
     private XWalkBackgroundUpdateListener mBackgroundUpdateListener;
     private Activity mActivity;
@@ -271,6 +273,11 @@ public class XWalkUpdater {
     public XWalkUpdater(XWalkBackgroundUpdateListener listener, Activity activity) {
         mBackgroundUpdateListener = listener;
         mActivity = activity;
+        sDownloadModeEnabled = true;
+    }
+
+    public static boolean isDownloadModeEnabled() {
+        return sDownloadModeEnabled;
     }
 
     /**
