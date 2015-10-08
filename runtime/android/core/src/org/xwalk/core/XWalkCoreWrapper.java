@@ -5,6 +5,7 @@
 package org.xwalk.core;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -34,6 +35,7 @@ class XWalkCoreWrapper {
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
     private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
     private static final String OPTIMIZED_DEX_DIR = "dex";
+    private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -156,7 +158,9 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
-            if (!sProvisionalInstance.findDownloadedCore()) {
+            if (sProvisionalInstance.isDownloadMode()) {
+                sProvisionalInstance.findDownloadedCore();
+            } else {
                 sProvisionalInstance.findSharedCore();
             }
         }
@@ -246,7 +250,7 @@ class XWalkCoreWrapper {
 
     private boolean findDownloadedCore() {
         String libDir = mWrapperContext.getDir(XWALK_CORE_EXTRACTED_DIR, Context.MODE_PRIVATE).
-                toString();
+                getAbsolutePath();
         String dexPath = libDir + File.separator + XWALK_CORE_CLASSES_DEX;
         String dexOutputPath = mWrapperContext.getDir(OPTIMIZED_DEX_DIR, Context.MODE_PRIVATE).
                 getAbsolutePath();
@@ -261,6 +265,18 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Running in downloaded mode");
         mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
         return true;
+    }
+
+    private boolean isDownloadMode() {
+        try {
+            PackageManager packageManager = mWrapperContext.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(
+                    mWrapperContext.getPackageName(), PackageManager.GET_META_DATA);
+            String enableStr = appInfo.metaData.getString(META_XWALK_ENABLE_DOWNLOAD_MODE);
+            return enableStr.equalsIgnoreCase("enable");
+        } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return false;
     }
 
     private boolean checkCoreVersion() {
