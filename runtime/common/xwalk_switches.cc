@@ -29,6 +29,12 @@ const char kXWalkAllowExternalExtensionsForRemoteSources[] =
 // state, e.g. cache, localStorage etc.
 const char kXWalkDataPath[] = "data-path";
 
+#if !defined(OS_ANDROID)
+// Specifies if remote inspector can be opened when right clicking on the
+// application.
+const char kXWalkEnableInspector[] = "enable-inspector";
+#endif
+
 #if defined(OS_ANDROID)
 // Specifies the separated folder to save user data on Android.
 const char kXWalkProfileName[] = "profile-name";

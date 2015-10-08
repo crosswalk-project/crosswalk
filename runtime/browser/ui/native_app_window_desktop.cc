@@ -5,6 +5,7 @@
 
 #include "xwalk/runtime/browser/ui/native_app_window_desktop.h"
 
+#include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
@@ -25,6 +26,7 @@
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 #include "xwalk/runtime/browser/ui/desktop/download_views.h"
 #include "xwalk/runtime/browser/runtime_select_file_policy.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
 
@@ -104,7 +106,10 @@ class NativeAppWindowDesktop::ContextMenuModel : public ui::SimpleMenuModel,
     : ui::SimpleMenuModel(this),
     shell_(shell),
     params_(params) {
-    AddItem(COMMAND_OPEN_DEVTOOLS, base::ASCIIToUTF16("Inspect Element"));
+    const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+    if (command_line.HasSwitch(switches::kXWalkEnableInspector))
+      AddItem(COMMAND_OPEN_DEVTOOLS, base::ASCIIToUTF16("Inspect Element"));
   }
 
   // ui::SimpleMenuModel::Delegate:
