@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -215,6 +216,11 @@ public class XWalkUpdater {
     private static final String META_XWALK_APK_URL = "xwalk_apk_url";
     private static final String XWALK_CORE_LIB_DIR = "extracted_xwalkcore";
     private static final String ARCH_QUERY_STRING = "?arch=";
+
+    // Hash for Chromium debug key
+    private static final String XWALK_APK_HASH_ALGORITHM = "SHA-256";
+    private static final String XWALK_APK_HASH_CODE =
+            "32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0";
 
     private static final String[] XWALK_LIB_RESOURCES = {
         "libxwalkcore.so",
@@ -455,6 +461,9 @@ public class XWalkUpdater {
                 protected Void doInBackground(Void... params) {
                     final String destDir = mActivity.getDir(XWALK_CORE_LIB_DIR,
                             Context.MODE_PRIVATE).toString();
+                    if(!verifyXWalkRuntimeLib(downloadedUri.getPath())) {
+                        Assert.fail("The downloaded XWalkRuntimeLib.apk is invalid!");
+                    }
                     if (!extractLibResources(downloadedUri.getPath(), destDir)) Assert.fail();
                     return null;
                 }
@@ -476,6 +485,22 @@ public class XWalkUpdater {
         } catch (NameNotFoundException | NullPointerException e) {
         }
         return null;
+    }
+
+    private boolean verifyXWalkRuntimeLib(String libFile) {
+        PackageInfo pkgInfo = mActivity.getPackageManager().getPackageArchiveInfo(
+                libFile, PackageManager.GET_SIGNATURES);
+        if (pkgInfo == null) {
+            Log.e(TAG, "The downloaded XWalkRuntimeLib.apk is invalid!");
+            return false;
+        }
+        // Verify if the APK was signed w/ either Chromium debug key or Intel's key
+        return XWalkCoreVerifier.verifyPackageInfo(pkgInfo,
+                XWALK_APK_HASH_ALGORITHM,
+                XWALK_APK_HASH_CODE) ||
+                XWalkCoreVerifier.verifyPackageInfo(pkgInfo,
+                    XWalkAppVersion.XWALK_APK_HASH_ALGORITHM,
+                    XWalkAppVersion.XWALK_APK_HASH_CODE);
     }
 
     private boolean extractLibResources(String libFile, String destDir) {
