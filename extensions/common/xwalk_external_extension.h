@@ -43,6 +43,10 @@ class XWalkExternalExtension : public XWalkExtension {
     runtime_variables_ = runtime_variables;
   }
 
+ protected:
+  // XWalkExtension implementation.
+  XWalkExtensionInstance* CreateInstance() override;
+
  private:
   friend class XWalkExternalAdapter;
   friend class XWalkExternalInstance;
@@ -50,9 +54,6 @@ class XWalkExternalExtension : public XWalkExtension {
   // Variables from the browser process. Usually things like currently-running
   // application ID.
   base::ValueMap runtime_variables_;
-
-  // XWalkExtension implementation.
-  XWalkExtensionInstance* CreateInstance() override;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
   void CoreSetExtensionName(const char* name);

@@ -128,6 +128,7 @@ void XWalkSettings::UpdateEverything() {
 }
 
 void XWalkSettings::UpdateEverythingLocked(JNIEnv* env, jobject obj) {
+  UpdateInitialPageScale(env, obj);
   UpdateWebkitPreferences(env, obj);
   UpdateUserAgent(env, obj);
   UpdateFormDataPreferences(env, obj);
@@ -267,6 +268,23 @@ static jlong Init(JNIEnv* env,
 static jstring GetDefaultUserAgent(JNIEnv* env, jclass clazz) {
   return base::android::ConvertUTF8ToJavaString(
       env, GetUserAgent()).Release();
+}
+
+void XWalkSettings::UpdateInitialPageScale(JNIEnv* env, jobject obj) {
+  if (!web_contents()) return;
+  XWalkRenderViewHostExt* render_view_host_ext = GetXWalkRenderViewHostExt();
+  if (!render_view_host_ext) return;
+
+  float initial_page_scale_percent =
+      Java_XWalkSettings_getInitialPageScalePercentLocked(env, obj);
+  if (initial_page_scale_percent == 0) {
+    render_view_host_ext->SetInitialPageScale(-1);
+    return;
+  }
+  float dip_scale = static_cast<float>(
+      Java_XWalkSettings_getDIPScaleLocked(env, obj));
+  render_view_host_ext->SetInitialPageScale(
+      initial_page_scale_percent / dip_scale / 100.0f);
 }
 
 bool RegisterXWalkSettings(JNIEnv* env) {

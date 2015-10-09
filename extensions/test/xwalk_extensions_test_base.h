@@ -25,6 +25,10 @@ GURL GetExtensionsTestURL(const base::FilePath& dir,
 
 base::FilePath GetExternalExtensionTestPath(
     const base::FilePath::CharType test[]);
+#if defined(OS_WIN)
+base::FilePath GetDotNetExtensionTestPath(
+    const base::FilePath::CharType test[]);
+#endif
 
 const base::string16 kPassString = base::ASCIIToUTF16("Pass");
 const base::string16 kFailString = base::ASCIIToUTF16("Fail");

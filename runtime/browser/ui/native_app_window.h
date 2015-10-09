@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/strings/string16.h"
+#include "content/public/common/context_menu_params.h"
 #include "third_party/WebKit/public/platform/WebDisplayMode.h"
 #include "ui/base/ui_base_types.h"
 #include "ui/gfx/geometry/rect.h"
@@ -56,8 +57,6 @@ class NativeAppWindow {
     ui::WindowShowState state;
     // True if the window can be resized.
     bool resizable;
-    // Used only by X11. Specifies the PID set in _NET_WM_PID window property.
-    int32 net_wm_pid;
     // The parent view which this window belongs to. NULL if it is root window.
     gfx::NativeView parent;
     // The absolute path of splash screen.
@@ -114,6 +113,9 @@ class NativeAppWindow {
   virtual bool IsMaximized() const = 0;
   virtual bool IsMinimized() const = 0;
   virtual bool IsFullscreen() const = 0;
+
+  virtual bool PlatformHandleContextMenu(
+      const content::ContextMenuParams& params) = 0;
 
  protected:
   virtual ~NativeAppWindow() {}

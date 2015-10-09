@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.view.MotionEvent;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
@@ -80,6 +81,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     long mNativeContent;
     long mNativeWebContents;
+
+    // TODO(hengzhi.wu): This should be in a global context, not per XWalkView.
+    private double mDIPScale;
 
     static void setJavascriptInterfaceClass(Class<? extends Annotation> clazz) {
       assert(javascriptInterfaceClass == null);
@@ -173,11 +177,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // For addJavascriptInterface
         mContentsClientBridge.installWebContentsObserver(mWebContents);
 
-        // Set DIP scale.
-        mContentsClientBridge.setDIPScale(DeviceDisplayInfo.create(mViewContext).getDIPScale());
-
-        mContentViewCore.setDownloadDelegate(mContentsClientBridge);
-
         // Set the third argument isAccessFromFileURLsGrantedByDefault to false, so that
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
         // won't be changed from false to true at the same time in the constructor of
@@ -186,6 +185,13 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
+
+        // Set DIP scale.
+        mDIPScale = DeviceDisplayInfo.create(mViewContext).getDIPScale();
+        mContentsClientBridge.setDIPScale(mDIPScale);
+        mSettings.setDIPScale(mDIPScale);
+
+        mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
         String language = Locale.getDefault().toString().replaceAll("_", "-").toLowerCase();
         if (language.isEmpty()) language = "en";
@@ -646,6 +652,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         return mContentView.onCreateInputConnectionSuper(outAttrs);
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return mContentViewCore.onTouchEvent(event);
     }
 
     //--------------------------------------------------------------------------------------------

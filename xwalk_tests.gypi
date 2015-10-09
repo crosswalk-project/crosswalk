@@ -11,6 +11,14 @@
         'sysapps/sysapps_tests.gyp:xwalk_sysapps_browsertest',
         'sysapps/sysapps_tests.gyp:xwalk_sysapps_unittest',
       ],
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            'extensions/extensions_tests.gyp:xwalk_dotnet_extensions_browsertest',
+            'extensions/extensions_tests.gyp:xwalk_dotnet_extensions_unittest',
+          ],
+        }],
+      ],
     },
     {
       'target_name': 'xwalk_unittest',

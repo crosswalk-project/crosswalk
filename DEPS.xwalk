@@ -17,9 +17,9 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '18a33ffc24e4bf2d3a35c70d14747ad768f8c541'
-blink_crosswalk_rev = 'fa523fc78229e09cd7224c278ef26cfecda13aed'
-v8_crosswalk_rev = 'c1479b95422cdd015f0533d27212122dc00db77f'
+chromium_crosswalk_rev = 'e23bfe20113b2ddeeb06ca75bfca263ab4336131'
+blink_crosswalk_rev = '16d1b69626699e9ca703e0c24c829e96d07fcd3e'
+v8_crosswalk_rev = '335bf02c0a6b9b0a2bd506d877e346e5c32e40cb'
 ozone_wayland_rev = 'd6ad1b8bb4e2c71427283ffc21ac8d66cb576730'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
@@ -41,6 +41,10 @@ solutions = [
         crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
+
+      # Temporary roll GYP forward so we can have support to compile managed code on Windows.
+      'src/tools/gyp':
+        'https://chromium.googlesource.com/external/gyp.git@1f374df95de1c0a125485496e8d23d36303a93fd',
 
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
