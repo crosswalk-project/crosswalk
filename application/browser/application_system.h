@@ -49,9 +49,9 @@ class ApplicationSystem {
   // Launches an application based on the given command line, there are
   // different ways to inform which application should be launched
   //
-  // (1) app_id from the binary name (used in Tizen);
-  // (3) launching a directory that contains an extracted package.
-  // (4) launching from the path to the packaged application file.
+  // (1) app_id from the binary name;
+  // (2) launching a directory that contains an extracted package.
+  // (3) launching from the path to the packaged application file.
   //
   // The parameter `url` contains the current URL Crosswalk is considering to
   // load, and the output parameter `run_default_message_loop` controls whether

@@ -459,9 +459,9 @@ bool XWalkModuleSystem::ExtensionModuleEntry::IsPrefix(
 // simple: we only create trampolines for extensions that are leaves
 // in the namespace tree.
 //
-// For example, if there are two extensions "tizen" and "tizen.time",
+// For example, if there are two extensions "echo" and "echo.time",
 // the first one won't be marked with trampoline, but the second one
-// will. So we'll only load code for "tizen" extension.
+// will. So we'll only load code for "echo" extension.
 void XWalkModuleSystem::MarkModulesWithTrampoline() {
   std::sort(extension_modules_.begin(), extension_modules_.end());
 

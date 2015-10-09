@@ -7,7 +7,7 @@
 #include "ui/gfx/image/image.h"
 #include "xwalk/runtime/browser/runtime.h"
 
-#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(OS_TIZEN))
+#if defined(OS_WIN) || defined(OS_LINUX)
 #include "xwalk/runtime/browser/runtime_ui_delegate_desktop.h"
 #endif
 
@@ -41,7 +41,7 @@ NativeAppWindow* RuntimeCreateWindow(
 RuntimeUIDelegate* RuntimeUIDelegate::Create(
     Runtime* runtime,
     const NativeAppWindow::CreateParams& params) {
-#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(OS_TIZEN))
+#if defined(OS_WIN) || defined(OS_LINUX)
   return new RuntimeUIDelegateDesktop(runtime, params);
 #else
   return new DefaultRuntimeUIDelegate(runtime, params);

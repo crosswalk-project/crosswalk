@@ -18,7 +18,7 @@ license.
 
 * If it applies, add the platform your change affects in both the commit
   message and the pull request title. For example, _"[Android] Update target
-  SDK to android-21"_ or _"[Tizen] Add unit test for metadata element
+  SDK to android-21"_ or _"[Windows] Add unit test for metadata element
   handler"_.
 
 * If you know them, be sure to mention the people you would like to review your

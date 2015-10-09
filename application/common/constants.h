@@ -29,9 +29,6 @@ extern const char kGeneratedMainDocumentFilename[];
 // The name of cookies database file.
 extern const base::FilePath::CharType kCookieDatabaseFilename[];
 
-// The Tizen Web API version is supported.
-extern const char kTizenWebAPIVersion[];
-
 }  // namespace application
 }  // namespace xwalk
 

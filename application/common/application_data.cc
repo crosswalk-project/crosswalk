@@ -28,7 +28,6 @@
 #include "xwalk/application/common/manifest_handler.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
-#include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
@@ -89,20 +88,6 @@ void ApplicationData::SetManifestData(const std::string& key,
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
 
-#if defined(OS_TIZEN)
-void ApplicationData::set_bundle(const std::string& bundle) {
-  bundle_ = bundle;
-}
-
-std::string ApplicationData::GetPackageID() const {
-  return AppIdToPkgId(application_id_);
-}
-
-const std::string& ApplicationData::bundle() const {
-  return bundle_;
-}
-#endif
-
 const std::string ApplicationData::VersionString() const {
   if (!version_->components().empty())
     return Version()->GetString();
@@ -111,16 +96,7 @@ const std::string ApplicationData::VersionString() const {
 }
 
 bool ApplicationData::IsHostedApp() const {
-  bool hosted = source_type_ == EXTERNAL_URL;
-#if defined(OS_TIZEN)
-  if (manifest_->HasPath(widget_keys::kContentNamespace)) {
-    std::string ns;
-    if (manifest_->GetString(widget_keys::kContentNamespace, &ns) &&
-        ns == widget_keys::kTizenNamespacePrefix)
-      hosted = true;
-  }
-#endif
-  return hosted;
+  return source_type_ == EXTERNAL_URL;
 }
 
 ApplicationData::ApplicationData(const base::FilePath& path,
@@ -198,26 +174,6 @@ bool ApplicationData::Init(const std::string& explicit_id,
 bool ApplicationData::LoadID(const std::string& explicit_id,
                              base::string16* error) {
   std::string application_id;
-#if defined(OS_TIZEN)
-  if (manifest_type() == Manifest::TYPE_WIDGET) {
-    const TizenApplicationInfo* tizen_app_info =
-        static_cast<TizenApplicationInfo*>(GetManifestData(
-            widget_keys::kTizenApplicationKey));
-    CHECK(tizen_app_info);
-    application_id = tizen_app_info->id();
-  } else if (manifest_->HasKey(keys::kTizenAppIdKey)) {
-    if (!manifest_->GetString(keys::kTizenAppIdKey, &application_id)) {
-      NOTREACHED() << "Could not get Tizen application key";
-      return false;
-    }
-  }
-
-  if (!application_id.empty()) {
-    application_id_ = application_id;
-    return true;
-  }
-#endif
-
   if (!explicit_id.empty()) {
     application_id_ = explicit_id;
     return true;
@@ -420,14 +376,8 @@ PermissionSet ApplicationData::GetManifestPermissions() const {
 }
 
 bool ApplicationData::HasCSPDefined() const {
-#if defined(OS_TIZEN)
-  return  manifest_->HasPath(GetCSPKey(manifest_type())) ||
-          manifest_->HasPath(widget_keys::kCSPReportOnlyKey) ||
-          manifest_->HasPath(widget_keys::kAllowNavigationKey);
-#else
   return manifest_->HasPath(GetCSPKey(manifest_type())) ||
          manifest_->HasPath(keys::kScopeKey);
-#endif
 }
 
 bool ApplicationData::SetApplicationLocale(const std::string& locale,

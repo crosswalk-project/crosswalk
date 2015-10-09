@@ -20,7 +20,6 @@ const char kGeneratedMainDocumentFilename[] =
     "_generated_main_document.html";
 const base::FilePath::CharType kCookieDatabaseFilename[] =
     FILE_PATH_LITERAL("ApplicationCookies");
-const char kTizenWebAPIVersion[] = "2.2";
 
 }  // namespace application
 }  // namespace xwalk

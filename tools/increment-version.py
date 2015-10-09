@@ -63,15 +63,11 @@ def Main():
   if options.release_type == 'beta':
     replacements = {
       'VERSION': r'(PATCH=)(\d+)',
-      'packaging/crosswalk-bin.spec': r'(Version:\s+\d+\.\d+\.\d+\.)(\d+)',
-      'packaging/crosswalk-libs.spec': r'(Version:\s+\d+\.\d+\.\d+\.)(\d+)',
     }
     IncrementVersions(replacements)
   elif options.release_type == 'canary':
     replacements = {
       'VERSION': r'(BUILD=)(\d+)',
-      'packaging/crosswalk-bin.spec': r'(Version:\s+\d+\.\d+\.)(\d+)',
-      'packaging/crosswalk-libs.spec': r'(Version:\s+\d+\.\d+\.)(\d+)',
     }
     IncrementVersions(replacements)
   else:

@@ -30,13 +30,6 @@
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
-#if defined(OS_TIZEN)
-#include "content/public/browser/site_instance.h"
-#include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/browser/application_service.h"
-#endif
-
 #if !defined(OS_ANDROID)
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #endif

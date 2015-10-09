@@ -53,7 +53,7 @@ class Manifest {
   // Application locale (locale get from system).                 | high
   // Default locale (defaultlocale attribute of widget element)
   // Unlocalized (the element without xml:lang attribute)
-  // Auto ("en-us"(tizen is "en-gb") will be considered as a default)
+  // Auto ("en-us" will be considered as a default)
   // First (the worst case we get the first element)              | low
   bool GetString(const std::string& path, std::string* out_value) const;
   bool GetString(const std::string& path, base::string16* out_value) const;
@@ -91,11 +91,6 @@ class Manifest {
   // Returns true if the application can specify the given |path|.
   bool CanAccessPath(const std::string& path) const;
   bool CanAccessKey(const std::string& key) const;
-
-#if defined(OS_TIZEN)
-  // Unique package id for tizen platform
-  std::string package_id_;
-#endif
 
   // The underlying dictionary representation of the manifest.
   scoped_ptr<base::DictionaryValue> data_;

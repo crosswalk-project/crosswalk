@@ -9,23 +9,10 @@
 #include "base/strings/string_number_conversions.h"
 #include "crypto/sha2.h"
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
-
-#if defined(OS_TIZEN)
-#include "xwalk/application/common/tizen/package_query.h"
-
-#include "third_party/re2/re2/re2.h"
-#endif
 
 namespace xwalk {
 namespace application {
 namespace {
-#if defined(OS_TIZEN)
-const char kWGTAppIdPattern[] = "\\A([0-9a-zA-Z]{10})[.][0-9a-zA-Z]{1,52}\\z";
-const char kXPKAppIdPattern[] = "\\Axwalk[.]([a-p]{32})\\z";
-const char kPkgIdPattern[] = "\\A([0-9a-zA-Z]{10,})\\z";
-const std::string kAppIdPrefix("xwalk.");
-#endif
 const size_t kIdSize = 16;
 }  // namespace
 
@@ -51,12 +38,7 @@ std::string GenerateId(const std::string& input) {
   std::string output =
       base::StringToLowerASCII(base::HexEncode(hash, sizeof(hash)));
   ConvertHexadecimalToIDAlphabet(&output);
-
-#if defined(OS_TIZEN)
-  return kAppIdPrefix + output;
-#else
   return output;
-#endif
 }
 
 std::string GenerateIdForPath(const base::FilePath& path) {
@@ -66,44 +48,7 @@ std::string GenerateIdForPath(const base::FilePath& path) {
   return GenerateId(path_bytes);
 }
 
-#if defined(OS_TIZEN)
-bool IsValidWGTID(const std::string& id) {
-  return RE2::FullMatch(id, kWGTAppIdPattern);
-}
-
-bool IsValidXPKID(const std::string& id) {
-  return RE2::FullMatch(id, kXPKAppIdPattern);
-}
-
-bool IsValidPkgID(const std::string& id) {
-  return RE2::FullMatch(id, kPkgIdPattern);
-}
-
-std::string AppIdToPkgId(const std::string& id) {
-  std::string package_id;
-  if (!RE2::FullMatch(id, kWGTAppIdPattern, &package_id) &&
-      !RE2::FullMatch(id, kXPKAppIdPattern, &package_id)) {
-    LOG(ERROR) << "Cannot get package_id from invalid app id";
-    return std::string();
-  }
-  return package_id;
-}
-
-std::string PkgIdToAppId(const std::string& id) {
-  base::FilePath app_path = GetPackagePath(id);
-  if (app_path.empty())
-    return std::string();
-
-  return app_path.BaseName().value();
-}
-
-#endif
-
 bool IsValidApplicationID(const std::string& id) {
-#if defined(OS_TIZEN)
-  return (IsValidWGTID(id) || IsValidXPKID(id));
-#endif
-
   std::string temp = base::StringToLowerASCII(id);
   // Verify that the id is legal.
   if (temp.size() != (kIdSize * 2))

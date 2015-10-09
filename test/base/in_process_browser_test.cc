@@ -32,10 +32,6 @@
 #include "xwalk/test/base/xwalk_test_suite.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
-#endif
-
 using xwalk::Runtime;
 using xwalk::XWalkContentRendererClient;
 using xwalk::XWalkRunner;
@@ -44,13 +40,9 @@ using xwalk::NativeAppWindow;
 namespace {
 
 // Used when running in single-process mode.
-#if defined(OS_TIZEN)
-base::LazyInstance<xwalk::XWalkContentRendererClientTizen>::Leaky
-        g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
-#else
 base::LazyInstance<XWalkContentRendererClient>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
-#endif
+
 // Return a CommandLine object that is used to relaunch the browser_test
 // binary as a browser process.
 base::CommandLine GetCommandLineForRelaunch() {

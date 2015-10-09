@@ -28,10 +28,6 @@
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/browser/application_tizen.h"
-#endif
-
 using content::RenderProcessHost;
 
 namespace xwalk {
@@ -76,11 +72,7 @@ namespace application {
 scoped_ptr<Application> Application::Create(
     scoped_refptr<ApplicationData> data,
     XWalkBrowserContext* context) {
-#if defined(OS_TIZEN)
-  return make_scoped_ptr<Application>(new ApplicationTizen(data, context));
-#else
   return make_scoped_ptr(new Application(data, context));
-#endif
 }
 
 Application::Application(
@@ -105,20 +97,6 @@ Application::~Application() {
 
 template<>
 GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() const {
-#if defined(OS_TIZEN)
-  if (data_->IsHostedApp()) {
-    std::string source;
-    GURL url;
-    if (data_->GetManifest()->GetString(
-        widget_keys::kLaunchLocalPathKey, &source)) {
-      url = GURL(source);
-    }
-
-    if (url.is_valid() && url.SchemeIsHTTPOrHTTPS())
-      return url;
-  }
-#endif
-
   GURL url = GetAbsoluteURLFromKey(widget_keys::kLaunchLocalPathKey);
   if (url.is_valid())
     return url;

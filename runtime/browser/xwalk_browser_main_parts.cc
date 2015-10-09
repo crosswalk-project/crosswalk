@@ -118,10 +118,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
 
   // Enable multithreaded GPU compositing of web content.
-  // This also enables pinch on Tizen.
   command_line->AppendSwitch(switches::kEnableThreadedCompositing);
 
-  // FIXME: Add comment why this is needed on Android and Tizen.
+  // FIXME: Add comment why this is needed on Android.
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
   // Enable SIMD.JS API by default.
@@ -158,30 +157,8 @@ int XWalkBrowserMainParts::PreCreateThreads() {
 
 void XWalkBrowserMainParts::RegisterExternalExtensions() {
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
-
-#if defined(OS_TIZEN)
-  std::string value = cmd_line->GetSwitchValueASCII(
-      switches::kXWalkExternalExtensionsPath);
-
-#if defined(ARCH_CPU_64_BITS)
-  const char tec_path[] = "/usr/lib64/tizen-extensions-crosswalk";
-#else
-  const char tec_path[] = "/usr/lib/tizen-extensions-crosswalk";
-#endif
-
-  if (value.empty())
-    cmd_line->AppendSwitchASCII(switches::kXWalkExternalExtensionsPath,
-        tec_path);
-  else if (value != tec_path)
-    VLOG(0) << "Loading Tizen extensions from " << value << " rather than " <<
-        tec_path;
-
-  cmd_line->AppendSwitch(
-        switches::kXWalkAllowExternalExtensionsForRemoteSources);
-#else
   if (!cmd_line->HasSwitch(switches::kXWalkExternalExtensionsPath))
     return;
-#endif
 
   if (!cmd_line->HasSwitch(
           switches::kXWalkAllowExternalExtensionsForRemoteSources) &&
