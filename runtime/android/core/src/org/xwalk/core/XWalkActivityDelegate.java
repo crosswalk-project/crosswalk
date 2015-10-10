@@ -10,10 +10,40 @@ import android.view.Window;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
 import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
-import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
 public class XWalkActivityDelegate
-            implements DecompressListener, ActivateListener, XWalkUpdateListener {
+            implements DecompressListener, ActivateListener {
+    /**
+     * Interface used to listen to XWalk background update events
+     */
+    public interface XWalkUpdateListener {
+        /**
+         * Run on the UI thread to notify the update is started.
+         */
+        public void onXWalkUpdateStarted();
+
+        /**
+         * Run on the UI thread to notify the update progress.
+         * @param percentage The update progress in percentage.
+         */
+        public void onXWalkUpdateProgress(int percentage);
+
+        /**
+         * Run on the UI thread to notify the update is cancelled.
+         */
+        public void onXWalkUpdateCanceled();
+
+        /**
+         * Run on the UI thread to notify the update failed.
+         */
+        public void onXWalkUpdateFailed();
+
+        /**
+         * Run on the UI thread to notify the update is completed.
+         */
+        public void onXWalkUpdateCompleted();
+    }
+
     private static final String TAG = "XWalkActivity";
 
     private Activity mActivity;
@@ -21,6 +51,7 @@ public class XWalkActivityDelegate
     private XWalkUpdater mXWalkUpdater;
     private Runnable mCancelCommand;
     private Runnable mCompleteCommand;
+    private XWalkUpdateListener mUpdateListener;
 
     private boolean mIsInitializing;
     private boolean mIsXWalkReady;
@@ -34,7 +65,54 @@ public class XWalkActivityDelegate
         mCompleteCommand = completeCommand;
 
         mDialogManager = new XWalkDialogManager(mActivity);
-        mXWalkUpdater = new XWalkUpdater(this, mActivity, mDialogManager);
+        mXWalkUpdater = new XWalkUpdater(
+            new XWalkUpdater.XWalkUpdateListener() {
+                @Override
+                public void onXWalkUpdateCancelled() {
+                    mCancelCommand.run();
+                }
+            },
+            mActivity,
+            mDialogManager);
+
+        XWalkLibraryLoader.prepareToInit(mActivity);
+    }
+
+    public XWalkActivityDelegate(Activity activity,
+            XWalkUpdateListener listener) {
+        mActivity = activity;
+        mUpdateListener = listener;
+        Log.d(TAG, "Request to run in silent download mode");
+
+        mXWalkUpdater = new XWalkUpdater(
+            new XWalkUpdater.XWalkBackgroundUpdateListener() {
+                @Override
+                public void onXWalkUpdateStarted() {
+                    mUpdateListener.onXWalkUpdateStarted();
+                }
+
+                @Override
+                public void onXWalkUpdateProgress(int percentage) {
+                    mUpdateListener.onXWalkUpdateProgress(percentage);
+                }
+
+                @Override
+                public void onXWalkUpdateCancelled() {
+                    mUpdateListener.onXWalkUpdateCanceled();
+                }
+
+                @Override
+                public void onXWalkUpdateFailed() {
+                    mUpdateListener.onXWalkUpdateFailed();
+                }
+
+                @Override
+                public void onXWalkUpdateCompleted() {
+                    XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this,
+                        mActivity);
+                }
+            },
+            mActivity);
 
         XWalkLibraryLoader.prepareToInit(mActivity);
     }
@@ -66,29 +144,33 @@ public class XWalkActivityDelegate
 
     @Override
     public void onDecompressStarted() {
-        mDialogManager.showDecompressProgress(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Cancel by XWalkActivity");
-                XWalkLibraryLoader.cancelDecompress();
-            }
-        });
+        if (mUpdateListener == null) {
+            mDialogManager.showDecompressProgress(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "Cancel by XWalkActivity");
+                    XWalkLibraryLoader.cancelDecompress();
+                }
+            });
+        }
         mWillDecompress = true;
     }
 
     @Override
     public void onDecompressCancelled() {
-        mDialogManager.dismissDialog();
         mWillDecompress = false;
-
         mIsInitializing = false;
-        mCancelCommand.run();
+        if (mUpdateListener == null) {
+            mDialogManager.dismissDialog();
+            mCancelCommand.run();
+        }
     }
 
     @Override
     public void onDecompressCompleted() {
         if (mWillDecompress) {
-            mDialogManager.dismissDialog();
+            if (mUpdateListener == null)
+                mDialogManager.dismissDialog();
             mWillDecompress = false;
         }
 
@@ -104,34 +186,39 @@ public class XWalkActivityDelegate
         mIsInitializing = false;
 
         if (mXWalkUpdater.updateXWalkRuntime()) {
-            // Set the background to screen_background_dark temporarily if the default background
-            // is null in order to avoid the visual artifacts around the alert dialog
-            Window window = mActivity.getWindow();
-            if (window != null && window.getDecorView().getBackground() == null) {
-                Log.d(TAG, "Set the background to screen_background_dark");
-                window.setBackgroundDrawableResource(android.R.drawable.screen_background_dark);
-                mBackgroundDecorated = true;
+            if (mUpdateListener == null) {
+                // Set the background to screen_background_dark temporarily if
+                // the default background is null in order to avoid the visual
+                // artifacts around the alert dialog
+                Window window = mActivity.getWindow();
+                if (window != null &&
+                        window.getDecorView().getBackground() == null) {
+                    Log.d(TAG, "Set the background to screen_background_dark");
+                    window.setBackgroundDrawableResource(
+                            android.R.drawable.screen_background_dark);
+                    mBackgroundDecorated = true;
+                }
             }
         }
     }
 
     @Override
     public void onActivateCompleted() {
-        if (mDialogManager.isShowingDialog()) mDialogManager.dismissDialog();
-
-        if (mBackgroundDecorated) {
-            Log.d(TAG, "Recover the background");
-            mActivity.getWindow().setBackgroundDrawable(null);
-            mBackgroundDecorated = false;
-        }
-
         mIsInitializing = false;
         mIsXWalkReady = true;
-        mCompleteCommand.run();
-    }
+        if (mUpdateListener == null) {
+            if (mDialogManager.isShowingDialog())
+                mDialogManager.dismissDialog();
 
-    @Override
-    public void onXWalkUpdateCancelled() {
-        mCancelCommand.run();
+            if (mBackgroundDecorated) {
+                Log.d(TAG, "Recover the background");
+                mActivity.getWindow().setBackgroundDrawable(null);
+                mBackgroundDecorated = false;
+            }
+
+            mCompleteCommand.run();
+        } else {
+            mUpdateListener.onXWalkUpdateCompleted();
+        }
     }
 }
