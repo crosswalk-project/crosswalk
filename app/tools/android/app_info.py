@@ -24,3 +24,4 @@ class AppInfo:
     self.remote_debugging = ''
     self.use_animatable_view = ''
     self.xwalk_apk_url = ''
+    self.mode = 'embedded'

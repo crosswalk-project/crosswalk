@@ -273,6 +273,10 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
     EditElementAttribute(xmldoc, 'manifest', 'android:description',
                          "@string/description")
   HandlePermissions(permissions, xmldoc)
+  if app_info.mode == 'download':
+    AddElementAttribute(xmldoc, 'uses-permission',
+                        'android:name',
+                        'android.permission.DOWNLOAD_WITHOUT_NOTIFICATION')
   EditElementAttribute(xmldoc, 'application', 'android:label', app_name)
   activity_name = package + '.' + name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
@@ -292,6 +296,14 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
     app_node = xmldoc.getElementsByTagName('application')[0]
     comment = 'The download URL of Crosswalk runtime library APK. \n\
         Default updater use the Android download manager to fetch the url'
+    app_node.appendChild(xmldoc.createComment(comment))
+    app_node.appendChild(meta_data)
+
+  if app_info.mode == 'download':
+    meta_data = xmldoc.createElement('meta-data')
+    meta_data.setAttribute('android:name', 'xwalk_download_enabled')
+    meta_data.setAttribute('android:value', 'enable')
+    comment = 'Make application run in silent download mode.'
     app_node.appendChild(xmldoc.createComment(comment))
     app_node.appendChild(meta_data)
 
