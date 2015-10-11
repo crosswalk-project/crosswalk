@@ -82,8 +82,6 @@
             'tizen/app_control_info.h',
             'tizen/application_storage.cc',
             'tizen/application_storage.h',
-            'tizen/application_storage_impl.cc',
-            'tizen/application_storage_impl.h',
             'tizen/cookie_manager.cc',
             'tizen/cookie_manager.h',
             'tizen/encryption.cc',

@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "base/memory/ref_counted.h"
 #include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
@@ -19,12 +18,6 @@ class ApplicationStorage {
   explicit ApplicationStorage(const base::FilePath& path);
   ~ApplicationStorage();
 
-  bool AddApplication(scoped_refptr<ApplicationData> app_data);
-
-  bool RemoveApplication(const std::string& app_id);
-
-  bool UpdateApplication(scoped_refptr<ApplicationData> app_data);
-
   bool Contains(const std::string& app_id) const;
 
   scoped_refptr<ApplicationData> GetApplicationData(
@@ -34,7 +27,6 @@ class ApplicationStorage {
       std::vector<std::string>& app_ids) const;  // NOLINT
 
  private:
-  scoped_ptr<class ApplicationStorageImpl> impl_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationStorage);
 };
 

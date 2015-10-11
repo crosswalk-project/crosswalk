@@ -522,17 +522,9 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     }
   }
 
-  if (!storage_->AddApplication(app_data)) {
-    LOG(ERROR) << "Application with id " << app_data->ID()
-               << " couldn't be installed due to a Storage error";
-    base::DeleteFile(app_dir, true);
-    return false;
-  }
-
   if (!PlatformInstall(app_data.get())) {
     LOG(ERROR) << "Application with id " << app_data->ID()
                << " couldn't be installed due to a platform error";
-    storage_->RemoveApplication(app_data->ID());
     base::DeleteFile(app_dir, true);
     return false;
   }
@@ -634,23 +626,9 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
-  if (!storage_->UpdateApplication(new_app_data)) {
-    LOG(ERROR) << "Fail to update application, roll back to the old one.";
-    base::DeleteFile(app_dir, true);
-    base::Move(tmp_dir, app_dir);
-    return false;
-  }
-
   if (!PlatformUpdate(new_app_data.get())) {
     LOG(ERROR) << "Fail to update application, roll back to the old one.";
     base::DeleteFile(app_dir, true);
-    if (!storage_->UpdateApplication(old_app_data)) {
-      LOG(ERROR) << "Fail to revert old application info, "
-                 << "remove the application as a last resort.";
-      storage_->RemoveApplication(old_app_data->ID());
-      base::DeleteFile(tmp_dir, true);
-      return false;
-    }
     base::Move(tmp_dir, app_dir);
     return false;
   }
@@ -669,10 +647,10 @@ bool PackageInstaller::Uninstall(const std::string& id) {
   }
 
   bool result = true;
-  if (!storage_->RemoveApplication(app_id)) {
+  if (!storage_->Contains(app_id)) {
     LOG(ERROR) << "Cannot uninstall application with id " << app_id
                << "; application is not installed.";
-    result = false;
+    return false;
   }
 
   base::FilePath resources;
