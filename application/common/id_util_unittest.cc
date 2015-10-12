@@ -14,11 +14,7 @@ namespace application {
 namespace {
 
 std::string MakePlatformId(const std::string& arg) {
-#if defined(OS_TIZEN)
-  return "xwalk." + arg;
-#else
   return arg;
-#endif
 }
 
 }  // namespace
@@ -74,20 +70,8 @@ TEST(IDUtilTest, IsValidApplicationID) {
       MakePlatformId("abcdefghijklmnopabcdefghijklmnoq")));
   EXPECT_FALSE(IsValidApplicationID(
       MakePlatformId("abcdefghijklmnopabcdefghijklmno0")));
-
-// For Tizen platform upper case letters in application id are not allowed
-// so we expect false unlike in the other platforms that accept them.
-#if defined(OS_TIZEN)
-  EXPECT_FALSE(IsValidApplicationID(
-      MakePlatformId("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP")));
-#else
   EXPECT_TRUE(IsValidApplicationID(
       MakePlatformId("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP")));
-#endif
-
-#if defined(OS_TIZEN)
-  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnop"));
-#endif
 }
 
 }  // namespace application

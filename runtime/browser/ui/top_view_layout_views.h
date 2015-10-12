@@ -13,7 +13,7 @@ namespace xwalk {
 
 // Layout manager that handle a main content view taking all the space and
 // optionally an top view. The top view will always get its preferred
-// height. Used for implementing Tizen Indicator when running fullscreen.
+// height.
 //
 // This layout expects that the view it is managing have either one or two
 // children, and that the setter methods are called accordingly.

@@ -73,13 +73,6 @@ const char kXWalkLaunchScreenPortrait[] =
     "xwalk_launch_screen.portrait";
 const char kXWalkLaunchScreenReadyWhen[] =
     "xwalk_launch_screen.ready_when";
-
-#if defined(OS_TIZEN)
-const char kTizenAppIdKey[] = "tizen_app_id";
-const char kIcon128Key[] = "icons.128";
-const char kXWalkMediaAppClass[] = "xwalk_media_app_class";
-#endif
-
 }  // namespace application_manifest_keys
 
 // manifest keys for widget applications.
@@ -117,75 +110,6 @@ const char kWidgetNamespacePrefix[] = "http://www.w3.org/ns/widgets";
 // Child keys inside 'kAccessKey'.
 const char kAccessOriginKey[] = "@origin";
 const char kAccessSubdomainsKey[] = "@subdomains";
-
-#if defined(OS_TIZEN)
-const char kTizenWidgetKey[] = "widget";
-const char kIcon128Key[] = "widget.icon.@src";
-const char kTizenApplicationKey[] = "widget.application";
-// Child keys inside 'kTizenApplicationKey'
-const char kTizenApplicationIdKey[] = "@id";
-const char kTizenApplicationPackageKey[] = "@package";
-const char kTizenApplicationRequiredVersionKey[] = "@required_version";
-
-const char kTizenAppIdKey[] = "widget.application.@package";
-const char kAllowNavigationKey[] = "widget.allow-navigation.#text";
-const char kCSPReportOnlyKey[] =
-    "widget.content-security-policy-report-only.#text";
-const char kTizenSettingKey[] = "widget.setting";
-const char kTizenContextMenuKey[] = "widget.setting.@context-menu";
-const char kTizenHardwareKey[] = "widget.setting.@hwkey-event";
-const char kTizenEncryptionKey[] = "widget.setting.@encryption";
-const char kTizenMetaDataKey[] = "widget.metadata";
-// Child keys inside 'kTizenMetaDataKey'
-const char kTizenMetaDataNameKey[] = "@key";
-const char kTizenMetaDataValueKey[] = "@value";
-const char kTizenSplashScreenKey[] = "widget.splash-screen";
-const char kTizenSplashScreenSrcKey[] = "@src";
-const char kContentNamespace[] = "widget.content.@namespace";
-const char kTizenScreenOrientationKey[] = "widget.setting.@screen-orientation";
-const char kTizenAppWidgetFullKey[] = "widget.app-widget";
-const char kTizenAppWidgetKey[] = "app-widget";
-const char kTizenAppWidgetIdKey[] = "@id";
-const char kTizenAppWidgetPrimaryKey[] = "@primary";
-const char kTizenAppWidgetUpdatePeriodKey[] = "@update-period";
-const char kTizenAppWidgetAutoLaunchKey[] = "@auto-launch";
-const char kTizenAppWidgetBoxLabelKey[] = "box-label";
-const char kTizenAppWidgetBoxLabelLangKey[] = "@lang";
-const char kTizenAppWidgetBoxLabelTextKey[] = "#text";
-const char kTizenAppWidgetBoxIconKey[] = "box-icon";
-const char kTizenAppWidgetBoxIconSrcKey[] = "@src";
-const char kTizenAppWidgetBoxContentKey[] = "box-content";
-const char kTizenAppWidgetBoxContentSrcKey[] = "@src";
-const char kTizenAppWidgetBoxContentMouseEventKey[] = "@mouse-event";
-const char kTizenAppWidgetBoxContentTouchEffectKey[] = "@touch-effect";
-const char kTizenAppWidgetBoxContentSizeKey[] = "box-size";
-const char kTizenAppWidgetBoxContentSizeTextKey[] = "#text";
-const char kTizenAppWidgetBoxContentSizePreviewKey[] = "@preview";
-const char kTizenAppWidgetBoxContentSizeUseDecorationKey[] = "@use-decoration";
-const char kTizenAppWidgetBoxContentDropViewKey[] = "pd";
-const char kTizenAppWidgetBoxContentDropViewSrcKey[] = "@src";
-const char kTizenAppWidgetBoxContentDropViewWidthKey[] = "@width";
-const char kTizenAppWidgetBoxContentDropViewHeightKey[] = "@height";
-// App control
-const char kTizenApplicationAppControlsKey[] = "widget.app-control";
-const char kTizenApplicationAppControlSrcKey[] = "src";
-const char kTizenApplicationAppControlOperationKey[] = "operation";
-const char kTizenApplicationAppControlUriKey[] = "uri";
-const char kTizenApplicationAppControlMimeKey[] = "mime";
-const char kTizenApplicationAppControlChildNameAttrKey[] = "@name";
-// IME
-const char kTizenImeKey[] = "widget.ime";
-const char kTizenImeUuidKey[] = "uuid";
-const char kTizenImeUuidTextKey[] = "#text";
-const char kTizenImeLanguagesKey[] = "languages";
-const char kTizenImeLanguageKey[] = "language";
-const char kTizenImeLanguageTextKey[] = "#text";
-// category
-const char kTizenCategoryKey[] = "widget.category";
-const char kTizenCategoryNameKey[] = "@name";
-const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
-#endif
-
 }  // namespace application_widget_keys
 
 namespace application_manifest_values {
@@ -234,20 +158,5 @@ const char* GetCSPKey(Manifest::Type manifest_type) {
   return application_manifest_keys::kCSPKey;
 }
 
-#if defined(OS_TIZEN)
-const char* GetTizenAppIdKey(Manifest::Type manifest_type) {
-  if (manifest_type == Manifest::TYPE_WIDGET)
-    return application_widget_keys::kTizenAppIdKey;
-
-  return application_manifest_keys::kTizenAppIdKey;
-}
-
-const char* GetIcon128Key(Manifest::Type manifest_type) {
-  if (manifest_type == Manifest::TYPE_WIDGET)
-    return application_widget_keys::kIcon128Key;
-
-  return application_manifest_keys::kIcon128Key;
-}
-#endif
 }  // namespace application
 }  // namespace xwalk

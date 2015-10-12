@@ -21,14 +21,6 @@ extern const char kDefaultManifestVersion[];
 extern const char kDefaultWidgetName[];
 extern const char kDefaultWidgetVersion[];
 
-#if defined(OS_TIZEN)
-
-extern const char kDefaultWidgetPackageId[];
-extern const char kDefaultWidgetApplicationName[];
-extern const char kDefaultWidgetRequiredVersion[];
-
-#endif  // defined(OS_TIZEN)
-
 // Creates a minimal valid manifest configuration.
 scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig();
 

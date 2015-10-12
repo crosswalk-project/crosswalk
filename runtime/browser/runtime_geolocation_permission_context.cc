@@ -14,15 +14,6 @@
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #endif
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/browser/application.h"
-#include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/manifest_handlers/permissions_handler.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
-#endif
-
 namespace xwalk {
 
 void RuntimeGeolocationPermissionContext::
@@ -73,34 +64,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
   }
 
   xwalk_content->ShowGeolocationPrompt(requesting_frame, result_callback);
-#elif defined(OS_TIZEN)
-  int render_view_id = web_contents->GetRenderViewHost()->GetRoutingID();
-  bool has_geolocation_permission = false;
-  XWalkRunner* runner = XWalkRunner::GetInstance();
-  application::ApplicationSystem* app_system = runner->app_system();
-  application::ApplicationService* app_service =
-      app_system->application_service();
-  application::Application* application =
-      app_service->GetApplicationByRenderHostID(render_view_id);
-
-  if (application) {
-    DCHECK(application->data());
-    application::PermissionsInfo* info =
-      static_cast<application::PermissionsInfo*>(
-      application->data()->GetManifestData(
-          application_manifest_keys::kPermissionsKey));
-
-    if (info) {
-      const application::PermissionSet& permissions = info->GetAPIPermissions();
-      application::PermissionSet::const_iterator it =
-          std::find(permissions.begin(), permissions.end(), "geolocation");
-      has_geolocation_permission = it != permissions.end();
-    }
-  }
-
-  result_callback.Run(has_geolocation_permission);
 #endif
-
   // TODO(yongsheng): Handle this for other platforms.
 }
 

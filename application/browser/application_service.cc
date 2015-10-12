@@ -18,10 +18,6 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/browser/application_service_tizen.h"
-#endif
-
 namespace xwalk {
 
 namespace application {
@@ -32,12 +28,7 @@ ApplicationService::ApplicationService(XWalkBrowserContext* browser_context)
 
 scoped_ptr<ApplicationService> ApplicationService::Create(
     XWalkBrowserContext* browser_context) {
-#if defined(OS_TIZEN)
-  return make_scoped_ptr<ApplicationService>(
-    new ApplicationServiceTizen(browser_context));
-#else
   return make_scoped_ptr(new ApplicationService(browser_context));
-#endif
 }
 
 ApplicationService::~ApplicationService() {

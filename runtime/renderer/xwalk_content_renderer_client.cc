@@ -39,15 +39,6 @@
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #endif
 
-#if defined(OS_TIZEN_MOBILE)
-#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
-#endif
-
-#if defined(OS_TIZEN)
-#include "third_party/WebKit/public/web/WebScriptSource.h"
-#include "xwalk/runtime/renderer/tizen/xwalk_render_view_ext_tizen.h"
-#endif
-
 #if !defined(DISABLE_NACL)
 #include "components/nacl/renderer/nacl_helper.h"
 #endif
@@ -76,23 +67,6 @@ class XWalkFrameHelper
     if (extension_controller_)
       extension_controller_->DidCreateScriptContext(
           render_frame()->GetWebFrame(), context);
-
-#if defined(OS_TIZEN)
-    const std::string code =
-        "(function() {"
-        "  window.eventListenerList = [];"
-        "  window._addEventListener = window.addEventListener;"
-        "  window.addEventListener = function(event, callback, useCapture) {"
-        "    if (event == 'storage') {"
-        "      window.eventListenerList.push(callback);"
-        "    }"
-        "    window._addEventListener(event, callback, useCapture);"
-        "  }"
-        "})();";
-    const blink::WebScriptSource source =
-      blink::WebScriptSource(base::ASCIIToUTF16(code));
-    render_frame()->GetWebFrame()->executeScript(source);
-#endif
   }
   void WillReleaseScriptContext(v8::Handle<v8::Context> context,
                                 int world_id) override {
@@ -100,18 +74,6 @@ class XWalkFrameHelper
       extension_controller_->WillReleaseScriptContext(
           render_frame()->GetWebFrame(), context);
   }
-
-#if defined(OS_TIZEN)
-  void DidCommitProvisionalLoad(bool is_new_navigation,
-                                bool is_same_page_navigation) override {
-    blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
-    GURL url(frame->document().url());
-    if (url.SchemeIs(application::kApplicationScheme)) {
-      blink::WebSecurityOrigin origin = frame->document().securityOrigin();
-      origin.grantLoadLocalResources();
-    }
-  }
-#endif
 
  private:
   extensions::XWalkExtensionRendererController* extension_controller_;
@@ -186,8 +148,6 @@ void XWalkContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
 #if defined(OS_ANDROID)
   XWalkRenderViewExt::RenderViewCreated(render_view);
-#elif defined(OS_TIZEN)
-  XWalkRenderViewExtTizen::RenderViewCreated(render_view);
 #endif
 }
 
@@ -272,12 +232,6 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
   }
 
   LOG(INFO) << "[BLOCK] " << origin_url.spec() << " request " << url.spec();
-#if defined(OS_TIZEN)
-  if (url.GetOrigin() != app_url.GetOrigin() &&
-      origin_url != first_party_for_cookies &&
-      first_party_for_cookies.GetOrigin() != app_url.GetOrigin())
-    content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
-#endif
   *new_url = GURL();
   return true;
 #endif

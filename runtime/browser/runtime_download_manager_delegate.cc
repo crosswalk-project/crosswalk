@@ -27,7 +27,7 @@
 #include "net/base/filename_util.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 
-#if defined(OS_LINUX) && !defined(OS_TIZEN)
+#if defined(OS_LINUX)
 #include "base/nix/xdg_util.h"
 #endif
 
@@ -61,7 +61,7 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
   // This assignment needs to be here because even at the call to
   // SetDownloadManager, the system is not fully initialized.
   if (default_download_path_.empty()) {
-#if defined(OS_LINUX) && !defined(OS_TIZEN)
+#if defined(OS_LINUX)
     default_download_path_ =
         base::nix::GetXDGUserDirectory("DOWNLOAD", "Downloads");
 #else
@@ -180,7 +180,7 @@ void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
 
   callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
                content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
-#elif defined(OS_LINUX) && !defined(OS_TIZEN)
+#elif defined(OS_LINUX)
   content::WebContents* contents = item->GetWebContents();
   Runtime* runtime = static_cast<Runtime*>(contents->GetDelegate());
   if (!runtime->AddDownloadItem(item, callback, suggested_path)) {

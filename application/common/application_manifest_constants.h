@@ -66,12 +66,6 @@ namespace application_manifest_keys {
   extern const char kXWalkLaunchScreenLandscape[];
   extern const char kXWalkLaunchScreenPortrait[];
   extern const char kXWalkLaunchScreenReadyWhen[];
-
-#if defined(OS_TIZEN)
-  extern const char kTizenAppIdKey[];
-  extern const char kIcon128Key[];
-  extern const char kXWalkMediaAppClass[];
-#endif
 }  // namespace application_manifest_keys
 
 namespace application_widget_keys {
@@ -102,66 +96,6 @@ namespace application_widget_keys {
   extern const char kPreferencesReadonlyKey[];
   extern const char kWidgetNamespaceKey[];
   extern const char kWidgetNamespacePrefix[];
-#if defined(OS_TIZEN)
-  extern const char kTizenWidgetKey[];
-  extern const char kTizenApplicationKey[];
-  extern const char kTizenApplicationIdKey[];
-  extern const char kTizenApplicationPackageKey[];
-  extern const char kTizenApplicationRequiredVersionKey[];
-  extern const char kTizenAppIdKey[];
-  extern const char kIcon128Key[];
-  extern const char kAllowNavigationKey[];
-  extern const char kCSPReportOnlyKey[];
-  extern const char kTizenSettingKey[];
-  extern const char kTizenContextMenuKey[];
-  extern const char kTizenHardwareKey[];
-  extern const char kTizenEncryptionKey[];
-  extern const char kTizenMetaDataKey[];
-  extern const char kTizenMetaDataNameKey[];
-  extern const char kTizenMetaDataValueKey[];
-  extern const char kTizenSplashScreenKey[];
-  extern const char kTizenSplashScreenSrcKey[];
-  extern const char kContentNamespace[];
-  extern const char kTizenScreenOrientationKey[];
-  extern const char kTizenAppWidgetFullKey[];
-  extern const char kTizenAppWidgetKey[];
-  extern const char kTizenAppWidgetIdKey[];
-  extern const char kTizenAppWidgetPrimaryKey[];
-  extern const char kTizenAppWidgetUpdatePeriodKey[];
-  extern const char kTizenAppWidgetAutoLaunchKey[];
-  extern const char kTizenAppWidgetBoxLabelKey[];
-  extern const char kTizenAppWidgetBoxLabelLangKey[];
-  extern const char kTizenAppWidgetBoxLabelTextKey[];
-  extern const char kTizenAppWidgetBoxIconKey[];
-  extern const char kTizenAppWidgetBoxIconSrcKey[];
-  extern const char kTizenAppWidgetBoxContentKey[];
-  extern const char kTizenAppWidgetBoxContentSrcKey[];
-  extern const char kTizenAppWidgetBoxContentMouseEventKey[];
-  extern const char kTizenAppWidgetBoxContentTouchEffectKey[];
-  extern const char kTizenAppWidgetBoxContentSizeKey[];
-  extern const char kTizenAppWidgetBoxContentSizeTextKey[];
-  extern const char kTizenAppWidgetBoxContentSizePreviewKey[];
-  extern const char kTizenAppWidgetBoxContentSizeUseDecorationKey[];
-  extern const char kTizenAppWidgetBoxContentDropViewKey[];
-  extern const char kTizenAppWidgetBoxContentDropViewSrcKey[];
-  extern const char kTizenAppWidgetBoxContentDropViewWidthKey[];
-  extern const char kTizenAppWidgetBoxContentDropViewHeightKey[];
-  extern const char kTizenApplicationAppControlsKey[];
-  extern const char kTizenApplicationAppControlSrcKey[];
-  extern const char kTizenApplicationAppControlOperationKey[];
-  extern const char kTizenApplicationAppControlUriKey[];
-  extern const char kTizenApplicationAppControlMimeKey[];
-  extern const char kTizenApplicationAppControlChildNameAttrKey[];
-  extern const char kTizenImeKey[];
-  extern const char kTizenImeUuidKey[];
-  extern const char kTizenImeUuidTextKey[];
-  extern const char kTizenImeLanguagesKey[];
-  extern const char kTizenImeLanguageKey[];
-  extern const char kTizenImeLanguageTextKey[];
-  extern const char kTizenCategoryKey[];
-  extern const char kTizenCategoryNameKey[];
-  extern const char kTizenNamespacePrefix[];
-#endif
 }  // namespace application_widget_keys
 
 namespace application_manifest_values {
@@ -183,10 +117,6 @@ namespace application_manifest_errors {
 namespace application {
 const char* GetNameKey(Manifest::Type type);
 const char* GetCSPKey(Manifest::Type type);
-#if defined(OS_TIZEN)
-const char* GetTizenAppIdKey(Manifest::Type type);
-const char* GetIcon128Key(Manifest::Type type);
-#endif
 }  // namespace application
 }  // namespace xwalk
 

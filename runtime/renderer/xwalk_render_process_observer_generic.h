@@ -45,9 +45,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   }
 
   const GURL& app_url() const { return app_url_; }
-#if defined(OS_TIZEN)
-  std::string GetOverridenUserAgent() const;
-#endif
   bool CanRequest(const GURL& orig, const GURL& dest) const;
 
  private:
@@ -56,10 +53,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   void OnEnableSecurityMode(
       const GURL& url,
       application::ApplicationSecurityPolicy::SecurityMode mode);
-#if defined(OS_TIZEN)
-  void OnUserAgentChanged(const std::string& userAgentString);
-  std::string overriden_user_agent_;
-#endif
   void AddAccessWhiteListEntry(const GURL& source,
                                const GURL& dest,
                                bool allow_subdomains);

@@ -24,10 +24,6 @@
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/common/constants.h"
-#endif
-
 namespace xwalk {
 namespace extensions {
 
@@ -74,24 +70,6 @@ void CreateExtensionModules(XWalkExtensionClient* client,
   }
 }
 
-#if defined(OS_TIZEN)
-void CreateExtensionModulesWithoutDeviceAPI(XWalkExtensionClient* client,
-                                            XWalkModuleSystem* module_system) {
-  const XWalkExtensionClient::ExtensionAPIMap& extensions =
-      client->extension_apis();
-  XWalkExtensionClient::ExtensionAPIMap::const_iterator it = extensions.begin();
-  for (; it != extensions.end(); ++it) {
-    XWalkExtensionClient::ExtensionCodePoints* codepoint = it->second;
-    if (codepoint->api.empty() || it->first.find("tizen") == 0)
-      continue;
-    scoped_ptr<XWalkExtensionModule> module(
-        new XWalkExtensionModule(client, module_system,
-                                 it->first, codepoint->api));
-    module_system->RegisterExtensionModule(module.Pass(),
-                                           codepoint->entry_points);
-  }
-}
-#endif
 }  // namespace
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
@@ -116,19 +94,8 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
                          module_system);
 
   if (external_extensions_client_) {
-#if defined(OS_TIZEN)
-    // On Tizen platform, only local pages can access to device APIs.
-    GURL url = static_cast<GURL>(frame->document().url());
-    if (!url.SchemeIs(xwalk::application::kApplicationScheme) &&
-        !url.SchemeIsFile())
-      CreateExtensionModulesWithoutDeviceAPI(external_extensions_client_.get(),
-                                             module_system);
-    else
-      CreateExtensionModules(external_extensions_client_.get(), module_system);
-#else
     CreateExtensionModules(external_extensions_client_.get(),
                            module_system);
-#endif
   }
 
   module_system->Initialize();

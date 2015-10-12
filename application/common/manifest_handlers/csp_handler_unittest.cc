@@ -65,34 +65,5 @@ TEST_F(CSPHandlerTest, CSP) {
   EXPECT_STREQ((it->second)[0].c_str(), "'self'");
 }
 
-#if defined(OS_TIZEN)
-TEST_F(CSPHandlerTest, WGTEmptyCSP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
-  manifest->SetString(widget_keys::kCSPKey, "");
-  scoped_refptr<ApplicationData> application =
-      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
-  EXPECT_TRUE(application.get());
-  EXPECT_TRUE(GetCSPInfo(application));
-  EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 0);
-}
-
-TEST_F(CSPHandlerTest, WGTCSP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
-  manifest->SetString(widget_keys::kCSPKey, "default-src    'self'   ");
-  scoped_refptr<ApplicationData> application =
-      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
-  EXPECT_TRUE(application.get());
-  EXPECT_TRUE(GetCSPInfo(application));
-  const std::map<std::string, std::vector<std::string> >& policies =
-      GetCSPInfo(application)->GetDirectives();
-  EXPECT_EQ(policies.size(), 1);
-  std::map<std::string, std::vector<std::string> >::const_iterator it =
-      policies.find("default-src");
-  ASSERT_NE(it, policies.end());
-  EXPECT_EQ(it->second.size(), 1);
-  EXPECT_STREQ((it->second)[0].c_str(), "'self'");
-}
-#endif
-
 }  // namespace application
 }  // namespace xwalk

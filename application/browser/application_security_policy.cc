@@ -14,7 +14,6 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
-#include "xwalk/application/common/manifest_handlers/tizen_navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
@@ -177,36 +176,7 @@ void ApplicationSecurityPolicyCSP::Enforce() {
   const char* scp_key = GetCSPKey(manifest_type);
   CSPInfo* csp_info =
       static_cast<CSPInfo*>(app_->data()->GetManifestData(scp_key));
-  if (manifest_type == Manifest::TYPE_WIDGET) {
-#if defined(OS_TIZEN)
-    if (!csp_info || csp_info->GetDirectives().empty())
-       app_->data()->SetManifestData(scp_key, GetDefaultCSPInfo());
-    // Always enable security mode when under CSP mode.
-    enabled_ = true;
-    TizenNavigationInfo* info = static_cast<TizenNavigationInfo*>(
-        app_->data()->GetManifestData(widget_keys::kAllowNavigationKey));
-    if (info) {
-      const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
-      for (const auto& it : allowed_list) {
-        // If the policy is "*", it represents that any external link is allowed
-        // to navigate to.
-        if (it == kAsterisk) {
-          enabled_ = false;
-          return;
-        }
-
-        // If the policy start with "*.", like this: *.domain,
-        // means that can access to all subdomains for 'domain',
-        // otherwise, the host of request url should exactly the same
-        // as policy.
-        bool subdomains = (it.find("*.") == 0);
-        const std::string host = subdomains ? it.substr(2) : it;
-        AddWhitelistEntry(GURL("http://" + host), subdomains);
-        AddWhitelistEntry(GURL("https://" + host), subdomains);
-      }
-    }
-#endif
-  } else {
+  if (manifest_type != Manifest::TYPE_WIDGET) {
     if (csp_info && !csp_info->GetDirectives().empty()) {
       enabled_ = true;
       const std::map<std::string, std::vector<std::string> >& policies =
