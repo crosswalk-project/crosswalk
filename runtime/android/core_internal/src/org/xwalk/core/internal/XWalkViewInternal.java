@@ -1287,4 +1287,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         return mContent.onTouchEvent(event);
     }
 
+    // Use delegate to access XWalkView's protected method
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onScrollChanged(l, t, oldl, oldt);"})
+    public void onScrollChangedDelegate(int l, int t, int oldl, int oldt) {
+    }
+
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onFocusChanged(gainFocus, direction, previouslyFocusedRect);"})
+    public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+    }
 }
