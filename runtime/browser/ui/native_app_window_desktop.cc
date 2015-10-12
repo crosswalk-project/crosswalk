@@ -98,8 +98,9 @@ class NativeAppWindowDesktop::DevToolsWebContentsObserver
 };
 
 // Model for the "Debug" menu
-class NativeAppWindowDesktop::ContextMenuModel : public ui::SimpleMenuModel,
-  public ui::SimpleMenuModel::Delegate {
+class NativeAppWindowDesktop::ContextMenuModel
+  : public ui::SimpleMenuModel,
+    public ui::SimpleMenuModel::Delegate {
  public:
   explicit ContextMenuModel(
     NativeAppWindowDesktop* shell, const content::ContextMenuParams& params)
@@ -323,16 +324,17 @@ void NativeAppWindowDesktop::ShowWebViewContextMenu(
         &screen_point);
   }
 
-  context_menu_model_ = new ContextMenuModel(this, params);
+  context_menu_model_.reset(new ContextMenuModel(this, params));
   context_menu_runner_.reset(new views::MenuRunner(
-      context_menu_model_, views::MenuRunner::CONTEXT_MENU));
+      context_menu_model_.get(), views::MenuRunner::CONTEXT_MENU));
 
-  if (context_menu_runner_->RunMenuAt(web_view_->GetWidget(),
-    NULL,
-    gfx::Rect(screen_point, gfx::Size()),
-    views::MENU_ANCHOR_TOPRIGHT,
-    ui::MENU_SOURCE_NONE) ==
-    views::MenuRunner::MENU_DELETED) {
+  if (context_menu_model_->GetItemCount() > 0 &&
+      context_menu_runner_->RunMenuAt(web_view_->GetWidget(),
+      NULL,
+      gfx::Rect(screen_point, gfx::Size()),
+      views::MENU_ANCHOR_TOPRIGHT,
+      ui::MENU_SOURCE_NONE) ==
+      views::MenuRunner::MENU_DELETED) {
     return;
   }
 }
