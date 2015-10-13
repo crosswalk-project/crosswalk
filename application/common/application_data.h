@@ -26,6 +26,10 @@
 #include "xwalk/application/common/permission_types.h"
 #include "xwalk/application/common/package/package.h"
 
+#if defined(OS_WIN)
+#define strcasecmp _stricmp
+#endif
+
 namespace base {
 class DictionaryValue;
 class ListValue;

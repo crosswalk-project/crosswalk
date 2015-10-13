@@ -13,6 +13,10 @@
 #include "base/strings/string_split.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
+#if defined(OS_WIN)
+#define strcasecmp _stricmp
+#endif
+
 namespace xwalk {
 
 namespace keys = application_widget_keys;

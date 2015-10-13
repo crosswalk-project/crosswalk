@@ -578,6 +578,7 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/strings/ui_strings.gyp:ui_strings',
+        '<(DEPTH)/ui/app_list/resources/app_list_resources.gyp:app_list_resources',
         '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
         '<(DEPTH)/content/app/resources/content_resources.gyp:content_resources',
         'xwalk_resources',
