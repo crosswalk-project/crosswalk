@@ -213,6 +213,23 @@
       'includes': ['../build/jni_generator.gypi'],
     },
     {
+      'target_name': 'xwalk_runtime_lib_lzma_apk',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_runtime_lib_apk'
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeLibLzma',
+        'java_in_dir': 'runtime/android/runtime_lib',
+        'resource_dir': 'runtime/android/runtime_lib/res',
+        'asset_location': '<(PRODUCT_DIR)/xwalk_runtime_lib_lzma/assets',
+        'app_manifest_version_name': '<(xwalk_version)',
+        'app_manifest_version_code': '<(xwalk_version_code)',
+        'is_test_apk': 1,
+      },
+      'includes': ['../build/java_apk.gypi'],
+    },
+    {
       'target_name': 'xwalk_runtime_lib_apk',
       'type': 'none',
       'dependencies': [
@@ -252,6 +269,47 @@
         'app_manifest_version_code': '<(xwalk_version_code)',
       },
       'includes': ['../build/java_apk.gypi'],
+      'actions': [
+        {
+          'action_name': 'runtime_lib_lzma',
+          'message': 'Compressing runtime APK assets with LZMA',
+          'variables': {
+            # We have to use three separate variables because libxwalkcore.so
+            # in the <(stripped_libraries_dir) is not registered as an output
+            # in the build system, so we cannot use it as an input for the
+            # action. Instead, we use the stamp file produced by
+            # strip_native_libraries.gypi and pass the library as an input only
+            # to the lzma_compress.py script.
+            'base_inputs': [
+              '<(dex_path)',
+              '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
+              '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
+            ],
+            'build_system_inputs': [
+              '<@(base_inputs)',
+              '<(strip_stamp)',
+            ],
+            'lzma_compress_inputs': [
+              '<@(base_inputs)',
+              '<(stripped_libraries_dir)/libxwalkcore.so',
+            ],
+            'assets_dir': '<(PRODUCT_DIR)/xwalk_runtime_lib_lzma/assets',
+          },
+          'inputs': [
+            '<@(build_system_inputs)',
+          ],
+          'outputs': [
+            "<!@(['python', 'build/android/lzma_compress.py', '--mode=show-output-names', \
+                  '--sources=<(lzma_compress_inputs)', '--dest-path=<(assets_dir)'])",
+          ],
+          'action': [
+            'python', 'build/android/lzma_compress.py',
+            '--mode=compress',
+            '--dest-path=<(assets_dir)',
+            '--sources=<(lzma_compress_inputs)',
+          ],
+        },
+      ],
     },
     {
       'target_name': 'xwalk_runtime_lib_apk_pak',
