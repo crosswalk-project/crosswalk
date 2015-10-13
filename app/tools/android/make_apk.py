@@ -908,16 +908,12 @@ def main(argv):
     if not os.path.isfile(options.manifest):
       print('Error: The manifest file does not exist.')
       sys.exit(8)
-
-  if options.app_root and not options.manifest:
-    manifest_path = os.path.join(options.app_root, 'manifest.json')
-    if os.path.exists(manifest_path):
-      print('Using manifest.json distributed with the application.')
-      options.manifest = manifest_path
-
-  app_info = AppInfo()
-  manifest = None
-  if not options.manifest:
+    try:
+      manifest = ParseManifest(options)
+    except SystemExit as ec:
+      return ec.code
+  else:
+    manifest = None
     # The checks here are really convoluted, but at the moment make_apk
     # misbehaves any of the following conditions is true.
     if options.app_url:
@@ -946,11 +942,6 @@ def main(argv):
       permission_list = permission_mapping_table.keys()
     options.permissions = HandlePermissionList(permission_list)
     options.icon_dict = {}
-  else:
-    try:
-      manifest = ParseManifest(options)
-    except SystemExit as ec:
-      return ec.code
 
   if not options.name:
     parser.error('An APK name is required. Please use the "--name" option.')
@@ -988,6 +979,7 @@ def main(argv):
     sys.exit(14)
 
   try:
+    app_info = AppInfo()
     MakeApk(options, app_info, manifest)
   except SystemExit as ec:
     return ec.code

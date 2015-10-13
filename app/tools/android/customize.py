@@ -323,7 +323,7 @@ def SetVariable(file_path, string_line, variable, value):
   shutil.move(temp_file_path, file_path)
 
 
-def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
+def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on, manifest):
   name = app_info.android_name
   package = app_info.package
   app_dir = GetBuildDir(name)
@@ -331,12 +331,14 @@ def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
   dest_activity = os.path.join(app_pkg_dir, name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', package)
   ReplaceString(dest_activity, 'AppTemplate', name)
-  manifest_file = os.path.join(app_dir, 'assets', 'www', 'manifest.json')
-  if os.path.isfile(manifest_file):
+  if manifest:
+    manifest_name = os.path.basename(manifest.input_path)
+    manifest_in_asset = 'file:///android_asset/www/' + manifest_name
+    load_from_manifest = 'loadAppFromManifest("' + manifest_in_asset + '")'
     ReplaceString(
         dest_activity,
         'loadAppFromUrl("file:///android_asset/www/index.html")',
-        'loadAppFromManifest("file:///android_asset/www/manifest.json")')
+        load_from_manifest)
   else:
     if app_url:
       if re.search(r'^http(|s)', app_url):
@@ -589,7 +591,7 @@ def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
   try:
     Prepare(app_info, compressor)
     CustomizeXML(app_info, description, icon_dict, manifest, permissions)
-    CustomizeJava(app_info, app_url, app_local_path, keep_screen_on)
+    CustomizeJava(app_info, app_url, app_local_path, keep_screen_on, manifest)
     CustomizeExtensions(app_info, extensions)
     GenerateCommandLineFile(app_info, xwalk_command_line)
   except SystemExit as ec:
