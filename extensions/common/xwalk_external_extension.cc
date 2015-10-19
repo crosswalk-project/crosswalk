@@ -23,6 +23,7 @@ XWalkExternalExtension::XWalkExternalExtension(const base::FilePath& path)
       shutdown_callback_(NULL),
       handle_msg_callback_(NULL),
       handle_sync_msg_callback_(NULL),
+      handle_binary_msg_callback_(NULL),
       initialized_(false),
       library_path_(path) {
 }
