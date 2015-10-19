@@ -306,6 +306,8 @@ def Customize(options, app_info, manifest):
     app_info.icon = '%s' % os.path.expanduser(options.icon)
   if options.xwalk_apk_url:
     app_info.xwalk_apk_url = options.xwalk_apk_url
+  if options.mode:
+    app_info.mode = options.mode
 
   #Add local extensions to extension list.
   extension_binary_path_list = GetExtensionBinaryPathList()
@@ -425,7 +427,7 @@ def Execution(options, app_info):
                 '--path', os.path.join(app_dir, EMBEDDED_LIBRARY),
                 '--target', target_string])
     update_project_cmd.extend(['-l', EMBEDDED_LIBRARY])
-  elif options.mode == 'shared':
+  elif options.mode == 'shared' or options.mode == 'download':
     print(' * Updating project with xwalk_shared_library')
     RunCommand([android_path, 'update', 'lib-project',
                 '--path', os.path.join(app_dir, SHARED_LIBRARY),
@@ -551,7 +553,7 @@ def Execution(options, app_info):
   package_name = name
   if options.app_version:
     package_name += ('_' + options.app_version)
-  if options.mode == 'shared':
+  if options.mode == 'shared' or options.mode == 'download':
     dst_file = os.path.join(options.target_dir, '%s.apk' % package_name)
   elif options.mode == 'embedded':
     dst_file = os.path.join(options.target_dir,
@@ -577,9 +579,10 @@ def PrintPackageInfo(options, name, packaged_archs):
 
   if len(packaged_archs) == 0:
     print ('\nA non-platform specific APK for the web application "%s" was '
-           'generated successfully at:\n %s.apk.\nIt requires a shared '
-           'Crosswalk Runtime to be present.'
+           'generated successfully at:\n %s.apk.\n'
            % (name, package_name_version))
+    if options.mode == 'shared':
+      print ('It requires a shared Crosswalk Runtime to be present.')
     return
 
   print('\nApplication APKs were created for the following architectures:')
@@ -693,7 +696,7 @@ def MakeApk(options, app_info, manifest):
   name = app_info.android_name
   app_dir = GetBuildDir(name)
   packaged_archs = []
-  if options.mode == 'shared':
+  if options.mode == 'shared' or options.mode == 'download':
     MakeSharedApk(options, app_info, app_dir)
   else: # default
     MakeEmbeddedApk(options, app_info, app_dir, packaged_archs)
@@ -732,8 +735,10 @@ def main(argv):
           'instances and that the runtime needs to be distributed separately. '
           'The value \'embedded\' means that the runtime is embedded into the '
           'application itself and distributed along with it.'
+          'The value \'download\' means that the runtime is downloaded from the'
+          'xwalk-apk-url at the first luanch of application.'
           'Set the default mode as \'embedded\'. For example: --mode=embedded')
-  parser.add_option('--mode', choices=('embedded', 'shared'),
+  parser.add_option('--mode', choices=('embedded', 'shared', 'download'),
                     default='embedded', help=info)
   info = ('The target architecture of the embedded runtime. Supported values: '
           '%s. If not specified, APKs for all available architectures will be '
@@ -963,6 +968,11 @@ def main(argv):
 
   if options.mode != 'embedded' and options.enable_lzma:
     parser.error('LZMA is only available in embedded mode.')
+
+  if options.mode == 'download' and not options.xwalk_apk_url:
+    print('\nmake_apk.py error: Please use Option --xwalk-apk-url or xwalk_apk_url'
+          ' in manifest to specify the runtime Apk URL in download mode')
+    sys.exit(8)
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,

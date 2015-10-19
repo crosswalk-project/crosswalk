@@ -11,7 +11,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.os.Build;
 import android.util.Log;
+import dalvik.system.DexClassLoader;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -29,6 +31,9 @@ class XWalkCoreWrapper {
     private static final String WRAPPER_PACKAGE = "org.xwalk.core";
     private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
     private static final String TAG = "XWalkLib";
+    private static final String XWALK_CORE_LIB_DIR = "extracted_xwalkcore";
+    private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
+    private static final String OPTIMIZED_DEX_DIR = "dex";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -151,7 +156,11 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
-            sProvisionalInstance.findSharedCore();
+            if (XWalkUpdater.isDownloadModeEnabled()) {
+                sProvisionalInstance.findDownloadedCore();
+            } else {
+                sProvisionalInstance.findSharedCore();
+            }
         }
         return sProvisionalInstance.mCoreStatus;
     }
@@ -237,6 +246,23 @@ class XWalkCoreWrapper {
         return true;
     }
 
+    private boolean findDownloadedCore() {
+        String libDir = mWrapperContext.getDir(XWALK_CORE_LIB_DIR, Context.MODE_PRIVATE).toString();
+        String dexPath = libDir + File.separator + XWALK_CORE_CLASSES_DEX;
+        String dexOutputPath = mWrapperContext.getDir(OPTIMIZED_DEX_DIR, Context.MODE_PRIVATE).getAbsolutePath();
+        ClassLoader localClassLoader = ClassLoader.getSystemClassLoader();
+        mBridgeLoader = new DexClassLoader(dexPath, dexOutputPath, libDir, localClassLoader);
+
+        if (!checkCoreVersion() || !checkCoreArchitecture()) {
+            mBridgeLoader = null;
+            return false;
+        }
+
+        Log.d(TAG, "Running in downloaded mode");
+        mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
+        return true;
+    }
+
     private boolean checkCoreVersion() {
         try {
             Class<?> clazz = getBridgeClass("XWalkCoreVersion");
@@ -315,7 +341,7 @@ class XWalkCoreWrapper {
             try {
                 PackageInfo packageInfo = mWrapperContext.getPackageManager().getPackageInfo(
                         XWALK_APK_PACKAGE, PackageManager.GET_SIGNATURES);
-                if (!verifyPackageInfo(packageInfo,
+                if (!XWalkCoreVerifier.verifyPackageInfo(packageInfo,
                         XWalkAppVersion.XWALK_APK_HASH_ALGORITHM,
                         XWalkAppVersion.XWALK_APK_HASH_CODE)) {
                     mCoreStatus = XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR;
@@ -337,54 +363,6 @@ class XWalkCoreWrapper {
 
         Log.d(TAG, "Created package context for " + XWALK_APK_PACKAGE);
         return true;
-    }
-
-    private boolean verifyPackageInfo(PackageInfo packageInfo, String hashAlgorithm,
-            String hashCode) {
-        if (packageInfo.signatures == null) {
-            Log.e(TAG, "No signature in package info");
-            return false;
-        }
-
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance(hashAlgorithm);
-        } catch (NoSuchAlgorithmException | NullPointerException e) {
-            Assert.fail("Invalid hash algorithm");
-        }
-
-        byte[] hashArray = hexStringToByteArray(hashCode);
-        if (hashArray == null) {
-            Assert.fail("Invalid hash code");
-        }
-
-        for (int i = 0; i < packageInfo.signatures.length; ++i) {
-            Log.d(TAG, "Checking signature " + i);
-            byte[] binaryCert = packageInfo.signatures[i].toByteArray();
-            byte[] digest = md.digest(binaryCert);
-            if (!MessageDigest.isEqual(digest, hashArray)) {
-                Log.e(TAG, "Hash code does not match");
-                continue;
-            }
-
-            Log.d(TAG, "Signature passed verification");
-            return true;
-        }
-
-        return false;
-    }
-
-    private byte[] hexStringToByteArray(String str) {
-        if (str == null || str.isEmpty() || str.length()%2 != 0) return null;
-
-        byte[] result = new byte[str.length() / 2];
-        for (int i = 0; i < str.length(); i += 2) {
-            int digit = Character.digit(str.charAt(i), 16);
-            digit <<= 4;
-            digit += Character.digit(str.charAt(i+1), 16);
-            result[i/2] = (byte) digit;
-        }
-        return result;
     }
 
     public boolean isSharedMode() {

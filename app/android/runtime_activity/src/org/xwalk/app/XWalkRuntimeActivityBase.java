@@ -7,6 +7,9 @@ package org.xwalk.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +21,7 @@ import org.xwalk.core.XWalkPreferences;
 
 public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
     private static final String TAG = "XWalkRuntimeActivityBase";
+    private static final String META_DATA_DOWNLOAD = "xwalk_download_enabled";
 
     private XWalkRuntimeView mRuntimeView;
 
@@ -31,6 +35,20 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tryLoadRuntimeView();
+    }
+
+    @Override
+    protected boolean shouldEnableDownloadMode() {
+        boolean enabled = false;
+        try {
+            ApplicationInfo appInfo = getPackageManager().getApplicationInfo(
+                    getPackageName(), PackageManager.GET_META_DATA);
+            if (appInfo.metaData.getString(META_DATA_DOWNLOAD) != null) {
+                enabled = true;
+            }
+        } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return enabled;
     }
 
     @Override

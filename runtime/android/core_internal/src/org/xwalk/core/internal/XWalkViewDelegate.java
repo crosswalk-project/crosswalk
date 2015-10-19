@@ -6,6 +6,8 @@ package org.xwalk.core.internal;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources.NotFoundException;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import junit.framework.Assert;
@@ -41,6 +44,7 @@ class XWalkViewDelegate {
     private static boolean sLibraryLoaded = false;
     private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
+    private static final String XWALK_CORE_LIB_DIR = "extracted_xwalkcore";
 
     // TODO(rakuco,lincsoon): This list is also in generate_xwalk_core_library.py.
     // We should remove it from one of the places to avoid duplication.
@@ -207,19 +211,15 @@ class XWalkViewDelegate {
                 !isSharedMode && Arrays.asList(context.getAssets().list("")).contains(XWALK_PAK_NAME);
 
         HashMap<String, ResourceEntry> resourceList = new HashMap<String, ResourceEntry>();
-        if (isSharedMode || isTestApk) {
-            for (String resource : MANDATORY_PAKS) {
+        try {
+            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
+            String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
+            for (String resource : crosswalkResources) {
                 resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
-        } else {
-            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
-            try {
-                final String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
-                for (String resource : crosswalkResources) {
-                    resourceList.put(resource, new ResourceEntry(0, "", resource));
-                }
-            } catch (NotFoundException e) {
-                Assert.fail("R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+        } catch (NotFoundException e) {
+            for (String resource : MANDATORY_PAKS) {
+                resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
         }
         ResourceExtractor.setResourcesToExtract(
@@ -248,8 +248,14 @@ class XWalkViewDelegate {
                     String resourceName = resource.split("\\.")[0];
                     int resourceId = getResourceId(context, resourceName, "raw");
                     try {
-                        return context.getResources().openRawResource(resourceId);
-                    } catch (NotFoundException e) {
+                        try {
+                            return context.getResources().openRawResource(resourceId);
+                        } catch (NotFoundException e) {
+                            String resDir = context.getApplicationContext().getDir(
+                                    XWALK_CORE_LIB_DIR, Context.MODE_PRIVATE).toString();                        
+                            return new FileInputStream(new File(resDir, resource));
+                        }
+                    } catch (FileNotFoundException e) {
                         Assert.fail("R.raw." + resourceName + " can't be found.");
                     }
                 }

@@ -32,6 +32,17 @@ import android.os.Bundle;
  * &lt;/&gt;
  * </pre>
  *
+ * <p>To download the Crosswalk runtime APK for the specified CPU architecture, <code>xwalk_apk_url<code>
+ * will be appended with a query string named "?arch=CPU_ABI" when the download request is sent to server,
+ * then server can send back the APK which is exactly built for the specified CPU architecture. The CPU_ABI
+ * here is exactly same as the value returned from "getprop ro.product.cpu.abi".</p>
+ *
+ * <p>Besides the embedded mode and shared mode, silent download mode is also supported. In silent
+ * download mode, the Crosswalk runtime will be downloaded in the background silently without any
+ * user interaction. To enable silent download mode, you need to insert the meta-data element "xwalk_apk_url"
+ * as mentioned above into the AndroidManifest.xml and override <code>XWalkActivity.shouldEnableDownloadMode
+ * <code> to get it return true.</p>
+ *
  * <p>In embedded mode, the developer can use the embedding API in <code>onCreate()</code> directly.
  * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
  * activity is created, so the embedding API won't be usable immediately. To make your code
@@ -91,6 +102,21 @@ public abstract class XWalkActivity extends Activity {
     protected abstract void onXWalkReady();
 
     /**
+     * Override this and return true if you want to get your app work
+     * under silent download mode. By default, it returns false.
+     */
+    protected boolean shouldEnableDownloadMode() {
+        return false;
+    }
+
+    /**
+     * In download mode, this is used to notify the background update progress
+     * It runs in UI thread, developer can override it to show update progress UI
+     * @param percentage the update progress in percentage
+     */
+    protected void onXWalkUpdateProgress(int percentage) {}
+
+    /**
      * Return true if the Crosswalk runtime is ready, false otherwise.
      */
     public boolean isXWalkReady() {
@@ -108,19 +134,44 @@ public abstract class XWalkActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Runnable cancelCommand = new Runnable() {
-            @Override
-            public void run() {
-                finish();
-            }
-        };
-        Runnable completeCommand = new Runnable() {
-            @Override
-            public void run() {
-                onXWalkReady();
-            }
-        };
-        mActivityDelegate = new XWalkActivityDelegate(this, cancelCommand, completeCommand);
+        if (shouldEnableDownloadMode()) {
+            mActivityDelegate = new XWalkActivityDelegate(this,
+                new XWalkActivityDelegate.XWalkUpdateListener() {
+                    @Override
+                    public void onXWalkUpdateStarted() {}
+
+                    @Override
+                    public void onXWalkUpdateProgress(int percentage) {
+                        XWalkActivity.this.onXWalkUpdateProgress(percentage);
+                    }
+
+                    @Override
+                    public void onXWalkUpdateCanceled() {}
+
+                    @Override
+                    public void onXWalkUpdateFailed() {}
+
+                    @Override
+                    public void onXWalkUpdateCompleted() {
+                        onXWalkReady();
+                    }
+                });
+        } else {
+            Runnable cancelCommand = new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            };
+            Runnable completeCommand = new Runnable() {
+                @Override
+                public void run() {
+                    onXWalkReady();
+                }
+            };
+            mActivityDelegate = new XWalkActivityDelegate(this,
+                    cancelCommand, completeCommand);
+        }
     }
 
     @Override
