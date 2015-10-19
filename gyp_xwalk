@@ -363,9 +363,9 @@ if __name__ == '__main__':
     # Disable Sync compositor by default
     args.append('-Ddisable_sync_compositor=1')
     # Disable webaudio by default
-    args.append('-Ddisable_web_audio=1')
-    args.append('-Ddisable_webaudio_hrtf=1')
-    args.append('-Duse_openmax_dl_fft=0')
+    args.append('-Ddisable_web_audio=0')
+    args.append('-Ddisable_webaudio_hrtf=0')
+    args.append('-Duse_openmax_dl_fft=1')
     # Enable use_minimum_resources by default
     args.append('-Duse_minimum_resources=1')
     # Disable buildin extension by default.
@@ -373,7 +373,7 @@ if __name__ == '__main__':
     # Disable Devtools by default
     args.append('-Ddisable_devtools=1')
     # Disable Web Video by default.
-    args.append('-Ddisable_web_video=1')
+    args.append('-Ddisable_web_video=0')
     # Disable webspeech by default
     args.append('-Ddisable_speech=1')
     # Enable "Optimize for size, Os" compile option by default
