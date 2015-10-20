@@ -14,6 +14,7 @@ import android.net.http.SslError;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -133,16 +134,32 @@ abstract class XWalkContentsClient extends ContentViewClient {
     }
 
     //--------------------------------------------------------------------------------------------
-    //             XWalkViewInternal specific methods that map directly to XWalkViewClient / XWalkWebChromeClient
+    //  XWalkViewInternal specific methods that map directly to XWalkViewClient/XWalkWebChromeClient
     //--------------------------------------------------------------------------------------------
 
+    /**
+     * Parameters for the {@link XWalkContentsClient#shouldInterceptRequest} method.
+     */
+    public static class XWalkWebResourceRequest {
+        // Url of the request.
+        public String url;
+        // Is this for the main frame or a child iframe?
+        public boolean isMainFrame;
+        // Was a gesture associated with the request? Don't trust can easily be spoofed.
+        public boolean hasUserGesture;
+        // Method used (GET/POST/OPTIONS)
+        public String method;
+        // Headers that would have been sent to server.
+        public ArrayMap<String, String> requestHeaders;
+    }
     public abstract void getVisitedHistory(ValueCallback<String[]> callback);
 
     public abstract void doUpdateVisitedHistory(String url, boolean isReload);
 
     public abstract void onProgressChanged(int progress);
 
-    public abstract WebResourceResponse shouldInterceptRequest(String url);
+    public abstract XWalkWebResourceResponse shouldInterceptRequest(
+        XWalkWebResourceRequest request);
 
     public abstract void onResourceLoadStarted(String url);
 

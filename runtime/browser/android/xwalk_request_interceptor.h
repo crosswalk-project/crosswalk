@@ -19,7 +19,7 @@ class NetworkDelegate;
 
 namespace xwalk {
 
-class InterceptedRequestData;
+class XWalkWebResourceResponse;
 
 // This class allows the Java-side embedder to substitute the default
 // URLRequest of a given request for an alternative job that will read data
@@ -36,7 +36,7 @@ class XWalkRequestInterceptor
       net::NetworkDelegate* network_delegate) const override;
 
  private:
-  scoped_ptr<InterceptedRequestData> QueryForInterceptedRequestData(
+  scoped_ptr<XWalkWebResourceResponse> QueryForXWalkWebResourceResponse(
       const GURL& location,
       net::URLRequest* request) const;
 

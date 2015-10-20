@@ -23,6 +23,7 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 import org.chromium.net.test.util.TestWebServer;
 
+import org.xwalk.core.WebResourceRequest;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.xwview.test.TestContentProvider;
 import org.xwalk.core.xwview.test.util.CommonResources;
@@ -38,9 +39,11 @@ public class ShouldInterceptLoadRequestTest extends XWalkViewTestBase {
      * Customized XWalkResourceClient implementation for shouldInterceptRequest
      */
     private class TestXWalkResourceClient1 extends XWalkViewTestBase.TestXWalkResourceClient {
+
         @Override
-        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view, String url) {
-            return mTestHelperBridge.shouldInterceptLoadRequest(url);
+        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view,
+                WebResourceRequest request) {
+            return mTestHelperBridge.shouldInterceptLoadRequest(request.getUrl().toString());
         }
 
     }

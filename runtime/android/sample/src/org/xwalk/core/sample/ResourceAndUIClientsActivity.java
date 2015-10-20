@@ -4,6 +4,7 @@
 
 package org.xwalk.core.sample;
 
+import org.xwalk.core.WebResourceRequest;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
@@ -40,9 +41,9 @@ public class ResourceAndUIClientsActivity extends XWalkBaseActivity {
             Log.d(TAG, "Loading Progress:" + progressInPercent);
         }
 
-        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view, String url) {
-            Log.d(TAG, "Intercept load request");
-            return super.shouldInterceptLoadRequest(view, url);
+        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view, WebResourceRequest request) {
+            Log.d(TAG, "Intercept load request by WebResourceRequest");
+            return super.shouldInterceptLoadRequest(view, request);
         }
 
         public void onReceivedLoadError(XWalkView view, int errorCode, String description,
