@@ -644,10 +644,10 @@
       ],
     },
     {
-      'target_name': 'create_dir_with_multiple_extensions',
+      'target_name': 'copy_echo_extension2_bridge',
       'type': 'none',
       'dependencies': [
-        'dotnet_echo_extension1',
+        'copy_echo_extension1_bridge',
         'dotnet_echo_extension2',
       ],
       'actions': [
@@ -655,6 +655,9 @@
           'action_name': 'copy_echo_extension2_bridge',
           'inputs': [
             '<(PRODUCT_DIR)/xwalk_dotnet_bridge.dll',
+          ],
+          'dependencies': [
+            'copy_echo_extension1_bridge',
           ],
           'outputs': [
             'echo_extension2_bridge.dll',
@@ -667,6 +670,15 @@
                       '--output-file', 'echo_extension2_bridge.dll',
           ],
         },
+      ],
+     },
+     {
+      'target_name': 'copy_echo_extension1_bridge',
+      'type': 'none',
+      'dependencies': [
+        'dotnet_echo_extension1',
+      ],
+      'actions': [
         {
           'action_name': 'copy_echo_extension1_bridge',
           'inputs': [
