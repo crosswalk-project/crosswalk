@@ -623,7 +623,7 @@
           '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/xwalk.pak',
         ],
         'conditions': [
-          ['icu_use_data_file_flag==1', {
+          ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
             'additional_input_paths': [
               '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/icudtl.dat',
             ],
@@ -660,7 +660,7 @@
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
           'conditions': [
-            ['icu_use_data_file_flag==1', {
+            ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
               ],
