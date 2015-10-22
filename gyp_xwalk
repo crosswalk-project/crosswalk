@@ -380,6 +380,8 @@ if __name__ == '__main__':
     args.append('-Duse_optimize_for_size_compile_option=1')
     # Disable notifications by default
     args.append('-Ddisable_notifications=1')
+    # Disable WebCL by default
+    args.append('-Denable_webcl=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
@@ -387,15 +389,19 @@ if __name__ == '__main__':
 
   disable_speech = 0
   disable_notifications = 0
+  disable_webcl = 0
   for arg in args:
     if arg == '-Ddisable_speech=1':
       disable_speech = 1
     elif arg == '-Ddisable_notifications=1':
       disable_notifications = 1
+    elif arg == '-Denable_webcl=0':
+      disable_webcl = 1
 
   # Synthesize modules.gypi in WebKit to exclude disabled idl files
   from modules_gypi_generator import  generate_modules_gypi
-  generate_modules_gypi(disable_speech, disable_notifications)
+  modules_flags = (disable_speech, disable_notifications, disable_webcl)
+  generate_modules_gypi(*modules_flags)
 
   # Off we go...
   gyp_rc = gyp.main(args)
