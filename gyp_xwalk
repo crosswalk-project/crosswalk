@@ -381,7 +381,9 @@ if __name__ == '__main__':
     # Disable notifications by default
     args.append('-Ddisable_notifications=1')
     # Disable WebCL by default
-    args.append('-Denable_webcl=1')
+    args.append('-Denable_webcl=0')
+    # Disable indexeddb by default
+    args.append('-Ddisable_indexeddb=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
@@ -397,11 +399,13 @@ if __name__ == '__main__':
       disable_notifications = 1
     elif arg == '-Denable_webcl=0':
       disable_webcl = 1
+    elif arg == '-Ddisable_indexeddb=1':
+      disable_indexeddb = 1
 
   # Synthesize modules.gypi in WebKit to exclude disabled idl files
   from modules_gypi_generator import  generate_modules_gypi
-  modules_flags = (disable_speech, disable_notifications, disable_webcl)
-  generate_modules_gypi(*modules_flags)
+  modules_flags = (disable_indexeddb, disable_notifications, disable_speech, disable_webcl)
+  generate_modules_gypi(modules_flags)
 
   # Off we go...
   gyp_rc = gyp.main(args)

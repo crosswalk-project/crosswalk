@@ -34,6 +34,10 @@
       'disable_builtin_extensions%': '<(disable_builtin_extensions)',
     },
     'conditions': [
+      ['disable_indexeddb==1', {
+        'defines': ['DISABLE_INDEXEDDB=1'],
+      }],
+
       ['disable_web_audio==1', {
         'defines': ['DISABLE_WEB_AUDIO=1'],
       }],
