@@ -781,6 +781,50 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(
         out.find('\'Telephony\' related API is not supported') != -1)
 
+  def testManifestWithAppRoot(self):
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_and_app_root', 'manifest.json')
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--project-dir=.', self._mode]
+    RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.1')
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('landscape') != -1)
+    theme = 'Example/res/values-v14/theme.xml'
+    with open(theme, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(theme))
+    self.assertTrue(
+        content.find(
+            '<item name="android:windowFullscreen">true</item>') != -1)
+    self.assertTrue(os.path.exists('Example'))
+    self.checkApks('Example', '1.0.1')
+
+  def testAppRootWithManifest(self):
+    html_path = os.path.join('test_data', 'manifest', 'manifest_and_app_root')
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--name=example', '--app-version=1.0.0', '--app-root=%s' % html_path,
+           '--app-local-path=%s' % 'index.html', '--project-dir=.', self._mode]
+    RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('landscape') == -1)
+    theme = 'Example/res/values-v14/theme.xml'
+    with open(theme, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(theme))
+    self.assertTrue(
+        content.find(
+            '<item name="android:windowFullscreen">true</item>') == -1)
+    self.assertTrue(os.path.exists('Example'))
+    self.checkApks('Example', '1.0.0')
+
   def testExtensionsWithOneExtension(self):
     # Test with an existed extension.
     extension_path = 'test_data/extensions/myextension'
@@ -1300,6 +1344,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testAppVersionCodeBase'))
   test_suite.addTest(TestMakeApk('testAppVersionCodeFromVersionName'))
   test_suite.addTest(TestMakeApk('testAppDescriptionAndVersion'))
+  test_suite.addTest(TestMakeApk('testAppRootWithManifest'))
   test_suite.addTest(TestMakeApk('testArch'))
   test_suite.addTest(TestMakeApk('testEnableRemoteDebugging'))
   test_suite.addTest(TestMakeApk('testEntry'))
@@ -1315,6 +1360,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testManifest'))
   test_suite.addTest(TestMakeApk('testManifestWithDeprecatedField'))
   test_suite.addTest(TestMakeApk('testManifestWithError'))
+  test_suite.addTest(TestMakeApk('testManifestWithAppRoot'))
   test_suite.addTest(TestMakeApk('testName'))
   test_suite.addTest(TestMakeApk('testOrientation'))
   test_suite.addTest(TestMakeApk('testPackage'))
