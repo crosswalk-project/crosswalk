@@ -38,6 +38,10 @@
         'defines': ['DISABLE_INDEXEDDB=1'],
       }],
 
+      ['disable_accessibility==1', {
+        'defines': ['DISABLE_ACCESSIBILITY=1'],
+      }],
+
       ['disable_web_audio==1', {
         'defines': ['DISABLE_WEB_AUDIO=1'],
       }],
