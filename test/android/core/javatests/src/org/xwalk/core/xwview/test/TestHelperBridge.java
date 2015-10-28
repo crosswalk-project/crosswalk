@@ -278,6 +278,48 @@ class TestHelperBridge {
         }
     }
 
+    public class OnJsAlertHelper extends CallbackHelper {
+        private String mMessage;
+
+        public String getMessage() {
+            assert getCallCount() > 0;
+            return mMessage;
+        }
+
+        public void notifyCalled(String message) {
+            mMessage = message;
+            notifyCalled();
+        }
+    }
+
+    public class OnJsConfirmHelper extends CallbackHelper {
+        private String mMessage;
+
+        public String getMessage() {
+            assert getCallCount() > 0;
+            return mMessage;
+        }
+
+        public void notifyCalled(String message) {
+            mMessage = message;
+            notifyCalled();
+        }
+    }
+
+    public class OnJsPromptHelper extends CallbackHelper {
+        private String mMessage;
+
+        public String getMessage() {
+            assert getCallCount() > 0;
+            return mMessage;
+        }
+
+        public void notifyCalled(String message) {
+            mMessage = message;
+            notifyCalled();
+        }
+    }
+
     public class OpenFileChooserHelper extends CallbackHelper {
         private ValueCallback<Uri> mCallback;
 
@@ -448,6 +490,9 @@ class TestHelperBridge {
     private final OnScaleChangedHelper mOnScaleChangedHelper;
     private final OnRequestFocusHelper mOnRequestFocusHelper;
     private final OnJavascriptModalDialogHelper mOnJavascriptModalDialogHelper;
+    private final OnJsAlertHelper mOnJsAlertHelper;
+    private final OnJsConfirmHelper mOnJsConfirmHelper;
+    private final OnJsPromptHelper mOnJsPromptHelper;
     private final OpenFileChooserHelper mOpenFileChooserHelper;
     private final OnFullscreenToggledHelper mOnFullscreenToggledHelper;
     private final OverrideOrUnhandledKeyEventHelper mOverrideOrUnhandledKeyEventHelper;
@@ -473,6 +518,9 @@ class TestHelperBridge {
         mOnScaleChangedHelper = new OnScaleChangedHelper();
         mOnRequestFocusHelper = new OnRequestFocusHelper();
         mOnJavascriptModalDialogHelper = new OnJavascriptModalDialogHelper();
+        mOnJsAlertHelper = new OnJsAlertHelper();
+        mOnJsConfirmHelper = new OnJsConfirmHelper();
+        mOnJsPromptHelper = new OnJsPromptHelper();
         mOpenFileChooserHelper = new OpenFileChooserHelper();
         mOnFullscreenToggledHelper = new OnFullscreenToggledHelper();
         mOverrideOrUnhandledKeyEventHelper = new OverrideOrUnhandledKeyEventHelper();
@@ -543,6 +591,18 @@ class TestHelperBridge {
 
     public OnJavascriptModalDialogHelper getOnJavascriptModalDialogHelper() {
         return mOnJavascriptModalDialogHelper;
+    }
+
+    public OnJsAlertHelper getOnJsAlertHelper() {
+        return mOnJsAlertHelper;
+    }
+
+    public OnJsConfirmHelper getOnJsConfirmHelper() {
+        return mOnJsConfirmHelper;
+    }
+   
+    public OnJsPromptHelper getOnJsPromptHelper() {
+        return mOnJsPromptHelper;    
     }
 
     public OpenFileChooserHelper getOpenFileChooserHelper() {
@@ -646,6 +706,21 @@ class TestHelperBridge {
 
     public boolean onJavascriptModalDialog(String message) {
         mOnJavascriptModalDialogHelper.notifyCalled(message);
+        return true;
+    }
+
+    public boolean onJsAlert(String message) {
+        mOnJsAlertHelper.notifyCalled(message);
+        return true;
+    }
+
+    public boolean onJsConfirm(String message) {
+        mOnJsConfirmHelper.notifyCalled(message);
+        return true;
+    }
+
+    public boolean onJsPrompt(String message) {
+        mOnJsPromptHelper.notifyCalled(message);
         return true;
     }
 
