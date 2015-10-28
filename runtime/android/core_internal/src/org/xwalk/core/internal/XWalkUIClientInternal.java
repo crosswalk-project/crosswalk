@@ -381,8 +381,21 @@ public class XWalkUIClientInternal {
     @XWalkAPI
     public void onPageLoadStopped(XWalkViewInternal view, String url, LoadStatusInternal status) {
     }
-
-    private boolean onJsAlert(XWalkViewInternal view, String url, String message,
+    
+    /**
+     * Tell the client to display an alert dialog to the user.
+     * WARN: Please avoid to override this API and onJavascriptModalDialog API in the 
+     *       same subclass to avoid unexpected behavior. If cannot avoid, Please 
+     *       remember to call onJsAlert in the overriden onJavascriptModalDialog
+     *       method for proper behavior.
+     * @param view the owner XWalkViewInternal instance.
+     * @param url the url of the web page which wants to show this dialog.
+     * @param message the message to be shown.
+     * @param result the callback to handle the result from caller.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean onJsAlert(XWalkViewInternal view, String url, String message,
             XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
@@ -408,7 +421,19 @@ public class XWalkUIClientInternal {
         return false;
     }
 
-    private boolean onJsConfirm(XWalkViewInternal view, String url, String message,
+    /**
+     * Tell the client to display a confirm dialog to the user.
+     * WARN: Please avoid to override this API and onJavascriptModalDialog API in the 
+     *       same subclass to avoid unexpected behavior. If cannot avoid, Please 
+     *       remember to call onJsConfirm in the overriden onJavascriptModalDialog
+     * @param view the owner XWalkViewInternal instance.
+     * @param url the url of the web page which wants to show this dialog.
+     * @param message the message to be shown.
+     * @param result the callback to handle the result from caller.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean onJsConfirm(XWalkViewInternal view, String url, String message,
             XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
@@ -443,8 +468,21 @@ public class XWalkUIClientInternal {
         mDialog.show();
         return false;
     }
-
-    private boolean onJsPrompt(XWalkViewInternal view, String url, String message,
+    
+    /**
+     * Tell the client to display a prompt dialog to the user.
+     * WARN: Please avoid to override this API and onJavascriptModalDialog API in the 
+     *       same subclass to avoid unexpected behavior. If cannot avoid, Please 
+     *       remember to call onJsPrompt in the overriden onJavascriptModalDialog
+     * @param view the owner XWalkViewInternal instance.
+     * @param url the url of the web page which wants to show this dialog.
+     * @param message the message to be shown.
+     * @param defaultValue the default value string. Only valid for Prompt dialog.
+     * @param result the callback to handle the result from caller.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean onJsPrompt(XWalkViewInternal view, String url, String message,
             String defaultValue, XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
