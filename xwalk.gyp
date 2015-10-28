@@ -322,6 +322,8 @@
             'experimental/native_file_system/virtual_root_provider_android.cc',
           ],
           'sources!':[
+            'runtime/browser/devtools/xwalk_devtools_frontend.cc',
+            'runtime/browser/devtools/xwalk_devtools_frontend.h',
             'runtime/browser/runtime_ui_delegate_desktop.cc',
             'runtime/browser/runtime_ui_delegate_desktop.h',
             'runtime/browser/ui/desktop/download_views.cc',
