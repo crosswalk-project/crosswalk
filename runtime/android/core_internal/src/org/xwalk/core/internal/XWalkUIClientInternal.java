@@ -384,14 +384,13 @@ public class XWalkUIClientInternal {
     
     /**
      * Tell the client to display an alert dialog to the user.
-     * WARN: Please avoid to override this API and onJavascriptModalDialog API in the 
-     *       same subclass to avoid unexpected behavior. If cannot avoid, Please 
-     *       remember to call onJsAlert in the overriden onJavascriptModalDialog
-     *       method for proper behavior.
+     * WARN: Please DO NOT override this API and onJavascriptModalDialog API in the 
+     *       same subclass to avoid unexpected behavior. 
      * @param view the owner XWalkViewInternal instance.
      * @param url the url of the web page which wants to show this dialog.
      * @param message the message to be shown.
      * @param result the callback to handle the result from caller.
+     * @return boolean Whether the client will handle the confirm dialog.
      * @since 6.0
      */
     @XWalkAPI
@@ -423,13 +422,13 @@ public class XWalkUIClientInternal {
 
     /**
      * Tell the client to display a confirm dialog to the user.
-     * WARN: Please avoid to override this API and onJavascriptModalDialog API in the 
-     *       same subclass to avoid unexpected behavior. If cannot avoid, Please 
-     *       remember to call onJsConfirm in the overriden onJavascriptModalDialog
+     * WARN: Please DO NOT override this API and onJavascriptModalDialog API in the 
+     *       same subclass to avoid unexpected behavior.
      * @param view the owner XWalkViewInternal instance.
      * @param url the url of the web page which wants to show this dialog.
      * @param message the message to be shown.
      * @param result the callback to handle the result from caller.
+     * @return boolean Whether the client will handle the confirm dialog.
      * @since 6.0
      */
     @XWalkAPI
@@ -471,14 +470,14 @@ public class XWalkUIClientInternal {
     
     /**
      * Tell the client to display a prompt dialog to the user.
-     * WARN: Please avoid to override this API and onJavascriptModalDialog API in the 
-     *       same subclass to avoid unexpected behavior. If cannot avoid, Please 
-     *       remember to call onJsPrompt in the overriden onJavascriptModalDialog
+     * WARN: Please DO NOT override this API and onJavascriptModalDialog API in the 
+     *       same subclass to avoid unexpected behavior.
      * @param view the owner XWalkViewInternal instance.
      * @param url the url of the web page which wants to show this dialog.
      * @param message the message to be shown.
      * @param defaultValue the default value string. Only valid for Prompt dialog.
      * @param result the callback to handle the result from caller.
+     * @return boolean Whether the client will handle the confirm dialog.
      * @since 6.0
      */
     @XWalkAPI
