@@ -6,6 +6,8 @@ package org.xwalk.core.internal;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -15,6 +17,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Resources.NotFoundException;
 import android.os.Build;
@@ -41,6 +46,8 @@ class XWalkViewDelegate {
     private static boolean sLibraryLoaded = false;
     private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
+    private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
+    private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
 
     // TODO(rakuco,lincsoon): This list is also in generate_xwalk_core_library.py.
     // We should remove it from one of the places to avoid duplication.
@@ -189,6 +196,18 @@ class XWalkViewDelegate {
         });
     }
 
+    private static boolean isDownloadModeEnabled(final Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(
+                    context.getPackageName(), PackageManager.GET_META_DATA);
+            String enableStr = appInfo.metaData.getString(META_XWALK_ENABLE_DOWNLOAD_MODE);
+            return enableStr.equalsIgnoreCase("enable");
+        } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return false;
+    }
+
     /**
      * Plugs an instance of ResourceExtractor.ResourceIntercepter() into ResourceExtractor.
      *
@@ -198,6 +217,7 @@ class XWalkViewDelegate {
     private static void setupResourceInterceptor(final Context context) throws IOException {
         final boolean isSharedMode =
                 !context.getPackageName().equals(context.getApplicationContext().getPackageName());
+        final boolean isDownloadMode = isDownloadModeEnabled(context);
 
         // The test APKs (XWalkCoreShell, XWalkCoreInternalShell etc) are different from normal
         // Crosswalk apps: even though they use Crosswalk in embedded mode, the resources are stored
@@ -207,19 +227,15 @@ class XWalkViewDelegate {
                 !isSharedMode && Arrays.asList(context.getAssets().list("")).contains(XWALK_PAK_NAME);
 
         HashMap<String, ResourceEntry> resourceList = new HashMap<String, ResourceEntry>();
-        if (isSharedMode || isTestApk) {
-            for (String resource : MANDATORY_PAKS) {
+        try {
+            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
+            String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
+            for (String resource : crosswalkResources) {
                 resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
-        } else {
-            int resourceListId = getResourceId(context, XWALK_RESOURCES_LIST_RES_NAME, "array");
-            try {
-                final String[] crosswalkResources = context.getResources().getStringArray(resourceListId);
-                for (String resource : crosswalkResources) {
-                    resourceList.put(resource, new ResourceEntry(0, "", resource));
-                }
-            } catch (NotFoundException e) {
-                Assert.fail("R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+        } catch (NotFoundException e) {
+            for (String resource : MANDATORY_PAKS) {
+                resourceList.put(resource, new ResourceEntry(0, "", resource));
             }
         }
         ResourceExtractor.setResourcesToExtract(
@@ -243,6 +259,14 @@ class XWalkViewDelegate {
                         return context.getAssets().open(resource);
                     } catch (IOException e) {
                         Assert.fail(resource + " can't be found in assets.");
+                    }
+                } else if (isDownloadMode) {
+                    try {
+                        final String resDir = context.getApplicationContext().getDir(
+                                XWALK_CORE_EXTRACTED_DIR, Context.MODE_PRIVATE).getAbsolutePath();
+                        return new FileInputStream(new File(resDir, resource));
+                    } catch (FileNotFoundException e) {
+                        Assert.fail(resource + " can't be found.");
                     }
                 } else {
                     String resourceName = resource.split("\\.")[0];
