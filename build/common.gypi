@@ -58,6 +58,10 @@
         'defines' : ['DISABLE_NOTIFICATIONS'],
       }],
 
+      ['disable_geo_features==1', {
+        'defines' : ['DISABLE_GEO_FEATURES'],
+      }],
+
       ['tizen==1', {
         'defines': ['OS_TIZEN=1'],
       }],
