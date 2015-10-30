@@ -10,6 +10,15 @@ import re
 import shutil
 import sys
 
+GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
+                               os.pardir, os.pardir, os.pardir,
+                               'build',
+                               'android',
+                               'gyp')
+sys.path.append(GYP_ANDROID_DIR)
+
+from util import build_utils
+
 
 def CreateResourceMap(r_java, res_map):
   package_regex = re.compile('^package ([a-zA-Z0-9_\.]*);$')
@@ -26,15 +35,6 @@ def CreateResourceMap(r_java, res_map):
     os.makedirs(output_path)
   with open(os.path.join(output_path, 'R.java'), 'w') as output:
     output.write(''.join(output_content))
-
-
-def Touch(stamp):
-  if not stamp:
-    return
-  if not os.path.isdir(os.path.dirname(stamp)):
-    os.makedirs(os.path.dirname(stamp))
-  with open(stamp, 'a'):
-    os.utime(stamp, None)
 
 
 def main():
@@ -62,7 +62,7 @@ def main():
       r_java = os.path.join(root, 'R.java')
       CreateResourceMap(r_java, options.resource_map_dir)
 
-  Touch(options.stamp)
+  build_utils.Touch(options.stamp)
 
 
 if __name__ == '__main__':
