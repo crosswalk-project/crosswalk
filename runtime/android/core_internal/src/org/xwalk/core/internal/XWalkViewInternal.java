@@ -654,7 +654,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
             // Check that the response is a good one
             if(Activity.RESULT_OK == resultCode) {
-                if(data == null) {
+                // In Android M, camera results return an empty Intent rather than null.
+                if(data == null ||
+                        (data.getAction() == null && data.getData() == null)) {
                     // If there is not data, then we may have taken a photo
                     if(mCameraPhotoPath != null) {
                         results = Uri.parse(mCameraPhotoPath);
