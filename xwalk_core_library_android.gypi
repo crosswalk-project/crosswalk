@@ -264,6 +264,7 @@
       'variables': {
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
+        'jar_excluded_classes': [ 'android/support' ],
       },
       'actions': [
         {
@@ -280,6 +281,7 @@
             'python', 'build/android/merge_jars.py',
             '--jars=>(input_jars_paths)',
             '--jar-path=<(jar_final_path)',
+            '--jar-excluded-classes=<(jar_excluded_classes)',
           ],
         },
       ],
