@@ -75,33 +75,28 @@ public class ContactExtension extends XWalkExtensionClient {
 
     String readContact(String name) {
         Activity cActivity = mContext.getActivity();
-        // find the contacts by name
-        Cursor cursor = cActivity.getContentResolver().query(
-                ContactsContract.Contacts.CONTENT_URI, null,
-                ContactsContract.Contacts.DISPLAY_NAME + "='" + name + "'",
-                null, null);
-        if (cursor.moveToNext()) {
-            // get the first phone of the specified name
-            Cursor phones = cActivity.getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    ContactsContract.Contacts.DISPLAY_NAME + "='" + name + "'",
-                    null, null);
-
-            if (phones.moveToNext()) {
-                String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                phones.close();
-                cursor.close();
-                return phone;
-            } else {
-                Log.w(TAG, "no phone number for " + name);
-                cursor.close();
-                return "";
+        Cursor nameCursor = null;
+        Cursor phoneCursor = null;
+        String phoneNumber = "";
+        try {
+            // Find the contacts by name.
+            nameCursor = cActivity.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
+                    null, ContactsContract.Contacts.DISPLAY_NAME + "='" + name + "'", null, null);
+            if (nameCursor != null && nameCursor.getCount() >= 1) {
+                // Get the first phone of the specified name.
+                phoneCursor = cActivity.getContentResolver().query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                        ContactsContract.Contacts.DISPLAY_NAME + "='" + name + "'", null, null);
+                if (phoneCursor != null && phoneCursor.moveToFirst()) {
+                    phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
             }
-        } else {
-            Log.e(TAG, "no such person named:" + name);
-            return "";
+        } finally {
+            if (phoneCursor != null) phoneCursor.close();
+            if (nameCursor != null) nameCursor.close();
         }
+        return phoneNumber;
     }
 
     void writeContact(String name, String phone) {
