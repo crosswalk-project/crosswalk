@@ -27,7 +27,12 @@ class XWalkLibraryDecompressor {
     public static boolean isCompressed(Context context) {
         for (String library : MANDATORY_LIBRARIES) {
             try {
-                openRawResource(context, library);
+                InputStream inputStream = openRawResource(context, library);
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Closing " + library + "has failed: " + e.getMessage());
+                }
             } catch (Resources.NotFoundException e) {
                 return false;
             }
