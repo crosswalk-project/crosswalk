@@ -130,6 +130,12 @@ public class XWalkPreferencesInternal {
     @XWalkAPI
     public static final String SUPPORT_MULTIPLE_WINDOWS =
             "support-multiple-windows";
+			
+    /**
+     * The key string to enable/disable spatial navigation like a TV remote control.
+     */
+    @XWalkAPI
+    public static final String SPATIAL_NAVIGATION = "spatial_Navigation";
 
     /**
      * The key string to set xwalk profile name.
@@ -161,7 +167,7 @@ public class XWalkPreferencesInternal {
                 ALLOW_UNIVERSAL_ACCESS_FROM_FILE, new PreferenceValue(false));
         sPrefMap.put(SUPPORT_MULTIPLE_WINDOWS, new PreferenceValue(false));
         sPrefMap.put(ENABLE_EXTENSIONS, new PreferenceValue(true));
-        sPrefMap.put(PROFILE_NAME, new PreferenceValue("Default"));
+        sPrefMap.put(SPATIAL_NAVIGATION, new PreferenceValue(true));
     }
 
     /**
