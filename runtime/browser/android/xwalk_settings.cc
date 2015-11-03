@@ -72,7 +72,7 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mMediaPlaybackRequiresUserGesture", "Z");
     default_video_poster_url =
         GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
-	spatial_navigation_enabled =
+    spatial_navigation_enabled =
         GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
   }
 
