@@ -34,6 +34,10 @@
       'disable_builtin_extensions%': '<(disable_builtin_extensions)',
     },
     'conditions': [
+      ['disable_bluetooth==1', {
+        'defines': ['DISABLE_BLUETOOTH'],
+      }],
+
       ['disable_indexeddb==1', {
         'defines': ['DISABLE_INDEXEDDB=1'],
       }],

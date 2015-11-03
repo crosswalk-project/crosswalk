@@ -388,6 +388,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_accessibility=1')
     # Disable geo-location and geo-fencing by default
     args.append('-Ddisable_geo_features=1')
+    # Disable Bluetooth by default
+    args.append('-Ddisable_bluetooth=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
@@ -395,6 +397,7 @@ if __name__ == '__main__':
 
   disable_accessibility = 0
   disable_geo_features = 0
+  disable_bluetooth = 0
   disable_indexeddb = 0
   disable_notifications = 0
   disable_speech = 0
@@ -404,6 +407,8 @@ if __name__ == '__main__':
       disable_accessibility = 1
     elif arg =='-Ddisable_geo_features=1':
       disable_geo_features = 1
+    if arg == '-Ddisable_bluetooth=1':
+      disable_bluetooth = 1
     elif arg == '-Ddisable_indexeddb=1':
       disable_indexeddb = 1
     elif arg == '-Ddisable_notifications=1':
@@ -415,8 +420,8 @@ if __name__ == '__main__':
 
   # Synthesize modules.gypi in WebKit to exclude disabled idl files
   from modules_gypi_generator import  generate_modules_gypi
-  modules_flags = (disable_accessibility, disable_geo_features, disable_indexeddb, disable_notifications, disable_speech, disable_webcl)
-
+  modules_flags = (disable_accessibility, disable_bluetooth, disable_geo_features,\
+                   disable_indexeddb, disable_notifications, disable_speech, disable_webcl)
   generate_modules_gypi(modules_flags)
 
   # Off we go...
