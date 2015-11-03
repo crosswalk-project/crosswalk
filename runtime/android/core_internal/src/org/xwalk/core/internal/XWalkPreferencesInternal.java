@@ -167,6 +167,7 @@ public class XWalkPreferencesInternal {
                 ALLOW_UNIVERSAL_ACCESS_FROM_FILE, new PreferenceValue(false));
         sPrefMap.put(SUPPORT_MULTIPLE_WINDOWS, new PreferenceValue(false));
         sPrefMap.put(ENABLE_EXTENSIONS, new PreferenceValue(true));
+        sPrefMap.put(PROFILE_NAME, new PreferenceValue("Default"));
         sPrefMap.put(SPATIAL_NAVIGATION, new PreferenceValue(true));
     }
 
