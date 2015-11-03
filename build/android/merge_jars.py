@@ -5,6 +5,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""
+Given a list of JAR files passed via --jars, produced one single JAR file with
+all their contents merged. JAR files outside --build-dir are ignored.
+"""
+
 import optparse
 import os
 import sys
@@ -22,15 +27,21 @@ from util import build_utils
 
 def main():
   parser = optparse.OptionParser()
+  parser.add_option('--build-dir',
+                    help='Base build directory, such as out/Release. JARs '
+                    'outside this directory will be skipped.')
   parser.add_option('--jars', help='The jars to merge.')
-  parser.add_option('--jar-path', help='The output merged jar file.')
+  parser.add_option('--output-jar', help='Name of the merged JAR file.')
 
   options, _ = parser.parse_args()
+  build_dir = os.path.abspath(options.build_dir)
 
   with build_utils.TempDir() as temp_dir:
     for jar_file in build_utils.ParseGypList(options.jars):
+      if not os.path.abspath(jar_file).startswith(build_dir):
+        continue
       build_utils.ExtractAll(jar_file, path=temp_dir, pattern='*.class')
-    jar.JarDirectory(temp_dir, [], options.jar_path)
+    jar.JarDirectory(temp_dir, [], options.output_jar)
 
 
 if __name__ == '__main__':
