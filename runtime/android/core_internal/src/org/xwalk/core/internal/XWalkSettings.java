@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.provider.Settings;
 import android.webkit.WebSettings;
 
 import org.chromium.base.CalledByNative;
@@ -49,6 +50,7 @@ public class XWalkSettings {
     private boolean mUseWideViewport = false;
     private boolean mMediaPlaybackRequiresUserGesture = false;
     private String mDefaultVideoPosterURL;
+    private final boolean mPasswordEchoEnabled;
 
     // Not accessed by the native side.
     private boolean mBlockNetworkLoads;  // Default depends on permission of embedding APK.
@@ -159,6 +161,10 @@ public class XWalkSettings {
         }
 
         mUserAgent = LazyDefaultUserAgent.sInstance;
+
+        // Respect the system setting for password echoing.
+        mPasswordEchoEnabled = Settings.System.getInt(context.getContentResolver(),
+                Settings.System.TEXT_SHOW_PASSWORD, 1) == 1;
 
         mEventHandler = new EventHandler();
 
@@ -757,6 +763,12 @@ public class XWalkSettings {
     private double getDIPScaleLocked() {
         assert Thread.holdsLock(mXWalkSettingsLock);
         return mDIPScale;
+    }
+
+    @CalledByNative
+    private boolean getPasswordEchoEnabledLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mPasswordEchoEnabled;
     }
 
     private native long nativeInit(WebContents webContents);
