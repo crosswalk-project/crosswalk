@@ -72,6 +72,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mMediaPlaybackRequiresUserGesture", "Z");
     default_video_poster_url =
         GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
+    spatial_navigation_enabled =
+        GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
   }
 
   // Field ids
@@ -88,6 +90,7 @@ struct XWalkSettings::FieldIds {
   jfieldID use_wide_viewport;
   jfieldID media_playback_requires_user_gesture;
   jfieldID default_video_poster_url;
+  jfieldID spatial_navigation_enabled;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -189,6 +192,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.supports_multiple_windows = env->GetBooleanField(
       obj, field_ids_->support_multiple_windows);
 
+  prefs.spatial_navigation_enabled = env->GetBooleanField(
+      obj, field_ids_->spatial_navigation_enabled);
+  
   prefs.application_cache_enabled =
       Java_XWalkSettings_getAppCacheEnabled(env, obj);
 
