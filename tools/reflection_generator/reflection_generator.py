@@ -15,6 +15,16 @@ from java_class import JavaClassLoader
 from string import Template
 from wrapper_generator import WrapperGenerator
 
+GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
+                               os.pardir, os.pardir, os.pardir,
+                               'build',
+                               'android',
+                               'gyp')
+sys.path.append(GYP_ANDROID_DIR)
+
+from util import build_utils
+
+
 # Classes list that have to generate bridge and wrap code.
 CLASSES_TO_BE_PROCESS = [
     'XWalkCookieManagerInternal',
@@ -45,6 +55,7 @@ BRIDGE_PACKAGE = 'org.xwalk.core.internal'
 
 bridge_path = ''
 wrapper_path = ''
+
 
 def PerformSerialize(output_path, generator):
   file_name = generator.GetGeneratedClassFileName()
@@ -103,13 +114,6 @@ def GenerateJavaTemplateClass(template_dir,
     f.write(template.substitute(value))
 
 
-def Touch(path):
-  if not os.path.isdir(os.path.dirname(path)):
-    os.makedirs(os.path.dirname(path))
-  with open(path, 'a'):
-    os.utime(path, None)
-
-
 def main(argv):
   usage = """Usage: %prog [OPTIONS]
 This script can generate bridge and wrap source files for given directory.
@@ -165,7 +169,7 @@ This script can generate bridge and wrap source files for given directory.
         options.api_version, options.min_api_version, options.verify_xwalk_apk)
 
   if options.stamp:
-    Touch(options.stamp)
+    build_utils.Touch(options.stamp)
 
 
 if __name__ == '__main__':

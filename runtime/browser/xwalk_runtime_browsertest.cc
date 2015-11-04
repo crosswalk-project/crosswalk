@@ -152,14 +152,3 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   EXPECT_NE(runtime, second);
 }
 
-#if defined(OS_TIZEN)
-IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadTizenWebUiFwFile) {
-  GURL url = xwalk_test_utils::GetTestURL(
-      base::FilePath(), base::FilePath().AppendASCII("tizenwebuifw.html"));
-  base::string16 title = base::ASCIIToUTF16("Pass");
-  Runtime* runtime = CreateRuntime();
-  content::TitleWatcher title_watcher(runtime->web_contents(), title);
-  xwalk_test_utils::NavigateToURL(runtime, url);
-  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
-}
-#endif

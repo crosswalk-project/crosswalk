@@ -21,38 +21,12 @@ std::string MakeWidgetPath(const std::string& element) {
   return MakeElementPath(widget_keys::kWidgetKey, element);
 }
 
-#if defined(OS_TIZEN)
-
-// Makes a path to widget.application.element.
-std::string MakeApplicationPath(const std::string& element) {
-  return MakeElementPath(widget_keys::kTizenApplicationKey, element);
-}
-
-// Creates an app-widget element id basing on values of default package id
-// and default application name.
-std::string GetDefaultApplicationId() {
-  std::vector<std::string> parts;
-  parts.push_back(kDefaultWidgetPackageId);
-  parts.push_back(kDefaultWidgetApplicationName);
-  return JoinString(parts, '.');
-}
-
-#endif  // defined(OS_TIZEN)
-
 }  // namespace
 
 const char kDefaultManifestName[] = "no name";
 const char kDefaultManifestVersion[] = "0";
 const char kDefaultWidgetName[] = "no name";
 const char kDefaultWidgetVersion[] = "0";
-
-#if defined(OS_TIZEN)
-
-const char kDefaultWidgetPackageId[] = "abcdefghij";
-const char kDefaultWidgetApplicationName[] = "noname";
-const char kDefaultWidgetRequiredVersion[] = "0";
-
-#endif  // defined(OS_TIZEN)
 
 scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig() {
   scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
@@ -72,26 +46,6 @@ scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
                       widget_keys::kWidgetNamespacePrefix);
   manifest->SetString(widget_keys::kVersionKey, kDefaultWidgetVersion);
   manifest->SetString(widget_keys::kNameKey, kDefaultWidgetName);
-
-#if defined(OS_TIZEN)
-
-  // widget.application attributes
-
-  manifest->SetString(
-      MakeApplicationPath(widget_keys::kNamespaceKey),
-      widget_keys::kTizenNamespacePrefix);
-  manifest->SetString(
-      MakeApplicationPath(widget_keys::kTizenApplicationIdKey),
-      GetDefaultApplicationId());
-  manifest->SetString(
-      MakeApplicationPath(widget_keys::kTizenApplicationPackageKey),
-      kDefaultWidgetPackageId);
-  manifest->SetString(
-      MakeApplicationPath(widget_keys::kTizenApplicationRequiredVersionKey),
-      kDefaultWidgetRequiredVersion);
-
-#endif
-
   return manifest.Pass();
 }
 

@@ -668,7 +668,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
             // Check that the response is a good one
             if(Activity.RESULT_OK == resultCode) {
-                if(data == null) {
+                // In Android M, camera results return an empty Intent rather than null.
+                if(data == null ||
+                        (data.getAction() == null && data.getData() == null)) {
                     // If there is not data, then we may have taken a photo
                     if(mCameraPhotoPath != null) {
                         results = Uri.parse(mCameraPhotoPath);
@@ -1081,6 +1083,20 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.hideAutofillPopup();
     }
 
+    /**
+     * Set the enabled state of this view.
+     * @param visibility One of VISIBLE, INVISIBLE, or GONE.
+     * @since 6.0
+     */
+    @XWalkAPI(callSuper = true,
+              preWrapperLines = {"super.setVisibility(visibility);"})
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.setVisibility(visibility);
+    }
+
     // Below methods are for test shell and instrumentation tests.
     /**
      * @hide
@@ -1219,7 +1235,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-        chooserIntent.putExtra(Intent.EXTRA_TITLE, "Choose an action");
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                 extraIntents.toArray(new Intent[] { }));
         getActivity().startActivityForResult(chooserIntent, INPUT_FILE_REQUEST_CODE);
@@ -1287,4 +1302,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         return mContent.onTouchEvent(event);
     }
 
+    // Use delegate to access XWalkView's protected method
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onScrollChanged(l, t, oldl, oldt);"})
+    public void onScrollChangedDelegate(int l, int t, int oldl, int oldt) {
+    }
+
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onFocusChanged(gainFocus, direction, previouslyFocusedRect);"})
+    public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+    }
 }

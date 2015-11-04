@@ -46,6 +46,7 @@
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 #if defined(OS_ANDROID)
+#include "net/proxy/proxy_config_service_android.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
@@ -95,9 +96,19 @@ RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
   // We must create the proxy config service on the UI loop on Linux because it
   // must synchronously run on the glib message loop. This will be passed to
   // the URLRequestContextStorage on the IO thread in GetURLRequestContext().
+#if defined(OS_ANDROID)
+  net::ProxyConfigServiceAndroid* config_service =
+      static_cast<net::ProxyConfigServiceAndroid*>(
+          net::ProxyService::CreateSystemProxyConfigService(
+              io_loop_->task_runner(), file_loop_->task_runner()));
+  config_service->set_exclude_pac_url(true);
+
+  proxy_config_service_.reset(config_service);
+#else
   proxy_config_service_.reset(
       net::ProxyService::CreateSystemProxyConfigService(
           io_loop_->task_runner(), file_loop_->task_runner()));
+#endif
 }
 
 RuntimeURLRequestContextGetter::~RuntimeURLRequestContextGetter() {
@@ -143,11 +154,21 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(new net::TransportSecurityState);
+#if defined(OS_ANDROID)
+    // Android provides a local HTTP proxy that handles all the proxying.
+    // Create the proxy without a resolver since we rely
+    // on this local HTTP proxy.
+    storage_->set_proxy_service(
+        net::ProxyService::CreateWithoutProxyResolver(
+        proxy_config_service_.release(),
+        NULL));
+#else
     storage_->set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
         proxy_config_service_.release(),
         0,
         NULL));
+#endif
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
     storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerFactory::CreateDefault(host_resolver.get()));

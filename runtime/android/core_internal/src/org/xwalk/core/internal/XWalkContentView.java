@@ -6,6 +6,7 @@
 package org.xwalk.core.internal;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -91,4 +92,14 @@ public class XWalkContentView extends ContentView {
         return mContentViewCore.onTouchEvent(event);
     }
 
+    @Override
+    public void onScrollChanged(int l, int t, int oldl, int oldt) {
+        mXWalkView.onScrollChangedDelegate(l, t, oldl, oldt);
+    }
+
+    @Override
+    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+        mXWalkView.onFocusChangedDelegate(gainFocus, direction, previouslyFocusedRect);
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+    }
 }

@@ -42,11 +42,6 @@ IPC_MESSAGE_CONTROL2(ViewMsg_EnableSecurityMode,    // NOLINT
                      xwalk::application::ApplicationSecurityPolicy::SecurityMode
                      /* security mode */)
 
-#if defined(OS_TIZEN)
-IPC_MESSAGE_CONTROL1(ViewMsg_UserAgentStringChanged,  // NOLINT
-                     std::string /*new user agent string*/)
-#endif
-
 IPC_MESSAGE_ROUTED1(ViewMsg_HWKeyPressed, int /*keycode*/)  // NOLINT
 
 // These are messages sent from the renderer to the browser process.

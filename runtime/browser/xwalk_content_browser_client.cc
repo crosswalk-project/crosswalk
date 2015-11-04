@@ -75,13 +75,6 @@
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_mac.h"
 #endif
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/runtime/browser/geolocation/tizen/location_provider_tizen.h"
-#include "xwalk/runtime/browser/tizen/xwalk_web_contents_view_delegate.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
-#endif
-
 namespace xwalk {
 
 namespace {
@@ -121,8 +114,6 @@ content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
   main_parts_ = new XWalkBrowserMainPartsMac(parameters);
 #elif defined(OS_ANDROID)
   main_parts_ = new XWalkBrowserMainPartsAndroid(parameters);
-#elif defined(OS_TIZEN)
-  main_parts_ = new XWalkBrowserMainPartsTizen(parameters);
 #else
   main_parts_ = new XWalkBrowserMainParts(parameters);
 #endif
@@ -183,9 +174,6 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
 #if defined(OS_ANDROID)
   return new XWalkWebContentsViewDelegate(web_contents);
-#elif defined(OS_TIZEN)
-  return new XWalkWebContentsViewDelegate(
-      web_contents, xwalk_runner_->app_system()->application_service());
 #else
   return nullptr;
 #endif
@@ -352,7 +340,7 @@ content::BrowserPpapiHost*
   return nullptr;
 }
 
-#if defined(OS_ANDROID) || defined(OS_TIZEN)  || defined(OS_LINUX)
+#if defined(OS_ANDROID) || defined(OS_LINUX)
 void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
   resource_dispatcher_host_delegate_ =
       (RuntimeResourceDispatcherHostDelegate::Create()).Pass();
@@ -402,11 +390,7 @@ bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,
 
 content::LocationProvider*
 XWalkContentBrowserClient::OverrideSystemLocationProvider() {
-#if defined(OS_TIZEN)
-  return new LocationProviderTizen();
-#else
   return nullptr;
-#endif
 }
 
 void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(

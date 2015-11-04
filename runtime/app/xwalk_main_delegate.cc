@@ -24,10 +24,6 @@
 #include "components/nacl/zygote/nacl_fork_delegate_linux.h"
 #endif
 
-#if defined(OS_TIZEN)
-#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
-#endif
-
 namespace xwalk {
 
 XWalkMainDelegate::XWalkMainDelegate()
@@ -96,7 +92,7 @@ void XWalkMainDelegate::InitializeResourceBundle() {
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
 #endif
 
-#if !defined(OS_ANDROID) && !defined(OS_TIZEN)
+#if !defined(OS_ANDROID)
   ui::ResourceBundle::InitSharedInstanceWithLocale(
       "en-US", nullptr, ui::ResourceBundle::DO_NOT_LOAD_COMMON_RESOURCES);
   ResourceBundle::GetSharedInstance().AddDataPackFromPath(
@@ -116,11 +112,7 @@ content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {
 
 content::ContentRendererClient*
     XWalkMainDelegate::CreateContentRendererClient() {
-#if defined(OS_TIZEN)
-  renderer_client_.reset(new XWalkContentRendererClientTizen());
-#else
   renderer_client_.reset(new XWalkContentRendererClient());
-#endif
   return renderer_client_.get();
 }
 

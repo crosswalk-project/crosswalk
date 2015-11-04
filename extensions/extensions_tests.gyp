@@ -78,6 +78,7 @@
             '../xwalk.gyp:xwalk_runtime',
             'dotnet_extension_sample.gyp:*',
             'extensions.gyp:xwalk_extensions',
+            '../dotnet/dotnet_bridge.gyp:dotnet_bridge',
           ],
           'defines': [
             'HAS_OUT_OF_PROC_TEST_RUNNER',
@@ -102,6 +103,7 @@
             '../xwalk.gyp:xwalk_runtime',
             'dotnet_extension_sample.gyp:*',
             'extensions.gyp:xwalk_extensions',
+            '../dotnet/dotnet_bridge.gyp:dotnet_bridge',
           ],
           'sources': [
             'test/win/xwalk_dotnet_extension_unittest.cc',

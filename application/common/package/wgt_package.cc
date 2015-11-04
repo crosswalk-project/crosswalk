@@ -10,20 +10,12 @@
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/id_util.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/common/tizen/signature_validator.h"
-#endif
-
 namespace xwalk {
 namespace application {
 
 namespace {
 
-#if defined(OS_TIZEN)
-const char kIdNodeName[] = "application";
-#else
 const char kIdNodeName[] = "widget";
-#endif
 
 }  // namespace
 
@@ -63,14 +55,8 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   }
 
   if (!value.empty()) {
-#if defined(OS_TIZEN)
-    id_ = value;
-    is_valid_ = SignatureValidator::Check(extracted_path) !=
-        SignatureValidator::INVALID;
-#else
     id_ = GenerateId(value);
     is_valid_ = true;
-#endif
   }
   scoped_ptr<base::ScopedFILE> file(
       new base::ScopedFILE(base::OpenFile(path, "rb")));

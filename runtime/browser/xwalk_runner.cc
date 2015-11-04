@@ -26,10 +26,6 @@
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
-#endif
-
 namespace xwalk {
 
 namespace {
@@ -189,13 +185,7 @@ void XWalkRunner::DisableRemoteDebugging() {
 
 // static
 scoped_ptr<XWalkRunner> XWalkRunner::Create() {
-  XWalkRunner* runner = NULL;
-#if defined(OS_TIZEN)
-  runner = new XWalkRunnerTizen;
-#else
-  runner = new XWalkRunner;
-#endif
-  return scoped_ptr<XWalkRunner>(runner);
+  return scoped_ptr<XWalkRunner>(new XWalkRunner);
 }
 
 content::ContentBrowserClient* XWalkRunner::GetContentBrowserClient() {

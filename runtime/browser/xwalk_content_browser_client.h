@@ -126,7 +126,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   content::BrowserPpapiHost* GetExternalBrowserPpapiHost(
       int plugin_process_id) override;
 
-#if defined(OS_ANDROID) || defined(OS_TIZEN)  || defined(OS_LINUX)
+#if defined(OS_ANDROID) || defined(OS_LINUX)
   void ResourceDispatcherHostCreated() override;
 #endif
 

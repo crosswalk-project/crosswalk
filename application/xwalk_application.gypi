@@ -38,24 +38,6 @@
         'renderer/application_native_module.cc',
         'renderer/application_native_module.h',
       ],
-      'conditions': [
-        ['tizen==1', {
-          'dependencies': [
-            'build/system.gyp:tizen',
-            'build/system.gyp:tizen_appcore_common',
-            'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
-            '<(DEPTH)/ui/events/platform/events_platform.gyp:events_platform',
-          ],
-          'sources': [
-            'browser/application_tizen.cc',
-            'browser/application_tizen.h',
-            'browser/application_service_tizen.cc',
-            'browser/application_service_tizen.h',
-            'browser/application_system_tizen.cc',
-            'browser/application_system_tizen.h',
-          ],
-        }],
-      ],
       'include_dirs': [
         '..',
         '../..',
@@ -97,19 +79,6 @@
           },
           'includes': [ '../../build/grit_action.gypi' ],
         },
-      ],
-    },
-    {
-      'target_name': 'xwalk_application_tools',
-      'type': 'none',
-      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
-      'conditions': [
-        ['tizen == 1', {
-          'dependencies': [
-            'application/tools/tizen/xwalk_tizen_tools.gyp:xwalk_backend',
-            'application/tools/tizen/xwalk_tizen_tools.gyp:xwalk_backend_lib',
-          ],
-        }],
       ],
     },
   ],

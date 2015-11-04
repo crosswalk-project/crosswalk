@@ -32,10 +32,6 @@
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/common/id_util.h"
-#endif
-
 namespace errors = xwalk::application_manifest_errors;
 namespace keys = xwalk::application_manifest_keys;
 namespace widget_keys = xwalk::application_widget_keys;
@@ -175,14 +171,7 @@ inline bool IsElementSupportSpanAndDir(xmlNode* root) {
 bool IsSingletonElement(const std::string& name) {
   for (int i = 0; i < arraysize(kSingletonElements); ++i)
     if (kSingletonElements[i] == name)
-#if defined(OS_TIZEN)
-      // On Tizen platform, need to check namespace of 'content'
-      // element further, a content element with tizen namespace
-      // will replace the one with widget namespace.
-      return name != kContentKey;
-#else
       return true;
-#endif
   return false;
 }
 
@@ -319,19 +308,6 @@ base::DictionaryValue* LoadXMLNode(
       continue;
     } else if (IsSingletonElement(sub_node_name)) {
       continue;
-#if defined(OS_TIZEN)
-    } else if (sub_node_name == kContentKey) {
-      std::string current_namespace, new_namespace;
-      base::DictionaryValue* current_value;
-      value->GetDictionary(sub_node_name, &current_value);
-
-      current_value->GetString(kNamespaceKey, &current_namespace);
-      sub_value->GetString(kNamespaceKey, &new_namespace);
-      if (current_namespace != new_namespace &&
-          new_namespace == widget_keys::kTizenNamespacePrefix)
-        value->Set(sub_node_name, sub_value);
-      continue;
-#endif
     }
 
     base::Value* temp;
@@ -407,11 +383,6 @@ scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
 
   scoped_ptr<base::DictionaryValue> dv = make_scoped_ptr(
       static_cast<base::DictionaryValue*>(root.release()));
-#if defined(OS_TIZEN)
-  // Ignore any Tizen application ID, as this is automatically generated.
-  dv->Remove(keys::kTizenAppIdKey, NULL);
-#endif
-
   return make_scoped_ptr(new Manifest(dv.Pass(), Manifest::TYPE_MANIFEST));
 }
 

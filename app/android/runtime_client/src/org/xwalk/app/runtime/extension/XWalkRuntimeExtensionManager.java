@@ -7,6 +7,8 @@ package org.xwalk.app.runtime.extension;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
@@ -152,9 +154,15 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
         // If there is a native external extension, register the path. The
         // extensions under the path will be loaded automatically when the
         // native service starts.
-        String path = "/data/data/" + mActivity.getPackageName() + "/lib";
-        File libraryDir = new File(path);
-        if (libraryDir.listFiles().length > 0)
+        String path = null;
+        try {
+            ApplicationInfo appInfo =
+                    mContext.getPackageManager()
+                    .getApplicationInfo(mActivity.getPackageName(), 0);
+            path = appInfo.nativeLibraryDir;
+        } catch (final NameNotFoundException e) {
+        }
+        if (path != null && new File(path).isDirectory())
             mNativeExtensionLoader.registerNativeExtensionsInPath(path);
 
         // Read extensions-config.json and create external extensions.

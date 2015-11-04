@@ -24,11 +24,7 @@ namespace xwalk {
 namespace application {
 namespace {
 const char kLocaleUnlocalized[] = "@unlocalized";
-#if defined(OS_TIZEN)
-const char kLocaleAuto[] = "en-gb";
-#else
 const char kLocaleAuto[] = "en-us";
-#endif
 const char kLocaleFirstOne[] = "*";
 
 const char kWidgetNamePath[] = "widget.name";

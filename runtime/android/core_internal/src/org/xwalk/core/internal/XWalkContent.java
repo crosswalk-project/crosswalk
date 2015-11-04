@@ -19,10 +19,11 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
+import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
@@ -875,6 +876,12 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         if (mXWalkAutofillClient != null) {
             mXWalkAutofillClient.hideAutofillPopup();
         }
+    }
+
+    public void setVisibility(int visibility) {
+        SurfaceView surfaceView = mContentViewRenderView.getSurfaceView();
+        if (surfaceView == null) return;
+        surfaceView.setVisibility(visibility);
     }
 
     @CalledByNative

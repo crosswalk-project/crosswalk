@@ -29,10 +29,6 @@
 #include "xwalk/runtime/browser/ui/native_app_window_desktop.h"
 #endif
 
-#if defined(OS_TIZEN)
-#include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
-#endif
-
 namespace xwalk {
 
 NativeAppWindowViews::NativeAppWindowViews(
@@ -63,19 +59,11 @@ void NativeAppWindowViews::Initialize() {
   params.use_system_default_icon = true;
   params.show_state = create_params_.state;
   params.parent = create_params_.parent;
-#if defined(OS_TIZEN_MOBILE)
-  params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
-  // On Tizen apps are sized to the work area.
-  gfx::Rect bounds =
-      gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
-  params.bounds = bounds;
-#else
   // Fullscreen should have higher priority than window size.
   if (create_params_.state != ui::SHOW_STATE_FULLSCREEN) {
     params.type = views::Widget::InitParams::TYPE_WINDOW;
     params.bounds = create_params_.bounds;
   }
-#endif
   // Set the app icon if it is passed from command line.
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kAppIcon)) {
@@ -89,11 +77,7 @@ void NativeAppWindowViews::Initialize() {
   }
 
   window_->Init(params);
-
-#if defined(OS_TIZEN_MOBILE)
-  // Set the bounds manually to avoid inset.
-  window_->SetBounds(bounds);
-#elif !defined(USE_OZONE)
+#if !defined(USE_OZONE)
   window_->CenterWindow(create_params_.bounds.size());
 #endif
 
@@ -337,9 +321,7 @@ bool NativeAppWindowViews::PlatformHandleContextMenu(
 NativeAppWindow* NativeAppWindow::Create(
     const NativeAppWindow::CreateParams& create_params) {
   NativeAppWindowViews* window;
-#if defined(OS_TIZEN)
-  window = new NativeAppWindowTizen(create_params);
-#elif defined(OS_LINUX) || defined(OS_WIN)
+#if defined(OS_LINUX) || defined(OS_WIN)
   window = new NativeAppWindowDesktop(create_params);
 #else
   window = new NativeAppWindowViews(create_params);

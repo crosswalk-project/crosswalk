@@ -55,9 +55,6 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
-#if defined(OS_TIZEN)
-    IPC_MESSAGE_HANDLER(ViewMsg_UserAgentStringChanged, OnUserAgentChanged)
-#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -91,17 +88,6 @@ void XWalkRenderProcessObserver::OnEnableSecurityMode(
   app_url_ = url;
   security_mode_ = mode;
 }
-
-#if defined(OS_TIZEN)
-void XWalkRenderProcessObserver::OnUserAgentChanged(
-    const std::string& userAgentString) {
-  overriden_user_agent_ = userAgentString;
-}
-
-std::string XWalkRenderProcessObserver::GetOverridenUserAgent() const {
-  return overriden_user_agent_;
-}
-#endif
 
 bool XWalkRenderProcessObserver::CanRequest(const GURL& orig,
                                             const GURL& dest) const {
