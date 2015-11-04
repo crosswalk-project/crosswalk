@@ -70,6 +70,10 @@
         'defines' : ['DISABLE_WEBDATABASE'],
       }],
 
+      ['disable_webmidi==1', {
+        'defines' : ['DISABLE_WEBMIDI'],
+      }],
+
       ['tizen==1', {
         'defines': ['OS_TIZEN=1'],
       }],
