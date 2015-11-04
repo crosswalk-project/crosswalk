@@ -1081,6 +1081,20 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.hideAutofillPopup();
     }
 
+    /**
+     * Set the enabled state of this view.
+     * @param visibility One of VISIBLE, INVISIBLE, or GONE.
+     * @since 6.0
+     */
+    @XWalkAPI(callSuper = true,
+              preWrapperLines = {"super.setVisibility(visibility);"})
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.setVisibility(visibility);
+    }
+
     // Below methods are for test shell and instrumentation tests.
     /**
      * @hide
