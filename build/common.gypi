@@ -66,6 +66,10 @@
         'defines' : ['DISABLE_GEO_FEATURES'],
       }],
 
+      ['disable_webdatabase==1', {
+        'defines' : ['DISABLE_WEBDATABASE'],
+      }],
+
       ['tizen==1', {
         'defines': ['OS_TIZEN=1'],
       }],
