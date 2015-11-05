@@ -219,8 +219,9 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
+            '--build-dir=<(PRODUCT_DIR)',
             '--jars=>(input_jars_paths)',
-            '--jar-path=<(jar_final_path)',
+            '--output-jar=<(jar_final_path)',
           ],
         },
       ],
@@ -248,8 +249,9 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
+            '--build-dir=<(PRODUCT_DIR)',
             '--jars=>(input_jars_paths)',
-            '--jar-path=<(jar_final_path)',
+            '--output-jar=<(jar_final_path)',
           ],
         },
       ],
@@ -278,8 +280,9 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
+            '--build-dir=<(PRODUCT_DIR)',
             '--jars=>(input_jars_paths)',
-            '--jar-path=<(jar_final_path)',
+            '--output-jar=<(jar_final_path)',
           ],
         },
       ],
