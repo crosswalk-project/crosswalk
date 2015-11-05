@@ -36,7 +36,7 @@ import org.xwalk.core.internal.XWalkHttpAuthHandlerInternal;
 import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
 import org.xwalk.core.internal.XWalkNavigationItemInternal;
 import org.xwalk.core.internal.XWalkResourceClientInternal;
-import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkSettingsInternal;
 import org.xwalk.core.internal.XWalkUIClientInternal;
 import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkWebChromeClient;
@@ -374,11 +374,11 @@ public class XWalkViewInternalTestBase
         });
     }
 
-    protected XWalkSettings getXWalkSettingsOnUiThreadByContent(
+    protected XWalkSettingsInternal getXWalkSettingsOnUiThreadByContent(
             final XWalkViewInternal xWalkViewInternal) throws Exception {
-        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettingsInternal>() {
             @Override
-            public XWalkSettings call() throws Exception {
+            public XWalkSettingsInternal call() throws Exception {
                 return xWalkViewInternal.getSettings();
             }
         });
