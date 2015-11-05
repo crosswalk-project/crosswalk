@@ -835,15 +835,10 @@ class TestMakeApk(unittest.TestCase):
     RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
-    extensions_config_json = 'Example/assets/extensions-config.json'
-    self.assertTrue(os.path.exists(extensions_config_json))
-    with open(extensions_config_json, 'r') as content_file:
-      content = content_file.read()
-    self.assertTrue(
-        content.find('xwalk-extensions/myextension/myextension.js'))
-    self.assertTrue(content.find('com.example.extension.MyExtension'))
     extension_js = 'Example/assets/xwalk-extensions/myextension/myextension.js'
     self.assertTrue(os.path.exists(extension_js))
+    extension_json = 'Example/assets/xwalk-extensions/myextension/myextension.json'
+    self.assertTrue(os.path.exists(extension_json))
     extension_jar = 'Example/xwalk-extensions/myextension/myextension.jar'
     self.assertTrue(os.path.exists(extension_jar))
     self.checkApks('Example', '1.0.0')
@@ -1099,15 +1094,10 @@ class TestMakeApk(unittest.TestCase):
         content.find(
             '<item name="android:windowFullscreen">true</item>') != -1)
     # Test extensions option.
-    extensions_config_json = 'Example/assets/extensions-config.json'
-    self.assertTrue(os.path.exists(extensions_config_json))
-    with open(extensions_config_json, 'r') as content_file:
-      content = content_file.read()
-      js_file_name = 'xwalk-extensions/myextension/myextension.js'
-      self.assertTrue(content.find(js_file_name))
-      self.assertTrue(content.find('com.example.extension.MyExtension'))
     extension_js = 'Example/assets/xwalk-extensions/myextension/myextension.js'
     self.assertTrue(os.path.exists(extension_js))
+    extension_json = 'Example/assets/xwalk-extensions/myextension/myextension.json'
+    self.assertTrue(os.path.exists(extension_json))
     extension_jar = 'Example/xwalk-extensions/myextension/myextension.jar'
     self.assertTrue(os.path.exists(extension_jar))
 

@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 
 /**
  * Interface for extension context
@@ -17,7 +19,7 @@ public interface XWalkExtensionContextClient {
     /**
      * Register an xwalk extension into context.
      */
-    public void registerExtension(XWalkExtensionClient extension);
+    public void registerExtension(XWalkExternalExtension extension);
 
     /**
      * Unregister an xwalk extension with the given unique name from context.
@@ -32,7 +34,7 @@ public interface XWalkExtensionContextClient {
      *                   message destination.
      * @param message The message content to be posted.
      */
-    public void postMessage(XWalkExtensionClient extension, int instanceId, String message);
+    public void postMessage(XWalkExternalExtension extension, int instanceId, String message);
 
     /**
      * Post a binary message to the given extension instance.
@@ -43,7 +45,7 @@ public interface XWalkExtensionContextClient {
      *                   message destination.
      * @param message The binary message content to be posted.
      */
-    public void postBinaryMessage(XWalkExtensionClient extension, int instanceId, byte[] message);
+    public void postBinaryMessage(XWalkExternalExtension extension, int instanceId, byte[] message);
 
     /**
      * Broadcast a message to all extension instances.
@@ -51,7 +53,7 @@ public interface XWalkExtensionContextClient {
      * @param extension The xwalk extension
      * @param message The message content to be broadcasted.
      */
-    public void broadcastMessage(XWalkExtensionClient extension, String message);
+    public void broadcastMessage(XWalkExternalExtension extension, String message);
 
     /**
      * Get current Android Context.
@@ -64,4 +66,14 @@ public interface XWalkExtensionContextClient {
      * @return the current Android Activity.
      */
     public Activity getActivity();
+
+    /**
+     * Start another activity to get some data back.
+     * External extensions should call this function to ensure
+     * they can get their onActivityResultCallback() be called correctly.
+     * @param requestCode the request code.
+     * @param resultCode the result code.
+     * @param data the Intent data received.
+     */
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options);
 }

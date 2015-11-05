@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import org.json.JSONObject;
 
 public class ExtensionInstanceHelper {
     private BindingObjectStore mStore;
-    XWalkExtensionClient mExtension;
+    XWalkExternalExtension mExtension;
     MessageHandler mHandler;
     int mId;
 
-    public ExtensionInstanceHelper(XWalkExtensionClient extension, int id) {
+    public ExtensionInstanceHelper(XWalkExternalExtension extension, int id) {
         mId = id;
         mExtension = extension;
         // Copy all the handlers registered to the extension object
@@ -31,7 +31,7 @@ public class ExtensionInstanceHelper {
         return mId;
     }
 
-    public XWalkExtensionClient getExtension() {
+    public XWalkExternalExtension getExtension() {
         return mExtension;
     }
 

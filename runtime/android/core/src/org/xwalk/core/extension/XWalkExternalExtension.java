@@ -1,10 +1,11 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2015 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -20,9 +21,9 @@ import org.json.JSONObject;
  *
  * Each external extension should inherit this class and implements
  * below methods. It's created and registered by runtime side via the
- * configuration information in extensions-config.json.
+ * configuration information in your myextension.json.
  */
-public class XWalkExtensionClient {
+public class XWalkExternalExtension {
     // The unique name for this extension.
     protected String mName;
 
@@ -50,7 +51,7 @@ public class XWalkExtensionClient {
      * @param jsApi the code stub of JavaScript for this extension.
      * @param context the extension context.
      */
-    public XWalkExtensionClient(String name, String jsApi, XWalkExtensionContextClient context) {
+    public XWalkExternalExtension(String name, String jsApi, XWalkExtensionContextClient context) {
         this(name, jsApi, null, context);
     }
 
@@ -64,7 +65,7 @@ public class XWalkExtensionClient {
      *                    implicitly created using its name.
      * @param context the extension context.
      */
-    public XWalkExtensionClient(String name, String jsApi, String[] entryPoints, XWalkExtensionContextClient context) {
+    public XWalkExternalExtension(String name, String jsApi, String[] entryPoints, XWalkExtensionContextClient context) {
         assert (context != null);
         mName = name;
         mJsApi = jsApi;
@@ -151,6 +152,8 @@ public class XWalkExtensionClient {
     /**
      * Tell extension that one activity exists so that it can know the result
      * of the exit code.
+     * Please call XWalkExtensionContextClient.startActivityForResult()
+     * so that this callback can be called correctly for all cases.
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
@@ -276,5 +279,16 @@ public class XWalkExtensionClient {
      */
     public final void broadcastMessage(String message) {
         mExtensionContext.broadcastMessage(this, message);
+    }
+
+    /**
+     * Start another activity to get some data back.
+     * Call this function then will get onActivityResult() callback.
+     * @param requestCode the request code.
+     * @param resultCode the result code.
+     * @param data the Intent data received.
+     */
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
+        mExtensionContext.startActivityForResult(intent, requestCode, options);
     }
 }

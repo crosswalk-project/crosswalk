@@ -156,7 +156,7 @@
       'target_name': 'adextension',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_java',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/tools/android/test_data/extensions/adextension/',
@@ -167,7 +167,7 @@
       'target_name': 'contactextension',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_java',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/tools/android/test_data/extensions/contactextension/',
@@ -178,7 +178,7 @@
       'target_name': 'myextension',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_java',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/tools/android/test_data/extensions/myextension/',
@@ -189,7 +189,7 @@
       'target_name': 'echoJsStubGenExtension',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_java',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/tools/android/test_data/extensions/echoJsStubGenExtension/',
@@ -200,7 +200,7 @@
       'target_name': 'constructorJsStubGen',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_java',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/tools/android/test_data/extensions/constructorJsStubGen/',
@@ -211,7 +211,7 @@
       'target_name': 'jsStubExtensionByBMI',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_java',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/tools/android/test_data/extensions/jsStubExtensionByBMI/',

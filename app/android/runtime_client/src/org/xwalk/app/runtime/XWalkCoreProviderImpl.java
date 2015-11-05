@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionLoader;
 import org.xwalk.app.XWalkRuntimeActivityBase;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkPreferences;
@@ -109,5 +110,10 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     @Override
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
         mXWalkView.load("", data);
+    }
+
+    @Override
+    public void loadExtensions() {
+        (new XWalkRuntimeExtensionLoader(mXWalkView, mActivity)).loadExtensions();
     }
 }

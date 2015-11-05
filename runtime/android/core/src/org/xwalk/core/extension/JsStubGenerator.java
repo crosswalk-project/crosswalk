@@ -1,4 +1,4 @@
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import android.util.Log;
 
@@ -7,8 +7,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.xwalk.app.runtime.extension.ReflectionHelper.MemberInfo;
-import org.xwalk.app.runtime.extension.ReflectionHelper.MemberType;
+import org.xwalk.core.extension.ReflectionHelper.MemberInfo;
+import org.xwalk.core.extension.ReflectionHelper.MemberType;
 
 public class JsStubGenerator {
     static public String TAG = "JsStubGenerator";
@@ -37,7 +37,7 @@ public class JsStubGenerator {
      * With JavaScript stub auto-generation feature, you do not need to write a JavaScript
      * stub, nor to point out the JavaScript stub file in manifest.json.
      *
-     * The parent class XWalkExtensionClient will generate the JavaScript stub if the jsApi
+     * The parent class XWalkExternalExtension will generate the JavaScript stub if the jsApi
      * is found null or empty string in its constructor. The generated JavaScript stub will
      * also leverage an internal JavaScript module "jsStub", please refer following file for
      * more information: SOURCE/xwalk/extensions/renderer/xwalk_js_stub_wrapper.js
@@ -51,7 +51,7 @@ public class JsStubGenerator {
      *     LogJs()
      *
      * This is the generation logic triggered if the jsApi is null or empty in the constructor
-     * of XWalkExtensionClient.
+     * of XWalkExternalExtension.
      */
     String generate() {
         String result = "";

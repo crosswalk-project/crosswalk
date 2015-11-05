@@ -1,11 +1,11 @@
 package com.example.extension;
 
-import org.xwalk.app.runtime.extension.XWalkExtensionClient;
-import org.xwalk.app.runtime.extension.XWalkExtensionContextClient;
+import org.xwalk.core.extension.XWalkExtensionContextClient;
+import org.xwalk.core.extension.XWalkExternalExtension;
 
 import android.util.Log;
 
-public class MyExtension extends XWalkExtensionClient {
+public class MyExtension extends XWalkExternalExtension {
     // Don't change the parameters in Constructor because XWalk needs to call this constructor.
     public MyExtension(String name, String JsApiContent, XWalkExtensionContextClient context) {
         super(name, JsApiContent, context);

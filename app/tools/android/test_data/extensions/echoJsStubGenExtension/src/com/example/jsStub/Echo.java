@@ -8,7 +8,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.app.runtime.extension.*;
+import org.xwalk.core.extension.*;
 
 /*
  * Example for JavaScript stub auto-generation feature on Android.

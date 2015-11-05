@@ -388,12 +388,7 @@ def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on, manifest):
 def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   # Copy the file from src_path into dest_path.
   dest_extension_path = os.path.join(dest_path, extension_name)
-  if os.path.exists(dest_extension_path):
-    # TODO: Refine it by renaming it internally.
-    print('Error: duplicate extension names were found (%s). Please rename it.'
-          % extension_name)
-    sys.exit(9)
-  else:
+  if not os.path.exists(dest_extension_path):
     os.mkdir(dest_extension_path)
 
   file_name = extension_name + suffix
@@ -418,11 +413,9 @@ def CustomizeExtensions(app_info, extensions):
       myextension.json
   That means the name of the internal files should be the same as the
   directory name.
-  For .jar files, they'll be copied to xwalk-extensions/ and then
+  For .jar files, they'll be copied to xwalk-extensions/myextension and then
   built into classes.dex in make_apk.py.
-  For .js files, they'll be copied into assets/xwalk-extensions/.
-  For .json files, the'll be merged into one file called
-  extensions-config.json and copied into assets/.
+  For .js and .json files, they'll be copied into assets/xwalk-extensions/myextension.
   """
   if not extensions:
     return
@@ -434,14 +427,11 @@ def CustomizeExtensions(app_info, extensions):
   # Set up the target directories and files.
   dest_jar_path = os.path.join(app_dir, extensions_string)
   os.mkdir(dest_jar_path)
-  dest_js_path = os.path.join(apk_assets_path, extensions_string)
-  os.mkdir(dest_js_path)
-  apk_extensions_json_path = os.path.join(apk_assets_path,
-                                          'extensions-config.json')
+  dest_js_json_path = os.path.join(apk_assets_path, extensions_string)
+  os.mkdir(dest_js_json_path)
 
   # Split the paths into a list.
   extension_paths = extensions.split(os.pathsep)
-  extension_json_list = []
   for source_path in extension_paths:
     if not os.path.exists(source_path):
       print('Error: can not find the extension directory \'%s\'.' % source_path)
@@ -454,9 +444,12 @@ def CustomizeExtensions(app_info, extensions):
     CopyExtensionFile(extension_name, '.jar', source_path, dest_jar_path)
 
     # Copy .js file into assets/xwalk-extensions.
-    CopyExtensionFile(extension_name, '.js', source_path, dest_js_path)
+    CopyExtensionFile(extension_name, '.js', source_path, dest_js_json_path)
 
-    # Merge .json file into assets/xwalk-extensions.
+    # Copy .json file into assets/xwalk-extensions.
+    CopyExtensionFile(extension_name, '.json', source_path, dest_js_json_path)
+
+    # Handle the extension permissions and manifest information.
     file_name = extension_name + '.json'
     src_file = os.path.join(source_path, file_name)
     if not os.path.isfile(src_file):
@@ -466,18 +459,13 @@ def CustomizeExtensions(app_info, extensions):
       src_file_handle = open(src_file)
       src_file_content = src_file_handle.read()
       json_output = json.JSONDecoder().decode(src_file_content)
-      # Below 3 properties are used by runtime. See extension manager.
+      # Below 2 properties are used by runtime. See extension manager.
       # And 'permissions' will be merged.
       if not ('name' in json_output and
               'class' in json_output):
         print ('Error: properties \'name\', \'class\' in a json '
                'file are mandatory.')
         sys.exit(9)
-      # Reset the path for JavaScript.
-      js_path_prefix = extensions_string + '/' + extension_name + '/'
-      if ('jsapi' in json_output):
-          json_output['jsapi'] = js_path_prefix + json_output['jsapi']
-      extension_json_list.append(json_output)
       # Merge the permissions of extensions into AndroidManifest.xml.
       manifest_path = os.path.join(app_dir, 'AndroidManifest.xml')
       xmldoc = minidom.parse(manifest_path)
@@ -519,13 +507,6 @@ def CustomizeExtensions(app_info, extensions):
         MergeNodes(manifest_nodes[0], manifest_nodes_merge[0])
         with open(manifest_path, 'w') as file_handle:
           xmldoc.writexml(file_handle, encoding='utf-8')
-
-  # Write configuration of extensions into the target extensions-config.json.
-  if extension_json_list:
-    extensions_string = json.JSONEncoder().encode(extension_json_list)
-    extension_json_file = open(apk_extensions_json_path, 'w')
-    extension_json_file.write(extensions_string)
-    extension_json_file.close()
 
 
 def GenerateCommandLineFile(app_info, xwalk_command_line):

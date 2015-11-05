@@ -10,12 +10,12 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.app.runtime.extension.*;
+import org.xwalk.core.extension.*;
 
 /*
  * An example for constructor extension
  */
-public class PersonExtension extends XWalkExtensionClient {
+public class PersonExtension extends XWalkExternalExtension {
     private Map<Integer, Person> personMap = new HashMap<Integer, Person>();
     public PersonExtension(String extensionName, String jsApi, XWalkExtensionContextClient context) {
         super(extensionName, jsApi, context);
