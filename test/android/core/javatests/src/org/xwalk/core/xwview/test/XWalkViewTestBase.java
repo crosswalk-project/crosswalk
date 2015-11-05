@@ -30,7 +30,6 @@ import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
 
 import org.xwalk.core.ClientCertRequest;
-import org.xwalk.core.WebResourceRequest;
 import org.xwalk.core.XWalkDownloadListener;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
@@ -184,8 +183,8 @@ public class XWalkViewTestBase
 
         @Override
         public WebResourceResponse shouldInterceptLoadRequest(XWalkView view,
-                WebResourceRequest request) {
-            return mInnerContentsClient.shouldInterceptLoadRequest(request.getUrl().toString());
+                String url) {
+            return mInnerContentsClient.shouldInterceptLoadRequest(url);
         }
 
         @Override

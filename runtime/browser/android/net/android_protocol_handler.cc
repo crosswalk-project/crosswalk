@@ -84,9 +84,6 @@ class AndroidStreamReaderURLRequestJobDelegateImpl
   bool GetPackageName(JNIEnv* env,
                       std::string* name) override;
 
-  void AppendResponseHeaders(JNIEnv* env,
-                             net::HttpResponseHeaders* headers) override;
-
   ~AndroidStreamReaderURLRequestJobDelegateImpl() override;
 };
 
@@ -230,12 +227,6 @@ bool AndroidStreamReaderURLRequestJobDelegateImpl::GetPackageName(
 
   *name = base::android::ConvertJavaStringToUTF8(returned_name);
   return true;
-}
-
-void AndroidStreamReaderURLRequestJobDelegateImpl::AppendResponseHeaders(
-    JNIEnv* env,
-    net::HttpResponseHeaders* headers) {
-  // no-op
 }
 
 // AndroidRequestInterceptorBase ----------------------------------------------
