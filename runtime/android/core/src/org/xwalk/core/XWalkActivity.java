@@ -77,9 +77,7 @@ import android.os.Bundle;
  *
  * <pre>
  * &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
- * &lt;uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" /&gt;
  * &lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /&gt;
- * &lt;uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /&gt;
  * &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
  * &lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
  * </pre>
