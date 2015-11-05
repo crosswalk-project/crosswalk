@@ -235,7 +235,8 @@ class TestMakeApk(unittest.TestCase):
                                 # 'snapshot_blob.bin',
                                 'device_capabilities_api.js',
                                 'launch_screen_api.js',
-                                'presentation_api.js']
+                                'presentation_api.js',
+                                'wifidirect_api.js']
       for res_file in embedded_related_files:
         self.assertTrue(out.find(res_file) != -1)
     if arch == 'x86':
