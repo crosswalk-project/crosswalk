@@ -7,7 +7,9 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
+#include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
 #include "base/android/jni_weak_ref.h"
 #include "base/lazy_instance.h"
@@ -22,20 +24,24 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "jni/XWalkContentsIoThreadClient_jni.h"
+#include "net/http/http_request_headers.h"
 #include "net/url_request/url_request.h"
 #include "url/gurl.h"
-#include "xwalk/runtime/browser/android/intercepted_request_data_impl.h"
+#include "xwalk/runtime/browser/android/xwalk_web_resource_response_impl.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF8ToJavaString;
 using base::android::JavaRef;
 using base::android::ScopedJavaLocalRef;
+using base::android::ToJavaArrayOfStrings;
 using base::LazyInstance;
 using content::BrowserThread;
 using content::RenderFrameHost;
 using content::WebContents;
 using std::map;
 using std::pair;
+using std::string;
+using std::vector;
 
 namespace xwalk {
 
@@ -231,28 +237,56 @@ XWalkContentsIoThreadClientImpl::GetCacheMode() const {
           env, java_object_.obj()));
 }
 
-scoped_ptr<InterceptedRequestData>
+scoped_ptr<XWalkWebResourceResponse>
 XWalkContentsIoThreadClientImpl::ShouldInterceptRequest(
     const GURL& location,
     const net::URLRequest* request) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   if (java_object_.is_null())
-    return scoped_ptr<InterceptedRequestData>();
+    return scoped_ptr<XWalkWebResourceResponse>();
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   bool is_main_frame = info &&
       info->GetResourceType() == content::RESOURCE_TYPE_MAIN_FRAME;
+  bool has_user_gesture = info && info->HasUserGesture();
+
+  vector<string> headers_names;
+  vector<string> headers_values;
+  {
+    net::HttpRequestHeaders headers;
+    if (!request->GetFullRequestHeaders(&headers))
+      headers = request->extra_request_headers();
+    net::HttpRequestHeaders::Iterator headers_iterator(headers);
+    while (headers_iterator.GetNext()) {
+      headers_names.push_back(headers_iterator.name());
+      headers_values.push_back(headers_iterator.value());
+    }
+  }
 
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jstring> jstring_url =
       ConvertUTF8ToJavaString(env, location.spec());
+  ScopedJavaLocalRef<jstring> jstring_method =
+      ConvertUTF8ToJavaString(env, request->method());
+  ScopedJavaLocalRef<jobjectArray> jstringArray_headers_names =
+      ToJavaArrayOfStrings(env, headers_names);
+  ScopedJavaLocalRef<jobjectArray> jstringArray_headers_values =
+      ToJavaArrayOfStrings(env, headers_values);
+
   ScopedJavaLocalRef<jobject> ret =
       Java_XWalkContentsIoThreadClient_shouldInterceptRequest(
-          env, java_object_.obj(), jstring_url.obj(), is_main_frame);
+          env,
+          java_object_.obj(),
+          jstring_url.obj(),
+          is_main_frame,
+          has_user_gesture,
+          jstring_method.obj(),
+          jstringArray_headers_names.obj(),
+          jstringArray_headers_values.obj());
   if (ret.is_null())
-    return scoped_ptr<InterceptedRequestData>();
-  return scoped_ptr<InterceptedRequestData>(
-      new InterceptedRequestDataImpl(ret));
+    return scoped_ptr<XWalkWebResourceResponse>();
+  return scoped_ptr<XWalkWebResourceResponse>(
+      new XWalkWebResourceResponseImpl(ret));
 }
 
 bool XWalkContentsIoThreadClientImpl::ShouldBlockContentUrls() const {
@@ -287,9 +321,9 @@ bool XWalkContentsIoThreadClientImpl::ShouldBlockNetworkLoads() const {
 
 void XWalkContentsIoThreadClientImpl::NewDownload(
     const GURL& url,
-    const std::string& user_agent,
-    const std::string& content_disposition,
-    const std::string& mime_type,
+    const string& user_agent,
+    const string& content_disposition,
+    const string& mime_type,
     int64 content_length) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   if (java_object_.is_null())
@@ -316,9 +350,9 @@ void XWalkContentsIoThreadClientImpl::NewDownload(
 }
 
 void XWalkContentsIoThreadClientImpl::NewLoginRequest(
-    const std::string& realm,
-    const std::string& account,
-    const std::string& args) {
+    const string& realm,
+    const string& account,
+    const string& args) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   if (java_object_.is_null())
     return;
