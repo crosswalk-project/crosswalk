@@ -88,7 +88,50 @@ public class XWalkViewTestBase
         public boolean onJavascriptModalDialog(XWalkView view,
                 XWalkUIClient.JavascriptMessageType type, String url, String message,
                         String defaultValue, XWalkJavascriptResult result) {
+            /**
+             * NOTE: Since onJavascriptModalDialog, onJsAlert, onJsConfirm, 
+             *       and onJsPrompt API are overriden in the same subclass,
+             *       call onJsAlert, onJsConfirm and onJsPrompt here to invoke
+             *       overriden implementation.
+             **/
+            switch(type) {
+                case JAVASCRIPT_ALERT:
+                     onJsAlert(view, url, message, result);
+                     break;
+                case JAVASCRIPT_CONFIRM:
+                     onJsConfirm(view, url, message, result);
+                     break;
+                case JAVASCRIPT_PROMPT:
+                     onJsPrompt(view, url, message, defaultValue, result);
+                     break;
+                case JAVASCRIPT_BEFOREUNLOAD:
+                    // Reuse onJsConfirm to show the dialog.
+                    onJsConfirm(view, url, message, result);
+                    break;
+                default:
+                    break;
+            }
+
             return mInnerContentsClient.onJavascriptModalDialog(message);
+        }
+
+        @Override
+        public boolean onJsAlert(XWalkView view,
+                String url, String message, XWalkJavascriptResult result) {
+            return mInnerContentsClient.onJsAlert(message);
+        }
+
+        @Override
+        public boolean onJsConfirm(XWalkView view,
+                String url, String message, XWalkJavascriptResult result) {
+            return mInnerContentsClient.onJsConfirm(message);
+        }
+
+        @Override
+        public boolean onJsPrompt(XWalkView view,
+                String url, String message, String defaultValue,
+                XWalkJavascriptResult result) {
+            return mInnerContentsClient.onJsPrompt(message);
         }
 
         @Override
