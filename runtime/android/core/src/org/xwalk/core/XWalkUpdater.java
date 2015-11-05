@@ -50,7 +50,7 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  * &lt;/application&gt;
  * </pre>
  *
- * <p>To download the Crosswalk runtime APK for the specified CPU architecture, <code>xwalk_apk_url<code>
+ * <p>To download the Crosswalk runtime APK for the specified CPU architecture, <code>xwalk_apk_url</code>
  * will be appended with a query string named "?arch=CPU_ABI" when the download request is sent to server,
  * then server can send back the APK which is exactly built for the specified CPU architecture. The CPU_ABI
  * here is exactly same as the value returned from "getprop ro.product.cpu.abi".</p>
