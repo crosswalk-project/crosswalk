@@ -192,29 +192,8 @@ public class XWalkResourceClientInternal {
      *         resource itself.
      * @since 1.0
      */
-    @Deprecated
-    public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
-        return null;
-    }
-
-    /**
-     * Notify the client of a resource request and allow the client to return
-     * the data.  If the return value is null, the XWalkViewInternal
-     * will continue to load the resource as usual.  Otherwise, the return
-     * response and data will be used.  NOTE: This method is called by the
-     * network thread so clients should exercise caution when accessing private
-     * data.
-     * @param view The owner XWalkViewInternal instance that is requesting the
-     *             resource.
-     * @param request Object containing the details of the request..
-     * @return A {@link android.webkit.WebResourceResponse} containing the
-     *         response information or null if the XWalkViewInternal should load the
-     *         resource itself.
-     * @since 6.0
-     */
     @XWalkAPI
-    public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view,
-            WebResourceRequestInternal request) {
+    public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
         return null;
     }
 

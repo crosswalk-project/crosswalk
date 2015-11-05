@@ -14,7 +14,6 @@ import android.graphics.Picture;
 import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
-import android.os.Build;
 import android.os.Message;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -31,9 +30,6 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -248,29 +244,9 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public XWalkWebResourceResponse shouldInterceptRequest(XWalkWebResourceRequest request) {
+    public WebResourceResponse shouldInterceptRequest(String url) {
         if (isOwnerActivityRunning()) {
-            WebResourceResponse response = mXWalkResourceClient.shouldInterceptLoadRequest(
-                    mXWalkView, new WebResourceRequestHandlerInternal(request));
-            if (response == null) return null;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-                Map<String, String> responseHeaders = response.getResponseHeaders();
-                if (responseHeaders == null) responseHeaders = new HashMap<String, String>();
-
-                return new XWalkWebResourceResponse(
-                        response.getMimeType(),
-                        response.getEncoding(),
-                        response.getData(),
-                        response.getStatusCode(),
-                        response.getReasonPhrase(),
-                        responseHeaders);
-             } else {
-                 return new XWalkWebResourceResponse(
-                        response.getMimeType(),
-                        response.getEncoding(),
-                        response.getData());
-             }
+            return mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView, url);
         }
         return null;
     }

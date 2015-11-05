@@ -26,7 +26,6 @@ class TaskRunner;
 }
 
 namespace net {
-class HttpResponseHeaders;
 class HttpResponseInfo;
 class URLRequest;
 }
@@ -70,9 +69,6 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
     virtual bool GetPackageName(
         JNIEnv* env,
         std::string* name) = 0;
-
-    virtual void AppendResponseHeaders(JNIEnv* env,
-                                       net::HttpResponseHeaders* headers) = 0;
 
     virtual ~Delegate() {}
   };
