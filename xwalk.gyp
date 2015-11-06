@@ -678,7 +678,9 @@
         ['OS=="win"', {
           'sources': [
             '../content/app/startup_helper_win.cc', # Needed by InitializedSandbox
-            'runtime/resources/xwalk.rc',
+            'runtime/browser/xwalk_presentation_service_delegate_win.cc',
+            'runtime/browser/xwalk_presentation_service_delegate_win.h',
+            'runtime/resources/xwalk.rc'
           ],
           'configurations': {
             'Debug_Base': {
