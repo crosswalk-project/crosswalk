@@ -204,6 +204,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.user_gesture_required_for_media_playback = env->GetBooleanField(
       obj, field_ids_->media_playback_requires_user_gesture);
 
+  prefs.password_echo_enabled =
+      Java_XWalkSettings_getPasswordEchoEnabledLocked(env, obj);
+
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   prefs.allow_running_insecure_content =
       command_line->HasSwitch(switches::kAllowRunningInsecureContent);
