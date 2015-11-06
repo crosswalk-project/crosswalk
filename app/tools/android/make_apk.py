@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
+import atexit
 import json
 import optparse
 import os
@@ -690,6 +691,18 @@ def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
       sys.exit(13)
 
 
+@atexit.register
+def PrintDeprecationMessage():
+    print('\n\nWARNING!!! The make_apk tool is deprecated and will be '
+          'removed soon.\n\n'
+          'make_apk is replaced by crosswalk-app-tools, which can be installed '
+          'with the\n'
+          'command \'npm install crosswalk-app-tools\'. For more information, '
+          'see the blog\n'
+          'post below:\n\n'
+          'https://crosswalk-project.org/blog/crosswalk-app-tools-07.html\n')
+
+
 def MakeApk(options, app_info, manifest):
   CheckSystemRequirements()
   Customize(options, app_info, manifest)
@@ -996,6 +1009,7 @@ def main(argv):
   finally:
     CleanDir(GetBuildDir(app_info.android_name))
     CleanDir(xpk_temp_dir)
+
   return 0
 
 
