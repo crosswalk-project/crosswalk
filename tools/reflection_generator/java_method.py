@@ -118,6 +118,7 @@ class Method(object):
     self._is_static = is_static
     self._is_abstract = is_abstract
     self._is_delegate = False
+    self._call_super = False
     self._method_name = method_name
     self._method_return = method_return
     self._params = OrderedDict() # Use OrderedDict to avoid parameter misorder.
@@ -166,9 +167,14 @@ class Method(object):
   @property
   def is_reservable(self):
     return self._is_reservable
+
   @property
   def is_delegate(self):
     return self._is_delegate
+
+  @property
+  def call_super(self):
+    return self._call_super
 
   @property
   def method_name(self):
@@ -219,6 +225,15 @@ class Method(object):
         self._is_delegate = True
       elif delegate == 'false':
         self._is_delegate = False
+
+    call_super_re = re.compile('callSuper\s*=\s*'
+        '(?P<callSuper>(true|false))')
+    for match in re.finditer(call_super_re, annotation):
+      callsuper = match.group('callSuper')
+      if callsuper == 'true':
+        self._call_super = True
+      else:
+        self._call_super = False
 
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
@@ -740,6 +755,14 @@ ${DOC}
       template = Template("""\
     private ${RETURN_TYPE} ${NAME}(${PARAMS}){
         ${PRE_WRAP_LINES}
+    }
+""")
+    elif self._call_super:
+      template = Template("""\
+${DOC}
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        ${PRE_WRAP_LINES}
+        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
     }
 """)
     else:
