@@ -257,6 +257,8 @@
         'runtime/browser/xwalk_platform_notification_service.h',
         'runtime/browser/xwalk_pref_store.cc',
         'runtime/browser/xwalk_pref_store.h',
+        'runtime/browser/xwalk_presentation_service_delegate_win.cc',
+        'runtime/browser/xwalk_presentation_service_delegate_win.h',
         'runtime/browser/xwalk_render_message_filter.cc',
         'runtime/browser/xwalk_render_message_filter.h',
         'runtime/browser/xwalk_runner.cc',
