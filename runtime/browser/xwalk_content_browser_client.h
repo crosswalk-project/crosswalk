@@ -34,6 +34,10 @@ class XWalkBrowserContext;
 class XWalkBrowserMainParts;
 class XWalkRunner;
 
+namespace application {
+class ApplicationDataCache;
+}
+
 class XWalkContentBrowserClient : public content::ContentBrowserClient {
  public:
   static XWalkContentBrowserClient* Get();
@@ -174,7 +178,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   XWalkBrowserMainParts* main_parts_;
   XWalkBrowserContext* browser_context_;
-
+  scoped_ptr<application::ApplicationDataCache> app_data_cache_;
   scoped_ptr<RuntimeResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
 
