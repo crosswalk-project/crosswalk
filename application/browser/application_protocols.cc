@@ -17,9 +17,7 @@
 #include "base/numerics/safe_math.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/string_util.h"
-#include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
-#include "base/threading/sequenced_worker_pool.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_request_info.h"
 #include "url/url_util.h"
@@ -29,7 +27,6 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_simple_job.h"
-#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -162,48 +159,12 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   base::WeakPtrFactory<URLRequestApplicationJob> weak_factory_;
 };
 
-// This class is a thread-safe cache of active application's data.
-// This class is used by ApplicationProtocolHandler as it lives on IO thread
-// and hence cannot access ApplicationService directly.
-class ApplicationDataCache : public ApplicationService::Observer {
- public:
-  scoped_refptr<ApplicationData> GetApplicationData(
-      const std::string& application_id) const {
-    base::AutoLock lock(lock_);
-    ApplicationData::ApplicationDataMap::const_iterator it =
-        cache_.find(application_id);
-    if (it != cache_.end()) {
-      return it->second;
-    }
-    return NULL;
-  }
-
-  void DidLaunchApplication(Application* app) override {
-    base::AutoLock lock(lock_);
-    cache_.insert(std::pair<std::string, scoped_refptr<ApplicationData> >(
-        app->id(), app->data()));
-  }
-
-  void WillDestroyApplication(Application* app) override {
-    base::AutoLock lock(lock_);
-    cache_.erase(app->id());
-  }
-
- private:
-  ApplicationData::ApplicationDataMap cache_;
-  mutable base::Lock lock_;
-};
-
 class ApplicationProtocolHandler
     : public net::URLRequestJobFactory::ProtocolHandler {
  public:
-  explicit ApplicationProtocolHandler(ApplicationService* service) {
-    DCHECK(service);
-    DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-    // ApplicationProtocolHandler lives longer than ApplicationService,
-    // so we do not need to remove cache_ from ApplicationService
-    // observers list.
-    service->AddObserver(&cache_);
+  explicit ApplicationProtocolHandler(ApplicationDataCache* cache)
+    : cache_(cache) {
+    DCHECK(cache);
   }
 
   ~ApplicationProtocolHandler() override {}
@@ -213,7 +174,7 @@ class ApplicationProtocolHandler
       net::NetworkDelegate* network_delegate) const override;
 
  private:
-  ApplicationDataCache cache_;
+  ApplicationDataCache* cache_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationProtocolHandler);
 };
 
@@ -238,7 +199,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
     net::URLRequest* request, net::NetworkDelegate* network_delegate) const {
   const std::string& application_id = request->url().host();
   scoped_refptr<ApplicationData> application =
-      cache_.GetApplicationData(application_id);
+      cache_->GetApplicationData(application_id);
 
   if (!application.get())
     return new net::URLRequestErrorJob(
@@ -289,10 +250,39 @@ ApplicationProtocolHandler::MaybeCreateJob(
 
 }  // namespace
 
+ApplicationDataCache::ApplicationDataCache() {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+}
+
+ApplicationDataCache::~ApplicationDataCache() {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+}
+
+scoped_refptr<ApplicationData> ApplicationDataCache::GetApplicationData(
+    const std::string& application_id) const {
+  base::AutoLock lock(lock_);
+  auto it = cache_.find(application_id);
+  if (it != cache_.end()) {
+    return it->second;
+  }
+  return nullptr;
+}
+
+void ApplicationDataCache::DidLaunchApplication(Application* app) {
+  base::AutoLock lock(lock_);
+  cache_.insert(std::pair<std::string, scoped_refptr<ApplicationData> >(
+      app->id(), app->data()));
+}
+
+void ApplicationDataCache::WillDestroyApplication(Application* app) {
+  base::AutoLock lock(lock_);
+  cache_.erase(app->id());
+}
+
 linked_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateApplicationProtocolHandler(ApplicationService* service) {
+CreateApplicationProtocolHandler(ApplicationDataCache* cache) {
   return linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-      new ApplicationProtocolHandler(service));
+      new ApplicationProtocolHandler(cache));
 }
 
 }  // namespace application

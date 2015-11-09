@@ -25,10 +25,6 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/content_switches.h"
-#include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_protocols.h"
-#include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
@@ -259,14 +255,6 @@ net::URLRequestContextGetter* XWalkBrowserContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
   DCHECK(!url_request_getter_.get());
-
-  application::ApplicationService* service =
-      XWalkRunner::GetInstance()->app_system()->application_service();
-  protocol_handlers->insert(std::pair<std::string,
-        linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
-          application::kApplicationScheme,
-          application::CreateApplicationProtocolHandler(service)));
-
   url_request_getter_ = new RuntimeURLRequestContextGetter(
       false, /* ignore_certificate_error = false */
       GetPath(),
@@ -290,13 +278,6 @@ net::URLRequestContextGetter*
     context_getters_.find(partition_path.value());
   if (iter != context_getters_.end())
     return iter->second.get();
-
-  application::ApplicationService* service =
-      XWalkRunner::GetInstance()->app_system()->application_service();
-  protocol_handlers->insert(std::pair<std::string,
-        linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
-          application::kApplicationScheme,
-          application::CreateApplicationProtocolHandler(service)));
 
   scoped_refptr<RuntimeURLRequestContextGetter>
   context_getter = new RuntimeURLRequestContextGetter(

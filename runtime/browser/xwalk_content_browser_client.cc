@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/command_line.h"
@@ -29,6 +30,7 @@
 #include "net/url_request/url_request_context_getter.h"
 #include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/application/browser/application_protocols.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
@@ -89,7 +91,6 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
   return g_browser_client;
 }
 
-
 XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
     : xwalk_runner_(xwalk_runner),
       url_request_context_getter_(nullptr),
@@ -98,9 +99,12 @@ XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
       v8_snapshot_fd_(-1),
 #endif  // OS_POSIX && !OS_MACOSX
       main_parts_(nullptr),
-      browser_context_(xwalk_runner->browser_context()) {
+      browser_context_(xwalk_runner->browser_context()),
+      app_data_cache_(new application::ApplicationDataCache) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
+  xwalk_runner_->app_system()->application_service()
+      ->AddObserver(app_data_cache_.get());
 }
 
 XWalkContentBrowserClient::~XWalkContentBrowserClient() {
@@ -125,6 +129,12 @@ net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
+  protocol_handlers->insert(std::pair<std::string,
+      linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
+          application::kApplicationScheme,
+          application::CreateApplicationProtocolHandler(
+              app_data_cache_.get())));
+
   return static_cast<XWalkBrowserContext*>(browser_context)->
       CreateRequestContext(protocol_handlers, request_interceptors.Pass());
 }
@@ -136,6 +146,12 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
     bool in_memory,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
+  protocol_handlers->insert(std::pair<std::string,
+      linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
+          application::kApplicationScheme,
+          application::CreateApplicationProtocolHandler(
+              app_data_cache_.get())));
+
   return static_cast<XWalkBrowserContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers,
