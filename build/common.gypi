@@ -46,7 +46,7 @@
         'defines': ['DISABLE_ACCESSIBILITY=1'],
       }],
 
-      ['disable_web_audio==1', {
+      ['disable_webaudio==1', {
         'defines': ['DISABLE_WEB_AUDIO=1'],
       }],
 
