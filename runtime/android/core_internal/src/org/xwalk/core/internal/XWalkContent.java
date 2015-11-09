@@ -24,6 +24,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
@@ -657,6 +658,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     public boolean onTouchEvent(MotionEvent event) {
         return mContentViewCore.onTouchEvent(event);
+    }
+
+    public void setOnTouchListener(OnTouchListener l) {
+        mContentView.setOnTouchListener(l);
     }
 
     //--------------------------------------------------------------------------------------------
