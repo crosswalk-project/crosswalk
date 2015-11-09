@@ -363,7 +363,7 @@ if __name__ == '__main__':
     # Disable Sync compositor by default
     args.append('-Ddisable_sync_compositor=1')
     # Disable webaudio by default
-    args.append('-Ddisable_web_audio=0')
+    args.append('-Ddisable_webaudio=0')
     args.append('-Ddisable_webaudio_hrtf=0')
     args.append('-Duse_openmax_dl_fft=1')
     # Enable use_minimum_resources by default
@@ -393,7 +393,7 @@ if __name__ == '__main__':
     # Disable webdatabase by default
     args.append('-Ddisable_webdatabase=1')
     # Disable webmidi by default
-    args.append('-Ddisable_webmidi=1')
+    args.append('-Ddisable_webmidi=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
@@ -405,6 +405,7 @@ if __name__ == '__main__':
   disable_indexeddb = 0
   disable_notifications = 0
   disable_speech = 0
+  disable_webaudio = 0
   disable_webcl = 0
   disable_webdatabase = 0
   disable_webmidi = 0
@@ -425,6 +426,8 @@ if __name__ == '__main__':
       disable_webcl = 1
     elif arg == '-Ddisable_webdatabase=1':
       disable_webdatabase = 1
+    elif arg == '-Ddisable_webaudio=1':
+      disable_webaudio = 1
     elif arg == '-Ddisable_webmidi=1':
       disable_webmidi = 1
 
@@ -433,7 +436,8 @@ if __name__ == '__main__':
 
   modules_flags = (disable_accessibility, disable_bluetooth, disable_geo_features,\
                    disable_indexeddb, disable_notifications, disable_speech,\
-                   disable_webcl, disable_webdatabase, disable_webmidi)
+                   disable_webaudio, disable_webcl, disable_webdatabase,\
+                   disable_webmidi)
 
   generate_modules_gypi(modules_flags)
 
