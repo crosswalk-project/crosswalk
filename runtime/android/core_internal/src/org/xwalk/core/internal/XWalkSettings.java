@@ -443,7 +443,7 @@ public class XWalkSettings {
         }
     }
 
-    //add for the TV remote control
+    //add to Support Spatial Navigation, like the TV remote control
     public void setSupportSpatialNavigation(boolean enable) {
 		synchronized (mXWalkSettingsLock) {
 			if (mSpatialNavigationEnabled != enable) {
