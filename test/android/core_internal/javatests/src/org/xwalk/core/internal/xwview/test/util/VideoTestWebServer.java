@@ -84,6 +84,7 @@ public class VideoTestWebServer {
             if (len < bufferLength) break;
             len = in.read(buffer, 0, bufferLength);
         }
+        in.close();
         return os.toString();
     }
 }
