@@ -10,6 +10,10 @@ from collections import OrderedDict
 from string import Template
 
 def ConvertClassExpressionToClassType(class_name):
+  """ Turn "Map<String, String>" to Map.class. """
+  generic_re = re.compile('[a-zA-z0-9]+(\<[a-zA-Z0-9]+,\s[a-zA-z0-9]+\>)')
+  if re.match(generic_re, class_name):
+    return '%s.class' % class_name.split('<')[0]
   """ Turn "final HashMap<String>" to HashMap.class. """
   return '%s.class' % class_name.split()[-1].split('<')[0]
 
@@ -205,10 +209,15 @@ class Method(object):
     # The support of generic types should be added if such cases happen.
     if not params or params == '':
       return
+    subparams = re.findall("<.*?>", params) # To handle Map type
+    for index in range(len(subparams)):
+      params = params.replace(subparams[index], subparams[index].replace(", ", "-"))
     for param in params.split(','):
       param = param.strip()
       param_list = param.split()
       param_type = ' '.join(param_list[:-1]) # To handle modifiers
+      if re.search("<.*?>", param_type):
+        param_type = param_type.replace("-", ", ")
       param_name = param_list[-1]
       self._params[param_name] = param_type
       self._typed_params[param_name] = ParamType(param_type, self._class_loader)
