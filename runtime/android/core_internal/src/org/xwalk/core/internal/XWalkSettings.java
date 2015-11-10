@@ -51,7 +51,8 @@ public class XWalkSettings {
     private boolean mMediaPlaybackRequiresUserGesture = false;
     private String mDefaultVideoPosterURL;
     private final boolean mPasswordEchoEnabled;
-
+    private boolean mSpatialNavigationEnabled = true;
+	
     // Not accessed by the native side.
     private boolean mBlockNetworkLoads;  // Default depends on permission of embedding APK.
     private boolean mAllowContentUrlAccess = true;
@@ -435,7 +436,17 @@ public class XWalkSettings {
             return mJavaScriptCanOpenWindowsAutomatically;
         }
     }
-
+	
+    //to support spatial navigation, like a TV remote control
+    public void setSupportSpatialNavigation(boolean enable) {
+        synchronized (mXWalkSettingsLock) {
+            if (mSpatialNavigationEnabled != enable) {
+                mSpatialNavigationEnabled = enable;
+                mEventHandler.updateWebkitPreferencesLocked();
+            }
+        }
+    }
+	
     /**
      * See {@link android.webkit.WebSettings#setSupportMultipleWindows}.
      */
