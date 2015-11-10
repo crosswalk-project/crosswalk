@@ -200,7 +200,10 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
 
   prefs.supports_multiple_windows = env->GetBooleanField(
       obj, field_ids_->support_multiple_windows);
-
+	  
+  prefs.spatial_navigation_enabled = env->GetBooleanField(
+      obj, field_ids_->spatial_navigation_enabled);
+	  
   prefs.application_cache_enabled =
       Java_XWalkSettingsInternal_getAppCacheEnabled(env, obj);
 
