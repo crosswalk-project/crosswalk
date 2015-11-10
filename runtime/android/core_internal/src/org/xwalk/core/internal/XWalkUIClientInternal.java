@@ -103,6 +103,7 @@ public class XWalkUIClientInternal {
     public void onDidChangeThemeColor(XWalkViewInternal view, int color) {
         if (view == null || view.getActivity() == null) return;
         ApiCompatibilityUtils.setStatusBarColor(view.getActivity(),color);
+        ApiCompatibilityUtils.setTaskDescription(view.getActivity(), null, null, color);
     }
 
     /**
