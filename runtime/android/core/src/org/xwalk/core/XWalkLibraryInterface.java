@@ -48,5 +48,10 @@ interface XWalkLibraryInterface {
      */
     public static final int STATUS_SIGNATURE_CHECK_ERROR = 7;
 
+    /**
+     * The Crosswalk Runtime doesn't match the application.
+     */
+    public static final int STATUS_RUNTIME_MISMATCH = 8;
+
     public static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
 }
