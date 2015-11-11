@@ -575,6 +575,18 @@ def MakeSharedApk(options, app_info, app_dir):
   Execution(options, app_info)
 
 
+def CopyFromRawToLibs(library_path, raw_path):
+  lib_file = os.path.join(raw_path, 'libxwalkcore.so.x86')
+  if os.path.exists(lib_file):
+    shutil.move(lib_file, os.path.join(library_path, 'x86',
+                                       'libxwalkcore.so.lzma'))
+
+  lib_file = os.path.join(raw_path, 'libxwalkcore.so.armeabi_v7a')
+  if os.path.exists(lib_file):
+    shutil.move(lib_file, os.path.join(library_path, 'armeabi-v7a',
+                                       'libxwalkcore.so.lzma'))
+
+
 def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
   # Copy xwalk_core_library into app folder and move the native libraries out.
   # When making apk for specified CPU arch, will only include the
@@ -583,10 +595,12 @@ def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
   shutil.copytree(os.path.join(xwalk_dir, EMBEDDED_LIBRARY),
                   target_library_path)
   library_path = os.path.join(target_library_path, 'libs')
+  raw_path = os.path.join(target_library_path, 'res', 'raw')
   native_path = os.path.join(app_dir, 'native_libs')
   os.makedirs(native_path)
   available_archs = []
 
+  CopyFromRawToLibs(library_path, raw_path)
   if options.disable_lzma:
     contains_library = ContainsNativeLibrary
     make_library = MakeNativeLibrary
