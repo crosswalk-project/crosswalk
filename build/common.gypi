@@ -66,6 +66,10 @@
         'defines' : ['DISABLE_GEO_FEATURES'],
       }],
 
+      ['enable_plugins==0', {
+        'defines' : ['DISABLE_PLUGINS'],
+      }],
+
       ['disable_webdatabase==1', {
         'defines' : ['DISABLE_WEBDATABASE'],
       }],

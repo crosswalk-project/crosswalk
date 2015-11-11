@@ -362,7 +362,7 @@ if __name__ == '__main__':
     args.append('-Ddisable_quic_support=1')
     # Disable Sync compositor by default
     args.append('-Ddisable_sync_compositor=1')
-    # Disable webaudio by default
+    # Disable Webaudio by default
     args.append('-Ddisable_webaudio=0')
     args.append('-Ddisable_webaudio_hrtf=0')
     args.append('-Duse_openmax_dl_fft=1')
@@ -372,28 +372,30 @@ if __name__ == '__main__':
     args.append('-Ddisable_builtin_extensions=1')
     # Disable Devtools by default
     args.append('-Ddisable_devtools=1')
-    # Disable Web Video by default.
+    # Disable Webvideo by default.
     args.append('-Ddisable_web_video=0')
-    # Disable webspeech by default
+    # Disable Web Speech API by default
     args.append('-Ddisable_speech=1')
     # Enable "Optimize for size, Os" compile option by default
     args.append('-Duse_optimize_for_size_compile_option=1')
-    # Disable notifications by default
+    # Disable Notifications by default
     args.append('-Ddisable_notifications=1')
     # Disable WebCL by default
     args.append('-Denable_webcl=0')
-    # Disable indexeddb by default
+    # Disable IndexedDB by default
     args.append('-Ddisable_indexeddb=1')
-    # Disable accessibility by default
+    # Disable Accessibility by default
     args.append('-Ddisable_accessibility=1')
-    # Disable geo-location and geo-fencing by default
+    # Disable Geolocation and Geofencing by default
     args.append('-Ddisable_geo_features=1')
     # Disable Bluetooth by default
     args.append('-Ddisable_bluetooth=1')
-    # Disable webdatabase by default
+    # Disable Web Database by default
     args.append('-Ddisable_webdatabase=1')
-    # Disable webmidi by default
+    # Disable Web MIDI API by default
     args.append('-Ddisable_webmidi=0')
+    # Disable Plugins by default
+    args.append('-Denable_plugins=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
@@ -404,6 +406,7 @@ if __name__ == '__main__':
   disable_bluetooth = 0
   disable_indexeddb = 0
   disable_notifications = 0
+  disable_plugins = 0
   disable_speech = 0
   disable_webaudio = 0
   disable_webcl = 0
@@ -420,6 +423,8 @@ if __name__ == '__main__':
       disable_indexeddb = 1
     elif arg == '-Ddisable_notifications=1':
       disable_notifications = 1
+    elif arg == '-Denable_plugins=0':
+      disable_plugins = 1
     elif arg == '-Ddisable_speech=1':
       disable_speech = 1
     elif arg == '-Denable_webcl=0':
@@ -435,9 +440,9 @@ if __name__ == '__main__':
   from modules_gypi_generator import  generate_modules_gypi
 
   modules_flags = (disable_accessibility, disable_bluetooth, disable_geo_features,\
-                   disable_indexeddb, disable_notifications, disable_speech,\
-                   disable_webaudio, disable_webcl, disable_webdatabase,\
-                   disable_webmidi)
+                   disable_indexeddb, disable_notifications, disable_plugins,\
+                   disable_speech, disable_webaudio, disable_webcl,\
+                   disable_webdatabase, disable_webmidi)
 
   generate_modules_gypi(modules_flags)
 
