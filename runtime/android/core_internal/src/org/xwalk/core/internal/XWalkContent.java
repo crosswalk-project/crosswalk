@@ -878,6 +878,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         }
     }
 
+    // It is only used for SurfaceView.
     public void setVisibility(int visibility) {
         SurfaceView surfaceView = mContentViewRenderView.getSurfaceView();
         if (surfaceView == null) return;
