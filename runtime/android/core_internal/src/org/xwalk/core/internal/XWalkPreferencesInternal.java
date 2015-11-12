@@ -135,7 +135,7 @@ public class XWalkPreferencesInternal {
      * The key string to enable/disable spatial navigation like a TV controller.
      */
     @XWalkAPI
-    public static final String SPATIAL_NAVIGATION = "spatial_Navigation";
+    public static final String SPATIAL_NAVIGATION = "enable-spatial-navigation";
 	
     /**
      * The key string to set xwalk profile name.
