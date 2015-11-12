@@ -962,7 +962,7 @@
           ], # conditions
         },
         'version_code_shift%': '<(version_code_shift)',
-        'xwalk_version_code': '<!(python tools/build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
+        'xwalk_version_code': '<!(python build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
         'api_version': '<!(python ../build/util/version.py -f API_VERSION -t "@API@")',
         'min_api_version': '<!(python ../build/util/version.py -f API_VERSION -t "@MIN_API@")',
       },
