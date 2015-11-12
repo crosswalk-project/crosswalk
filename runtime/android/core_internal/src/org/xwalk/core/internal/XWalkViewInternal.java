@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
@@ -1090,10 +1091,21 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param visibility One of VISIBLE, INVISIBLE, or GONE.
      * @since 6.0
      */
-    @XWalkAPI(callSuper = true,
-              preWrapperLines = {"super.setVisibility(visibility);"})
+    @XWalkAPI(disableReflectMethod = true,
+              preWrapperLines = {
+                  "        if (visibility == View.INVISIBLE) visibility = View.GONE;",
+                  "        super.setVisibility(visibility);",
+                  "        setSurfaceViewVisibility(visibility);"})
     public void setVisibility(int visibility) {
-        super.setVisibility(visibility);
+    }
+
+    /**
+     * Set the enabled state of SurfaceView.
+     * @param visibility One of VISIBLE, INVISIBLE, or GONE.
+     * @since 6.0
+     */
+    @XWalkAPI(reservable = true)
+    public void setSurfaceViewVisibility(int visibility) {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.setVisibility(visibility);

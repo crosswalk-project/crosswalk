@@ -122,7 +122,7 @@ class Method(object):
     self._is_static = is_static
     self._is_abstract = is_abstract
     self._is_delegate = False
-    self._call_super = False
+    self._disable_reflect_method = False
     self._method_name = method_name
     self._method_return = method_return
     self._params = OrderedDict() # Use OrderedDict to avoid parameter misorder.
@@ -177,8 +177,8 @@ class Method(object):
     return self._is_delegate
 
   @property
-  def call_super(self):
-    return self._call_super
+  def disable_reflect_method(self):
+    return self._disable_reflect_method
 
   @property
   def method_name(self):
@@ -235,14 +235,14 @@ class Method(object):
       elif delegate == 'false':
         self._is_delegate = False
 
-    call_super_re = re.compile('callSuper\s*=\s*'
-        '(?P<callSuper>(true|false))')
-    for match in re.finditer(call_super_re, annotation):
-      callsuper = match.group('callSuper')
-      if callsuper == 'true':
-        self._call_super = True
+    disable_reflect_method_re = re.compile('disableReflectMethod\s*=\s*'
+        '(?P<disableReflectMethod>(true|false))')
+    for match in re.finditer(disable_reflect_method_re, annotation):
+      disable_reflect_method = match.group('disableReflectMethod')
+      if disable_reflect_method == 'true':
+        self._disable_reflect_method = True
       else:
-        self._call_super = False
+        self._disable_reflect_method = False
 
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
@@ -766,12 +766,11 @@ ${DOC}
         ${PRE_WRAP_LINES}
     }
 """)
-    elif self._call_super:
+    elif self._disable_reflect_method:
       template = Template("""\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        ${PRE_WRAP_LINES}
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+${PRE_WRAP_LINES}
     }
 """)
     else:
