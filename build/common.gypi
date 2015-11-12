@@ -7,6 +7,19 @@
     'use_webui_file_picker%': 0,
     'disable_bundled_extensions%': 0,
 
+    # Set default value for new introduced flags in Lite-15
+    'disable_accessibility%': 0,
+    'disable_geo_features%': 0,
+    'disable_bluetooth%': 0,
+    'disable_indexeddb%': 0,
+    'disable_notifications%': 0,
+    'disable_plugins%': 0,
+    'disable_speech%': 0,
+    'disable_webaudio%': 0,
+    'disable_webcl%': 0,
+    'disable_webdatabase%': 0,
+    'disable_webmidi%': 0,
+
     'conditions': [
       ['OS=="android"', {
         # Enable WebCL by default on android.
