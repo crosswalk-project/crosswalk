@@ -24,6 +24,7 @@
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
+#include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -224,7 +225,10 @@ void Runtime::DidNavigateMainFramePostCommit(
 
 content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager(
     content::WebContents* web_contents) {
-  return NULL;
+  if (!javascript_dialog_manager_) {
+    javascript_dialog_manager_.reset(new RuntimeJavaScriptDialogManager);
+  }
+  return javascript_dialog_manager_.get();
 }
 
 void Runtime::ActivateContents(content::WebContents* contents) {

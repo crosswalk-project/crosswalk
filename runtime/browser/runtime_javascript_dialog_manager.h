@@ -11,6 +11,8 @@
 
 namespace xwalk {
 
+class RuntimeJavaScriptDialog;
+
 class RuntimeJavaScriptDialogManager : public content::JavaScriptDialogManager {
  public:
   RuntimeJavaScriptDialogManager();
@@ -36,7 +38,13 @@ class RuntimeJavaScriptDialogManager : public content::JavaScriptDialogManager {
   void ResetDialogState(
       content::WebContents* web_contents) override;
 
+  // Called by the RuntimeJavaScriptDialog when it closes.
+  void DialogClosed(RuntimeJavaScriptDialog* dialog);
+
  private:
+#if defined (OS_WIN)
+  scoped_ptr<RuntimeJavaScriptDialog> dialog_;
+#endif
   DISALLOW_COPY_AND_ASSIGN(RuntimeJavaScriptDialogManager);
 };
 
