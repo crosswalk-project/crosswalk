@@ -29,23 +29,24 @@ import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkUIClient.ConsoleMessageType;
 import org.xwalk.core.XWalkUIClient.LoadStatus;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebResourceResponse;
 
 class TestHelperBridge {
 
     // Two new helper classes for testing new APIs.
     public class ShouldInterceptLoadRequestHelper extends CallbackHelper {
         private List<String> mShouldInterceptRequestUrls = new ArrayList<String>();
-        private ConcurrentHashMap<String, WebResourceResponse> mReturnValuesByUrls
-            = new ConcurrentHashMap<String, WebResourceResponse>();
+        private ConcurrentHashMap<String, XWalkWebResourceResponse> mReturnValuesByUrls
+            = new ConcurrentHashMap<String, XWalkWebResourceResponse>();
         // This is read from the IO thread, so needs to be marked volatile.
-        private volatile WebResourceResponse mResourceResponseReturnValue = null;
+        private volatile XWalkWebResourceResponse mResourceResponseReturnValue = null;
         private String mUrlToWaitFor;
 
-        void setReturnValue(WebResourceResponse value) {
+        void setReturnValue(XWalkWebResourceResponse value) {
             mResourceResponseReturnValue = value;
         }
 
-        void setReturnValueForUrl(String url, WebResourceResponse value) {
+        void setReturnValueForUrl(String url, XWalkWebResourceResponse value) {
             mReturnValuesByUrls.put(url, value);
         }
 
@@ -58,8 +59,8 @@ class TestHelperBridge {
             return mShouldInterceptRequestUrls;
         }
 
-        public WebResourceResponse getReturnValue(String url) {
-            WebResourceResponse value = mReturnValuesByUrls.get(url);
+        public XWalkWebResourceResponse getReturnValue(String url) {
+            XWalkWebResourceResponse value = mReturnValuesByUrls.get(url);
             if (value != null) return value;
             return mResourceResponseReturnValue;
         }
@@ -663,8 +664,8 @@ class TestHelperBridge {
         mOnReceivedErrorHelper.notifyCalled(errorCode, description, failingUrl);
     }
 
-    public WebResourceResponse shouldInterceptLoadRequest(String url) {
-        WebResourceResponse response = mShouldInterceptLoadRequestHelper.getReturnValue(url);
+    public XWalkWebResourceResponse shouldInterceptLoadRequest(String url) {
+        XWalkWebResourceResponse response = mShouldInterceptLoadRequestHelper.getReturnValue(url);
         mShouldInterceptLoadRequestHelper.notifyCalled(url);
         return response;
     }

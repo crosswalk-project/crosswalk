@@ -12,7 +12,6 @@
 #include "xwalk/extensions/common/android/xwalk_extension_android.h"
 #include "xwalk/extensions/common/android/xwalk_native_extension_loader_android.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
-#include "xwalk/runtime/browser/android/intercepted_request_data_impl.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_autofill_client.h"
@@ -25,6 +24,7 @@
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
 #include "xwalk/runtime/browser/android/xwalk_view_delegate.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
+#include "xwalk/runtime/browser/android/xwalk_web_resource_response_impl.h"
 
 namespace xwalk {
 
@@ -33,7 +33,6 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "AndroidProtocolHandler", RegisterAndroidProtocolHandler },
   { "CookieManager", RegisterCookieManager },
   { "InputStream", RegisterInputStream },
-  { "InterceptedRequestDataImpl", RegisterInterceptedRequestData },
   { "NavigationInterception",
       navigation_interception::RegisterNavigationInterceptionJni },
   { "NetAndroid", net::android::RegisterJni },
@@ -53,6 +52,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkSettings", RegisterXWalkSettings },
   { "XWalkViewDelegate", RegisterXWalkViewDelegate },
   { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
+  { "XWalkWebResourceResponseImpl", RegisterXWalkWebResourceResponse },
 };
 
 bool RegisterJni(JNIEnv* env) {

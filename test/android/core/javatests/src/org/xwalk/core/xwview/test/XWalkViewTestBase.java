@@ -37,6 +37,8 @@ import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebResourceRequest;
+import org.xwalk.core.XWalkWebResourceResponse;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
@@ -182,9 +184,9 @@ public class XWalkViewTestBase
         }
 
         @Override
-        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view,
-                String url) {
-            return mInnerContentsClient.shouldInterceptLoadRequest(url);
+        public XWalkWebResourceResponse shouldInterceptLoadRequest(XWalkView view,
+                XWalkWebResourceRequest request) {
+            return mInnerContentsClient.shouldInterceptLoadRequest(request.getUrl().toString());
         }
 
         @Override
