@@ -66,7 +66,7 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
         @Override
         public void didStopLoading(String url) {
-            onPageFinished(url);
+            mCallbackHelper.postOnPageFinished(url);
         }
 
         @Override
