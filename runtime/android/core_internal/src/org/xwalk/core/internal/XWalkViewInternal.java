@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
@@ -1325,5 +1326,13 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(delegate = true,
               preWrapperLines = {"onFocusChanged(gainFocus, direction, previouslyFocusedRect);"})
     public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+    }
+
+    // Override XWalkView.setOnTouchListener to install the listener to ContentView
+    // therefore touch event intercept through onTouchListener is available on XWalkView.
+    @Override
+    @XWalkAPI
+    public void setOnTouchListener(OnTouchListener l) {
+        mContent.setOnTouchListener(l);
     }
 }
