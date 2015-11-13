@@ -155,9 +155,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 
-  content::PresentationServiceDelegate* GetPresentationServiceDelegate(
-      content::WebContents* web_contents) override;
-
 #if defined(OS_ANDROID)
   RuntimeResourceDispatcherHostDelegate* resource_dispatcher_host_delegate() {
     return resource_dispatcher_host_delegate_.get();
