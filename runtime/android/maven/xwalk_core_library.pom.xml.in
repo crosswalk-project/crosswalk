@@ -9,4 +9,15 @@ This file is generated automatically.
   <artifactId>@ARTIFACT_ID@</artifactId>
   <version>@ARTIFACT_VERSION@</version>
   <packaging>aar</packaging>
+
+  <!-- Crosswalk itself does not depend on external libraries, but it inherits
+       some dependencies from Chromium itself. -->
+  <dependencies>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-v4</artifactId>
+      <version>[13.0.0,)</version> <!-- >= 13.0.0 -->
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
 </project>
