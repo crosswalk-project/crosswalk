@@ -207,6 +207,9 @@ gfx::Image& XWalkContentClient::GetNativeImageNamed(int resource_id) const {
 void XWalkContentClient::AddAdditionalSchemes(
     std::vector<url::SchemeWithType>* standard_schemes,
     std::vector<std::string>* savable_schemes) {
+  url::SchemeWithType app_scheme = {application::kApplicationScheme,
+                                    url::SCHEME_WITHOUT_PORT};
+  standard_schemes->push_back(app_scheme);
   savable_schemes->push_back(application::kApplicationScheme);
 }
 
