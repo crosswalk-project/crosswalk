@@ -709,6 +709,7 @@
         'apk_name': 'XWalkCoreInternalTest',
         'java_in_dir': 'test/android/core_internal/javatests',
         'is_test_apk': 1,
+        'isolate_file': 'xwalk_view_internal_test_apk.isolate',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/broadcast.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echo_binary_java.html',

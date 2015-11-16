@@ -117,7 +117,9 @@ public class SetDatabaseEnabledTest extends XWalkViewInternalTestBase {
             // It seems accessing the database through a data scheme is not
             // supported, and fails with a DOM exception (likely a cross-domain
             // violation).
-            loadUrlSync(UrlUtils.getTestFileUrl("xwalkview/database_access.html"));
+            String path = "xwalk/test/android/data/device_files/database_access.html";
+            String url = UrlUtils.getIsolatedTestFileUrl(path);
+            loadUrlSync(url);
             assertEquals(
                 value == ENABLED ? HAS_DATABASE : NO_DATABASE,
                 getTitleOnUiThread());

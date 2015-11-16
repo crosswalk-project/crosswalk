@@ -107,8 +107,9 @@ public class SetDomStorageEnabledTest extends XWalkViewInternalTestBase {
         protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
             // It is not permitted to access localStorage from data URLs in WebKit,
             // that is why a standalone page must be used.
-            loadUrlSyncByContent(mXWalkViewInternal, mHelperBridge,
-                    UrlUtils.getTestFileUrl("xwalkview/localStorage.html"));
+            String path = "xwalk/test/android/data/device_files/localStorage.html";
+            String url = UrlUtils.getIsolatedTestFileUrl(path);
+            loadUrlSyncByContent(mXWalkViewInternal, mHelperBridge, url);
             assertEquals(
                 value == ENABLED ? HAS_LOCAL_STORAGE : NO_LOCAL_STORAGE,
                         mHelperBridge.getChangedTitle());
