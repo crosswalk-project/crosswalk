@@ -23,23 +23,24 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPage
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
 import org.xwalk.core.internal.XWalkViewInternal;
+import org.xwalk.core.internal.XWalkWebResourceResponseInternal;
 
 class TestHelperBridge {
 
     // Two new helper classes for testing new APIs.
     public class ShouldInterceptLoadRequestHelper extends CallbackHelper {
         private List<String> mShouldInterceptRequestUrls = new ArrayList<String>();
-        private ConcurrentHashMap<String, WebResourceResponse> mReturnValuesByUrls
-                = new ConcurrentHashMap<String, WebResourceResponse>();
+        private ConcurrentHashMap<String, XWalkWebResourceResponseInternal> mReturnValuesByUrls
+                = new ConcurrentHashMap<String, XWalkWebResourceResponseInternal>();
         // This is read from the IO thread, so needs to be marked volatile.
-        private volatile WebResourceResponse mResourceResponseReturnValue = null;
+        private volatile XWalkWebResourceResponseInternal mResourceResponseReturnValue = null;
         private String mUrlToWaitFor;
 
-        void setReturnValue(WebResourceResponse value) {
+        void setReturnValue(XWalkWebResourceResponseInternal value) {
             mResourceResponseReturnValue = value;
         }
 
-        void setReturnValueForUrl(String url, WebResourceResponse value) {
+        void setReturnValueForUrl(String url, XWalkWebResourceResponseInternal value) {
             mReturnValuesByUrls.put(url, value);
         }
 
@@ -52,8 +53,8 @@ class TestHelperBridge {
             return mShouldInterceptRequestUrls;
         }
 
-        public WebResourceResponse getReturnValue(String url) {
-            WebResourceResponse value = mReturnValuesByUrls.get(url);
+        public XWalkWebResourceResponseInternal getReturnValue(String url) {
+            XWalkWebResourceResponseInternal value = mReturnValuesByUrls.get(url);
             if (value != null) return value;
             return mResourceResponseReturnValue;
         }
@@ -216,8 +217,8 @@ class TestHelperBridge {
         mOnReceivedErrorHelper.notifyCalled(errorCode, description, failingUrl);
     }
 
-    public WebResourceResponse shouldInterceptLoadRequest(String url) {
-        WebResourceResponse response = mShouldInterceptLoadRequestHelper.getReturnValue(url);
+    public XWalkWebResourceResponseInternal shouldInterceptLoadRequest(String url) {
+        XWalkWebResourceResponseInternal response = mShouldInterceptLoadRequestHelper.getReturnValue(url);
         mShouldInterceptLoadRequestHelper.notifyCalled(url);
         return response;
     }

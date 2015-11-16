@@ -34,6 +34,8 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkSettings.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkUIClient.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkView.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkWebResourceRequest.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkWebResourceResponse.java',
         ],
         'xwalk_core_jar': '<(PRODUCT_DIR)/lib.java/xwalk_core_library_java_app_part.jar',
         'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',

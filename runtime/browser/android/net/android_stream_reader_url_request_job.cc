@@ -371,6 +371,10 @@ void AndroidStreamReaderURLRequestJob::HeadersComplete(
     }
   }
 
+  JNIEnv* env = AttachCurrentThread();
+  DCHECK(env);
+  delegate_->AppendResponseHeaders(env, headers);
+
   response_info_.reset(new net::HttpResponseInfo());
   response_info_->headers = headers;
 

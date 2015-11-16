@@ -26,7 +26,7 @@ class URLRequest;
 
 namespace xwalk {
 
-class InterceptedRequestData;
+class XWalkWebResourceResponse;
 
 class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
  public:
@@ -49,7 +49,7 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
   // Implementation of XWalkContentsIoThreadClient.
   bool PendingAssociation() const override;
   CacheMode GetCacheMode() const override;
-  scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
+  scoped_ptr<XWalkWebResourceResponse> ShouldInterceptRequest(
       const GURL& location,
       const net::URLRequest* request) override;
   bool ShouldBlockContentUrls() const override;

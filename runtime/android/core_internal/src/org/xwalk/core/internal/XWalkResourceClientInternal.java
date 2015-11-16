@@ -18,9 +18,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.io.InputStream;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Map;
+
 
 /**
  * This class notifies the embedder resource events/callbacks.
@@ -191,10 +194,34 @@ public class XWalkResourceClientInternal {
      * @return A {@link android.webkit.WebResourceResponse} containing the
      *         response information or null if the XWalkViewInternal should load the
      *         resource itself.
+     * @deprecated Use
+     *        {@link #shouldInterceptLoadRequest(XWalkViewInternal, XWalkWebResourceRequestInternal)}
+     *        instead.
      * @since 1.0
      */
     @XWalkAPI
     public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
+        return null;
+    }
+
+    /**
+     * Notify the client of a resource request and allow the client to return
+     * the data.  If the return value is null, the XWalkViewInternal
+     * will continue to load the resource as usual.  Otherwise, the return
+     * response and data will be used.  NOTE: This method is called by the
+     * network thread so clients should exercise caution when accessing private
+     * data.
+     * @param view The owner XWalkViewInternal instance that is requesting the
+     *             resource.
+     * @param request Object containing the details of the request..
+     * @return A {@link org.xwalk.core.XWalkWebResourceResponse} containing the
+     *         response information or null if the XWalkViewInternal should load the
+     *         resource itself.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
+            XWalkWebResourceRequestInternal request) {
         return null;
     }
 
@@ -356,5 +383,33 @@ public class XWalkResourceClientInternal {
                         haHandler.cancel();
                     }
                 }).create().show();
+    }
+
+    /**
+     * Construct an instance of XWalkWebResourceResponseInternal
+     * for application usage.
+     *
+     * @return XWalkWebResourceResponseInternal.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public XWalkWebResourceResponseInternal createXWalkWebResourceResponse(
+            String mimeType, String encoding, InputStream data) {
+        return new XWalkWebResourceResponseInternal(mimeType, encoding, data);
+    }
+
+    /**
+     * Construct an instance of XWalkWebResourceResponseInternal
+     * for application usage.
+     *
+     * @return XWalkWebResourceResponseInternal.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public XWalkWebResourceResponseInternal createXWalkWebResourceResponse(
+            String mimeType, String encoding, InputStream data, int statusCode,
+            String reasonPhrase, Map<String, String> responseHeaders) {
+        return new XWalkWebResourceResponseInternal(
+            mimeType, encoding, data, statusCode, reasonPhrase, responseHeaders);
     }
 }

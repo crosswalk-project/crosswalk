@@ -665,7 +665,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     //--------------------------------------------------------------------------------------------
-    private class XWalkIoThreadClientImpl implements XWalkContentsIoThreadClient {
+    private class XWalkIoThreadClientImpl extends XWalkContentsIoThreadClient {
         // All methods are called on the IO thread.
 
         @Override
@@ -674,28 +674,25 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         }
 
         @Override
-        public InterceptedRequestData shouldInterceptRequest(final String url,
-                boolean isMainFrame) {
+        public XWalkWebResourceResponseInternal shouldInterceptRequest(
+                XWalkContentsClient.WebResourceRequestInner request) {
 
             // Notify a resource load is started. This is not the best place to start the callback
             // but it's a workable way.
-            mContentsClientBridge.getCallbackHelper().postOnResourceLoadStarted(url);
+            mContentsClientBridge.getCallbackHelper().postOnResourceLoadStarted(request.url);
 
-            WebResourceResponse webResourceResponse = mContentsClientBridge.shouldInterceptRequest(url);
-            InterceptedRequestData interceptedRequestData = null;
+            XWalkWebResourceResponseInternal xwalkWebResourceResponse =
+                    mContentsClientBridge.shouldInterceptRequest(request);
 
-            if (webResourceResponse == null) {
-                mContentsClientBridge.getCallbackHelper().postOnLoadResource(url);
+            if (xwalkWebResourceResponse == null) {
+                mContentsClientBridge.getCallbackHelper().postOnLoadResource(request.url);
             } else {
-                if (isMainFrame && webResourceResponse.getData() == null) {
+                if (request.isMainFrame && xwalkWebResourceResponse.getData() == null) {
                     mContentsClientBridge.getCallbackHelper().postOnReceivedError(
-                            XWalkResourceClientInternal.ERROR_UNKNOWN, null, url);
+                            XWalkResourceClientInternal.ERROR_UNKNOWN, null, request.url);
                 }
-                interceptedRequestData = new InterceptedRequestData(webResourceResponse.getMimeType(),
-                                                                    webResourceResponse.getEncoding(),
-                                                                    webResourceResponse.getData());
             }
-            return interceptedRequestData;
+            return xwalkWebResourceResponse;
         }
 
         @Override
