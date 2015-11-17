@@ -72,6 +72,7 @@ class XWalkContentsClientCallbackHelper {
     private final static int MSG_ON_RECEIVED_LOGIN_REQUEST = 4;
     private final static int MSG_ON_RECEIVED_ERROR = 5;
     private final static int MSG_ON_RESOURCE_LOAD_STARTED = 6;
+    private final static int MSG_ON_PAGE_FINISHED = 7;
 
     private final XWalkContentsClient mContentsClient;
 
@@ -109,6 +110,11 @@ class XWalkContentsClientCallbackHelper {
                 case MSG_ON_RESOURCE_LOAD_STARTED: {
                     final String url = (String) msg.obj;
                     mContentsClient.onResourceLoadStarted(url);
+                    break;
+                }
+                case MSG_ON_PAGE_FINISHED: {
+                    final String url = (String) msg.obj;
+                    mContentsClient.onPageFinished(url);
                     break;
                 }
                 default:
@@ -149,5 +155,9 @@ class XWalkContentsClientCallbackHelper {
 
     public void postOnResourceLoadStarted(String url) {
         mHandler.sendMessage(mHandler.obtainMessage(MSG_ON_RESOURCE_LOAD_STARTED, url));
+    }
+
+    public void postOnPageFinished(String url) {
+        mHandler.sendMessage(mHandler.obtainMessage(MSG_ON_PAGE_FINISHED, url));
     }
 }
