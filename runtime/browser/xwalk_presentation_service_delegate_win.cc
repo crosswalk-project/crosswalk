@@ -17,12 +17,18 @@
 #include "content/public/browser/presentation_screen_availability_listener.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(xwalk::XWalkPresentationServiceDelegateWin);
 
 namespace xwalk {
+
+using application::Application;
+using application::ApplicationService;
 
 using content::PresentationScreenAvailabilityListener;
 using content::PresentationSessionMessage;
@@ -44,6 +50,13 @@ namespace {
 bool IsValidPresentationUrl(const std::string& url) {
   GURL gurl(url);
   return gurl.is_valid();
+}
+
+Application* GetApplication(content::WebContents* contents) {
+  auto app_service =
+      XWalkRunner::GetInstance()->app_system()->application_service();
+  int rph_id = contents->GetRenderProcessHost()->GetID();
+  return app_service->GetApplicationByRenderHostID(rph_id);
 }
 
 }  // namespace
@@ -220,6 +233,7 @@ class PresentationSession :
 
   struct CreateParams {
     content::WebContents* web_contents;
+    Application* application;
     std::string presentation_id;
     std::string presentation_url;
     DisplayInfo display_info;
@@ -291,10 +305,12 @@ void PresentationSession::Create(
   XWalkBrowserContext* context =
       XWalkBrowserContext::FromWebContents(params.web_contents);
   DCHECK(context);
-
   GURL url(params.presentation_url);
   auto site = content::SiteInstance::CreateForURL(context, url);
   Runtime* runtime = Runtime::Create(context, site);
+  auto rph = runtime->GetRenderProcessHost();
+  if (auto security_policy = params.application->security_policy())
+    security_policy->EnforceForRenderer(rph);
   runtime->set_observer(session.get());
   session->runtimes_.push_back(runtime);
 
@@ -303,8 +319,10 @@ void PresentationSession::Create(
   NativeAppWindow::CreateParams win_params;
   win_params.bounds = params.display_info.bounds;
   // TODO(Mikhail): provide a special UI delegate for presentation windows.
-  runtime->set_ui_delegate(RuntimeUIDelegate::Create(runtime, win_params));
+  auto ui_delegate = RuntimeUIDelegate::Create(runtime, win_params);
+  runtime->set_ui_delegate(ui_delegate);
   runtime->Show();
+  ui_delegate->SetFullscreen(true);
   callback.Run(session, "");
 }
 
@@ -491,6 +509,11 @@ void PresentationFrame::ListenForSessionStateChange(
 content::PresentationServiceDelegate* XWalkPresentationServiceDelegateWin::
     GetOrCreateForWebContents(content::WebContents* web_contents) {
   DCHECK(web_contents);
+  Application* app = GetApplication(web_contents);
+  if (!app) {
+    LOG(WARNING) << "Presentation API is only accessible for applications";
+    return nullptr;
+  }
   // CreateForWebContents does nothing if the delegate instance already exists.
   XWalkPresentationServiceDelegateWin::CreateForWebContents(web_contents);
   return XWalkPresentationServiceDelegateWin::FromWebContents(web_contents);
@@ -592,6 +615,15 @@ void XWalkPresentationServiceDelegateWin::StartSession(
                                             "Invalid presentation arguments."));
     return;
   }
+  Application* app = GetApplication(web_contents_);
+  CHECK(app);
+
+  if (!app->CanRequestURL(GURL(presentation_url))) {
+    error_cb.Run(content::PresentationError(content::PRESENTATION_ERROR_UNKNOWN,
+                                            "Failed CSP check."));
+    return;
+  }
+
   const DisplayInfo* available_monitor =
       DisplayInfoManager::GetInstance()->FindAvailable();
   if (!available_monitor) {
@@ -614,6 +646,7 @@ void XWalkPresentationServiceDelegateWin::StartSession(
   params.presentation_id = presentation_id;
   params.presentation_url = presentation_url;
   params.web_contents = web_contents_;
+  params.application = app;
 
   auto callback = base::Bind(
       &XWalkPresentationServiceDelegateWin::OnSessionStarted,
