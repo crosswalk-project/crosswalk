@@ -411,10 +411,33 @@
       ],
     },
     {
+      'target_name': 'xwalk_core_library_pom_gen',
+      'type': 'none',
+      'variables': {
+        'pom_input': '<(DEPTH)/xwalk/runtime/android/maven/xwalk_core_library.pom.xml.in',
+        'pom_output': '<(PRODUCT_DIR)/xwalk_core_library.pom.xml',
+        'artifact_id': '<(xwalk_core_library_artifact_id)',
+        'artifact_version': '<(xwalk_version)',
+      },
+      'includes': ['build/android/maven_pom.gypi'],
+    },
+    {
+      'target_name': 'xwalk_shared_library_pom_gen',
+      'type': 'none',
+      'variables': {
+        'pom_input': '<(DEPTH)/xwalk/runtime/android/maven/xwalk_shared_library.pom.xml.in',
+        'pom_output': '<(PRODUCT_DIR)/xwalk_shared_library.pom.xml',
+        'artifact_id': '<(xwalk_shared_library_artifact_id)',
+        'artifact_version': '<(xwalk_version)',
+      },
+      'includes': ['build/android/maven_pom.gypi'],
+    },
+    {
       'target_name': 'xwalk_core_library_aar',
       'type': 'none',
       'dependencies': [
         'xwalk_core_empty_embedder_apk',
+        'xwalk_core_library_pom_gen',
       ],
       'actions': [
         {
@@ -439,6 +462,7 @@
       'type': 'none',
       'dependencies': [
         'xwalk_core_empty_embedder_apk',
+        'xwalk_shared_library_pom_gen',
       ],
       'actions': [
         {
