@@ -10,16 +10,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
 import org.xwalk.app.runtime.XWalkRuntimeView;
-import org.xwalk.core.XWalkActivity;
+import org.xwalk.core.XWalkActivityDelegate;
 import org.xwalk.core.XWalkPreferences;
 
-public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
+public abstract class XWalkRuntimeActivityBase extends Activity {
     private static final String TAG = "XWalkRuntimeActivityBase";
 
     private XWalkRuntimeView mRuntimeView;
+    private XWalkActivityDelegate mActivityDelegate;
 
     private boolean mRemoteDebugging = false;
 
@@ -30,10 +32,29 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Runnable cancelCommand = new Runnable() {
+            @Override
+            public void run() {
+                if (mActivityDelegate.isDownloadMode()) {
+                    Toast.makeText(XWalkRuntimeActivityBase.this,
+                            "Crosswalk Runtime Update Failed!",
+                            Toast.LENGTH_LONG).show();
+                }
+                finish();
+            }
+        };
+        Runnable completeCommand = new Runnable() {
+            @Override
+            public void run() {
+                onXWalkReady();
+            }
+        };
+        mActivityDelegate = new XWalkActivityDelegate(this, cancelCommand, completeCommand);
+
         tryLoadRuntimeView();
     }
 
-    @Override
     public void onXWalkReady() {
         // XWalkPreferences.ENABLE_EXTENSIONS
         if (XWalkPreferences.getValue("enable-extensions")) {
@@ -65,6 +86,7 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
     @Override
     public void onResume() {
         super.onResume();
+        mActivityDelegate.onResume();
         if (mRuntimeView != null) mRuntimeView.onResume();
         if (mExtensionManager != null) mExtensionManager.onResume();
     }
@@ -143,8 +165,7 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
         mUseAnimatableView = value;
     }
 
-    @Override
     public boolean isXWalkReady() {
-        return super.isXWalkReady();
+        return mActivityDelegate.isXWalkReady();
     }
 }
