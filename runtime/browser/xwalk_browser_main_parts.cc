@@ -124,7 +124,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
   // Enable SIMD.JS API by default.
-  std::string js_flags("--simd_object");
+  std::string js_flags("--harmony-simd");
   if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
     js_flags += " ";
     js_flags +=
