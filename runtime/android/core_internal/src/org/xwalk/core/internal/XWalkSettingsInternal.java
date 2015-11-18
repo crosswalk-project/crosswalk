@@ -84,6 +84,7 @@ public class XWalkSettingsInternal {
 
     private float mInitialPageScalePercent = 0;
     private double mDIPScale = 1.0;
+    private int mTextSizePercent = 100;
 
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
@@ -799,6 +800,32 @@ public class XWalkSettingsInternal {
     private boolean getPasswordEchoEnabledLocked() {
         assert Thread.holdsLock(mXWalkSettingsLock);
         return mPasswordEchoEnabled;
+    }
+
+    /**
+     * Sets the text zoom of the page in percent. The default is 100.
+     * @param textZoom the text zoom in percent.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setTextZoom(final int textZoom) {
+        synchronized (mXWalkSettingsLock) {
+            if (mTextSizePercent == textZoom) return;
+            mTextSizePercent = textZoom;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets the text zoom of the page in percent.
+     * @return the text zoom of the page in percent.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int getTextZoom() {
+        synchronized (mXWalkSettingsLock) {
+            return mTextSizePercent;
+        }
     }
 
     private native long nativeInit(WebContents webContents);

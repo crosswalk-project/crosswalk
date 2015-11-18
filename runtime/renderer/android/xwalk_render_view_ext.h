@@ -51,6 +51,8 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
 
   void OnSetBackgroundColor(SkColor c);
 
+  void OnSetTextZoomFactor(float zoom_factor);
+
   float page_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderViewExt);

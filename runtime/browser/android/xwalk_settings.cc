@@ -72,6 +72,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mMediaPlaybackRequiresUserGesture", "Z");
     default_video_poster_url =
         GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
+    text_size_percent =
+        GetFieldID(env, clazz, "mTextSizePercent", "I");
   }
 
   // Field ids
@@ -88,6 +90,7 @@ struct XWalkSettings::FieldIds {
   jfieldID use_wide_viewport;
   jfieldID media_playback_requires_user_gesture;
   jfieldID default_video_poster_url;
+  jfieldID text_size_percent;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -219,6 +222,17 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
           env->GetObjectField(obj, field_ids_->default_video_poster_url)));
   prefs.default_video_poster_url = str.obj() ?
       GURL(ConvertJavaStringToUTF8(str)) : GURL();
+
+  int text_size_percent = env->GetIntField(obj, field_ids_->text_size_percent);
+  if (prefs.text_autosizing_enabled) {
+    prefs.font_scale_factor = text_size_percent / 100.0f;
+    prefs.force_enable_zoom = text_size_percent >= 130;
+    // Use the default zoom factor value when Text Autosizer is turned on.
+    render_view_host_ext->SetTextZoomFactor(1);
+  } else {
+    prefs.force_enable_zoom = false;
+    render_view_host_ext->SetTextZoomFactor(text_size_percent / 100.0f);
+  }
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }
