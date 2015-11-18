@@ -2,8 +2,8 @@
 // Use of this source is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// upstream_blink_version.h is generated from upstream_blink_version.h.in.
-// It contains the latest upstream SVN revision present in the blink-crosswalk
+// upstream_blink_version.h is generated from upstream_blink_version.h.in. It
+// contains the latest upstream git revision present in the chromium-crosswalk
 // branch we are tracking. The information is obtained via DEPS.xwalk and the
 // lastchange.py script.
 
