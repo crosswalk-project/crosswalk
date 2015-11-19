@@ -80,6 +80,7 @@ public class XWalkSettingsInternal {
     private static final int MINIMUM_FONT_SIZE = 1;
     private static final int MAXIMUM_FONT_SIZE = 72;
     private int mDefaultFontSize = 16;
+    private int mDefaultFixedFontSize = 13;
 
     private boolean mAutoCompleteEnabled = true;
 
@@ -863,6 +864,34 @@ public class XWalkSettingsInternal {
     public int getDefaultFontSize() {
         synchronized (mXWalkSettingsLock) {
             return mDefaultFontSize;
+        }
+    }
+
+    /**
+     * Sets the default fixed font size. The default is 16.
+     * @param size a non-negative integer between 1 and 72.
+     *             Any number outside the specified range will be pinned.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setDefaultFixedFontSize(int size) {
+        synchronized (mXWalkSettingsLock) {
+            size = clipFontSize(size);
+            if (mDefaultFixedFontSize == size) return;
+            mDefaultFixedFontSize = size;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets the default fixed font size.
+     * @return a non-negative integer between 1 and 72.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int getDefaultFixedFontSize() {
+        synchronized (mXWalkSettingsLock) {
+            return mDefaultFixedFontSize;
         }
     }
 

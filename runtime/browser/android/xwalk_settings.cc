@@ -76,6 +76,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mTextSizePercent", "I");
     default_font_size =
         GetFieldID(env, clazz, "mDefaultFontSize", "I");
+    default_fixed_font_size =
+        GetFieldID(env, clazz, "mDefaultFixedFontSize", "I");
   }
 
   // Field ids
@@ -94,6 +96,7 @@ struct XWalkSettings::FieldIds {
   jfieldID default_video_poster_url;
   jfieldID text_size_percent;
   jfieldID default_font_size;
+  jfieldID default_fixed_font_size;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -239,6 +242,10 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
 
   int font_size = env->GetIntField(obj, field_ids_->default_font_size);
   prefs.default_font_size = font_size;
+
+  int fixed_font_size = env->GetIntField(obj,
+      field_ids_->default_fixed_font_size);
+  prefs.default_fixed_font_size = fixed_font_size;
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }
