@@ -664,6 +664,14 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentView.setOnTouchListener(l);
     }
 
+    public void scrollTo(int x, int y) {
+        mContentView.scrollTo(x, y);
+    }
+
+    public void scrollBy(int x, int y) {
+        mContentView.scrollBy(x, y);
+    }
+
     //--------------------------------------------------------------------------------------------
     private class XWalkIoThreadClientImpl extends XWalkContentsIoThreadClient {
         // All methods are called on the IO thread.
