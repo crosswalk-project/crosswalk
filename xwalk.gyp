@@ -533,8 +533,8 @@
     },
     {
       # While we could just call lastchange.py here and generate the header
-      # directly, it would only work if there is a blink-crosswalk git checkout
-      # (ie. it does not work with a tarball, for example).
+      # directly, it would only work if there is a git checkout (ie. it does
+      # not work with a tarball, for example).
       'target_name': 'generate_upstream_blink_version',
       'type': 'none',
       'actions': [
