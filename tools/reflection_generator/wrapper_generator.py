@@ -279,7 +279,8 @@ coreWrapper.getBridgeObject(constructorParams.get(i)));
     if (ref_methods_string != ''):
       ref_methods_string += "\n"
     for method in self._java_data.methods:
-      if method.is_constructor or method.is_static or method.is_abstract or method.is_delegate:
+      if method.is_constructor or method.is_static or method.is_abstract \
+        or method.is_delegate or method.disable_reflect_method:
         continue
       value = { 'METHOD_DECLARE_NAME': method._method_declare_name,
                 'METHOD': method.method_name,
