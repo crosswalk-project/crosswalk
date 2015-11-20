@@ -795,17 +795,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.setBackgroundColor(color);
     }
 
-    /**
-     * override setLayerType
-     */
+    // We can't let XWalkView's setLayerType call to this via reflection as this method
+    // may be called in XWalkView constructor but the XWalkView is not ready yet and then
+    // UnsupportedOperationException is thrown, see XWALK-5021/XWALK-5047.
+    // We only support hardware acceleration in XWalkView, so setLayerType should be noop
     @Override
-    @XWalkAPI
+    @XWalkAPI(disableReflectMethod = true,
+              preWrapperLines = {"        return;"})
     public void setLayerType(int layerType, Paint paint) {
-        if (layerType != LAYER_TYPE_SOFTWARE) {
-           super.setLayerType(layerType, paint);
-        } else {
-            Log.w(TAG, "LAYER_TYPE_SOFTWARE is not supported by XwalkView");
-        }
     }
 
      /**
