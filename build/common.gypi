@@ -59,6 +59,10 @@
         'defines': ['DISABLE_ACCESSIBILITY=1'],
       }],
 
+      ['disable_mediastream==1', {
+        'defines': ['DISABLE_MEDIASTREAM=1'],
+      }],
+
       ['disable_webaudio==1', {
         'defines': ['DISABLE_WEB_AUDIO=1'],
       }],

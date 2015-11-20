@@ -396,6 +396,8 @@ if __name__ == '__main__':
     args.append('-Ddisable_webmidi=1')
     # Disable Plugins by default
     args.append('-Denable_plugins=0')
+    # Enable Mediastream by default
+    args.append('-Ddisable_mediastream=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
@@ -405,6 +407,7 @@ if __name__ == '__main__':
   disable_geo_features = 0
   disable_bluetooth = 0
   disable_indexeddb = 0
+  disable_mediastream = 0
   disable_notifications = 0
   disable_plugins = 0
   disable_speech = 0
@@ -435,12 +438,14 @@ if __name__ == '__main__':
       disable_webaudio = 1
     elif arg == '-Ddisable_webmidi=1':
       disable_webmidi = 1
+    elif arg == '-Ddisable_mediastream=1':
+      disable_mediastream = 1
 
   # Synthesize modules.gypi in WebKit to exclude disabled idl files
   from modules_gypi_generator import  generate_modules_gypi
 
   modules_flags = (disable_accessibility, disable_bluetooth, disable_geo_features,\
-                   disable_indexeddb, disable_notifications, disable_plugins,\
+                   disable_indexeddb, disable_mediastream, disable_notifications, disable_plugins,\
                    disable_speech, disable_webaudio, disable_webcl,\
                    disable_webdatabase, disable_webmidi)
 
