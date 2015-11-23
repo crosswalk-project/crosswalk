@@ -6,8 +6,8 @@ package org.xwalk.core.internal;
 
 import java.util.HashMap;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 
 /**
  * Delegate for handling callbacks. All methods are called on the IO thread.

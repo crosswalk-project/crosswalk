@@ -127,7 +127,8 @@ GURL ApplicationData::GetResourceURL(const GURL& application_url,
     path = relative_path.substr(1);
 
   GURL ret_val = GURL(application_url.spec() + path);
-  DCHECK(base::StartsWithASCII(ret_val.spec(), application_url.spec(), false));
+  DCHECK(base::StartsWith(ret_val.spec(), application_url.spec(),
+                          base::CompareCase::INSENSITIVE_ASCII));
 
   return ret_val;
 }
