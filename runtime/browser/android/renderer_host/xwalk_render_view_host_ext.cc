@@ -175,4 +175,10 @@ void XWalkRenderViewHostExt::SetBackgroundColor(SkColor c) {
   Send(new XWalkViewMsg_SetBackgroundColor(web_contents()->GetRoutingID(), c));
 }
 
+void XWalkRenderViewHostExt::SetTextZoomFactor(float factor) {
+  DCHECK(CalledOnValidThread());
+  Send(new XWalkViewMsg_SetTextZoomFactor(web_contents()->GetRoutingID(),
+      factor));
+}
+
 }  // namespace xwalk

@@ -67,6 +67,9 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   // Sets the white list for Cross-Origin access.
   void SetOriginAccessWhitelist(const std::string& base_url,
                                 const std::string& permissions);
+  // Sets the zoom factor for text only. Used in layout modes other than
+  // Text Autosizing.
+  void SetTextZoomFactor(float factor);
 
  private:
   // content::WebContentsObserver implementation.

@@ -89,6 +89,10 @@ IPC_MESSAGE_CONTROL2(XWalkViewMsg_SetOriginAccessWhitelist, // NOLINT(*)
 IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetBackgroundColor, // NOLINT(*)
                     SkColor)
 
+// Set the text zoom factor
+IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetTextZoomFactor, // NOLINT(*)
+                    float)
+
 //-----------------------------------------------------------------------------
 // RenderView messages
 // These are messages sent from the renderer to the browser process.
