@@ -26,6 +26,10 @@
 #include "xwalk/application/common/permission_types.h"
 #include "xwalk/application/common/package/package.h"
 
+#if defined(OS_WIN)
+#define strcasecmp _stricmp
+#endif
+
 namespace base {
 class DictionaryValue;
 class ListValue;
@@ -49,7 +53,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   struct ApplicationIdCompare {
     bool operator()(const std::string& s1, const std::string& s2) const {
-      return base::strcasecmp(s1.c_str(), s2.c_str()) < 0;
+      return strcasecmp(s1.c_str(), s2.c_str()) < 0;
     }
   };
 

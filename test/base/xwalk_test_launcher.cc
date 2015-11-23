@@ -16,12 +16,18 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/test/test_launcher.h"
+#include "v8/include/v8.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "xwalk/test/base/xwalk_test_suite.h"
 
 class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
  public:
-  XWalkTestLauncherDelegate() {}
+  XWalkTestLauncherDelegate() {
+    // Expose the garbage collector interface, so we can test the object
+    // lifecycle tracker interface.
+    std::string flags("--expose-gc");
+    v8::V8::SetFlagsFromString(flags.c_str(), static_cast<int>(flags.size()));
+  }
   ~XWalkTestLauncherDelegate() override {}
 
   int RunTestSuite(int argc, char** argv) override {
@@ -38,11 +44,6 @@ class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
          iter != switches.end(); ++iter) {
       new_command_line.AppendSwitchNative((*iter).first, (*iter).second);
     }
-
-    // Expose the garbage collector interface, so we can test the object
-    // lifecycle tracker interface.
-    new_command_line.AppendSwitchASCII(
-        switches::kJavaScriptFlags, "--expose-gc");
 
     *command_line = new_command_line;
     return true;

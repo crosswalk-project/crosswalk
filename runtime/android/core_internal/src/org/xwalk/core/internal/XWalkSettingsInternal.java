@@ -13,8 +13,8 @@ import android.os.Process;
 import android.provider.Settings;
 import android.webkit.WebSettings;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.content_public.browser.WebContents;
 

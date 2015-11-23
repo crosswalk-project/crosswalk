@@ -4,7 +4,7 @@
 
 package org.xwalk.core.internal.extensions;
 
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.JNINamespace;
 
 @JNINamespace("xwalk::extensions")
 public abstract class XWalkNativeExtensionLoaderAndroid {

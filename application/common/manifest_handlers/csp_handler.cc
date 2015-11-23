@@ -11,7 +11,6 @@
 namespace xwalk {
 namespace application {
 namespace {
-const char directive_separator = ';';
 const char value_separator = ' ';
 }  // namespace
 
@@ -42,8 +41,8 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
     return false;
   }
 
-  std::vector<std::string> policies;
-  base::SplitString(policies_str, directive_separator, &policies);
+  std::vector<std::string> policies = base::SplitString(
+      policies_str, ";", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   for (size_t i = 0; i < policies.size(); ++i) {
     size_t found = policies[i].find(value_separator);
     if (found == std::string::npos) {
@@ -52,8 +51,9 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
     }
     const std::string& directive_name = policies[i].substr(0, found);
     const std::string& directive_value_str = policies[i].substr(found+1);
-    std::vector<std::string> directive_value;
-    base::SplitStringAlongWhitespace(directive_value_str, &directive_value);
+    std::vector<std::string> directive_value = base::SplitString(
+        directive_value_str, base::kWhitespaceASCII,
+        base::KEEP_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
     csp_info->SetDirective(directive_name, directive_value);
   }
   application->SetManifestData(csp_key, csp_info.release());

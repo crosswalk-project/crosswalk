@@ -9,8 +9,8 @@ import android.os.Environment;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 
 @JNINamespace("xwalk")
 public class XWalkPathHelper {

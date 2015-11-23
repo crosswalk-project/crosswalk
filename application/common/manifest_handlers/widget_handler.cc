@@ -13,6 +13,10 @@
 #include "base/strings/string_split.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
+#if defined(OS_WIN)
+#define strcasecmp _stricmp
+#endif
+
 namespace xwalk {
 
 namespace keys = application_widget_keys;
@@ -173,7 +177,7 @@ bool WidgetHandler::Validate(
     *error = std::string("Failed to retrieve the widget's namespace.");
     return false;
   }
-  if (base::strcasecmp(keys::kWidgetNamespacePrefix, ns_value.c_str()) != 0) {
+  if (strcasecmp(keys::kWidgetNamespacePrefix, ns_value.c_str()) != 0) {
     *error = std::string("The widget namespace is invalid.");
     return false;
   }

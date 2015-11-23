@@ -29,8 +29,8 @@ double CPUInfoProvider::GetCPULoad() const {
 
   base::ReadFileToString(proc_loadavg, &buffer);
 
-  std::vector<std::string> stats;
-  base::SplitString(buffer, ' ', &stats);
+  std::vector<std::string> stats = base::SplitString(
+      buffer, " ", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
 
   double load;
   base::StringToDouble(stats[0], &load);

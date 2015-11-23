@@ -9,6 +9,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "grit/xwalk_resources.h"
 #include "third_party/skia/include/core/SkPaint.h"
+#include "third_party/skia/include/core/SkPath.h"
 #include "ui/views/layout/grid_layout.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/canvas.h"

@@ -6,8 +6,8 @@
 package org.xwalk.core.internal;
 
 import android.util.Log;
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
