@@ -1335,4 +1335,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void setOnTouchListener(OnTouchListener l) {
         mContent.setOnTouchListener(l);
     }
+
+    @Override
+    @XWalkAPI
+    public void scrollTo(int x, int y) {
+        mContent.scrollTo(x, y);
+    }
+
+    @Override
+    @XWalkAPI
+    public void scrollBy(int x, int y) {
+        mContent.scrollBy(x, y);
+    }
 }
