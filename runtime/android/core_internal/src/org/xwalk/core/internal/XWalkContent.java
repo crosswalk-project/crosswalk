@@ -199,6 +199,17 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         if (language.isEmpty()) language = "en";
         mSettings.setAcceptLanguages(language);
 
+        XWalkSettingsInternal.ZoomSupportChangeListener zoomListener =
+                new XWalkSettingsInternal.ZoomSupportChangeListener() {
+                    @Override
+                    public void onGestureZoomSupportChanged(
+                            boolean supportsDoubleTapZoom, boolean supportsMultiTouchZoom) {
+                        mContentViewCore.updateDoubleTapSupport(supportsDoubleTapZoom);
+                        mContentViewCore.updateMultiTouchZoomSupport(supportsMultiTouchZoom);
+                    }
+                };
+        mSettings.setZoomListener(zoomListener);
+
         nativeSetJavaPeers(mNativeContent, this, mXWalkContentsDelegateAdapter, mContentsClientBridge,
                 mIoThreadClient, mContentsClientBridge.getInterceptNavigationDelegate());
     }

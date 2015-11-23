@@ -87,6 +87,10 @@ public class XWalkSettingsInternal {
     private float mInitialPageScalePercent = 0;
     private double mDIPScale = 1.0;
     private int mTextSizePercent = 100;
+    private ZoomSupportChangeListener mZoomChangeListener;
+    private boolean mSupportZoom = true;
+    private boolean mBuiltInZoomControls = false;
+    private boolean mDisplayZoomControls = true;
 
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
@@ -126,6 +130,12 @@ public class XWalkSettingsInternal {
             }
         }
 
+        void maybePostOnUiThread(Runnable r) {
+            if (mHandler != null) {
+                mHandler.post(r);
+            }
+        }
+
         private void updateWebkitPreferencesLocked() {
             assert Thread.holdsLock(mXWalkSettingsLock);
             if (mNativeXWalkSettings == 0) return;
@@ -148,6 +158,11 @@ public class XWalkSettingsInternal {
                 } catch (InterruptedException e) {}
             }
         }
+    }
+
+    interface ZoomSupportChangeListener {
+        public void onGestureZoomSupportChanged(
+                boolean supportsDoubleTapZoom, boolean supportsMultiTouchZoom);
     }
 
     // Never use this constructor.
@@ -470,8 +485,17 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setUseWideViewPort}.
+     * Sets whether the XWalkView should enable support for the "viewport" HTML
+     * meta tag or should use a wide viewport. When the value of the setting is
+     * false, the layout width is always set to the width of the XWalkView control
+     * in device-independent (CSS) pixels. When the value is true and the page
+     * contains the viewport meta tag, the value of the width specified in the
+     * tag is used. If the page does not contain the tag or does not provide a
+     * width, then a wide viewport will be used.
+     * @param use whether to enable support for the viewport meta tag.
+     * @since 6.0
      */
+    @XWalkAPI
     public void setUseWideViewPort(boolean use) {
         synchronized (mXWalkSettingsLock) {
             if (mUseWideViewport != use) {
@@ -482,8 +506,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getUseWideViewPort}.
-     */
+      * Gets whether the XWalkView supports the "viewport" HTML meta tag or will
+      * use a wide viewport.
+      * @return true if the XWalkView supports the viewport meta tag.
+      * @since 6.0
+      */
+    @XWalkAPI
     public boolean getUseWideViewPort() {
         synchronized (mXWalkSettingsLock) {
             return mUseWideViewport;
@@ -892,6 +920,111 @@ public class XWalkSettingsInternal {
     public int getDefaultFixedFontSize() {
         synchronized (mXWalkSettingsLock) {
             return mDefaultFixedFontSize;
+        }
+    }
+
+    void setZoomListener(ZoomSupportChangeListener zoomChangeListener) {
+        synchronized (mXWalkSettingsLock) {
+            mZoomChangeListener = zoomChangeListener;
+        }
+    }
+
+    private void onGestureZoomSupportChanged(
+            final boolean supportsDoubleTapZoom, final boolean supportsMultiTouchZoom) {
+        // Always post asynchronously here, to avoid doubling back onto the caller.
+        mEventHandler.maybePostOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mXWalkSettingsLock) {
+                    if (mZoomChangeListener == null) return;
+                    mZoomChangeListener.onGestureZoomSupportChanged(
+                            supportsDoubleTapZoom, supportsMultiTouchZoom);
+                }
+            }
+        });
+    }
+
+    @CalledByNative
+    private boolean supportsDoubleTapZoomLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mSupportZoom && mBuiltInZoomControls && mUseWideViewport;
+    }
+
+    private boolean supportsMultiTouchZoomLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mSupportZoom && mBuiltInZoomControls;
+    }
+
+    /**
+     * Sets whether the XWalkView should support zooming using its on-screen zoom controls
+     * and gestures. The particular zoom mechanisms that should be used can be set with
+     * setBuiltInZoomControls(boolean). This setting does not affect zooming performed
+     * using the zoomIn() and zoomOut() methods. The default is true.
+     * @param support whether the XWalkView should support zoom.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setSupportZoom(boolean support) {
+        synchronized (mXWalkSettingsLock) {
+            if (mSupportZoom == support) return;
+            mSupportZoom = support;
+            onGestureZoomSupportChanged(
+                    supportsDoubleTapZoomLocked(), supportsMultiTouchZoomLocked());
+        }
+    }
+
+    /**
+     * Gets whether the XWalkView supports zoom.
+     * @return true if the XWalkView supports zoom.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean supportZoom() {
+        synchronized (mXWalkSettingsLock) {
+            return mSupportZoom;
+        }
+    }
+
+    /**
+     * Sets whether the XWalkView should use its built-in zoom mechanisms.
+     * The built-in zoom mechanisms comprise on-screen zoom controls, which are
+     * displayed over the XWalkView's content, and the use of a pinch gesture to
+     * control zooming. Whether or not these on-screen controls are displayed
+     * can be set with setDisplayZoomControls(boolean). The default is false.
+     * @param enabled whether the XWalkView should use its built-in zoom mechanisms.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setBuiltInZoomControls(boolean enabled) {
+        synchronized (mXWalkSettingsLock) {
+            if (mBuiltInZoomControls == enabled) return;
+            mBuiltInZoomControls = enabled;
+            onGestureZoomSupportChanged(
+                    supportsDoubleTapZoomLocked(), supportsMultiTouchZoomLocked());
+        }
+    }
+
+    /**
+     * Gets whether the zoom mechanisms built into XWalkView are being used.
+     * @return true if the zoom mechanisms built into XWalkView are being used.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean getBuiltInZoomControls() {
+        synchronized (mXWalkSettingsLock) {
+            return mBuiltInZoomControls;
+        }
+    }
+
+    /**
+     * Note: Just for test case.
+     * Gets whether the XWalkView supports multi touch zoom.
+     * @return true if the XWalkView supports multi touch zoom.
+     */
+    @XWalkAPI
+    public boolean supportsMultiTouchZoomForTest() {
+        synchronized (mXWalkSettingsLock) {
+            return supportsMultiTouchZoomLocked();
         }
     }
 

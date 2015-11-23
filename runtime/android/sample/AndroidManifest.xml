@@ -165,6 +165,15 @@
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.xwalk.core.sample.SupportZoomActivity"
+            android:label="Zoom"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
