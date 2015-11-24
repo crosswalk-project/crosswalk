@@ -369,9 +369,6 @@ class PresentationFrame : public PresentationSession::Observer,
       PresentationScreenAvailabilityListener* listener);
   bool RemoveScreenAvailabilityListener(
       PresentationScreenAvailabilityListener* listener);
-  void SetDefaultPresentationInfo(const std::string& default_presentation_url,
-                                  const std::string& default_presentation_id);
-  std::string GetDefaultPresentationId() const;
   void ListenForSessionStateChange(
       const content::SessionStateChangedCallback& state_changed_cb);
   void Reset();
@@ -381,6 +378,10 @@ class PresentationFrame : public PresentationSession::Observer,
 
   void set_delegate_observer(DelegateObserver* observer) {
     delegate_observer_ = observer;
+  }
+
+  void set_default_presentation_url(const std::string& url) {
+    default_presentation_url_ = url;
   }
 
   PresentationSession* session() { return session_.get(); }
@@ -394,7 +395,7 @@ class PresentationFrame : public PresentationSession::Observer,
   void OnDisplayInfoChanged(
       const std::vector<DisplayInfo>& info_list) override;
 
-  scoped_ptr<SessionInfo> default_presentation_info_;
+  std::string default_presentation_url_;
   DelegateObserver* delegate_observer_;
   scoped_refptr<PresentationSession> session_;
   SessionStateChangedCallback state_changed_cb_;
@@ -478,26 +479,10 @@ bool PresentationFrame::RemoveScreenAvailabilityListener(
 }
 
 void PresentationFrame::Reset() {
+  default_presentation_url_.clear();
   session_ = nullptr;
   screen_listener_ = nullptr;
   state_changed_cb_.Reset();
-}
-
-void PresentationFrame::SetDefaultPresentationInfo(
-    const std::string& default_presentation_url,
-    const std::string& default_presentation_id) {
-  if (default_presentation_url.empty() && default_presentation_id.empty()) {
-    default_presentation_info_.reset();
-  } else {
-    default_presentation_info_.reset(new SessionInfo(
-        default_presentation_url, default_presentation_id));
-  }
-}
-
-std::string PresentationFrame::GetDefaultPresentationId() const {
-  return default_presentation_info_
-    ? default_presentation_info_->presentation_id
-    : "";
 }
 
 void PresentationFrame::ListenForSessionStateChange(
@@ -580,12 +565,10 @@ void XWalkPresentationServiceDelegateWin::Reset(
 void XWalkPresentationServiceDelegateWin::SetDefaultPresentationUrl(
     int render_process_id,
     int render_frame_id,
-    const std::string& default_presentation_url,
-    const std::string& default_presentation_id) {
+    const std::string& default_presentation_url) {
   RenderFrameHostId id(render_process_id, render_frame_id);
   auto presentation_frame = GetOrAddPresentationFrame(id);
-  presentation_frame->SetDefaultPresentationInfo(default_presentation_url,
-                                                 default_presentation_id);
+  presentation_frame->set_default_presentation_url(default_presentation_url);
 }
 
 void XWalkPresentationServiceDelegateWin::OnSessionStarted(
@@ -634,12 +617,7 @@ void XWalkPresentationServiceDelegateWin::StartSession(
   }
 
   RenderFrameHostId render_frame_host_id(render_process_id, render_frame_id);
-  auto presentation_frame = presentation_frames_.get(render_frame_host_id);
-  CHECK(presentation_frame);
-  std::string presentation_id = presentation_frame->GetDefaultPresentationId();
-
-  if (presentation_id.empty())
-    presentation_id = base::GenerateGUID();
+  const std::string presentation_id = base::GenerateGUID();
 
   PresentationSession::CreateParams params = {};
   params.display_info = *available_monitor;
