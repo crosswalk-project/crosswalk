@@ -853,7 +853,7 @@ ${DOC}
           self.GenerateWrapperStaticMethod(), """\
     private static ReflectMethod %s = new ReflectMethod(null, "%s");\n""" %
               (self._method_declare_name, self._method_name))
-    elif self._is_abstract or self._is_delegate:
+    elif self._is_abstract or self._is_delegate or self._disable_reflect_method:
       return self.GenerateWrapperBridgeMethod()
     else:
       return '%s\n%s\n' % (
