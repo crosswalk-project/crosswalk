@@ -25,15 +25,34 @@
  *     };
  *     exports.getPrefixPromise = function() {
  *       return new Promise(function(resolve, reject) {
- *           helper.invokeNative("getPrefixPromise", [{"resolve": resolve, "reject":reject}]);
+ *           helper.invokeNative("getPrefixPromise", [resolve, reject]);
+ *       })
+ *     };
+ *
+ *     exports.getPrefixPromise = function() {
+ *       return new Promise(function(resolve, reject) {
+ *           var cb = function(data, error) {
+ *             if (error) {
+ *               reject(error);
+ *             } else {
+ *               if (wrapReturns) {
+ *                 resolve(wrapReturns(data));
+ *               } else {
+ *                 resolve(data);
+ *               }
+ *             }
+ *           };
+ *           helper.invokeNative("getPrefixPromise", cb);
  *       })
  *     };
  */
 var v8tools;
 var channel;
-var jsStub = function(base, rootStub) {
-  var nextCallbackId = 1;
+var MSG_TO_OBJECT = "postMessageToObject";
+var MSG_TO_CLASS = "postMessageToClass";
+var MSG_TO_EXTENSION = "postMessageToExtension";
 
+var jsStub = function(base, rootStub) {
   // Refer to the exposed extension object.
   this.base = base;
 
@@ -42,33 +61,31 @@ var jsStub = function(base, rootStub) {
 
   // Retain the properties which is exposed by native.
   this.properties = {};
-  this.callbacks = [];
-
-  this.getCallbackId = function() {
-    while (this.callbacks[nextCallbackId] != undefined)
-      ++nextCallbackId;
-    return nextCallbackId;
-  };
 };
 
-function messageHandler(targetHelper, msg) {
+function messageHandler(msgType, targetHelper, msg) {
   if (!msg.cmd)
     console.warn("No valid Java CMD.");
   switch (msg.cmd) {
-    case "invokeCallback":
-      if (!msg.callInfo || (typeof msg.callInfo !== "object")) return;
-      targetHelper.invokeCallback(msg.callInfo, msg.key, msg.args);
-      break;
     case "updateProperty":
       // Case: property is changed by native and need
       // to sync its value to JS side.
       if (targetHelper.properties.hasOwnProperty(msg.name) >= 0) {
-        targetHelper.properties[msg.name] = targetHelper.getNativeProperty(msg.name);
+        targetHelper.properties[msg.name] = targetHelper.getNativeProperty(msgType, msg.name);
       }
       break;
     case "dispatchEvent":
-      if (msg.type)
-        targetHelper.base.dispatchEvent(msg.type, msg.event);
+      // Dispatch event from native.
+      if (msg.type) {
+        var type = String(msg.type);
+        var listeners = targetHelper.event_listeners[type];
+
+        var wrapEvent;
+        for (var i in listeners) {
+          wrapEvent = targetHelper.event_synthesizers[type];
+          listeners[i](new wrapEvent(type, msg.event));
+        }
+      }
       break;
 
     default:
@@ -79,6 +96,17 @@ function messageHandler(targetHelper, msg) {
 function makeExtensionHelper(helper) {
   var nextObjectId = 1;
   var bindingObjects = [];
+  var nextCallbackId = 1;
+  helper.callbacks = {};
+
+  helper.getCallbackId = function() {
+    while (helper.callbacks[String(nextCallbackId)] != undefined)
+      ++nextCallbackId;
+    return String(nextCallbackId);
+  };
+  helper.setNextCallbackId = function(cid) {
+    nextCallbackId = Number(cid);
+  };
   helper.constructors = {};
   helper.eventObservers = {};
   helper.getObjectId = function() {
@@ -92,13 +120,14 @@ function makeExtensionHelper(helper) {
 
   helper.removeBindingObject = function(objectId) {
     bindingObjects[objectId] = undefined;
+    nextObjectId = objectId;
   };
 
   helper.getBindingObject = function(objectId) {
     return  bindingObjects[objectId];
   };
-  helper.getConstructorHelper = function(cName) {
-    return jsStub.getHelper(this.constructors[cName]);
+  helper.getConstructorHelper = function(ctorName) {
+    return jsStub.getHelper(this.constructors[ctorName]);
   };
 
   helper.addEventObserver = function(type, obj) {
@@ -122,45 +151,72 @@ function makeExtensionHelper(helper) {
 
   // Wrap the object message handler for extension object.
   helper.handleMessage = function (msg) {
+    var rootStub = this.rootStub;
+    function invokeMethod(callbackId, args) {
+      if (!callbackId) return;
+
+      var listener = rootStub.callbacks[callbackId];
+      if (!(listener instanceof Function)) return;
+
+      if (!(listener.apply(null, args))) {
+        delete rootStub.callbacks[callbackId];
+        rootStub.setNextCallbackId(callbackId);
+      }
+    }
+
+    // Handle the message.
+    if (msg instanceof ArrayBuffer) {
+      // Binary Message.
+      var int32_array = new Int32Array(msg, 0 , 1);
+      invokeMethod(int32_array[0], [msg]);
+      return;
+    }
+
     var msgObj = JSON.parse(msg);
-    if (msgObj.cmd == "error") {
-      // supported key: log, info, warn, error
-      if (console[msgObj.level] instanceof Function) {
-        console[msgObj.level](msgObj.msg);
-      } else {
-        console.error(msgObj.msg);
-      }
-      return;
-    } 
-    if (msgObj.cmd == "onEvent") {
-      var observers = this.eventObservers[msgObj.type];
-      if (!Array.isArray(observers) ) return;
 
-      for (var o of observers) {
-        o.dispatchEvent(msgObj.type, msgObj.event);
-      }
+    // Message posted from info.PostResult().
+    if (Array.isArray(msgObj)) {
+      invokeMethod(msgObj.shift(), msgObj);
       return;
     }
-    // Message back to extension itself.
-    var targetHelper = this;
+      // Message posted from exposed interfaces in BindingObjectAutoJs.
+      if (msgObj.cmd == "onEvent") {
+        var observers = this.eventObservers[msgObj.type];
+        if (!Array.isArray(observers) ) return;
 
-    var cName = String(msgObj["constructorName"]).trim();
-    // Message back to constructors.
-    if (msgObj.objectId == 0 && cName.length > 0) {
-      targetHelper = this.getConstructorHelper(cName);
-    } else if (msgObj.objectId > 0) {
-      // Message back to binding objects.
-      var obj = bindingObjects[msgObj.objectId];
-      if (!obj) return;
-      targetHelper = jsStub.getHelper(obj);
-    }
-    if (!targetHelper) return;
+        for (var o of observers) {
+          o.dispatchEvent(msgObj.type, msgObj.event);
+        }
+        return;
+      }
 
-    messageHandler(targetHelper, msgObj);
+      if (msgObj.cmd == "invokeCallback") {
+        invokeMethod(msgObj.callbackId, msgObj.args);
+        return;
+      }
+      // Message about properties.
+      var targetHelper = this;
+      var msgType = MSG_TO_EXTENSION;
+
+      var ctorName = String(msgObj["constructorName"]).trim();
+      // Message back to constructors.
+      if (msgObj.objectId == 0 && ctorName.length > 0) {
+        targetHelper = this.getConstructorHelper(ctorName);
+        msgType = MSG_TO_CLASS;
+      } else if (msgObj.objectId > 0) {
+        // Message back to binding objects.
+        var obj = bindingObjects[msgObj.objectId];
+        if (!obj) return;
+        targetHelper = jsStub.getHelper(obj);
+        msgType = MSG_TO_OBJECT;
+      }
+      if (!targetHelper) return;
+
+      messageHandler(msgType, targetHelper, msgObj);
   }
 }
 
-jsStub.create = function(base) {
+jsStub.createRootStub = function(base) {
   var helper = jsStub.getHelper(base, null);
 
   // Add some specail properties for extension object only.
@@ -186,25 +242,80 @@ jsStub.getHelper = function(base, rootStub) {
   return base.__stubHelper;
 };
 
-function isSerializable(obj) {
-  if (!(obj instanceof Object))
-    return true;
-  if (obj instanceof Function)
-    return false;
-  if (obj instanceof Boolean ||
-      obj instanceof Date ||
-      obj instanceof Number ||
-      obj instanceof RegExp ||
-      obj instanceof String)
-    return true;
-  for (var p of Object.getOwnPropertyNames(obj))
-    if (!isSerializable(obj[p]))
-      return false;
-  return true;
-}
-
 jsStub.prototype = {
-  "invokeNative": function(name, args, sync) {
+  "invokeNativeByBMI": function(msgType, name, args, callback) {
+    // This interface only for "msgType" == MESSAGE_TO_OBJECT
+    if (!(args instanceof ArrayBuffer) || !(this.objectId)) {
+      console.warn("Invalid argument(s) for invokeNativeWithBMI.");
+      return;
+    }
+    function alignedWith4Bytes(number) {
+      return number + (4 - number % 4);
+    };
+
+    var rootStub = this.rootStub;
+    const byteLengthOfInt32 = 4;
+    name = String(name);
+    var callbackID = 0;
+    if (callback instanceof Function) {
+      callbackID = parseInt(rootStub.getCallbackId());
+      rootStub.callbacks[callbackID] = callback;
+    }
+    var functionName = MSG_TO_OBJECT;
+    var methodName = name;
+    var methodArgs = args;
+    var objectId = String(this.objectId);
+
+    var allignFuncNameLen = alignedWith4Bytes(functionName.length);
+    var allignMethodNameLen = alignedWith4Bytes(methodName.length);
+    var allignObjectId = alignedWith4Bytes(objectId.length);
+
+    // Final ArrayBuffer includes funcNameLen(int32),funcName(string), callbackID(int32),
+    // objectIdLen(int32), objectId(string), methodNameLen(int32), methodName(string),
+    // methodArgs(ArrayBuffer)
+    var byteLen = byteLengthOfInt32 + allignFuncNameLen + 2 * byteLengthOfInt32 +
+      allignObjectId + byteLengthOfInt32 + allignMethodNameLen + methodArgs.byteLength;
+    var arrayBuffer = new ArrayBuffer(byteLen);
+    var offset = 0;
+    var view = new Int32Array(arrayBuffer, offset, 1);
+    view[0] = functionName.length;
+
+    offset += byteLengthOfInt32;
+    view = new Uint8Array(arrayBuffer, offset, functionName.length);
+    for (var i = 0; i < functionName.length; i++) {
+      view[i] = functionName.charCodeAt(i);
+    }
+
+    offset += allignFuncNameLen;
+    view = new Int32Array(arrayBuffer, offset, 2);
+    view[0] = callbackID;
+    view[1] = objectId.length;
+
+    offset += 2 * byteLengthOfInt32;
+    view = new Uint8Array(arrayBuffer, offset, objectId.length);
+    for (var i = 0; i < objectId.length; i++) {
+      view[i] = objectId.charCodeAt(i);
+    }
+
+    offset += allignObjectId;
+    view = new Int32Array(arrayBuffer, offset, 1);
+    view[0] = methodName.length;
+
+    offset += byteLengthOfInt32;
+    view = new Uint8Array(arrayBuffer, offset, methodName.length);
+    for (var i = 0; i < methodName.length; i++) {
+      view[i] = methodName.charCodeAt(i);
+    }
+
+    offset += allignMethodNameLen;
+    view = new Uint8Array(arrayBuffer, offset);
+    view.set(new Uint8Array(methodArgs), 0);
+
+    channel.postMessage(arrayBuffer);
+  },
+
+  "invokeNative": function(msgType, name, args, sync) {
+    var rootStub = this.rootStub;
     name = String(name);
     var isNewInstance = (name[0] == '+') ? true : false;
 
@@ -212,31 +323,29 @@ jsStub.prototype = {
       console.warn("invokeNative: args is not an array.");
       args = Array(args);
     }
-    // Retain callbacks in JS stub, replace them to related number ID
-    var call = [];
-    var cid = this.getCallbackId();
-    args.forEach(function(val, vid, a) {
-      if (!isSerializable(val)) {
-        call[vid] = val;
-        a[vid] = { "cid": cid, "vid": vid };
+
+    args.forEach(function(val, index, a) {
+      if (val instanceof Function) {
+        // Retain callbacks in JS stub, replace them to related number ID
+        var cid = rootStub.getCallbackId();
+        rootStub.callbacks[cid] = val;
+        a[index] = cid;
       }
     })
 
-    if (call.length > 0) {
-      this.callbacks[cid] = call;
-    }
-
     var msg = {
+      type: msgType,
       cmd: isNewInstance ? "newInstance" : "invokeNative",
       name: isNewInstance ? name.substr(1) : name,
       args: args
     };
 
     if (isNewInstance) {
-      msg.bindingObjectId = this.getObjectId();
+      var objectId = rootStub.getObjectId();
+      msg.args = [objectId, args];
       // Use sync channel for newInstance actions.
       // "newInstance" action should return true/false.
-      return (this.sendSyncMessage(msg)? msg.bindingObjectId : 0);
+      return (this.sendSyncMessage(msg)? objectId : 0);
     }
 
     if (sync)
@@ -246,6 +355,8 @@ jsStub.prototype = {
   },
   // Only Binding object need this lifecycle tracker.
   "registerLifecycleTracker": function() {
+    // TODO(Donna): This will never be triggered,
+    // because we kept all the binding Object in jsStub.
     var baseObject = this.base;
     var helper = this;
     Object.defineProperty(baseObject, "_tracker", {
@@ -254,18 +365,23 @@ jsStub.prototype = {
 
     var objId = helper.objectId;
     var msg = {
-      cmd: "jsObjectCollected",
-      jsObjectId: objId
+      type: MSG_TO_EXTENSION,
+      cmd: "invokeNative",
+      name: "JSObjectCollected",
+      args: [objId]
     };
     baseObject._tracker.destructor = function() {
-      channel.postMessage(msg);
+      // TODO(Donna): find better way to coorperate with "destroy".
+      //channel.postMessage(msg);
     };
   },
   "destroy": function() {
     var objId = this.objectId;
     var msg = {
-      cmd: "jsObjectCollected",
-      jsObjectId: objId
+      type: MSG_TO_EXTENSION,
+      cmd: "invokeNative",
+      name: "JSObjectCollected",
+      args: [objId]
     };
     this.postMessage(msg);
     this.rootStub.removeBindingObject(objId);
@@ -280,61 +396,51 @@ jsStub.prototype = {
     delete this.invokeNative;
     delete this.getNativeProperty;
     delete this.setNativeProperty;
-    delete this.invokeCallback;;
     delete this.destroy;
   },
-  "getNativeProperty": function(name) {
+  "getNativeProperty": function(msgType, name) {
     return this.sendSyncMessage({
+      type: msgType,
       cmd: "getProperty",
-      name: name
+      name: name,
+      args: []
     });
   },
-  "setNativeProperty": function(name, value) {
+  "setNativeProperty": function(msgType, name, value) {
     this.sendSyncMessage({
+      type: msgType,
       cmd: "setProperty",
       name: name,
-      value: value
+      args: [value]
     });
-  },
-  "invokeCallback": function(callInfo, key, args) {
-      var cid = callInfo.cid;
-      if (!cid) return;
-
-      var vid = callInfo.vid;
-      var obj = this.callbacks[cid][vid];
-      if (!obj || !((typeof obj == "object") || (obj instanceof Function))) return;
-
-      if (typeof(key) === 'number' || key instanceof Number)
-          obj = obj[key];
-      else if (typeof(key) === 'string' || key instanceof String)
-          key.split('.').forEach(function(p) { obj = obj[p]; });
-
-      if (obj instanceof Function)
-          obj.apply(null, JSON.parse(args));
   },
   "sendSyncMessage": function(msg) {
     // Add objectId for each message.
     msg["objectId"] = this.objectId ? this.objectId : 0;
-    msg["constructorJsName"] = this.constructorJsName ? this.constructorJsName : "";
+    if (msg.type == "postMessageToClass") {
+      msg.args = [this.constructorJsName, msg.args];
+    }
 
     var resultStr = channel.internal.sendSyncMessage(JSON.stringify(msg));
     return resultStr.length > 0 ? JSON.parse(resultStr) : undefined;
   },
   "postMessage": function(msg) {
     // Add objectId for each message.
-    msg["objectId"] = this.objectId;
-    msg["constructorJsName"] = this.constructorJsName ? this.constructorJsName : "";
+    msg["objectId"] = this.objectId ? this.objectId : 0;
+    if (msg.type == "postMessageToClass") {
+      msg.args = [this.constructorJsName, msg.args];
+    }
 
     channel.postMessage(JSON.stringify(msg));
   }
 };
 
 // expose native property to JavaScript
-jsStub.defineProperty = function(obj, prop, writable) {
+jsStub.defineProperty = function(msgType, obj, prop, writable) {
   var helper = jsStub.getHelper(obj);
 
   // keep all exported properties in the helper
-  helper.properties[prop] = helper.getNativeProperty(prop);
+  helper.properties[prop] = helper.getNativeProperty(msgType, prop);
 
   var desc = {
     // TODO: set to false if find good way to do clear destroy.
@@ -346,21 +452,71 @@ jsStub.defineProperty = function(obj, prop, writable) {
   }
   if (writable) {
     desc.set = function(v) {
-      helper.setNativeProperty(prop, v);
+      helper.setNativeProperty(msgType, prop, v);
       helper.properties[prop] = v;
     }
   }
   Object.defineProperty(obj, prop, desc);
 };
 
+jsStub.addMethodWithPromise = function(msgType, obj, name, wrapArgs, wrapReturns) {
+  var helper = jsStub.getHelper(obj);
+  var desc = {
+    'enumerable': true,
+    'value': function() {
+      var args = Array.prototype.slice.call(arguments);
+      var useBMI = false;
+      if (wrapArgs instanceof Function) {
+        args = wrapArgs(args);
+        if (!args) {
+          return new Promise(function(resolve, reject) {
+            reject('Package the parameters failed. Invalid parameters');
+          });
+        }
+        useBMI = (args instanceof ArrayBuffer) ? true : false;
+      } else if (args.length == 1 && (args[0] instanceof ArrayBuffer)) {
+        args = args[0];
+        useBMI = true;
+      }
+
+      return new Promise(function(resolve, reject) {
+        var callback = function(data, error) {
+          if (error) {
+            reject(error);
+          } else if (wrapReturns instanceof Function) {
+            resolve(wrapReturns(data));
+          } else {
+            resolve(data);
+          }
+        };
+
+        if (useBMI) {
+          helper.invokeNativeByBMI(msgType, name, args, callback);
+        } else {
+          args.push(callback);
+          helper.invokeNative(msgType, name, args);
+        }
+      });
+    }
+  };
+  Object.defineProperty(obj, name, desc);
+};
 // EventTarget implementation:
 // When dispatch event in the Java side, we will broadcast the
 // message to all instances, so all frames will handle the event.
 jsStub.makeEventTarget = function(base) {
   var helper = jsStub.getHelper(base);
   helper.event_listeners = {};
+  helper.event_synthesizers = {};
 
-  helper.addEvent = function(type) {
+  var DefaultEvent = function(type, data) {
+    this.type = type;
+
+    if (data)
+      this.data = data;
+  };
+
+  helper.addEvent = function(type, wrapEvent) {
     Object.defineProperty(helper, "_on" + type, {
       writable : true,
     });
@@ -371,6 +527,12 @@ jsStub.makeEventTarget = function(base) {
       },
       set: function(listener) {
         var old_listener = helper["_on" + type];
+        if (!(listener instanceof Function)) {
+          helper["_on" + type] = null;
+          base.removeEventListener(type, old_listener);
+          return;
+        }
+
         if (old_listener === listener)
           return;
 
@@ -382,18 +544,20 @@ jsStub.makeEventTarget = function(base) {
       },
       enumerable: true,
     });
+
+    if (wrapEvent)
+      helper.event_synthesizers[type] = wrapEvent;
+    else
+      helper.event_synthesizers[type] = DefaultEvent;
   };
 
-  function dispatchEvent(type, event) {
-    if (!(type instanceof String || typeof(type) === "string") 
-        || !(("on" + type) in base)) {
-      console.warn("Invalid or unsupported event type:" + type);
+  function dispatchEvent(event) {
+    if (!event.type)
       return;
-    }
-    if (!(type in helper.event_listeners))
+    if (!(event.type in helper.event_listeners))
       return;
 
-    var listeners = helper.event_listeners[type];
+    var listeners = helper.event_listeners[event.type];
     for (var i in listeners)
       listeners[i](event);
   };

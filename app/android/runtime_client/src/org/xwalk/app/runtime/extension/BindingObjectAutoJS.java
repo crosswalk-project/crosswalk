@@ -10,32 +10,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class XWalkExtensionBindingObject {
-    XWalkExtensionClient extensionClient;
-    int myObjectId;
-    int extInstanceId;
+public class BindingObjectAutoJS extends BindingObject {
 
-    public XWalkExtensionBindingObject(XWalkExtensionClient ext) {
-        extensionClient = ext;
+    public Object handleMessage(MessageInfo info) {
+        Object result = null;
+        ReflectionHelper extReflect = mInstanceHelper.getExtension().getReflection();
+        ReflectionHelper mReflection =
+                extReflect.getReflectionByBindingClass(this.getClass().getName());
+        try {
+            result = mReflection.handleMessage(info, this);
+        } catch (ReflectiveOperationException e) {
+            Log.e("BindingObjectAutoJs", e.toString());
+        }
+        return result;
     }
-
-    public void init(int instanceId, int objectId) {
-        myObjectId = objectId;
-        extInstanceId = instanceId;
-    }
-
-    /*
-     * Called when this binding object is destroyed by JS.
-     */
-    public void onJsDestroyed() {}
-
-    /*
-     * Called when this object is binded with JS.
-     */
-    public void onJsBinded() {}
 
     public JsContextInfo getJsContextInfo() {
-        return new JsContextInfo(extInstanceId, extensionClient, this.getClass(), myObjectId);
+        return new JsContextInfo(mInstanceHelper.getId(),
+                                 mInstanceHelper.getExtension(),
+                                 this.getClass(), mObjectId);
     }
 
     /* Helper method to invoke JavaScript callback.
@@ -49,52 +42,35 @@ public class XWalkExtensionBindingObject {
      *  args: args
      * }
      */
-    public static void invokeJsCallback(JsContextInfo mInfo, JSONObject callInfo, String key, Object... args) {
+    public static void invokeJsCallback(JsContextInfo mInfo, String callbackId, Object... args) {
+        JSONArray jsArgs;
+        Object[] arr = (Object[]) args;
+        if (arr.length == 1 && arr[0] instanceof JSONArray) {
+            jsArgs = (JSONArray)(arr[0]);
+        } else {
+            jsArgs = (JSONArray)(ReflectionHelper.toSerializableObject(args));
+        }
         try {
-            JSONObject jsCallInfo = new JSONObject();
-            jsCallInfo.put("cid", callInfo.getInt("cid"));
-            jsCallInfo.put("vid", callInfo.getInt("vid"));
-
             JSONObject msgOut = new JSONObject();
             msgOut.put("cmd", "invokeCallback");
-            msgOut.put("constructorName", mInfo.getConstructorName());
-            msgOut.put("objectId", mInfo.getObjectId());
-            msgOut.put("callInfo", jsCallInfo);
-            msgOut.put("key", key);
-            msgOut.put("args", ReflectionHelper.objToJSON(args));
+            msgOut.put("callbackId", callbackId);
+            msgOut.put("args", jsArgs);
             mInfo.postMessage(msgOut);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void invokeJsCallback(JSONObject callInfo, String key, Object... args) {
-        invokeJsCallback(getJsContextInfo(), callInfo, key, args);
+    public void invokeJsCallback(String callbackId, Object... args) {
+        invokeJsCallback(getJsContextInfo(), callbackId, args);
     }
 
-    /* Helper method to print information in JavaScript console,
-     * mostly for debug purpose.
-     *
-     * Following message will be sent to JavaScript side:
-     * { cmd:"error"
-     *   level: "log", "info", "warn", "error", default is "error"
-     *   msg: String
-     * }
-     */
-    public static void logJs(JsContextInfo mInfo, String msg, String level) {
-        try {
-            JSONObject msgOut = new JSONObject(); 
-            msgOut.put("cmd", "error");
-            msgOut.put("level", level);
-            msgOut.put("msg", msg);
-            mInfo.postMessage(msgOut);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static void invokeJsCallback(JsContextInfo mInfo, byte[] buffer) {
+        mInfo.postMessage(buffer);
     }
-
-    public void logJs(String msg, String level) {
-        logJs(getJsContextInfo(), msg, level);
+    // In this case, callbackId should be the first 4 bytes of the buffer.
+    public void invokeJsCallback(byte[] buffer) {
+        getJsContextInfo().postMessage(buffer);
     }
 
     /* Trigger JavaScript handlers in Java side.
@@ -116,7 +92,7 @@ public class XWalkExtensionBindingObject {
             msgOut.put("constructorName", mInfo.getConstructorName());
             msgOut.put("objectId", mInfo.getObjectId());
             msgOut.put("type", type);
-            msgOut.put("event", ReflectionHelper.objToJSON(event));
+            msgOut.put("event", ReflectionHelper.toSerializableObject(event));
             mInfo.postMessage(msgOut);
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,7 +128,7 @@ public class XWalkExtensionBindingObject {
         try {
             JSONObject msgOut = new JSONObject();
             msgOut.put("cmd", "updateProperty");
-            msgOut.put("objectId", isStatic ? 0 : mInfo.getObjectId());
+            msgOut.put("objectId", isStatic ? "0" : mInfo.getObjectId());
             msgOut.put("constructorName", mInfo.getConstructorName());
             msgOut.put("name", pName);
             mInfo.postMessage(msgOut);
