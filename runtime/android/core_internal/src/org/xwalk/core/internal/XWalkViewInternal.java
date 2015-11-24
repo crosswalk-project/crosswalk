@@ -229,6 +229,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         initXWalkContent(mContext, null);
     }
 
+    // A View is usually in edit mode when displayed within a developer tool, like Android Studio.
+    // So isInEditMode() should be used inside the corresponding XWalkView constructor.
     /**
      * Constructor for inflating via XML.
      * @param context  a Context object used to access application assets.
@@ -237,6 +239,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});",
+                  "        if (isInEditMode()) return;",
                   "        SurfaceView surfaceView = new SurfaceView(${param1});",
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
