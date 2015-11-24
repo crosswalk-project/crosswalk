@@ -41,6 +41,7 @@
         '../components/components.gyp:user_prefs',
         '../components/components.gyp:visitedlink_browser',
         '../components/components.gyp:visitedlink_renderer',
+        '../components/url_formatter/url_formatter.gyp:url_formatter',
         '../content/content.gyp:content',
         '../content/content.gyp:content_app_both',
         '../content/content.gyp:content_browser',

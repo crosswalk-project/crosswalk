@@ -7,9 +7,9 @@
 #include <string>
 
 #include "base/strings/utf_string_conversions.h"
+#include "components/url_formatter/url_formatter.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 #include "content/public/browser/web_contents.h"
-#include "net/base/net_util.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
@@ -53,7 +53,8 @@ void RuntimeJavaScriptDialogManager::RunJavaScriptDialog(
     return;
   }
 
-  base::string16 new_message_text = net::FormatUrl(origin_url, accept_lang) +
+  base::string16 new_message_text =
+      url_formatter::FormatUrl(origin_url, accept_lang) +
       base::ASCIIToUTF16("\n\n") +
       message_text;
   gfx::NativeWindow parent_window = web_contents->GetTopLevelNativeWindow();
