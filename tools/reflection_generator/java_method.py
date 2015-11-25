@@ -526,21 +526,35 @@ class Method(object):
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
     }
 """)
-    else :
+    elif self._is_abstract:
       template = Template("""\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         ${GENERIC_TYPE_DECLARE}${RETURN}${METHOD_DECLARE_NAME}.invoke(\
 ${PARAMS_PASSING});
     }
 """)
+    else :
+      template = Template("""\
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        if (${METHOD_DECLARE_NAME}.isNull()) {
+            ${RETURN_SUPER}${NAME}Super(${PARAMS_PASSING_SUPER});
+        } else {
+            ${GENERIC_TYPE_DECLARE}${RETURN}${METHOD_DECLARE_NAME}.invoke(\
+${PARAMS_PASSING});
+        }
+    }
+""")
 
     if self._method_return == 'void':
       return_statement = ''
+      return_statement_super = ''
     elif return_is_internal:
       return_statement = 'return (%s)' % return_type_java_data.bridge_name
+      return_statement_super = 'return '
     else:
       return_statement = ('return (%s)' %
           ConvertPrimitiveTypeToObject(self.method_return))
+      return_statement_super = 'return '
 
     # Handling generic types, current only ValueCallback will be handled.
     generic_type_declare = ''
@@ -549,7 +563,7 @@ ${PARAMS_PASSING});
       if typed_param.generic_type != 'ValueCallback':
         continue
       if typed_param.contains_internal_class:
-        generic_type_declare += 'final %s %sFinal = %s;\n        ' % (
+        generic_type_declare += 'final %s %sFinal = %s;\n            ' % (
             typed_param.expression, param_name, param_name)
 
     value = {'RETURN_TYPE': self.method_return,
@@ -557,7 +571,9 @@ ${PARAMS_PASSING});
              'METHOD_DECLARE_NAME': self._method_declare_name,
              'PARAMS': self._bridge_params_declare,
              'RETURN': return_statement,
+             'RETURN_SUPER': return_statement_super,
              'GENERIC_TYPE_DECLARE': generic_type_declare,
+             'PARAMS_PASSING_SUPER': self._bridge_params_pass_to_super,
              'PARAMS_PASSING': self._bridge_params_pass_to_wrapper}
     return template.substitute(value)
 
