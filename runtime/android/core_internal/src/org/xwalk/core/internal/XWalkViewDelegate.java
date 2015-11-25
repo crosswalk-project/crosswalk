@@ -117,7 +117,7 @@ class XWalkViewDelegate {
             throws UnsatisfiedLinkError {
         if (sLibraryLoaded) return true;
 
-        if (libDir != null) {
+        if ((libDir != null) && (sRunningOnIA == nativeIsLibraryBuiltForIA())) {
             for (String library : MANDATORY_LIBRARIES) {
                 System.load(libDir + File.separator + "lib" + library + ".so");
             }
