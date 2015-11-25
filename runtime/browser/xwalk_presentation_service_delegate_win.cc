@@ -440,12 +440,13 @@ void PresentationFrame::OnPresentationSessionClosed(
 
 void PresentationFrame::OnDisplayInfoChanged(
     const std::vector<DisplayInfo>& info_list) {
-  if (!session_) {
-    if (screen_listener_)
-      screen_listener_->OnScreenAvailabilityChanged(
-          DisplayInfoManager::GetInstance()->FindAvailable() != nullptr);
-    return;
+  if (screen_listener_) {
+    screen_listener_->OnScreenAvailabilityChanged(
+      DisplayInfoManager::GetInstance()->FindAvailable() != nullptr);
   }
+
+  if (!session_)
+    return;
   bool display_found = false;
   for (const DisplayInfo& info : info_list) {
     if (session_->display_id() == info.id) {
@@ -456,7 +457,6 @@ void PresentationFrame::OnDisplayInfoChanged(
   if (!display_found) {
     // The display has been disconnected.
     session_->Close();
-    screen_listener_->OnScreenAvailabilityChanged(false);
   }
 }
 
@@ -466,6 +466,10 @@ bool PresentationFrame::SetScreenAvailabilityListener(
     return false;
 
   screen_listener_ = listener;
+  if (screen_listener_) {
+    screen_listener_->OnScreenAvailabilityChanged(
+        DisplayInfoManager::GetInstance()->FindAvailable() != nullptr);
+  }
   return true;
 }
 
@@ -617,7 +621,7 @@ void XWalkPresentationServiceDelegateWin::StartSession(
   }
 
   RenderFrameHostId render_frame_host_id(render_process_id, render_frame_id);
-  const std::string presentation_id = base::GenerateGUID();
+  const std::string& presentation_id = base::GenerateGUID();
 
   PresentationSession::CreateParams params = {};
   params.display_info = *available_monitor;
