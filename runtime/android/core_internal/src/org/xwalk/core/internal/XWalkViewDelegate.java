@@ -105,6 +105,11 @@ class XWalkViewDelegate {
         }
     }
 
+    // Keep this function to preserve backward compatibility.
+    public static boolean loadXWalkLibrary(Context context) {
+        return loadXWalkLibrary(context, null);
+    }
+
     // If context is null, it's running in embedded mode, otherwise in shared mode.
     public static boolean loadXWalkLibrary(Context context, String libDir)
             throws UnsatisfiedLinkError {
