@@ -216,6 +216,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.password_echo_enabled =
       Java_XWalkSettingsInternal_getPasswordEchoEnabledLocked(env, obj);
 
+  prefs.double_tap_to_zoom_enabled =
+      Java_XWalkSettingsInternal_supportsDoubleTapZoomLocked(env, obj);
+
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   prefs.allow_running_insecure_content =
       command_line->HasSwitch(switches::kAllowRunningInsecureContent);
