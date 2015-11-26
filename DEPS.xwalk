@@ -27,7 +27,7 @@ ozone_wayland_rev = '1cde4077b26fb5cbb2661b465b496550a587df55'
 # the blink-crosswalk repository, so that the devtools code can use it to fetch
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
-blink_crosswalk_rev = 'e1aaba5afe61e8af87b57e8741cd414024810d22'
+blink_crosswalk_rev = 'a0cc2966ca84c8251e46c15c87382f183cf56238'
 blink_upstream_rev = '200670'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
