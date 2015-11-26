@@ -30,6 +30,7 @@ CLASSES_TO_BE_PROCESS = [
     'XWalkCookieManagerInternal',
     'XWalkDownloadListenerInternal',
     'XWalkExtensionInternal',
+    'XWalkGetBitmapCallbackInternal',
     'XWalkHttpAuthHandlerInternal',
     'XWalkViewInternal',
     'XWalkUIClientInternal',
