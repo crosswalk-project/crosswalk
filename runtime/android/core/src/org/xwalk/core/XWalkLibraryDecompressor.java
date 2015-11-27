@@ -106,7 +106,7 @@ class XWalkLibraryDecompressor {
         return true;
     }
 
-    private static void decodeWithLzma(InputStream input, OutputStream output) throws IOException {
+    static void decodeWithLzma(InputStream input, OutputStream output) throws IOException {
         final int propSize = 5;
         final int outSizeLength = 8;
 
