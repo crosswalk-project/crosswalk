@@ -64,6 +64,10 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
                        const std::string& account,
                        const std::string& args) override;
 
+  void OnReceivedResponseHeaders(
+    const net::URLRequest* request,
+    const net::HttpResponseHeaders* response_headers) override;
+
  private:
   bool pending_association_;
   base::android::ScopedJavaGlobalRef<jobject> java_object_;

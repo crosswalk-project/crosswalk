@@ -25,6 +25,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "jni/XWalkContentsIoThreadClient_jni.h"
 #include "net/http/http_request_headers.h"
+#include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"
 #include "url/gurl.h"
 #include "xwalk/runtime/browser/android/xwalk_web_resource_response_impl.h"
@@ -152,6 +153,38 @@ void ClientMapEntryUpdater::RenderFrameDeleted(RenderFrameHost* rfh) {
 void ClientMapEntryUpdater::WebContentsDestroyed() {
   delete this;
 }
+
+struct WebResourceRequest {
+  ScopedJavaLocalRef<jstring> jstring_url;
+  bool is_main_frame;
+  bool has_user_gesture;
+  ScopedJavaLocalRef<jstring> jstring_method;
+  ScopedJavaLocalRef<jobjectArray> jstringArray_header_names;
+  ScopedJavaLocalRef<jobjectArray> jstringArray_header_values;
+
+  WebResourceRequest(JNIEnv* env, const net::URLRequest* request)
+      : jstring_url(ConvertUTF8ToJavaString(env, request->url().spec())),
+        jstring_method(ConvertUTF8ToJavaString(env, request->method())) {
+    const content::ResourceRequestInfo* info =
+        content::ResourceRequestInfo::ForRequest(request);
+    is_main_frame =
+        info && info->GetResourceType() == content::RESOURCE_TYPE_MAIN_FRAME;
+    has_user_gesture = info && info->HasUserGesture();
+
+    vector<string> header_names;
+    vector<string> header_values;
+    net::HttpRequestHeaders headers;
+    if (!request->GetFullRequestHeaders(&headers))
+      headers = request->extra_request_headers();
+    net::HttpRequestHeaders::Iterator headers_iterator(headers);
+    while (headers_iterator.GetNext()) {
+      header_names.push_back(headers_iterator.name());
+      header_values.push_back(headers_iterator.value());
+    }
+    jstringArray_header_names = ToJavaArrayOfStrings(env, header_names);
+    jstringArray_header_values = ToJavaArrayOfStrings(env, header_values);
+  }
+};
 
 }  // namespace
 
@@ -367,6 +400,59 @@ void XWalkContentsIoThreadClientImpl::NewLoginRequest(
 
   Java_XWalkContentsIoThreadClient_newLoginRequest(
       env, java_object_.obj(), jrealm.obj(), jaccount.obj(), jargs.obj());
+}
+
+void XWalkContentsIoThreadClientImpl::OnReceivedResponseHeaders(
+    const net::URLRequest* request,
+    const net::HttpResponseHeaders* response_headers) {
+  DCHECK_CURRENTLY_ON(BrowserThread::IO);
+  if (java_object_.is_null())
+    return;
+
+  JNIEnv* env = AttachCurrentThread();
+  WebResourceRequest web_request(env, request);
+
+  vector<string> response_header_names;
+  vector<string> response_header_values;
+  {
+    void* headers_iterator = NULL;
+    string header_name, header_value;
+    while (response_headers->EnumerateHeaderLines(
+        &headers_iterator, &header_name, &header_value)) {
+      response_header_names.push_back(header_name);
+      response_header_values.push_back(header_value);
+    }
+  }
+
+  string mime_type, encoding;
+  response_headers->GetMimeTypeAndCharset(&mime_type, &encoding);
+  ScopedJavaLocalRef<jstring> jstring_mime_type =
+      ConvertUTF8ToJavaString(env, mime_type);
+  ScopedJavaLocalRef<jstring> jstring_encoding =
+      ConvertUTF8ToJavaString(env, encoding);
+  int status_code = response_headers->response_code();
+  ScopedJavaLocalRef<jstring> jstring_reason =
+      ConvertUTF8ToJavaString(env, response_headers->GetStatusText());
+  ScopedJavaLocalRef<jobjectArray> jstringArray_response_header_names =
+      ToJavaArrayOfStrings(env, response_header_names);
+  ScopedJavaLocalRef<jobjectArray> jstringArray_response_header_values =
+      ToJavaArrayOfStrings(env, response_header_values);
+
+  Java_XWalkContentsIoThreadClient_onReceivedResponseHeaders(
+      env,
+      java_object_.obj(),
+      web_request.jstring_url.obj(),
+      web_request.is_main_frame,
+      web_request.has_user_gesture,
+      web_request.jstring_method.obj(),
+      web_request.jstringArray_header_names.obj(),
+      web_request.jstringArray_header_values.obj(),
+      jstring_mime_type.obj(),
+      jstring_encoding.obj(),
+      status_code,
+      jstring_reason.obj(),
+      jstringArray_response_header_names.obj(),
+      jstringArray_response_header_values.obj());
 }
 
 bool RegisterXWalkContentsIoThreadClientImpl(JNIEnv* env) {

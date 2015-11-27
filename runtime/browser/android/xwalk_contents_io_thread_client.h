@@ -12,6 +12,7 @@
 class GURL;
 
 namespace net {
+class HttpResponseHeaders;
 class URLRequest;
 }
 
@@ -99,6 +100,10 @@ class XWalkContentsIoThreadClient {
   virtual void NewLoginRequest(const std::string& realm,
                                const std::string& account,
                                const std::string& args) = 0;
+
+  virtual void OnReceivedResponseHeaders(
+    const net::URLRequest* request,
+    const net::HttpResponseHeaders* response_headers) = 0;
 };
 
 }  // namespace xwalk
