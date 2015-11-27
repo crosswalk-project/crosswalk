@@ -852,7 +852,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     /**
      * Capture a bitmap of visible content.
-     * @param XWalkGetBitmapCallbackInternal callback when bitmap capture is done.
+     * @param callback callback to call when the bitmap capture is done.
      * @since 6.0
      */
     @XWalkAPI
