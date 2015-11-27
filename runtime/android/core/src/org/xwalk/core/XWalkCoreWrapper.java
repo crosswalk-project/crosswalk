@@ -342,7 +342,11 @@ class XWalkCoreWrapper {
             }
         } catch (RuntimeException e) {
             Log.d(TAG, e.getLocalizedMessage());
-            mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
+            if (e.getCause() instanceof UnsatisfiedLinkError) {
+                mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
+            } else {
+                mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
+            }
             return false;
         }
 
