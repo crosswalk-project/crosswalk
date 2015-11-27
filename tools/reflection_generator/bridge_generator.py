@@ -114,6 +114,7 @@ ${REFLECTION_INIT_SECTION}}
       ref_init_templete = Template("""
         ReflectConstructor constructor = new ReflectConstructor(
                 coreBridge.getWrapperClass("${WRAPPER_NAME}"), Object.class);
+        if (constructor.isNull()) return;
         this.wrapper = constructor.newInstance(this);
 """)
       value = {'WRAPPER_NAME': self._java_data.GetWrapperName()}
