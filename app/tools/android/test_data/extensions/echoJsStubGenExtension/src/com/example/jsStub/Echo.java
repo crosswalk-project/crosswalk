@@ -30,7 +30,7 @@ import org.xwalk.app.runtime.extension.*;
  *   removeEventListener: [Function], interface method as an EventTarget
  * }
  */
-public class Echo extends XWalkExtensionBindingObject {
+public class Echo extends BindingObjectAutoJS {
 
   // Expose a read only JS property.
   @JsApi
@@ -44,10 +44,6 @@ public class Echo extends XWalkExtensionBindingObject {
   @JsApi(isEventList = true)
   public static String[] events = {"updatePrefix", "click", "newStudent"};
 
-  public Echo(XWalkExtensionClient eClient) {
-    super(eClient);
-  }
-  
   // In some cases, Java objects need to be passed to JavaScript,
   // such as: arguments passed to "invokeJsCallback",
   // event data passed to "dispatchEvent", etc.
@@ -141,19 +137,19 @@ public class Echo extends XWalkExtensionBindingObject {
 
   // Expose an async JS method with callback.
   @JsApi
-  public void getPrefix(JSONObject callbackInfo) {
-    invokeJsCallback(callbackInfo, null, writablePrefix);
+  public void getPrefix(String callbackId) {
+    invokeJsCallback(callbackId, writablePrefix);
     return;
   }
 
   // Expose a JS method returns promise.
   @JsApi(withPromise = true)
-  public void getPrefixPromise(JSONObject promise) {
+  public void getPrefixPromise(String callbackId) {
     Boolean flag = true;
     if (flag)
-      invokeJsCallback(promise, "resolve", writablePrefix);
+      invokeJsCallback(callbackId, writablePrefix, "");
     else
-      invokeJsCallback(promise, "reject", writablePrefix);
+      invokeJsCallback(callbackId, "", "OnError in getPrefixPromise");
     return;
   }
 }

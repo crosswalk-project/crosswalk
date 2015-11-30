@@ -32,13 +32,16 @@ public class XWalkExtensionClient {
     // The Entry points that will trigger the extension loading
     protected String[] mEntryPoints;
 
+    private Map<Integer, ExtensionInstanceHelper> instanceHelpers;
+
     // The context used by extensions.
     protected XWalkExtensionContextClient mExtensionContext;
 
-    private Map<Integer, XWalkExtensionBindingObjectStore> instanceStores;
-
     // Reflection for JS stub generation
-    protected ReflectionHelper reflection;
+    protected ReflectionHelper mReflection;
+
+    protected boolean useJsStubGeneration;
+    protected MessageHandler mHandler;
 
     /**
      * Constructor with the information of an extension.
@@ -67,15 +70,20 @@ public class XWalkExtensionClient {
         mJsApi = jsApi;
         mEntryPoints = entryPoints;
         mExtensionContext = context;
-        reflection = new ReflectionHelper(this.getClass());
-        instanceStores = new HashMap<Integer, XWalkExtensionBindingObjectStore>();
+        instanceHelpers = new HashMap<Integer, ExtensionInstanceHelper>();
+        mHandler = new MessageHandler();
 
         if (mJsApi == null || mJsApi.length() == 0) {
-            mJsApi = new JsStubGenerator(reflection).generate();
+            useJsStubGeneration = true;
+            mReflection = new ReflectionHelper(this.getClass());
+            mJsApi = new JsStubGenerator(mReflection).generate();
             if (mJsApi == null || mJsApi.length() == 0) {
                 Log.e("Extension-" + mName, "Can't generate JavaScript stub for this extension.");
                 return;
             }
+        } else {
+            mReflection = null;
+            useJsStubGeneration = false;
         }
         mExtensionContext.registerExtension(this);
     }
@@ -151,21 +159,19 @@ public class XWalkExtensionClient {
      * Called when a new extension instance is created.
      */
     public void onInstanceCreated(int instanceID) {
-        instanceStores.put(instanceID, new XWalkExtensionBindingObjectStore(this, instanceID));
+        instanceHelpers.put(instanceID,
+                new ExtensionInstanceHelper(this, instanceID));
     }
 
     /**
      * Called when a extension instance is destroyed.
      */
     public void onInstanceDestroyed(int instanceID) {
-        instanceStores.remove(instanceID);
+        instanceHelpers.remove(instanceID);
     }
 
-    /**
-     * Get the binding object store by instance ID.
-     */
-    public XWalkExtensionBindingObjectStore getInstanceStore(int instanceID) {
-        return instanceStores.get(instanceID);
+    public boolean isAutoJS() {
+        return useJsStubGeneration;
     }
 
     /**
@@ -176,7 +182,9 @@ public class XWalkExtensionClient {
      * @param message the message from JavaScript code.
      */
     public void onMessage(int extensionInstanceID, String message) {
-        handleMessage(extensionInstanceID, message);
+        if (useJsStubGeneration) {
+            getInstanceHelper(extensionInstanceID).handleMessage(message);
+        }
     }
 
     /**
@@ -187,7 +195,11 @@ public class XWalkExtensionClient {
      * @param extensionInstanceID the ID of extension instance where the message came from.
      * @param message the binary message from JavaScript code.
      */
-    public void onBinaryMessage(int extensionInstanceID, byte[] message) {}
+    public void onBinaryMessage(int extensionInstanceID, byte[] message) {
+        if (useJsStubGeneration) {
+            getInstanceHelper(extensionInstanceID).handleMessage(message);
+        }
+    }
 
     /**
      * Synchronized JavaScript calls into Java code. Similar to
@@ -197,75 +209,28 @@ public class XWalkExtensionClient {
      * @param message the message from JavaScript code.
      */
     public String onSyncMessage(int extensionInstanceID, String message) {
-        Object result = handleMessage(extensionInstanceID, message);
+        Object result = null;
+        if (useJsStubGeneration) {
+            result = getInstanceHelper(extensionInstanceID).handleMessage(message);
+        }
         return (result != null) ? ReflectionHelper.objToJSON(result): "";
     }
 
-    public ReflectionHelper getTargetReflect(String cName) {
-        ReflectionHelper targetReflect = reflection.getConstructorReflection(cName);
-        return (targetReflect != null)? targetReflect : reflection;
+    public ReflectionHelper getReflection() {
+        return mReflection;
+    }
+
+    public MessageHandler getMessageHandler() {
+        return mHandler;
     }
     
-    Object handleMessage(int extensionInstanceID, String message) {
-        String TAG = "Extension-" + mName;
-        try {
-            JSONObject m = new JSONObject(message);
-            String cmd = m.getString("cmd");
-            int objectId = m.getInt("objectId");
-
-            if (cmd.equals("jsObjectCollected")) {
-                XWalkExtensionBindingObject obj =
-                        getInstanceStore(extensionInstanceID).removeBindingObject(objectId);
-                return null;
-            } else if (cmd.equals("newInstance")) {
-                XWalkExtensionBindingObject instance = (XWalkExtensionBindingObject)(reflection.invokeMethod(
-                        this, extensionInstanceID, this, m.getString("name"), m.getJSONArray("args")));
-                if (instance == null) return false;
-
-                int newObjectId = m.getInt("bindingObjectId");
-                return getInstanceStore(extensionInstanceID).addBindingObject(newObjectId, instance);
-            } else {
-                /*
-                 * 1. message to the extension itself,  objectId:0,    cName:""
-                 * 2. message to constructor,           objectId:0,    cName:[Its exported JS name]
-                 * 3, message to object,                objectId:[>1], cName:[Its constructor's JS name]
-                 */
-                String cName = m.getString("constructorJsName");
-                Object targetObj = null;
-                if (objectId == 0) {
-                    targetObj = (cName.length() == 0) ? this : null;
-                } else {
-                    targetObj = getInstanceStore(extensionInstanceID).getBindingObject(objectId);
-                }
-                return getTargetReflect(cName).handleMessage(this, extensionInstanceID, targetObj, m);
-            }
-        } catch (Exception e) {
-            if (e instanceof JSONException) {
-                Log.w(TAG, "Invalid message, error msg:\n" + e.toString());
-            } else if (e instanceof IllegalArgumentException) {
-                logJs(extensionInstanceID, e.toString(), "warn");
-            } else {
-                Log.w(TAG, "Failed to access member, error msg:\n" + e.toString());
-            }
-            e.printStackTrace();
-        }
-        return null;
+    public ReflectionHelper getTargetReflect(String cName) {
+        ReflectionHelper targetReflect = mReflection.getConstructorReflection(cName);
+        return (targetReflect != null) ? targetReflect : mReflection;
     }
 
-    protected Object getBindingStore(int instanceId) {
-       return instanceStores.get(instanceId);
-    }
-
-    private void logJs(int instanceId, String msg, String level) {
-        try {
-            JSONObject msgOut = new JSONObject(); 
-            msgOut.put("cmd", "error");
-            msgOut.put("level", level);
-            msgOut.put("msg", msg);
-            postMessage(instanceId, msgOut.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected ExtensionInstanceHelper getInstanceHelper(int instanceId) {
+        return instanceHelpers.get(instanceId);
     }
 
     public void sendEvent(String type, Object event) {
