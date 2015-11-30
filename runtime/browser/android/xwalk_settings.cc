@@ -5,7 +5,6 @@
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
 
 #include <string>
-
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "base/command_line.h"
@@ -75,7 +74,6 @@ struct XWalkSettings::FieldIds {
     spatial_navigation_enabled =
         GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
     }
-
   // Field ids
   jfieldID allow_scripts_to_close_windows;
   jfieldID load_images_automatically;
