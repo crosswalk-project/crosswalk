@@ -40,6 +40,7 @@ CLASSES_TO_BE_PROCESS = [
     'XWalkNativeExtensionLoaderInternal',
     'XWalkJavascriptResultHandlerInternal',
     'XWalkJavascriptResultInternal',
+    'XWalkSettingsInternal',
     'ClientCertRequestHandlerInternal',
     'ClientCertRequestInternal',
 ]

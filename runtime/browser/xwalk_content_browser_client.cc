@@ -15,6 +15,7 @@
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/child_process_data.h"
 #include "content/public/browser/client_certificate_delegate.h"
+#include "content/public/browser/presentation_service_delegate.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
@@ -75,6 +76,10 @@
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_mac.h"
 #endif
 
+#if defined(OS_WIN)
+#include "xwalk/runtime/browser/xwalk_presentation_service_delegate_win.h"
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -88,7 +93,6 @@ XWalkContentBrowserClient* g_browser_client = nullptr;
 XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
   return g_browser_client;
 }
-
 
 XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
     : xwalk_runner_(xwalk_runner),
@@ -407,6 +411,16 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
 #if !defined(OS_ANDROID)
   if (site.SchemeIs(application::kApplicationScheme))
     *partition_domain = site.host();
+#endif
+}
+
+content::PresentationServiceDelegate* XWalkContentBrowserClient::
+    GetPresentationServiceDelegate(content::WebContents* web_contents) {
+#if defined(OS_WIN)
+  return XWalkPresentationServiceDelegateWin::
+      GetOrCreateForWebContents(web_contents);
+#else
+  return nullptr;
 #endif
 }
 

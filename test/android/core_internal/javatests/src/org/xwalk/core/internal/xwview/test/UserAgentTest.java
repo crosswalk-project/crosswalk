@@ -17,7 +17,7 @@ import org.apache.http.HttpRequest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.internal.XWalkClient;
-import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkSettingsInternal;
 import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
@@ -29,11 +29,11 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
         super.setUp();
     }
 
-    protected XWalkSettings getXWalkSettingsOnUiThread(
+    protected XWalkSettingsInternal getXWalkSettingsOnUiThread(
             ) throws Exception {
-        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettingsInternal>() {
             @Override
-            public XWalkSettings call() throws Exception {
+            public XWalkSettingsInternal call() throws Exception {
                 return getXWalkView().getSettings();
             }
         });
@@ -42,7 +42,7 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
     @SmallTest
     @Feature({"UserAgent"})
     public void testUserAgent() throws Throwable {
-        XWalkSettings settings = getXWalkSettingsOnUiThread();
+        XWalkSettingsInternal settings = getXWalkSettingsOnUiThread();
         final String defaultUserAgentString = settings.getUserAgentString();
 
         // Check that an attempt to set the default UA string to null or "" has no effect.
@@ -66,7 +66,7 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
     @MediumTest
     @Feature({"UserAgent"})
     public void testUserAgentWithTestServer() throws Throwable {
-        XWalkSettings settings = getXWalkSettingsOnUiThread();
+        XWalkSettingsInternal settings = getXWalkSettingsOnUiThread();
         final String customUserAgentString =
                 "testUserAgentWithTestServerUserAgent";
 

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.chromium.base.test.util.Feature;
 import org.chromium.base.test.util.UrlUtils;
 import org.xwalk.core.internal.XWalkClient;
-import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkSettingsInternal;
 import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 
@@ -27,7 +27,7 @@ public class SetDomStorageEnabledTest extends XWalkViewInternalTestBase {
 
     abstract class XWalkViewSettingsTestHelper<T> {
         protected final XWalkViewInternal mXWalkViewInternal;
-        protected final XWalkSettings mXWalkSettings;
+        protected final XWalkSettingsInternal mXWalkSettings;
 
         XWalkViewSettingsTestHelper(XWalkViewInternal xWalkContent,
                 boolean requiresJsEnabled) throws Throwable {

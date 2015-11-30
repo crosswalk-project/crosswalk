@@ -179,6 +179,10 @@
         'runtime/browser/runtime_geolocation_permission_context.h',
         'runtime/browser/runtime_javascript_dialog_manager.cc',
         'runtime/browser/runtime_javascript_dialog_manager.h',
+        'runtime/browser/runtime_javascript_dialog.h',
+        'runtime/browser/runtime_javascript_dialog.cc',
+        'runtime/browser/runtime_javascript_dialog_win.h',
+        'runtime/browser/runtime_javascript_dialog_win.cc',
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
@@ -252,6 +256,8 @@
         'runtime/browser/xwalk_platform_notification_service.h',
         'runtime/browser/xwalk_pref_store.cc',
         'runtime/browser/xwalk_pref_store.h',
+        'runtime/browser/xwalk_presentation_service_delegate_win.cc',
+        'runtime/browser/xwalk_presentation_service_delegate_win.h',
         'runtime/browser/xwalk_render_message_filter.cc',
         'runtime/browser/xwalk_render_message_filter.h',
         'runtime/browser/xwalk_runner.cc',
@@ -678,7 +684,7 @@
         ['OS=="win"', {
           'sources': [
             '../content/app/startup_helper_win.cc', # Needed by InitializedSandbox
-            'runtime/resources/xwalk.rc',
+            'runtime/resources/xwalk.rc'
           ],
           'configurations': {
             'Debug_Base': {

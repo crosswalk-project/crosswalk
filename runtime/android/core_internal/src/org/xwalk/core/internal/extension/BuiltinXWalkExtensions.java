@@ -15,6 +15,7 @@ import org.xwalk.core.internal.extension.api.device_capabilities.DeviceCapabilit
 import org.xwalk.core.internal.extension.api.launchscreen.LaunchScreenExtension;
 import org.xwalk.core.internal.extension.api.messaging.Messaging;
 import org.xwalk.core.internal.extension.api.presentation.PresentationExtension;
+import org.xwalk.core.internal.extension.api.wifidirect.WifiDirect;
 
 import android.app.Activity;
 import android.content.Context;
@@ -87,6 +88,18 @@ public class BuiltinXWalkExtensions {
                         new Messaging(jsApiContent, activity));
             } catch(IOException e) {
                 Log.w(TAG, "Failed to read JS API file: " + Messaging.JS_API_PATH);
+            }
+        }
+
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getExtensionJSFileContent(
+                        context, WifiDirect.JS_API_PATH, true);
+                sBuiltinExtensions.put(WifiDirect.JS_API_PATH,
+                        new WifiDirect(jsApiContent, activity));
+            } catch(IOException e) {
+                Log.w(TAG, "Failed to read JS API file: " + WifiDirect.JS_API_PATH);
             }
         }
     }

@@ -5,16 +5,21 @@
 package org.xwalk.core;
 
 import android.app.Activity;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import android.view.Window;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
 import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
+import org.xwalk.core.XWalkUpdater.XWalkBackgroundUpdateListener;
 import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
 public class XWalkActivityDelegate
-            implements DecompressListener, ActivateListener, XWalkUpdateListener {
+            implements DecompressListener, ActivateListener {
     private static final String TAG = "XWalkActivity";
+    private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
 
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
@@ -26,16 +31,54 @@ public class XWalkActivityDelegate
     private boolean mIsXWalkReady;
     private boolean mBackgroundDecorated;
     private boolean mWillDecompress;
+    private final boolean mIsDownloadMode;
 
     public XWalkActivityDelegate(Activity activity,
             Runnable cancelCommand, Runnable completeCommand) {
         mActivity = activity;
         mCancelCommand = cancelCommand;
         mCompleteCommand = completeCommand;
+        mIsDownloadMode = isDownloadModeEnabled();
 
-        mDialogManager = new XWalkDialogManager(mActivity);
-        mXWalkUpdater = new XWalkUpdater(this, mActivity, mDialogManager);
+        if (mIsDownloadMode) {
+            mXWalkUpdater = new XWalkUpdater(
+                new XWalkBackgroundUpdateListener() {
+                    @Override
+                    public void onXWalkUpdateStarted() {
+                    }
 
+                    @Override
+                    public void onXWalkUpdateProgress(int percentage) {
+                    }
+
+                    @Override
+                    public void onXWalkUpdateCancelled() {
+                        mCancelCommand.run();
+                    }
+
+                    @Override
+                    public void onXWalkUpdateFailed() {
+                        mCancelCommand.run();
+                    }
+
+                    @Override
+                    public void onXWalkUpdateCompleted() {
+                        XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this, mActivity);
+                    }
+                },
+                mActivity);
+        } else {
+            mDialogManager = new XWalkDialogManager(mActivity);
+            mXWalkUpdater = new XWalkUpdater(
+                new XWalkUpdateListener() {
+                    @Override
+                    public void onXWalkUpdateCancelled() {
+                        mCancelCommand.run();
+                    }
+                },
+                mActivity,
+                mDialogManager);
+        }
         XWalkLibraryLoader.prepareToInit(mActivity);
     }
 
@@ -45,6 +88,10 @@ public class XWalkActivityDelegate
 
     public boolean isSharedMode() {
         return mIsXWalkReady && XWalkLibraryLoader.isSharedLibrary();
+    }
+
+    public boolean isDownloadMode() {
+        return mIsDownloadMode;
     }
 
     public void setXWalkApkUrl(String url) {
@@ -103,7 +150,7 @@ public class XWalkActivityDelegate
     public void onActivateFailed() {
         mIsInitializing = false;
 
-        if (mXWalkUpdater.updateXWalkRuntime()) {
+        if (mXWalkUpdater.updateXWalkRuntime() && !mIsDownloadMode) {
             // Set the background to screen_background_dark temporarily if the default background
             // is null in order to avoid the visual artifacts around the alert dialog
             Window window = mActivity.getWindow();
@@ -117,7 +164,9 @@ public class XWalkActivityDelegate
 
     @Override
     public void onActivateCompleted() {
-        if (mDialogManager.isShowingDialog()) mDialogManager.dismissDialog();
+        if (mDialogManager != null && mDialogManager.isShowingDialog()) {
+            mDialogManager.dismissDialog();
+        }
 
         if (mBackgroundDecorated) {
             Log.d(TAG, "Recover the background");
@@ -130,8 +179,14 @@ public class XWalkActivityDelegate
         mCompleteCommand.run();
     }
 
-    @Override
-    public void onXWalkUpdateCancelled() {
-        mCancelCommand.run();
+    private boolean isDownloadModeEnabled() {
+        try {
+            ApplicationInfo appInfo = mActivity.getPackageManager().getApplicationInfo(
+                    mActivity.getPackageName(), PackageManager.GET_META_DATA);
+            String enableStr = appInfo.metaData.getString(META_XWALK_ENABLE_DOWNLOAD_MODE);
+            return enableStr.equalsIgnoreCase("enable");
+        } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return false;
     }
 }
