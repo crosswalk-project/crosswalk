@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_FORM_DATABASE_SERVICE_H_
-#define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_FORM_DATABASE_SERVICE_H_
+#ifndef XWALK_RUNTIME_BROWSER_XWALK_FORM_DATABASE_SERVICE_H_
+#define XWALK_RUNTIME_BROWSER_XWALK_FORM_DATABASE_SERVICE_H_
 
 #include <map>
 
@@ -66,4 +66,4 @@ class XWalkFormDatabaseService : public WebDataServiceConsumer {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_FORM_DATABASE_SERVICE_H_
+#endif  // XWALK_RUNTIME_BROWSER_XWALK_FORM_DATABASE_SERVICE_H_

@@ -82,7 +82,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private NavigationController mNavigationController;
     private WebContents mWebContents;
     private boolean mIsLoaded = false;
-    private XWalkAutofillClient mXWalkAutofillClient;
+    private XWalkAutofillClientAndroid mXWalkAutofillClient;
     private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
     private ContentReadbackHandler mContentReadbackHandler;
     private GetBitmapCallback mGetBitmapCallback;
@@ -938,7 +938,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     @CalledByNative
-    private void setXWalkAutofillClient(XWalkAutofillClient client) {
+    private void setXWalkAutofillClient(XWalkAutofillClientAndroid client) {
         mXWalkAutofillClient = client;
         client.init(mContentViewCore);
     }

@@ -3,9 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/android/xwalk_form_database_service.h"
+#include "xwalk/runtime/browser/xwalk_form_database_service.h"
 
-#include "base/android/locale_utils.h"
 #include "base/logging.h"
 #include "base/synchronization/waitable_event.h"
 #include "components/autofill/core/browser/webdata/autofill_table.h"

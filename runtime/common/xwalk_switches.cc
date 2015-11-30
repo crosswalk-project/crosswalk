@@ -33,6 +33,9 @@ const char kXWalkDataPath[] = "data-path";
 // Specifies if remote inspector can be opened when right clicking on the
 // application.
 const char kXWalkEnableInspector[] = "enable-inspector";
+
+// Specifies if XWalk should disable form data completion.
+const char kXWalkDisableSaveFormData[] = "disable-save-form-data";
 #endif
 
 #if defined(OS_ANDROID)

@@ -26,7 +26,9 @@
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
+#include "xwalk/runtime/browser/xwalk_autofill_manager.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -58,6 +60,11 @@ Runtime::Runtime(content::WebContents* web_contents)
       observer_(nullptr),
       weak_ptr_factory_(this) {
   web_contents_->SetDelegate(this);
+#if !defined(OS_ANDROID)
+  if (XWalkBrowserContext::GetDefault()->save_form_data())
+    xwalk_autofill_manager_.reset(
+        new XWalkAutofillManager(web_contents_.get()));
+#endif
 }
 
 Runtime::~Runtime() {

@@ -80,11 +80,12 @@ void HandleReadError(PersistentPrefStore::PrefReadError error) {
 }
 
 XWalkBrowserContext::XWalkBrowserContext()
-  : resource_context_(new RuntimeResourceContext) {
+  : resource_context_(new RuntimeResourceContext),
+    save_form_data_(true) {
   InitWhileIOAllowed();
+  InitFormDatabaseService();
 #if defined(OS_ANDROID)
   InitVisitedLinkMaster();
-  InitFormDatabaseService();
 #endif
   CHECK(!g_browser_context);
   g_browser_context = this;
@@ -319,6 +320,51 @@ net::URLRequestContextGetter*
 #endif
 }
 
+XWalkFormDatabaseService* XWalkBrowserContext::GetFormDatabaseService() {
+  return form_database_service_.get();
+}
+
+// Create user pref service for autofill functionality.
+void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
+  if (user_pref_service_) return;
+
+  PrefRegistrySimple* pref_registry = new PrefRegistrySimple();
+  pref_registry->RegisterStringPref("intl.accept_languages", "");
+
+  // We only use the autocomplete feature of the Autofill, which is
+  // controlled via the manager_delegate. We don't use the rest
+  // of autofill, which is why it is hardcoded as disabled here.
+  pref_registry->RegisterBooleanPref(
+    autofill::prefs::kAutofillEnabled, false);
+  pref_registry->RegisterDoublePref(
+    autofill::prefs::kAutofillPositiveUploadRate, 0.0);
+  pref_registry->RegisterDoublePref(
+    autofill::prefs::kAutofillNegativeUploadRate, 0.0);
+
+  base::PrefServiceFactory pref_service_factory;
+  pref_service_factory.set_user_prefs(make_scoped_refptr(new XWalkPrefStore()));
+  pref_service_factory.set_read_error_callback(base::Bind(&HandleReadError));
+  user_pref_service_ = pref_service_factory.Create(pref_registry).Pass();
+
+  user_prefs::UserPrefs::Set(this, user_pref_service_.get());
+}
+
+void XWalkBrowserContext::UpdateAcceptLanguages(
+  const std::string& accept_languages) {
+  if (url_request_getter_)
+    url_request_getter_->UpdateAcceptLanguages(accept_languages);
+}
+
+void XWalkBrowserContext::InitFormDatabaseService() {
+  base::FilePath user_data_dir;
+#if defined(OS_ANDROID)
+  CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir));
+#elif defined(OS_WIN)
+  CHECK(PathService::Get(base::DIR_APP_DATA, &user_data_dir));
+#endif
+  form_database_service_.reset(new XWalkFormDatabaseService(user_data_dir));
+}
+
 #if defined(OS_ANDROID)
 void XWalkBrowserContext::SetCSPString(const std::string& csp) {
   // Check format of csp string.
@@ -357,49 +403,6 @@ void XWalkBrowserContext::RebuildTable(
   enumerator->OnComplete(true);
 }
 
-void XWalkBrowserContext::InitFormDatabaseService() {
-  base::FilePath user_data_dir;
-  CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir));
-  form_database_service_.reset(new XWalkFormDatabaseService(user_data_dir));
-}
-
-XWalkFormDatabaseService* XWalkBrowserContext::GetFormDatabaseService() {
-  return form_database_service_.get();
-}
-
-// Create user pref service for autofill functionality.
-void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
-  if (user_pref_service_) return;
-
-  PrefRegistrySimple* pref_registry = new PrefRegistrySimple();
-  pref_registry->RegisterStringPref("intl.accept_languages", "");
-
-  // We only use the autocomplete feature of the Autofill, which is
-  // controlled via the manager_delegate. We don't use the rest
-  // of autofill, which is why it is hardcoded as disabled here.
-  pref_registry->RegisterBooleanPref(
-      autofill::prefs::kAutofillEnabled, false);
-  pref_registry->RegisterDoublePref(
-      autofill::prefs::kAutofillPositiveUploadRate, 0.0);
-  pref_registry->RegisterDoublePref(
-      autofill::prefs::kAutofillNegativeUploadRate, 0.0);
-
-  base::PrefServiceFactory pref_service_factory;
-  pref_service_factory.set_user_prefs(make_scoped_refptr(new XWalkPrefStore()));
-  pref_service_factory.set_read_error_callback(base::Bind(&HandleReadError));
-  user_pref_service_ = pref_service_factory.Create(pref_registry).Pass();
-
-  user_prefs::UserPrefs::Set(this, user_pref_service_.get());
-}
-
-void XWalkBrowserContext::UpdateAcceptLanguages(
-    const std::string& accept_languages) {
-  RuntimeURLRequestContextGetter* url_request_context_getter =
-      url_request_getter_.get();
-  if (!url_request_context_getter)
-    return;
-  url_request_context_getter->UpdateAcceptLanguages(accept_languages);
-}
 #endif
 
 }  // namespace xwalk

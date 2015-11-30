@@ -12,7 +12,6 @@
 #include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/prefs/pref_change_registrar.h"
 #include "content/public/common/permission_status.mojom.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
@@ -25,6 +24,7 @@ class WebContents;
 
 namespace xwalk {
 
+class XWalkAutofillManager;
 class XWalkWebContentsDelegate;
 class XWalkContentsClientBridge;
 
@@ -81,9 +81,6 @@ class XWalkContent {
                                  jboolean value,
                                  jstring origin);
 
-  void CreateUserPrefServiceIfNecessary(content::WebContents* contents);
-  void UpdateRendererPreferences();
-  void InitAutofillIfNecessary(bool enabled);
   void SetXWalkAutofillClient(jobject client);
   void SetSaveFormData(bool enabled);
 
@@ -97,6 +94,7 @@ class XWalkContent {
   scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
   scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
   scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
+  scoped_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
   scoped_ptr<content::WebContents> web_contents_;
   scoped_ptr<XWalkContent> pending_contents_;
 
@@ -107,8 +105,6 @@ class XWalkContent {
           OriginCallback;
   // The first element in the list is always the currently pending request.
   std::list<OriginCallback> pending_geolocation_prompts_;
-
-  PrefChangeRegistrar pref_change_registrar_;
 };
 
 bool RegisterXWalkContent(JNIEnv* env);

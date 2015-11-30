@@ -18,12 +18,8 @@
 #include "base/json/json_writer.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
-#include "base/prefs/pref_service.h"
 #include "base/strings/string_number_conversions.h"
-#include "components/autofill/content/browser/content_autofill_driver_factory.h"
-#include "components/autofill/core/browser/autofill_manager.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
-#include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
@@ -36,18 +32,17 @@
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/state_serializer.h"
-#include "xwalk/runtime/browser/android/xwalk_autofill_client.h"
+#include "xwalk/runtime/browser/android/xwalk_autofill_client_android.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
+#include "xwalk/runtime/browser/xwalk_autofill_manager.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "jni/XWalkContent_jni.h"
 
-using autofill::ContentAutofillDriverFactory;
-using autofill::AutofillManager;
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF8ToJavaString;
 using base::android::ScopedJavaLocalRef;
@@ -67,13 +62,12 @@ const void* kXWalkContentUserDataKey = &kXWalkContentUserDataKey;
 class XWalkContentUserData : public base::SupportsUserData::Data {
  public:
   explicit XWalkContentUserData(XWalkContent* ptr) : content_(ptr) {}
-
   static XWalkContent* GetContents(content::WebContents* web_contents) {
     if (!web_contents)
-      return NULL;
+      return nullptr;
     XWalkContentUserData* data = reinterpret_cast<XWalkContentUserData*>(
-        web_contents->GetUserData(kXWalkContentUserDataKey));
-    return data ? data->content_ : NULL;
+      web_contents->GetUserData(kXWalkContentUserDataKey));
+    return data ? data->content_ : nullptr;
   }
 
  private:
@@ -136,58 +130,7 @@ XWalkContent* XWalkContent::FromWebContents(
 
 XWalkContent::XWalkContent(scoped_ptr<content::WebContents> web_contents)
     : web_contents_(web_contents.Pass()) {
-  WebContents* contents = web_contents_.get();
-  XWalkAutofillClient* autofill_manager_delegate =
-      XWalkAutofillClient::FromWebContents(contents);
-  CreateUserPrefServiceIfNecessary(contents);
-  if (autofill_manager_delegate)
-    InitAutofillIfNecessary(autofill_manager_delegate->GetSaveFormData());
-  PrefService* pref_service =
-      user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
-  pref_change_registrar_.Init(pref_service);
-  if (pref_service) {
-    base::Closure renderer_callback = base::Bind(
-        &XWalkContent::UpdateRendererPreferences, base::Unretained(this));
-    pref_change_registrar_.Add("intl.accept_languages", renderer_callback);
-  }
-}
-
-void XWalkContent::UpdateRendererPreferences() {
-  content::RendererPreferences* prefs =
-      web_contents_->GetMutableRendererPrefs();
-  PrefService* pref_service =
-      user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
-  const std::string accept_languages =
-      pref_service->GetString("intl.accept_languages");
-  prefs->accept_languages = accept_languages;
-  web_contents_->GetRenderViewHost()->SyncRendererPrefs();
-  XWalkBrowserContext* browser_context =
-      XWalkRunner::GetInstance()->browser_context();
-  CHECK(browser_context);
-  browser_context->UpdateAcceptLanguages(accept_languages);
-}
-
-void XWalkContent::CreateUserPrefServiceIfNecessary(
-    content::WebContents* contents) {
-  XWalkBrowserContext* browser_context =
-      XWalkBrowserContext::FromWebContents(contents);
-  browser_context->CreateUserPrefServiceIfNecessary();
-}
-
-void XWalkContent::InitAutofillIfNecessary(bool enabled) {
-  // Do not initialize if the feature is not enabled.
-  if (!enabled) return;
-  // Check if the autofill driver factory already exists.
-  content::WebContents* web_contents = web_contents_.get();
-  if (ContentAutofillDriverFactory::FromWebContents(web_contents)) return;
-
-  CreateUserPrefServiceIfNecessary(web_contents);
-  XWalkAutofillClient::CreateForWebContents(web_contents);
-  ContentAutofillDriverFactory::CreateForWebContentsAndDelegate(
-      web_contents,
-      XWalkAutofillClient::FromWebContents(web_contents),
-      base::android::GetDefaultLocale(),
-      AutofillManager::DISABLE_AUTOFILL_DOWNLOAD_MANAGER);
+  xwalk_autofill_manager_.reset(new XWalkAutofillManager(web_contents_.get()));
 }
 
 void XWalkContent::SetXWalkAutofillClient(jobject client) {
@@ -200,13 +143,12 @@ void XWalkContent::SetXWalkAutofillClient(jobject client) {
 
 void XWalkContent::SetSaveFormData(bool enabled) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  InitAutofillIfNecessary(enabled);
+  xwalk_autofill_manager_->InitAutofillIfNecessary(enabled);
   // We need to check for the existence, since autofill_manager_delegate
   // may not be created when the setting is false.
-  if (XWalkAutofillClient::FromWebContents(web_contents_.get())) {
-    XWalkAutofillClient::FromWebContents(web_contents_.get())->
-        SetSaveFormData(enabled);
-  }
+  if (auto client =
+      XWalkAutofillClientAndroid::FromWebContents(web_contents_.get()))
+    client->SetSaveFormData(enabled);
 }
 
 XWalkContent::~XWalkContent() {

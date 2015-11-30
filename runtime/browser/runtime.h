@@ -30,6 +30,7 @@ class WebContents;
 
 namespace xwalk {
 
+class XWalkAutofillManager;
 class XWalkBrowserContext;
 class RuntimeUIDelegate;
 
@@ -178,8 +179,10 @@ class Runtime : public content::WebContentsDelegate,
   // Notification manager.
   content::NotificationRegistrar registrar_;
 
-  // The WebContents owned by this runtime.
   scoped_ptr<content::WebContents> web_contents_;
+#if !defined(OS_ANDROID)
+  scoped_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
+#endif
 
   gfx::Image app_icon_;
 

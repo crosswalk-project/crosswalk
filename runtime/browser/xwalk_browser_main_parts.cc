@@ -33,6 +33,7 @@
 #endif
 #include "xwalk/runtime/browser/devtools/xwalk_devtools_manager_delegate.h"
 #include "xwalk/runtime/browser/ui/xwalk_javascript_native_dialog_factory.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -216,6 +217,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     base::StringToInt(port_str, &port);
     xwalk_runner_->EnableRemoteDebugging(port);
   }
+
+#if !defined(OS_ANDROID)
+  if (command_line->HasSwitch(switches::kXWalkDisableSaveFormData))
+    xwalk_runner_->browser_context()->set_save_form_data(false);
+#endif
 
   NativeAppWindow::Initialize();
 

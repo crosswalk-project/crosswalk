@@ -20,19 +20,19 @@ import org.chromium.ui.DropdownItem;
  * a weak reference from native side.
  */
 @JNINamespace("xwalk")
-public class XWalkAutofillClient {
+public class XWalkAutofillClientAndroid {
 
-    private final long mNativeXWalkAutofillClient;
+    private final long mNativeXWalkAutofillClientAndroid;
     private AutofillPopup mAutofillPopup;
     private ContentViewCore mContentViewCore;
 
     @CalledByNative
-    public static XWalkAutofillClient create(long nativeClient) {
-        return new XWalkAutofillClient(nativeClient);
+    public static XWalkAutofillClientAndroid create(long nativeClient) {
+        return new XWalkAutofillClientAndroid(nativeClient);
     }
 
-    private XWalkAutofillClient(long nativeXWalkAutofillClient) {
-        mNativeXWalkAutofillClient = nativeXWalkAutofillClient;
+    private XWalkAutofillClientAndroid(long nativeXWalkAutofillClient) {
+        mNativeXWalkAutofillClientAndroid = nativeXWalkAutofillClient;
     }
 
     public void init(ContentViewCore contentViewCore) {
@@ -54,7 +54,7 @@ public class XWalkAutofillClient {
                     public void dismissed() { }
                     @Override
                     public void suggestionSelected(int listIndex) {
-                        nativeSuggestionSelected(mNativeXWalkAutofillClient, listIndex);
+                        nativeSuggestionSelected(mNativeXWalkAutofillClientAndroid, listIndex);
                     }
                     @Override
                     public void deleteSuggestion(int listIndex) { }
@@ -89,6 +89,6 @@ public class XWalkAutofillClient {
         array[index] = new AutofillSuggestion(name, label, DropdownItem.NO_ICON, uniqueId, false);
     }
 
-    private native void nativeSuggestionSelected(long nativeXWalkAutofillClient,
+    private native void nativeSuggestionSelected(long nativeXWalkAutofillClientAndroid,
             int position);
 }

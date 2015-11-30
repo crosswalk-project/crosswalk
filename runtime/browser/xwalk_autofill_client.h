@@ -3,13 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_AUTOFILL_CLIENT_H_
-#define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_AUTOFILL_CLIENT_H_
+#ifndef XWALK_RUNTIME_BROWSER_XWALK_AUTOFILL_CLIENT_H_
+#define XWALK_RUNTIME_BROWSER_XWALK_AUTOFILL_CLIENT_H_
 
-#include <jni.h>
 #include <vector>
 
-#include "base/android/jni_weak_ref.h"
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/prefs/pref_registry_simple.h"
@@ -48,9 +46,7 @@ namespace xwalk {
 // context, we cannot enable this feature via UserPrefs. Rather, we always
 // keep the feature enabled at the pref service, and control it via
 // the delegates.
-class XWalkAutofillClient
-    : public autofill::AutofillClient,
-      public content::WebContentsUserData<XWalkAutofillClient> {
+class XWalkAutofillClient : public autofill::AutofillClient {
  public:
   ~XWalkAutofillClient() override;
 
@@ -77,6 +73,7 @@ class XWalkAutofillClient
       const autofill::FormData& form,
       content::RenderFrameHost* rfh,
       const ResultCallback& callback) override;
+  void HideAutofillPopup() override;
   void ShowAutofillPopup(
       const gfx::RectF& element_bounds,
       base::i18n::TextDirection text_direction,
@@ -85,7 +82,6 @@ class XWalkAutofillClient
   void UpdateAutofillPopupDataListValues(
       const std::vector<base::string16>& values,
       const std::vector<base::string16>& labels) override;
-  void HideAutofillPopup() override;
   bool IsAutocompleteEnabled() override;
   void PropagateAutofillPredictions(
       content::RenderFrameHost* rfh,
@@ -97,32 +93,32 @@ class XWalkAutofillClient
   void LinkClicked(
       const GURL& url, WindowOpenDisposition disposition) override;
   bool IsContextSecure(const GURL& form_origin) override;
+  void SuggestionSelected(int position);
 
-  void SuggestionSelected(JNIEnv* env, jobject obj, jint position);
+  virtual void ShowAutofillPopupImpl(
+    const gfx::RectF& element_bounds,
+    bool is_rtl,
+    const std::vector<autofill::Suggestion>& suggestions) = 0;
+
+  virtual void HideAutofillPopupImpl() = 0;
+
+ protected:
+  explicit XWalkAutofillClient(content::WebContents* web_contents);
 
  private:
-  explicit XWalkAutofillClient(content::WebContents* web_contents);
   friend class content::WebContentsUserData<XWalkAutofillClient>;
 
-  void ShowAutofillPopupImpl(
-      const gfx::RectF& element_bounds,
-      bool is_rtl,
-      const std::vector<autofill::Suggestion>& suggestions);
-
+  base::WeakPtr<autofill::AutofillPopupDelegate> delegate_;
   // The web_contents associated with this delegate.
   content::WebContents* web_contents_;
   bool save_form_data_;
-  JavaObjectWeakGlobalRef java_ref_;
 
   // The current Autofill query values.
   std::vector<autofill::Suggestion> suggestions_;
-  base::WeakPtr<autofill::AutofillPopupDelegate> delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkAutofillClient);
 };
 
-bool RegisterXWalkAutofillClient(JNIEnv* env);
-
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_AUTOFILL_CLIENT_H_
+#endif  // XWALK_RUNTIME_BROWSER_XWALK_AUTOFILL_CLIENT_H_
