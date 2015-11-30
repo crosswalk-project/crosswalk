@@ -72,6 +72,7 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mMediaPlaybackRequiresUserGesture", "Z");
     default_video_poster_url =
         GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
+<<<<<<< HEAD
     text_size_percent =
         GetFieldID(env, clazz, "mTextSizePercent", "I");
     default_font_size =
@@ -82,6 +83,11 @@ struct XWalkSettings::FieldIds {
 	    GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
   }
 
+=======
+    spatial_navigation_enabled =
+        GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
+  }
+>>>>>>> origin/enable_TV_remote_control
   // Field ids
   jfieldID allow_scripts_to_close_windows;
   jfieldID load_images_automatically;
