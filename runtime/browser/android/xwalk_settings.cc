@@ -78,6 +78,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mDefaultFontSize", "I");
     default_fixed_font_size =
         GetFieldID(env, clazz, "mDefaultFixedFontSize", "I");
+	spatial_navigation_enabled =
+	    GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
   }
 
   // Field ids
@@ -97,6 +99,7 @@ struct XWalkSettings::FieldIds {
   jfieldID text_size_percent;
   jfieldID default_font_size;
   jfieldID default_fixed_font_size;
+  jfieldID spatial_navigation_enabled;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
