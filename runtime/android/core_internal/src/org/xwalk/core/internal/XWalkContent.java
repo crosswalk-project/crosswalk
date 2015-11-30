@@ -72,7 +72,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkContentsIoThreadClient mIoThreadClient;
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
-    private XWalkSettings mSettings;
+    private XWalkSettingsInternal mSettings;
     private XWalkGeolocationPermissions mGeolocationPermissions;
     private XWalkLaunchScreenManager mLaunchScreenManager;
     private NavigationController mNavigationController;
@@ -182,7 +182,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
         // won't be changed from false to true at the same time in the constructor of
         // XWalkSettings class.
-        mSettings = new XWalkSettings(mViewContext, webContents, false);
+        mSettings = new XWalkSettingsInternal(mViewContext, webContents, false);
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
@@ -509,7 +509,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return nativeDevToolsAgentId(mNativeContent);
     }
 
-    public XWalkSettings getSettings() {
+    public XWalkSettingsInternal getSettings() {
         return mSettings;
     }
 

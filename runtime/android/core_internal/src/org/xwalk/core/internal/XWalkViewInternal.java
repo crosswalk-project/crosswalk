@@ -813,7 +813,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public void setUserAgentString(String userAgent) {
-        XWalkSettings settings = getSettings();
+        XWalkSettingsInternal settings = getSettings();
         if (settings == null) return;
         checkThreadSafety();
         settings.setUserAgentString(userAgent);
@@ -826,7 +826,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
       */
      @XWalkAPI
      public String getUserAgentString() {
-         XWalkSettings settings = getSettings();
+         XWalkSettingsInternal settings = getSettings();
          if (settings == null) return null;
          checkThreadSafety();
          return settings.getUserAgentString();
@@ -839,17 +839,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public void setAcceptLanguages(final String acceptLanguages) {
-        XWalkSettings settings = getSettings();
+        XWalkSettingsInternal settings = getSettings();
         if (settings == null) return;
         checkThreadSafety();
         settings.setAcceptLanguages(acceptLanguages);
     }
 
-    // TODO(yongsheng): this is not public.
     /**
-     * @hide
+     * Get XWalkSettings
+     * @return the XWalkSettings object.
+     * @since 6.0
      */
-    public XWalkSettings getSettings() {
+    @XWalkAPI
+    public XWalkSettingsInternal getSettings() {
         if (mContent == null) return null;
         checkThreadSafety();
         return mContent.getSettings();
@@ -974,7 +976,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void setInitialScale(int scaleInPercent) {
         checkThreadSafety();
-        XWalkSettings settings = getSettings();
+        XWalkSettingsInternal settings = getSettings();
         if (settings == null) return;
         settings.setInitialPageScale(scaleInPercent);
     }

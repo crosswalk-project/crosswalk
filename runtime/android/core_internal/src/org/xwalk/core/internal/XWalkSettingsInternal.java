@@ -19,10 +19,11 @@ import org.chromium.base.ThreadUtils;
 import org.chromium.content_public.browser.WebContents;
 
 /**
- * @hide
+ * Settings for single XWalkView object
  */
 @JNINamespace("xwalk")
-public class XWalkSettings {
+@XWalkAPI(createInternally = true)
+public class XWalkSettingsInternal {
 
     private static final String TAG = "XWalkSettings";
 
@@ -147,7 +148,15 @@ public class XWalkSettings {
         }
     }
 
-    public XWalkSettings(Context context, WebContents webContents,
+    // Never use this constructor.
+    // It is only used in XWalkSettingsBridge.
+    XWalkSettingsInternal() {
+        mContext = null;
+        mEventHandler = null;
+        mPasswordEchoEnabled = false;
+    }
+
+    XWalkSettingsInternal(Context context, WebContents webContents,
             boolean isAccessFromFileURLsGrantedByDefault) {
         ThreadUtils.assertOnUiThread();
         mContext = context;
@@ -620,15 +629,18 @@ public class XWalkSettings {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setUserAgentString}.
+     * Set the user agent of web page/app.
+     * @param userAgent the user agent string passed from client.
+     * @since 6.0
      */
-    public void setUserAgentString(String ua) {
+    @XWalkAPI
+    public void setUserAgentString(String userAgent) {
         synchronized (mXWalkSettingsLock) {
             final String oldUserAgent = mUserAgent;
-            if (ua == null || ua.length() == 0) {
+            if (userAgent == null || userAgent.length() == 0) {
                 mUserAgent = LazyDefaultUserAgent.sInstance;
             } else {
-                mUserAgent = ua;
+                mUserAgent = userAgent;
             }
             if (!oldUserAgent.equals(mUserAgent)) {
                 mEventHandler.maybeRunOnUiThreadBlocking(new Runnable() {
@@ -644,8 +656,11 @@ public class XWalkSettings {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getUserAgentString}.
-     */
+      * Get the user agent of web page/app.
+      * @return the XWalkView's user-agent string.
+      * @since 6.0
+      */
+    @XWalkAPI
     public String getUserAgentString() {
         synchronized (mXWalkSettingsLock) {
             return mUserAgent;
@@ -680,6 +695,12 @@ public class XWalkSettings {
         }
     }
 
+     /**
+     * Set the accept languages of XWalkView.
+     * @param acceptLanguages the accept languages string passed from client.
+     * @since 6.0
+     */
+    @XWalkAPI
     public void setAcceptLanguages(final String acceptLanguages) {
         synchronized (mXWalkSettingsLock) {
             if (mAcceptLanguages == acceptLanguages) return;
@@ -695,6 +716,12 @@ public class XWalkSettings {
         }
     }
 
+    /**
+     * Get the accept languages of XWalkView.
+     * @return the accept languages
+     * @since 6.0
+     */
+    @XWalkAPI
     public String getAcceptLanguages() {
         synchronized (mXWalkSettingsLock) {
             return mAcceptLanguages;
@@ -747,8 +774,11 @@ public class XWalkSettings {
     }
 
     /**
-     * See {@link android.webkit.WebView#setInitialScale}.
+     * Sets the initial scale for this XWalkView.
+     * @param scaleInPercent the initial scale in percent.
+     * @since 6.0
      */
+    @XWalkAPI
     public void setInitialPageScale(final float scaleInPercent) {
         synchronized (mXWalkSettingsLock) {
             if (mInitialPageScalePercent == scaleInPercent) return;

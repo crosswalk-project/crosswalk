@@ -31,6 +31,7 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNavigationItem.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkPreferences.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkResourceClient.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkSettings.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkUIClient.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkView.java',
         ],

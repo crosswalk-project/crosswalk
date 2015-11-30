@@ -22,7 +22,7 @@ import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkClient;
-import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkSettingsInternal;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 import org.xwalk.core.internal.xwview.test.util.CommonResources;
 
@@ -33,7 +33,7 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
     private static final long TEST_TIMEOUT = 20000L;
     private static final int CHECK_INTERVAL = 100;
     private TestHelperBridge mContentClient;
-    private XWalkSettings mSettings;
+    private XWalkSettingsInternal mSettings;
 
     static class ManifestTestHelper {
         private final TestWebServer mWebServer;
@@ -87,7 +87,7 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
         }
     }
 
-    private XWalkSettings getXWalkSettings(final XWalkViewInternal view) {
+    private XWalkSettingsInternal getXWalkSettings(final XWalkViewInternal view) {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -111,7 +111,7 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
                 createXWalkViewContainerOnMainSync(getActivity(), uiClient,
                         resourceClient);
 
-        final XWalkSettings settings = getXWalkSettings(xWalkViewInternal);
+        final XWalkSettingsInternal settings = getXWalkSettings(xWalkViewInternal);
         settings.setJavaScriptEnabled(true);
         settings.setAppCacheEnabled(false);
 
@@ -152,12 +152,12 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
         // will take about 20 seconds.
         ViewPair views = createViews();
 
-        XWalkSettings settings0 = getXWalkSettingsOnUiThreadByContent(
+        XWalkSettingsInternal settings0 = getXWalkSettingsOnUiThreadByContent(
                 views.getView0());
         settings0.setJavaScriptEnabled(true);
         settings0.setAppCachePath("whatever");
         settings0.setAppCacheEnabled(true);
-        XWalkSettings settings1 = getXWalkSettingsOnUiThreadByContent(
+        XWalkSettingsInternal settings1 = getXWalkSettingsOnUiThreadByContent(
                 views.getView1());
         settings1.setJavaScriptEnabled(true);
         // AppCachePath setting is global, no need to set it for the second view.
