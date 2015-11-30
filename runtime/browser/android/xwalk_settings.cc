@@ -5,7 +5,6 @@
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
 
 #include <string>
-
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "base/command_line.h"
