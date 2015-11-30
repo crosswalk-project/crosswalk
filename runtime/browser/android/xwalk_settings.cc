@@ -73,7 +73,7 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
     spatial_navigation_enabled =
         GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
-    }
+  }
   // Field ids
   jfieldID allow_scripts_to_close_windows;
   jfieldID load_images_automatically;
