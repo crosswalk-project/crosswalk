@@ -84,6 +84,9 @@ class AndroidStreamReaderURLRequestJobDelegateImpl
   bool GetPackageName(JNIEnv* env,
                       std::string* name) override;
 
+  void AppendResponseHeaders(JNIEnv* env,
+                             net::HttpResponseHeaders* headers) override;
+
   ~AndroidStreamReaderURLRequestJobDelegateImpl() override;
 };
 
@@ -229,6 +232,12 @@ bool AndroidStreamReaderURLRequestJobDelegateImpl::GetPackageName(
   return true;
 }
 
+void AndroidStreamReaderURLRequestJobDelegateImpl::AppendResponseHeaders(
+    JNIEnv* env,
+    net::HttpResponseHeaders* headers) {
+  // no-op
+}
+
 // AndroidRequestInterceptorBase ----------------------------------------------
 
 net::URLRequestJob* AndroidRequestInterceptorBase::MaybeInterceptRequest(
@@ -284,8 +293,8 @@ bool AssetFileRequestInterceptor::ShouldHandleRequest(
     return false;
 
   const std::string& url = request->url().spec();
-  if (!base::StartsWithASCII(url, asset_prefix_, /*case_sensitive=*/ true) &&
-      !base::StartsWithASCII(url, resource_prefix_, /*case_sensitive=*/ true)) {
+  if (!base::StartsWith(url, asset_prefix_, base::CompareCase::SENSITIVE) &&
+      !base::StartsWith(url, resource_prefix_, base::CompareCase::SENSITIVE)) {
     return false;
   }
 

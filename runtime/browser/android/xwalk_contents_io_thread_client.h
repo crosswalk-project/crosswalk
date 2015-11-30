@@ -17,7 +17,7 @@ class URLRequest;
 
 namespace xwalk {
 
-class InterceptedRequestData;
+class XWalkWebResourceResponse;
 
 // This class provides a means of calling Java methods on an instance that has
 // a 1:1 relationship with a WebContents instance directly from the IO thread.
@@ -68,7 +68,7 @@ class XWalkContentsIoThreadClient {
                               int child_render_frame_id);
 
   // This method is called on the IO thread only.
-  virtual scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
+  virtual scoped_ptr<XWalkWebResourceResponse> ShouldInterceptRequest(
       const GURL& location,
       const net::URLRequest* request) = 0;
 

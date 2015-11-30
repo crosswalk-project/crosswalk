@@ -40,6 +40,8 @@ import org.xwalk.core.internal.XWalkSettingsInternal;
 import org.xwalk.core.internal.XWalkUIClientInternal;
 import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkWebResourceRequestInternal;
+import org.xwalk.core.internal.XWalkWebResourceResponseInternal;
 
 import static org.chromium.base.test.util.ScalableTimeout.scaleTimeout;
 
@@ -100,9 +102,9 @@ public class XWalkViewInternalTestBase
         }
 
         @Override
-        public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view,
-                String url) {
-            return mInnerContentsClient.shouldInterceptLoadRequest(url);
+        public XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
+                XWalkWebResourceRequestInternal request) {
+            return mInnerContentsClient.shouldInterceptLoadRequest(request.getUrl().toString());
         }
 
         @Override

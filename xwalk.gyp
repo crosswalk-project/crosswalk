@@ -41,6 +41,7 @@
         '../components/components.gyp:user_prefs',
         '../components/components.gyp:visitedlink_browser',
         '../components/components.gyp:visitedlink_renderer',
+        '../components/url_formatter/url_formatter.gyp:url_formatter',
         '../content/content.gyp:content',
         '../content/content.gyp:content_app_both',
         '../content/content.gyp:content_browser',
@@ -93,9 +94,6 @@
         'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/android/cookie_manager.cc',
         'runtime/browser/android/cookie_manager.h',
-        'runtime/browser/android/intercepted_request_data.h',
-        'runtime/browser/android/intercepted_request_data_impl.cc',
-        'runtime/browser/android/intercepted_request_data_impl.h',
         'runtime/browser/android/net/android_protocol_handler.cc',
         'runtime/browser/android/net/android_protocol_handler.h',
         'runtime/browser/android/net/android_stream_reader_url_request_job.cc',
@@ -153,6 +151,10 @@
         'runtime/browser/android/xwalk_web_contents_delegate.h',
         'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
         'runtime/browser/android/xwalk_web_contents_view_delegate.h',
+        'runtime/browser/android/xwalk_web_resource_response.cc',
+        'runtime/browser/android/xwalk_web_resource_response.h',
+        'runtime/browser/android/xwalk_web_resource_response_impl.cc',
+        'runtime/browser/android/xwalk_web_resource_response_impl.h',
         'runtime/browser/application_component.cc',
         'runtime/browser/application_component.h',
         'runtime/browser/devtools/remote_debugging_server.cc',
@@ -490,8 +492,8 @@
     },
     {
       # While we could just call lastchange.py here and generate the header
-      # directly, it would only work if there is a blink-crosswalk git checkout
-      # (ie. it does not work with a tarball, for example).
+      # directly, it would only work if there is a git checkout (ie. it does
+      # not work with a tarball, for example).
       'target_name': 'generate_upstream_blink_version',
       'type': 'none',
       'actions': [
@@ -586,6 +588,7 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/strings/ui_strings.gyp:ui_strings',
+        '<(DEPTH)/ui/app_list/resources/app_list_resources.gyp:app_list_resources',
         '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
         '<(DEPTH)/content/app/resources/content_resources.gyp:content_resources',
         'xwalk_resources',
@@ -684,7 +687,7 @@
         ['OS=="win"', {
           'sources': [
             '../content/app/startup_helper_win.cc', # Needed by InitializedSandbox
-            'runtime/resources/xwalk.rc'
+            'runtime/resources/xwalk.rc',
           ],
           'configurations': {
             'Debug_Base': {
@@ -800,6 +803,7 @@
             'pack_xwalk_shared_library',
             'xwalk_core_library_documentation',
             'xwalk_runtime_lib_apk',
+            'xwalk_runtime_lib_lzma_apk',
             'xwalk_app_hello_world_apk',
             'xwalk_app_template',
             'xwalk_core_sample_apk',
@@ -962,7 +966,7 @@
           ], # conditions
         },
         'version_code_shift%': '<(version_code_shift)',
-        'xwalk_version_code': '<!(python tools/build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
+        'xwalk_version_code': '<!(python build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
         'api_version': '<!(python ../build/util/version.py -f API_VERSION -t "@API@")',
         'min_api_version': '<!(python ../build/util/version.py -f API_VERSION -t "@MIN_API@")',
       },

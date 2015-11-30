@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -167,6 +168,16 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  * <pre>
  * &lt;uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" /&gt;
  * </pre>
+ *
+ * <p>Signature check is enabled by default in download mode, it requires the crosswalk runtime APK
+ * must be signed with the same key used in application APK signing. Developer can insert a
+ * meta-data "xwalk_verify" in AndroidManifest to disable the signature check.</p>
+ *
+ * <pre>
+ * &lt;application&gt;
+ *     &lt;meta-data android:name="xwalk_verify" android:value="disable" /&gt;
+ * &lt;/application&gt;
+ * </pre>
  */
 
 public class XWalkUpdater {
@@ -215,6 +226,7 @@ public class XWalkUpdater {
     private static final String XWALK_APK_MARKET_URL = "market://details?id=org.xwalk.core";
 
     private static final String META_XWALK_APK_URL = "xwalk_apk_url";
+    private static final String META_XWALK_VERIFY = "xwalk_verify";
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
     private static final String ARCH_QUERY_STRING = "?arch=";
 
@@ -457,6 +469,7 @@ public class XWalkUpdater {
                 protected Void doInBackground(Void... params) {
                     final String destDir = mActivity.getDir(XWALK_CORE_EXTRACTED_DIR,
                             Context.MODE_PRIVATE).getAbsolutePath();
+                    if (!verifyXWalkRuntimeLib(downloadedUri.getPath())) Assert.fail();
                     if (!extractLibResources(downloadedUri.getPath(), destDir)) Assert.fail();
                     return null;
                 }
@@ -478,6 +491,57 @@ public class XWalkUpdater {
         } catch (NameNotFoundException | NullPointerException e) {
         }
         return null;
+    }
+
+    private boolean checkSignature(PackageInfo runtimePackageInfo, PackageInfo appPackageInfo) {
+        if (runtimePackageInfo.signatures == null || appPackageInfo.signatures == null) {
+            Log.e(TAG, "No signature in package info");
+            return false;
+        }
+
+        if (runtimePackageInfo.signatures.length != appPackageInfo.signatures.length) {
+            Log.e(TAG, "signatures length not equal");
+            return false;
+        }
+
+        for (int i = 0; i < runtimePackageInfo.signatures.length; ++i) {
+            Log.d(TAG, "Checking signature " + i);
+            if (!appPackageInfo.signatures[i].equals(runtimePackageInfo.signatures[i])) {
+                Log.e(TAG, "signatures do not match");
+                continue;
+            }
+            Log.d(TAG, "signature check PASSED");
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean verifyXWalkRuntimeLib(String libFile) {
+        String xwalkVerify = getAppMetaData(META_XWALK_VERIFY);
+        if (xwalkVerify != null && xwalkVerify.equals("disable")) {
+            Log.w(TAG, "xwalk verify is disabled");
+            return true;
+        }
+
+        // getPackageArchiveInfo also check the integrity of the downloaded runtime APK
+        // besides returning the PackageInfo with signatures.
+        PackageInfo runtimePkgInfo = mActivity.getPackageManager().getPackageArchiveInfo(
+                libFile, PackageManager.GET_SIGNATURES);
+        if (runtimePkgInfo == null) {
+            Log.e(TAG, "The downloaded XWalkRuntimeLib.apk is invalid!");
+            return false;
+        }
+        PackageInfo appPkgInfo = null;
+        try {
+            appPkgInfo = mActivity.getPackageManager().getPackageInfo(
+                    mActivity.getPackageName(), PackageManager.GET_SIGNATURES);
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+
+        // Verify if App APK and Runtime APK were signed with the same key
+        return checkSignature(runtimePkgInfo, appPkgInfo);
     }
 
     private boolean extractLibResources(String libFile, String destDir) {

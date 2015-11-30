@@ -17,9 +17,8 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'a49762acd2ab1f2803c7bb8898f50d9109f3cb12'
-blink_crosswalk_rev = '16d1b69626699e9ca703e0c24c829e96d07fcd3e'
-v8_crosswalk_rev = 'ae54f41f099123b7315a4772334fcfc7bc9692a2'
+chromium_crosswalk_rev = '326f968871eda512be55176963b4aa6bf21ec2d8'
+v8_crosswalk_rev = '7a41457bad727a2ebac2942a8bdcc78ad2516006'
 ozone_wayland_rev = 'd6ad1b8bb4e2c71427283ffc21ac8d66cb576730'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
@@ -37,8 +36,6 @@ solutions = [
     'custom_deps': {
       'src':
         crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
-      'src/third_party/WebKit':
-        crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
 
@@ -96,7 +93,7 @@ hooks = [
     'action': [
       'python',
       'src/build/util/lastchange.py',
-      '--git-svn-go-deeper',
+      '--git-hash-only',
       '--source-dir',
       'src/third_party/WebKit',
       '--output',

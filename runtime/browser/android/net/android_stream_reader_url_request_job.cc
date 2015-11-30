@@ -160,7 +160,7 @@ void AndroidStreamReaderURLRequestJob::Start() {
       // name, otherwise the resource request should be rejected.
       // TODO(Xingnan): More permission control policy will be added here,
       // if it's needed.
-      if (request()->url().host() != base::StringToLowerASCII(package_name)) {
+      if (request()->url().host() != base::ToLowerASCII(package_name)) {
         HeadersComplete(kHTTPForbidden, kHTTPForbiddenText);
         return;
       }
@@ -370,6 +370,10 @@ void AndroidStreamReaderURLRequestJob::HeadersComplete(
       headers->AddHeader(content_security_policy);
     }
   }
+
+  JNIEnv* env = AttachCurrentThread();
+  DCHECK(env);
+  delegate_->AppendResponseHeaders(env, headers);
 
   response_info_.reset(new net::HttpResponseInfo());
   response_info_->headers = headers;

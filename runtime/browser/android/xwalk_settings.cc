@@ -72,6 +72,12 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mMediaPlaybackRequiresUserGesture", "Z");
     default_video_poster_url =
         GetFieldID(env, clazz, "mDefaultVideoPosterURL", kStringClassName);
+    text_size_percent =
+        GetFieldID(env, clazz, "mTextSizePercent", "I");
+    default_font_size =
+        GetFieldID(env, clazz, "mDefaultFontSize", "I");
+    default_fixed_font_size =
+        GetFieldID(env, clazz, "mDefaultFixedFontSize", "I");
   }
 
   // Field ids
@@ -88,6 +94,9 @@ struct XWalkSettings::FieldIds {
   jfieldID use_wide_viewport;
   jfieldID media_playback_requires_user_gesture;
   jfieldID default_video_poster_url;
+  jfieldID text_size_percent;
+  jfieldID default_font_size;
+  jfieldID default_fixed_font_size;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -207,6 +216,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.password_echo_enabled =
       Java_XWalkSettingsInternal_getPasswordEchoEnabledLocked(env, obj);
 
+  prefs.double_tap_to_zoom_enabled =
+      Java_XWalkSettingsInternal_supportsDoubleTapZoomLocked(env, obj);
+
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   prefs.allow_running_insecure_content =
       command_line->HasSwitch(switches::kAllowRunningInsecureContent);
@@ -219,6 +231,24 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
           env->GetObjectField(obj, field_ids_->default_video_poster_url)));
   prefs.default_video_poster_url = str.obj() ?
       GURL(ConvertJavaStringToUTF8(str)) : GURL();
+
+  int text_size_percent = env->GetIntField(obj, field_ids_->text_size_percent);
+  if (prefs.text_autosizing_enabled) {
+    prefs.font_scale_factor = text_size_percent / 100.0f;
+    prefs.force_enable_zoom = text_size_percent >= 130;
+    // Use the default zoom factor value when Text Autosizer is turned on.
+    render_view_host_ext->SetTextZoomFactor(1);
+  } else {
+    prefs.force_enable_zoom = false;
+    render_view_host_ext->SetTextZoomFactor(text_size_percent / 100.0f);
+  }
+
+  int font_size = env->GetIntField(obj, field_ids_->default_font_size);
+  prefs.default_font_size = font_size;
+
+  int fixed_font_size = env->GetIntField(obj,
+      field_ids_->default_fixed_font_size);
+  prefs.default_fixed_font_size = fixed_font_size;
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }

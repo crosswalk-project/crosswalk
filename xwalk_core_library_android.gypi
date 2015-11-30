@@ -24,6 +24,7 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkCookieManager.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkDownloadListener.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkExtension.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkGetBitmapCallback.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkHttpAuthHandler.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkJavascriptResult.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkNativeExtensionLoader.java',
@@ -34,6 +35,8 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkSettings.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkUIClient.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkView.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkWebResourceRequest.java',
+          '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkWebResourceResponse.java',
         ],
         'xwalk_core_jar': '<(PRODUCT_DIR)/lib.java/xwalk_core_library_java_app_part.jar',
         'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',
@@ -409,10 +412,33 @@
       ],
     },
     {
+      'target_name': 'xwalk_core_library_pom_gen',
+      'type': 'none',
+      'variables': {
+        'pom_input': '<(DEPTH)/xwalk/runtime/android/maven/xwalk_core_library.pom.xml.in',
+        'pom_output': '<(PRODUCT_DIR)/xwalk_core_library.pom.xml',
+        'artifact_id': '<(xwalk_core_library_artifact_id)',
+        'artifact_version': '<(xwalk_version)',
+      },
+      'includes': ['build/android/maven_pom.gypi'],
+    },
+    {
+      'target_name': 'xwalk_shared_library_pom_gen',
+      'type': 'none',
+      'variables': {
+        'pom_input': '<(DEPTH)/xwalk/runtime/android/maven/xwalk_shared_library.pom.xml.in',
+        'pom_output': '<(PRODUCT_DIR)/xwalk_shared_library.pom.xml',
+        'artifact_id': '<(xwalk_shared_library_artifact_id)',
+        'artifact_version': '<(xwalk_version)',
+      },
+      'includes': ['build/android/maven_pom.gypi'],
+    },
+    {
       'target_name': 'xwalk_core_library_aar',
       'type': 'none',
       'dependencies': [
         'xwalk_core_empty_embedder_apk',
+        'xwalk_core_library_pom_gen',
       ],
       'actions': [
         {
@@ -437,6 +463,7 @@
       'type': 'none',
       'dependencies': [
         'xwalk_core_empty_embedder_apk',
+        'xwalk_shared_library_pom_gen',
       ],
       'actions': [
         {

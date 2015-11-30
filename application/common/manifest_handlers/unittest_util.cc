@@ -64,7 +64,7 @@ std::string MakeElementPath(const std::string& parent,
   std::vector<std::string> parts;
   parts.push_back(parent);
   parts.push_back(element);
-  return JoinString(parts, '.');
+  return base::JoinString(parts, ".");
 }
 
 bool AddDictionary(const std::string& key,

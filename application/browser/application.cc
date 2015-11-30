@@ -84,6 +84,7 @@ Application::Application(
       security_mode_enabled_(false),
       browser_context_(browser_context),
       observer_(NULL),
+      security_policy_(ApplicationSecurityPolicy::Create(data_)),
       weak_factory_(this) {
   DCHECK(browser_context_);
   DCHECK(data_.get());
@@ -170,8 +171,8 @@ void Application::SetWindowShowState<Manifest::TYPE_WIDGET>(
     // FIXME: ATM only 'fullscreen' and 'windowed' values are supported.
     // If the first user prefererence is 'fullscreen', set window show state
     // FULLSCREEN, otherwise set the default window show state.
-    std::vector<std::string> modes;
-    base::SplitString(view_modes_string, ' ', &modes);
+    std::vector<std::string> modes = base::SplitString(
+        view_modes_string, " ", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
     if (!modes.empty() && modes[0] == "fullscreen")
       params->state = ui::SHOW_STATE_FULLSCREEN;
   }
@@ -217,8 +218,10 @@ bool Application::Launch() {
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
+  if (security_policy_)
+    security_policy_->EnforceForRenderer(render_process_host_);
+
   web_contents_ = runtime->web_contents();
-  InitSecurityPolicy();
   runtime->LoadURL(url);
 
   NativeAppWindow::CreateParams params;
@@ -388,17 +391,6 @@ bool Application::SetPermission(PermissionType type,
 
   NOTREACHED();
   return false;
-}
-
-void Application::InitSecurityPolicy() {
-  // CSP policy takes precedence over WARP.
-  if (data_->HasCSPDefined())
-    security_policy_.reset(new ApplicationSecurityPolicyCSP(this));
-  else if (data_->manifest_type() == Manifest::TYPE_WIDGET)
-    security_policy_.reset(new ApplicationSecurityPolicyWARP(this));
-
-  if (security_policy_)
-    security_policy_->Enforce();
 }
 
 bool Application::CanRequestURL(const GURL& url) const {

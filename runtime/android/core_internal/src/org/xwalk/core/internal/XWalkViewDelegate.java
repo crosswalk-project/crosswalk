@@ -28,7 +28,7 @@ import android.util.Log;
 import junit.framework.Assert;
 
 import org.chromium.base.CommandLine;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ResourceExtractor;
 import org.chromium.base.ResourceExtractor.ResourceEntry;
@@ -110,6 +110,11 @@ class XWalkViewDelegate {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // Keep this function to preserve backward compatibility.
+    public static boolean loadXWalkLibrary(Context context) {
+        return loadXWalkLibrary(context, null);
     }
 
     // If context is null, it's running in embedded mode, otherwise in shared mode.

@@ -35,8 +35,11 @@ import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebResourceRequest;
+import org.xwalk.core.XWalkWebResourceResponse;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
@@ -182,9 +185,9 @@ public class XWalkViewTestBase
         }
 
         @Override
-        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view,
-                String url) {
-            return mInnerContentsClient.shouldInterceptLoadRequest(url);
+        public XWalkWebResourceResponse shouldInterceptLoadRequest(XWalkView view,
+                XWalkWebResourceRequest request) {
+            return mInnerContentsClient.shouldInterceptLoadRequest(request.getUrl().toString());
         }
 
         @Override
@@ -745,5 +748,241 @@ public class XWalkViewTestBase
                 return targetScale == getScaleFactor();
             }
         });
+    }
+
+    abstract class XWalkSettingsTestHelper<T> {
+        protected final XWalkView mXWalkViewForHelper;
+        protected final XWalkSettings mXWalkSettingsForHelper;
+
+        XWalkSettingsTestHelper(XWalkView view) throws Throwable {
+            mXWalkViewForHelper = view;
+            mXWalkSettingsForHelper = getXWalkSettingsOnUiThreadByXWalkView(view);
+        }
+
+        void ensureSettingHasAlteredValue() throws Throwable {
+            ensureSettingHasValue(getAlteredValue());
+        }
+
+        void ensureSettingHasInitialValue() throws Throwable {
+            ensureSettingHasValue(getInitialValue());
+        }
+
+        void setAlteredSettingValue() throws Throwable {
+            setCurrentValue(getAlteredValue());
+        }
+
+        void setInitialSettingValue() throws Throwable {
+            setCurrentValue(getInitialValue());
+        }
+
+        protected abstract T getAlteredValue();
+
+        protected abstract T getInitialValue();
+
+        protected abstract T getCurrentValue();
+
+        protected abstract void setCurrentValue(T value) throws Throwable;
+
+        protected abstract void doEnsureSettingHasValue(T value) throws Throwable;
+
+        private void ensureSettingHasValue(T value) throws Throwable {
+            assertEquals(value, getCurrentValue());
+            doEnsureSettingHasValue(value);
+        }
+    }
+
+    /**
+     * Verifies the following statements about a setting:
+     *  - initially, the setting has a default value;
+     *  - the setting can be switched to an alternate value and back;
+     *  - switching a setting in the first XWalkView doesn't affect the setting
+     *    state in the second XWalkView and vice versa.
+     *
+     * @param helper0 Test helper for the first XWalkView
+     * @param helper1 Test helper for the second XWalkView
+     * @throws Throwable
+     */
+    protected void runPerViewSettingsTest(XWalkSettingsTestHelper helper0,
+            XWalkSettingsTestHelper helper1) throws Throwable {
+        helper0.ensureSettingHasInitialValue();
+        helper1.ensureSettingHasInitialValue();
+        helper1.setAlteredSettingValue();
+        helper0.ensureSettingHasInitialValue();
+        helper1.ensureSettingHasAlteredValue();
+
+        helper1.setInitialSettingValue();
+        helper0.ensureSettingHasInitialValue();
+        helper1.ensureSettingHasInitialValue();
+
+        helper0.setAlteredSettingValue();
+        helper0.ensureSettingHasAlteredValue();
+        helper1.ensureSettingHasInitialValue();
+
+        helper0.setInitialSettingValue();
+        helper0.ensureSettingHasInitialValue();
+        helper1.ensureSettingHasInitialValue();
+
+        helper0.setAlteredSettingValue();
+        helper0.ensureSettingHasAlteredValue();
+        helper1.ensureSettingHasInitialValue();
+
+        helper1.setAlteredSettingValue();
+        helper0.ensureSettingHasAlteredValue();
+        helper1.ensureSettingHasAlteredValue();
+
+        helper0.setInitialSettingValue();
+        helper0.ensureSettingHasInitialValue();
+        helper1.ensureSettingHasAlteredValue();
+
+        helper1.setInitialSettingValue();
+        helper0.ensureSettingHasInitialValue();
+        helper1.ensureSettingHasInitialValue();
+    }
+
+    protected Integer getTextZoomOnUiThreadByXWalkView(final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return view.getSettings().getTextZoom();
+            }
+        });
+    }
+
+    protected void setTextZoomOnUiThreadByXWalkView(final int value,
+            final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setTextZoom(value);
+            }
+        });
+    }
+
+    protected void poll(final Callable<Boolean> callable) throws Exception {
+        assertTrue(CriteriaHelper.pollForCriteria(new Criteria() {
+            @Override
+            public boolean isSatisfied() {
+                try {
+                    return callable.call();
+                } catch (Throwable e) {
+                    Log.e(TAG, "Exception while polling.", e);
+                    return false;
+                }
+            }
+        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL));
+    }
+
+    static class ViewPair {
+        private final XWalkView view0;
+        private final TestHelperBridge bridge0;
+        private final XWalkView view1;
+        private final TestHelperBridge bridge1;
+
+        ViewPair(XWalkView view0, TestHelperBridge bridge0,
+                XWalkView view1, TestHelperBridge bridge1) {
+            this.view0 = view0;
+            this.bridge0 = bridge0;
+            this.view1 = view1;
+            this.bridge1 = bridge1;
+        }
+
+        XWalkView getView0() {
+            return view0;
+        }
+
+        TestHelperBridge getBridge0() {
+            return bridge0;
+        }
+
+        XWalkView getView1() {
+            return view1;
+        }
+
+        TestHelperBridge getBridge1() {
+            return bridge1;
+        }
+    }
+
+    protected ViewPair createViews() throws Throwable {
+        TestHelperBridge helperBridge0 = new TestHelperBridge();
+        TestHelperBridge helperBridge1 = new TestHelperBridge();
+        TestXWalkUIClientBase uiClient0 = new TestXWalkUIClientBase(helperBridge0);
+        TestXWalkUIClientBase uiClient1 = new TestXWalkUIClientBase(helperBridge1);
+        TestXWalkResourceClientBase resourceClient0 =
+                new TestXWalkResourceClientBase(helperBridge0);
+        TestXWalkResourceClientBase resourceClient1 =
+                new TestXWalkResourceClientBase(helperBridge1);
+        ViewPair viewPair =
+                createViewsOnMainSync(helperBridge0, helperBridge1, uiClient0, uiClient1,
+                        resourceClient0, resourceClient1, getActivity());
+
+        return viewPair;
+    }
+
+    protected ViewPair createViewsOnMainSync(final TestHelperBridge helperBridge0,
+                                             final TestHelperBridge helperBridge1,
+                                             final XWalkUIClient uiClient0,
+                                             final XWalkUIClient uiClient1,
+                                             final XWalkResourceClient resourceClient0,
+                                             final XWalkResourceClient resourceClient1,
+                                             final Context context) throws Throwable {
+        final XWalkView walkView0 = createXWalkViewContainerOnMainSync(context,
+                uiClient0, resourceClient0);
+        final XWalkView walkView1 = createXWalkViewContainerOnMainSync(context,
+                uiClient1, resourceClient1);
+        final AtomicReference<ViewPair> viewPair = new AtomicReference<ViewPair>();
+
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                viewPair.set(new ViewPair(walkView0, helperBridge0, walkView1, helperBridge1));
+            }
+        });
+
+        return viewPair.get();
+    }
+
+    protected XWalkSettings getXWalkSettingsOnUiThreadByXWalkView(
+            final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
+            @Override
+            public XWalkSettings call() throws Exception {
+                return view.getSettings();
+            }
+        });
+    }
+
+    protected void loadDataSyncWithXWalkView(final String data,
+            final XWalkView view, final TestHelperBridge bridge) throws Exception {
+        CallbackHelper pageFinishedHelper = bridge.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+        loadDataAsyncWithXWalkView(data, view);
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
+    protected void loadDataAsyncWithXWalkView(final String data,
+            final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.load(null, data);
+            }
+        });
+    }
+
+    protected String executeJavaScriptAndWaitForResultByXWalkView(final String code,
+            final XWalkView view, final TestHelperBridge bridge) throws Exception {
+        final TestHelperBridge.OnEvaluateJavaScriptResultHelper helper =
+                bridge.getOnEvaluateJavaScriptResultHelper();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                helper.evaluateJavascript(view, code);
+            }
+        });
+        helper.waitUntilHasValue();
+        Assert.assertTrue("Failed to retrieve JavaScript evaluation results.", helper.hasValue());
+        return helper.getJsonResultAndClear();
     }
 }

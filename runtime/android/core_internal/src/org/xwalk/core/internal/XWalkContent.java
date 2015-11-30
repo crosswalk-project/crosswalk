@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
@@ -24,6 +25,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
@@ -33,8 +35,8 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.util.Locale;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.content.browser.ContentView;
@@ -42,6 +44,8 @@ import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
 import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType;
 import org.chromium.content.browser.ContentViewStatics;
+import org.chromium.content.browser.ContentReadbackHandler;
+import org.chromium.content.browser.ContentReadbackHandler.GetBitmapCallback;
 import org.chromium.content.common.CleanupReference;
 import org.chromium.content_public.browser.JavaScriptCallback;
 import org.chromium.content_public.browser.LoadUrlParams;
@@ -79,6 +83,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private WebContents mWebContents;
     private boolean mIsLoaded = false;
     private XWalkAutofillClient mXWalkAutofillClient;
+    private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
+    private ContentReadbackHandler mContentReadbackHandler;
+    private GetBitmapCallback mGetBitmapCallback;
 
     long mNativeContent;
     long mNativeWebContents;
@@ -128,6 +135,25 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         setNativeContent(nativeInit());
 
         XWalkPreferencesInternal.load(this);
+        initCaptureBitmapAsync();
+    }
+
+    private void initCaptureBitmapAsync() {
+        mContentReadbackHandler = mContentViewRenderView.getContentReadbackHandler();
+        mGetBitmapCallback = new GetBitmapCallback() {
+            @Override
+            public void onFinishGetBitmap(Bitmap bitmap, int response) {
+                if (mXWalkGetBitmapCallbackInternal == null) return;
+                mXWalkGetBitmapCallbackInternal.onFinishGetBitmap(bitmap, response);
+            }
+        };
+    }
+
+    public void captureBitmapAsync(XWalkGetBitmapCallbackInternal callback) {
+        if (mContentReadbackHandler == null) return;
+        mXWalkGetBitmapCallbackInternal = callback;
+        mContentReadbackHandler.getContentBitmapAsync(1.0f, new Rect(), mContentViewCore,
+            Bitmap.Config.ARGB_8888, mGetBitmapCallback);
     }
 
     private void setNativeContent(long newNativeContent) {
@@ -197,6 +223,17 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         String language = Locale.getDefault().toString().replaceAll("_", "-").toLowerCase();
         if (language.isEmpty()) language = "en";
         mSettings.setAcceptLanguages(language);
+
+        XWalkSettingsInternal.ZoomSupportChangeListener zoomListener =
+                new XWalkSettingsInternal.ZoomSupportChangeListener() {
+                    @Override
+                    public void onGestureZoomSupportChanged(
+                            boolean supportsDoubleTapZoom, boolean supportsMultiTouchZoom) {
+                        mContentViewCore.updateDoubleTapSupport(supportsDoubleTapZoom);
+                        mContentViewCore.updateMultiTouchZoomSupport(supportsMultiTouchZoom);
+                    }
+                };
+        mSettings.setZoomListener(zoomListener);
 
         nativeSetJavaPeers(mNativeContent, this, mXWalkContentsDelegateAdapter, mContentsClientBridge,
                 mIoThreadClient, mContentsClientBridge.getInterceptNavigationDelegate());
@@ -659,8 +696,20 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return mContentViewCore.onTouchEvent(event);
     }
 
+    public void setOnTouchListener(OnTouchListener l) {
+        mContentView.setOnTouchListener(l);
+    }
+
+    public void scrollTo(int x, int y) {
+        mContentView.scrollTo(x, y);
+    }
+
+    public void scrollBy(int x, int y) {
+        mContentView.scrollBy(x, y);
+    }
+
     //--------------------------------------------------------------------------------------------
-    private class XWalkIoThreadClientImpl implements XWalkContentsIoThreadClient {
+    private class XWalkIoThreadClientImpl extends XWalkContentsIoThreadClient {
         // All methods are called on the IO thread.
 
         @Override
@@ -669,28 +718,25 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         }
 
         @Override
-        public InterceptedRequestData shouldInterceptRequest(final String url,
-                boolean isMainFrame) {
+        public XWalkWebResourceResponseInternal shouldInterceptRequest(
+                XWalkContentsClient.WebResourceRequestInner request) {
 
             // Notify a resource load is started. This is not the best place to start the callback
             // but it's a workable way.
-            mContentsClientBridge.getCallbackHelper().postOnResourceLoadStarted(url);
+            mContentsClientBridge.getCallbackHelper().postOnResourceLoadStarted(request.url);
 
-            WebResourceResponse webResourceResponse = mContentsClientBridge.shouldInterceptRequest(url);
-            InterceptedRequestData interceptedRequestData = null;
+            XWalkWebResourceResponseInternal xwalkWebResourceResponse =
+                    mContentsClientBridge.shouldInterceptRequest(request);
 
-            if (webResourceResponse == null) {
-                mContentsClientBridge.getCallbackHelper().postOnLoadResource(url);
+            if (xwalkWebResourceResponse == null) {
+                mContentsClientBridge.getCallbackHelper().postOnLoadResource(request.url);
             } else {
-                if (isMainFrame && webResourceResponse.getData() == null) {
+                if (request.isMainFrame && xwalkWebResourceResponse.getData() == null) {
                     mContentsClientBridge.getCallbackHelper().postOnReceivedError(
-                            XWalkResourceClientInternal.ERROR_UNKNOWN, null, url);
+                            XWalkResourceClientInternal.ERROR_UNKNOWN, null, request.url);
                 }
-                interceptedRequestData = new InterceptedRequestData(webResourceResponse.getMimeType(),
-                                                                    webResourceResponse.getEncoding(),
-                                                                    webResourceResponse.getData());
             }
-            return interceptedRequestData;
+            return xwalkWebResourceResponse;
         }
 
         @Override
@@ -878,6 +924,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         }
     }
 
+    // It is only used for SurfaceView.
     public void setVisibility(int visibility) {
         SurfaceView surfaceView = mContentViewRenderView.getSurfaceView();
         if (surfaceView == null) return;

@@ -560,8 +560,10 @@
         'resource_dir': 'runtime/android/sample/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/sample/assets/builtinzoom.html',
           '<(PRODUCT_DIR)/sample/assets/create_window_1.html',
           '<(PRODUCT_DIR)/sample/assets/create_window_2.html',
+          '<(PRODUCT_DIR)/sample/assets/doubletapzoom.html',
           '<(PRODUCT_DIR)/sample/assets/echo_java.html',
           '<(PRODUCT_DIR)/sample/assets/favicon.html',
           '<(PRODUCT_DIR)/sample/assets/icon.png',
@@ -590,8 +592,10 @@
         {
           'destination': '<(PRODUCT_DIR)/sample/assets',
           'files': [
+            'runtime/android/sample/assets/builtinzoom.html',
             'runtime/android/sample/assets/create_window_1.html',
             'runtime/android/sample/assets/create_window_2.html',
+            'runtime/android/sample/assets/doubletapzoom.html',
             'runtime/android/sample/assets/favicon.html',
             'runtime/android/sample/assets/icon.png',
             'runtime/android/sample/assets/index.html',
