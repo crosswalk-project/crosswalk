@@ -178,6 +178,13 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *     &lt;meta-data android:name="xwalk_verify" android:value="disable" /&gt;
  * &lt;/application&gt;
  * </pre>
+ *
+ * <p>We have crosswalk runtime auto-update enabled by default in download mode, it requires that
+ * the build version of the xwalk_shared_library which you used to bundle with your application
+ * has to match the build version of the downloaded crosswalk runtime, if the build versions differ
+ * it will trigger an update to download a new crosswalk runtime from the server. If you want to
+ * disable auto update, you could call <code>setAutoUpdate(false)</code> before starting to
+ * initialization.</p>
  */
 
 public class XWalkUpdater {
@@ -240,6 +247,7 @@ public class XWalkUpdater {
     private static final String TAG = "XWalkLib";
 
     private static final int STREAM_BUFFER_SIZE = 0x1000;
+    private static boolean sAutoUpdateEnabled = true;
 
     private XWalkUpdateListener mUpdateListener;
     private XWalkBackgroundUpdateListener mBackgroundUpdateListener;
@@ -358,6 +366,22 @@ public class XWalkUpdater {
         return XWalkLibraryLoader.cancelDownload();
     }
 
+    /**
+     * Enable/disable crosswak runtime auto update in download mode. It's enabled by default.
+     * @param enable True to enable auto update, otherwise disable it.
+     */
+    public static void setAutoUpdate(boolean enable) {
+        sAutoUpdateEnabled = enable;
+    }
+
+    /**
+     * Get the crosswalk runtime auto update status in download mode.
+     * @return Return true if auto update is enabled, otherwise it's disabled.
+     */
+    public static boolean getAutoUpdate() {
+        return sAutoUpdateEnabled;
+    }
+
     private void downloadXWalkApk() {
         // The download url is defined by the meta-data element with the name "xwalk_apk_url"
         // inside the application tag in the Android manifest. It can also be specified via
@@ -471,6 +495,7 @@ public class XWalkUpdater {
                             Context.MODE_PRIVATE).getAbsolutePath();
                     if (!verifyXWalkRuntimeLib(downloadedUri.getPath())) Assert.fail();
                     if (!extractLibResources(downloadedUri.getPath(), destDir)) Assert.fail();
+                    XWalkCoreWrapper.resetXWalkRuntimeBuildVersion(mActivity);
                     return null;
                 }
 
