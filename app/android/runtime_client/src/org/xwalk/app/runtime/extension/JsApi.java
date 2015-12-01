@@ -11,21 +11,35 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
 public @interface JsApi {
-    /* Property "isWritable" is only meanful for fields. */
+    /* Property "isWritable" is only meaningful for fields. */
     public boolean isWritable() default false;
 
-    /* Property "isEventList" is only meanful for fields,
+    /* Property "isEventList" is only meaningful for fields,
      * methods will ignore this value.
      */
     public boolean isEventList() default false;
 
     /*
-     * This property is only meanful for functions/constructors.
+     * This property is only meaningful for functions/constructors.
      */
     public boolean isEntryPoint() default false;
 
     /*
-     * This property is only meanful for functions.
+     * This property is only meaningful for functions.
      */
     public boolean withPromise() default false;
+
+    /*
+     * This property is only meaningful for functions.
+     * It should be either the custom function name
+     * or just the function definition.
+     */
+    public String wrapArgs() default "";
+
+    /*
+     * This property is only meaningful for functions.
+     * It should be either the custom function name
+     * or just the function definition.
+     */
+    public String wrapReturns() default "";
 }

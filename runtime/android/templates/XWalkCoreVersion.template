@@ -3,4 +3,5 @@ package org.xwalk.core.internal;
 class XWalkCoreVersion {
     public static final int API_VERSION = ${API_VERSION};
     public static final int MIN_API_VERSION = ${MIN_API_VERSION};
+    public static final String XWALK_BUILD_VERSION = "${XWALK_BUILD_VERSION}";
 }

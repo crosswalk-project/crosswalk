@@ -6,13 +6,16 @@ package org.xwalk.app.runtime.extension;
 
 import org.json.JSONObject;
 
+/*
+ * This is a helper class to implement static members exported to constructors.
+ */
 public class JsContextInfo {
     private XWalkExtensionClient extensionClient;
-    private int objectId;
+    private String objectId;
     private Class<?> targetClass;
     private int extInstanceId;
 
-    JsContextInfo(int instanceId, XWalkExtensionClient ext, Class<?> tClass, int objId) {
+    JsContextInfo(int instanceId, XWalkExtensionClient ext, Class<?> tClass, String objId) {
         extensionClient = ext;
         extInstanceId = instanceId;
         objectId = objId;
@@ -27,7 +30,7 @@ public class JsContextInfo {
         return extensionClient.getTargetReflect(targetClass.getSimpleName());
     }
 
-    public int getObjectId() {
+    public String getObjectId() {
         return objectId;
     }
 
@@ -40,10 +43,10 @@ public class JsContextInfo {
     }
 
     public void postMessage(JSONObject msg) {
-        if (extInstanceId == 0) {
-            extensionClient.broadcastMessage(msg.toString());
-        } else {
-            extensionClient.postMessage(extInstanceId, msg.toString());
-        }
+        extensionClient.postMessage(extInstanceId, msg.toString());
+    }
+
+    public void postMessage(byte[] buffer) {
+        extensionClient.postBinaryMessage(extInstanceId, buffer);
     }
 }

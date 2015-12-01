@@ -2,6 +2,7 @@ package org.xwalk.core;
 
 class XWalkAppVersion {
     public static final int API_VERSION = ${API_VERSION};
+    public static final String XWALK_BUILD_VERSION = "${XWALK_BUILD_VERSION}";
     public static final boolean VERIFY_XWALK_APK = ${VERIFY_XWALK_APK};
     // This is the hash of the "xwalk_cert" signing key and the algorithm with which the hash is generated
     public static final String XWALK_APK_HASH_ALGORITHM = "SHA-256";

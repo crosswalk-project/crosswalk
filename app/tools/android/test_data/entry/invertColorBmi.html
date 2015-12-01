@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+<body>
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #c3c3c3;">
+  Your browser does not support the canvas element.
+</canvas>
+</br></br>
+<div>
+<button id="invertButton"> Invert </button>
+</div>
+
+<script type="text/javascript">
+
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+var grd=cxt.createLinearGradient(0,0,175,50);
+grd.addColorStop(0,"#FF0000");
+grd.addColorStop(1,"#00FF00");
+cxt.fillStyle=grd;
+cxt.fillRect(0,0,175,50);
+
+var invertButton = document.getElementById("invertButton");
+invertButton.onclick = function () {
+  var imageData = cxt.getImageData(0, 0, c.width, c.height);
+  var processor = new jsStub.BmiProcessor();
+  processor.invertColor(wrapArgs(imageData)).then(function(invertedBuffer){
+      var invertedAvatar = wrapReturns(invertedBuffer);
+      if (!invertedAvatar) return;
+
+      cxt.putImageData(invertedAvatar, 0, 50);
+    }, function(error){
+      console.log(error);
+  });
+};
+
+// imageData to ArrayBuffer.
+function wrapArgs(imageData) {
+  if (!(imageData instanceof ImageData)) {
+    console.log("Invalid arguments for invertAvatar.");
+    return null;
+  }
+  /* Format:
+   *   width(int32), height(int32), imageData(arraybuffer)
+   */
+  var BytesOfInt32 = 4;
+  var BytesOfRGBA = 4;
+  var length = 2 * BytesOfInt32 + BytesOfRGBA * (imageData.width * imageData.height);
+
+  var arrayBuffer = new ArrayBuffer(length);
+  var view = new Int32Array(arrayBuffer, 0, 2);
+  view[0] = imageData.width;
+  view[1] = imageData.height;
+  var dataView = new Uint8Array(arrayBuffer, 2 * BytesOfInt32);
+  for (var i = 0; i < imageData.data.length; i++) {
+    dataView[i] = imageData.data[i];
+  }
+  return arrayBuffer;
+}
+
+// ArrayBuffer to imageData
+function wrapReturns(data) {
+  /* Format:
+   *   callbackId(int32), 
+   *   width(int32), height(int32), imageData(arraybuffer)
+   */
+  var BytesOfInt32 = 4;
+  var BytesOfRGBA = 4;
+  var int32Array = new Int32Array(data, 0, 3);
+  // int32Array[0] is the callback id.
+  var width = int32Array[1];
+  var height = int32Array[2];
+  // 3 int32 (4 bytes) values.
+  var headerByteOffset = 3 * BytesOfInt32;
+  var view = new Uint8ClampedArray(data, headerByteOffset, width * height * BytesOfRGBA);
+  try {
+    return new ImageData(view, width, height);
+  } catch(e) {
+    console.log("Failed to wrap the inverted image:" + e);
+    return null;
+  }
+}
+
+</script>
+
+</body>
+</html>

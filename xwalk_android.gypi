@@ -92,6 +92,7 @@
             '>@(reflect_sources)',
             '>@(templates)',
             'API_VERSION',
+            'VERSION',
           ],
           'outputs': [
             '<(timestamp)',
@@ -106,6 +107,7 @@
             '--api-version=<(api_version)',
             '--min-api-version=<(min_api_version)',
             '--verify-xwalk-apk=<(verify_xwalk_apk)',
+            '--xwalk-build-version=<(xwalk_version)',
           ],
         },
       ],
