@@ -6,7 +6,7 @@ package com.example.jsStub;
 
 import org.xwalk.app.runtime.extension.*;
 
-class Person extends XWalkExtensionBindingObject {
+class Person extends BindingObjectAutoJS {
     private XWalkExtensionClient extensionClient;
     @JsApi
     public static String constructorName = "Person";
@@ -21,7 +21,7 @@ class Person extends XWalkExtensionBindingObject {
         ((PersonExtension)extensionClient).onRemoveBindingObject(this);
     }
     
-    public void onJsBinded() {
+    public void onJsBound() {
         ((PersonExtension)extensionClient).onAddBindingObject(this);
     }
 
@@ -33,7 +33,6 @@ class Person extends XWalkExtensionBindingObject {
         return nextPersonId;
     }
     public Person(String vName, int vAge, XWalkExtensionClient extClient) {
-        super(extClient);
         extensionClient = extClient;
         personId = nextPersonId++;
         name = vName;

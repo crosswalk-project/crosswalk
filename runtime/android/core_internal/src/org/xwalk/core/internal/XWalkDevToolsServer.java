@@ -4,10 +4,10 @@
 
 package org.xwalk.core.internal;
 
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.JNINamespace;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import org.chromium.base.CalledByNative;
+import org.chromium.base.annotations.CalledByNative;
 
 /**
  * Controller for Remote Web Debugging (Developer Tools).

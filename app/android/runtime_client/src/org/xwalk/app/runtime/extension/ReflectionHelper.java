@@ -3,7 +3,12 @@ package org.xwalk.app.runtime.extension;
 import android.util.Log;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +21,9 @@ class ReflectionHelper {
     private static final String TAG = "JsStubReflectHelper";
     private Class<?> myClass;
     private Map<String, MemberInfo> members = new HashMap<String, MemberInfo>();
+    // The map for constructors, (subJavaClassName, exposedJsConstructorName).
+    private Map<String, String> bindingClasses = new HashMap<String, String>();
+    // The map for constructors, (jsName, ReflectionHelper).
     private Map<String, ReflectionHelper> constructorReflections = new HashMap<String, ReflectionHelper>();
     private String[] eventList = null;
     private MemberInfo entryPoint = null;
@@ -39,6 +47,8 @@ class ReflectionHelper {
         Class<?> mainClass;
         boolean isStatic;
         boolean withPromise;
+        String wrapArgs = "";
+        String wrapReturns = "";
     }
 
     public ReflectionHelper(Class<?> clazz) {
@@ -79,6 +89,8 @@ class ReflectionHelper {
                 mInfo.isEntryPoint = mAnno.isEntryPoint();
                 mInfo.withPromise = mAnno.withPromise();
                 mInfo.jsName = name; 
+                mInfo.wrapArgs = mAnno.wrapArgs();
+                mInfo.wrapReturns = mAnno.wrapReturns();
             } else if (a.isAnnotationPresent(JsConstructor.class)) {
                 if (type != MemberType.JS_METHOD) {
                     Log.w(TAG, "Invalid @JsConstructor on non-function member:" + name);
@@ -96,6 +108,7 @@ class ReflectionHelper {
 
                 mInfo.jsName = mInfo.mainClass.getSimpleName(); 
                 // Create relections for constructor main classes.
+                bindingClasses.put(mInfo.mainClass.getName(), mInfo.jsName);
                 constructorReflections.put(mInfo.jsName, new ReflectionHelper(mInfo.mainClass));
             }
 
@@ -105,8 +118,9 @@ class ReflectionHelper {
                     Log.w(TAG, "Entry point already exist, try to set another:" + mInfo.jsName);
                     continue;
                 }
-                // Flag isEntryPoint only meanful for methods, constructors and BindingObjects.
-                if (type == MemberType.JS_PROPERTY && !(isBindingClass(((Field)(mInfo.accesser)).getType()))) {
+                // Flag isEntryPoint only meaningful for methods, constructors and BindingObjects.
+                if (type == MemberType.JS_PROPERTY
+                        && !(isBindingClass(((Field)(mInfo.accesser)).getType()))) {
                     Log.w(TAG, "Invalid entry point setting on property:" + name);
                     continue;
                 }
@@ -122,7 +136,7 @@ class ReflectionHelper {
     }
 
     boolean isBindingClass(Class<?> clz) {
-        return XWalkExtensionBindingObject.class.isAssignableFrom(clz);
+        return BindingObject.class.isAssignableFrom(clz);
     }
 
     void init() {
@@ -142,14 +156,33 @@ class ReflectionHelper {
         getMemberInfo(myClass.getDeclaredFields(), MemberType.JS_PROPERTY);
     }
 
+    // Register all the exposed APIs TO message handler.
+    // @handler the message handler APIs will be registered in.
+    // @object the target object of the handler.
+    public static void registerHandlers(ReflectionHelper reflection,
+            MessageHandler handler, Object object) {
+        if (reflection == null || handler == null) return;
+
+        for (String key : reflection.getMembers().keySet()) {
+            MemberInfo m = reflection.getMembers().get(key);
+            handler.register(m.jsName, m.javaName, m.type, object, reflection);
+        }
+    }
+
     Map<String, MemberInfo> getMembers() {
         return members;
     }
 
-    ReflectionHelper getConstructorReflection(String cName) {
-        if (!constructorReflections.containsKey(cName)) return null;
+    ReflectionHelper getConstructorReflection(String jsName) {
+        if (!constructorReflections.containsKey(jsName)) return null;
 
-        return constructorReflections.get(cName);
+        return constructorReflections.get(jsName);
+    }
+
+    ReflectionHelper getReflectionByBindingClass(String className) {
+        if (!bindingClasses.containsKey(className)) return null;
+
+        return getConstructorReflection(bindingClasses.get(className));
     }
 
     Boolean hasMethod(String name) {
@@ -177,14 +210,14 @@ class ReflectionHelper {
     Object[] getArgsFromJson(XWalkExtensionClient ext, int instanceID, Method m, JSONArray args) {
         Class<?>[] pTypes = m.getParameterTypes();
         Object[] oArgs = new Object[pTypes.length];
-        Annotation[][] anns = m.getParameterAnnotations();
         boolean isStatic = Modifier.isStatic(m.getModifiers());
         for (int i = 0; i < pTypes.length; ++i) {
             try {
                 Class<?> p = pTypes[i];
                 // Identify the static methods which need the information to post message back to JS.
                 if (isStatic && p.equals(JsContextInfo.class)) {
-                    oArgs[i++] = new JsContextInfo(instanceID, ext, m.getClass(), 0);
+                    oArgs[i++] = new JsContextInfo(instanceID, ext, m.getClass(),
+                                                   Integer.toString(0));
                 } else {
                     // TODO: check if this is enough for other types.
                     oArgs[i] = args.get(i);
@@ -208,8 +241,7 @@ class ReflectionHelper {
     }
 
     public static Object toSerializableObject(Object obj) {
-        if (isSerializable(obj)) return obj;
-
+        // Case for objects have no specified method to JSON string.
         if (obj.getClass().isArray()) {
             JSONArray result = new JSONArray();
             Object [] arr = (Object[]) obj;
@@ -222,6 +254,26 @@ class ReflectionHelper {
             }
             return result;
         }
+        // The original serializable object.
+        if (isSerializable(obj)) return obj;
+
+        // Customized serializable object.
+        //
+        // If the object is not directly serializable, we check if it is customised
+        // serializable. That means the developer implemented the public serialization
+        // method "toJSONString".
+        try {
+            Method m = obj.getClass().getMethod("toJSONString", new Class<?>[0]);
+            String jsonStr = (String)(m.invoke(obj, new Object[0]));
+            if (jsonStr.trim().charAt(0) == '[') {
+                return new JSONArray(jsonStr);
+            } else {
+                return new JSONObject(jsonStr);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "No serialization method: \"toJSONString\", or errors happened.");
+        }
+
         /*
          * For ordinary objects, we will just serialize the accessible fields.
          */
@@ -243,25 +295,11 @@ class ReflectionHelper {
     /*
      * Use case: return the Java object back to JS after invokeNativeMethod
      * 1. quote string in proper way
-     * 2. if there is a "toJSONString" method, it will be used to get JSON string
-     * 3. serialize the normal Java object
-     * 4. serialize array [Object... args]
+     * 2. serialize the normal Java object
      */
     public static String objToJSON(Object obj) {
         // We expect the object is JSONObject or primive type.
         if (obj == null) return "null";
-
-        // If the object is not directly serializable, we check if it is customised
-        // serializable. That means the developer implemented the public serialization
-        // method "toJSONObject".
-        if (!isSerializable(obj)) {
-            try {
-                Method m = obj.getClass().getMethod("toJSONString", new Class<?>[0]);
-                return (String)(m.invoke(obj, new Object[0]));
-            } catch (Exception e) {
-                Log.w(TAG, "No serialization method: \"toJSONString\", or errors happened.");
-            }
-        }
 
         Object sObj = toSerializableObject(obj);
         return (sObj instanceof String) ?
@@ -335,22 +373,38 @@ class ReflectionHelper {
         return myClass.isInstance(obj);
     }
 
-    public Object handleMessage(XWalkExtensionClient ext, int instanceId, Object targetObj, JSONObject msg)
+    public Object handleMessage(MessageInfo info, Object targetObj)
             throws ReflectiveOperationException {
         Object result = null;
         try {
-            String cmd = msg.getString("cmd");
-            String cName = msg.getString("constructorJsName");
+            String cmd = info.getCmd();
+            JSONArray args;
+            // All the methods using BMI, should put the callback at last.
+            if (info.getBinaryArgs() != null) {
+                JSONArray newArgs = new JSONArray();
+                newArgs.put(info.getBinaryArgs());
+                newArgs.put(info.getCallbackId());
+                args = newArgs;
+            } else {
+                args = info.getArgs();
+            }
+            String memberName = info.getJsName();
+            XWalkExtensionClient ext = info.getExtension();
+            int instanceId = info.getInstanceId();
             switch (cmd) {
                 case "invokeNative":
-                    result = invokeMethod(ext, instanceId,
-                            targetObj, msg.getString("name"), msg.getJSONArray("args"));
+                    result = invokeMethod(ext, instanceId, targetObj, memberName, args);
+                    break;
+                case "newInstance":
+                    BindingObject newObj = (BindingObject)(invokeMethod(
+                                            ext,instanceId, targetObj, memberName, args));
+                    result = info.getInstanceHelper().addBindingObject(info.getObjectId(), newObj);
                     break;
                 case "getProperty":
-                    result = getProperty(targetObj, msg.getString("name"));
+                    result = getProperty(targetObj, memberName);
                     break;
                 case "setProperty":
-                    setProperty(targetObj, msg.getString("name"), msg.get("value"));
+                    setProperty(targetObj, memberName, args.get(0));
                     break;
                 default:
                     Log.w(TAG, "Unsupported cmd: " + cmd);

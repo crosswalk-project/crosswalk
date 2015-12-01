@@ -233,9 +233,10 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess)) {
     CreateExtensionProcessHost(host, data, runtime_variables.Pass());
   } else if (!external_extensions_path_.empty()) {
-    RegisterExternalExtensionsInDirectory(
+    BrowserThread::PostTask(BrowserThread::FILE, FROM_HERE, base::Bind(
+        base::IgnoreResult(&RegisterExternalExtensionsInDirectory),
         data->in_process_ui_thread_server(),
-        external_extensions_path_, runtime_variables.Pass());
+        external_extensions_path_, base::Passed(runtime_variables.Pass())));
   }
 
   extension_data_map_[host->GetID()] = data;

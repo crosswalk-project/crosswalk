@@ -12,13 +12,16 @@ import org.xwalk.app.runtime.extension.ReflectionHelper.MemberType;
 
 public class JsStubGenerator {
     static public String TAG = "JsStubGenerator";
+    static public final String MSG_TO_OBJECT = "postMessageToObject";
+    static public final String MSG_TO_CLASS = "postMessageToClass";
+    static public final String MSG_TO_EXTENSION = "postMessageToExtension";
     ReflectionHelper reflection;
     String jsHeader =
             "var v8tools = requireNative(\"v8tools\");\n" +
             "var jsStubModule = requireNative(\"jsStub\");\n" +
             "jsStubModule.init(extension, v8tools);\n" +
             "var jsStub = jsStubModule.jsStub;\n" +
-            "var helper = jsStub.create(exports);\n";
+            "var helper = jsStub.createRootStub(exports);\n";
 
     JsStubGenerator (ReflectionHelper extReflection) {
         reflection = extReflection;
@@ -66,10 +69,10 @@ public class JsStubGenerator {
             if (m.isEntryPoint) continue;
             switch (m.type) {
                 case JS_PROPERTY:
-                    result += generateProperty(m);
+                    result += generateProperty(MSG_TO_EXTENSION, m);
                     break;
                 case JS_METHOD:
-                    result += generateMethod(m, true);
+                    result += generateMethod(MSG_TO_EXTENSION, m, true);
                     break;
                 case JS_CONSTRUCTOR:
                     result += generateConstructor(m, true);
@@ -92,7 +95,8 @@ public class JsStubGenerator {
 
         if (entry.type == MemberType.JS_METHOD) {
             return String.format("exports = %s;\n %s\n %s",
-                    getInternalName(entry.jsName), jsHeader, generateMethod(entry, false));
+                    getInternalName(entry.jsName), jsHeader,
+                    generateMethod(MSG_TO_EXTENSION, entry, false));
 
         }
 
@@ -115,18 +119,18 @@ public class JsStubGenerator {
 
         Map<String, MemberInfo> members = targetReflect.getMembers();
         String memberStr;
+        String msgType;
         // @JsConstructor should always used in the extension class, not
         // in binding class, so ignore constructor type in binding classes.
-        // Currently isEntryPoint is meaningless for binding classes, so no
-        // entry point generation here.
         for (String key : members.keySet()) {
             MemberInfo m = members.get(key);
+            msgType = m.isStatic ? MSG_TO_CLASS: MSG_TO_OBJECT;
             switch (m.type) {
                 case JS_PROPERTY:
-                    memberStr = generateProperty(m);
+                    memberStr = generateProperty(msgType, m);
                     break;
                 case JS_METHOD:
-                    memberStr = generateMethod(m, true);
+                    memberStr = generateMethod(msgType, m, true);
                     break;
                 default:
                     memberStr = "";
@@ -167,27 +171,21 @@ public class JsStubGenerator {
         return gen;
     }
 
-    String generateProperty(MemberInfo m) {
+    String generateProperty(String msgType, MemberInfo m) {
         String name = m.jsName;
-        if (m.isWritable) {
-            return "jsStub.defineProperty(exports, \"" + name + "\", true);\n";
-        } else {
-            return "jsStub.defineProperty(exports, \"" + name + "\");\n";
-        }
+        return String.format(
+                "jsStub.defineProperty(\"%s\", exports, \"%s\", %b);\n",
+                msgType, name, m.isWritable);
     }
 
-    String generatePromiseMethod(String name, String jsArgs) {
-        String argStr = "{\"resolve\": resolve, \"reject\":reject}";
-        if (jsArgs.length() > 0) {
-            argStr = jsArgs + ", " + argStr;
-        }
+    String generatePromiseMethod(String msgType, MemberInfo mInfo) {
+        String name = mInfo.jsName;
+        String wrapArgs = mInfo.wrapArgs.length() > 0 ? mInfo.wrapArgs : "null"; 
+        String wrapReturns = mInfo.wrapReturns.length() > 0 ? mInfo.wrapReturns : "null"; 
         return String.format(
-                "exports.%s = function(%s) {\n" +
-                "  return new Promise(function(resolve, reject) {\n" +
-                "     helper.invokeNative(\"%s\", [%s]);\n" +
-                "  })\n" +
-                "};\n",
-                name, jsArgs, name, argStr);
+                "jsStub.addMethodWithPromise(\"%s\", exports, \"%s\", %s, %s);\n",
+                msgType, name, wrapArgs, wrapReturns);
+
     }
 
     String getArgString(Method m, boolean withPromise) {
@@ -207,23 +205,24 @@ public class JsStubGenerator {
         return jsArgs;
     }
 
-    String generateMethod(MemberInfo mInfo, boolean isMember) {
+    String generateMethod(String msgType, MemberInfo mInfo, boolean isMember) {
+        // Generate method that returns promise.
+        if (mInfo.withPromise) return generatePromiseMethod(msgType,mInfo);
+
         String name = mInfo.jsName;
         Method m = (Method)mInfo.accesser;
         String iName = getInternalName(name);
         Annotation[][] anns = m.getParameterAnnotations();
         String jsArgs = getArgString(m, mInfo.withPromise);
 
-        // Generate method that returns promise.
-        if (mInfo.withPromise) return generatePromiseMethod(name, jsArgs);
 
         boolean isSync = !(m.getReturnType().equals(Void.TYPE));
         String funcBody = String.format(
                 "function %s(%s) {\n" +
                 ((isSync) ? "  return " : "  ") +
-                "helper.invokeNative(\"%s\", [%s], %b);\n" +
+                "helper.invokeNative(\"%s\", \"%s\", [%s], %b);\n" +
                 "};\n",
-                iName, jsArgs, name, jsArgs, isSync);
+                iName, jsArgs, msgType, name, jsArgs, isSync);
 
         String memberStr =  isMember ? String.format("exports[\"%s\"] = %s;\n", name, iName) : "";
 
@@ -252,7 +251,8 @@ public class JsStubGenerator {
         String self = String.format(
                 "function %s(%s) {\n" +
                 "var newObject = this;\n" +
-                "var objectId = Number(helper.invokeNative(\"+%s\", [%s], true));\n" +
+                "var objectId =\n" +
+                "Number(helper.invokeNative(\"%s\", \"+%s\", [%s], true));\n" +
                 "if (!objectId) throw \"Error to create instance for constructor:%s.\";\n" +
                 "var objectHelper = jsStub.getHelper(newObject, helper);\n" +
                 "objectHelper.objectId = objectId;\n" +
@@ -261,7 +261,8 @@ public class JsStubGenerator {
                 "%s(newObject, objectHelper);\n" +
                 "helper.addBindingObject(objectId, newObject);}\n" +
                 "helper.constructors[\"%s\"] = %s;\n",
-                name, argStr, name, argStr, name, name, protoFunc, name, name);
+                name, argStr, MSG_TO_EXTENSION, name, argStr, name, name,
+                protoFunc, name, name);
 
         String staticStr = String.format(
                 "(function(exports, helper){\n" +

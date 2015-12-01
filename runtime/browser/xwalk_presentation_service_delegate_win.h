@@ -65,8 +65,7 @@ class XWalkPresentationServiceDelegateWin
   void SetDefaultPresentationUrl(
       int render_process_id,
       int render_frame_id,
-      const std::string& default_presentation_url,
-      const std::string& default_presentation_id) override;
+      const std::string& default_presentation_url) override;
 
   void StartSession(
       int render_process_id,
@@ -91,11 +90,14 @@ class XWalkPresentationServiceDelegateWin
   void ListenForSessionMessages(
       int render_process_id,
       int render_frame_id,
-      const PresentationSessionMessageCallback& message_cb) override {}
+      const content::PresentationSessionInfo& session,
+      const content::PresentationSessionMessageCallback& message_cb)
+      override {}
 
   void SendMessage(
       int render_process_id,
       int render_frame_id,
+      const content::PresentationSessionInfo& session,
       scoped_ptr<content::PresentationSessionMessage> message_request,
       const SendMessageCallback& send_message_cb) override {}
 

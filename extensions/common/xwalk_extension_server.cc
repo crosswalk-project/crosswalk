@@ -24,8 +24,7 @@ namespace extensions {
 const size_t kInlineMessageMaxSize = 256 * 1024;
 
 XWalkExtensionServer::XWalkExtensionServer()
-    : sender_(NULL),
-      renderer_process_pid_(0),
+    : channel_proxy_(NULL),
       permissions_delegate_(NULL) {}
 
 XWalkExtensionServer::~XWalkExtensionServer() {
@@ -51,10 +50,6 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
   IPC_END_MESSAGE_MAP()
 
   return handled;
-}
-
-void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
-  renderer_process_pid_ = peer_pid;
 }
 
 void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
@@ -111,17 +106,17 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   data.instance->HandleMessage(value.Pass());
 }
 
-void XWalkExtensionServer::Initialize(IPC::Sender* sender) {
-  base::AutoLock l(sender_lock_);
-  DCHECK(!sender_);
-  sender_ = sender;
+void XWalkExtensionServer::Initialize(IPC::ChannelProxy* channelProxy) {
+  base::AutoLock l(channel_proxy_lock_);
+  DCHECK(!channel_proxy_);
+  channel_proxy_ = channelProxy;
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
-  base::AutoLock l(sender_lock_);
-  if (!sender_)
+  base::AutoLock l(channel_proxy_lock_);
+  if (!channel_proxy_)
     return false;
-  return sender_->Send(msg);
+  return channel_proxy_->Send(msg);
 }
 
 namespace {
@@ -220,7 +215,7 @@ void XWalkExtensionServer::PostMessageToJSCallback(
 
   base::SharedMemoryHandle handle;
   base::Process process =
-      base::Process::OpenWithExtraPrivileges(renderer_process_pid_);
+      base::Process::OpenWithExtraPrivileges(channel_proxy_->GetPeerPID());
   CHECK(process.IsValid());
   if (!shared_memory.GiveReadOnlyToProcess(process.Handle(), &handle)) {
     LOG(WARNING) << "Can't share memory handle to send out of line message";
@@ -364,8 +359,8 @@ void XWalkExtensionServer::OnGetExtensions(
 }
 
 void XWalkExtensionServer::Invalidate() {
-  base::AutoLock l(sender_lock_);
-  sender_ = NULL;
+  base::AutoLock l(channel_proxy_lock_);
+  channel_proxy_ = NULL;
 }
 
 namespace {

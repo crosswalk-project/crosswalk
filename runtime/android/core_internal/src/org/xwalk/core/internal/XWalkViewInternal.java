@@ -22,9 +22,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
@@ -227,6 +229,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         initXWalkContent(mContext, null);
     }
 
+    // A View is usually in edit mode when displayed within a developer tool, like Android Studio.
+    // So isInEditMode() should be used inside the corresponding XWalkView constructor.
     /**
      * Constructor for inflating via XML.
      * @param context  a Context object used to access application assets.
@@ -235,6 +239,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});",
+                  "        if (isInEditMode()) return;",
                   "        SurfaceView surfaceView = new SurfaceView(${param1});",
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
@@ -793,17 +798,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.setBackgroundColor(color);
     }
 
-    /**
-     * override setLayerType
-     */
+    // We can't let XWalkView's setLayerType call to this via reflection as this method
+    // may be called in XWalkView constructor but the XWalkView is not ready yet and then
+    // UnsupportedOperationException is thrown, see XWALK-5021/XWALK-5047.
+    // We only support hardware acceleration in XWalkView, so setLayerType should be noop
     @Override
-    @XWalkAPI
+    @XWalkAPI(disableReflectMethod = true,
+              preWrapperLines = {"        return;"})
     public void setLayerType(int layerType, Paint paint) {
-        if (layerType != LAYER_TYPE_SOFTWARE) {
-           super.setLayerType(layerType, paint);
-        } else {
-            Log.w(TAG, "LAYER_TYPE_SOFTWARE is not supported by XwalkView");
-        }
     }
 
      /**
@@ -843,6 +845,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (settings == null) return;
         checkThreadSafety();
         settings.setAcceptLanguages(acceptLanguages);
+    }
+
+    /**
+     * Capture a bitmap of visible content.
+     * @param callback callback to call when the bitmap capture is done.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void captureBitmapAsync(XWalkGetBitmapCallbackInternal callback) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.captureBitmapAsync(callback);
     }
 
     /**
@@ -1090,10 +1104,21 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param visibility One of VISIBLE, INVISIBLE, or GONE.
      * @since 6.0
      */
-    @XWalkAPI(callSuper = true,
-              preWrapperLines = {"super.setVisibility(visibility);"})
+    @XWalkAPI(disableReflectMethod = true,
+              preWrapperLines = {
+                  "        if (visibility == View.INVISIBLE) visibility = View.GONE;",
+                  "        super.setVisibility(visibility);",
+                  "        setSurfaceViewVisibility(visibility);"})
     public void setVisibility(int visibility) {
-        super.setVisibility(visibility);
+    }
+
+    /**
+     * Set the enabled state of SurfaceView.
+     * @param visibility One of VISIBLE, INVISIBLE, or GONE.
+     * @since 6.0
+     */
+    @XWalkAPI(reservable = true)
+    public void setSurfaceViewVisibility(int visibility) {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.setVisibility(visibility);
@@ -1313,5 +1338,25 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(delegate = true,
               preWrapperLines = {"onFocusChanged(gainFocus, direction, previouslyFocusedRect);"})
     public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+    }
+
+    // Override XWalkView.setOnTouchListener to install the listener to ContentView
+    // therefore touch event intercept through onTouchListener is available on XWalkView.
+    @Override
+    @XWalkAPI
+    public void setOnTouchListener(OnTouchListener l) {
+        mContent.setOnTouchListener(l);
+    }
+
+    @Override
+    @XWalkAPI
+    public void scrollTo(int x, int y) {
+        mContent.scrollTo(x, y);
+    }
+
+    @Override
+    @XWalkAPI
+    public void scrollBy(int x, int y) {
+        mContent.scrollBy(x, y);
     }
 }

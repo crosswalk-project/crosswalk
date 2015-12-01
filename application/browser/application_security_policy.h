@@ -7,13 +7,17 @@
 #define XWALK_APPLICATION_BROWSER_APPLICATION_SECURITY_POLICY_H_
 
 #include <vector>
-
+#include "base/memory/ref_counted.h"
 #include "url/gurl.h"
+
+namespace content {
+class RenderProcessHost;
+}
 
 namespace xwalk {
 namespace application {
 
-class Application;
+class ApplicationData;
 
 class ApplicationSecurityPolicy {
  public:
@@ -23,12 +27,13 @@ class ApplicationSecurityPolicy {
     WARP
   };
 
-  explicit ApplicationSecurityPolicy(Application* app);
+  static scoped_ptr<ApplicationSecurityPolicy> Create(
+      scoped_refptr<ApplicationData> app_data);
   virtual ~ApplicationSecurityPolicy();
 
   bool IsAccessAllowed(const GURL& url) const;
 
-  virtual void Enforce() = 0;
+  void EnforceForRenderer(content::RenderProcessHost* rph) const;
 
  protected:
   struct WhitelistEntry {
@@ -41,27 +46,38 @@ class ApplicationSecurityPolicy {
     }
   };
 
+  ApplicationSecurityPolicy(scoped_refptr<ApplicationData> app_data,
+                            SecurityMode mode);
   void AddWhitelistEntry(const GURL& url, bool subdomains);
 
+  virtual void InitEntries() = 0;
+
+  scoped_refptr<ApplicationData> const app_data_;
   std::vector<WhitelistEntry> whitelist_entries_;
-  Application* app_;
+  SecurityMode mode_;
   bool enabled_;
 };
 
 class ApplicationSecurityPolicyWARP : public ApplicationSecurityPolicy {
- public:
-  explicit ApplicationSecurityPolicyWARP(Application* app);
+ private:
+  explicit ApplicationSecurityPolicyWARP(
+      scoped_refptr<ApplicationData> app_data);
   ~ApplicationSecurityPolicyWARP() override;
 
-  void Enforce() override;
+  void InitEntries() override;
+
+  friend class ApplicationSecurityPolicy;
 };
 
 class ApplicationSecurityPolicyCSP : public ApplicationSecurityPolicy {
- public:
-  explicit ApplicationSecurityPolicyCSP(Application* app);
+ private:
+  explicit ApplicationSecurityPolicyCSP(
+      scoped_refptr<ApplicationData> app_data);
   ~ApplicationSecurityPolicyCSP() override;
 
-  void Enforce() override;
+  void InitEntries() override;
+
+  friend class ApplicationSecurityPolicy;
 };
 
 }  // namespace application

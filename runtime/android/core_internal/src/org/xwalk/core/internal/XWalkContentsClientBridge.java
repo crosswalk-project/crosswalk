@@ -30,11 +30,14 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.components.navigation_interception.NavigationParams;
@@ -244,9 +247,36 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public WebResourceResponse shouldInterceptRequest(String url) {
+    public XWalkWebResourceResponseInternal shouldInterceptRequest(
+            WebResourceRequestInner request) {
         if (isOwnerActivityRunning()) {
-            return mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView, url);
+            //For compatibility with the old shouldInterceptLoadRequest.
+            WebResourceResponse response =
+                 mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView, request.url);
+            if (response == null) {
+              XWalkWebResourceResponseInternal xwalkResponse =
+                      mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView,
+                              new XWalkWebResourceRequestHandlerInternal(request));
+                if (xwalkResponse == null) return null;
+
+                // XWalkWebResourceResponse should support null headers.
+                Map<String, String> responseHeaders = xwalkResponse.getResponseHeaders();
+                if (responseHeaders == null) responseHeaders = new HashMap<String, String>();
+
+                //To Investigate: return xwalkResponse directly will fail, don't know why yet.
+                return new XWalkWebResourceResponseInternal(
+                        xwalkResponse.getMimeType(),
+                        xwalkResponse.getEncoding(),
+                        xwalkResponse.getData(),
+                        xwalkResponse.getStatusCode(),
+                        xwalkResponse.getReasonPhrase(),
+                        responseHeaders);
+            } else {
+                return new XWalkWebResourceResponseInternal(
+                        response.getMimeType(),
+                        response.getEncoding(),
+                        response.getData());
+            }
         }
         return null;
     }

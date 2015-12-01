@@ -35,8 +35,7 @@ static void ConvertHexadecimalToIDAlphabet(std::string* id) {
 std::string GenerateId(const std::string& input) {
   uint8 hash[kIdSize];
   crypto::SHA256HashString(input, hash, sizeof(hash));
-  std::string output =
-      base::StringToLowerASCII(base::HexEncode(hash, sizeof(hash)));
+  std::string output = base::ToLowerASCII(base::HexEncode(hash, sizeof(hash)));
   ConvertHexadecimalToIDAlphabet(&output);
   return output;
 }
@@ -49,7 +48,7 @@ std::string GenerateIdForPath(const base::FilePath& path) {
 }
 
 bool IsValidApplicationID(const std::string& id) {
-  std::string temp = base::StringToLowerASCII(id);
+  std::string temp = base::ToLowerASCII(id);
   // Verify that the id is legal.
   if (temp.size() != (kIdSize * 2))
     return false;

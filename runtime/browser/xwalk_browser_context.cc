@@ -258,7 +258,8 @@ XWalkBrowserContext::GetURLRequestContextGetterById(
 net::URLRequestContextGetter* XWalkBrowserContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  DCHECK(!url_request_getter_.get());
+  if (url_request_getter_)
+    return url_request_getter_.get();
 
   application::ApplicationService* service =
       XWalkRunner::GetInstance()->app_system()->application_service();
@@ -311,7 +312,7 @@ net::URLRequestContextGetter*
   // Make sure that the default url request getter has been initialized,
   // please refer to https://crosswalk-project.org/jira/browse/XWALK-2890
   // for more details.
-  if (!url_request_getter_.get())
+  if (!url_request_getter_)
     CreateRequestContext(protocol_handlers, request_interceptors.Pass());
 
   return context_getter.get();
@@ -321,8 +322,8 @@ net::URLRequestContextGetter*
 #if defined(OS_ANDROID)
 void XWalkBrowserContext::SetCSPString(const std::string& csp) {
   // Check format of csp string.
-  std::vector<std::string> policies;
-  base::SplitString(csp, ';', &policies);
+  std::vector<std::string> policies = base::SplitString(
+      csp, ";", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
   for (size_t i = 0; i < policies.size(); ++i) {
     size_t found = policies[i].find(' ');
     if (found == std::string::npos) {

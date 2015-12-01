@@ -3,6 +3,11 @@
     'use_webui_file_picker%': 0,
     'disable_bundled_extensions%': 0,
 
+    # Name of Crosswalk Maven artifacts used to generate their
+    # respective POM files.
+    'xwalk_core_library_artifact_id%': 'xwalk_core_library_canary',
+    'xwalk_shared_library_artifact_id%': 'xwalk_shared_library_canary',
+
     'conditions': [
       ['OS=="android"', {
         # Enable WebCL by default on android.

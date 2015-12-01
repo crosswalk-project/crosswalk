@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This file is generated automatically.
+-->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.xwalk</groupId>
+  <artifactId>@ARTIFACT_ID@</artifactId>
+  <version>@ARTIFACT_VERSION@</version>
+  <packaging>aar</packaging>
+
+  <!-- Crosswalk itself does not depend on external libraries, but it inherits
+       some dependencies from Chromium itself. -->
+  <dependencies>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-v4</artifactId>
+      <version>[13.0.0,)</version> <!-- >= 13.0.0 -->
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+</project>

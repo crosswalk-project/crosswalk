@@ -4,36 +4,56 @@
 
 package org.xwalk.core.internal;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import java.util.HashMap;
+
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 
 /**
  * Delegate for handling callbacks. All methods are called on the IO thread.
  */
 @JNINamespace("xwalk")
-interface XWalkContentsIoThreadClient {
+public abstract class XWalkContentsIoThreadClient {
     @CalledByNative
-    public int getCacheMode();
+    public abstract int getCacheMode();
 
     @CalledByNative
-    public InterceptedRequestData shouldInterceptRequest(String url, boolean isMainFrame);
+    public abstract boolean shouldBlockContentUrls();
 
     @CalledByNative
-    public boolean shouldBlockContentUrls();
+    public abstract boolean shouldBlockFileUrls();
 
     @CalledByNative
-    public boolean shouldBlockFileUrls();
+    public abstract boolean shouldBlockNetworkLoads();
 
     @CalledByNative
-    public boolean shouldBlockNetworkLoads();
+    public abstract void onDownloadStart(String url,
+                                     String userAgent,
+                                     String contentDisposition,
+                                     String mimeType,
+                                     long contentLength);
 
     @CalledByNative
-    public void onDownloadStart(String url,
-                                String userAgent,
-                                String contentDisposition,
-                                String mimeType,
-                                long contentLength);
+    public abstract void newLoginRequest(String realm, String account, String args);
 
+    public abstract XWalkWebResourceResponseInternal shouldInterceptRequest(
+        XWalkContentsClient.WebResourceRequestInner request);
+
+    // Protected methods ---------------------------------------------------------------------------
     @CalledByNative
-    public void newLoginRequest(String realm, String account, String args);
+    protected XWalkWebResourceResponseInternal shouldInterceptRequest(String url, boolean isMainFrame,
+            boolean hasUserGesture, String method, String[] requestHeaderNames,
+            String[] requestHeaderValues) {
+        XWalkContentsClient.WebResourceRequestInner request =
+            new XWalkContentsClient.WebResourceRequestInner();
+        request.url = url;
+        request.isMainFrame = isMainFrame;
+        request.hasUserGesture = hasUserGesture;
+        request.method = method;
+        request.requestHeaders = new HashMap<String, String>(requestHeaderNames.length);
+        for (int i = 0; i < requestHeaderNames.length; ++i) {
+            request.requestHeaders.put(requestHeaderNames[i], requestHeaderValues[i]);
+        }
+        return shouldInterceptRequest(request);
+    }
 }

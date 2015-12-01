@@ -163,8 +163,8 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
 };
 
 // This class is a thread-safe cache of active application's data.
-// This class is used by ApplicationProtocolHandler as it lives on IO thread
-// and hence cannot access ApplicationService directly.
+// This class is used by ApplicationProtocolHandler which lives on
+// IO thread and hence cannot access ApplicationService directly.
 class ApplicationDataCache : public ApplicationService::Observer {
  public:
   scoped_refptr<ApplicationData> GetApplicationData(
@@ -178,6 +178,21 @@ class ApplicationDataCache : public ApplicationService::Observer {
     return NULL;
   }
 
+  static void CreateIfNeeded(ApplicationService* service) {
+    DCHECK(service);
+    DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+    if (s_instance_)
+      return;
+    // The cache lives longer than ApplicationService,
+    // so we do not need to remove cache_ from ApplicationService
+    // observers list.
+    s_instance_ = new ApplicationDataCache();
+    service->AddObserver(s_instance_);
+  }
+
+  static ApplicationDataCache* Get() { return s_instance_;}
+
+ private:
   void DidLaunchApplication(Application* app) override {
     base::AutoLock lock(lock_);
     cache_.insert(std::pair<std::string, scoped_refptr<ApplicationData> >(
@@ -189,21 +204,24 @@ class ApplicationDataCache : public ApplicationService::Observer {
     cache_.erase(app->id());
   }
 
- private:
+  ApplicationDataCache() = default;
+  // The life time of the cache instance is equal to the process life time,
+  // it is not supposed to be explicitly destroyed.
+  ~ApplicationDataCache() override = default;
+
   ApplicationData::ApplicationDataMap cache_;
   mutable base::Lock lock_;
+
+  static ApplicationDataCache* s_instance_;
 };
+
+ApplicationDataCache* ApplicationDataCache::s_instance_;
 
 class ApplicationProtocolHandler
     : public net::URLRequestJobFactory::ProtocolHandler {
  public:
   explicit ApplicationProtocolHandler(ApplicationService* service) {
-    DCHECK(service);
-    DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-    // ApplicationProtocolHandler lives longer than ApplicationService,
-    // so we do not need to remove cache_ from ApplicationService
-    // observers list.
-    service->AddObserver(&cache_);
+    ApplicationDataCache::CreateIfNeeded(service);
   }
 
   ~ApplicationProtocolHandler() override {}
@@ -213,7 +231,6 @@ class ApplicationProtocolHandler
       net::NetworkDelegate* network_delegate) const override;
 
  private:
-  ApplicationDataCache cache_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationProtocolHandler);
 };
 
@@ -224,7 +241,7 @@ void GetUserAgentLocales(const std::string& sys_locale,
   if (sys_locale.empty())
     return;
 
-  std::string locale = base::StringToLowerASCII(sys_locale);
+  std::string locale = base::ToLowerASCII(sys_locale);
   size_t position;
   do {
     ua_locales.push_back(locale);
@@ -238,7 +255,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
     net::URLRequest* request, net::NetworkDelegate* network_delegate) const {
   const std::string& application_id = request->url().host();
   scoped_refptr<ApplicationData> application =
-      cache_.GetApplicationData(application_id);
+      ApplicationDataCache::Get()->GetApplicationData(application_id);
 
   if (!application.get())
     return new net::URLRequestErrorJob(
@@ -261,7 +278,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
           policies.begin();
       for (; it != policies.end(); ++it) {
         content_security_policy.append(
-            it->first + ' ' + JoinString(it->second, ' ') + ';');
+              it->first + ' ' + base::JoinString(it->second, ",") + ';');
       }
     }
   }

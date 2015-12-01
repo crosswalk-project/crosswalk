@@ -77,6 +77,10 @@ class Application : public Runtime::Observer,
   content::RenderProcessHost* render_process_host() {
     return render_process_host_; }
 
+  const ApplicationSecurityPolicy* security_policy() const {
+    return security_policy_.get();
+  }
+
   const ApplicationData* data() const { return data_.get(); }
   ApplicationData* data() { return data_.get(); }
 
@@ -110,7 +114,6 @@ class Application : public Runtime::Observer,
   Application(scoped_refptr<ApplicationData> data,
               XWalkBrowserContext* context);
   virtual bool Launch();
-  virtual void InitSecurityPolicy();
 
   // Runtime::Observer implementation.
   void OnNewRuntimeAdded(Runtime* runtime) override;

@@ -13,8 +13,8 @@ import android.os.Process;
 import android.provider.Settings;
 import android.webkit.WebSettings;
 
-import org.chromium.base.CalledByNative;
-import org.chromium.base.JNINamespace;
+import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.content_public.browser.WebContents;
 
@@ -80,11 +80,18 @@ public class XWalkSettingsInternal {
 
     private static final int MINIMUM_FONT_SIZE = 1;
     private static final int MAXIMUM_FONT_SIZE = 72;
+    private int mDefaultFontSize = 16;
+    private int mDefaultFixedFontSize = 13;
 
     private boolean mAutoCompleteEnabled = true;
 
     private float mInitialPageScalePercent = 0;
     private double mDIPScale = 1.0;
+    private int mTextSizePercent = 100;
+    private ZoomSupportChangeListener mZoomChangeListener;
+    private boolean mSupportZoom = true;
+    private boolean mBuiltInZoomControls = false;
+    private boolean mDisplayZoomControls = true;
 
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
@@ -124,6 +131,12 @@ public class XWalkSettingsInternal {
             }
         }
 
+        void maybePostOnUiThread(Runnable r) {
+            if (mHandler != null) {
+                mHandler.post(r);
+            }
+        }
+
         private void updateWebkitPreferencesLocked() {
             assert Thread.holdsLock(mXWalkSettingsLock);
             if (mNativeXWalkSettings == 0) return;
@@ -146,6 +159,11 @@ public class XWalkSettingsInternal {
                 } catch (InterruptedException e) {}
             }
         }
+    }
+
+    interface ZoomSupportChangeListener {
+        public void onGestureZoomSupportChanged(
+                boolean supportsDoubleTapZoom, boolean supportsMultiTouchZoom);
     }
 
     // Never use this constructor.
@@ -478,8 +496,17 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setUseWideViewPort}.
+     * Sets whether the XWalkView should enable support for the "viewport" HTML
+     * meta tag or should use a wide viewport. When the value of the setting is
+     * false, the layout width is always set to the width of the XWalkView control
+     * in device-independent (CSS) pixels. When the value is true and the page
+     * contains the viewport meta tag, the value of the width specified in the
+     * tag is used. If the page does not contain the tag or does not provide a
+     * width, then a wide viewport will be used.
+     * @param use whether to enable support for the viewport meta tag.
+     * @since 6.0
      */
+    @XWalkAPI
     public void setUseWideViewPort(boolean use) {
         synchronized (mXWalkSettingsLock) {
             if (mUseWideViewport != use) {
@@ -490,8 +517,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getUseWideViewPort}.
-     */
+      * Gets whether the XWalkView supports the "viewport" HTML meta tag or will
+      * use a wide viewport.
+      * @return true if the XWalkView supports the viewport meta tag.
+      * @since 6.0
+      */
+    @XWalkAPI
     public boolean getUseWideViewPort() {
         synchronized (mXWalkSettingsLock) {
             return mUseWideViewport;
@@ -810,6 +841,202 @@ public class XWalkSettingsInternal {
     private boolean getPasswordEchoEnabledLocked() {
         assert Thread.holdsLock(mXWalkSettingsLock);
         return mPasswordEchoEnabled;
+    }
+
+    /**
+     * Sets the text zoom of the page in percent. The default is 100.
+     * @param textZoom the text zoom in percent.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setTextZoom(final int textZoom) {
+        synchronized (mXWalkSettingsLock) {
+            if (mTextSizePercent == textZoom) return;
+            mTextSizePercent = textZoom;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets the text zoom of the page in percent.
+     * @return the text zoom of the page in percent.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int getTextZoom() {
+        synchronized (mXWalkSettingsLock) {
+            return mTextSizePercent;
+        }
+    }
+
+    private int clipFontSize(int size) {
+        if (size < MINIMUM_FONT_SIZE) {
+            return MINIMUM_FONT_SIZE;
+        } else if (size > MAXIMUM_FONT_SIZE) {
+            return MAXIMUM_FONT_SIZE;
+        }
+        return size;
+    }
+
+    /**
+     * Sets the default font size. The default is 16.
+     * @param size non-negative integer between 1 and 72.
+     *             Any number outside the specified range will be pinned.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setDefaultFontSize(int size) {
+        synchronized (mXWalkSettingsLock) {
+            size = clipFontSize(size);
+            if (mDefaultFontSize == size) return;
+            mDefaultFontSize = size;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets the default font size.
+     * @return a non-negative integer between 1 and 72.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int getDefaultFontSize() {
+        synchronized (mXWalkSettingsLock) {
+            return mDefaultFontSize;
+        }
+    }
+
+    /**
+     * Sets the default fixed font size. The default is 16.
+     * @param size a non-negative integer between 1 and 72.
+     *             Any number outside the specified range will be pinned.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setDefaultFixedFontSize(int size) {
+        synchronized (mXWalkSettingsLock) {
+            size = clipFontSize(size);
+            if (mDefaultFixedFontSize == size) return;
+            mDefaultFixedFontSize = size;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets the default fixed font size.
+     * @return a non-negative integer between 1 and 72.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int getDefaultFixedFontSize() {
+        synchronized (mXWalkSettingsLock) {
+            return mDefaultFixedFontSize;
+        }
+    }
+
+    void setZoomListener(ZoomSupportChangeListener zoomChangeListener) {
+        synchronized (mXWalkSettingsLock) {
+            mZoomChangeListener = zoomChangeListener;
+        }
+    }
+
+    private void onGestureZoomSupportChanged(
+            final boolean supportsDoubleTapZoom, final boolean supportsMultiTouchZoom) {
+        // Always post asynchronously here, to avoid doubling back onto the caller.
+        mEventHandler.maybePostOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mXWalkSettingsLock) {
+                    if (mZoomChangeListener == null) return;
+                    mZoomChangeListener.onGestureZoomSupportChanged(
+                            supportsDoubleTapZoom, supportsMultiTouchZoom);
+                }
+            }
+        });
+    }
+
+    @CalledByNative
+    private boolean supportsDoubleTapZoomLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mSupportZoom && mBuiltInZoomControls && mUseWideViewport;
+    }
+
+    private boolean supportsMultiTouchZoomLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mSupportZoom && mBuiltInZoomControls;
+    }
+
+    /**
+     * Sets whether the XWalkView should support zooming using its on-screen zoom controls
+     * and gestures. The particular zoom mechanisms that should be used can be set with
+     * setBuiltInZoomControls(boolean). This setting does not affect zooming performed
+     * using the zoomIn() and zoomOut() methods. The default is true.
+     * @param support whether the XWalkView should support zoom.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setSupportZoom(boolean support) {
+        synchronized (mXWalkSettingsLock) {
+            if (mSupportZoom == support) return;
+            mSupportZoom = support;
+            onGestureZoomSupportChanged(
+                    supportsDoubleTapZoomLocked(), supportsMultiTouchZoomLocked());
+        }
+    }
+
+    /**
+     * Gets whether the XWalkView supports zoom.
+     * @return true if the XWalkView supports zoom.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean supportZoom() {
+        synchronized (mXWalkSettingsLock) {
+            return mSupportZoom;
+        }
+    }
+
+    /**
+     * Sets whether the XWalkView should use its built-in zoom mechanisms.
+     * The built-in zoom mechanisms comprise on-screen zoom controls, which are
+     * displayed over the XWalkView's content, and the use of a pinch gesture to
+     * control zooming. Whether or not these on-screen controls are displayed
+     * can be set with setDisplayZoomControls(boolean). The default is false.
+     * @param enabled whether the XWalkView should use its built-in zoom mechanisms.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setBuiltInZoomControls(boolean enabled) {
+        synchronized (mXWalkSettingsLock) {
+            if (mBuiltInZoomControls == enabled) return;
+            mBuiltInZoomControls = enabled;
+            onGestureZoomSupportChanged(
+                    supportsDoubleTapZoomLocked(), supportsMultiTouchZoomLocked());
+        }
+    }
+
+    /**
+     * Gets whether the zoom mechanisms built into XWalkView are being used.
+     * @return true if the zoom mechanisms built into XWalkView are being used.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean getBuiltInZoomControls() {
+        synchronized (mXWalkSettingsLock) {
+            return mBuiltInZoomControls;
+        }
+    }
+
+    /**
+     * Note: Just for test case.
+     * Gets whether the XWalkView supports multi touch zoom.
+     * @return true if the XWalkView supports multi touch zoom.
+     */
+    @XWalkAPI
+    public boolean supportsMultiTouchZoomForTest() {
+        synchronized (mXWalkSettingsLock) {
+            return supportsMultiTouchZoomLocked();
+        }
     }
 
     private native long nativeInit(WebContents webContents);

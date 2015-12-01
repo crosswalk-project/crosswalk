@@ -19,11 +19,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
-import android.webkit.WebResourceResponse;
 
 import java.security.KeyStore.PrivateKeyEntry;  
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.chromium.content.browser.ContentViewClient;
 import org.chromium.content_public.browser.WebContents;
@@ -102,7 +102,7 @@ abstract class XWalkContentsClient extends ContentViewClient {
         }
 
         @Override
-        public void documentLoadedInFrame(long frameId) {
+        public void documentLoadedInFrame(long frameId, boolean isMainFrame) {
             onDocumentLoadedInFrame(frameId);
         }
     }
@@ -133,16 +133,32 @@ abstract class XWalkContentsClient extends ContentViewClient {
     }
 
     //--------------------------------------------------------------------------------------------
-    //             XWalkViewInternal specific methods that map directly to XWalkViewClient / XWalkWebChromeClient
+    //  XWalkViewInternal specific methods that map directly to XWalkViewClient/XWalkWebChromeClient
     //--------------------------------------------------------------------------------------------
 
+    /**
+     * Parameters for the {@link XWalkContentsClient#shouldInterceptRequest} method.
+     */
+    public static class WebResourceRequestInner {
+        // Url of the request.
+        public String url;
+        // Is this for the main frame or a child iframe?
+        public boolean isMainFrame;
+        // Was a gesture associated with the request? Don't trust can easily be spoofed.
+        public boolean hasUserGesture;
+        // Method used (GET/POST/OPTIONS)
+        public String method;
+        // Headers that would have been sent to server.
+        public HashMap<String, String> requestHeaders;
+    }
     public abstract void getVisitedHistory(ValueCallback<String[]> callback);
 
     public abstract void doUpdateVisitedHistory(String url, boolean isReload);
 
     public abstract void onProgressChanged(int progress);
 
-    public abstract WebResourceResponse shouldInterceptRequest(String url);
+    public abstract XWalkWebResourceResponseInternal shouldInterceptRequest(
+            WebResourceRequestInner request);
 
     public abstract void onResourceLoadStarted(String url);
 

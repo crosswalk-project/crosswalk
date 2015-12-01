@@ -122,7 +122,7 @@ class Method(object):
     self._is_static = is_static
     self._is_abstract = is_abstract
     self._is_delegate = False
-    self._call_super = False
+    self._disable_reflect_method = False
     self._method_name = method_name
     self._method_return = method_return
     self._params = OrderedDict() # Use OrderedDict to avoid parameter misorder.
@@ -177,8 +177,8 @@ class Method(object):
     return self._is_delegate
 
   @property
-  def call_super(self):
-    return self._call_super
+  def disable_reflect_method(self):
+    return self._disable_reflect_method
 
   @property
   def method_name(self):
@@ -235,14 +235,14 @@ class Method(object):
       elif delegate == 'false':
         self._is_delegate = False
 
-    call_super_re = re.compile('callSuper\s*=\s*'
-        '(?P<callSuper>(true|false))')
-    for match in re.finditer(call_super_re, annotation):
-      callsuper = match.group('callSuper')
-      if callsuper == 'true':
-        self._call_super = True
+    disable_reflect_method_re = re.compile('disableReflectMethod\s*=\s*'
+        '(?P<disableReflectMethod>(true|false))')
+    for match in re.finditer(disable_reflect_method_re, annotation):
+      disable_reflect_method = match.group('disableReflectMethod')
+      if disable_reflect_method == 'true':
+        self._disable_reflect_method = True
       else:
-        self._call_super = False
+        self._disable_reflect_method = False
 
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
         '?P<pre_wrapline>(".*")(,\s*".*")*)\s*\}')
@@ -462,7 +462,8 @@ class Method(object):
       return '%sMethod' % name
 
   def GenerateBridgeConstructor(self):
-    template = Template("""\
+    if (self._bridge_params_declare != ''):
+      template = Template("""\
     public ${NAME}(${PARAMS}, Object wrapper) {
         super(${PARAMS_PASSING});
 
@@ -470,11 +471,25 @@ class Method(object):
         reflectionInit();
     }
 
-""")
-    value = {'NAME': self._class_java_data.bridge_name,
-             'PARAMS': self._bridge_params_declare,
-             'PARAMS_PASSING': self._bridge_params_pass_to_super}
-    return template.substitute(value)
+    """)
+      value = {'NAME': self._class_java_data.bridge_name,
+               'PARAMS': self._bridge_params_declare,
+               'PARAMS_PASSING': self._bridge_params_pass_to_super}
+      return template.substitute(value)
+    else:
+      template = Template("""\
+    public ${NAME}(Object wrapper) {
+        super();
+
+        this.wrapper = wrapper;
+        reflectionInit();
+    }
+
+    """)
+      value = {'NAME': self._class_java_data.bridge_name,
+               'PARAMS': self._bridge_params_declare,
+               'PARAMS_PASSING': self._bridge_params_pass_to_super}
+      return template.substitute(value)
 
   def GenerateBridgeStaticMethod(self):
     template = Template("""\
@@ -526,21 +541,35 @@ class Method(object):
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
     }
 """)
-    else :
+    elif self._is_abstract:
       template = Template("""\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         ${GENERIC_TYPE_DECLARE}${RETURN}${METHOD_DECLARE_NAME}.invoke(\
 ${PARAMS_PASSING});
     }
 """)
+    else :
+      template = Template("""\
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        if (${METHOD_DECLARE_NAME}.isNull()) {
+            ${RETURN_SUPER}${NAME}Super(${PARAMS_PASSING_SUPER});
+        } else {
+            ${GENERIC_TYPE_DECLARE}${RETURN}${METHOD_DECLARE_NAME}.invoke(\
+${PARAMS_PASSING});
+        }
+    }
+""")
 
     if self._method_return == 'void':
       return_statement = ''
+      return_statement_super = ''
     elif return_is_internal:
       return_statement = 'return (%s)' % return_type_java_data.bridge_name
+      return_statement_super = 'return '
     else:
       return_statement = ('return (%s)' %
           ConvertPrimitiveTypeToObject(self.method_return))
+      return_statement_super = 'return '
 
     # Handling generic types, current only ValueCallback will be handled.
     generic_type_declare = ''
@@ -549,7 +578,7 @@ ${PARAMS_PASSING});
       if typed_param.generic_type != 'ValueCallback':
         continue
       if typed_param.contains_internal_class:
-        generic_type_declare += 'final %s %sFinal = %s;\n        ' % (
+        generic_type_declare += 'final %s %sFinal = %s;\n            ' % (
             typed_param.expression, param_name, param_name)
 
     value = {'RETURN_TYPE': self.method_return,
@@ -557,7 +586,9 @@ ${PARAMS_PASSING});
              'METHOD_DECLARE_NAME': self._method_declare_name,
              'PARAMS': self._bridge_params_declare,
              'RETURN': return_statement,
+             'RETURN_SUPER': return_statement_super,
              'GENERIC_TYPE_DECLARE': generic_type_declare,
+             'PARAMS_PASSING_SUPER': self._bridge_params_pass_to_super,
              'PARAMS_PASSING': self._bridge_params_pass_to_wrapper}
     return template.substitute(value)
 
@@ -665,8 +696,9 @@ ${PRE_WRAP_LINES}
     pre_wrap_string += "\n"
     pre_wrap_string += "        constructorParams = new ArrayList<Object>();\n"
     for param_name in self._wrapper_params_pass_to_bridge.split(', '):
-      param_name = param_name.replace('.getBridge()', '')
-      pre_wrap_string += "        constructorParams.add(%s);\n" % param_name
+      if (param_name != ''):
+        param_name = param_name.replace('.getBridge()', '')
+        pre_wrap_string += "        constructorParams.add(%s);\n" % param_name
 
     if (post_wrap_string != ''):
       pre_wrap_string += ("""
@@ -766,12 +798,11 @@ ${DOC}
         ${PRE_WRAP_LINES}
     }
 """)
-    elif self._call_super:
+    elif self._disable_reflect_method:
       template = Template("""\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        ${PRE_WRAP_LINES}
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+${PRE_WRAP_LINES}
     }
 """)
     else:
@@ -854,7 +885,7 @@ ${DOC}
           self.GenerateWrapperStaticMethod(), """\
     private static ReflectMethod %s = new ReflectMethod(null, "%s");\n""" %
               (self._method_declare_name, self._method_name))
-    elif self._is_abstract or self._is_delegate:
+    elif self._is_abstract or self._is_delegate or self._disable_reflect_method:
       return self.GenerateWrapperBridgeMethod()
     else:
       return '%s\n%s\n' % (

@@ -18,6 +18,7 @@
 #include "content/public/browser/android/compositor.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/cookie_store_factory.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/result_codes.h"
 #include "net/android/network_change_notifier_factory_android.h"
@@ -187,6 +188,12 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   xwalk_runner_->PreMainMessageLoopRun();
 
   extension_service_ = xwalk_runner_->extension_service();
+
+  // Due to http://code.google.com/p/chromium/issues/detail?id=507809,
+  // it's not possible to inject javascript into the main world by default.
+  // So lift this limitation here to enable XWalkView.evaluateJavaScript
+  // to work.
+  content::RenderFrameHost::AllowInjectingJavaScriptForAndroidWebView();
 
   // Prepare the cookie store.
   base::FilePath user_data_dir;

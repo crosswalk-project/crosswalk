@@ -10,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
@@ -36,6 +37,8 @@ class XWalkCoreWrapper {
     private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
     private static final String OPTIMIZED_DEX_DIR = "dex";
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
+    private static final String XWALK_PREF_FILE = "xwalk_pref";
+    private static final String XWALK_PREF_BUILD_VERSION = "xwalk_build_version";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -159,6 +162,10 @@ class XWalkCoreWrapper {
         sProvisionalInstance = new XWalkCoreWrapper(context, -1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
             if (sProvisionalInstance.isDownloadMode()) {
+                if (XWalkUpdater.getAutoUpdate() &&
+                        !sProvisionalInstance.checkXWalkRuntimeBuildVersion()) {
+                    return sProvisionalInstance.mCoreStatus;
+                }
                 sProvisionalInstance.findDownloadedCore();
             } else {
                 sProvisionalInstance.findSharedCore();
@@ -262,6 +269,9 @@ class XWalkCoreWrapper {
             return false;
         }
 
+        // store the current XWALK_BUILD_VERSION for auto-update detection.
+        setXWalkRuntimeBuildVersion();
+
         Log.d(TAG, "Running in downloaded mode");
         mCoreStatus = XWalkLibraryInterface.STATUS_MATCH;
         return true;
@@ -276,6 +286,44 @@ class XWalkCoreWrapper {
             return enableStr.equalsIgnoreCase("enable");
         } catch (NameNotFoundException | NullPointerException e) {
         }
+        return false;
+    }
+
+    private static void storeXWalkRuntimeBuildVersion(Context context, String version) {
+        SharedPreferences sp = context.getSharedPreferences(XWALK_PREF_FILE, Context.MODE_PRIVATE);
+        sp.edit().putString(XWALK_PREF_BUILD_VERSION, version).apply();
+    }
+
+    private void setXWalkRuntimeBuildVersion() {
+        String xwalkBuildVersion = "";
+        try {
+            Class<?> clazz = getBridgeClass("XWalkCoreVersion");
+            xwalkBuildVersion = (String) new ReflectField(clazz, "XWALK_BUILD_VERSION").get();
+        } catch (RuntimeException e) {
+        }
+        storeXWalkRuntimeBuildVersion(mWrapperContext, xwalkBuildVersion);
+    }
+
+    private String getXWalkRuntimeBuildVersion() {
+        SharedPreferences sp = mWrapperContext.getSharedPreferences(XWALK_PREF_FILE,
+                Context.MODE_PRIVATE);
+        return sp.getString(XWALK_PREF_BUILD_VERSION, "");
+    }
+
+    public static void resetXWalkRuntimeBuildVersion(Context context) {
+        storeXWalkRuntimeBuildVersion(context, "");
+    }
+
+    private boolean checkXWalkRuntimeBuildVersion() {
+        String currentVersion = getXWalkRuntimeBuildVersion();
+        Log.d(TAG, "Api build version:" + XWalkAppVersion.XWALK_BUILD_VERSION +
+                ", Runtime build version:" + currentVersion);
+        if (currentVersion.isEmpty() ||
+                currentVersion.equals(XWalkAppVersion.XWALK_BUILD_VERSION)) {
+            return true;
+        }
+        Log.d(TAG, "App doesn't match the downloaded runtime");
+        mCoreStatus = XWalkLibraryInterface.STATUS_RUNTIME_MISMATCH;
         return false;
     }
 

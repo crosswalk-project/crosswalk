@@ -14,6 +14,6 @@ public class EchoExtension extends XWalkExtensionClient {
   
   @JsConstructor(isEntryPoint = true, mainClass = Echo.class)
   public Echo onEcho() {
-      return new Echo(this);
+      return new Echo();
   }
 }
