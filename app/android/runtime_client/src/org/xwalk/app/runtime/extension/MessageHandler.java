@@ -4,7 +4,6 @@
 
 package org.xwalk.app.runtime.extension;
 
-import android.content.Intent;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
@@ -96,7 +95,7 @@ public class MessageHandler {
         if (info.getExtension().isAutoJS() && handler.reflection != null) {
             try {
                 result = handler.reflection.handleMessage(info, obj);
-            } catch (ReflectiveOperationException e) {
+            } catch (Exception e) {
                 Log.e(TAG, e.toString());
             }
         } else {

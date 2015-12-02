@@ -19,7 +19,7 @@ public class BindingObjectAutoJS extends BindingObject {
                 extReflect.getReflectionByBindingClass(this.getClass().getName());
         try {
             result = mReflection.handleMessage(info, this);
-        } catch (ReflectiveOperationException e) {
+        } catch (Exception e) {
             Log.e("BindingObjectAutoJs", e.toString());
         }
         return result;
