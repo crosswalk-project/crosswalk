@@ -13,11 +13,21 @@ namespace xwalk {
 class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
  public:
   XWalkRenderMessageFilter();
+#if defined(OS_ANDROID)
+  explicit XWalkRenderMessageFilter(int process_id);
+#endif
   bool OnMessageReceived(const IPC::Message& message) override;
 
  private:
   void OnOpenLinkExternal(const GURL& url);
+#if defined(OS_ANDROID)
+  void OnSubFrameCreated(int parent_render_frame_id, int child_render_frame_id);
+#endif
   ~XWalkRenderMessageFilter() override {}
+
+#if defined(OS_ANDROID)
+  int process_id_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderMessageFilter);
 };

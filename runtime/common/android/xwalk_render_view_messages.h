@@ -119,4 +119,8 @@ IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_PictureUpdated) // NOLINT(*)
 IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidActivateAcceleratedCompositing, // NOLINT(*)
                     int /* input_handler_id */)
 
+// Sent when a subframe is created.
+IPC_MESSAGE_CONTROL2(XWalkViewHostMsg_SubFrameCreated, // NOLINT(*)
+                     int, /* parent_render_frame_id */
+                     int /* child_render_frame_id */)
 
