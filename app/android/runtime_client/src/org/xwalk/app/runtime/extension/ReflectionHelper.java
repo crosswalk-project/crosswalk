@@ -306,8 +306,8 @@ class ReflectionHelper {
                 JSONObject.quote(sObj.toString()) : sObj.toString();
     }
 
-    Object invokeMethod(XWalkExtensionClient ext, int instanceID, Object obj, String mName, JSONArray args)
-            throws ReflectiveOperationException {
+    Object invokeMethod(XWalkExtensionClient ext, int instanceID, Object obj,
+                        String mName, JSONArray args) throws Exception {
         if (!hasMethod(mName)) {
             throw new NoSuchMethodException("No such method:" + mName);
         }
@@ -322,8 +322,7 @@ class ReflectionHelper {
         return m.invoke(obj, oArgs);
     }
 
-    Object getProperty(Object obj, String pName)
-            throws ReflectiveOperationException {
+    Object getProperty(Object obj, String pName) throws Exception {
         if (!hasProperty(pName)) {
             throw new NoSuchFieldException("No such property:" + pName);
         }
@@ -338,8 +337,7 @@ class ReflectionHelper {
         return f.get(obj);
     }
 
-    void setProperty(Object obj, String pName, Object value)
-            throws ReflectiveOperationException {
+    void setProperty(Object obj, String pName, Object value) throws Exception {
         if (!hasProperty(pName)) {
             throw new NoSuchFieldException("No such property:" + pName);
         }
@@ -373,8 +371,7 @@ class ReflectionHelper {
         return myClass.isInstance(obj);
     }
 
-    public Object handleMessage(MessageInfo info, Object targetObj)
-            throws ReflectiveOperationException {
+    public Object handleMessage(MessageInfo info, Object targetObj) throws Exception {
         Object result = null;
         try {
             String cmd = info.getCmd();

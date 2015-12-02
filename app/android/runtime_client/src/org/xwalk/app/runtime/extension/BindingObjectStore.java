@@ -78,7 +78,7 @@ public class BindingObjectStore {
             result = reflection.handleMessage(newInfo, null);
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-        } catch (ReflectiveOperationException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
         return result;
