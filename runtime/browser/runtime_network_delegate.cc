@@ -4,13 +4,18 @@
 
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
 
+#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/resource_request_info.h"
 #include "net/base/net_errors.h"
 #include "net/base/static_cookie_policy.h"
 #include "net/url_request/url_request.h"
 
 #if defined(OS_ANDROID)
+#include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #endif
+
+using content::BrowserThread;
 
 namespace xwalk {
 
@@ -45,6 +50,19 @@ int RuntimeNetworkDelegate::OnHeadersReceived(
     const net::HttpResponseHeaders* original_response_headers,
     scoped_refptr<net::HttpResponseHeaders>* override_response_headers,
     GURL* allowed_unsafe_redirect_url) {
+#if defined(OS_ANDROID)
+  DCHECK_CURRENTLY_ON(BrowserThread::IO);
+  int render_process_id, render_frame_id;
+  if (content::ResourceRequestInfo::GetRenderFrameForRequest(
+      request, &render_process_id, &render_frame_id)) {
+    scoped_ptr<XWalkContentsIoThreadClient> io_thread_client =
+        XWalkContentsIoThreadClient::FromID(render_process_id, render_frame_id);
+    if (io_thread_client.get()) {
+      io_thread_client->OnReceivedResponseHeaders(request,
+          original_response_headers);
+    }
+  }
+#endif
   return net::OK;
 }
 

@@ -214,6 +214,13 @@ public class XWalkViewTestBase
         public void onReceivedClientCertRequest(XWalkView view, ClientCertRequest handler)  {
             mTestHelperBridge.onReceivedClientCertRequest(view, handler);
         }
+
+        @Override
+        public void onReceivedResponseHeaders(XWalkView view,
+                XWalkWebResourceRequest request,
+                XWalkWebResourceResponse response) {
+            mTestHelperBridge.onReceivedResponseHeaders(view, request, response);
+        }
     }
 
     class TestXWalkResourceClient extends TestXWalkResourceClientBase {

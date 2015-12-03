@@ -29,6 +29,7 @@ import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkUIClient.ConsoleMessageType;
 import org.xwalk.core.XWalkUIClient.LoadStatus;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebResourceRequest;
 import org.xwalk.core.XWalkWebResourceResponse;
 
 class TestHelperBridge {
@@ -474,6 +475,28 @@ class TestHelperBridge {
         }
     }
 
+    /**
+     * CallbackHelper for OnReceivedResponseHeaders.
+     */
+    public static class OnReceivedResponseHeadersHelper extends CallbackHelper {
+        private XWalkWebResourceRequest mRequest;
+        private XWalkWebResourceResponse mResponse;
+
+        public void notifyCalled(XWalkWebResourceRequest request, XWalkWebResourceResponse response) {
+            mRequest = request;
+            mResponse = response;
+            notifyCalled();
+        }
+        public XWalkWebResourceRequest getRequest() {
+            assert getCallCount() > 0;
+            return mRequest;
+        }
+        public XWalkWebResourceResponse getResponse() {
+            assert getCallCount() > 0;
+            return mResponse;
+        }
+    }
+
     private String mChangedTitle;
     private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
@@ -504,6 +527,7 @@ class TestHelperBridge {
     private final OnLoadFinishedHelper mOnLoadFinishedHelper;
     private final OnDownloadStartHelper mOnDownloadStartHelper;
     private final OnReceivedClientCertRequestHelper mOnReceivedClientCertRequestHelper;
+    private final OnReceivedResponseHeadersHelper mOnReceivedResponseHeadersHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -532,6 +556,7 @@ class TestHelperBridge {
         mOnLoadFinishedHelper = new OnLoadFinishedHelper();
         mOnDownloadStartHelper = new OnDownloadStartHelper();
         mOnReceivedClientCertRequestHelper = new OnReceivedClientCertRequestHelper();
+        mOnReceivedResponseHeadersHelper = new OnReceivedResponseHeadersHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -636,6 +661,10 @@ class TestHelperBridge {
 
     public OnReceivedClientCertRequestHelper getOnReceivedClientCertRequestHelper() {
         return mOnReceivedClientCertRequestHelper;
+    }
+
+    public OnReceivedResponseHeadersHelper getOnReceivedResponseHeadersHelper() {
+        return mOnReceivedResponseHeadersHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -752,5 +781,11 @@ class TestHelperBridge {
 
     public void onReceivedClientCertRequest(XWalkView view, ClientCertRequest handler) {
         mOnReceivedClientCertRequestHelper.notifyCalled(handler);
+    }
+
+    public void onReceivedResponseHeaders(XWalkView view,
+            XWalkWebResourceRequest request,
+            XWalkWebResourceResponse response) {
+        mOnReceivedResponseHeadersHelper.notifyCalled(request, response);
     }
 }

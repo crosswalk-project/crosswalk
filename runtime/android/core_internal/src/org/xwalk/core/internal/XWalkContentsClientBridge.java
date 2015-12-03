@@ -371,6 +371,15 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public void onReceivedResponseHeaders(WebResourceRequestInner request,
+            XWalkWebResourceResponseInternal response) {
+        if (mXWalkResourceClient != null && isOwnerActivityRunning()) {
+            mXWalkResourceClient.onReceivedResponseHeaders(mXWalkView,
+                    new XWalkWebResourceRequestHandlerInternal(request), response);
+        }
+    }
+
+    @Override
     public void onGeolocationPermissionsShowPrompt(String origin,
             XWalkGeolocationPermissions.Callback callback) {
         if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {

@@ -179,6 +179,9 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onReceivedClientCertRequest(ClientCertRequestInternal handler);    
 
+    public abstract void onReceivedResponseHeaders(WebResourceRequestInner request,
+            XWalkWebResourceResponseInternal response);
+
     public abstract void onReceivedLoginRequest(String realm, String account, String args);
 
     public abstract void onFormResubmission(Message dontResend, Message resend);

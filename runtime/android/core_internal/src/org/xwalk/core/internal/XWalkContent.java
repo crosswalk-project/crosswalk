@@ -768,6 +768,12 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         public void newLoginRequest(String realm, String account, String args) {
             mContentsClientBridge.getCallbackHelper().postOnReceivedLoginRequest(realm, account, args);
         }
+
+        @Override
+        public void onReceivedResponseHeaders(XWalkContentsClient.WebResourceRequestInner request,
+                XWalkWebResourceResponseInternal response) {
+            mContentsClientBridge.getCallbackHelper().postOnReceivedResponseHeaders(request, response);
+        }
     }
 
     private class XWalkGeolocationCallback implements XWalkGeolocationPermissions.Callback {
