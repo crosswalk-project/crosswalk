@@ -205,8 +205,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onDocumentLoadedInFrame(long frameId);
 
-    public abstract void onReceivedIcon(Bitmap bitmap);
-
     protected abstract void onRequestFocus();
 
     public abstract void onPageStarted(String url);

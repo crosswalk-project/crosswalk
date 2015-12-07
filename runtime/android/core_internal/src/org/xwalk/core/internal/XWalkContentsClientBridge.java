@@ -504,14 +504,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void onReceivedIcon(Bitmap bitmap) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onReceivedIcon(mXWalkView, bitmap);
-        }
-        mFavicon = bitmap;
-    }
-
-    @Override
     public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
         if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onShowCustomView(view, callback);
@@ -653,6 +645,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     public void provideClientCertificateResponse(int id, byte[][] certChain,
             AndroidPrivateKey androidKey) {
         nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id, certChain, androidKey);
+    }
+
+    public Bitmap getFavicon() {
+        return isOwnerActivityRunning() ? mFavicon : null;
     }
 
     // Used by the native peer to set/reset a weak ref to the native peer.
@@ -859,6 +855,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @CalledByNative
     public void onReceivedIcon(String url, Bitmap icon) {
         mXWalkUIClient.onReceivedIcon(mXWalkView, url, icon);
+        mFavicon = icon;
     }
 
     //--------------------------------------------------------------------------------------------
