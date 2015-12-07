@@ -45,6 +45,7 @@ class XWalkViewDelegate {
     private static boolean sInitialized = false;
     private static boolean sLibraryLoaded = false;
     private static boolean sRunningOnIA = true;
+    private static boolean sLoadedByHoudini = false;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
@@ -122,7 +123,7 @@ class XWalkViewDelegate {
             throws UnsatisfiedLinkError {
         if (sLibraryLoaded) return true;
 
-        if (libDir != null) {
+        if (libDir != null && sLoadedByHoudini == false) {
             for (String library : MANDATORY_LIBRARIES) {
                 System.load(libDir + File.separator + "lib" + library + ".so");
             }
@@ -139,8 +140,12 @@ class XWalkViewDelegate {
             libraryLoader.loadNow(context);
         } catch (ProcessInitException e) {
         }
-
-        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) return false;
+        // If sRunningOnIA is true and nativeIsLibraryBuiltForIA() is false,
+        // it means that library was loaded successfully by houdini.
+        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
+            sLoadedByHoudini = true;
+            return false;
+        }
 
         sLibraryLoaded = true;
         return true;
