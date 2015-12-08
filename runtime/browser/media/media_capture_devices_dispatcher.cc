@@ -36,7 +36,7 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
 
 XWalkMediaCaptureDevicesDispatcher*
     XWalkMediaCaptureDevicesDispatcher::GetInstance() {
-  return Singleton<XWalkMediaCaptureDevicesDispatcher>::get();
+  return base::Singleton<XWalkMediaCaptureDevicesDispatcher>::get();
 }
 
 void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(

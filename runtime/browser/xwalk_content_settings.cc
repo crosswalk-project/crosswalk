@@ -20,7 +20,7 @@ namespace xwalk {
 
 // static
 XWalkContentSettings* XWalkContentSettings::GetInstance() {
-  return Singleton<XWalkContentSettings>::get();
+  return base::Singleton<XWalkContentSettings>::get();
 }
 
 base::FilePath XWalkContentSettings::GetPrefFilePathFromPath(
