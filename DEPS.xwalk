@@ -17,12 +17,10 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'c488801cb2a1fb69e00b5f31930c3ed15c8d238c'
+chromium_crosswalk_rev = '3b673ef20997bae0a1c929df0fd6ab725b97ef8d'
 v8_crosswalk_rev = '31d107f1b9f05f92785cdb79b16d22074a7c492b'
-ozone_wayland_rev = 'd6ad1b8bb4e2c71427283ffc21ac8d66cb576730'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
-ozone_wayland_git = 'https://github.com/01org'
 
 # ------------------------------------------------------
 # gclient solutions.
@@ -83,14 +81,6 @@ solutions = [
     ],
   },
 
-  # ozone-wayland is set as a separate solution because we gclient _not_ to read
-  # its .DEPS.git: it changes the recursion limit and tries to check Chromium
-  # upstream out itself, leading to URL conflicts and errors about duplicate
-  # entries.
-  { 'name': 'src/ozone',
-    'url': ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
-    'deps_file': '',
-  }
 ]
 
 hooks = [
