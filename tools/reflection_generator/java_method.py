@@ -513,8 +513,12 @@ class Method(object):
     if return_is_internal:
       template = Template("""\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        ${GENERIC_TYPE_DECLARE}${RETURN}coreBridge.getBridgeObject(\
+        if (${METHOD_DECLARE_NAME}.isNull()) {
+            ${RETURN_SUPER}${NAME}Super(${PARAMS_PASSING_SUPER});
+        } else {
+            ${GENERIC_TYPE_DECLARE}${RETURN}coreBridge.getBridgeObject(\
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
+        }
     }
 """)
     elif self._is_abstract:
