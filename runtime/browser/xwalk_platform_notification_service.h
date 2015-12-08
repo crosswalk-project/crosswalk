@@ -58,7 +58,7 @@ class XWalkPlatformNotificationService
       std::set<std::string>* displayed_notifications) override;
 
  private:
-  friend struct DefaultSingletonTraits<XWalkPlatformNotificationService>;
+  friend struct base::DefaultSingletonTraits<XWalkPlatformNotificationService>;
 
   XWalkPlatformNotificationService();
   ~XWalkPlatformNotificationService() override;

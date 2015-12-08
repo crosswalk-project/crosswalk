@@ -56,8 +56,6 @@
     return NULL;                                                \
   }
 
-template <typename T> struct DefaultSingletonTraits;
-
 namespace xwalk {
 namespace extensions {
 
@@ -90,7 +88,7 @@ class XWalkExternalAdapter {
   static const void* GetInterface(const char* name);
 
  private:
-  friend struct DefaultSingletonTraits<XWalkExternalAdapter>;
+  friend struct base::DefaultSingletonTraits<XWalkExternalAdapter>;
 
   XWalkExternalAdapter();
   ~XWalkExternalAdapter();

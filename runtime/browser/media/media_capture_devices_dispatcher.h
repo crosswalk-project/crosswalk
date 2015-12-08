@@ -85,7 +85,8 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   void SetTestVideoCaptureDevices(const content::MediaStreamDevices& devices);
 
  private:
-  friend struct DefaultSingletonTraits<XWalkMediaCaptureDevicesDispatcher>;
+  friend struct
+      base::DefaultSingletonTraits<XWalkMediaCaptureDevicesDispatcher>;
 
   XWalkMediaCaptureDevicesDispatcher();
   ~XWalkMediaCaptureDevicesDispatcher() override;
