@@ -17,6 +17,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/web_contents.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -237,7 +238,7 @@ content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager(
 }
 
 void Runtime::ActivateContents(content::WebContents* contents) {
-  contents->GetRenderViewHost()->Focus();
+  contents->GetRenderViewHost()->GetWidget()->Focus();
 }
 
 content::ColorChooser* Runtime::OpenColorChooser(
