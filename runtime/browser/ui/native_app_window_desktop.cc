@@ -8,6 +8,7 @@
 #include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "grit/xwalk_strings.h"
@@ -306,7 +307,7 @@ void NativeAppWindowDesktop::ButtonPressed(views::Button* sender,
 }
 
 void NativeAppWindowDesktop::FocusContent() {
-  web_contents_->GetRenderViewHost()->Focus();
+  web_contents_->GetRenderViewHost()->GetWidget()->Focus();
 }
 
 void NativeAppWindowDesktop::ShowWebViewContextMenu(

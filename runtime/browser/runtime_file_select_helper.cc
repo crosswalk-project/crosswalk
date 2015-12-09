@@ -20,6 +20,7 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_file_info.h"
@@ -338,7 +339,7 @@ void RuntimeFileSelectHelper::RunFileChooser(RenderViewHost* render_view_host,
   notification_registrar_.RemoveAll();
   notification_registrar_.Add(
       this, content::NOTIFICATION_RENDER_WIDGET_HOST_DESTROYED,
-      content::Source<RenderWidgetHost>(render_view_host_));
+      content::Source<RenderWidgetHost>(render_view_host_->GetWidget()));
   notification_registrar_.Add(
       this, content::NOTIFICATION_WEB_CONTENTS_DESTROYED,
       content::Source<WebContents>(web_contents_));
@@ -405,8 +406,8 @@ void RuntimeFileSelectHelper::RunFileChooserOnUIThread(
       // TODO(wang16): Load last select directory here
       base::FilePath();
 
-  gfx::NativeWindow owning_window =
-      platform_util::GetTopLevel(render_view_host_->GetView()->GetNativeView());
+  gfx::NativeWindow owning_window = platform_util::GetTopLevel(
+      render_view_host_->GetWidget()->GetView()->GetNativeView());
 
 #if defined(OS_ANDROID)
   // Android needs the original MIME types and an additional capture value.
@@ -470,7 +471,7 @@ void RuntimeFileSelectHelper::Observe(
   switch (type) {
     case content::NOTIFICATION_RENDER_WIDGET_HOST_DESTROYED: {
       DCHECK(content::Source<RenderWidgetHost>(source).ptr() ==
-             render_view_host_);
+             render_view_host_->GetWidget());
       render_view_host_ = NULL;
       break;
     }
