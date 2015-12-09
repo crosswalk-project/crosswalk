@@ -37,8 +37,8 @@ class RuntimeNetworkDelegate : public net::NetworkDelegateImpl {
   void OnBeforeRedirect(net::URLRequest* request,
                         const GURL& new_location) override;
   void OnResponseStarted(net::URLRequest* request) override;
-  void OnRawBytesRead(const net::URLRequest& request,
-                      int bytes_read) override;
+  void OnNetworkBytesReceived(net::URLRequest* request,
+                              int64_t bytes_received) override;
   void OnCompleted(net::URLRequest* request, bool started) override;
   void OnURLRequestDestroyed(net::URLRequest* request) override;
   void OnPACScriptError(int line_number,

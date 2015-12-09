@@ -73,8 +73,8 @@ void RuntimeNetworkDelegate::OnBeforeRedirect(net::URLRequest* request,
 void RuntimeNetworkDelegate::OnResponseStarted(net::URLRequest* request) {
 }
 
-void RuntimeNetworkDelegate::OnRawBytesRead(const net::URLRequest& request,
-                                            int bytes_read) {
+void RuntimeNetworkDelegate::OnNetworkBytesReceived(net::URLRequest* request,
+                                                    int64_t bytes_received) {
 }
 
 void RuntimeNetworkDelegate::OnCompleted(net::URLRequest* request,
