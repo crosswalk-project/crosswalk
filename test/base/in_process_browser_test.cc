@@ -131,7 +131,7 @@ void InProcessBrowserTest::OnRuntimeClosed(Runtime* runtime) {
 
   if (runtimes_.empty())
     base::MessageLoop::current()->PostTask(
-        FROM_HERE, base::MessageLoop::QuitClosure());
+        FROM_HERE, base::MessageLoop::QuitWhenIdleClosure());
 }
 
 void InProcessBrowserTest::CloseAll() {
