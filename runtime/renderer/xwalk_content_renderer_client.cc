@@ -254,8 +254,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 }
 
 void XWalkContentRendererClient::GetNavigationErrorStrings(
-    content::RenderView* render_view,
-    blink::WebFrame* frame,
+    content::RenderFrame* render_frame,
     const blink::WebURLRequest& failed_request,
     const blink::WebURLError& error,
     std::string* error_html,
