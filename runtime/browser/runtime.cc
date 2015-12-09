@@ -240,10 +240,6 @@ void Runtime::ActivateContents(content::WebContents* contents) {
   contents->GetRenderViewHost()->Focus();
 }
 
-void Runtime::DeactivateContents(content::WebContents* contents) {
-  contents->GetRenderViewHost()->Blur();
-}
-
 content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
     SkColor initial_color,
