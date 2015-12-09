@@ -129,7 +129,6 @@ class Runtime : public content::WebContentsDelegate,
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* contents) override;
   void ActivateContents(content::WebContents* contents) override;
-  void DeactivateContents(content::WebContents* contents) override;
   bool CanOverscrollContent() const override;
   bool PreHandleKeyboardEvent(
       content::WebContents* source,
