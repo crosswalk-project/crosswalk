@@ -234,7 +234,7 @@ void ApplicationService::OnApplicationTerminated(
 
   if (applications_.empty()) {
     base::MessageLoop::current()->PostTask(
-          FROM_HERE, base::MessageLoop::QuitClosure());
+          FROM_HERE, base::MessageLoop::QuitWhenIdleClosure());
   }
 }
 
