@@ -56,7 +56,7 @@ void TestClosure() {
   provider->AddObserver(&test_observer);
   provider->RemoveObserver(&test_observer);
 
-  base::MessageLoop::current()->Quit();
+  base::MessageLoop::current()->QuitWhenIdle();
 }
 
 }  // namespace
