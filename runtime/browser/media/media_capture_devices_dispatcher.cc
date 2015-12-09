@@ -51,7 +51,7 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
       (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested) {
     switch (request.request_type) {
-      case content::MEDIA_OPEN_DEVICE:
+      case content::MEDIA_OPEN_DEVICE_PEPPER_ONLY:
       case content::MEDIA_DEVICE_ACCESS:
       case content::MEDIA_GENERATE_STREAM:
       case content::MEDIA_ENUMERATE_DEVICES:
