@@ -20,7 +20,7 @@ namespace content {
 class RenderProcessHost;
 }
 
-#if defined(USE_WEBUI_FILE_PICKER)
+#if defined(USE_AURA)
 namespace wm {
 class WMState;
 }
@@ -87,7 +87,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
 
  private:
-#if defined(USE_WEBUI_FILE_PICKER)
+#if defined(USE_AURA)
   scoped_ptr<wm::WMState> wm_state_;
 #endif
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainParts);

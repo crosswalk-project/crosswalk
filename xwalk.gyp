@@ -181,10 +181,6 @@
         'runtime/browser/runtime_geolocation_permission_context.h',
         'runtime/browser/runtime_javascript_dialog_manager.cc',
         'runtime/browser/runtime_javascript_dialog_manager.h',
-        'runtime/browser/runtime_javascript_dialog.h',
-        'runtime/browser/runtime_javascript_dialog.cc',
-        'runtime/browser/runtime_javascript_dialog_win.h',
-        'runtime/browser/runtime_javascript_dialog_win.cc',
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
@@ -363,14 +359,10 @@
         ['OS=="linux"', {
           'dependencies': [
             'build/system.gyp:libnotify',
-            '../components/components.gyp:app_modal',
-            '../components/components.gyp:constrained_window',
           ],
           'sources': [
             'runtime/browser/linux/xwalk_notification_manager.cc',
             'runtime/browser/linux/xwalk_notification_manager.h',
-            'runtime/browser/ui/xwalk_javascript_native_dialog_factory.h',
-            'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
           ]
         }],  # OS=="linux"
         ['OS=="linux"', {
@@ -390,12 +382,20 @@
         }],  # os_posix==1 and OS != "mac" and use_allocator=="tcmalloc"
         ['toolkit_views==1', {
           'dependencies': [
+            '../components/components.gyp:app_modal',
+            '../components/components.gyp:constrained_window',
+            '../components/components.gyp:guest_view_browser',
+            '../components/components.gyp:ui_zoom',
             '../ui/events/events.gyp:events',
             '../ui/strings/ui_strings.gyp:ui_strings',
             '../ui/views/controls/webview/webview.gyp:webview',
             '../ui/views/views.gyp:views',
             '../ui/resources/ui_resources.gyp:ui_resources',
           ],
+          'sources': [
+            'runtime/browser/ui/xwalk_javascript_native_dialog_factory.h',
+            'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
+          ]
         }, { # toolkit_views==0
           'sources/': [
             ['exclude', 'runtime/browser/ui/xwalk_views_delegate.cc'],
@@ -405,6 +405,7 @@
         ['use_aura==1', {
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
+            '../ui/wm/wm.gyp:wm',
             '../ui/base/ime/ui_base_ime.gyp:ui_base_ime',
           ],
         }],
@@ -600,12 +601,8 @@
       'conditions': [
         [ 'OS!="android"', {
           'dependencies': [
-            '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
-          ],
-        }],
-        [ 'OS == "linux"', {
-          'dependencies': [
             '<(DEPTH)/components/components_strings.gyp:components_strings',
+            '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
           ],
         }],
         ['toolkit_views==1', {
@@ -640,12 +637,6 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
-                ],
-              },
-            }],
-            [ 'OS =="linux"', {
-              'variables': {
-                'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/components/strings/components_strings_en-US.pak',
                 ],
               },

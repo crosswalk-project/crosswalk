@@ -32,6 +32,7 @@
 #include "xwalk/runtime/browser/ui/gtk2_ui.h"
 #endif
 #include "xwalk/runtime/browser/devtools/xwalk_devtools_manager_delegate.h"
+#include "xwalk/runtime/browser/ui/xwalk_javascript_native_dialog_factory.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -46,18 +47,17 @@
 #include "ui/events/devices/x11/touch_factory_x11.h"
 #endif
 
+#if defined(USE_AURA)
+#include "ui/wm/core/wm_state.h"
+#endif
+
 #if !defined(OS_CHROMEOS) && defined(USE_AURA) && defined(OS_LINUX)
 #include "ui/base/ime/input_method_initializer.h"
 #endif
 
 #if defined(USE_WEBUI_FILE_PICKER)
-#include "ui/wm/core/wm_state.h"
 #include "xwalk/runtime/browser/ui/linux_webui/linux_webui.h"
 #include "xwalk/runtime/browser/ui/webui/xwalk_web_ui_controller_factory.h"
-#endif
-
-#if defined(OS_LINUX)
-#include "xwalk/runtime/browser/ui/xwalk_javascript_native_dialog_factory.h"
 #endif
 
 namespace {
@@ -146,12 +146,15 @@ void XWalkBrowserMainParts::PreEarlyInitialization() {
   ui::InitializeInputMethodForTesting();
 #if defined(USE_WEBUI_FILE_PICKER)
   ui::LinuxShellDialog::SetInstance(BuildWebUI());
-  wm_state_.reset(new wm::WMState);
 #elif defined(USE_GTK_UI)
   views::LinuxUI* gtk2_ui = BuildGtk2UI();
   gtk2_ui->Initialize();
   views::LinuxUI::SetInstance(gtk2_ui);
 #endif
+#endif
+
+#if defined(USE_AURA)
+  wm_state_.reset(new wm::WMState);
 #endif
 }
 
@@ -239,7 +242,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     delete parameters_.ui_task;
     run_default_message_loop_ = false;
   }
-#if defined(OS_LINUX)
+#if defined(USE_AURA)
   InstallXWalkJavaScriptNativeDialogFactory();
 #endif
 }

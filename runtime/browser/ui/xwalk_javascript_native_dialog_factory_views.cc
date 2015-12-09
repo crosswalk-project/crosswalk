@@ -10,6 +10,7 @@
 #include "components/app_modal/views/javascript_app_modal_dialog_views.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "components/constrained_window/constrained_window_views_client.h"
+#include "components/web_modal/web_contents_modal_dialog_manager.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 
@@ -80,3 +81,14 @@ void InstallXWalkJavaScriptNativeDialogFactory() {
   constrained_window::SetConstrainedWindowViewsClient(
       make_scoped_ptr(new XWalkConstrainedWindowViewsClient));
 }
+
+namespace web_modal {
+
+SingleWebContentsDialogManager*
+WebContentsModalDialogManager::CreateNativeWebModalManager(
+gfx::NativeWindow dialog,
+SingleWebContentsDialogManagerDelegate* native_delegate) {
+  return nullptr;
+}
+
+}  // namespace web_modal

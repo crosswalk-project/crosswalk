@@ -178,8 +178,6 @@ class Runtime : public content::WebContentsDelegate,
   // Notification manager.
   content::NotificationRegistrar registrar_;
 
-  scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
-
   // The WebContents owned by this runtime.
   scoped_ptr<content::WebContents> web_contents_;
 

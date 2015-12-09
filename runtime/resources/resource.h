@@ -8,11 +8,6 @@
 //
 
 #define IDR_MAINFRAME                   102
-#define IDD_ALERT                       130
-#define IDD_CONFIRM                     131
-#define IDD_PROMPT                      132
-#define IDC_PROMPTEDIT                  1005
-#define IDC_DIALOGTEXT                  1006
 
 // Next default values for new objects
 //
