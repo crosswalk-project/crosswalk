@@ -165,7 +165,9 @@ void XWalkDevToolsFrontend::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   if (!frontend_host_) {
     frontend_host_.reset(content::DevToolsFrontendHost::Create(
-        web_contents()->GetMainFrame(), this));
+        web_contents()->GetMainFrame(),
+        base::Bind(&XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontend,
+                   base::Unretained(this))));
   }
 }
 
@@ -197,10 +199,12 @@ void XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   dict->GetInteger("id", &request_id);
   dict->GetList("params", &params);
 
-  std::string browser_message;
-  if (method == "sendMessageToBrowser" && params &&
-      params->GetSize() == 1 && params->GetString(0, &browser_message)) {
-    agent_host_->DispatchProtocolMessage(browser_message);
+  if (method == "dispatchProtocolMessage" && params && params->GetSize() == 1) {
+    std::string protocol_message;
+    if (!params->GetString(0, &protocol_message))
+      return;
+    if (agent_host_)
+      agent_host_->DispatchProtocolMessage(protocol_message);
   } else if (method == "loadCompleted") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.setUseSoftMenu(true);"));
@@ -255,12 +259,6 @@ void XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontend(
 
   if (request_id)
     SendMessageAck(request_id, nullptr);
-}
-
-void XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontendToBackend(
-    const std::string& message) {
-  if (agent_host_)
-    agent_host_->DispatchProtocolMessage(message);
 }
 
 void XWalkDevToolsFrontend::DispatchProtocolMessage(
