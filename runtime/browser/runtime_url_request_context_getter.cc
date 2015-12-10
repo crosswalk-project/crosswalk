@@ -11,6 +11,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -97,17 +98,15 @@ RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
   // must synchronously run on the glib message loop. This will be passed to
   // the URLRequestContextStorage on the IO thread in GetURLRequestContext().
 #if defined(OS_ANDROID)
-  net::ProxyConfigServiceAndroid* config_service =
-      static_cast<net::ProxyConfigServiceAndroid*>(
-          net::ProxyService::CreateSystemProxyConfigService(
-              io_loop_->task_runner(), file_loop_->task_runner()));
-  config_service->set_exclude_pac_url(true);
-
-  proxy_config_service_.reset(config_service);
+  proxy_config_service_ = net::ProxyService::CreateSystemProxyConfigService(
+      io_loop_->task_runner(), file_loop_->task_runner());
+  net::ProxyConfigServiceAndroid* android_config_service =
+      static_cast<net::ProxyConfigServiceAndroid*>(proxy_config_service_.get());
+  android_config_service->set_exclude_pac_url(true);
+  proxy_config_service_.reset(android_config_service);
 #else
-  proxy_config_service_.reset(
-      net::ProxyService::CreateSystemProxyConfigService(
-          io_loop_->task_runner(), file_loop_->task_runner()));
+  proxy_config_service_ = net::ProxyService::CreateSystemProxyConfigService(
+      io_loop_->task_runner(), file_loop_->task_runner());
 #endif
 }
 
@@ -146,26 +145,28 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_channel_id_service(make_scoped_ptr(new net::ChannelIDService(
         new net::DefaultChannelIDStore(NULL),
         base::WorkerPool::GetTaskRunner(true))));
-    storage_->set_http_user_agent_settings(new net::StaticHttpUserAgentSettings(
-        "en-us,en", xwalk::GetUserAgent()));
+    storage_->set_http_user_agent_settings(make_scoped_ptr(
+        new net::StaticHttpUserAgentSettings("en-us,en",
+                                             xwalk::GetUserAgent())));
 
     scoped_ptr<net::HostResolver> host_resolver(
         net::HostResolver::CreateDefaultResolver(NULL));
 
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
-    storage_->set_transport_security_state(new net::TransportSecurityState);
+    storage_->set_transport_security_state(
+        make_scoped_ptr(new net::TransportSecurityState));
 #if defined(OS_ANDROID)
     // Android provides a local HTTP proxy that handles all the proxying.
     // Create the proxy without a resolver since we rely
     // on this local HTTP proxy.
     storage_->set_proxy_service(
         net::ProxyService::CreateWithoutProxyResolver(
-        proxy_config_service_.release(),
+        proxy_config_service_.Pass(),
         NULL));
 #else
     storage_->set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
-        proxy_config_service_.release(),
+        proxy_config_service_.Pass(),
         0,
         NULL));
 #endif
@@ -176,14 +177,14 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         new net::HttpServerPropertiesImpl));
 
     base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
-    net::HttpCache::DefaultBackend* main_backend =
+    scoped_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
             cache_path,
             GetDiskCacheSize(),
             BrowserThread::GetMessageLoopProxyForThread(
-                BrowserThread::CACHE));
+                BrowserThread::CACHE)));
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.cert_verifier =
@@ -210,10 +211,12 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     network_session_params.host_resolver =
         url_request_context_->host_resolver();
 
-    net::HttpCache* main_cache = new net::HttpCache(
-        network_session_params, main_backend);
-    storage_->set_http_transaction_factory(main_cache);
-
+    storage_->set_http_network_session(
+        make_scoped_ptr(new net::HttpNetworkSession(network_session_params)));
+    storage_->set_http_transaction_factory(
+        make_scoped_ptr(new net::HttpCache(storage_->http_network_session(),
+                        main_backend.Pass(),
+                        false /* set_up_quic_server_info */)));
 #if defined(OS_ANDROID)
     scoped_ptr<XWalkURLRequestJobFactory> job_factory_impl(
         new XWalkURLRequestJobFactory);
@@ -231,7 +234,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
          it != protocol_handlers_.end();
          ++it) {
       set_protocol = job_factory_impl->SetProtocolHandler(
-          it->first, it->second.release());
+          it->first, make_scoped_ptr(it->second.release()));
       DCHECK(set_protocol);
     }
     protocol_handlers_.clear();
@@ -240,14 +243,14 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // Add new basic schemes.
     set_protocol = job_factory_impl->SetProtocolHandler(
         url::kDataScheme,
-        new net::DataProtocolHandler);
+        make_scoped_ptr(new net::DataProtocolHandler));
     DCHECK(set_protocol);
     set_protocol = job_factory_impl->SetProtocolHandler(
         url::kFileScheme,
-        new net::FileProtocolHandler(
+        make_scoped_ptr(new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
             GetTaskRunnerWithShutdownBehavior(
-                base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
+                base::SequencedWorkerPool::SKIP_ON_SHUTDOWN))));
     DCHECK(set_protocol);
 
     // Step 3:
@@ -298,7 +301,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     }
     request_interceptors_.weak_clear();
 
-    storage_->set_job_factory(top_job_factory.release());
+    storage_->set_job_factory(top_job_factory.Pass());
   }
 
   return url_request_context_.get();
@@ -317,8 +320,9 @@ void RuntimeURLRequestContextGetter::UpdateAcceptLanguages(
     const std::string& accept_languages) {
   if (!storage_)
     return;
-  storage_->set_http_user_agent_settings(new net::StaticHttpUserAgentSettings(
-      accept_languages, xwalk::GetUserAgent()));
+  storage_->set_http_user_agent_settings(make_scoped_ptr(
+      new net::StaticHttpUserAgentSettings(accept_languages,
+                                           xwalk::GetUserAgent())));
 }
 
 }  // namespace xwalk
