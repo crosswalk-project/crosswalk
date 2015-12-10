@@ -90,6 +90,7 @@ class XWalkBrowserContext
   content::PushMessagingService* GetPushMessagingService() override;
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
+  content::BackgroundSyncController* GetBackgroundSyncController() override;
 
   RuntimeURLRequestContextGetter* GetURLRequestContextGetterById(
       const std::string& pkg_id);
