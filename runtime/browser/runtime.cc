@@ -10,9 +10,7 @@
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
-#if defined(OS_LINUX)
 #include "components/app_modal/javascript_dialog_manager.h"
-#endif
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
@@ -27,7 +25,6 @@
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
-#include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -225,13 +222,10 @@ void Runtime::DidNavigateMainFramePostCommit(
 
 content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager(
     content::WebContents* web_contents) {
-#if defined(OS_LINUX)
+#if defined(USE_AURA)
   return app_modal::JavaScriptDialogManager::GetInstance();
 #else
-  if (!javascript_dialog_manager_) {
-    javascript_dialog_manager_.reset(new RuntimeJavaScriptDialogManager);
-  }
-  return javascript_dialog_manager_.get();
+  return nullptr;
 #endif
 }
 
