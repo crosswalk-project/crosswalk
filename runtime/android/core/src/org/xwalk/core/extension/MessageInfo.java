@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import android.util.Log;
 
@@ -15,11 +15,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.xwalk.app.runtime.extension.XWalkExtensionClient;
+import org.xwalk.core.extension.XWalkExternalExtension;
 
 public class MessageInfo {
     private String TAG = "MessageInfo";
-    private XWalkExtensionClient mExtension;
+    private XWalkExternalExtension mExtension;
     private int mInstanceId;
     private String mJsName;
     private String mCallbackId;
@@ -43,7 +43,7 @@ public class MessageInfo {
     }
 
     public MessageInfo(
-            XWalkExtensionClient extension, int instanceId, String message) {
+            XWalkExternalExtension extension, int instanceId, String message) {
         mExtension = extension;
         mInstanceId = instanceId;
         if (message.trim().charAt(0) == '[') {
@@ -108,7 +108,7 @@ public class MessageInfo {
 
     // Currently binary message only
     public MessageInfo(
-            XWalkExtensionClient extension, int instanceId, byte[] message) {
+            XWalkExternalExtension extension, int instanceId, byte[] message) {
         mExtension = extension;
         mInstanceId = instanceId;
         mCmd = "invokeNative";
@@ -176,7 +176,7 @@ public class MessageInfo {
         }
     }
 
-    public XWalkExtensionClient getExtension() {
+    public XWalkExternalExtension getExtension() {
         return mExtension;
     }
 

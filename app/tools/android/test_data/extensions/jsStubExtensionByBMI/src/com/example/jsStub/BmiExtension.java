@@ -4,12 +4,12 @@
 
 package com.example.jsStub;
 
-import org.xwalk.app.runtime.extension.*;
+import org.xwalk.core.extension.*;
 
 /*
  * An example for constructor extension
  */
-public class BmiExtension extends XWalkExtensionClient {
+public class BmiExtension extends XWalkExternalExtension {
     public BmiExtension(String extensionName, String jsApi, XWalkExtensionContextClient context) {
         super(extensionName, jsApi, context);
     }

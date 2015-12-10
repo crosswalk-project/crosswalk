@@ -1,4 +1,4 @@
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import android.util.Log;
 
@@ -207,7 +207,7 @@ class ReflectionHelper {
      * 1. restore original Java object in the array
      * 2. if the parameter is a callbackID, then combine the instanceID with it
      */
-    Object[] getArgsFromJson(XWalkExtensionClient ext, int instanceID, Method m, JSONArray args) {
+    Object[] getArgsFromJson(XWalkExternalExtension ext, int instanceID, Method m, JSONArray args) {
         Class<?>[] pTypes = m.getParameterTypes();
         Object[] oArgs = new Object[pTypes.length];
         boolean isStatic = Modifier.isStatic(m.getModifiers());
@@ -306,7 +306,7 @@ class ReflectionHelper {
                 JSONObject.quote(sObj.toString()) : sObj.toString();
     }
 
-    Object invokeMethod(XWalkExtensionClient ext, int instanceID, Object obj,
+    Object invokeMethod(XWalkExternalExtension ext, int instanceID, Object obj,
                         String mName, JSONArray args) throws Exception {
         if (!hasMethod(mName)) {
             throw new NoSuchMethodException("No such method:" + mName);
@@ -386,7 +386,7 @@ class ReflectionHelper {
                 args = info.getArgs();
             }
             String memberName = info.getJsName();
-            XWalkExtensionClient ext = info.getExtension();
+            XWalkExternalExtension ext = info.getExtension();
             int instanceId = info.getInstanceId();
             switch (cmd) {
                 case "invokeNative":

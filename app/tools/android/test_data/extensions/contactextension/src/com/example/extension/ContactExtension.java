@@ -23,10 +23,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.xwalk.app.runtime.extension.XWalkExtensionClient;
-import org.xwalk.app.runtime.extension.XWalkExtensionContextClient;
+import org.xwalk.core.extension.XWalkExternalExtension;
+import org.xwalk.core.extension.XWalkExtensionContextClient;
 
-public class ContactExtension extends XWalkExtensionClient {
+public class ContactExtension extends XWalkExternalExtension {
     final private static String TAG = "ExternalContactExtension";
     final private XWalkExtensionContextClient mContext;
 

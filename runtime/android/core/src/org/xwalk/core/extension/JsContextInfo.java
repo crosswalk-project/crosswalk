@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import org.json.JSONObject;
 
@@ -10,12 +10,12 @@ import org.json.JSONObject;
  * This is a helper class to implement static members exported to constructors.
  */
 public class JsContextInfo {
-    private XWalkExtensionClient extensionClient;
+    private XWalkExternalExtension extensionClient;
     private String objectId;
     private Class<?> targetClass;
     private int extInstanceId;
 
-    JsContextInfo(int instanceId, XWalkExtensionClient ext, Class<?> tClass, String objId) {
+    JsContextInfo(int instanceId, XWalkExternalExtension ext, Class<?> tClass, String objId) {
         extensionClient = ext;
         extInstanceId = instanceId;
         objectId = objId;
@@ -34,7 +34,7 @@ public class JsContextInfo {
         return objectId;
     }
 
-    public XWalkExtensionClient getExtensionClient() {
+    public XWalkExternalExtension getExtensionClient() {
         return extensionClient;
     }
 

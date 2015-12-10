@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import android.util.Log;
 
@@ -15,7 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.xwalk.app.runtime.extension.ReflectionHelper.MemberType;
+import org.xwalk.core.extension.ReflectionHelper.MemberType;
 
 /*
  * The message handler for extensions.

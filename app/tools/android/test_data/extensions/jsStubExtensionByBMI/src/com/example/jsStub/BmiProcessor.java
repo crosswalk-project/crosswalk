@@ -4,7 +4,7 @@
 
 package com.example.jsStub;
 
-import org.xwalk.app.runtime.extension.*;
+import org.xwalk.core.extension.*;
 
 import java.lang.Byte;
 import java.lang.Integer;

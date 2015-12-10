@@ -184,4 +184,8 @@ public class XWalkRuntimeView extends LinearLayout {
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
         mProvider.loadDataForTest(data, mimeType, isBase64Encoded);
     }
+
+    public void loadExtensions() {
+        mProvider.loadExtensions();
+    }
 }

@@ -181,6 +181,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private XWalkActivityStateListener mActivityStateListener;
     private ValueCallback<Uri> mFilePathCallback;
     private String mCameraPhotoPath;
+    private XWalkExternalExtensionManagerInternal mExternalExtensionManager;
 
     /**
      * Normal reload mode as default.
@@ -217,7 +218,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
-                  "        removeViewAt(0);"})
+                  "        removeViewAt(0);",
+                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"})
     public XWalkViewInternal(Context context) {
         super(context, null);
 
@@ -247,7 +249,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
-                  "        removeViewAt(0);"})
+                  "        removeViewAt(0);",
+                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -275,7 +278,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
-                  "        removeViewAt(0);"})
+                  "        removeViewAt(0);",
+                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"})
     public XWalkViewInternal(Context context, Activity activity) {
         super(context, null);
 
@@ -656,6 +660,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Start another activity to get some data back.
+     * Here will start from the current XWalkView Activity,
+     * but XWalkView embedder can override this API to do their additional job.
+     */
+    @XWalkAPI
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
+        getActivity().startActivityForResult(intent, requestCode, options);
+    }
+
+    /**
      * Pass through activity result to XWalkViewInternal. Many internal facilities need this
      * to handle activity result like JavaScript dialog, Crosswalk extensions, etc.
      * See <a href="http://developer.android.com/reference/android/app/Activity.html">
@@ -668,6 +682,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (mContent == null) return;
+
+        if (mExternalExtensionManager != null) {
+            mExternalExtensionManager.onActivityResult(requestCode, resultCode, data);
+        }
+
         if(requestCode == INPUT_FILE_REQUEST_CODE && mFilePathCallback != null) {
             Uri results = null;
 
@@ -709,6 +728,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public boolean onNewIntent(Intent intent) {
         if (mContent == null) return false;
+
+        if (mExternalExtensionManager != null) {
+            mExternalExtensionManager.onNewIntent(intent);
+        }
+
         return mContent.onNewIntent(intent);
     }
 
@@ -1198,6 +1222,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     private void onActivityStateChange(Activity activity, int newState) {
         assert(getActivity() == activity);
+
+        if (mExternalExtensionManager != null) {
+            mExternalExtensionManager.onActivityStateChange(activity, newState); 
+        }
+
         switch (newState) {
             case ActivityState.STARTED:
                 onShow();
@@ -1358,5 +1387,27 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void scrollBy(int x, int y) {
         mContent.scrollBy(x, y);
+    }
+
+    /**
+     * Get the external extension manager for current XWalkView.
+     * Embedders could employ this manager to load their own external extensions.
+     * @return the external extension manager.
+     */
+    @XWalkAPI
+    public XWalkExternalExtensionManagerInternal getExtensionManager() {
+        if (mContent == null) return null;
+        checkThreadSafety();
+        return mExternalExtensionManager;
+    }
+
+    /**
+     * XWalkExternalExtensionManagerInternal will call this function after its construction.
+     * @hide
+     */
+    public void setExternalExtensionManager(XWalkExternalExtensionManagerInternal manager) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mExternalExtensionManager = manager;
     }
 }

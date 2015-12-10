@@ -30,6 +30,7 @@ interface XWalkRuntimeViewProvider {
     public void loadAppFromManifest(String manifestUrl);
     public void enableRemoteDebugging(String frontEndUrl, String socketName);
     public void disableRemoteDebugging();
+    public void loadExtensions();
 
     // For instrumentation test.
     public String getTitleForTest();

@@ -1,4 +1,4 @@
-package org.xwalk.app.runtime.extension;
+package org.xwalk.core.extension;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

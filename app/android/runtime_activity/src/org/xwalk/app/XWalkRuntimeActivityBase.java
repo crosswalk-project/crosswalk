@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
 import org.xwalk.app.runtime.XWalkRuntimeView;
 import org.xwalk.core.XWalkActivityDelegate;
 import org.xwalk.core.XWalkPreferences;
@@ -26,8 +25,6 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     private boolean mRemoteDebugging = false;
 
     private boolean mUseAnimatableView = false;
-
-    private XWalkRuntimeExtensionManager mExtensionManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,10 +55,10 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     public void onXWalkReady() {
         // XWalkPreferences.ENABLE_EXTENSIONS
         if (XWalkPreferences.getValue("enable-extensions")) {
-                // Enable xwalk extension mechanism and start load extensions here.
-                // Note that it has to be after above initialization.
-            mExtensionManager = new XWalkRuntimeExtensionManager(getApplicationContext(), this);
-            mExtensionManager.loadExtensions();
+            // Enable xwalk extension mechanism and start load extensions here.
+            // Note that it has to be after above initialization.
+            // RuntimeView will finally employ XWalkView to load external extensions.
+            mRuntimeView.loadExtensions();
         }
         didTryLoadRuntimeView(mRuntimeView);
         // TODO(sunlin): In shared mode, mRuntimeView.onCreate() will be
@@ -73,14 +70,12 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        if (mExtensionManager != null) mExtensionManager.onStart();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         if (mRuntimeView != null) mRuntimeView.onPause();
-        if (mExtensionManager != null) mExtensionManager.onPause();
     }
 
     @Override
@@ -88,32 +83,27 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
         super.onResume();
         mActivityDelegate.onResume();
         if (mRuntimeView != null) mRuntimeView.onResume();
-        if (mExtensionManager != null) mExtensionManager.onResume();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mExtensionManager != null) mExtensionManager.onStop();
     }
 
     @Override
     public void onDestroy() {
-        if (mExtensionManager != null) mExtensionManager.onDestroy();
         super.onDestroy();
     }
 
     @Override
     public void onNewIntent(Intent intent) {
         if (mRuntimeView == null || !mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
-        if (mExtensionManager != null) mExtensionManager.onNewIntent(intent);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (mRuntimeView != null) mRuntimeView.onActivityResult(requestCode, resultCode, data);
-        if (mExtensionManager != null) mExtensionManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void tryLoadRuntimeView() {

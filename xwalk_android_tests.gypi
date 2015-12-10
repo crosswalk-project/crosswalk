@@ -264,10 +264,10 @@
           '<(PRODUCT_DIR)/lib/libecho_extension.>(android_product_extension)',
         ],
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/runtime_client_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/index.html',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/manifest.json',
-          '<(PRODUCT_DIR)/runtime_client_shell/assets/myextension/myextension.js',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/xwalk-extensions/myextension/myextension.js',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/xwalk-extensions/myextension/myextension.json',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/sampapp-icon-helloworld.png',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/www/manifest_self.json',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/www/manifest_inline_script.json',
@@ -283,14 +283,16 @@
           'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets',
           'files': [
             'test/android/data/manifest.json',
-            'test/android/data/extensions-config.json',
             'test/android/data/index.html',
             'test/android/data/sampapp-icon-helloworld.png',
           ],
         },
         {
-          'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets/myextension',
-          'files': ['test/android/data/myextension/myextension.js'],
+          'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets/xwalk-extensions/myextension',
+          'files': [
+            'test/android/data/myextension/myextension.js',
+            'test/android/data/myextension/myextension.json',
+          ],
         },
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets/www',
@@ -335,7 +337,6 @@
           '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
         ],
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/index.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/contacts_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js',
@@ -344,7 +345,8 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/wifidirect_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/manifest.json',
-          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension/myextension.js',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk-extensions/myextension/myextension.js',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk-extensions/myextension/myextension.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk.pak',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_self.json',
@@ -372,14 +374,16 @@
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
           'files': [
             'test/android/data/manifest.json',
-            'test/android/data/extensions-config.json',
             'test/android/data/index.html',
             'test/android/data/sampapp-icon-helloworld.png',
           ],
         },
         {
-          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension',
-          'files': ['test/android/data/myextension/myextension.js'],
+          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk-extensions/myextension',
+          'files': [
+            'test/android/data/myextension/myextension.js',
+            'test/android/data/myextension/myextension.json',
+          ],
         },
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi',
