@@ -29,7 +29,7 @@ class XWalkURLRequestJobFactory : public net::URLRequestJobFactory {
   ~XWalkURLRequestJobFactory() override;
 
   bool SetProtocolHandler(const std::string& scheme,
-                          ProtocolHandler* protocol_handler);
+                          scoped_ptr<ProtocolHandler> protocol_handler);
 
   // net::URLRequestJobFactory implementation.
   virtual net::URLRequestJob* MaybeCreateJobWithProtocolHandler(
