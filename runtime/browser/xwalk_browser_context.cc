@@ -240,6 +240,11 @@ content::PermissionManager* XWalkBrowserContext::GetPermissionManager() {
   return permission_manager_.get();
 }
 
+content::BackgroundSyncController*
+XWalkBrowserContext::GetBackgroundSyncController() {
+  return nullptr;
+}
+
 RuntimeURLRequestContextGetter*
 XWalkBrowserContext::GetURLRequestContextGetterById(
     const std::string& pkg_id) {
