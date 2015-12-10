@@ -35,7 +35,6 @@ namespace xwalk {
 class NativeAppWindowDesktop;
 
 class XWalkDevToolsFrontend : public content::WebContentsObserver,
-                              public content::DevToolsFrontendHost::Delegate,
                               public content::DevToolsAgentHostClient,
                               public net::URLFetcherDelegate,
                               public Runtime::Observer {
@@ -78,9 +77,7 @@ class XWalkDevToolsFrontend : public content::WebContentsObserver,
   void WebContentsDestroyed() override;
 
   // content::DevToolsFrontendHost::Delegate implementation.
-  void HandleMessageFromDevToolsFrontend(const std::string& message) override;
-  void HandleMessageFromDevToolsFrontendToBackend(
-      const std::string& message) override;
+  void HandleMessageFromDevToolsFrontend(const std::string& message);
 
   // net::URLFetcherDelegate overrides.
   void OnURLFetchComplete(const net::URLFetcher* source) override;
