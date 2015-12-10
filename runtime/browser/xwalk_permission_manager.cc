@@ -33,13 +33,13 @@ XWalkPermissionManager::XWalkPermissionManager()
 XWalkPermissionManager::~XWalkPermissionManager() {
 }
 
-void XWalkPermissionManager::RequestPermission(
+int XWalkPermissionManager::RequestPermission(
     content::PermissionType permission,
     content::RenderFrameHost* render_frame_host,
-    int request_id,
     const GURL& requesting_origin,
     bool user_gesture,
     const base::Callback<void(content::PermissionStatus)>& callback) {
+  int request_id = kNoPendingOperation;
   switch (permission) {
     case content::PermissionType::GEOLOCATION:
 #if defined(OS_ANDROID)
@@ -58,6 +58,8 @@ void XWalkPermissionManager::RequestPermission(
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
       callback.Run(content::PERMISSION_STATUS_GRANTED);
       break;
+    case content::PermissionType::AUDIO_CAPTURE:
+    case content::PermissionType::VIDEO_CAPTURE:
     case content::PermissionType::MIDI_SYSEX:
     case content::PermissionType::NOTIFICATIONS:
     case content::PermissionType::PUSH_MESSAGING:
@@ -72,35 +74,47 @@ void XWalkPermissionManager::RequestPermission(
       callback.Run(content::PERMISSION_STATUS_DENIED);
       break;
   }
+  return request_id;
 }
 
-void XWalkPermissionManager::CancelPermissionRequest(
-    content::PermissionType permission,
+int XWalkPermissionManager::RequestPermissions(
+    const std::vector<content::PermissionType>& permissions,
     content::RenderFrameHost* render_frame_host,
-    int request_id,
-    const GURL& requesting_origin) {
-  switch (permission) {
-    case content::PermissionType::GEOLOCATION:
-#if defined(OS_ANDROID)
-      geolocation_permission_context_->CancelGeolocationPermissionRequest(
-          content::WebContents::FromRenderFrameHost(render_frame_host),
-          requesting_origin);
-#endif
-      break;
-    case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
-      break;
-    case content::PermissionType::MIDI_SYSEX:
-    case content::PermissionType::NOTIFICATIONS:
-    case content::PermissionType::PUSH_MESSAGING:
-    case content::PermissionType::MIDI:
-    case content::PermissionType::DURABLE_STORAGE:
-      NOTIMPLEMENTED() << "CancelPermission not implemented for "
-                       << static_cast<int>(permission);
-      break;
-    case content::PermissionType::NUM:
-      NOTREACHED() << "PermissionType::NUM was not expected here.";
-      break;
-  }
+    const GURL& requesting_origin,
+    bool user_gesture,
+    const base::Callback<void(
+        const std::vector<content::PermissionStatus>&)>& callback) {
+// TODO(mrunalk): Rework this as per, https://codereview.chromium.org/1419083002
+  NOTIMPLEMENTED() << "RequestPermissions not implemented in Crosswalk";
+  return kNoPendingOperation;
+}
+
+void XWalkPermissionManager::CancelPermissionRequest(int request_id) {
+// TODO(mrunalk): Rework this as per,
+// https://codereview.chromium.org/1342833002
+// https://codereview.chromium.org/1375563002
+//  switch (permission) {
+//    case content::PermissionType::GEOLOCATION:
+//#if defined(OS_ANDROID)
+//      geolocation_permission_context_->CancelGeolocationPermissionRequest(
+//          content::WebContents::FromRenderFrameHost(render_frame_host),
+//          requesting_origin);
+//#endif
+//      break;
+//    case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
+//      break;
+//    case content::PermissionType::MIDI_SYSEX:
+//    case content::PermissionType::NOTIFICATIONS:
+//    case content::PermissionType::PUSH_MESSAGING:
+//    case content::PermissionType::MIDI:
+//    case content::PermissionType::DURABLE_STORAGE:
+//      NOTIMPLEMENTED() << "CancelPermission not implemented for "
+//                       << static_cast<int>(permission);
+//      break;
+//    case content::PermissionType::NUM:
+//      NOTREACHED() << "PermissionType::NUM was not expected here.";
+//      break;
+//  }
 }
 
 void XWalkPermissionManager::ResetPermission(
