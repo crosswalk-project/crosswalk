@@ -76,6 +76,10 @@ class XWalkAndroidDevToolsHttpHandlerDelegate
   std::string GetPageThumbnailData(const GURL& url) override {
     return std::string();
   }
+  content::DevToolsExternalAgentProxyDelegate*
+      HandleWebSocketConnection(const std::string& path) override {
+    return nullptr;
+  }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkAndroidDevToolsHttpHandlerDelegate);
