@@ -1132,6 +1132,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
               preWrapperLines = {
                   "        if (visibility == View.INVISIBLE) visibility = View.GONE;",
                   "        super.setVisibility(visibility);",
+                  "        setXWalkViewInternalVisibility(visibility);",
                   "        setSurfaceViewVisibility(visibility);"})
     public void setVisibility(int visibility) {
     }
@@ -1146,6 +1147,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.setVisibility(visibility);
+    }
+
+    /**
+     * Set the enabled state of XWalkViewInternal.
+     * @param visibility One of VISIBLE, INVISIBLE, or GONE.
+     * @since 6.0
+     */
+    @XWalkAPI(reservable = true)
+    public void setXWalkViewInternalVisibility(int visibility) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        super.setVisibility(visibility);
     }
 
     // Below methods are for test shell and instrumentation tests.
