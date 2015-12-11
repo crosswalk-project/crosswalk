@@ -97,7 +97,7 @@ class XWalkAutofillClient : public autofill::AutofillClient {
 
   virtual void ShowAutofillPopupImpl(
     const gfx::RectF& element_bounds,
-    bool is_rtl,
+    base::i18n::TextDirection text_direction,
     const std::vector<autofill::Suggestion>& suggestions) = 0;
 
   virtual void HideAutofillPopupImpl() = 0;
@@ -105,12 +105,13 @@ class XWalkAutofillClient : public autofill::AutofillClient {
  protected:
   explicit XWalkAutofillClient(content::WebContents* web_contents);
 
+  // The web_contents associated with this delegate.
+  content::WebContents* web_contents_;
+  base::WeakPtr<autofill::AutofillPopupDelegate> delegate_;
+
  private:
   friend class content::WebContentsUserData<XWalkAutofillClient>;
 
-  base::WeakPtr<autofill::AutofillPopupDelegate> delegate_;
-  // The web_contents associated with this delegate.
-  content::WebContents* web_contents_;
   bool save_form_data_;
 
   // The current Autofill query values.

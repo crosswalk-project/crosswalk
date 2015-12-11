@@ -17,6 +17,8 @@ class RectF;
 
 namespace xwalk {
 
+class XWalkAutofillPopupController;
+
 class XWalkAutofillClientDesktop :
     public XWalkAutofillClient,
     public content::WebContentsUserData<XWalkAutofillClientDesktop> {
@@ -29,8 +31,10 @@ class XWalkAutofillClientDesktop :
 
   void ShowAutofillPopupImpl(
       const gfx::RectF& element_bounds,
-      bool is_rtl,
+      base::i18n::TextDirection text_direction,
       const std::vector<autofill::Suggestion>& suggestions) override;
+
+  base::WeakPtr<XWalkAutofillPopupController> popup_controller_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkAutofillClientDesktop);
 };
