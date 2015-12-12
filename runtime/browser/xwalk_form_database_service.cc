@@ -94,7 +94,8 @@ void XWalkFormDatabaseService::HasFormDataImpl(
     WaitableEvent* completion,
     bool* result) {
   WebDataServiceBase::Handle pending_query_handle =
-      autofill_data_->HasFormElements(this);
+      autofill_data_->GetCountOfEntriesContainedBetween(
+          base::Time(), base::Time::Max(), this);
   PendingQuery query;
   query.result = result;
   query.completion = completion;
@@ -109,9 +110,9 @@ void XWalkFormDatabaseService::OnWebDataServiceRequestDone(
   bool has_form_data = false;
   if (result) {
     DCHECK_EQ(AUTOFILL_VALUE_RESULT, result->GetType());
-    const WDResult<bool>* autofill_result =
-        static_cast<const WDResult<bool>*>(result);
-    has_form_data = autofill_result->GetValue();
+    const WDResult<int>* autofill_result =
+        static_cast<const WDResult<int>*>(result);
+    has_form_data = autofill_result->GetValue() > 0;
   }
   QueryMap::const_iterator it = result_map_.find(h);
   if (it == result_map_.end()) {
