@@ -19,7 +19,13 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.Thread;
+import java.net.HttpURLConnection;
+import java.net.URLConnection;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -201,9 +207,15 @@ class XWalkLibraryLoader {
      * @param listener The {@link DownloadListener} to use
      * @param context The context to get DownloadManager
      * @param url The URL of the Crosswalk runtime
+     * @param downloadMode true if it works under download mode.
      */
-    public static void startDownload(DownloadListener listener, Context context, String url) {
-        new DownloadTask(listener, context, url).execute();
+    public static void startDownload(DownloadListener listener, Context context, String url,
+            boolean downloadMode) {
+        if (downloadMode) {
+            new XWalkDownloadTask(listener, context, url).execute();
+        } else {
+            new DownloadTask(listener, context, url).execute();
+        }
     }
 
     /**
@@ -212,8 +224,7 @@ class XWalkLibraryLoader {
      * @return False if download is not running or could not be cancelled, true otherwise
      */
     public static boolean cancelDownload() {
-        DownloadTask task = (DownloadTask) sActiveTask;
-        return task != null && task.cancel(true);
+        return sActiveTask != null && sActiveTask.cancel(true);
     }
 
     private static class DecompressTask extends AsyncTask<Void, Integer, Integer> {
@@ -439,6 +450,122 @@ class XWalkLibraryLoader {
             } catch (NameNotFoundException | NullPointerException e) {
             }
             return false;
+        }
+    }
+
+    // This is used only in download mode where we want to save the downloaded file to application
+    // private storage and it's also intended to solve the exception found in XWALK-5951
+    private static class XWalkDownloadTask extends AsyncTask<Void, Integer, Integer> {
+        private static final String XWALK_DOWNLOAD_DIR = "xwalk_download";
+        private static final int DOWNLOAD_SUCCESS = 0;
+        private static final int DOWNLOAD_FAILED = -1;
+
+        private DownloadListener mListener;
+        private Context mContext;
+        private String mDownloadUrl;
+        private File mDownloadedFile;
+
+        XWalkDownloadTask(DownloadListener listener, Context context, String url) {
+            super();
+            mListener = listener;
+            mContext = context;
+            mDownloadUrl = url;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "XWalkDownloadTask started, " + mDownloadUrl);
+            sActiveTask = this;
+
+            String savedFile = DEFAULT_DOWNLOAD_FILE_NAME;
+            try {
+                String name = new File(new URL(mDownloadUrl).getPath()).getName();
+                if (!name.isEmpty()) savedFile = name;
+            } catch (MalformedURLException | NullPointerException e) {
+                Log.e(TAG, "Invalid download URL " + mDownloadUrl);
+                mDownloadUrl = null;
+                return;
+            }
+            mDownloadedFile = new File(mContext.getDir(XWALK_DOWNLOAD_DIR, Context.MODE_PRIVATE),
+                    savedFile);
+
+            mListener.onDownloadStarted();
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            if (mDownloadUrl == null) return DOWNLOAD_FAILED;
+            if (mDownloadedFile.exists()) mDownloadedFile.delete();
+
+            InputStream input = null;
+            OutputStream output = null;
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(mDownloadUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    Log.e(TAG, "Server returned HTTP " + connection.getResponseCode()
+                            + " " + connection.getResponseMessage());
+                    return DOWNLOAD_FAILED;
+                }
+
+                int fileLength = connection.getContentLength();
+
+                input = connection.getInputStream();
+                output = new FileOutputStream(mDownloadedFile);
+
+                byte data[] = new byte[4096];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    if (isCancelled()) return DOWNLOAD_FAILED;
+                    total += count;
+                    publishProgress((int)total, fileLength);
+                    output.write(data, 0, count);
+                }
+                output.flush();
+            } catch (Exception e) {
+                return DOWNLOAD_FAILED;
+            } finally {
+                try {
+                    if (output != null) output.close();
+                    if (input != null) input.close();
+                } catch (IOException ignored) {
+                }
+
+                if (connection != null) connection.disconnect();
+            }
+            return DOWNLOAD_SUCCESS;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            Log.d(TAG, "XWalkDownloadTask updated: " + progress[0] + "/" + progress[1]);
+            int percentage = 0;
+            if (progress[1] > 0) percentage = (int) (progress[0] * 100.0 / progress[1]);
+            mListener.onDownloadUpdated(percentage);
+        }
+
+        @Override
+        protected void onCancelled(Integer result) {
+            Log.d(TAG, "XWalkDownloadTask cancelled");
+            sActiveTask = null;
+            mListener.onDownloadCancelled();
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            Log.d(TAG, "XWalkDownloadTask finished, " + result);
+            sActiveTask = null;
+
+            if (result == DOWNLOAD_SUCCESS) {
+                mListener.onDownloadCompleted(Uri.fromFile(mDownloadedFile));
+            } else {
+                // Error codes is not used in download mode.
+                mListener.onDownloadFailed(DOWNLOAD_FAILED, 0);
+            }
         }
     }
 }
