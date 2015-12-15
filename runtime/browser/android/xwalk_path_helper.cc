@@ -27,8 +27,10 @@ void XWalkPathHelper::SetDirectory(const std::string& virtualRoot,
       base::FilePath::FromUTF8Unsafe(path);
 }
 
-static void SetDirectory(JNIEnv* env, jclass clazz,
-    jstring virtualRoot, jstring path) {
+static void SetDirectory(JNIEnv* env,
+                         const JavaParamRef<jclass>& clazz,
+                         const JavaParamRef<jstring>& virtualRoot,
+                         const JavaParamRef<jstring>& path) {
   const char* strVirtualRoot = env->GetStringUTFChars(virtualRoot, NULL);
   const char* strPath = env->GetStringUTFChars(path, NULL);
   XWalkPathHelper::SetDirectory(
