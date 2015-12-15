@@ -14,6 +14,7 @@
 #include "content/public/renderer/render_frame_observer.h"
 #include "content/public/renderer/render_frame_observer_tracker.h"
 #include "content/public/renderer/render_thread.h"
+#include "content/public/renderer/render_view.h"
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -32,6 +33,7 @@
 #if defined(OS_ANDROID)
 #include "components/cdm/renderer/android_key_systems.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
+#include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
@@ -42,6 +44,8 @@
 #if !defined(DISABLE_NACL)
 #include "components/nacl/renderer/nacl_helper.h"
 #endif
+
+using content::RenderThread;
 
 namespace xwalk {
 
@@ -137,6 +141,18 @@ void XWalkContentRendererClient::RenderFrameCreated(
 
   // The following code was copied from
   // android_webview/renderer/aw_content_renderer_client.cc
+#if defined(OS_ANDROID)
+  // TODO(jam): when the frame tree moves into content and parent() works at
+  // RenderFrame construction, simplify this by just checking parent().
+  content::RenderFrame* parent_frame =
+      render_frame->GetRenderView()->GetMainRenderFrame();
+  if (parent_frame && parent_frame != render_frame) {
+    // Avoid any race conditions from having the browser's UI thread tell the IO
+    // thread that a subframe was created.
+    RenderThread::Get()->Send(new XWalkViewHostMsg_SubFrameCreated(
+        parent_frame->GetRoutingID(), render_frame->GetRoutingID()));
+  }
+#endif
   // TODO(sgurun) do not create a password autofill agent (change
   // autofill agent to store a weakptr).
   autofill::PasswordAutofillAgent* password_autofill_agent =
