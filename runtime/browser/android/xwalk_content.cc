@@ -339,7 +339,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string json_input =
       base::android::ConvertJavaStringToUTF8(env, manifest_string);
 
-  base::Value* manifest_value = base::JSONReader::DeprecatedRead(json_input);
+  scoped_ptr<base::Value> manifest_value = base::JSONReader::Read(json_input);
   if (!manifest_value) return false;
 
   base::DictionaryValue* manifest_dictionary;
