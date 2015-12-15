@@ -214,14 +214,6 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
   const content::ResourceRequestInfo* request_info =
       content::ResourceRequestInfo::ForRequest(request);
 
-  // We allow intercepting only navigations within main frames. This
-  // is used to post onPageStarted. We handle shouldOverrideUrlLoading
-  // via a sync IPC for url loading in iframe.
-  if (resource_type == content::RESOURCE_TYPE_MAIN_FRAME) {
-    throttles->push_back(InterceptNavigationDelegate::CreateThrottleFor(
-        request));
-  }
-
   // If io_client is NULL, then the browser side objects have already been
   // destroyed, so do not do anything to the request. Conversely if the
   // request relates to a not-yet-created popup window, then the client will
