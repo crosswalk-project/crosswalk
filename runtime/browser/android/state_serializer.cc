@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "base/memory/scoped_vector.h"
 #include "base/pickle.h"
 #include "base/time/time.h"
 #include "content/public/browser/child_process_security_policy.h"
@@ -96,14 +95,14 @@ bool RestoreFromPickle(base::PickleIterator* iterator,
   if (selected_entry >= entry_count)
     return false;
 
-  ScopedVector<content::NavigationEntry> restored_entries;
+  std::vector<scoped_ptr<content::NavigationEntry>> entries;
+  entries.reserve(entry_count);
   for (int i = 0; i < entry_count; ++i) {
-    restored_entries.push_back(content::NavigationEntry::Create());
-    if (!internal::RestoreNavigationEntryFromPickle(iterator,
-                                                    restored_entries[i]))
+    entries.push_back(content::NavigationEntry::Create());
+    if (!internal::RestoreNavigationEntryFromPickle(iterator, entries[i].get()))
       return false;
 
-    restored_entries[i]->SetPageID(i);
+    entries[i]->SetPageID(i);
   }
 
   // |web_contents| takes ownership of these entries after this call.
@@ -111,8 +110,8 @@ bool RestoreFromPickle(base::PickleIterator* iterator,
   controller.Restore(
       selected_entry,
       content::NavigationController::RESTORE_LAST_SESSION_EXITED_CLEANLY,
-      &restored_entries);
-  DCHECK_EQ(0u, restored_entries.size());
+      &entries);
+  DCHECK_EQ(0u, entries.size());
 
   if (controller.GetActiveEntry()) {
     // Set up the file access rights for the selected navigation entry.
