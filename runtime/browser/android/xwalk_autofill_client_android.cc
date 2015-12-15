@@ -10,6 +10,7 @@
 #include "base/android/scoped_java_ref.h"
 #include "components/autofill/core/browser/autofill_manager.h"
 #include "jni/XWalkAutofillClientAndroid_jni.h"
+#include "ui/gfx/geometry/rect_f.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
 using base::android::AttachCurrentThread;
