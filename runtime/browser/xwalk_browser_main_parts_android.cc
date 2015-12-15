@@ -161,8 +161,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 #endif
 
-  command_line->AppendSwitch(switches::kEnableViewportMeta);
-
   // WebView does not (yet) save Chromium data during shutdown, so add setting
   // for Chrome to aggressively persist DOM Storage to minimize data loss.
   // http://crbug.com/479767
