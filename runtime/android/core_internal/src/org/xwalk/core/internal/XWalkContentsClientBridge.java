@@ -846,6 +846,9 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     public void onDangerousDownload(String filename, int downloadId) {
     }
 
+    public void requestFileAccess(final long callbackId) {
+    }
+
     @CalledByNative
     public void onWebLayoutPageScaleFactorChanged(float pageScaleFactor) {
         if (mPageScaleFactor == pageScaleFactor) return;
