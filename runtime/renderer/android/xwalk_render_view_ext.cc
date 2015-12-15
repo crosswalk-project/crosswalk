@@ -194,8 +194,7 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
   if (node.isNull() || !node.isElementNode() || !render_view())
     return;
 
-  // Note: element is not const due to innerText() is not const.
-  blink::WebElement element = node.toConst<blink::WebElement>();
+  const blink::WebElement element = node.toConst<blink::WebElement>();
   XWalkHitTestData data;
 
   data.href = GetHref(element);
@@ -214,7 +213,7 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
 
   PopulateHitTestData(absolute_link_url,
                       absolute_image_url,
-                      render_view()->IsEditableNode(node),
+                      element.isEditable(),
                       &data);
   Send(new XWalkViewHostMsg_UpdateHitTestData(routing_id(), data));
 }
