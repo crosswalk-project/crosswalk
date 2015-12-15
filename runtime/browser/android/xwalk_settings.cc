@@ -291,17 +291,17 @@ PrefService* XWalkSettings::GetPrefs() {
 }
 
 static jlong Init(JNIEnv* env,
-                 jobject obj,
-                 jobject web_contents) {
+                 const JavaParamRef<jobject>& obj,
+                 const JavaParamRef<jobject>& web_contents) {
   content::WebContents* contents = content::WebContents::FromJavaWebContents(
       web_contents);
   XWalkSettings* settings = new XWalkSettings(env, obj, contents);
   return reinterpret_cast<intptr_t>(settings);
 }
 
-static jstring GetDefaultUserAgent(JNIEnv* env, jclass clazz) {
-  return base::android::ConvertUTF8ToJavaString(
-      env, GetUserAgent()).Release();
+static ScopedJavaLocalRef<jstring>
+GetDefaultUserAgent(JNIEnv* env, const JavaParamRef<jclass>& clazz) {
+  return base::android::ConvertUTF8ToJavaString(env, GetUserAgent());
 }
 
 void XWalkSettings::UpdateInitialPageScale(JNIEnv* env, jobject obj) {

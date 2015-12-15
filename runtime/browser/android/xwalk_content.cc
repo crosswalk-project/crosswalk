@@ -520,7 +520,7 @@ jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
   return RestoreFromPickle(&iterator, web_contents_.get());
 }
 
-static jlong Init(JNIEnv* env, jobject obj) {
+static jlong Init(JNIEnv* env, const JavaParamRef<jobject>& obj) {
   scoped_ptr<WebContents> web_contents(content::WebContents::Create(
       content::WebContents::CreateParams(
           XWalkRunner::GetInstance()->browser_context())));
