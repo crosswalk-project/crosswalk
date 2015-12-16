@@ -10,6 +10,7 @@ import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -1095,6 +1096,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     void setOverlayVideoMode(boolean enabled) {
         mContent.setOverlayVideoMode(enabled);
+    }
+
+    /**
+     * Return the icon which current page has.
+     * @return the favicon of current web page/app.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public Bitmap getFavicon() {
+        if (mContent == null) return null;
+        checkThreadSafety();
+        return mContent.getFavicon();
     }
 
     /**

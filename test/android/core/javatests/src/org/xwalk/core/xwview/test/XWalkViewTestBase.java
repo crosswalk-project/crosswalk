@@ -7,6 +7,7 @@ package org.xwalk.core.xwview.test;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -377,6 +378,15 @@ public class XWalkViewTestBase
             @Override
             public String call() throws Exception {
                 return mXWalkView.getTitle();
+            }
+        });
+    }
+
+    protected Bitmap getFaviconOnUiThread() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Bitmap>() {
+            @Override
+            public Bitmap call() throws Exception {
+                return mXWalkView.getFavicon();
             }
         });
     }
