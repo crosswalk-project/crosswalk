@@ -35,6 +35,7 @@
         'xwalk_core_java',
         'xwalk_core_shell_apk_pak',
         'libxwalkdummy',
+        'xwalk_xwview_assets',
       ],
       'variables': {
         'apk_name': 'XWalkCoreShell',
@@ -67,6 +68,42 @@
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_xwview/assets',
       },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_shared_shell_apk',
+      'type': 'none',
+      'dependencies': [
+        '../third_party/android_tools/android_tools.gyp:android_support_v13_javalib',
+        '../content/content.gyp:content_java',
+        'xwalk_core_java',
+        'xwalk_xwview_assets',
+      ],
+      'variables': {
+        'apk_name': 'XWalkSharedShell',
+        'java_in_dir': 'runtime/android/core_shell',
+        'resource_dir': 'runtime/android/core_shell/res',
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_left_frame.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_main.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame1.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/contacts_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/device_capabilities_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/launch_screen_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/messaging_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/presentation_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/wifidirect_api.js',
+        ],
+        'asset_location': '<(PRODUCT_DIR)/xwalk_xwview/assets',
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_xwview_assets',
+      'type': 'none',
       'copies': [
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets/www',
@@ -90,7 +127,6 @@
           ],
         },
       ],
-      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_core_shell_apk_pak',
@@ -129,6 +165,14 @@
       'includes': [ '../build/apk_fake_jar.gypi' ],
     },
     {
+      'target_name': 'xwalk_shared_shell_apk_java',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_shared_shell_apk',
+      ],
+      'includes': [ '../build/apk_fake_jar.gypi' ],
+    },
+    {
       'target_name': 'xwalk_core_test_apk',
       'type': 'none',
       'dependencies': [
@@ -138,6 +182,7 @@
         'xwalk_core_shell_apk_java',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
+        'xwalk_xwview_test_assets',
       ],
       'variables': {
         'apk_name': 'XWalkCoreTest',
@@ -166,6 +211,52 @@
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
       },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_shared_test_apk',
+      'type': 'none',
+      'dependencies': [
+        '../base/base.gyp:base_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
+        '../net/net.gyp:net_java_test_support',
+        'xwalk_shared_shell_apk_java',
+        '../tools/android/md5sum/md5sum.gyp:md5sum',
+        '../tools/android/forwarder2/forwarder.gyp:forwarder2',
+        'xwalk_xwview_test_assets',
+      ],
+      'variables': {
+        'apk_name': 'XWalkSharedTest',
+        'java_in_dir': 'test/android/core/javatests',
+        'is_test_apk': 1,
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/add_js_interface.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/create_window_1.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/create_window_2.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/console_message.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo_binary_java.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo_java.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo_sync_java.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/favicon.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/file_chooser.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/framesEcho.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/fullscreen_enter_exit.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/fullscreen_togged.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/icon.png',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/js_modal_dialog.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/new_window.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/profile.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/scale_changed.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/window.close.html',
+        ],
+        'asset_location': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_xwview_test_assets',
+      'type': 'none',
       'copies': [
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
@@ -192,7 +283,6 @@
           ],
         },
       ],
-      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_core_unittests',

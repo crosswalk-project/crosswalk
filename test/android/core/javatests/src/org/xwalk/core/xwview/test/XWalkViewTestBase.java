@@ -92,7 +92,7 @@ public class XWalkViewTestBase
                 XWalkUIClient.JavascriptMessageType type, String url, String message,
                         String defaultValue, XWalkJavascriptResult result) {
             /**
-             * NOTE: Since onJavascriptModalDialog, onJsAlert, onJsConfirm, 
+             * NOTE: Since onJavascriptModalDialog, onJsAlert, onJsConfirm,
              *       and onJsPrompt API are overriden in the same subclass,
              *       call onJsAlert, onJsConfirm and onJsPrompt here to invoke
              *       overriden implementation.
@@ -279,8 +279,12 @@ public class XWalkViewTestBase
     protected void setUp() throws Exception {
         super.setUp();
 
+        final XWalkViewTestRunnerActivity activity = getActivity();
+        while(!activity.isXWalkReady()) {
+            Thread.sleep(100);
+        }
+
         // Must call getActivity() here but not in main thread.
-        final Activity activity = getActivity();
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
