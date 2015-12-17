@@ -10,15 +10,15 @@
       'direct_dependent_settings': {
         'defines': ['USE_LIBNOTIFY=1'],
         'cflags': [
-          '<!@(pkg-config --cflags libnotify)',
+          '<!@(<(pkg-config) --cflags libnotify)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(pkg-config --libs-only-L --libs-only-other libnotify)',
+          '<!@(<(pkg-config) --libs-only-L --libs-only-other libnotify)',
         ],
         'libraries': [
-          '<!@(pkg-config --libs-only-l libnotify)',
+          '<!@(<(pkg-config) --libs-only-l libnotify)',
         ],
       },
     },
