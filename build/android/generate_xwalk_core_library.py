@@ -30,11 +30,6 @@ def AddGeneratorOptions(option_parser):
                            default=False,
                            help='Use java sources instead of java libs.')
 
-  option_parser.add_option('--use-lzma', action='store_true',
-                           default=False,
-                           help='Use LZMA compress native library when specified')
-
-
 def CleanLibraryProject(out_project_dir):
   if os.path.exists(out_project_dir):
     for item in os.listdir(out_project_dir):
@@ -156,6 +151,14 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
   # Copy native libraries.
   source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
   distutils.dir_util.copy_tree(source_dir, libs_dir)
+
+  for arch in ['x86', 'armeabi-v7a']:
+    arch_dir = os.path.join(libs_dir, arch)
+    lib = os.path.join(arch_dir, 'libxwalkcore.so.lzma')
+    if os.path.isfile(lib):
+      # NOTE: Gradle doesn't accept '-', use '_' instead.
+      shutil.move(lib, os.path.join(res_raw_dir, "libxwalkcore.so." +
+                                    arch.replace('-', '_')))
 
 
 def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix, blacklist=None):
