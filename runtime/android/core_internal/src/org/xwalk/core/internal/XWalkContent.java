@@ -68,7 +68,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     private ContentViewCore mContentViewCore;
     private Context mViewContext;
-    private XWalkContentView mContentView;
+    private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private ActivityWindowAndroid mWindow;
     private XWalkDevToolsServer mDevToolsServer;
@@ -192,7 +192,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(mViewContext);
-        mContentView = new XWalkContentView(mViewContext, mContentViewCore, mXWalkView);
+        mContentView = ContentView.createContentView(mViewContext, mContentViewCore);
         mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
         mWebContents = mContentViewCore.getWebContents();
         mNavigationController = mWebContents.getNavigationController();
@@ -694,7 +694,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        return mContentView.onCreateInputConnectionSuper(outAttrs);
+        return mContentView.onCreateInputConnection(outAttrs);
     }
 
     public boolean onTouchEvent(MotionEvent event) {
