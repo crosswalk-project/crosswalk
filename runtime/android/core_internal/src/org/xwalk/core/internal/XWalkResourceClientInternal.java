@@ -324,8 +324,8 @@ public class XWalkResourceClientInternal {
      * Notify the host application that an HTTP response has been received from the server while loading a resource.
      * This callback will be called for any resource (iframe, image, etc), not just for the main page.
      * Thus, it is recommended to perform minimum required work in this callback.
-     * The feature the same as Android WebView's onReceivedHttpError when HTTP errors have status codes >= 400
-     * Customer also can get response cookies from headers when there are no errors.
+     * This method behaves similarly to the Android WebView's onReceivedHttpError if the HTTP response has a status code &gt;= 400.
+     * If there are no errors, {@code response} contains the cookies set by the HTTP response.
      *
      * @param view The XWalkView that is initiating the callback
      * @param request The originating request
