@@ -387,7 +387,7 @@ if __name__ == '__main__':
     # Disable IndexedDB by default
     args.append('-Ddisable_indexeddb=0')
     # Disable Accessibility by default
-    args.append('-Ddisable_accessibility=0')
+    args.append('-Ddisable_accessibility=1')
     # Disable Geolocation and Geofencing by default
     args.append('-Ddisable_geo_features=0')
     # Disable Bluetooth by default
