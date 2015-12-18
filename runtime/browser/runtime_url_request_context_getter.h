@@ -46,9 +46,7 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
       GetNetworkTaskRunner() const override;
 
   net::HostResolver* host_resolver();
-  #if defined(OS_ANDROID)
   void UpdateAcceptLanguages(const std::string& accept_languages);
-  #endif
 
  private:
   ~RuntimeURLRequestContextGetter() override;

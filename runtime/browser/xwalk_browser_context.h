@@ -20,11 +20,11 @@
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_form_database_service.h"
 #include "xwalk/runtime/browser/xwalk_ssl_host_state_delegate.h"
 
 #if defined(OS_ANDROID)
 #include "base/strings/string_split.h"
-#include "xwalk/runtime/browser/android/xwalk_form_database_service.h"
 #endif
 
 namespace net {
@@ -97,6 +97,12 @@ class XWalkBrowserContext
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors);
+  void InitFormDatabaseService();
+  XWalkFormDatabaseService* GetFormDatabaseService();
+  void CreateUserPrefServiceIfNecessary();
+  void UpdateAcceptLanguages(const std::string& accept_languages);
+  void set_save_form_data(bool enable) { save_form_data_ = enable; }
+  bool save_form_data() const { return save_form_data_; }
 #if defined(OS_ANDROID)
   void SetCSPString(const std::string& csp);
   std::string GetCSPString() const;
@@ -105,12 +111,6 @@ class XWalkBrowserContext
   // visitedlink::VisitedLinkDelegate implementation.
   void RebuildTable(
       const scoped_refptr<URLEnumerator>& enumerator) override;
-
-  void InitFormDatabaseService();
-  XWalkFormDatabaseService* GetFormDatabaseService();
-  void CreateUserPrefServiceIfNecessary();
-
-  void UpdateAcceptLanguages(const std::string& accept_languages);
 #endif
 
  private:
@@ -128,12 +128,12 @@ class XWalkBrowserContext
   scoped_ptr<RuntimeResourceContext> resource_context_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
+  scoped_ptr<PrefService> user_pref_service_;
+  scoped_ptr<XWalkFormDatabaseService> form_database_service_;
+  bool save_form_data_;
 #if defined(OS_ANDROID)
   std::string csp_;
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
-
-  scoped_ptr<PrefService> user_pref_service_;
-  scoped_ptr<XWalkFormDatabaseService> form_database_service_;
 #endif
 
   typedef std::map<base::FilePath::StringType,

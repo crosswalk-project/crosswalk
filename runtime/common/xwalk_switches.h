@@ -19,6 +19,7 @@ extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
 #if !defined(OS_ANDROID)
 extern const char kXWalkEnableInspector[];
+extern const char kXWalkDisableSaveFormData[];
 #endif
 extern const char kAllowRunningInsecureContent[];
 extern const char kNoDisplayingInsecureContent[];
