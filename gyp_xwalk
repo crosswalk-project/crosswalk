@@ -389,7 +389,7 @@ if __name__ == '__main__':
     # Disable Accessibility by default
     args.append('-Ddisable_accessibility=1')
     # Disable Geolocation and Geofencing by default
-    args.append('-Ddisable_geo_features=0')
+    args.append('-Ddisable_geo_features=1')
     # Disable Bluetooth by default
     args.append('-Ddisable_bluetooth=1')
     # Disable Web Database by default
