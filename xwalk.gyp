@@ -693,7 +693,7 @@
         }],
         ['OS=="win"', {
           'sources': [
-            '../content/app/startup_helper_win.cc', # Needed by InitializedSandbox
+            '../content/app/sandbox_helper_win.cc', # Needed by InitializedSandbox
             'runtime/resources/xwalk.rc',
           ],
           'configurations': {
