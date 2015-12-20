@@ -65,22 +65,23 @@ class XWalkPresentationServiceDelegateWin
   void SetDefaultPresentationUrl(
       int render_process_id,
       int render_frame_id,
-      const std::string& default_presentation_url) override;
+      const std::string& default_presentation_url,
+      const content::PresentationSessionStartedCallback& callback) override;
 
   void StartSession(
       int render_process_id,
       int render_frame_id,
       const std::string& presentation_url,
-      const PresentationSessionSuccessCallback& success_cb,
-      const PresentationSessionErrorCallback& error_cb) override;
+      const content::PresentationSessionStartedCallback& success_cb,
+      const content::PresentationSessionErrorCallback& error_cb) override;
 
   void JoinSession(
       int render_process_id,
       int render_frame_id,
       const std::string& presentation_url,
       const std::string& presentation_id,
-      const PresentationSessionSuccessCallback& success_cb,
-      const PresentationSessionErrorCallback& error_cb) override;
+      const content::PresentationSessionStartedCallback& success_cb,
+      const content::PresentationSessionErrorCallback& error_cb) override;
 
   void CloseSession(
       int render_process_id,
@@ -111,8 +112,8 @@ class XWalkPresentationServiceDelegateWin
       const RenderFrameHostId& render_frame_host_id);
   void OnSessionStarted(
       const RenderFrameHostId& id,
-      const PresentationSessionSuccessCallback& success_cb,
-      const PresentationSessionErrorCallback& error_cb,
+      const content::PresentationSessionStartedCallback& success_cb,
+      const content::PresentationSessionErrorCallback& error_cb,
       scoped_refptr<PresentationSession> session,
       const std::string& error);
 
