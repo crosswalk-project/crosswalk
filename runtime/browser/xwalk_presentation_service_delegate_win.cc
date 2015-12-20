@@ -37,9 +37,9 @@ using content::SessionStateChangedCallback;
 
 using DelegateObserver = content::PresentationServiceDelegate::Observer;
 using PresentationSessionErrorCallback =
-    content::PresentationServiceDelegate::PresentationSessionErrorCallback;
-using PresentationSessionSuccessCallback =
-    content::PresentationServiceDelegate::PresentationSessionSuccessCallback;
+    content::PresentationSessionErrorCallback;
+using PresentationSessionStartedCallback =
+    content::PresentationSessionStartedCallback;
 using RenderFrameHostId =
     XWalkPresentationServiceDelegateWin::RenderFrameHostId;
 using SessionInfo = content::PresentationSessionInfo;
@@ -101,7 +101,7 @@ class DisplayInfoManager {
 
  private:
   DisplayInfoManager();
-  friend struct DefaultSingletonTraits<DisplayInfoManager>;
+  friend struct base::DefaultSingletonTraits<DisplayInfoManager>;
 
   static BOOL CALLBACK MonitorEnumCallback(
       HMONITOR hMonitor, HDC hdc, LPRECT lprcMonitor, LPARAM lParam) {
@@ -145,7 +145,7 @@ class DisplayInfoManager {
 };
 
 DisplayInfoManager* DisplayInfoManager::GetInstance() {
-  return Singleton<DisplayInfoManager>::get();
+  return base::Singleton<DisplayInfoManager>::get();
 }
 
 DisplayInfoManager::DisplayInfoManager()
@@ -423,7 +423,7 @@ void PresentationFrame::OnPresentationSessionStarted(
   if (!state_changed_cb_.is_null()) {
     state_changed_cb_.Run(
         session->session_info(),
-        content::PRESENTATION_SESSION_STATE_CONNECTED);
+        content::PRESENTATION_CONNECTION_STATE_CONNECTED);
   }
 }
 
@@ -432,7 +432,7 @@ void PresentationFrame::OnPresentationSessionClosed(
   if (!state_changed_cb_.is_null()) {
     state_changed_cb_.Run(
         session_info,
-        content::PRESENTATION_SESSION_STATE_DISCONNECTED);
+        content::PRESENTATION_CONNECTION_STATE_CLOSED);
   }
   DisplayInfoManager::GetInstance()->MarkAsUsed(session_->display_id(), false);
   session_ = nullptr;
@@ -569,7 +569,8 @@ void XWalkPresentationServiceDelegateWin::Reset(
 void XWalkPresentationServiceDelegateWin::SetDefaultPresentationUrl(
     int render_process_id,
     int render_frame_id,
-    const std::string& default_presentation_url) {
+    const std::string& default_presentation_url,
+    const PresentationSessionStartedCallback& callback) {
   RenderFrameHostId id(render_process_id, render_frame_id);
   auto presentation_frame = GetOrAddPresentationFrame(id);
   presentation_frame->set_default_presentation_url(default_presentation_url);
@@ -577,8 +578,8 @@ void XWalkPresentationServiceDelegateWin::SetDefaultPresentationUrl(
 
 void XWalkPresentationServiceDelegateWin::OnSessionStarted(
     const RenderFrameHostId& id,
-    const PresentationSessionSuccessCallback& success_cb,
-    const PresentationSessionErrorCallback& error_cb,
+    const content::PresentationSessionStartedCallback& success_cb,
+    const content::PresentationSessionErrorCallback& error_cb,
     scoped_refptr<PresentationSession> session,
     const std::string& error) {
   auto presentation_frame = presentation_frames_.get(id);
@@ -595,8 +596,8 @@ void XWalkPresentationServiceDelegateWin::StartSession(
     int render_process_id,
     int render_frame_id,
     const std::string& presentation_url,
-    const PresentationSessionSuccessCallback& success_cb,
-    const PresentationSessionErrorCallback& error_cb) {
+    const content::PresentationSessionStartedCallback& success_cb,
+    const content::PresentationSessionErrorCallback& error_cb) {
   if (presentation_url.empty() || !IsValidPresentationUrl(presentation_url)) {
     error_cb.Run(content::PresentationError(content::PRESENTATION_ERROR_UNKNOWN,
                                             "Invalid presentation arguments."));
@@ -641,8 +642,8 @@ void XWalkPresentationServiceDelegateWin::JoinSession(
     int render_frame_id,
     const std::string& presentation_url,
     const std::string& presentation_id,
-    const PresentationSessionSuccessCallback& success_cb,
-    const PresentationSessionErrorCallback& error_cb) {
+    const content::PresentationSessionStartedCallback& success_cb,
+    const content::PresentationSessionErrorCallback& error_cb) {
   RenderFrameHostId id(render_process_id, render_frame_id);
   auto presentation_frame = presentation_frames_.get(id);
   CHECK(presentation_frame);
