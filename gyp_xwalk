@@ -385,7 +385,7 @@ if __name__ == '__main__':
     # Disable WebCL by default
     args.append('-Denable_webcl=1')
     # Disable IndexedDB by default
-    args.append('-Ddisable_indexeddb=0')
+    args.append('-Ddisable_indexeddb=1')
     # Disable Accessibility by default
     args.append('-Ddisable_accessibility=1')
     # Disable Geolocation and Geofencing by default
