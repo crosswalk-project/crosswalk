@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.widget.FrameLayout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Locale;
 
 import org.chromium.base.annotations.CalledByNative;
@@ -262,10 +264,32 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewCore.onShow();
     }
 
+    private static boolean urlMatch(String url1, String url2) {
+        if (url1 == null || url2 == null) return url1 == url2;
+
+        Uri uri1 = Uri.parse(url1);
+        Uri uri2 = Uri.parse(url2);
+        if (!TextUtils.equals(uri1.getScheme(), uri2.getScheme())
+                || !TextUtils.equals(uri1.getHost(), uri2.getHost())) {
+            return false;
+        }
+
+        List<String> pathSegments1 = uri1.getPathSegments();
+        List<String> pathSegments2 = uri2.getPathSegments();
+        int pathSize1 = pathSegments1.size();
+        int pathSize2 = pathSegments2.size();
+        if (pathSize1 != pathSize2) return false;
+        for (int i = 0; i < pathSize1; i++) {
+            if (!TextUtils.equals(pathSegments1.get(i), pathSegments2.get(i))) return false;
+        }
+        return true;
+    }
+
     void doLoadUrl(String url, String content) {
         // Handle the same url loading by parameters.
-        if (url != null && !url.isEmpty() &&
-                TextUtils.equals(url, mWebContents.getUrl())) {
+        String webContentsUrl = mWebContents.getUrl();
+        if (!TextUtils.isEmpty(url) && !TextUtils.isEmpty(webContentsUrl)
+                && urlMatch(url.toLowerCase(), webContentsUrl.toLowerCase())) {
             mNavigationController.reload(true);
         } else {
             LoadUrlParams params = null;
