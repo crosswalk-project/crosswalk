@@ -353,7 +353,7 @@ if __name__ == '__main__':
     # Disable ICU by default
     args.append('-Duse_icu_alternatives_on_android=0')
     # Disable WebRTC by default
-    args.append('-Denable_webrtc=1')
+    args.append('-Denable_webrtc=0')
     # Disable XSLT by default
     args.append('-Ddisable_xslt=0')
     # Disable WebP by default
