@@ -31,8 +31,12 @@ struct SelectedFileInfo;
 // initialisation and listener functions for file-selection dialogs.
 class RuntimeFileSelectHelper
     : public base::RefCountedThreadSafe<RuntimeFileSelectHelper>,
+#ifndef DISABLE_NOTIFICATIONS
       public ui::SelectFileDialog::Listener,
       public content::NotificationObserver {
+#else
+      public ui::SelectFileDialog::Listener {
+#endif
  public:
   // Show the file chooser dialog.
   static void RunFileChooser(content::WebContents* tab,
@@ -95,10 +99,12 @@ class RuntimeFileSelectHelper
       void* params) override;
   void FileSelectionCanceled(void* params) override;
 
+#ifndef DISABLE_NOTIFICATIONS
   // content::NotificationObserver overrides.
   void Observe(int type,
                const content::NotificationSource& source,
                const content::NotificationDetails& details) override;
+#endif
 
   void EnumerateDirectory(int request_id,
                           content::RenderViewHost* render_view_host,
@@ -152,8 +158,10 @@ class RuntimeFileSelectHelper
   struct ActiveDirectoryEnumeration;
   std::map<int, ActiveDirectoryEnumeration*> directory_enumerations_;
 
+#ifndef DISABLE_NOTIFICATIONS
   // Registrar for notifications regarding our RenderViewHost.
   content::NotificationRegistrar notification_registrar_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeFileSelectHelper);
 };
