@@ -198,8 +198,10 @@ XWalkExtensionService::XWalkExtensionService(Delegate* delegate)
       delegate_(delegate) {
   if (!g_external_extensions_path_for_testing_.empty())
     external_extensions_path_ = g_external_extensions_path_for_testing_;
+#ifndef DISABLE_NOTIFICATIONS
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
+#endif
 
   // IO main loop is needed by extensions watching file descriptors events.
   base::Thread::Options options(base::MessageLoop::TYPE_IO, 0);
@@ -281,6 +283,7 @@ void XWalkExtensionService::SetExternalExtensionsPathForTesting(
   g_external_extensions_path_for_testing_ = path;
 }
 
+#ifndef DISABLE_NOTIFICATIONS
 // We use this to keep track of the RenderProcess shutdown events.
 // This is _very_ important so we can clean up all we need gracefully,
 // avoiding invalid IPC steps after the IPC channel is gone.
@@ -296,6 +299,7 @@ void XWalkExtensionService::Observe(int type,
     }
   }
 }
+#endif
 
 void XWalkExtensionService::OnRenderProcessHostClosed(
     content::RenderProcessHost* host) {

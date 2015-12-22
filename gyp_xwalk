@@ -347,7 +347,7 @@ if __name__ == '__main__':
     args.append('-Duse_aura=1')
 
   if gyp_vars_dict.get('OS') == 'android':
-    args.append('-Dnotifications=1')
+    args.append('-Dnotifications=0')
     args.append('-Drelease_unwind_tables=0')
     #### Below flags are used for reducing size of Crosswalk Lite. ####
     # Disable ICU by default
@@ -381,7 +381,7 @@ if __name__ == '__main__':
     # Enable "Optimize for size, Os" compile option by default
     args.append('-Duse_optimize_for_size_compile_option=0')
     # Disable Notifications by default
-    args.append('-Ddisable_notifications=0')
+    args.append('-Ddisable_notifications=1')
     # Disable WebCL by default
     args.append('-Denable_webcl=1')
     # Disable IndexedDB by default

@@ -16,9 +16,11 @@
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/runtime_select_file_policy.h"
 #include "content/public/browser/browser_thread.h"
+#ifndef DISABLE_NOTIFICATIONS
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#endif
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
@@ -335,6 +337,7 @@ void RuntimeFileSelectHelper::RunFileChooser(RenderViewHost* render_view_host,
   DCHECK(!web_contents_);
   render_view_host_ = render_view_host;
   web_contents_ = web_contents;
+#ifndef DISABLE_NOTIFICATIONS
   notification_registrar_.RemoveAll();
   notification_registrar_.Add(
       this, content::NOTIFICATION_RENDER_WIDGET_HOST_DESTROYED,
@@ -342,6 +345,7 @@ void RuntimeFileSelectHelper::RunFileChooser(RenderViewHost* render_view_host,
   notification_registrar_.Add(
       this, content::NOTIFICATION_WEB_CONTENTS_DESTROYED,
       content::Source<WebContents>(web_contents_));
+#endif
 
   BrowserThread::PostTask(
       BrowserThread::FILE, FROM_HERE,
@@ -463,6 +467,7 @@ void RuntimeFileSelectHelper::EnumerateDirectoryEnd() {
   Release();
 }
 
+#ifndef DISABLE_NOTIFICATIONS
 void RuntimeFileSelectHelper::Observe(
     int type,
     const content::NotificationSource& source,
@@ -485,6 +490,7 @@ void RuntimeFileSelectHelper::Observe(
       NOTREACHED();
   }
 }
+#endif
 
 // static
 bool RuntimeFileSelectHelper::IsAcceptTypeValid(

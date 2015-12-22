@@ -34,8 +34,12 @@ class XWalkExtensionData;
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
 // track of the extensions, and enable them on WebContents once they are
 // created. It's life time follows the Browser process itself.
+#ifndef DISABLE_NOTIFICATIONS
 class XWalkExtensionService : public content::NotificationObserver,
     public XWalkExtensionProcessHost::Delegate {
+#else
+class XWalkExtensionService : public XWalkExtensionProcessHost::Delegate {
+#endif
  public:
   class Delegate {
    public:
@@ -57,7 +61,11 @@ class XWalkExtensionService : public content::NotificationObserver,
   };
 
   explicit XWalkExtensionService(Delegate* delegate);
+#ifndef DISABLE_NOTIFICATIONS
   ~XWalkExtensionService() override;
+#else
+  virtual ~XWalkExtensionService();
+#endif
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
 
@@ -113,9 +121,11 @@ class XWalkExtensionService : public content::NotificationObserver,
                              const std::string& extension_name,
                              const std::string& perm_table) override;
 
+#ifndef DISABLE_NOTIFICATIONS
   // NotificationObserver implementation.
   void Observe(int type, const content::NotificationSource& source,
                const content::NotificationDetails& details) override;
+#endif
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
@@ -132,7 +142,9 @@ class XWalkExtensionService : public content::NotificationObserver,
   // extension_thread_.
   base::Thread extension_thread_;
 
+#ifndef DISABLE_NOTIFICATIONS
   content::NotificationRegistrar registrar_;
+#endif
 
   Delegate* delegate_;
 
