@@ -97,6 +97,8 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *   import org.xwalk.core.internal.XWalkResourceClientInternal;
  *   import org.xwalk.core.internal.XWalkUIClientInternal;
  *   import org.xwalk.core.internal.XWalkViewInternal;
+ *   import org.xwalk.core.internal.XWalkWebResourceRequestInternal;
+ *   import org.xwalk.core.internal.XWalkWebResourceResponseInternal;
  *
  *   public class MyActivity extends Activity {
  *       XWalkViewInternal mXwalkView;
@@ -107,8 +109,15 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *           }
  *
  *           &#64;Override
- *           WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
+ *           XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
+ *                   XWalkWebResourceRequestInternal request) {
  *               // Handle it here.
+ *               // Use createXWalkWebResourceResponse instead of "new XWalkWebResourceResponse"
+ *               // to create the response.
+ *               // Similar with before, there are two function to use:
+ *               // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
+ *               // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
+ *               //             int statusCode, String reasonPhrase, Map<String, String> responseHeaders)
  *               ...
  *           }
  *       }
