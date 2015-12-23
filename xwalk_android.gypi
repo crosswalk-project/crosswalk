@@ -313,7 +313,13 @@
             'base_inputs': [
               '<(dex_path)',
               '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
-              '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
+            ],
+            'conditions': [
+              ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
+                'base_inputs': [
+                  '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
+                ],
+              }],
             ],
             'build_system_inputs': [
               '<@(base_inputs)',

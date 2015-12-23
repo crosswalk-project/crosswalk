@@ -125,11 +125,11 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared, no_icu_data):
   if not os.path.exists(res_value_dir):
     os.mkdir(res_value_dir)
 
-  paks = [
+  paks_to_copy = [
       'xwalk.pak',
   ]
   if not no_icu_data:
-    paks.append('icudtl.dat')
+    paks_to_copy.append('icudtl.dat')
 
   pak_list_xml = Document()
   resources_node = pak_list_xml.createElement('resources')
