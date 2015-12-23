@@ -377,7 +377,7 @@ if __name__ == '__main__':
     # Disable Webvideo by default.
     args.append('-Ddisable_web_video=0')
     # Disable Web Speech API by default
-    args.append('-Ddisable_speech=0')
+    args.append('-Denable_web_speech=0')
     # Enable "Optimize for size, Os" compile option by default
     args.append('-Duse_optimize_for_size_compile_option=0')
     # Disable Notifications by default
@@ -432,7 +432,7 @@ if __name__ == '__main__':
       disable_notifications = 1
     elif arg == '-Denable_plugins=0':
       disable_plugins = 1
-    elif arg == '-Ddisable_speech=1':
+    elif arg == '-Denable_web_speech=0':
       disable_speech = 1
     elif arg == '-Denable_webcl=0':
       disable_webcl = 1

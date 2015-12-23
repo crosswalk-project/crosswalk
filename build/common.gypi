@@ -21,7 +21,6 @@
     'disable_builtin_extensions%': 0,
     'disable_devtools%': 0,
     'disable_web_video%': 0,
-    'disable_speech%': 0,
     'use_optimize_for_size_compile_option%': 0,
     'disable_notifications%': 0,
     'disable_indexeddb%': 0,
@@ -87,7 +86,7 @@
         'defines' : ['DISABLE_PLUGINS'],
       }],
 
-      ['disable_speech==1', {
+      ['enable_web_speech==0', {
         'defines': ['DISABLE_SPEECH'],
       }],
 

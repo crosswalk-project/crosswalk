@@ -27,6 +27,10 @@
       'defines': ['XWALK_VERSION="<(xwalk_version)"','CHROME_VERSION="<(chrome_version)"'],
       'variables': {
         'chromium_code': 1,
+        'speech_files': [
+          'runtime/browser/speech/speech_recognition_manager_delegate.cc',
+          'runtime/browser/speech/speech_recognition_manager_delegate.h',
+        ],
       },
       'dependencies': [
         '../base/base.gyp:base',
@@ -320,6 +324,11 @@
         },
       },
       'conditions': [
+        ['enable_web_speech==0', {
+          'sources!': [
+            '<@(speech_files)',
+          ],
+        }],
         ['OS=="android"',{
           'dependencies':[
             '../components/components.gyp:cdm_browser',
