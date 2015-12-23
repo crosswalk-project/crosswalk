@@ -101,6 +101,10 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
+  content::RenderThread* thread = content::RenderThread::Get();
+  // Using WebString requires blink initialization.
+  thread->EnsureWebKitInitialized();
+
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
     extension_controller_.reset(
@@ -111,7 +115,6 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
 
-  content::RenderThread* thread = content::RenderThread::Get();
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
   thread->AddObserver(xwalk_render_process_observer_.get());
 #if defined(OS_ANDROID)
