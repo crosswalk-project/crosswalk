@@ -7,7 +7,9 @@
 #define XWALK_RUNTIME_BROWSER_XWALK_PERMISSION_MANAGER_H_
 
 #include "base/callback_forward.h"
+#include "base/id_map.h"
 #include "base/macros.h"
+#include "base/memory/weak_ptr.h"
 #include "content/public/browser/permission_manager.h"
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 
@@ -53,10 +55,20 @@ class XWalkPermissionManager : public content::PermissionManager {
   void UnsubscribePermissionStatusChange(int subscription_id) override;
 
  private:
-  application::ApplicationService* application_service_;
-  scoped_refptr<RuntimeGeolocationPermissionContext>
-      geolocation_permission_context_;
+  struct PendingRequest;
+  using PendingRequestsMap = IDMap<PendingRequest, IDMapOwnPointer>;
 
+  static void OnRequestResponse(
+      const base::WeakPtr<XWalkPermissionManager>& manager,
+      int request_id,
+      const base::Callback<void(content::PermissionStatus)>& callback,
+      bool allowed);
+
+  PendingRequestsMap pending_requests_;
+  scoped_refptr<RuntimeGeolocationPermissionContext>
+    geolocation_permission_context_;
+  application::ApplicationService* application_service_;
+  base::WeakPtrFactory<XWalkPermissionManager> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionManager);
 };
 
