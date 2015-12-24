@@ -53,7 +53,7 @@ class XWalkViewDelegate {
     // We should remove it from one of the places to avoid duplication.
     private static final String[] MANDATORY_PAKS = {
             "xwalk.pak",
-            "icudtl.dat",
+            //"icudtl.dat",//delete it when "use_icu_alternatives_on_android == 1"
             // Please refer to XWALK-3516, disable v8 use external startup data,
             // reopen it if needed later.
             // "natives_blob.bin",

@@ -329,6 +329,11 @@
             '<@(speech_files)',
           ],
         }],
+        ['OS=="android" and use_icu_alternatives_on_android==1',{
+          'dependencies': [
+            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
+          ],
+        }],
         ['OS=="android"',{
           'dependencies':[
             '../components/components.gyp:cdm_browser',
