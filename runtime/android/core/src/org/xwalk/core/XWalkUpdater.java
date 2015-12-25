@@ -172,11 +172,9 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  * }
  * </pre>
  *
- * <p>If you grant following permission further, the download doesn't show in the notifications.</p>
- *
- * <pre>
- * &lt;uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" /&gt;
- * </pre>
+ * <p>In download mode, the permission "android.permission.WRITE_EXTERNAL_STORAGE" is not needed
+ * as the downloaded runtime Apk will be saved into application's private storage and then get
+ * deleted after done extracting the libraries/resources from the runtime Apk.</p>
  *
  * <p>Signature check is enabled by default in download mode, it requires the crosswalk runtime APK
  * must be signed with the same key used in application APK signing. Developer can insert a
@@ -406,7 +404,8 @@ public class XWalkUpdater {
         }
 
         if (!mXWalkApkUrl.isEmpty()) {
-            XWalkLibraryLoader.startDownload(new ForegroundListener(), mActivity, mXWalkApkUrl);
+            XWalkLibraryLoader.startDownload(new ForegroundListener(), mActivity, mXWalkApkUrl,
+                    false);
             return;
         }
 
@@ -427,7 +426,8 @@ public class XWalkUpdater {
             mXWalkApkUrl = getXWalkApkUrl();
             Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
         }
-        XWalkLibraryLoader.startDownload(new BackgroundListener(), mActivity, mXWalkApkUrl);
+        XWalkLibraryLoader.startDownload(new BackgroundListener(), mActivity, mXWalkApkUrl,
+                true);
     }
 
     private String getXWalkApkUrl() {
@@ -513,6 +513,8 @@ public class XWalkUpdater {
                         Assert.fail();
                     }
                     XWalkCoreWrapper.resetXWalkRuntimeBuildVersion(mActivity);
+                    Log.d(TAG, "Delete the downloaded runtime Apk");
+                    new File(libFile).delete();
                     return null;
                 }
 
