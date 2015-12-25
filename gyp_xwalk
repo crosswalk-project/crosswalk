@@ -355,7 +355,7 @@ if __name__ == '__main__':
     # Disable WebRTC by default
     args.append('-Denable_webrtc=0')
     # Disable XSLT by default
-    args.append('-Ddisable_xslt=0')
+    args.append('-Ddisable_xslt=1')
     # Disable WebP by default
     args.append('-Ddisable_webp=0')
     # Disable Angle by default
