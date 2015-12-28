@@ -357,7 +357,7 @@ if __name__ == '__main__':
     # Disable XSLT by default
     args.append('-Ddisable_xslt=1')
     # Disable WebP by default
-    args.append('-Ddisable_webp=0')
+    args.append('-Ddisable_webp=1')
     # Disable Angle by default
     args.append('-Ddisable_angle=0')
     # Disable QUIC by default
