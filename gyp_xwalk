@@ -359,7 +359,7 @@ if __name__ == '__main__':
     # Disable WebP by default
     args.append('-Ddisable_webp=1')
     # Disable Angle by default
-    args.append('-Ddisable_angle=0')
+    args.append('-Ddisable_angle=1')
     # Disable QUIC by default
     args.append('-Ddisable_quic_support=0')
     # Disable Sync compositor by default
