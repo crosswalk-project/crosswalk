@@ -40,7 +40,7 @@ XWalkAutofillClientAndroid::XWalkAutofillClientAndroid(WebContents* contents)
 
 void XWalkAutofillClientAndroid::ShowAutofillPopupImpl(
     const gfx::RectF& element_bounds,
-    bool is_rtl,
+    base::i18n::TextDirection text_direction,
     const std::vector<autofill::Suggestion>& suggestions) {
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
@@ -62,14 +62,15 @@ void XWalkAutofillClientAndroid::ShowAutofillPopupImpl(
         suggestions[i].frontend_id);
   }
 
-  Java_XWalkAutofillClientAndroid_showAutofillPopup(env,
-                                                    obj.obj(),
-                                                    element_bounds.x(),
-                                                    element_bounds.y(),
-                                                    element_bounds.width(),
-                                                    element_bounds.height(),
-                                                    is_rtl,
-                                                    data_array.obj());
+  Java_XWalkAutofillClientAndroid_showAutofillPopup(
+      env,
+      obj.obj(),
+      element_bounds.x(),
+      element_bounds.y(),
+      element_bounds.width(),
+      element_bounds.height(),
+      text_direction == base::i18n::RIGHT_TO_LEFT,
+      data_array.obj());
 }
 
 void XWalkAutofillClientAndroid::HideAutofillPopupImpl() {

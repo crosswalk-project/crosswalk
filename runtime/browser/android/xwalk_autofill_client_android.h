@@ -39,7 +39,7 @@ class XWalkAutofillClientAndroid
 
   void ShowAutofillPopupImpl(
       const gfx::RectF& element_bounds,
-      bool is_rtl,
+      base::i18n::TextDirection text_direction,
       const std::vector<autofill::Suggestion>& suggestions) override;
   void HideAutofillPopupImpl() override;
 

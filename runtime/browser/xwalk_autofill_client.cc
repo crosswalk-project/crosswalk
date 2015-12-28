@@ -83,7 +83,7 @@ void XWalkAutofillClient::ShowAutofillPopup(
       element_bounds + client_area.OffsetFromOrigin();
 
   ShowAutofillPopupImpl(element_bounds_in_screen_space,
-                        text_direction == base::i18n::RIGHT_TO_LEFT,
+                        text_direction,
                         suggestions);
 }
 
