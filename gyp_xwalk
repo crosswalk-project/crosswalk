@@ -363,7 +363,7 @@ if __name__ == '__main__':
     # Disable QUIC by default
     args.append('-Ddisable_quic_support=1')
     # Disable Sync compositor by default
-    args.append('-Ddisable_sync_compositor=0')
+    args.append('-Ddisable_sync_compositor=1')
     # Disable Webaudio by default
     args.append('-Ddisable_webaudio=0')
     args.append('-Ddisable_webaudio_hrtf=0')
