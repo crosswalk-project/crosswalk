@@ -361,7 +361,7 @@ if __name__ == '__main__':
     # Disable Angle by default
     args.append('-Ddisable_angle=1')
     # Disable QUIC by default
-    args.append('-Ddisable_quic_support=0')
+    args.append('-Ddisable_quic_support=1')
     # Disable Sync compositor by default
     args.append('-Ddisable_sync_compositor=0')
     # Disable Webaudio by default
