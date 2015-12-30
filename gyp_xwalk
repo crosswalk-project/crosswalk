@@ -379,7 +379,7 @@ if __name__ == '__main__':
     # Disable Web Speech API by default
     args.append('-Denable_web_speech=0')
     # Enable "Optimize for size, Os" compile option by default
-    args.append('-Duse_optimize_for_size_compile_option=0')
+    args.append('-Duse_optimize_for_size_compile_option=1')
     # Disable Notifications by default
     args.append('-Ddisable_notifications=1')
     # Disable WebCL by default
