@@ -103,7 +103,6 @@ RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
   net::ProxyConfigServiceAndroid* android_config_service =
       static_cast<net::ProxyConfigServiceAndroid*>(proxy_config_service_.get());
   android_config_service->set_exclude_pac_url(true);
-  proxy_config_service_.reset(android_config_service);
 #else
   proxy_config_service_ = net::ProxyService::CreateSystemProxyConfigService(
       io_loop_->task_runner(), file_loop_->task_runner());
