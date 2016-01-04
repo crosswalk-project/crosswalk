@@ -342,9 +342,11 @@ bool Runtime::CheckMediaAccessPermission(
     content::WebContents* web_contents,
     const GURL& security_origin,
     content::MediaStreamType type) {
-  // TODO(xiang): Pepper flash plugin will trigger this check a lot, return
-  // false at the moment.
-  return false;
+  // Requested by Pepper Flash plugin and mediaDevices.enumerateDevices().
+  // FIXME(huningxin): current code grants the access by default. It should
+  // follow the generic permssions mechanism (XWALK-5475). Open XWALK-6083 to
+  // track it.
+  return true;
 }
 
 void Runtime::LoadProgressChanged(content::WebContents* source,
