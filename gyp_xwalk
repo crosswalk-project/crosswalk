@@ -375,7 +375,7 @@ if __name__ == '__main__':
     # Disable Devtools by default
     args.append('-Ddisable_devtools=0')
     # Disable Webvideo by default.
-    args.append('-Ddisable_web_video=0')
+    args.append('-Ddisable_web_video=1')
     # Disable Web Speech API by default
     args.append('-Denable_web_speech=0')
     # Enable "Optimize for size, Os" compile option by default
