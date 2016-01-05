@@ -369,7 +369,7 @@ if __name__ == '__main__':
     args.append('-Ddisable_webaudio_hrtf=1')
     args.append('-Duse_openmax_dl_fft=0')
     # Enable use_minimum_resources by default
-    args.append('-Duse_minimum_resources=0')
+    args.append('-Duse_minimum_resources=1')
     # Disable buildin extension by default.
     args.append('-Ddisable_builtin_extensions=1')
     # Disable Devtools by default
