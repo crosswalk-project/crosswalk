@@ -397,7 +397,7 @@ if __name__ == '__main__':
     # Disable Web MIDI API by default
     args.append('-Ddisable_webmidi=1')
     # Disable Plugins by default
-    args.append('-Denable_plugins=1')
+    args.append('-Denable_plugins=0')
     # Enable Mediastream by default
     args.append('-Ddisable_mediastream=0')
 
