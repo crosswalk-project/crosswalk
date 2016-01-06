@@ -168,6 +168,7 @@ void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
 }
 
 void XWalkRunner::EnableRemoteDebugging(int port) {
+#ifndef DISABLE_DEVTOOLS
   const char* local_ip = "0.0.0.0";
   if (port > 0 && port < 65535) {
     if (remote_debugging_server_.get() &&
@@ -177,10 +178,15 @@ void XWalkRunner::EnableRemoteDebugging(int port) {
         new RemoteDebuggingServer(browser_context(),
             local_ip, port, std::string()));
   }
+#else
+  (void) port;
+#endif
 }
 
 void XWalkRunner::DisableRemoteDebugging() {
+#ifndef DISABLE_DEVTOOLS
   remote_debugging_server_.reset();
+#endif
 }
 
 // static
