@@ -331,6 +331,23 @@
             '<@(speech_files)',
           ],
         }],
+        ['disable_devtools==1', {
+          'sources!': [
+            'runtime/browser/devtools/remote_debugging_server.cc',
+            'runtime/browser/devtools/remote_debugging_server.h',
+            'runtime/browser/devtools/xwalk_devtools_frontend.cc',
+            'runtime/browser/devtools/xwalk_devtools_frontend.h',
+            'runtime/browser/devtools/xwalk_devtools_manager_delegate.cc',
+            'runtime/browser/devtools/xwalk_devtools_manager_delegate.h',
+
+            'runtime/browser/android/xwalk_dev_tools_server.cc',
+            'runtime/browser/android/xwalk_dev_tools_server.h',
+
+          ],
+          'dependencies!': [
+            '../components/components.gyp:devtools_http_handler',
+          ],
+        }],
         ['OS=="android" and use_icu_alternatives_on_android==1',{
           'dependencies': [
             '<(DEPTH)/base/base.gyp:base_icu_alternatives',
