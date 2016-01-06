@@ -47,6 +47,11 @@ solutions = [
       'src/third_party/khronos/CL':
         crosswalk_git + '/khronos-cl-api-1.2.git@6f4be98d10f03ce2b12c769cd9835c73a441c00f',
 
+      # Include Intel RSSDK headers and library loader for RealSense camera
+      # support.
+      'src/third_party/libpxc':
+        crosswalk_git + '/libpxc.git@5ac4620dbd695a1a72c49720062ecc06b76a72a7',
+
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
       # are not used and also saves some bandwidth.
