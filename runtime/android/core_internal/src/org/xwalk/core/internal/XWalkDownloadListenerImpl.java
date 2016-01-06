@@ -24,14 +24,17 @@ import java.io.OutputStream;
 
 import org.xwalk.core.internal.AndroidProtocolHandler;
 import org.xwalk.core.internal.R;
+import org.xwalk.core.internal.XWalkCookieManagerInternal;
 import org.xwalk.core.internal.XWalkDownloadListenerInternal;
 
 class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
     private Context mContext;
+    private XWalkCookieManagerInternal mCookieManager;
 
     public XWalkDownloadListenerImpl(Context context) {
         super(context);
         mContext = context;
+        mCookieManager = new XWalkCookieManagerInternal();
     }
 
     @Override
@@ -46,6 +49,7 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
         Uri src = Uri.parse(url);
         if (src.getScheme().equals("http") || src.getScheme().equals("https")) {
             Request request = new Request(Uri.parse(url));
+            request.addRequestHeader("Cookie", mCookieManager.getCookie(url));
             request.addRequestHeader("User-Agent", userAgent);
             request.setDestinationInExternalPublicDir(
                     Environment.DIRECTORY_DOWNLOADS, fileName);
