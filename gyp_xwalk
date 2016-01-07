@@ -383,7 +383,7 @@ if __name__ == '__main__':
     # Disable Notifications by default
     args.append('-Ddisable_notifications=1')
     # Disable WebCL by default
-    args.append('-Denable_webcl=1')
+    args.append('-Denable_webcl=0')
     # Disable IndexedDB by default
     args.append('-Ddisable_indexeddb=1')
     # Disable Accessibility by default
