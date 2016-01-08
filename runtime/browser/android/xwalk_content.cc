@@ -311,9 +311,13 @@ void XWalkContent::ClearCacheForSingleFile(
 
 ScopedJavaLocalRef<jstring> XWalkContent::DevToolsAgentId(JNIEnv* env,
                                                           jobject obj) {
+#ifndef DISABLE_DEVTOOLS
   scoped_refptr<content::DevToolsAgentHost> agent_host(
       content::DevToolsAgentHost::GetOrCreateFor(web_contents_.get()));
   return base::android::ConvertUTF8ToJavaString(env, agent_host->GetId());
+#else
+  return base::android::ConvertUTF8ToJavaString(env, "");
+#endif
 }
 
 void XWalkContent::Destroy(JNIEnv* env, jobject obj) {

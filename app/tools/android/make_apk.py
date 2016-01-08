@@ -330,13 +330,7 @@ def Customize(options, app_info, manifest):
                options.xwalk_command_line, options.compressor)
 
 
-def CleanCompressedLibrary(library_path, arch):
-  useless = os.path.join(library_path, NATIVE_LIBRARY + '.' + arch)
-  if os.path.isfile(useless):
-    os.remove(useless)
-
-
-def CleanNativeLibrary(library_path, arch):
+def CleanLibrary(library_path, arch):
   lib_dir = os.path.join(library_path, arch)
   if os.path.isdir(lib_dir):
     shutil.rmtree(lib_dir)
@@ -480,18 +474,16 @@ def Execution(options, app_info):
     library_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'libs')
     raw_path = os.path.join(app_dir, EMBEDDED_LIBRARY, 'res', 'raw')
 
-    if options.enable_lzma:
-      contains_library = ContainsCompressedLibrary
-      clean_library = CleanCompressedLibrary
-      copy_library = CopyCompressedLibrary
-    else:
+    if options.disable_lzma:
       contains_library = ContainsNativeLibrary
-      clean_library = CleanNativeLibrary
       copy_library = CopyNativeLibrary
+    else:
+      contains_library = ContainsCompressedLibrary
+      copy_library = CopyCompressedLibrary
 
     # cleanup previous build's library first.
     for dir_name in os.listdir(library_path):
-      clean_library(library_path, dir_name)
+      CleanLibrary(library_path, dir_name)
 
     if options.native_extensions:
       CheckValidationOfExpectedLibraryArch(options.native_extensions,
@@ -627,7 +619,7 @@ def CheckSystemRequirements():
 def MakeCompressedLibrary(lib_dir):
   # use lzma to compress the native library.
   native_library = os.path.join(lib_dir, NATIVE_LIBRARY)
-  RunCommand(['lzma', '-f', native_library])
+  RunCommand(['lzma', '-7', '-f', native_library])
   return True
 
 
@@ -646,6 +638,18 @@ def MakeSharedApk(options, app_info, app_dir):
   Execution(options, app_info)
 
 
+def CopyFromRawToLibs(library_path, raw_path):
+  lib_file = os.path.join(raw_path, 'libxwalkcore.so.x86')
+  if os.path.exists(lib_file):
+    shutil.move(lib_file, os.path.join(library_path, 'x86',
+                                       'libxwalkcore.so.lzma'))
+
+  lib_file = os.path.join(raw_path, 'libxwalkcore.so.armeabi_v7a')
+  if os.path.exists(lib_file):
+    shutil.move(lib_file, os.path.join(library_path, 'armeabi-v7a',
+                                       'libxwalkcore.so.lzma'))
+
+
 def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
   # Copy xwalk_core_library into app folder and move the native libraries out.
   # When making apk for specified CPU arch, will only include the
@@ -654,16 +658,18 @@ def MakeEmbeddedApk(options, app_info, app_dir, packaged_archs):
   shutil.copytree(os.path.join(xwalk_dir, EMBEDDED_LIBRARY),
                   target_library_path)
   library_path = os.path.join(target_library_path, 'libs')
+  raw_path = os.path.join(target_library_path, 'res', 'raw')
   native_path = os.path.join(app_dir, 'native_libs')
   os.makedirs(native_path)
   available_archs = []
 
-  if options.enable_lzma:
-    contains_library = ContainsCompressedLibrary
-    make_library = MakeCompressedLibrary
-  else:
+  CopyFromRawToLibs(library_path, raw_path)
+  if options.disable_lzma:
     contains_library = ContainsNativeLibrary
     make_library = MakeNativeLibrary
+  else:
+    contains_library = ContainsCompressedLibrary
+    make_library = MakeCompressedLibrary
 
   for dir_name in os.listdir(library_path):
     lib_dir = os.path.join(library_path, dir_name)
@@ -898,8 +904,8 @@ def main(argv):
                    callback=ParseParameterForCompressor, type='string',
                    nargs=0, help=info)
   parser.add_option_group(group)
-  parser.add_option('--enable-lzma', action='store_true', dest='enable_lzma',
-          default=False, help='Enable LZMA.')
+  parser.add_option('--disable-lzma', action='store_true', dest='disable_lzma',
+          default=False, help='Disable LZMA.')
 
   options, _ = parser.parse_args()
   if len(argv) == 1:
@@ -970,7 +976,7 @@ def main(argv):
 
   VerifyPackageName(options.package)
 
-  if options.mode != 'embedded' and options.enable_lzma:
+  if options.mode != 'embedded' and not options.disable_lzma:
     parser.error('LZMA is only available in embedded mode.')
 
   if options.mode == 'download' and not options.xwalk_apk_url:

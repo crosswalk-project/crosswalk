@@ -37,7 +37,9 @@
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/ssl_error_page.h"
+#ifndef DISABLE_SPEECH
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
+#endif
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_platform_notification_service.h"
@@ -353,10 +355,12 @@ void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
 }
 #endif
 
+#ifndef DISABLE_SPEECH
 content::SpeechRecognitionManagerDelegate*
     XWalkContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
   return new xwalk::XWalkSpeechRecognitionManagerDelegate();
 }
+#endif
 
 #if !defined(OS_ANDROID)
 bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,

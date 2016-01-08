@@ -19,7 +19,9 @@ namespace content {
 class BrowserContext;
 class ResourceContext;
 class QuotaPermissionContext;
+#ifndef DISABLE_SPEECH
 class SpeechRecognitionManagerDelegate;
+#endif
 class WebContents;
 class WebContentsViewDelegate;
 }
@@ -97,8 +99,10 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       net::SSLCertRequestInfo* cert_request_info,
       scoped_ptr<content::ClientCertificateDelegate> delegate) override;
 
+#ifndef DISABLE_SPEECH
   content::SpeechRecognitionManagerDelegate*
       CreateSpeechRecognitionManagerDelegate() override;
+#endif
 
   content::PlatformNotificationService* GetPlatformNotificationService()
       override;

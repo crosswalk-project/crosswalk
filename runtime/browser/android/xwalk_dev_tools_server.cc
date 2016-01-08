@@ -137,6 +137,7 @@ bool XWalkDevToolsServer::CanUserConnectToDevTools(
 
 void XWalkDevToolsServer::Start(bool allow_debug_permission,
                                 bool allow_socket_access) {
+#ifndef DISABLE_DEVTOOLS
   allow_debug_permission_ = allow_debug_permission;
   allow_socket_access_ = allow_socket_access;
   if (devtools_http_handler_)
@@ -156,16 +157,26 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission,
       base::FilePath(),
       std::string(),
       xwalk::GetUserAgent()));
+#else
+  (void) allow_debug_permission;
+  (void) allow_socket_access;
+#endif
 }
 
 void XWalkDevToolsServer::Stop() {
+#ifndef DISABLE_DEVTOOLS
   devtools_http_handler_.reset();
+#endif
   allow_socket_access_ = false;
   allow_debug_permission_ = false;
 }
 
 bool XWalkDevToolsServer::IsStarted() const {
+#ifndef DISABLE_DEVTOOLS
   return devtools_http_handler_;
+#else
+  return false;
+#endif
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {

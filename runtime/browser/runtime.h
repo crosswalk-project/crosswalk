@@ -12,8 +12,10 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
+#ifndef DISABLE_NOTIFICATIONS
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
+#endif
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/common/favicon_url.h"
@@ -36,8 +38,12 @@ class RuntimeUIDelegate;
 // Runtime represents the running environment for a web page. It is responsible
 // for maintaning its owned WebContents.
 class Runtime : public content::WebContentsDelegate,
+#ifndef DISABLE_NOTIFICATIONS
                 public content::WebContentsObserver,
                 public content::NotificationObserver {
+#else
+                public content::WebContentsObserver {
+#endif
  public:
   // New "Runtimes" are also created from Runtime::WebContentsCreated which
   // is overridden WebContentsDelegate method. The "observer" is needed to
@@ -170,6 +176,7 @@ class Runtime : public content::WebContentsDelegate,
                           const std::vector<gfx::Size>& sizes);
   bool HandleContextMenu(const content::ContextMenuParams& params) override;
 
+#ifndef DISABLE_NOTIFICATIONS
   // NotificationObserver
   void Observe(int type,
                const content::NotificationSource& source,
@@ -177,6 +184,7 @@ class Runtime : public content::WebContentsDelegate,
 
   // Notification manager.
   content::NotificationRegistrar registrar_;
+#endif
 
   scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
 

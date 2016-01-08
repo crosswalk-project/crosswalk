@@ -298,6 +298,26 @@
         'xwalk_core_shell_apk',
         'xwalk_core_library_java',
       ],
+      'conditions': [
+        ['use_icu_alternatives_on_android==1', {
+          'variables': {
+            'icu_data_param': '--no-icu-data',
+          },
+        }, {
+          'variables': {
+            'icu_data_param': '',
+          },
+        }],
+        ['disable_builtin_extensions==1', {
+          'variables': {
+            'disable_builtin_ext_param': '--disable-builtin-ext',
+          },
+        }, {
+          'variables': {
+            'disable_builtin_ext_param': '',
+          },
+        }],
+      ],
       'actions': [
         {
           'action_name': 'generate_xwalk_core_library',
@@ -312,7 +332,9 @@
           'action': [
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
             '-s', '<(DEPTH)',
-            '-t', '<(PRODUCT_DIR)'
+            '-t', '<(PRODUCT_DIR)',
+            '<(icu_data_param)',
+            '<(disable_builtin_ext_param)',
           ],
         },
       ],

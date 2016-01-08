@@ -29,11 +29,13 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('--src-package', action='store_true',
                            default=False,
                            help='Use java sources instead of java libs.')
-
-  option_parser.add_option('--use-lzma', action='store_true',
+  option_parser.add_option('--no-icu-data', action='store_true',
                            default=False,
-                           help='Use LZMA compress native library when specified')
+                           help='Exclude icudtl.dat when specified')
 
+  option_parser.add_option('--disable-builtin-ext', action='store_true',
+                           default=False,
+                           help='Disable builtin extensions.')
 
 def CleanLibraryProject(out_project_dir):
   if os.path.exists(out_project_dir):
@@ -80,13 +82,13 @@ def CopyJSBindingFiles(project_source, out_project_dir):
   jsfiles_to_copy = [
       'xwalk/experimental/launch_screen/launch_screen_api.js',
       'xwalk/experimental/presentation/presentation_api.js',
-      'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
-      + 'internal/extension/api/contacts/contacts_api.js',
-      'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
-      + 'internal/extension/api/device_capabilities/device_capabilities_api.js',
-      'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
-      + 'internal/extension/api/messaging/messaging_api.js',
-      'xwalk/experimental/wifidirect/wifidirect_api.js'
+      'xwalk/experimental/wifidirect/wifidirect_api.js',
+      'xwalk/runtime/android/core_internal/extension/api/'
+      + 'contacts/contacts_api.js',
+      'xwalk/runtime/android/core_internal/extension/api/'
+      + 'device_capabilities/device_capabilities_api.js',
+      'xwalk/runtime/android/core_internal/extension/api/'
+      + 'messaging/messaging_api.js'
   ]
 
   # Copy JS binding file to assets/jsapi folder.
@@ -96,7 +98,7 @@ def CopyJSBindingFiles(project_source, out_project_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, out_project_dir, src_package, shared):
+def CopyBinaries(out_dir, out_project_dir, src_package, shared, no_icu_data):
   # Copy jar files to libs.
   libs_dir = os.path.join(out_project_dir, 'libs')
   if not os.path.exists(libs_dir):
@@ -127,13 +129,10 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
     os.mkdir(res_value_dir)
 
   paks_to_copy = [
-      'icudtl.dat',
-      # Please refer to XWALK-3516, disable v8 use external startup data,
-      # reopen it if needed later.
-      # 'natives_blob.bin',
-      # 'snapshot_blob.bin',
       'xwalk.pak',
   ]
+  if not no_icu_data:
+    paks_to_copy.append('icudtl.dat')
 
   pak_list_xml = Document()
   resources_node = pak_list_xml.createElement('resources')
@@ -156,6 +155,14 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
   # Copy native libraries.
   source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
   distutils.dir_util.copy_tree(source_dir, libs_dir)
+
+  for arch in ['x86', 'armeabi-v7a']:
+    arch_dir = os.path.join(libs_dir, arch)
+    lib = os.path.join(arch_dir, 'libxwalkcore.so.lzma')
+    if os.path.isfile(lib):
+      # NOTE: Gradle doesn't accept '-', use '_' instead.
+      shutil.move(lib, os.path.join(res_raw_dir, "libxwalkcore.so." +
+                                    arch.replace('-', '_')))
 
 
 def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix, blacklist=None):
@@ -318,9 +325,10 @@ def main(argv):
   CopyProjectFiles(options.source, out_project_dir, options.shared)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
-  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
+  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared, options.no_icu_data)
   # Copy JS API binding files.
-  CopyJSBindingFiles(options.source, out_project_dir)
+  if not options.shared and not options.disable_builtin_ext:
+    CopyJSBindingFiles(options.source, out_project_dir)
   # Remove unused files.
   mode = os.path.basename(os.path.normpath(out_dir))
   RemoveUnusedFilesInReleaseMode(mode,

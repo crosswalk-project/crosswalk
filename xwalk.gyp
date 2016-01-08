@@ -27,6 +27,10 @@
       'defines': ['XWALK_VERSION="<(xwalk_version)"','CHROME_VERSION="<(chrome_version)"'],
       'variables': {
         'chromium_code': 1,
+        'speech_files': [
+          'runtime/browser/speech/speech_recognition_manager_delegate.cc',
+          'runtime/browser/speech/speech_recognition_manager_delegate.h',
+        ],
       },
       'dependencies': [
         '../base/base.gyp:base',
@@ -82,6 +86,8 @@
         '../extensions/common/constants.h',
         '../extensions/common/url_pattern.cc',
         '../extensions/common/url_pattern.h',
+        #TODO: use the "disable_builtin_extensions" flag in GYP to
+        #      control the native file system extension below.
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
         'experimental/native_file_system/virtual_root_provider_mac.cc',
@@ -320,6 +326,29 @@
         },
       },
       'conditions': [
+        ['enable_web_speech==0', {
+          'sources!': [
+            '<@(speech_files)',
+          ],
+        }],
+        ['disable_devtools==1', {
+          'sources!': [
+            'runtime/browser/devtools/remote_debugging_server.cc',
+            'runtime/browser/devtools/remote_debugging_server.h',
+            'runtime/browser/devtools/xwalk_devtools_frontend.cc',
+            'runtime/browser/devtools/xwalk_devtools_frontend.h',
+            'runtime/browser/devtools/xwalk_devtools_manager_delegate.cc',
+            'runtime/browser/devtools/xwalk_devtools_manager_delegate.h',
+          ],
+          'dependencies!': [
+            '../components/components.gyp:devtools_http_handler',
+          ],
+        }],
+        ['OS=="android" and use_icu_alternatives_on_android==1',{
+          'dependencies': [
+            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
+          ],
+        }],
         ['OS=="android"',{
           'dependencies':[
             '../components/components.gyp:cdm_browser',

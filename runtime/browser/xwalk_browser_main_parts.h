@@ -26,9 +26,11 @@ class WMState;
 }
 #endif
 
+#ifndef DISABLE_DEVTOOLS
 namespace devtools_http_handler {
 class DevToolsHttpHandler;
 }
+#endif
 
 namespace xwalk {
 
@@ -64,9 +66,11 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
       content::RenderProcessHost* host,
       extensions::XWalkExtensionVector* extensions);
 
+#ifndef DISABLE_DEVTOOLS
   devtools_http_handler::DevToolsHttpHandler* devtools_http_handler() {
     return devtools_http_handler_.get();
   }
+#endif
 
  protected:
   void RegisterExternalExtensions();
@@ -84,7 +88,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   // True if we need to run the default message loop defined in content.
   bool run_default_message_loop_;
 
+#ifndef DISABLE_DEVTOOLS
   scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
+#endif
 
  private:
 #if defined(USE_WEBUI_FILE_PICKER)

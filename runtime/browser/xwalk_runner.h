@@ -143,8 +143,10 @@ class XWalkRunner {
 
   ApplicationComponent* app_component_;
 
+#ifndef DISABLE_DEVTOOLS
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

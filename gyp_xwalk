@@ -46,6 +46,9 @@ sys.path.insert(1, os.path.join(chrome_src, 'tools'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'generate_shim_headers'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'grit'))
 
+sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
+    'Source', 'modules'))
+
 # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
 # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70
 # seconds.  Conversely, memory usage of build/gyp_chromium with Psyco
@@ -339,21 +342,115 @@ if __name__ == '__main__':
 
   args.extend(['-D', 'gyp_output_dir=' + GetOutputDirectory()])
 
-  # Enable Web Audio by default on Android x86
-  if gyp_vars_dict.get('OS') == 'android':
-    args.append('-Duse_openmax_dl_fft=1')
-
   # Enable Aura by default on all platforms except Android and Mac.
   if gyp_vars_dict.get('OS') != 'android' and sys.platform not in ('darwin',):
     args.append('-Duse_aura=1')
 
   if gyp_vars_dict.get('OS') == 'android':
-    args.append('-Dnotifications=1')
+    args.append('-Dnotifications=0')
     args.append('-Drelease_unwind_tables=0')
+    #### Below flags are used for reducing size of Crosswalk Lite. ####
+    # Disable ICU by default
+    args.append('-Duse_icu_alternatives_on_android=1')
+    # Disable WebRTC by default
+    args.append('-Denable_webrtc=0')
+    # Disable XSLT by default
+    args.append('-Ddisable_xslt=1')
+    # Disable WebP by default
+    args.append('-Ddisable_webp=1')
+    # Disable Angle by default
+    args.append('-Ddisable_angle=1')
+    # Disable QUIC by default
+    args.append('-Ddisable_quic_support=1')
+    # Disable Sync compositor by default
+    args.append('-Ddisable_sync_compositor=1')
+    # Disable Webaudio by default
+    args.append('-Ddisable_web_audio=1')
+    args.append('-Ddisable_webaudio_hrtf=1')
+    args.append('-Duse_openmax_dl_fft=0')
+    # Enable use_minimum_resources by default
+    args.append('-Duse_minimum_resources=1')
+    # Disable buildin extension by default.
+    args.append('-Ddisable_builtin_extensions=1')
+    # Disable Devtools by default
+    args.append('-Ddisable_devtools=1')
+    # Disable Webvideo by default.
+    args.append('-Ddisable_web_video=1')
+    # Disable Web Speech API by default
+    args.append('-Denable_web_speech=0')
+    # Enable "Optimize for size, Os" compile option by default
+    args.append('-Duse_optimize_for_size_compile_option=1')
+    # Disable Notifications by default
+    args.append('-Ddisable_notifications=1')
+    # Disable WebCL by default
+    args.append('-Denable_webcl=0')
+    # Disable IndexedDB by default
+    args.append('-Ddisable_indexeddb=1')
+    # Disable Accessibility by default
+    args.append('-Ddisable_accessibility=1')
+    # Disable Geolocation and Geofencing by default
+    args.append('-Ddisable_geo_features=1')
+    # Disable Bluetooth by default
+    args.append('-Ddisable_bluetooth=1')
+    # Disable Web Database by default
+    args.append('-Ddisable_webdatabase=1')
+    # Disable Web MIDI API by default
+    args.append('-Ddisable_webmidi=1')
+    # Disable Plugins by default
+    args.append('-Denable_plugins=0')
+    # Enable Mediastream by default
+    args.append('-Ddisable_mediastream=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
     sys.stdout.flush()
+
+  #### Synthesize 'modules.gypi' of WebKit. ####
+  disable_accessibility = 0
+  disable_geo_features = 0
+  disable_bluetooth = 0
+  disable_indexeddb = 0
+  disable_mediastream = 0
+  disable_notifications = 0
+  disable_plugins = 0
+  disable_speech = 0
+  disable_webaudio = 0
+  disable_webcl = 0
+  disable_webdatabase = 0
+  disable_webmidi = 0
+  for arg in args:
+    if arg == '-Ddisable_accessibility=1':
+      disable_accessibility = 1
+    elif arg =='-Ddisable_geo_features=1':
+      disable_geo_features = 1
+    if arg == '-Ddisable_bluetooth=1':
+      disable_bluetooth = 1
+    elif arg == '-Ddisable_indexeddb=1':
+      disable_indexeddb = 1
+    elif arg == '-Ddisable_notifications=1':
+      disable_notifications = 1
+    elif arg == '-Denable_plugins=0':
+      disable_plugins = 1
+    elif arg == '-Denable_web_speech=0':
+      disable_speech = 1
+    elif arg == '-Denable_webcl=0':
+      disable_webcl = 1
+    elif arg == '-Ddisable_webdatabase=1':
+      disable_webdatabase = 1
+    elif arg == '-Ddisable_web_audio=1':
+      disable_webaudio = 1
+    elif arg == '-Ddisable_webmidi=1':
+      disable_webmidi = 1
+    elif arg == '-Ddisable_mediastream=1':
+      disable_mediastream = 1
+
+  from modules_gypi_generator import  generate_modules_gypi
+  modules_flags = (disable_accessibility, disable_bluetooth, disable_geo_features,\
+                   disable_indexeddb, disable_mediastream, disable_notifications, disable_plugins,\
+                   disable_speech, disable_webaudio, disable_webcl,\
+                   disable_webdatabase, disable_webmidi)
+
+  generate_modules_gypi(modules_flags)
 
   # Off we go...
   gyp_rc = gyp.main(args)
