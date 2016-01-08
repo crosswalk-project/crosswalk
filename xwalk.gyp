@@ -824,8 +824,6 @@
             'xwalk_core_internal_test_apk',
             'xwalk_core_shell_apk',
             'xwalk_core_test_apk',
-            'xwalk_shared_shell_apk',
-            'xwalk_shared_test_apk',
             'xwalk_runtime_client_embedded_shell_apk',
             'xwalk_runtime_client_embedded_test_apk',
             'xwalk_runtime_client_shell_apk',

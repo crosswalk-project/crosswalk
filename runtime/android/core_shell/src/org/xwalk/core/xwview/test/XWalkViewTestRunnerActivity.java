@@ -12,32 +12,16 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
-import org.xwalk.core.XWalkActivityDelegate;
-
 /*
  * This is a lightweight activity for tests that only require XWalk functionality.
  */
 public class XWalkViewTestRunnerActivity extends Activity {
 
     private LinearLayout mLinearLayout;
-    private XWalkActivityDelegate mActivityDelegate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Runnable cancelCommand = new Runnable() {
-            @Override
-            public void run() {
-                finish();
-            }
-        };
-        Runnable completeCommand = new Runnable() {
-            @Override
-            public void run() {
-            }
-        };
-        mActivityDelegate = new XWalkActivityDelegate(this, cancelCommand, completeCommand);
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
@@ -50,10 +34,6 @@ public class XWalkViewTestRunnerActivity extends Activity {
                 LayoutParams.WRAP_CONTENT));
 
         setContentView(mLinearLayout);
-    }
-
-    public boolean isXWalkReady() {
-        return mActivityDelegate.isXWalkReady();
     }
 
     /**

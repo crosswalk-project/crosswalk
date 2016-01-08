@@ -11,6 +11,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
 
 /**
  * Test suite for clearHistory().
