@@ -11,6 +11,8 @@ namespace xwalk {
 
 std::string GetSystemLocale();
 
+extern const char kIntlAcceptLanguage[];
+
 }  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SYSTEM_LOCALE_H_

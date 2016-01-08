@@ -188,6 +188,17 @@
       <message name="IDS_FILE_BROWSER_SELECT_SAVEAS_FILE_TITLE" desc="Select saveas file title.">
         Save file as
       </message>
+      <message name="IDS_GEOLOCATION_DIALOG_QUESTION" desc="Question asked on the dialog whenever URL wants to access the user's physical location">
+        <ph name="URL">
+          $1<ex>maps.google.com</ex>
+        </ph> wants to use your computer's location.
+      </message>
+      <message name="IDS_PERMISSION_ALLOW" desc="Label on button to allow a permissions request.">
+        Allow
+      </message>
+      <message name="IDS_PERMISSION_DENY" desc="Label on button to deny a permissions request.">
+        Block
+      </message>
     </messages>
   </release>
 </grit>

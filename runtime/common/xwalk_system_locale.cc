@@ -13,4 +13,6 @@ std::string GetSystemLocale() {
   return kDefaultLocale;
 }
 
+const char kIntlAcceptLanguage[] = "intl.accept_languages";
+
 }  // namespace xwalk
