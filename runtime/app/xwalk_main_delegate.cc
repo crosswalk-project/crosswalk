@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 
+#include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -15,6 +16,7 @@
 #include "xwalk/extensions/extension_process/xwalk_extension_process_main.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
+#include "xwalk/runtime/common/logging_xwalk.h"
 #include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
@@ -26,6 +28,23 @@
 
 namespace xwalk {
 
+namespace {
+
+#if !defined(OS_ANDROID)
+void InitLogging(const std::string& process_type) {
+  logging::OldFileDeletionState file_state =
+      logging::APPEND_TO_OLD_LOG_FILE;
+  if (process_type.empty()) {
+    file_state = logging::DELETE_OLD_LOG_FILE;
+  }
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+  logging::InitXwalkLogging(command_line, file_state);
+}
+#endif
+
+}  // namespace
+
 XWalkMainDelegate::XWalkMainDelegate()
     : content_client_(new XWalkContentClient) {
 }
@@ -33,9 +52,6 @@ XWalkMainDelegate::XWalkMainDelegate()
 XWalkMainDelegate::~XWalkMainDelegate() {}
 
 bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
-  logging::LoggingSettings loggingSettings;
-  loggingSettings.logging_dest = logging::LOG_TO_SYSTEM_DEBUG_LOG;
-  logging::InitLogging(loggingSettings);
   SetContentClient(content_client_.get());
 #if defined(OS_MACOSX)
   OverrideFrameworkBundlePath();
@@ -59,6 +75,21 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
 void XWalkMainDelegate::PreSandboxStartup() {
   RegisterPathProvider();
   InitializeResourceBundle();
+
+#if !defined(OS_ANDROID) && !defined(OS_WIN)
+  // Android does InitLogging when library is loaded. Skip here.
+  // For windows we call InitLogging when the sandbox is initialized.
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  std::string process_type =
+      command_line->GetSwitchValueASCII(switches::kProcessType);
+  InitLogging(process_type);
+#endif
+}
+
+void XWalkMainDelegate::SandboxInitialized(const std::string& process_type) {
+#if defined(OS_WIN)
+  InitLogging(process_type);
+#endif
 }
 
 int XWalkMainDelegate::RunProcess(const std::string& process_type,
@@ -67,6 +98,15 @@ int XWalkMainDelegate::RunProcess(const std::string& process_type,
     return XWalkExtensionProcessMain(main_function_params);
   // Tell content to use default process main entries by returning -1.
   return -1;
+}
+
+void XWalkMainDelegate::ProcessExiting(const std::string& process_type) {
+#if !defined(OS_ANDROID)
+  logging::CleanupXwalkLogging();
+#else
+  // Android doesn't use InitXwalkLogging, so we close the log file manually.
+  logging::CloseLogFile();
+#endif  // !defined(OS_ANDROID)
 }
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)

@@ -24,8 +24,10 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   // ContentMainDelegate implementation:
   bool BasicStartupComplete(int* exit_code) override;
   void PreSandboxStartup() override;
+  void SandboxInitialized(const std::string& process_type) override;
   int RunProcess(const std::string& process_type,
       const content::MainFunctionParams& main_function_params) override;
+  void ProcessExiting(const std::string& process_type) override;
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
   void ZygoteStarting(
       ScopedVector<content::ZygoteForkDelegate>* delegates) override;
