@@ -31,6 +31,7 @@
       'dependencies': [
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
+        '../base/base.gyp:base_static',
         '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../cc/cc.gyp:cc',
         '../components/components.gyp:autofill_content_browser',
@@ -283,6 +284,8 @@
         'runtime/common/android/xwalk_message_generator.h',
         'runtime/common/android/xwalk_render_view_messages.cc',
         'runtime/common/android/xwalk_render_view_messages.h',
+        'runtime/common/logging_xwalk.cc',
+        'runtime/common/logging_xwalk.h',
         'runtime/common/paths_mac.h',
         'runtime/common/paths_mac.mm',
         'runtime/common/xwalk_common_messages.cc',

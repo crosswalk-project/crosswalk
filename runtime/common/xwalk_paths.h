@@ -13,6 +13,7 @@ enum {
   PATH_START = 1000,
   DIR_DATA_PATH = PATH_START,  // Directory where the cache and local storage
                                // data resides.
+  DIR_LOGS,                    // Directory where logs should be written.
   DIR_INTERNAL_PLUGINS,        // Directory where internal plugins reside.
 
   FILE_NACL_PLUGIN,            // Full path to the internal NaCl plugin file.
