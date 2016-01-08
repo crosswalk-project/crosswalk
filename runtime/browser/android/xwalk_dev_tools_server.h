@@ -38,7 +38,9 @@ class XWalkDevToolsServer {
     const net::UnixDomainServerSocket::Credentials& credentials);
 
   std::string socket_name_;
+#ifndef DISABLE_DEVTOOLS
   scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
+#endif
   bool allow_debug_permission_;
   bool allow_socket_access_;
 

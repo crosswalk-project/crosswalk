@@ -339,10 +339,6 @@
             'runtime/browser/devtools/xwalk_devtools_frontend.h',
             'runtime/browser/devtools/xwalk_devtools_manager_delegate.cc',
             'runtime/browser/devtools/xwalk_devtools_manager_delegate.h',
-
-            'runtime/browser/android/xwalk_dev_tools_server.cc',
-            'runtime/browser/android/xwalk_dev_tools_server.h',
-
           ],
           'dependencies!': [
             '../components/components.gyp:devtools_http_handler',
