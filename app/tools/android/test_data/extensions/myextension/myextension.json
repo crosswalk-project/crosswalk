@@ -1,5 +1,0 @@
-{
-  "name":  "Echo",
-  "class": "com.example.extension.MyExtension",
-  "jsapi": "myextension.js"
-}

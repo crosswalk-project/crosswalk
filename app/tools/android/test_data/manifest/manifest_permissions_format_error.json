@@ -1,9 +1,0 @@
-{
-  "name": "Example",
-  "xwalk_version": "1.0.0",
-  "start_url": "http://www.intel.com",
-  "xwalk_description": "a sample description",
-  "icons": [],
-  "xwalk_permissions": [{"filesystem":["write"]},"experimental"],
-  "fullscreen":"true"
-}

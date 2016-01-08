@@ -1,9 +1,0 @@
-{
-  "name": "Example",
-  "xwalk_version": "1.0.0",
-  "start_url": "http.html",
-  "xwalk_description": "a sample description",
-  "icons": [],
-  "xwalk_permissions": ["geolocation"],
-  "display": ["fullscreen"]
-}

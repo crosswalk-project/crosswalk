@@ -843,7 +843,6 @@
             'xwalk_core_sample_apk',
             'xwalk_core_library_aar',
             'xwalk_shared_library_aar',
-            'xwalk_packaging_tool_test',
           ],
         }],
       ],
