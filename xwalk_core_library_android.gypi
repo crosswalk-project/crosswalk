@@ -49,7 +49,7 @@
             '>(xwalk_core_jar)',
           ],
           'outputs': [
-            '<(docs)/index.html',
+            '<(docs)',
           ],
           'action': [
             'javadoc',
