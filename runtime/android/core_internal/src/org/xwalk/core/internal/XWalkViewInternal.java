@@ -117,7 +117,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *               // Similar with before, there are two function to use:
  *               // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
  *               // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
- *               //             int statusCode, String reasonPhrase, Map<String, String> responseHeaders)
+ *               //             int statusCode, String reasonPhrase, Map&lt;String, String&gt; responseHeaders)
  *               ...
  *           }
  *       }
