@@ -1,0 +1,38 @@
+<script>
+  var dbVersion = 2;
+  var indexedDB = window.indexedDB
+  var objectStore = "videotest"
+  var request = indexedDB.open("videoFiles", dbVersion), db
+
+  readVideoFromDb = function () {
+    var transaction = db.transaction([objectStore], "readonly");
+    var store = transaction.objectStore(objectStore);
+    store.get("video").onsuccess = function (event) {
+      var videoFile = event.target.result;
+      var URL = window.URL || window.webkitURL;
+      var videoURL = URL.createObjectURL(videoFile);
+
+      var videoElement = document.getElementById("videoid");
+      videoElement.addEventListener("load", function (event) {
+        URL.revokeObjectURL(docURL);
+      });
+      videoElement.addEventListener("playing", function(event) {
+        testInterface.setPlaying();
+      });
+      videoElement.setAttribute("src", videoURL);
+    };
+  }
+
+  request.onsuccess = function (event) {
+    console.log("Success accessing IndexedDB database");
+    db = request.result;
+    db.onerror = function (event) {
+      console.log("Error accessing IndexedDB database");
+    };
+    readVideoFromDb();
+  }
+</script>
+<body>
+  <h3>Read video data from indedexDB and play.</h3>
+  <video id="videoid" src="" controls autoplay></video>
+</body>
