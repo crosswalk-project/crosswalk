@@ -99,8 +99,8 @@ void WidgetInfo::SetString(const std::string& key, const std::string& value) {
   value_->SetString(key, value);
 }
 
-void WidgetInfo::Set(const std::string& key, base::Value* value) {
-  value_->Set(key, value);
+void WidgetInfo::Set(const std::string& key, scoped_ptr<base::Value> value) {
+  value_->Set(key, std::move(value));
 }
 
 void WidgetInfo::SetName(const std::string& name) {
@@ -142,25 +142,25 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
 
   std::set<std::string> preference_names_used;
   if (pref_value && pref_value->IsType(base::Value::TYPE_DICTIONARY)) {
-    base::DictionaryValue* preferences = new base::DictionaryValue;
+    scoped_ptr<base::DictionaryValue> preferences(new base::DictionaryValue);
     base::DictionaryValue* dict;
     pref_value->GetAsDictionary(&dict);
-    if (ParsePreferenceItem(dict, preferences, &preference_names_used))
-      widget_info->Set(kPreferences, preferences);
+    if (ParsePreferenceItem(dict, preferences.get(), &preference_names_used))
+      widget_info->Set(kPreferences, std::move(preferences));
   } else if (pref_value && pref_value->IsType(base::Value::TYPE_LIST)) {
-    base::ListValue* preferences = new base::ListValue;
+    scoped_ptr<base::ListValue> preferences(new base::ListValue);
     base::ListValue* list;
     pref_value->GetAsList(&list);
 
     for (base::ListValue::iterator it = list->begin();
          it != list->end(); ++it) {
-      base::DictionaryValue* pref = new base::DictionaryValue;
+      scoped_ptr<base::DictionaryValue> pref(new base::DictionaryValue);
       base::DictionaryValue* dict;
       (*it)->GetAsDictionary(&dict);
-      if (ParsePreferenceItem(dict, pref, &preference_names_used))
-        preferences->Append(pref);
+      if (ParsePreferenceItem(dict, pref.get(), &preference_names_used))
+        preferences->Append(std::move(pref));
     }
-    widget_info->Set(kPreferences, preferences);
+    widget_info->Set(kPreferences, std::move(preferences));
   }
 
   application->SetManifestData(keys::kWidgetKey, widget_info.release());
