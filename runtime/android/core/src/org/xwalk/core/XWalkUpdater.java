@@ -396,8 +396,7 @@ public class XWalkUpdater {
 
     private void downloadXWalkApk() {
         // The download url is defined by the meta-data element with the name "xwalk_apk_url"
-        // inside the application tag in the Android manifest. It can also be specified via
-        // the option --xwalk-apk-url of the script make_apk.
+        // inside the application tag in the Android manifest.
         if (mXWalkApkUrl == null) {
             mXWalkApkUrl = getXWalkApkUrl();
             Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);

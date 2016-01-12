@@ -16,12 +16,10 @@ def Clean(dir_to_clean):
 
 
 def PrepareFromXwalk(src_dir, target_dir):
-  '''Prepare different files for app packaging tools. All resources are used by
-  make_apk.py.
-  '''
-  # The version of yui compressor.
-  yui_compressor_version = '2.4.8'
-
+  """
+  Prepares xwalk_app_template/, which contains files used for packaging
+  Crosswalk apps. Its primary consumer is app-tools.
+  """
   # Get the dir of source code from src_dir: ../../.
   source_code_dir = os.path.dirname(os.path.dirname(src_dir))
 
@@ -34,18 +32,9 @@ def PrepareFromXwalk(src_dir, target_dir):
   app_target_dir = os.path.join(target_dir, 'template')
   jar_target_dir = os.path.join(app_target_dir, 'libs')
 
-  # The directory for source packaging tools.
-  tools_src_dir = os.path.join(source_code_dir, 'xwalk/app/tools/android')
-
   # The source file/directory list to be copied and the target directory list.
   source_target_list = [
-    (os.path.join(source_code_dir, 'xwalk/VERSION'), target_dir),
     (os.path.join(source_code_dir, 'xwalk/API_VERSION'), target_dir),
-
-    # This jar is needed for minifying and obfuscating the javascript and css.
-    (os.path.join(tools_src_dir,
-                  'libs/yuicompressor-%s.jar' % yui_compressor_version),
-     target_dir),
 
     # The app wrapper code. It's the template Java code.
     (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),
@@ -58,20 +47,6 @@ def PrepareFromXwalk(src_dir, target_dir):
 
     # XWalk Shared Library
     (xwalk_shared_library_dir, os.path.join(target_dir, 'xwalk_shared_library')),
-
-    # Build and python tools.
-    (os.path.join(tools_src_dir, 'ant', 'xwalk-debug.keystore'), target_dir),
-    (os.path.join(tools_src_dir, 'app_info.py'), target_dir),
-    (os.path.join(tools_src_dir, 'compress_js_and_css.py'), target_dir),
-    (os.path.join(tools_src_dir, 'customize.py'), target_dir),
-    (os.path.join(tools_src_dir, 'customize_launch_screen.py'), target_dir),
-    (os.path.join(tools_src_dir, 'extension_manager.py'), target_dir),
-    (os.path.join(tools_src_dir, 'handle_permissions.py'), target_dir),
-    (os.path.join(tools_src_dir, 'handle_xml.py'), target_dir),
-    (os.path.join(tools_src_dir, 'make_apk.py'), target_dir),
-    (os.path.join(tools_src_dir, 'manifest_json_parser.py'), target_dir),
-    (os.path.join(tools_src_dir, 'parse_xpk.py'), target_dir),
-    (os.path.join(tools_src_dir, 'util.py'), target_dir)
   ]
 
   for index in range(len(source_target_list)):
