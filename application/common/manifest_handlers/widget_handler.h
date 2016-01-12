@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/manifest_handler.h"
@@ -20,7 +21,7 @@ class WidgetInfo : public ApplicationData::ManifestData {
   WidgetInfo();
   ~WidgetInfo() override;
   void SetString(const std::string& key, const std::string& value);
-  void Set(const std::string& key, base::Value* value);
+  void Set(const std::string& key, scoped_ptr<base::Value> value);
 
   // Name, shrot name and description are i18n items, they will be set
   // if their value were changed after loacle was changed.
