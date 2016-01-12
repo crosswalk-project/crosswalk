@@ -1,0 +1,53 @@
+<script>
+  // This video data comes from https://code.google.com/p/chromium/codesearch#chromium/src/android_webview/javatests/src/org/chromium/android_webview/test/util/VideoTestWebServer.java&q=one_pixel_one_frame.webm&sq=package:chromium&type=cs&l=18
+  // It was also used in our test case: https://github.com/crosswalk-project/crosswalk/blob/master/test/android/core_internal/javatests/src/org/xwalk/core/internal/xwview/test/util/VideoTestWebServer.java#L25
+  var videodata =
+      "GkXfo0AgQoaBAUL3gQFC8oEEQvOBCEKCQAR3ZWJtQoeBAkKFgQIYU4BnQN8VSalmQCgq17FAAw9C" +
+      "QE2AQAZ3aGFtbXlXQUAGd2hhbW15RIlACECPQAAAAAAAFlSua0AxrkAu14EBY8WBAZyBACK1nEAD" +
+      "dW5khkAFVl9WUDglhohAA1ZQOIOBAeBABrCBlrqBlh9DtnVAdOeBAKNAboEAAIDyCACdASqWAJYA" +
+      "Pk0ci0WD+IBAAJiWlu4XdQTSq2H4MW0+sMO0gz8HMRe+0jRo0aNGjRo0aNGjRo0aNGjRo0aNGjRo" +
+      "0aNGjRo0aNGjRo0VAAD+/729RWRzH4mOZ9/O8Dl319afX4gsgAAA";
+  var dbVersion = 2;
+  var indexedDB = window.indexedDB
+  var objectStore = "videotest"
+  var request = indexedDB.open("videoFiles", dbVersion), db
+
+  createObjectStore = function (dataBase) {
+    // Create an objectStore
+    dataBase.createObjectStore(objectStore);
+  },
+
+  putVideoInDb = function () {
+    var data = atob(videodata);
+    var asArray = new Uint8Array(data.length);
+    for(var i = 0, len = data.length; i < len; ++i) {
+      asArray[i] = data.charCodeAt(i);
+    }
+    var blob = new Blob([asArray.buffer], {type: "video/webm"});
+    blob.lastModifiedDate = new Date();
+    blob.name = "one.webm";
+    var transaction = db.transaction([objectStore], "readwrite");
+
+    var store = transaction.objectStore(objectStore);
+    // Put the blob into the database
+    var put = store.put(blob, "video");
+  }
+
+  request.onsuccess = function (event) {
+    console.log("Success creating IndexedDB database");
+    db = request.result;
+
+    db.onerror = function (event) {
+      console.log("Error creating IndexedDB database");
+    };
+
+    putVideoInDb();
+  }
+
+  request.onupgradeneeded = function (event) {
+    createObjectStore(event.target.result);
+  };
+</script>
+<body>
+  <h3>Write video data to indedexDB.</h3>
+</body>
