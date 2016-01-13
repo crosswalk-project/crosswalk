@@ -129,8 +129,10 @@ net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  return static_cast<XWalkBrowserContext*>(browser_context)->
-      CreateRequestContext(protocol_handlers, request_interceptors.Pass());
+  url_request_context_getter_ =
+      static_cast<XWalkBrowserContext*>(browser_context)->CreateRequestContext(
+          protocol_handlers, request_interceptors.Pass());
+  return url_request_context_getter_;
 }
 
 net::URLRequestContextGetter*
