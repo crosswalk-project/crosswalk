@@ -21,6 +21,7 @@
 #include "base/android/locale_utils.h"
 #include "xwalk/runtime/browser/android/xwalk_autofill_client_android.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
+#include "xwalk/runtime/browser/xwalk_password_manager_client.h"
 #endif
 
 #if !defined(OS_ANDROID)
@@ -88,6 +89,9 @@ void XWalkAutofillManager::InitAutofillIfNecessary(bool enabled) {
       XWalkAutofillClientAndroid::FromWebContents(web_contents_),
       base::android::GetDefaultLocale(),
       autofill::AutofillManager::DISABLE_AUTOFILL_DOWNLOAD_MANAGER);
+  XWalkPasswordManagerClient::CreateForWebContentsWithAutofillClient(
+      web_contents_,
+      XWalkAutofillClientAndroid::FromWebContents(web_contents_));
 #else
   XWalkAutofillClientDesktop::CreateForWebContents(web_contents_);
   autofill::ContentAutofillDriverFactory::CreateForWebContentsAndDelegate(
