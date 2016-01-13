@@ -23,6 +23,12 @@
         # default.
         'ffmpeg_component%': 'shared_library',
       }],
+      ['OS=="win"', {
+        # Use RSSDK for video capture by default on Windows
+        'use_rssdk%': 1,
+      }, {
+        'use_rssdk%': 0,
+      }],
     ],
   },
   'target_defaults': {
