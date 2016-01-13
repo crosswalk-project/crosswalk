@@ -7,6 +7,7 @@
 
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
+#include "base/strings/string16.h"
 #include "content/public/common/permission_status.mojom.h"
 
 class GURL;
@@ -36,6 +37,9 @@ class RuntimeGeolocationPermissionContext
   friend class base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext>;
 
  private:
+#if !defined(OS_ANDROID)
+  void OnPermissionRequestFinished(base::Callback<void(bool)>, bool success);
+#else
   void RequestGeolocationPermissionOnUIThread(
       content::WebContents* web_contents,
       const GURL& requesting_frame,
@@ -44,6 +48,7 @@ class RuntimeGeolocationPermissionContext
   void CancelGeolocationPermissionRequestOnUIThread(
       content::WebContents* web_contents,
       const GURL& requesting_frame);
+#endif
 };
 
 }  // namespace xwalk

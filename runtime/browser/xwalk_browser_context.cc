@@ -32,6 +32,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
+#include "xwalk/runtime/browser/xwalk_content_settings.h"
 #include "xwalk/runtime/browser/xwalk_permission_manager.h"
 #include "xwalk/runtime/browser/xwalk_pref_store.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -92,6 +93,7 @@ XWalkBrowserContext::XWalkBrowserContext()
 }
 
 XWalkBrowserContext::~XWalkBrowserContext() {
+  XWalkContentSettings::GetInstance()->Shutdown();
   if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
@@ -123,6 +125,7 @@ void XWalkBrowserContext::InitWhileIOAllowed() {
     PathService::OverrideAndCreateIfNeeded(
         DIR_DATA_PATH, path, false, true);
   }
+  XWalkContentSettings::GetInstance()->Init();
 }
 
 scoped_ptr<content::ZoomLevelDelegate>
@@ -350,7 +353,7 @@ void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
 }
 
 void XWalkBrowserContext::UpdateAcceptLanguages(
-  const std::string& accept_languages) {
+    const std::string& accept_languages) {
   if (url_request_getter_)
     url_request_getter_->UpdateAcceptLanguages(accept_languages);
 }

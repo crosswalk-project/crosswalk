@@ -15,14 +15,12 @@ namespace xwalk {
 
 namespace {
 
-#if defined(OS_ANDROID)
 void CallbackPermisisonStatusWrapper(
     const base::Callback<void(content::PermissionStatus)>& callback,
     bool allowed) {
   callback.Run(allowed ? content::PERMISSION_STATUS_GRANTED
                        : content::PERMISSION_STATUS_DENIED);
 }
-#endif
 
 }  // anonymous namespace
 
@@ -42,7 +40,6 @@ void XWalkPermissionManager::RequestPermission(
     const base::Callback<void(content::PermissionStatus)>& callback) {
   switch (permission) {
     case content::PermissionType::GEOLOCATION:
-#if defined(OS_ANDROID)
       if (!geolocation_permission_context_.get()) {
         geolocation_permission_context_ =
             new RuntimeGeolocationPermissionContext();
@@ -51,9 +48,6 @@ void XWalkPermissionManager::RequestPermission(
           content::WebContents::FromRenderFrameHost(render_frame_host),
           requesting_origin,
           base::Bind(&CallbackPermisisonStatusWrapper, callback));
-#else
-      callback.Run(content::PERMISSION_STATUS_DENIED);
-#endif
       break;
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
       callback.Run(content::PERMISSION_STATUS_GRANTED);
@@ -81,11 +75,9 @@ void XWalkPermissionManager::CancelPermissionRequest(
     const GURL& requesting_origin) {
   switch (permission) {
     case content::PermissionType::GEOLOCATION:
-#if defined(OS_ANDROID)
       geolocation_permission_context_->CancelGeolocationPermissionRequest(
           content::WebContents::FromRenderFrameHost(render_frame_host),
           requesting_origin);
-#endif
       break;
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
       break;

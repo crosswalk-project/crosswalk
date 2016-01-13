@@ -16,6 +16,7 @@
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_system_locale.h"
 
 #if defined(OS_ANDROID)
 #include "base/android/locale_utils.h"
@@ -28,8 +29,6 @@
 #endif
 
 namespace xwalk {
-
-const char kIntlAcceptLanguage[] = "intl.accept_languages";
 
 XWalkAutofillManager::~XWalkAutofillManager() {
 }
