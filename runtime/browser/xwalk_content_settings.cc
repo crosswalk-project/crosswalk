@@ -35,9 +35,7 @@ XWalkContentSettings::~XWalkContentSettings() {
 }
 
 void XWalkContentSettings::Init() {
-  // This line is needed so content-settings works as it should. I even
-  // found that line in the tests.
-  ContentSettingsPattern::SetNonWildcardDomainNonPortScheme("chrome-extension");
+  ContentSettingsPattern::SetNonWildcardDomainNonPortScheme("app");
   base::FilePath xwalk_data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &xwalk_data_dir));
   sequenced_task_runner_ = JsonPrefStore::GetTaskRunnerForFile(
