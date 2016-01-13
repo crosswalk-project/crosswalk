@@ -74,6 +74,8 @@ void XWalkRunner::PreMainMessageLoopRun() {
 
   CreateComponents();
   app_extension_bridge_->SetApplicationSystem(app_component_->app_system());
+  browser_context_->set_application_service(
+      app_system()->application_service());
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {

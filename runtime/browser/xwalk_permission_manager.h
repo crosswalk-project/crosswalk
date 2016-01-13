@@ -13,9 +13,14 @@
 
 namespace xwalk {
 
+namespace application {
+class ApplicationService;
+}
+
 class XWalkPermissionManager : public content::PermissionManager {
  public:
-  XWalkPermissionManager();
+  XWalkPermissionManager(
+      application::ApplicationService* application_service);
   ~XWalkPermissionManager() override;
 
   // PermissionManager implementation.
@@ -48,8 +53,9 @@ class XWalkPermissionManager : public content::PermissionManager {
   void UnsubscribePermissionStatusChange(int subscription_id) override;
 
  private:
+  application::ApplicationService* application_service_;
   scoped_refptr<RuntimeGeolocationPermissionContext>
-    geolocation_permission_context_;
+      geolocation_permission_context_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionManager);
 };

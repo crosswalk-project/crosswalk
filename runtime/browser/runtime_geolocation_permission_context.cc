@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 
+#include <string>
+
 #include "base/bind.h"
 #include "base/callback.h"
 #include "base/prefs/pref_service.h"
@@ -90,6 +92,7 @@ void
 RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
     content::WebContents* web_contents,
     const GURL& requesting_frame,
+    const std::string& application_name,
     base::Callback<void(bool)> result_callback) {
 #if defined(OS_ANDROID)
   content::BrowserThread::PostTask(
@@ -114,13 +117,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
   PrefService* pref_service =
       user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());
   base::string16 text = l10n_util::GetStringFUTF16(
-      IDS_GEOLOCATION_DIALOG_QUESTION,
-      // FIXME : We should get the application name from the manifest.
-      url_formatter::FormatUrl(
-      requesting_frame, pref_service->GetString(kIntlAcceptLanguage),
-      url_formatter::kFormatUrlOmitUsernamePassword |
-      url_formatter::kFormatUrlOmitTrailingSlashOnBareHostname,
-      net::UnescapeRule::SPACES, nullptr, nullptr, nullptr));
+      IDS_GEOLOCATION_DIALOG_QUESTION, base::ASCIIToUTF16(application_name));
 
   permission_dialog_manager->RequestPermission(
       CONTENT_SETTINGS_TYPE_GEOLOCATION,
