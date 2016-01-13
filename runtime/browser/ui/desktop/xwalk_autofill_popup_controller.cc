@@ -359,7 +359,6 @@ bool XWalkAutofillPopupController::HasSuggestions() {
       id == autofill::POPUP_ITEM_ID_AUTOCOMPLETE_ENTRY ||
       id == autofill::POPUP_ITEM_ID_PASSWORD_ENTRY ||
       id == autofill::POPUP_ITEM_ID_DATALIST_ENTRY ||
-      id == autofill::POPUP_ITEM_ID_MAC_ACCESS_CONTACTS ||
       id == autofill::POPUP_ITEM_ID_SCAN_CREDIT_CARD;
 }
 
