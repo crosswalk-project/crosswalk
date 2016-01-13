@@ -93,7 +93,9 @@ XWalkBrowserContext::XWalkBrowserContext()
 }
 
 XWalkBrowserContext::~XWalkBrowserContext() {
+#if !defined(OS_ANDROID)
   XWalkContentSettings::GetInstance()->Shutdown();
+#endif
   if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
@@ -125,7 +127,9 @@ void XWalkBrowserContext::InitWhileIOAllowed() {
     PathService::OverrideAndCreateIfNeeded(
         DIR_DATA_PATH, path, false, true);
   }
+#if !defined(OS_ANDROID)
   XWalkContentSettings::GetInstance()->Init();
+#endif
 }
 
 scoped_ptr<content::ZoomLevelDelegate>
