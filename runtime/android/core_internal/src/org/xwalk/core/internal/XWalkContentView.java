@@ -102,4 +102,29 @@ public class XWalkContentView extends ContentView {
         mXWalkView.onFocusChangedDelegate(gainFocus, direction, previouslyFocusedRect);
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
     }
+
+    @Override
+    public int computeHorizontalScrollOffset() {
+        return super.computeHorizontalScrollOffset();
+    }
+
+    @Override
+    public int computeHorizontalScrollRange() {
+        return super.computeHorizontalScrollRange();
+    }
+
+    @Override
+    public int computeVerticalScrollExtent() {
+        return super.computeVerticalScrollExtent();
+    }
+
+    @Override
+    public int computeVerticalScrollOffset() {
+        return super.computeVerticalScrollOffset();
+    }
+
+    @Override
+    public int computeVerticalScrollRange() {
+        return super.computeVerticalScrollRange();
+    }
 }

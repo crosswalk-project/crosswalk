@@ -1424,6 +1424,36 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.scrollBy(x, y);
     }
 
+    @Override
+    @XWalkAPI
+    public int computeHorizontalScrollOffset() {
+        return mContent.computeHorizontalScrollOffset();
+    }
+
+    @Override
+    @XWalkAPI
+    public int computeHorizontalScrollRange() {
+        return mContent.computeHorizontalScrollRange();
+    }
+
+    @Override
+    @XWalkAPI
+    public int computeVerticalScrollExtent() {
+        return mContent.computeVerticalScrollExtent();
+    }
+
+    @Override
+    @XWalkAPI
+    public int computeVerticalScrollOffset() {
+        return mContent.computeVerticalScrollOffset();
+    }
+
+    @Override
+    @XWalkAPI
+    public int computeVerticalScrollRange() {
+        return mContent.computeVerticalScrollRange();
+    }
+
     /**
      * Get the external extension manager for current XWalkView.
      * Embedders could employ this manager to load their own external extensions.
