@@ -5,11 +5,15 @@
 
 #include "xwalk/runtime/browser/xwalk_permission_manager.h"
 
+#include <string>
+
 #include "base/callback.h"
 #include "content/public/browser/permission_type.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
 
 namespace xwalk {
 
@@ -24,8 +28,10 @@ void CallbackPermisisonStatusWrapper(
 
 }  // anonymous namespace
 
-XWalkPermissionManager::XWalkPermissionManager()
-    : content::PermissionManager() {
+XWalkPermissionManager::XWalkPermissionManager(
+    application::ApplicationService* application_service)
+    : content::PermissionManager(),
+    application_service_(application_service) {
 }
 
 XWalkPermissionManager::~XWalkPermissionManager() {
@@ -39,16 +45,24 @@ void XWalkPermissionManager::RequestPermission(
     bool user_gesture,
     const base::Callback<void(content::PermissionStatus)>& callback) {
   switch (permission) {
-    case content::PermissionType::GEOLOCATION:
+    case content::PermissionType::GEOLOCATION: {
       if (!geolocation_permission_context_.get()) {
         geolocation_permission_context_ =
             new RuntimeGeolocationPermissionContext();
       }
+      application::Application* app =
+          application_service_->GetApplicationByRenderHostID(
+            render_frame_host->GetProcess()->GetID());
+      std::string app_name;
+      if (app)
+        app_name = app->data()->Name();
       geolocation_permission_context_->RequestGeolocationPermission(
           content::WebContents::FromRenderFrameHost(render_frame_host),
           requesting_origin,
+          app_name,
           base::Bind(&CallbackPermisisonStatusWrapper, callback));
       break;
+    }
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
       callback.Run(content::PERMISSION_STATUS_GRANTED);
       break;

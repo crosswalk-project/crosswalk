@@ -81,7 +81,7 @@ void HandleReadError(PersistentPrefStore::PrefReadError error) {
 }
 
 XWalkBrowserContext::XWalkBrowserContext()
-  : resource_context_(new RuntimeResourceContext),
+    : resource_context_(new RuntimeResourceContext),
     save_form_data_(true) {
   InitWhileIOAllowed();
   InitFormDatabaseService();
@@ -244,7 +244,7 @@ content::SSLHostStateDelegate* XWalkBrowserContext::GetSSLHostStateDelegate() {
 
 content::PermissionManager* XWalkBrowserContext::GetPermissionManager() {
   if (!permission_manager_.get())
-    permission_manager_.reset(new XWalkPermissionManager());
+    permission_manager_.reset(new XWalkPermissionManager(application_service_));
   return permission_manager_.get();
 }
 
@@ -269,12 +269,11 @@ net::URLRequestContextGetter* XWalkBrowserContext::CreateRequestContext(
   if (url_request_getter_)
     return url_request_getter_.get();
 
-  application::ApplicationService* service =
-      XWalkRunner::GetInstance()->app_system()->application_service();
   protocol_handlers->insert(std::pair<std::string,
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
           application::kApplicationScheme,
-          application::CreateApplicationProtocolHandler(service)));
+          application::CreateApplicationProtocolHandler(
+              application_service_)));
 
   url_request_getter_ = new RuntimeURLRequestContextGetter(
       false, /* ignore_certificate_error = false */

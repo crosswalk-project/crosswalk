@@ -47,6 +47,10 @@ namespace xwalk {
 class RuntimeDownloadManagerDelegate;
 class RuntimeURLRequestContextGetter;
 
+namespace application {
+class ApplicationService;
+}
+
 class XWalkBrowserContext
     : public content::BrowserContext
 #if defined(OS_ANDROID)
@@ -103,6 +107,10 @@ class XWalkBrowserContext
   void UpdateAcceptLanguages(const std::string& accept_languages);
   void set_save_form_data(bool enable) { save_form_data_ = enable; }
   bool save_form_data() const { return save_form_data_; }
+  void set_application_service(
+      application::ApplicationService* application_service) {
+    application_service_ = application_service;
+  }
 #if defined(OS_ANDROID)
   void SetCSPString(const std::string& csp);
   std::string GetCSPString() const;
@@ -125,6 +133,7 @@ class XWalkBrowserContext
   void InitVisitedLinkMaster();
 #endif
 
+  application::ApplicationService* application_service_;
   scoped_ptr<RuntimeResourceContext> resource_context_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
