@@ -102,6 +102,13 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 
 void XWalkContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
+  xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
+  thread->AddObserver(xwalk_render_process_observer_.get());
+#if defined(OS_ANDROID)
+  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
+  thread->AddObserver(visited_link_slave_.get());
+#endif
+
   // Using WebString requires blink initialization.
   thread->EnsureWebKitInitialized();
 
@@ -114,16 +121,10 @@ void XWalkContentRendererClient::RenderThreadStarted() {
       base::ASCIIToUTF16(application::kApplicationScheme));
   blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
-
-  xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
-  thread->AddObserver(xwalk_render_process_observer_.get());
 #if defined(OS_ANDROID)
   blink::WebString content_scheme(
       base::ASCIIToUTF16(xwalk::kContentScheme));
   blink::WebSecurityPolicy::registerURLSchemeAsLocal(content_scheme);
-
-  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
-  thread->AddObserver(visited_link_slave_.get());
 #endif
 }
 
