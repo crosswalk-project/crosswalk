@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/android/jni_array.h"
@@ -281,18 +282,11 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string json_input =
       base::android::ConvertJavaStringToUTF8(env, manifest_string);
 
-  scoped_ptr<base::Value> manifest_value = base::JSONReader::Read(json_input);
-  if (!manifest_value) return false;
+  scoped_ptr<base::DictionaryValue> manifest_dict =
+      base::DictionaryValue::From(base::JSONReader::Read(json_input));
+  if (!manifest_dict) return false;
 
-  base::DictionaryValue* manifest_dictionary;
-  manifest_value->GetAsDictionary(&manifest_dictionary);
-  if (!manifest_dictionary) return false;
-
-  scoped_ptr<base::DictionaryValue>
-      manifest_dictionary_ptr(manifest_dictionary);
-
-  xwalk::application::Manifest manifest(
-      manifest_dictionary_ptr.Pass());
+  xwalk::application::Manifest manifest(std::move(manifest_dict));
 
   std::string url;
   if (manifest.GetString(keys::kStartURLKey, &url)) {
