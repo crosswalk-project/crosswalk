@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
 
+#include <string>
+
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
 #include "base/strings/string16.h"
@@ -27,6 +29,7 @@ class RuntimeGeolocationPermissionContext
   virtual void RequestGeolocationPermission(
       content::WebContents* web_contents,
       const GURL& requesting_frame,
+      const std::string& application_name,
       base::Callback<void(bool)> result_callback);
   virtual void CancelGeolocationPermissionRequest(
       content::WebContents* web_contents,
