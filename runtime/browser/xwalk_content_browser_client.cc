@@ -61,6 +61,9 @@
 #include "base/android/jni_string.h"
 #include "base/base_paths_android.h"
 #include "components/cdm/browser/cdm_message_filter_android.h"
+#include "components/navigation_interception/intercept_navigation_delegate.h"
+#include "content/public/browser/navigation_handle.h"
+#include "content/public/browser/navigation_throttle.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_view_delegate.h"
@@ -434,5 +437,23 @@ std::string XWalkContentBrowserClient::GetApplicationLocale() {
   return content::ContentBrowserClient::GetApplicationLocale();
 #endif
 }
+
+#if defined(OS_ANDROID)
+ScopedVector<content::NavigationThrottle>
+XWalkContentBrowserClient::CreateThrottlesForNavigation(
+    content::NavigationHandle* navigation_handle) {
+  ScopedVector<content::NavigationThrottle> throttles;
+  // We allow intercepting only navigations within main frames. This
+  // is used to post onPageStarted. We handle shouldOverrideUrlLoading
+  // via a sync IPC.
+  if (navigation_handle->IsInMainFrame()) {
+    throttles.push_back(
+        navigation_interception::InterceptNavigationDelegate::CreateThrottleFor(
+            navigation_handle)
+            .Pass());
+  }
+  return throttles.Pass();
+}
+#endif
 
 }  // namespace xwalk

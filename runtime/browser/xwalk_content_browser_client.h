@@ -166,6 +166,11 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   std::string GetApplicationLocale() override;
 
+#if defined(OS_ANDROID)
+  ScopedVector<content::NavigationThrottle> CreateThrottlesForNavigation(
+      content::NavigationHandle* navigation_handle) override;
+#endif
+
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
