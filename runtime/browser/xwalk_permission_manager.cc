@@ -122,19 +122,6 @@ int XWalkPermissionManager::RequestPermission(
   return request_id;
 }
 
-void XWalkPermissionManager::CancelPermissionRequest(
-    content::PermissionType permission,
-    content::RenderFrameHost* render_frame_host,
-    const GURL& requesting_origin,
-    bool user_gesture,
-    const base::Callback<void(
-        const std::vector<content::PermissionStatus>&)>& callback) {
-  // TODO: Rework this as per,
-  // https://codereview.chromium.org/1419083002
-  NOTIMPLEMENTED() << "RequestPermissions not implemented in Crosswalk";
-  return kNoPendingOperation;
-}
-
 void XWalkPermissionManager::CancelPermissionRequest(int request_id) {
   PendingRequest* pending_request = pending_requests_.Lookup(request_id);
   if (!pending_request)
