@@ -55,13 +55,12 @@ XWalkPermissionManager::XWalkPermissionManager(
 XWalkPermissionManager::~XWalkPermissionManager() {
 }
 
-void XWalkPermissionManager::RequestPermission(
-    content::PermissionType permission,
-    content::RenderFrameHost* render_frame_host,
-    int request_id,
-    const GURL& requesting_origin,
-    bool user_gesture,
-    const base::Callback<void(content::PermissionStatus)>& callback) {
+int XWalkPermissionManager::RequestPermission(
+      content::PermissionType permission,
+      content::RenderFrameHost* render_frame_host,
+      const GURL& requesting_origin,
+      bool user_gesture,
+      const base::Callback<void(content::PermissionStatus)>& callback) {
   bool should_delegate_request = true;
   for (PendingRequestsMap::Iterator<PendingRequest> it(&pending_requests_);
       !it.IsAtEnd(); it.Advance()) {
@@ -77,7 +76,7 @@ void XWalkPermissionManager::RequestPermission(
   int request_id = kNoPendingOperation;
 
   switch (permission) {
-    case content::PermissionType::GEOLOCATION:
+    case content::PermissionType::GEOLOCATION: {
       request_id = pending_requests_.Add(new PendingRequest(
           permission, requesting_origin,
           embedding_origin, render_frame_host,
@@ -120,6 +119,7 @@ void XWalkPermissionManager::RequestPermission(
       callback.Run(content::PERMISSION_STATUS_DENIED);
       break;
   }
+  return request_id;
 }
 
 void XWalkPermissionManager::CancelPermissionRequest(
