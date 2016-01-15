@@ -110,6 +110,8 @@ int XWalkPermissionManager::RequestPermission(
     case content::PermissionType::PUSH_MESSAGING:
     case content::PermissionType::MIDI:
     case content::PermissionType::DURABLE_STORAGE:
+    case content::PermissionType::AUDIO_CAPTURE:
+    case content::PermissionType::VIDEO_CAPTURE:
       NOTIMPLEMENTED() << "RequestPermission is not implemented for "
                        << static_cast<int>(permission);
       callback.Run(content::PERMISSION_STATUS_DENIED);
