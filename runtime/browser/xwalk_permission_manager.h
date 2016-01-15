@@ -32,6 +32,13 @@ class XWalkPermissionManager : public content::PermissionManager {
       const GURL& requesting_origin,
       bool user_gesture,
       const base::Callback<void(content::PermissionStatus)>& callback) override;
+  int RequestPermissions(
+      const std::vector<content::PermissionType>& permissions,
+      content::RenderFrameHost* render_frame_host,
+      const GURL& requesting_origin,
+      bool user_gesture,
+      const base::Callback<void(
+          const std::vector<content::PermissionStatus>&)>& callback) override;
   void CancelPermissionRequest(int request_id) override;
   void ResetPermission(content::PermissionType permission,
                        const GURL& requesting_origin,
