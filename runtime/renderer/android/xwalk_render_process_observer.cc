@@ -60,7 +60,7 @@ void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
   if (base_url.empty() || match_patterns.empty())
     return;
 
-  base::Value* patterns = base::JSONReader::DeprecatedRead(match_patterns);
+  scoped_ptr<base::Value> patterns = base::JSONReader::Read(match_patterns);
   if (!patterns)
     return;
 
