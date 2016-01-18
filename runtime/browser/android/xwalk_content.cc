@@ -281,18 +281,13 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string json_input =
       base::android::ConvertJavaStringToUTF8(env, manifest_string);
 
-  base::Value* manifest_value = base::JSONReader::DeprecatedRead(json_input);
-  if (!manifest_value) return false;
-
-  base::DictionaryValue* manifest_dictionary;
-  manifest_value->GetAsDictionary(&manifest_dictionary);
-  if (!manifest_dictionary) return false;
-
-  scoped_ptr<base::DictionaryValue>
-      manifest_dictionary_ptr(manifest_dictionary);
+  scoped_ptr<base::Value> manifest_value = base::JSONReader::Read(json_input);
+  if (!manifest_value || !manifest_value->IsType(base::Value::TYPE_DICTIONARY))
+      return false;
 
   xwalk::application::Manifest manifest(
-      manifest_dictionary_ptr.Pass());
+      make_scoped_ptr(
+          static_cast<base::DictionaryValue*>(manifest_value.release())));
 
   std::string url;
   if (manifest.GetString(keys::kStartURLKey, &url)) {
