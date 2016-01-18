@@ -25,11 +25,11 @@ class XWalkMediaPlayerResourceLoadingFilter extends
     @Override
     public boolean shouldOverrideResourceLoading(MediaPlayer mediaPlayer,
             Context context, Uri uri) {
-        if (uri.getScheme().equals(AndroidProtocolHandler.APP_SCHEME)) {
+        String scheme = uri.getScheme();
+        if (scheme == null) return false;
+        if (scheme.equals(AndroidProtocolHandler.APP_SCHEME)) {
             uri = AndroidProtocolHandler.appUriToFileUri(uri);
         }
-
-        String scheme = uri.getScheme();
 
         if (!scheme.equals(AndroidProtocolHandler.FILE_SCHEME)) return false;
 
