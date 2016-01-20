@@ -115,6 +115,13 @@ void XWalkRenderViewHostExt::DidNavigateAnyFrame(
       ->AddVisitedURLs(params.redirects);
 }
 
+void XWalkRenderViewHostExt::OnPageScaleFactorChanged(float page_scale_factor) {
+  XWalkContentsClientBridgeBase* client_bridge =
+      XWalkContentsClientBridgeBase::FromWebContents(web_contents());
+  if (client_bridge != NULL)
+    client_bridge->OnWebLayoutPageScaleFactorChanged(page_scale_factor);
+}
+
 bool XWalkRenderViewHostExt::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderViewHostExt, message)
@@ -122,8 +129,6 @@ bool XWalkRenderViewHostExt::OnMessageReceived(const IPC::Message& message) {
                         OnDocumentHasImagesResponse)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_UpdateHitTestData,
                         OnUpdateHitTestData)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PageScaleFactorChanged,
-                        OnPageScaleFactorChanged)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -161,13 +166,6 @@ void XWalkRenderViewHostExt::SetOriginAccessWhitelist(
     Send(new XWalkViewMsg_SetOriginAccessWhitelist(
         pending_base_url_, pending_match_patterns_));
   }
-}
-
-void XWalkRenderViewHostExt::OnPageScaleFactorChanged(float page_scale_factor) {
-  XWalkContentsClientBridgeBase* client_bridge =
-      XWalkContentsClientBridgeBase::FromWebContents(web_contents());
-  if (client_bridge != NULL)
-    client_bridge->OnWebLayoutPageScaleFactorChanged(page_scale_factor);
 }
 
 void XWalkRenderViewHostExt::SetBackgroundColor(SkColor c) {

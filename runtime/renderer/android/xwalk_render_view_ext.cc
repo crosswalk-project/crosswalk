@@ -126,7 +126,7 @@ void PopulateHitTestData(const GURL& absolute_link_url,
 }  // namespace
 
 XWalkRenderViewExt::XWalkRenderViewExt(content::RenderView* render_view)
-    : content::RenderViewObserver(render_view), page_scale_factor_(0.0f) {
+    : content::RenderViewObserver(render_view) {
 }
 
 XWalkRenderViewExt::~XWalkRenderViewExt() {
@@ -175,18 +175,6 @@ void XWalkRenderViewExt::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
   if (document_state->can_load_local_resources()) {
     blink::WebSecurityOrigin origin = frame->document().securityOrigin();
     origin.grantLoadLocalResources();
-  }
-}
-
-void XWalkRenderViewExt::DidCommitCompositorFrame() {
-  UpdatePageScaleFactor();
-}
-
-void XWalkRenderViewExt::UpdatePageScaleFactor() {
-  if (page_scale_factor_ != render_view()->GetWebView()->pageScaleFactor()) {
-    page_scale_factor_ = render_view()->GetWebView()->pageScaleFactor();
-    Send(new XWalkViewHostMsg_PageScaleFactorChanged(routing_id(),
-                                                  page_scale_factor_));
   }
 }
 
