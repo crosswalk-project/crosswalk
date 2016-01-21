@@ -49,7 +49,7 @@ class TestExtensionInstance
 
   int counter_;
   scoped_ptr<XWalkExtensionFunctionInfo> heartbeat_info_;
-  base::RepeatingTimer<TestExtensionInstance> timer_;
+  base::RepeatingTimer timer_;
 
   XWalkExtensionFunctionHandler handler_;
 };

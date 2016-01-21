@@ -101,6 +101,17 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
+  content::RenderThread* thread = content::RenderThread::Get();
+  xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
+  thread->AddObserver(xwalk_render_process_observer_.get());
+#if defined(OS_ANDROID)
+  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
+  thread->AddObserver(visited_link_slave_.get());
+#endif
+
+  // Using WebString requires blink initialization.
+  thread->EnsureWebKitInitialized();
+
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
     extension_controller_.reset(
@@ -110,17 +121,10 @@ void XWalkContentRendererClient::RenderThreadStarted() {
       base::ASCIIToUTF16(application::kApplicationScheme));
   blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
-
-  content::RenderThread* thread = content::RenderThread::Get();
-  xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
-  thread->AddObserver(xwalk_render_process_observer_.get());
 #if defined(OS_ANDROID)
   blink::WebString content_scheme(
       base::ASCIIToUTF16(xwalk::kContentScheme));
   blink::WebSecurityPolicy::registerURLSchemeAsLocal(content_scheme);
-
-  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
-  thread->AddObserver(visited_link_slave_.get());
 #endif
 }
 
@@ -254,8 +258,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 }
 
 void XWalkContentRendererClient::GetNavigationErrorStrings(
-    content::RenderView* render_view,
-    blink::WebFrame* frame,
+    content::RenderFrame* render_frame,
     const blink::WebURLRequest& failed_request,
     const blink::WebURLError& error,
     std::string* error_html,

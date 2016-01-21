@@ -5,6 +5,8 @@
 
 #include "xwalk/runtime/browser/xwalk_autofill_client.h"
 
+#include <string>
+
 #include "base/logging.h"
 #include "base/prefs/pref_registry_simple.h"
 #include "base/prefs/pref_service.h"
@@ -17,6 +19,7 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/ssl_status.h"
+#include "ui/gfx/geometry/rect_f.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
@@ -113,11 +116,6 @@ void XWalkAutofillClient::OnFirstUserGestureObserved() {
   NOTIMPLEMENTED();
 }
 
-void XWalkAutofillClient::LinkClicked(const GURL& url,
-                                      WindowOpenDisposition disposition) {
-  NOTIMPLEMENTED();
-}
-
 bool XWalkAutofillClient::IsContextSecure(const GURL& form_origin) {
   content::SSLStatus ssl_status;
   content::NavigationEntry* navigation_entry =
@@ -156,12 +154,23 @@ void XWalkAutofillClient::ShowUnmaskPrompt(
   NOTIMPLEMENTED();
 }
 
-void XWalkAutofillClient::OnUnmaskVerificationResult(GetRealPanResult result) {
+void XWalkAutofillClient::OnUnmaskVerificationResult(PaymentsRpcResult result) {
   NOTIMPLEMENTED();
 }
 
-void XWalkAutofillClient::ConfirmSaveCreditCard(
+void XWalkAutofillClient::ConfirmSaveCreditCardLocally(
     const base::Closure& save_card_callback) {
+  NOTIMPLEMENTED();
+}
+
+void XWalkAutofillClient::ConfirmSaveCreditCardToCloud(
+    const base::Closure& callback,
+    scoped_ptr<base::DictionaryValue> legal_message) {
+  NOTIMPLEMENTED();
+}
+
+void XWalkAutofillClient::LoadRiskData(
+    const base::Callback<void(const std::string&)>& callback) {
   NOTIMPLEMENTED();
 }
 

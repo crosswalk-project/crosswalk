@@ -17,12 +17,10 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '57bf41c15767f514360acf32f81888028aba5b58'
-v8_crosswalk_rev = '7a41457bad727a2ebac2942a8bdcc78ad2516006'
-ozone_wayland_rev = 'd6ad1b8bb4e2c71427283ffc21ac8d66cb576730'
+chromium_crosswalk_rev = '107253704f19075f6765f3a53ed0534f90338ae0'
+v8_crosswalk_rev = '8b62e725138c72ef06491a2c85006eb16117a24c'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
-ozone_wayland_git = 'https://github.com/01org'
 
 # ------------------------------------------------------
 # gclient solutions.
@@ -38,10 +36,6 @@ solutions = [
         crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
-
-      # Temporary roll GYP forward so we can have support to compile managed code on Windows.
-      'src/tools/gyp':
-        'https://chromium.googlesource.com/external/gyp.git@1f374df95de1c0a125485496e8d23d36303a93fd',
 
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
@@ -74,6 +68,12 @@ solutions = [
     },
 
     'custom_hooks': [
+      # Disable the hook that downloads the Google Play services library and
+      # asks the user to accept its EULA if necessary. The prompt is not show
+      # correctly, and we call it ourselves in DEPS.xwalk.
+      {
+        'name': 'sdkextras',
+      },
       # Disable Chromium's "gyp" hooks, which runs the gyp_chromium script. We
       # are not interested in running it as we use gyp_xwalk instead (and it is
       # run at a later stage as a hook in Crosswalk's own DEPS).
@@ -83,14 +83,6 @@ solutions = [
     ],
   },
 
-  # ozone-wayland is set as a separate solution because we gclient _not_ to read
-  # its .DEPS.git: it changes the recursion limit and tries to check Chromium
-  # upstream out itself, leading to URL conflicts and errors about duplicate
-  # entries.
-  { 'name': 'src/ozone',
-    'url': ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
-    'deps_file': '',
-  }
 ]
 
 hooks = [

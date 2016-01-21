@@ -106,10 +106,6 @@ IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_DocumentHasImagesResponse, // NOLINT(*)
 IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_UpdateHitTestData, // NOLINT(*)
                     xwalk::XWalkHitTestData)
 
-// Sent whenever the page scale factor (as seen by RenderView) is changed.
-IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_PageScaleFactorChanged, // NOLINT(*)
-                    float /* page_scale_factor */)
-
 // Notification that a new picture becomes available. It is only sent if
 // XWalkViewMsg_EnableCapturePictureCallback was previously enabled.
 IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_PictureUpdated) // NOLINT(*)

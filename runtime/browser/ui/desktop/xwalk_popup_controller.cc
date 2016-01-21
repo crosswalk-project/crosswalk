@@ -38,7 +38,7 @@ void XWalkPopupController::SetKeyPressCallback(
 void XWalkPopupController::RegisterKeyPressCallback() {
   if (web_contents_ && !key_press_event_target_) {
     key_press_event_target_ = web_contents_->GetRenderViewHost();
-    key_press_event_target_->AddKeyPressEventCallback(
+    key_press_event_target_->GetWidget()->AddKeyPressEventCallback(
         key_press_event_callback_);
   }
 }
@@ -46,8 +46,8 @@ void XWalkPopupController::RegisterKeyPressCallback() {
 void XWalkPopupController::UnregisterKeyPressCallback() {
   if (web_contents_ && (!web_contents_->IsBeingDestroyed()) &&
     key_press_event_target_ == web_contents_->GetRenderViewHost()) {
-    web_contents_->GetRenderViewHost()->RemoveKeyPressEventCallback(
-        key_press_event_callback_);
+    web_contents_->GetRenderViewHost()->GetWidget()
+        ->RemoveKeyPressEventCallback(key_press_event_callback_);
   }
   key_press_event_target_ = nullptr;
 }

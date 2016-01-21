@@ -234,8 +234,12 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   SendSyncReplyToJS(ret_val.Pass());
 }
 
-static jlong GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
-                                 jstring js_api, jobjectArray js_entry_points) {
+static jlong GetOrCreateExtension(
+    JNIEnv* env,
+    const JavaParamRef<jobject>& obj,
+    const JavaParamRef<jstring>& name,
+    const JavaParamRef<jstring>& js_api,
+    const JavaParamRef<jobjectArray>& js_entry_points) {
   xwalk::XWalkBrowserMainPartsAndroid* main_parts =
       ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());
 

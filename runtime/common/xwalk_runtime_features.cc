@@ -33,7 +33,7 @@ XWalkRuntimeFeatures::Feature::Feature(
 
 // static
 XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
-  return Singleton<XWalkRuntimeFeatures>::get();
+  return base::Singleton<XWalkRuntimeFeatures>::get();
 }
 
 XWalkRuntimeFeatures::XWalkRuntimeFeatures()

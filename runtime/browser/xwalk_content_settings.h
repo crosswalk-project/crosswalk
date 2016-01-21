@@ -43,7 +43,7 @@ class XWalkContentSettings {
   scoped_refptr<JsonPrefStore> pref_store_;
   scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner_;
   scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
-  friend struct DefaultSingletonTraits<XWalkContentSettings>;
+  friend struct base::DefaultSingletonTraits<XWalkContentSettings>;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentSettings);
 };

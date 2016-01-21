@@ -64,6 +64,8 @@ class XWalkDevToolsHttpHandlerDelegate :
   std::string GetDiscoveryPageHTML() override;
   std::string GetFrontendResource(const std::string& path) override;
   std::string GetPageThumbnailData(const GURL& url) override;
+  content::DevToolsExternalAgentProxyDelegate*
+      HandleWebSocketConnection(const std::string& path) override;
   void ProcessAndSaveThumbnail(const GURL& url,
                                scoped_refptr<base::RefCountedBytes> png);
 
@@ -119,6 +121,12 @@ std::string XWalkDevToolsHttpHandlerDelegate::GetPageThumbnailData(
     }
   }
   return std::string();
+}
+
+content::DevToolsExternalAgentProxyDelegate*
+XWalkDevToolsHttpHandlerDelegate::HandleWebSocketConnection(
+    const std::string& path) {
+  return nullptr;
 }
 
 void XWalkDevToolsHttpHandlerDelegate::ProcessAndSaveThumbnail(

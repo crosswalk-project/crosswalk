@@ -41,7 +41,7 @@ def main():
       if not os.path.abspath(jar_file).startswith(build_dir):
         continue
       build_utils.ExtractAll(jar_file, path=temp_dir, pattern='*.class')
-    jar.JarDirectory(temp_dir, [], options.output_jar)
+    jar.JarDirectory(temp_dir, options.output_jar)
 
 
 if __name__ == '__main__':

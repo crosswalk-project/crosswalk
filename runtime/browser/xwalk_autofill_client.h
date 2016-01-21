@@ -6,6 +6,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_AUTOFILL_CLIENT_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_AUTOFILL_CLIENT_H_
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -64,9 +65,14 @@ class XWalkAutofillClient : public autofill::AutofillClient {
   void ShowUnmaskPrompt(
       const autofill::CreditCard& card,
       base::WeakPtr<autofill::CardUnmaskDelegate> delegate) override;
-  void OnUnmaskVerificationResult(GetRealPanResult result) override;
-  void ConfirmSaveCreditCard(
-      const base::Closure& save_card_callback) override;
+  void OnUnmaskVerificationResult(PaymentsRpcResult result) override;
+  void ConfirmSaveCreditCardLocally(
+      const base::Closure& callback) override;
+  void ConfirmSaveCreditCardToCloud(
+      const base::Closure& callback,
+      scoped_ptr<base::DictionaryValue> legal_message) override;
+  void LoadRiskData(
+      const base::Callback<void(const std::string&)>& callback) override;
   bool HasCreditCardScanFeature() override;
   void ScanCreditCard(const CreditCardScanCallback& callback) override;
   void ShowRequestAutocompleteDialog(
@@ -90,8 +96,6 @@ class XWalkAutofillClient : public autofill::AutofillClient {
       const base::string16& autofilled_value,
       const base::string16& profile_full_name) override;
   void OnFirstUserGestureObserved() override;
-  void LinkClicked(
-      const GURL& url, WindowOpenDisposition disposition) override;
   bool IsContextSecure(const GURL& form_origin) override;
   void SuggestionSelected(int position);
 
