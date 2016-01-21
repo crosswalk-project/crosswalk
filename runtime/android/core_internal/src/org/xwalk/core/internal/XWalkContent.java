@@ -192,7 +192,8 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(mViewContext);
-        mContentView = new XWalkContentView(mViewContext, mContentViewCore, mXWalkView);
+        mContentView = XWalkContentView.createContentView(
+                mViewContext, mContentViewCore, mXWalkView);
         mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
         mWebContents = mContentViewCore.getWebContents();
         mNavigationController = mWebContents.getNavigationController();

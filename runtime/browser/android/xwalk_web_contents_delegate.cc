@@ -13,9 +13,10 @@
 #include "base/lazy_instance.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/browser/web_contents.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
@@ -254,8 +255,9 @@ bool XWalkWebContentsDelegate::IsFullscreenForTabOrPending(
 
 bool XWalkWebContentsDelegate::ShouldCreateWebContents(
     content::WebContents* web_contents,
-    int route_id,
-    int main_frame_route_id,
+    int32_t route_id,
+    int32_t main_frame_route_id,
+    int32_t main_frame_widget_route_id,
     WindowContainerType window_container_type,
     const std::string& frame_name,
     const GURL& target_url,

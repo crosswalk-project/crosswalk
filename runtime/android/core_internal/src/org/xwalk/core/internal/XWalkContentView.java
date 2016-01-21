@@ -15,6 +15,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewStructure;
 
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
@@ -23,7 +24,17 @@ public class XWalkContentView extends ContentView {
     private static final String TAG = "XWalkContentView";
     private XWalkViewInternal mXWalkView;
 
-    XWalkContentView(Context context, ContentViewCore cvc, XWalkViewInternal xwView) {
+    public static XWalkContentView createContentView(Context context, ContentViewCore cvc,
+            XWalkViewInternal xwView) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return new XWalkContentViewApi23(context, cvc, xwView);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return new XWalkContentViewApi16(context, cvc, xwView);
+        }
+        return new XWalkContentView(context, cvc, xwView);
+    }
+
+    private XWalkContentView(Context context, ContentViewCore cvc, XWalkViewInternal xwView) {
         super(context, cvc);
         mXWalkView = xwView;
     }
@@ -35,47 +46,6 @@ public class XWalkContentView extends ContentView {
 
     public InputConnection onCreateInputConnectionSuper(EditorInfo outAttrs) {
         return super.onCreateInputConnection(outAttrs);
-    }
-
-    @Override
-    public boolean performAccessibilityAction(int action, Bundle arguments) {
-        // Originally, we obtain a ContentView instance through ContentView.newInstance().
-        // The method newInstance will return ContentView or JellyBeanContentView
-        // respectively according to the sdk version like below:
-        // public static ContentView newInstance(Context context, ContentViewCore cvc) {
-        //     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-        //         return new ContentView(context, cvc);
-        //     } else {
-        //         return new JellyBeanContentView(context, cvc);
-        //     }
-        // }
-        // Now we use XWalkContentView uniformly, so this is a substitute for it.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return super.performAccessibilityAction(action, arguments);
-        }
-
-        // Copy code from JellyBeanContentView because the class is not public
-        if (mContentViewCore.supportsAccessibilityAction(action)) {
-            return mContentViewCore.performAccessibilityAction(action, arguments);
-        }
-
-        return super.performAccessibilityAction(action, arguments);
-    }
-
-    @Override
-    public AccessibilityNodeProvider getAccessibilityNodeProvider() {
-        // Ditto
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return super.getAccessibilityNodeProvider();
-        }
-
-        // Copy code from JellyBeanContentView because the class is not public
-        AccessibilityNodeProvider provider = mContentViewCore.getAccessibilityNodeProvider();
-        if (provider != null) {
-            return provider;
-        } else {
-            return super.getAccessibilityNodeProvider();
-        }
     }
 
     @Override
@@ -101,5 +71,46 @@ public class XWalkContentView extends ContentView {
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         mXWalkView.onFocusChangedDelegate(gainFocus, direction, previouslyFocusedRect);
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+    }
+
+    // Imitate JellyBeanContentView
+    private static class XWalkContentViewApi16 extends XWalkContentView {
+        public XWalkContentViewApi16(Context context, ContentViewCore cvc,
+                XWalkViewInternal xwView) {
+            super(context, cvc, xwView);
+        }
+
+        @Override
+        public boolean performAccessibilityAction(int action, Bundle arguments) {
+            if (mContentViewCore.supportsAccessibilityAction(action)) {
+                return mContentViewCore.performAccessibilityAction(action, arguments);
+            }
+
+            return super.performAccessibilityAction(action, arguments);
+        }
+
+        // Copy the implementation of JellyBeanContentView
+        @Override
+        public AccessibilityNodeProvider getAccessibilityNodeProvider() {
+            AccessibilityNodeProvider provider = mContentViewCore.getAccessibilityNodeProvider();
+            if (provider != null) {
+                return provider;
+            } else {
+                return super.getAccessibilityNodeProvider();
+            }
+        }
+    }
+
+    // Imitate ContentView.ContentViewApi23
+    private static class XWalkContentViewApi23 extends XWalkContentViewApi16 {
+        public XWalkContentViewApi23(Context context, ContentViewCore cvc,
+                XWalkViewInternal xwView) {
+            super(context, cvc, xwView);
+        }
+
+        @Override
+        public void onProvideVirtualStructure(final ViewStructure structure) {
+            mContentViewCore.onProvideVirtualStructure(structure);
+        }
     }
 }

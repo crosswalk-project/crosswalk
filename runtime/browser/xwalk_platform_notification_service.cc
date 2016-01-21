@@ -24,7 +24,7 @@ namespace xwalk {
 // static
 XWalkPlatformNotificationService*
 XWalkPlatformNotificationService::GetInstance() {
-  return Singleton<XWalkPlatformNotificationService>::get();
+  return base::Singleton<XWalkPlatformNotificationService>::get();
 }
 
 XWalkPlatformNotificationService::XWalkPlatformNotificationService() {}

@@ -17,8 +17,12 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
  */
 public class PresentationTest extends XWalkRuntimeClientTestBase {
 
+    /*
     @SmallTest
     @Feature({"PresentationTest"})
+    Broken in M48: see XWALK-4646 for details.
+    */
+    @DisabledTest
     public void testPresentationDisplayAvailable() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientEmbeddedShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientEmbeddedShellActivity>(

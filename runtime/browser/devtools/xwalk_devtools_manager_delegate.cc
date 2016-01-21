@@ -111,6 +111,8 @@ class XWalkDevToolsDelegate :
   std::string GetDiscoveryPageHTML() override;
   std::string GetFrontendResource(const std::string& path) override;
   std::string GetPageThumbnailData(const GURL& url) override;
+  content::DevToolsExternalAgentProxyDelegate*
+      HandleWebSocketConnection(const std::string& path) override;
 
  private:
   XWalkBrowserContext* browser_context_;
@@ -144,6 +146,11 @@ std::string XWalkDevToolsDelegate::GetFrontendResource(
 
 std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
   return std::string();
+}
+
+content::DevToolsExternalAgentProxyDelegate*
+XWalkDevToolsDelegate::HandleWebSocketConnection(const std::string& path) {
+  return nullptr;
 }
 
 }  // namespace

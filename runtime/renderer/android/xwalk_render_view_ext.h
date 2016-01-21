@@ -35,7 +35,6 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                 bool is_new_navigation) override;
   void FocusedNodeChanged(const blink::WebNode& node) override;
-  void DidCommitCompositorFrame() override;
 
   void OnDocumentHasImagesRequest(int id);
 
@@ -47,13 +46,9 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
 
   void OnSetInitialPageScale(double page_scale_factor);
 
-  void UpdatePageScaleFactor();
-
   void OnSetBackgroundColor(SkColor c);
 
   void OnSetTextZoomFactor(float zoom_factor);
-
-  float page_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderViewExt);
 };

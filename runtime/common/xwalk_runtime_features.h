@@ -52,7 +52,7 @@ class XWalkRuntimeFeatures {
   };
 
  private:
-  friend struct DefaultSingletonTraits<XWalkRuntimeFeatures>;
+  friend struct base::DefaultSingletonTraits<XWalkRuntimeFeatures>;
 
   XWalkRuntimeFeatures();
   ~XWalkRuntimeFeatures();

@@ -17,7 +17,7 @@ XWalkExternalAdapter::XWalkExternalAdapter()
 XWalkExternalAdapter::~XWalkExternalAdapter() {}
 
 XWalkExternalAdapter* XWalkExternalAdapter::GetInstance() {
-  return Singleton<XWalkExternalAdapter>::get();
+  return base::Singleton<XWalkExternalAdapter>::get();
 }
 
 XW_Extension XWalkExternalAdapter::GetNextXWExtension() {

@@ -23,7 +23,6 @@
 #include "third_party/WebKit/public/web/WebHitTestResult.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebNode.h"
-#include "third_party/WebKit/public/web/WebNodeList.h"
 #include "third_party/WebKit/public/web/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/skia/include/core/SkPicture.h"
@@ -127,7 +126,7 @@ void PopulateHitTestData(const GURL& absolute_link_url,
 }  // namespace
 
 XWalkRenderViewExt::XWalkRenderViewExt(content::RenderView* render_view)
-    : content::RenderViewObserver(render_view), page_scale_factor_(0.0f) {
+    : content::RenderViewObserver(render_view) {
 }
 
 XWalkRenderViewExt::~XWalkRenderViewExt() {
@@ -179,24 +178,11 @@ void XWalkRenderViewExt::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
   }
 }
 
-void XWalkRenderViewExt::DidCommitCompositorFrame() {
-  UpdatePageScaleFactor();
-}
-
-void XWalkRenderViewExt::UpdatePageScaleFactor() {
-  if (page_scale_factor_ != render_view()->GetWebView()->pageScaleFactor()) {
-    page_scale_factor_ = render_view()->GetWebView()->pageScaleFactor();
-    Send(new XWalkViewHostMsg_PageScaleFactorChanged(routing_id(),
-                                                  page_scale_factor_));
-  }
-}
-
 void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
   if (node.isNull() || !node.isElementNode() || !render_view())
     return;
 
-  // Note: element is not const due to innerText() is not const.
-  blink::WebElement element = node.toConst<blink::WebElement>();
+  const blink::WebElement element = node.toConst<blink::WebElement>();
   XWalkHitTestData data;
 
   data.href = GetHref(element);
@@ -215,7 +201,7 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
 
   PopulateHitTestData(absolute_link_url,
                       absolute_image_url,
-                      render_view()->IsEditableNode(node),
+                      element.isEditable(),
                       &data);
   Send(new XWalkViewHostMsg_UpdateHitTestData(routing_id(), data));
 }

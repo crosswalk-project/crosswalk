@@ -71,8 +71,9 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, DisplayInfoProvider) {
   provider->AddObserver(&test_observer);
   provider->RemoveObserver(&test_observer);
 
-  message_loop.PostTask(FROM_HERE, Bind(
-      &base::MessageLoop::Quit, Unretained(base::MessageLoop::current())));
+  message_loop.PostTask(FROM_HERE,
+                        Bind(&base::MessageLoop::QuitWhenIdle,
+                             Unretained(base::MessageLoop::current())));
 
   message_loop.Run();
 }

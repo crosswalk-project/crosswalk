@@ -113,7 +113,7 @@ bool ManifestGetString(const xwalk::application::Manifest& manifest,
 XWalkContent* XWalkContent::FromID(int render_process_id,
                                    int render_view_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  const content::RenderViewHost* rvh =
+  content::RenderViewHost* rvh =
       content::RenderViewHost::FromID(render_process_id, render_view_id);
   if (!rvh) return NULL;
   content::WebContents* web_contents =
@@ -457,7 +457,7 @@ jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
   return RestoreFromPickle(&iterator, web_contents_.get());
 }
 
-static jlong Init(JNIEnv* env, jobject obj) {
+static jlong Init(JNIEnv* env, const JavaParamRef<jobject>& obj) {
   scoped_ptr<WebContents> web_contents(content::WebContents::Create(
       content::WebContents::CreateParams(
           XWalkRunner::GetInstance()->browser_context())));
