@@ -31,6 +31,7 @@ class XWalkMediaPlayerResourceLoadingFilter extends
             uri = AndroidProtocolHandler.appUriToFileUri(uri);
         }
 
+        scheme = uri.getScheme();
         if (!scheme.equals(AndroidProtocolHandler.FILE_SCHEME)) return false;
 
         try {
