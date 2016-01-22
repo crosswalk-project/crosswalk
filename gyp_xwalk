@@ -8,6 +8,7 @@
 # is invoked by Chromium beyond what can be done in the gclient hooks.
 
 import argparse
+import gc
 import glob
 import os
 import re
@@ -21,10 +22,6 @@ chrome_src = os.path.abspath(os.path.join(xwalk_dir, os.pardir))
 
 sys.path.insert(0, os.path.join(chrome_src, 'tools', 'gyp', 'pylib'))
 import gyp
-
-sys.path.insert(0, os.path.join(chrome_src, 'build'))
-import gyp_environment
-import vs_toolchain
 
 # Assume this file is in a one-level-deep subdirectory of the source root.
 SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,9 +39,13 @@ sys.path.insert(1, os.path.join(chrome_src, 'remoting', 'tools', 'build'))
 sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'liblouis'))
 sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
     'Source', 'build', 'scripts'))
+sys.path.insert(1, os.path.join(chrome_src, 'build'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'generate_shim_headers'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'grit'))
+
+import gyp_environment
+import vs_toolchain
 
 # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
 # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70
@@ -197,12 +198,11 @@ def additional_include_files(supplemental_files, args=[]):
   return result
 
 
-if __name__ == '__main__':
+def main():
   # Disabling garbage collection saves about 1 second out of 16 on a Linux
   # z620 workstation. Since this is a short-lived process it's not a problem to
   # leak a few cyclyc references in order to spare the CPU cycles for
   # scanning the heap.
-  import gc
   gc.disable()
 
   args = sys.argv[1:]
@@ -370,3 +370,6 @@ if __name__ == '__main__':
         (x86_runtime, x64_runtime))
 
   sys.exit(gyp_rc)
+
+if __name__ == '__main__':
+  sys.exit(main())
