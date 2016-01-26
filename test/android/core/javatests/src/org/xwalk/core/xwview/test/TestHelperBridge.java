@@ -6,6 +6,7 @@
 package org.xwalk.core.xwview.test;
 
 import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -543,6 +544,7 @@ class TestHelperBridge {
     private final OnReceivedClientCertRequestHelper mOnReceivedClientCertRequestHelper;
     private final OnReceivedResponseHeadersHelper mOnReceivedResponseHeadersHelper;
     private final OnReceivedHttpAuthRequestHelper mOnReceivedHttpAuthRequestHelper;
+    private final CallbackHelper mOnReceivedSslErrorHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -573,6 +575,7 @@ class TestHelperBridge {
         mOnReceivedClientCertRequestHelper = new OnReceivedClientCertRequestHelper();
         mOnReceivedResponseHeadersHelper = new OnReceivedResponseHeadersHelper();
         mOnReceivedHttpAuthRequestHelper = new OnReceivedHttpAuthRequestHelper();
+        mOnReceivedSslErrorHelper = new CallbackHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -685,6 +688,10 @@ class TestHelperBridge {
 
     public OnReceivedHttpAuthRequestHelper getOnReceivedHttpAuthRequestHelper() {
         return mOnReceivedHttpAuthRequestHelper;
+    }
+
+    public CallbackHelper getOnReceivedSslErrorHelper() {
+        return mOnReceivedSslErrorHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -811,5 +818,9 @@ class TestHelperBridge {
 
     public void onReceivedHttpAuthRequest(String host) {
         mOnReceivedHttpAuthRequestHelper.notifyCalled(host);
+    }
+
+    public void onReceivedSslError(ValueCallback<Boolean> callback, SslError error) {
+        mOnReceivedSslErrorHelper.notifyCalled();
     }
 }

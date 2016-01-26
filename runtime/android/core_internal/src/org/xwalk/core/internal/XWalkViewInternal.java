@@ -1445,4 +1445,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         checkThreadSafety();
         mExternalExtensionManager = manager;
     }
+
+    /**
+     * Clears the SSL preferences table stored in response to proceeding with
+     * SSL certificate errors.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void clearSslPreferences() {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.clearSslPreferences();
+    }
 }

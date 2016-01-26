@@ -8,6 +8,7 @@ package org.xwalk.core.xwview.test;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -50,6 +51,7 @@ public class XWalkViewTestBase
     private final static int CHECK_INTERVAL = 100;
     private final static String TAG = "XWalkViewTestBase";
     private XWalkView mXWalkView;
+    private boolean mAllowSslError = true;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
 
     class TestXWalkUIClientBase extends XWalkUIClient {
@@ -228,6 +230,13 @@ public class XWalkViewTestBase
         public void onReceivedHttpAuthRequest(XWalkView view,
                 XWalkHttpAuthHandler handler, String host, String realm) {
             mInnerContentsClient.onReceivedHttpAuthRequest(host);
+        }
+
+        @Override
+        public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback,
+                SslError error) {
+            callback.onReceiveValue(mAllowSslError);
+            mTestHelperBridge.onReceivedSslError(callback, error);
         }
     }
 
@@ -1008,5 +1017,18 @@ public class XWalkViewTestBase
         helper.waitUntilHasValue();
         Assert.assertTrue("Failed to retrieve JavaScript evaluation results.", helper.hasValue());
         return helper.getJsonResultAndClear();
+    }
+
+    protected void setAllowSslError(boolean allow) {
+        mAllowSslError = allow;
+    }
+
+    protected void clearSslPreferences() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.clearSslPreferences();
+            }
+        });
     }
 }
