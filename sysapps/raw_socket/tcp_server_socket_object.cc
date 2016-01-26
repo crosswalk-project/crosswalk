@@ -120,8 +120,9 @@ void TCPServerSocketObject::OnAccept(int status) {
     options.use_secure_transport = false;
 
     std::string object_id = base::GenerateGUID();
-    scoped_ptr<BindingObject> obj(new TCPSocketObject(accepted_socket_.Pass()));
-    instance_->AddBindingObject(object_id, obj.Pass());
+    scoped_ptr<BindingObject> obj(new TCPSocketObject(
+                            std::move(accepted_socket_)));
+    instance_->AddBindingObject(object_id, std::move(obj));
 
     scoped_ptr<base::ListValue> dataList(new base::ListValue);
     dataList->AppendString(object_id);
@@ -130,7 +131,7 @@ void TCPServerSocketObject::OnAccept(int status) {
     scoped_ptr<base::ListValue> eventData(new base::ListValue);
     eventData->Append(dataList.release());
 
-    DispatchEvent("connect", eventData.Pass());
+    DispatchEvent("connect", std::move(eventData));
   } else {
     // The spec is not really clear about what to do when we get a incoming
     // connection but nobody is listening. We are just closing the socket in

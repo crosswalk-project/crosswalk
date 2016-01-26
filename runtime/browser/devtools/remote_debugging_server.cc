@@ -149,7 +149,7 @@ RemoteDebuggingServer::RemoteDebuggingServer(
   scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
       factory(new TCPServerSocketFactory(ip, port, 1));
   devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
-          factory.Pass(),
+          std::move(factory),
           frontend_url,
           new XWalkDevToolsHttpHandlerDelegate(),
           output_dir,

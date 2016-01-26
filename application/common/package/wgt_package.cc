@@ -61,7 +61,7 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   scoped_ptr<base::ScopedFILE> file(
       new base::ScopedFILE(base::OpenFile(path, "rb")));
 
-  file_ = file.Pass();
+  file_ = std::move(file);
 }
 
 // static

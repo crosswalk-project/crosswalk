@@ -383,7 +383,7 @@ scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
 
   scoped_ptr<base::DictionaryValue> dv = make_scoped_ptr(
       static_cast<base::DictionaryValue*>(root.release()));
-  return make_scoped_ptr(new Manifest(dv.Pass(), Manifest::TYPE_MANIFEST));
+  return make_scoped_ptr(new Manifest(std::move(dv), Manifest::TYPE_MANIFEST));
 }
 
 template <>
@@ -403,7 +403,8 @@ scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
   if (dv)
     result->Set(ToConstCharPointer(root_node->name), dv);
 
-  return make_scoped_ptr(new Manifest(result.Pass(), Manifest::TYPE_WIDGET));
+  return make_scoped_ptr(new Manifest(std::move(result),
+                                      Manifest::TYPE_WIDGET));
 }
 
 scoped_ptr<Manifest> LoadManifest(const base::FilePath& manifest_path,
@@ -447,7 +448,7 @@ scoped_refptr<ApplicationData> LoadApplication(
     return NULL;
 
   return ApplicationData::Create(
-      app_root, app_id, source_type, manifest.Pass(), error);
+      app_root, app_id, source_type, std::move(manifest), error);
 }
 
 base::FilePath ApplicationURLToRelativeFilePath(const GURL& url) {

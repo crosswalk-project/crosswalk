@@ -32,11 +32,11 @@ Package::~Package() {
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
   if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk"))) {
     scoped_ptr<Package> package(new XPKPackage(source_path));
-    return package.Pass();
+    return package;
   }
   if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
     scoped_ptr<Package> package(new WGTPackage(source_path));
-    return package.Pass();
+    return package;
   }
 
   LOG(ERROR) << "Invalid package type. Only .xpk/.wgt supported now";

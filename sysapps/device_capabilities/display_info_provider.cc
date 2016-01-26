@@ -70,7 +70,7 @@ scoped_ptr<SystemDisplay> DisplayInfoProvider::display_info() {
     info->displays.push_back(makeDisplayUnit(*it));
   }
 
-  return info.Pass();
+  return info;
 }
 
 void DisplayInfoProvider::AddObserver(Observer* observer) {

@@ -35,7 +35,7 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
     XWalkBrowserContext* browser_context) {
   scoped_ptr<ApplicationSystem> app_system;
   app_system.reset(new ApplicationSystem(browser_context));
-  return app_system.Pass();
+  return app_system;
 }
 
 bool ApplicationSystem::LaunchFromCommandLine(

@@ -134,24 +134,24 @@ void AppWidgetExtensionInstance::HandleSyncMessage(
 
   scoped_ptr<base::Value> result(new base::StringValue(""));
   if (command == "GetWidgetInfo") {
-    result = GetWidgetInfo(msg.Pass());
+    result = GetWidgetInfo(std::move(msg));
   } else if (command == "SetPreferencesItem") {
-    result = SetPreferencesItem(msg.Pass());
+    result = SetPreferencesItem(std::move(msg));
   } else if (command == "RemovePreferencesItem") {
-    result = RemovePreferencesItem(msg.Pass());
+    result = RemovePreferencesItem(std::move(msg));
   } else if (command == "ClearAllItems") {
-    result = ClearAllItems(msg.Pass());
+    result = ClearAllItems(std::move(msg));
   } else if (command == "GetAllItems") {
-    result = GetAllItems(msg.Pass());
+    result = GetAllItems(std::move(msg));
   } else if (command == "GetItemValueByKey") {
-    result = GetItemValueByKey(msg.Pass());
+    result = GetItemValueByKey(std::move(msg));
   } else if (command == "KeyExists") {
-    result = KeyExists(msg.Pass());
+    result = KeyExists(std::move(msg));
   } else {
     LOG(ERROR) << command << " ASSERT NOT REACHED.";
   }
 
-  SendSyncReplyToJS(result.Pass());
+  SendSyncReplyToJS(std::move(result));
 }
 
 scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
@@ -164,7 +164,7 @@ scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
   if (!msg->GetAsDictionary(&dict) ||
       !dict->GetString(kWidgetAttributeKey, &key)) {
     LOG(ERROR) << "Fail to get widget attribute key.";
-    return result.Pass();
+    return result;
   }
 
   WidgetInfo* info =
@@ -173,7 +173,7 @@ scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
   base::DictionaryValue* widget_info = info->GetWidgetInfo();
   widget_info->GetString(key, &value);
   result.reset(new base::StringValue(value));
-  return result.Pass();
+  return result;
 }
 
 scoped_ptr<base::FundamentalValue>
@@ -188,7 +188,7 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
       !dict->GetString(kPreferencesItemKey, &key) ||
       !dict->GetString(kPreferencesItemValue, &value)) {
     LOG(ERROR) << "Fail to set preferences item.";
-    return result.Pass();
+    return result;
   }
 
   std::string old_value;
@@ -199,7 +199,7 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
     LOG(WARNING) << "You are trying to set the same value."
                  << " Nothing will be done.";
     result.reset(new base::FundamentalValue(true));
-    return result.Pass();
+    return result;
   }
   if (widget_storage_->AddEntry(key, value, false)) {
     result.reset(new base::FundamentalValue(true));
@@ -208,10 +208,10 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
     event->SetString("key", key);
     event->SetString("oldValue", old_value);
     event->SetString("newValue", value);
-    PostMessageToOtherFrames(event.Pass());
+    PostMessageToOtherFrames(std::move(event));
   }
 
-  return result.Pass();
+  return result;
 }
 
 scoped_ptr<base::FundamentalValue>
@@ -224,7 +224,7 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
   if (!msg->GetAsDictionary(&dict) ||
       !dict->GetString(kPreferencesItemKey, &key)) {
     LOG(ERROR) << "Fail to remove preferences item.";
-    return result.Pass();
+    return result;
   }
 
   std::string old_value;
@@ -232,7 +232,7 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
     LOG(WARNING) << "You are trying to remove an entry which doesn't exist."
                  << " Nothing will be done.";
     result.reset(new base::FundamentalValue(true));
-    return result.Pass();
+    return result;
   }
 
   if (widget_storage_->RemoveEntry(key)) {
@@ -242,10 +242,10 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
     event->SetString("key", key);
     event->SetString("oldValue", old_value);
     event->SetString("newValue", "");
-    PostMessageToOtherFrames(event.Pass());
+    PostMessageToOtherFrames(std::move(event));
   }
 
-  return result.Pass();
+  return result;
 }
 
 scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
@@ -257,7 +257,7 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
   widget_storage_->GetAllEntries(entries.get());
 
   if (!widget_storage_->Clear())
-    return result.Pass();
+    return result;
 
   for (base::DictionaryValue::Iterator it(*(entries.get()));
       !it.IsAtEnd(); it.Advance()) {
@@ -269,12 +269,12 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
       event->SetString("key", key);
       event->SetString("oldValue", old_value);
       event->SetString("newValue", "");
-      PostMessageToOtherFrames(event.Pass());
+      PostMessageToOtherFrames(std::move(event));
     }
   }
 
   result.reset(new base::FundamentalValue(true));
-  return result.Pass();
+  return result;
 }
 
 scoped_ptr<base::DictionaryValue> AppWidgetExtensionInstance::GetAllItems(
@@ -282,7 +282,7 @@ scoped_ptr<base::DictionaryValue> AppWidgetExtensionInstance::GetAllItems(
   scoped_ptr<base::DictionaryValue> result(new base::DictionaryValue());
   widget_storage_->GetAllEntries(result.get());
 
-  return result.Pass();
+  return result;
 }
 
 scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetItemValueByKey(
@@ -296,7 +296,7 @@ scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetItemValueByKey(
       !widget_storage_->GetValueByKey(key, &value))
     value = "";
   scoped_ptr<base::StringValue> result(new base::StringValue(value));
-  return result.Pass();
+  return result;
 }
 
 scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
@@ -309,13 +309,13 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
   if (!msg->GetAsDictionary(&dict) ||
       !dict->GetString(kPreferencesItemKey, &key)) {
     LOG(ERROR) << "Fail to remove preferences item.";
-    return result.Pass();
+    return result;
   }
 
   if (widget_storage_->EntryExists(key))
     result.reset(new base::FundamentalValue(true));
 
-  return result.Pass();
+  return result;
 }
 
 void AppWidgetExtensionInstance::PostMessageToOtherFrames(

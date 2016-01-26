@@ -36,7 +36,7 @@ DeviceCapabilitiesInstance::DeviceCapabilitiesInstance()
 }
 
 void DeviceCapabilitiesInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  handler_.HandleMessage(msg.Pass());
+  handler_.HandleMessage(std::move(msg));
 }
 
 void DeviceCapabilitiesInstance::OnDeviceCapabilitiesConstructor(
@@ -44,7 +44,7 @@ void DeviceCapabilitiesInstance::OnDeviceCapabilitiesConstructor(
   scoped_ptr<Params> params(Params::Create(*info->arguments()));
 
   scoped_ptr<BindingObject> obj(new DeviceCapabilitiesObject());
-  store_.AddBindingObject(params->object_id, obj.Pass());
+  store_.AddBindingObject(params->object_id, std::move(obj));
 }
 
 }  // namespace experimental

@@ -53,7 +53,7 @@ scoped_ptr<SystemAVCodecs> AVCodecsProviderFFmpeg::GetSupportedCodecs() const {
     }
   }
 
-  return av_codecs.Pass();
+  return av_codecs;
 }
 
 }  // namespace sysapps

@@ -183,7 +183,7 @@ void TCPSocketObject::OnRead(int status) {
   // disconnected the socket.
   if (status == 0) {
     setReadyState(READY_STATE_CLOSED);
-    DispatchEvent("close", eventData.Pass());
+    DispatchEvent("close", std::move(eventData));
     return;
   }
 
@@ -193,7 +193,7 @@ void TCPSocketObject::OnRead(int status) {
   eventData->Append(data.release());
 
   if (!is_suspended_)
-    DispatchEvent("data", eventData.Pass());
+    DispatchEvent("data", std::move(eventData));
 
   DoRead();
 }

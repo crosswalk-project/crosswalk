@@ -245,7 +245,7 @@ RuntimeFileSelectHelper::GetFileTypesFromAcceptType(
       new ui::SelectFileDialog::FileTypeInfo());
   base_file_type->support_drive = true;
   if (accept_types.empty())
-    return base_file_type.Pass();
+    return base_file_type;
 
   // Create FileTypeInfo and pre-allocate for the first extension list.
   scoped_ptr<ui::SelectFileDialog::FileTypeInfo> file_type(
@@ -286,7 +286,7 @@ RuntimeFileSelectHelper::GetFileTypesFromAcceptType(
 
   // If no valid extension is added, bail out.
   if (valid_type_count == 0)
-    return base_file_type.Pass();
+    return base_file_type;
 
   // Use a generic description "Custom Files" if either of the following is
   // true:
@@ -304,7 +304,7 @@ RuntimeFileSelectHelper::GetFileTypesFromAcceptType(
         l10n_util::GetStringUTF16(description_id));
   }
 
-  return file_type.Pass();
+  return file_type;
 }
 
 // static

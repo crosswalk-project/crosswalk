@@ -21,7 +21,7 @@ scoped_ptr<SystemMemory> MemoryInfoProvider::memory_info() const {
   info->capacity = amount_of_physical_memory_;
   info->avail_capacity = base::SysInfo::AmountOfAvailablePhysicalMemory();
 
-  return info.Pass();
+  return info;
 }
 
 }  // namespace sysapps

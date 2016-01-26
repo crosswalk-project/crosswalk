@@ -65,7 +65,7 @@ scoped_ptr<SystemStorage> StorageInfoProviderChromium::storage_info() const {
     info->storages.push_back(makeStorageUnit(*it));
   }
 
-  return info.Pass();
+  return info;
 }
 
 void StorageInfoProviderChromium::OnRemovableStorageAttached(
