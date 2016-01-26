@@ -36,7 +36,7 @@ class XWalkExtensionData {
   }
 
   scoped_ptr<XWalkExtensionProcessHost> extension_process_host() {
-    return extension_process_host_.Pass();
+    return std::move(extension_process_host_);
   }
 
   content::RenderProcessHost* render_process_host() {

@@ -73,7 +73,7 @@ void XWalkExtensionProcess::OnRegisterExtensions(
           browser_variables.get());
 
     RegisterExternalExtensionsInDirectory(&extensions_server_, path,
-                                          browser_variables.Pass());
+                                          std::move(browser_variables));
   }
   CreateRenderProcessChannel();
 }

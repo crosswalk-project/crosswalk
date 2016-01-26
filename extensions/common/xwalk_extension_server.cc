@@ -103,7 +103,7 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   // can be costly depending on the size of Value.
   scoped_ptr<base::Value> value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-  data.instance->HandleMessage(value.Pass());
+  data.instance->HandleMessage(std::move(value));
 }
 
 void XWalkExtensionServer::Initialize(IPC::ChannelProxy* channelProxy) {
@@ -321,7 +321,7 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
   XWalkExtensionInstance* instance = data.instance;
 
-  instance->HandleSyncMessage(value.Pass());
+  instance->HandleSyncMessage(std::move(value));
 }
 
 void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
@@ -407,7 +407,7 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
       extension->set_permissions_delegate(server->permissions_delegate());
     if (extension->Initialize()) {
       registered_extensions.push_back(extension->name());
-      server->RegisterExtension(extension.Pass());
+      server->RegisterExtension(std::move(extension));
     } else {
       LOG(WARNING) << "Failed to initialize extension: "
                    << extension_path.AsUTF8Unsafe();

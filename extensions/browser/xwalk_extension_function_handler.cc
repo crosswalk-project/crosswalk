@@ -16,7 +16,7 @@ XWalkExtensionFunctionInfo::XWalkExtensionFunctionInfo(
     scoped_ptr<base::ListValue> arguments,
     const PostResultCallback& post_result_cb)
   : name_(name),
-    arguments_(arguments.Pass()),
+    arguments_(std::move(arguments)),
     post_result_cb_(post_result_cb) {}
 
 XWalkExtensionFunctionInfo::~XWalkExtensionFunctionInfo() {}
@@ -69,7 +69,7 @@ void XWalkExtensionFunctionHandler::HandleMessage(scoped_ptr<base::Value> msg) {
                          : nullptr,
                      callback_id)));
 
-  if (!HandleFunction(info.Pass())) {
+  if (!HandleFunction(std::move(info))) {
     DLOG(WARNING) << "Function not registered: " << function_name;
     return;
   }
@@ -81,7 +81,7 @@ bool XWalkExtensionFunctionHandler::HandleFunction(
   if (iter == handlers_.end())
     return false;
 
-  iter->second.Run(info.Pass());
+  iter->second.Run(std::move(info));
 
   return true;
 }
@@ -119,12 +119,12 @@ void XWalkExtensionFunctionHandler::DispatchResult(
   result->Insert(0, new base::StringValue(callback_id));
 
   if (handler)
-    handler->PostMessageToInstance(result.Pass());
+    handler->PostMessageToInstance(std::move(result));
 }
 
 void XWalkExtensionFunctionHandler::PostMessageToInstance(
     scoped_ptr<base::Value> msg) {
-  instance_->PostMessageToJS(msg.Pass());
+  instance_->PostMessageToJS(std::move(msg));
 }
 
 }  // namespace extensions

@@ -231,12 +231,12 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
 
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess)) {
-    CreateExtensionProcessHost(host, data, runtime_variables.Pass());
+    CreateExtensionProcessHost(host, data, std::move(runtime_variables));
   } else if (!external_extensions_path_.empty()) {
     BrowserThread::PostTask(BrowserThread::FILE, FROM_HERE, base::Bind(
         base::IgnoreResult(&RegisterExternalExtensionsInDirectory),
         data->in_process_ui_thread_server(),
-        external_extensions_path_, base::Passed(runtime_variables.Pass())));
+        external_extensions_path_, base::Passed(std::move(runtime_variables))));
   }
 
   extension_data_map_[host->GetID()] = data;
@@ -253,12 +253,12 @@ void XWalkExtensionService::OnRenderProcessWillLaunch(
     (*runtime_variables)["runtime_name"] =
         new base::StringValue("xwalk");
     OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
-        extension_thread_extensions, runtime_variables.Pass());
+        extension_thread_extensions, std::move(runtime_variables));
     return;
   }
 
   OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
-      extension_thread_extensions, runtime_variables.Pass());
+      extension_thread_extensions, std::move(runtime_variables));
 }
 
 // static
@@ -365,8 +365,9 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
   channel->AddFilter(message_filter);
 
-  data->set_in_process_extension_thread_server(extension_thread_server.Pass());
-  data->set_in_process_ui_thread_server(ui_thread_server.Pass());
+  data->set_in_process_extension_thread_server(
+             std::move(extension_thread_server));
+  data->set_in_process_ui_thread_server(std::move(ui_thread_server));
 
   data->set_extension_thread(&extension_thread_);
 }
@@ -376,7 +377,7 @@ void XWalkExtensionService::CreateExtensionProcessHost(
     scoped_ptr<base::ValueMap> runtime_variables) {
   data->set_extension_process_host(make_scoped_ptr(
       new XWalkExtensionProcessHost(host, external_extensions_path_, this,
-                                    runtime_variables.Pass())));
+                                    std::move(runtime_variables))));
 }
 
 void XWalkExtensionService::OnExtensionProcessDied(

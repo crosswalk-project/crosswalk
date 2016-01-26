@@ -124,7 +124,7 @@ class XWalkExtensionInstance {
   // JavaScript in the renderer process. This function will take the ownership
   // of the message.
   void PostMessageToJS(scoped_ptr<base::Value> msg) {
-    post_message_.Run(msg.Pass());
+    post_message_.Run(std::move(msg));
   }
 
  protected:
@@ -132,7 +132,7 @@ class XWalkExtensionInstance {
 
   // Unblocks the renderer waiting on a SyncMessage.
   void SendSyncReplyToJS(scoped_ptr<base::Value> reply) {
-    send_sync_reply_.Run(reply.Pass());
+    send_sync_reply_.Run(std::move(reply));
   }
 
  private:

@@ -30,7 +30,7 @@ void EchoData(int* counter, scoped_ptr<XWalkExtensionFunctionInfo> info) {
   scoped_ptr<base::ListValue> result(new base::ListValue());
   result->AppendString(str);
 
-  info->PostResult(result.Pass());
+  info->PostResult(std::move(result));
 
   (*counter)++;
 }
@@ -46,13 +46,13 @@ TEST(XWalkExtensionFunctionHandlerTest, PostResult) {
 
   XWalkExtensionFunctionInfo info(
       "test",
-      make_scoped_ptr(new base::ListValue()).Pass(),
+      make_scoped_ptr(new base::ListValue()),
       base::Bind(&DispatchResult, &str));
 
   scoped_ptr<base::ListValue> data(new base::ListValue());
   data->AppendString(kTestString);
 
-  info.PostResult(data.Pass());
+  info.PostResult(std::move(data));
   EXPECT_EQ(str, kTestString);
 }
 
@@ -70,10 +70,10 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
 
     scoped_ptr<XWalkExtensionFunctionInfo> info1(new XWalkExtensionFunctionInfo(
         "echoData",
-        data1.Pass(),
+        std::move(data1),
         base::Bind(&DispatchResult, &str1)));
 
-    handler.HandleFunction(info1.Pass());
+    handler.HandleFunction(std::move(info1));
     EXPECT_EQ(counter, i + 1);
     EXPECT_EQ(str1, kTestString);
   }
@@ -84,10 +84,10 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
 
   scoped_ptr<XWalkExtensionFunctionInfo> info2(new XWalkExtensionFunctionInfo(
       "reset",
-      data2.Pass(),
+      std::move(data2),
       base::Bind(&DispatchResult, &str2)));
 
-  handler.HandleFunction(info2.Pass());
+  handler.HandleFunction(std::move(info2));
   EXPECT_EQ(counter, 0);
 
   // Dispatching to a non registered handler should not crash.
@@ -97,10 +97,10 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
 
   scoped_ptr<XWalkExtensionFunctionInfo> info3(new XWalkExtensionFunctionInfo(
       "foobar",
-      data3.Pass(),
+      std::move(data3),
       base::Bind(&DispatchResult, &str3)));
 
-  handler.HandleFunction(info3.Pass());
+  handler.HandleFunction(std::move(info3));
 }
 
 TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
@@ -114,7 +114,7 @@ TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
   msg->AppendString("storeFunctionInfo");  // Function name.
   msg->AppendString("id");  // Callback ID.
 
-  handler->HandleMessage(msg.Pass());
+  handler->HandleMessage(std::move(msg));
   handler.reset();
 
   // Posting a result after deleting the handler should not
