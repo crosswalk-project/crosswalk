@@ -65,7 +65,7 @@ void CreateExtensionModules(XWalkExtensionClient* client,
     scoped_ptr<XWalkExtensionModule> module(
         new XWalkExtensionModule(client, module_system,
                                  it->first, codepoint->api));
-    module_system->RegisterExtensionModule(module.Pass(),
+    module_system->RegisterExtensionModule(std::move(module),
                                            codepoint->entry_points);
   }
 }

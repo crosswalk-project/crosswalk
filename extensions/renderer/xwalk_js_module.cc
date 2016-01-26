@@ -17,7 +17,7 @@ scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           resource_id).as_string());
   scoped_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
-  return module.Pass();
+  return module;
 }
 
 XWalkJSModule::XWalkJSModule(const std::string& js_code)

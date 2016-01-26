@@ -67,7 +67,7 @@ class XWalkExtensionProcessHost::RenderProcessMessageFilter
   void OnGetExtensionProcessChannel(IPC::Message* reply) {
     scoped_ptr<IPC::Message> scoped_reply(reply);
     if (eph_)
-      eph_->OnGetExtensionProcessChannel(scoped_reply.Pass());
+      eph_->OnGetExtensionProcessChannel(std::move(scoped_reply));
   }
 
   ~RenderProcessMessageFilter() override {}
@@ -92,7 +92,7 @@ class ExtensionSandboxedProcessLauncherDelegate
   }
 #elif defined(OS_POSIX)
   base::ScopedFD TakeIpcFd() override {
-    return ipc_fd_.Pass();
+    return std::move(ipc_fd_);
   }
 #endif
 
@@ -122,7 +122,7 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
       external_extensions_path_(external_extensions_path),
       is_extension_process_channel_ready_(false),
       delegate_(delegate),
-      runtime_variables_(runtime_variables.Pass()) {
+      runtime_variables_(std::move(runtime_variables)) {
   render_process_host_->GetChannel()->AddFilter(
       render_process_message_filter_.get());
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
@@ -207,7 +207,7 @@ void XWalkExtensionProcessHost::StopProcess() {
 
 void XWalkExtensionProcessHost::OnGetExtensionProcessChannel(
     scoped_ptr<IPC::Message> reply) {
-  pending_reply_for_render_process_ = reply.Pass();
+  pending_reply_for_render_process_ = std::move(reply);
   ReplyChannelHandleToRenderProcess();
 }
 

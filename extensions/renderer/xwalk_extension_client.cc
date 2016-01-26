@@ -136,27 +136,27 @@ scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
     return scoped_ptr<base::ListValue>();
   scoped_ptr<base::ListValue> list_value(new base::ListValue);
   list_value->Append(value.release());
-  return list_value.Pass();
+  return list_value;
 }
 
 }  // namespace
 
 void XWalkExtensionClient::PostMessageToNative(int64_t instance_id,
     scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::ListValue> list_msg = WrapValueInList(msg.Pass());
+  scoped_ptr<base::ListValue> list_msg = WrapValueInList(std::move(msg));
   Send(new XWalkExtensionServerMsg_PostMessageToNative(instance_id, *list_msg));
 }
 
 scoped_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
     int64_t instance_id, scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
+  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(std::move(msg));
   base::ListValue* wrapped_reply = new base::ListValue;
   Send(new XWalkExtensionServerMsg_SendSyncMessageToNative(instance_id,
       *wrapped_msg, wrapped_reply));
 
   scoped_ptr<base::Value> reply;
   wrapped_reply->Remove(0, &reply);
-  return reply.Pass();
+  return reply;
 }
 
 void XWalkExtensionClient::Initialize(IPC::Sender* sender) {

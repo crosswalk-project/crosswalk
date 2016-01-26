@@ -221,7 +221,7 @@ void XWalkExtensionModule::PostMessageCallback(
       module->converter_->FromV8Value(info[0], context));
 
   CHECK(module->instance_id_);
-  module->client_->PostMessageToNative(module->instance_id_, value.Pass());
+  module->client_->PostMessageToNative(module->instance_id_, std::move(value));
   result.Set(true);
 }
 
@@ -242,7 +242,7 @@ void XWalkExtensionModule::SendSyncMessageCallback(
   CHECK(module->instance_id_);
   scoped_ptr<base::Value> reply(
       module->client_->SendSyncMessageToNative(module->instance_id_,
-                                               value.Pass()));
+                                               std::move(value)));
 
   // If we tried to send a message to an instance that became invalid,
   // then reply will be NULL.

@@ -36,7 +36,7 @@ class XWalkExtensionFunctionInfo {
   // do nothing in case the instance doesn't exist anymore. PostResult can
   // be called from any thread.
   void PostResult(scoped_ptr<base::ListValue> result) const {
-    post_result_cb_.Run(result.Pass());
+    post_result_cb_.Run(std::move(result));
   }
 
   std::string name() const {
