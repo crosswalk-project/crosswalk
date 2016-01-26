@@ -15,7 +15,7 @@
 namespace xwalk {
 namespace application {
 
-const uint8 kSignatureAlgorithm[15] = {
+const uint8_t kSignatureAlgorithm[15] = {
   0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
   0xf7, 0x0d, 0x01, 0x01, 0x05, 0x05, 0x00
 };
@@ -51,13 +51,13 @@ XPKPackage::XPKPackage(const base::FilePath& path)
       return;
     }
     key_.resize(header_.key_size);
-    size_t len = fread(&key_.front(), sizeof(uint8), header_.key_size,
+    size_t len = fread(&key_.front(), sizeof(uint8_t), header_.key_size,
         file_->get());
     if (len < header_.key_size)
       is_valid_ = false;
 
     signature_.resize(header_.signature_size);
-    len = fread(&signature_.front(), sizeof(uint8), header_.signature_size,
+    len = fread(&signature_.front(), sizeof(uint8_t), header_.signature_size,
         file_->get());
     if (len < header_.signature_size)
       is_valid_ = false;

@@ -17,13 +17,13 @@ class XPKPackage : public Package {
  public:
   static const char kXPKPackageHeaderMagic[];
   static const size_t kXPKPackageHeaderMagicSize = 4;
-  static const uint32 kMaxPublicKeySize = 1 << 16;
-  static const uint32 kMaxSignatureKeySize = 1 << 16;
+  static const uint32_t kMaxPublicKeySize = 1 << 16;
+  static const uint32_t kMaxSignatureKeySize = 1 << 16;
 
   struct Header {
     char magic[kXPKPackageHeaderMagicSize];
-    uint32 key_size;
-    uint32 signature_size;
+    uint32_t key_size;
+    uint32_t signature_size;
   };
   ~XPKPackage() override;
   explicit XPKPackage(const base::FilePath& path);
@@ -34,8 +34,8 @@ class XPKPackage : public Package {
   virtual bool VerifySignature();
 
   Header header_;
-  std::vector<uint8> signature_;
-  std::vector<uint8> key_;
+  std::vector<uint8_t> signature_;
+  std::vector<uint8_t> key_;
   // It's the beginning address of the zip file
   int zip_addr_;
 };
