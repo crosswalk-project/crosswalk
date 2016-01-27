@@ -61,4 +61,23 @@ public interface ClientCertRequestInternal {
      */
     @XWalkAPI
     public int getPort();
+
+    /**
+     * Gets the acceptable types of asymmetric keys (can be null).
+     * @return the acceptable types of asymmetric keys such as "EC" or "RSA",
+     *         or a null array.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public String[] getKeyTypes();
+
+    /**
+     * Gets the acceptable certificate issuers for the certificate matching the
+     * private key (can be null).
+     * @return the acceptable certificate issuers for the certificate matching
+     *         the private key, or null.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public Principal[] getPrincipals();
 }
