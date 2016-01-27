@@ -497,6 +497,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnReceivedHttpAuthRequestHelper extends CallbackHelper {
+        private String mHost;
+
+        public String getHost() {
+            assert getCallCount() > 0;
+            return mHost;
+        }
+
+        public void notifyCalled(String host) {
+            mHost = host;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
@@ -528,6 +542,7 @@ class TestHelperBridge {
     private final OnDownloadStartHelper mOnDownloadStartHelper;
     private final OnReceivedClientCertRequestHelper mOnReceivedClientCertRequestHelper;
     private final OnReceivedResponseHeadersHelper mOnReceivedResponseHeadersHelper;
+    private final OnReceivedHttpAuthRequestHelper mOnReceivedHttpAuthRequestHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -557,6 +572,7 @@ class TestHelperBridge {
         mOnDownloadStartHelper = new OnDownloadStartHelper();
         mOnReceivedClientCertRequestHelper = new OnReceivedClientCertRequestHelper();
         mOnReceivedResponseHeadersHelper = new OnReceivedResponseHeadersHelper();
+        mOnReceivedHttpAuthRequestHelper = new OnReceivedHttpAuthRequestHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -665,6 +681,10 @@ class TestHelperBridge {
 
     public OnReceivedResponseHeadersHelper getOnReceivedResponseHeadersHelper() {
         return mOnReceivedResponseHeadersHelper;
+    }
+
+    public OnReceivedHttpAuthRequestHelper getOnReceivedHttpAuthRequestHelper() {
+        return mOnReceivedHttpAuthRequestHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -787,5 +807,9 @@ class TestHelperBridge {
             XWalkWebResourceRequest request,
             XWalkWebResourceResponse response) {
         mOnReceivedResponseHeadersHelper.notifyCalled(request, response);
+    }
+
+    public void onReceivedHttpAuthRequest(String host) {
+        mOnReceivedHttpAuthRequestHelper.notifyCalled(host);
     }
 }
