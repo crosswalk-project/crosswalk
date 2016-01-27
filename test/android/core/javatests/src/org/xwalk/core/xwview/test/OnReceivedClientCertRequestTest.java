@@ -4,6 +4,7 @@
 
 package org.xwalk.core.xwview.test;
 
+import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.ClientCertRequestHandler;
 
 import android.test.suitebuilder.annotation.MediumTest;
@@ -37,7 +38,13 @@ public class OnReceivedClientCertRequestTest extends XWalkViewTestBase {
         loadUrlAsync(url);
 
         mOnReceivedClientCertRequestHelper.waitForCallback(onReceivedClientCertRequestCallCount);
-        assertEquals(ClientCertRequestHandler.class.getName(), mOnReceivedClientCertRequestHelper
-                .getHandler().getClass().getName());
+        ClientCertRequest request = mOnReceivedClientCertRequestHelper.getHandler();
+        assertEquals(ClientCertRequestHandler.class.getName(), request.getClass().getName());
+        // Following parameters just for host: "egov.privasphere.com".
+        assertEquals("egov.privasphere.com", request.getHost());
+        assertEquals(443, request.getPort());
+        assertEquals("RSA", request.getKeyTypes()[0]);
+        assertEquals("ECDSA", request.getKeyTypes()[1]);
+        assertNull(request.getPrincipals());
     }
 }

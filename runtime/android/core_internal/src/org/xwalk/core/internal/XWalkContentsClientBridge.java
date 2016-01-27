@@ -727,7 +727,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             }
 
             final ClientCertRequestInternal handler = new ClientCertRequestHandlerInternal(
-                    this, id, host, port);
+                    this, id, keyTypes, principals, host, port);
             this.onReceivedClientCertRequest(handler);
         }
     }
