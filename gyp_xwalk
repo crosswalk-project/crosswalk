@@ -182,11 +182,11 @@ def additional_include_files(supplemental_files, args=[]):
   if os.environ.get('GYP_INCLUDE_FIRST') != None:
     AddInclude(os.path.join(chrome_src, os.environ.get('GYP_INCLUDE_FIRST')))
 
-  # Include xwalk common.gypi to effect chromium source tree.
-  AddInclude(os.path.join(xwalk_dir, 'build', 'common.gypi'))
-
   # Always include common.gypi.
   AddInclude(os.path.join(chrome_src, 'build', 'common.gypi'))
+
+  # Include xwalk common.gypi to effect chromium source tree.
+  AddInclude(os.path.join(xwalk_dir, 'build', 'common.gypi'))
 
   # Optionally add supplemental .gypi files if present.
   for supplement in supplemental_files:
@@ -217,25 +217,6 @@ def main():
   if int(os.environ.get('GYP_CHROMIUM_NO_ACTION', 0)):
     print 'Skipping gyp_chromium due to GYP_CHROMIUM_NO_ACTION env var.'
     sys.exit(0)
-
-  # Support external media types capability such as MP4/MP3.
-  args = list(set(args))
-  delist = []
-  ip_media_codecs = False # Default: no third-party codecs be build in.
-  for arg in args:
-    if arg.startswith('-Dproprietary_codecs') or arg.startswith('-Dffmpeg_branding'):
-      continue
-    elif arg == '-Dmediacodecs_EULA=1':
-      ip_media_codecs = True  # Exception: mediacodecs_EULA be enabled.
-    else:
-      delist.append(arg)
-
-  args = delist
-  args.append('-Dproprietary_codecs=1')
-
-  # Triggering media playback dynamically with third-party codecs by owner.
-  if ip_media_codecs == True:
-      args.append('-Dffmpeg_branding=Chrome')
 
   # Use the Psyco JIT if available.
   if psyco:
@@ -338,21 +319,6 @@ def main():
       ['-I' + i for i in additional_include_files(supplemental_includes, args)])
 
   args.extend(['-D', 'gyp_output_dir=' + GetOutputDirectory()])
-
-  # Enable Web Audio by default on Android x86
-  if gyp_vars_dict.get('OS') == 'android':
-    args.append('-Duse_openmax_dl_fft=1')
-
-  # Enable Aura by default on all platforms except Android and Mac.
-  if gyp_vars_dict.get('OS') != 'android' and sys.platform not in ('darwin',):
-    args.append('-Duse_aura=1')
-
-  if gyp_vars_dict.get('OS') == 'android':
-    args.append('-Dnotifications=1')
-    args.append('-Drelease_unwind_tables=0')
-
-  if sys.platform == 'win32':
-    args.append('-Denable_widevine=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
