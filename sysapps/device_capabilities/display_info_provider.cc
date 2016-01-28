@@ -21,7 +21,7 @@ const float kDpi96 = 96;
 
 linked_ptr<DisplayUnit> makeDisplayUnit(const gfx::Display& display) {
   gfx::Screen* screen = gfx::Screen::GetNativeScreen();
-  const int64 primary_display_id = screen->GetPrimaryDisplay().id();
+  const int64_t primary_display_id = screen->GetPrimaryDisplay().id();
 
   linked_ptr<DisplayUnit> display_unit(new DisplayUnit);
 

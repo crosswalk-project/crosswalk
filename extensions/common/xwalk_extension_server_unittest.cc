@@ -4,7 +4,6 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
-#include "base/basictypes.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using xwalk::extensions::ValidateExtensionNameForTesting;

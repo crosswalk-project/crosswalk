@@ -5,9 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
 
-#include "base/basictypes.h"
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "ui/shell_dialogs/select_file_policy.h"
 
 namespace content {

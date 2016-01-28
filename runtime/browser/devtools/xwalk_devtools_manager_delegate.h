@@ -6,7 +6,6 @@
 #ifndef XWALK_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_MANAGER_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_MANAGER_DELEGATE_H_
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "components/devtools_http_handler/devtools_http_handler_delegate.h"
 #include "content/public/browser/devtools_manager_delegate.h"

@@ -41,14 +41,14 @@ class RuntimeDownloadManagerDelegate
  private:
   friend class base::RefCountedThreadSafe<RuntimeDownloadManagerDelegate>;
 
-  void GenerateFilename(uint32 download_id,
+  void GenerateFilename(uint32_t download_id,
                         const content::DownloadTargetCallback& callback,
                         const base::FilePath& generated_name,
                         const base::FilePath& suggested_directory);
-  void OnDownloadPathGenerated(uint32 download_id,
+  void OnDownloadPathGenerated(uint32_t download_id,
                                const content::DownloadTargetCallback& callback,
                                const base::FilePath& suggested_path);
-  void ChooseDownloadPath(uint32 download_id,
+  void ChooseDownloadPath(uint32_t download_id,
                           const content::DownloadTargetCallback& callback,
                           const base::FilePath& suggested_path);
 

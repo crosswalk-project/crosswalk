@@ -7,7 +7,6 @@
 
 #include <string>
 
-#include "base/basictypes.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/permission_types.h"
 

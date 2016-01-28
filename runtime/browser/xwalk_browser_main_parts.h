@@ -6,7 +6,6 @@
 #define XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
 
 #include <string>
-#include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "content/public/browser/browser_main_parts.h"

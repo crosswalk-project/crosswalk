@@ -8,7 +8,6 @@
 
 #include <map>
 
-#include "base/basictypes.h"
 #include "base/files/file_path.h"
 #include "components/autofill/core/browser/webdata/autofill_webdata_service.h"
 #include "components/webdata/common/web_data_service_consumer.h"
