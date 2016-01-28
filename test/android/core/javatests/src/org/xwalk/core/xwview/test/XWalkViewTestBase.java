@@ -31,6 +31,7 @@ import org.chromium.ui.gfx.DeviceDisplayInfo;
 
 import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkDownloadListener;
+import org.xwalk.core.XWalkHttpAuthHandler;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
@@ -213,6 +214,12 @@ public class XWalkViewTestBase
         @Override
         public void onReceivedClientCertRequest(XWalkView view, ClientCertRequest handler)  {
             mTestHelperBridge.onReceivedClientCertRequest(view, handler);
+        }
+
+        @Override
+        public void onReceivedHttpAuthRequest(XWalkView view,
+                XWalkHttpAuthHandler handler, String host, String realm) {
+            mInnerContentsClient.onReceivedHttpAuthRequest(host);
         }
     }
 
