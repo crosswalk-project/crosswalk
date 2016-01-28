@@ -225,7 +225,7 @@ void UDPSocketObject::OnRead(int status) {
   eventData->Append(event.ToValue().release());
 
   if (!is_suspended_)
-    DispatchEvent("message", eventData.Pass());
+    DispatchEvent("message", std::move(eventData));
 
   DoRead();
 }

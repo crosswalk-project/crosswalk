@@ -42,7 +42,7 @@ AppRuntimeExtensionInstance::AppRuntimeExtensionInstance(
 }
 
 void AppRuntimeExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  handler_.HandleMessage(msg.Pass());
+  handler_.HandleMessage(std::move(msg));
 }
 
 void AppRuntimeExtensionInstance::OnGetManifest(
@@ -57,7 +57,7 @@ void AppRuntimeExtensionInstance::OnGetManifest(
   else
     // Return an empty dictionary value when there's no valid manifest data.
     results->Append(new base::DictionaryValue());
-  info->PostResult(results.Pass());
+  info->PostResult(std::move(results));
 }
 
 }  // namespace application

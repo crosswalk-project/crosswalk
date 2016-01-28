@@ -85,10 +85,10 @@ void BindingObjectStore::OnPostMessageToObject(
   scoped_ptr<XWalkExtensionFunctionInfo> new_info(
       new XWalkExtensionFunctionInfo(
           params->name,
-          new_args.Pass(),
+          std::move(new_args),
           info->post_result_cb()));
 
-  if (!it->second->HandleFunction(new_info.Pass())) {
+  if (!it->second->HandleFunction(std::move(new_info))) {
     LOG(WARNING) << "The object with the ID " << params->object_id << " has no "
         "handler for the function " << params->name << ".";
     return;

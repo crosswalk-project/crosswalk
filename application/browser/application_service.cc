@@ -76,7 +76,7 @@ Application* ApplicationService::LaunchFromManifestPath(
 
   scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
       app_path, std::string(), ApplicationData::LOCAL_DIRECTORY,
-      manifest.Pass(), &error);
+      std::move(manifest), &error);
   if (!application_data.get()) {
     LOG(ERROR) << "Error occurred while trying to load application: "
                << error;
@@ -149,12 +149,12 @@ Application* ApplicationService::LaunchHostedURL(const GURL& url) {
   settings->SetString(application_manifest_keys::kXWalkVersionKey, "0");
 
   scoped_ptr<Manifest> manifest(
-      new Manifest(settings.Pass(), Manifest::TYPE_MANIFEST));
+      new Manifest(std::move(settings), Manifest::TYPE_MANIFEST));
 
   std::string error;
   scoped_refptr<ApplicationData> app_data =
         ApplicationData::Create(base::FilePath(), app_id,
-        ApplicationData::EXTERNAL_URL, manifest.Pass(), &error);
+        ApplicationData::EXTERNAL_URL, std::move(manifest), &error);
   DCHECK(app_data.get());
 
   return Launch(app_data);

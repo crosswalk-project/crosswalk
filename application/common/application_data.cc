@@ -50,7 +50,7 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
     return NULL;
 
   scoped_refptr<ApplicationData> app_data =
-      new ApplicationData(path, source_type, manifest.Pass());
+      new ApplicationData(path, source_type, std::move(manifest));
   if (!app_data->Init(explicit_id, &error)) {
     *error_message = base::UTF16ToUTF8(error);
     return NULL;

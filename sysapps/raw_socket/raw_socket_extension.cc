@@ -43,12 +43,12 @@ RawSocketInstance::RawSocketInstance()
 }
 
 void RawSocketInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  handler_.HandleMessage(msg.Pass());
+  handler_.HandleMessage(std::move(msg));
 }
 
 void RawSocketInstance::AddBindingObject(const std::string& object_id,
                                          scoped_ptr<BindingObject> obj) {
-  store_.AddBindingObject(object_id, obj.Pass());
+  store_.AddBindingObject(object_id, std::move(obj));
 }
 
 void RawSocketInstance::OnTCPServerSocketConstructor(
@@ -62,7 +62,7 @@ void RawSocketInstance::OnTCPServerSocketConstructor(
   }
 
   scoped_ptr<BindingObject> obj(new TCPServerSocketObject(this));
-  store_.AddBindingObject(params->object_id, obj.Pass());
+  store_.AddBindingObject(params->object_id, std::move(obj));
 }
 
 void RawSocketInstance::OnTCPSocketConstructor(
@@ -76,7 +76,7 @@ void RawSocketInstance::OnTCPSocketConstructor(
   }
 
   scoped_ptr<BindingObject> obj(new TCPSocketObject);
-  store_.AddBindingObject(params->object_id, obj.Pass());
+  store_.AddBindingObject(params->object_id, std::move(obj));
 }
 
 void RawSocketInstance::OnUDPSocketConstructor(
@@ -90,7 +90,7 @@ void RawSocketInstance::OnUDPSocketConstructor(
   }
 
   scoped_ptr<BindingObject> obj(new UDPSocketObject);
-  store_.AddBindingObject(params->object_id, obj.Pass());
+  store_.AddBindingObject(params->object_id, std::move(obj));
 }
 
 }  // namespace sysapps

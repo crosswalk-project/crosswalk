@@ -18,7 +18,7 @@ void RawSocketObject::setReadyState(ReadyState state) {
   scoped_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->AppendString(ToString(state));
 
-  DispatchEvent("readystate", eventData.Pass());
+  DispatchEvent("readystate", std::move(eventData));
 }
 
 }  // namespace sysapps

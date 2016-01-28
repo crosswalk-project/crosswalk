@@ -30,7 +30,7 @@ void EventTarget::DispatchEvent(const std::string& type,
   if (it == events_.end())
     return;
 
-  it->second.Run(data.Pass());
+  it->second.Run(std::move(data));
 }
 
 bool EventTarget::IsEventActive(const std::string& type) const {

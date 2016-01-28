@@ -53,13 +53,13 @@ scoped_ptr<List> ExpandUserAgentLocalesList(const scoped_ptr<List>& list) {
       copy_locale = copy_locale.substr(0, position);
     } while (position != std::string::npos);
   }
-  return expansion_list.Pass();
+  return expansion_list;
 }
 
 }  // namespace
 
 Manifest::Manifest(scoped_ptr<base::DictionaryValue> value, Type type)
-    : data_(value.Pass()),
+    : data_(std::move(value)),
       i18n_data_(new base::DictionaryValue),
       type_(type) {
 

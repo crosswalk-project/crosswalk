@@ -24,7 +24,7 @@ scoped_ptr<SystemCPU> CPUInfoProvider::cpu_info() const {
   info->arch_name = processor_architecture_;
   info->load = GetCPULoad();
 
-  return info.Pass();
+  return info;
 }
 
 }  // namespace sysapps

@@ -68,7 +68,7 @@ void DeviceCapabilitiesObject::OnDisplayConnected(const DisplayUnit& display) {
   scoped_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(display.ToValue().release());
 
-  DispatchEvent("displayconnect", eventData.Pass());
+  DispatchEvent("displayconnect", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnDisplayDisconnected(
@@ -76,21 +76,21 @@ void DeviceCapabilitiesObject::OnDisplayDisconnected(
   scoped_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(display.ToValue().release());
 
-  DispatchEvent("displaydisconnect", eventData.Pass());
+  DispatchEvent("displaydisconnect", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnStorageAttached(const StorageUnit& storage) {
   scoped_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(storage.ToValue().release());
 
-  DispatchEvent("storageattach", eventData.Pass());
+  DispatchEvent("storageattach", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnStorageDetached(const StorageUnit& storage) {
   scoped_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(storage.ToValue().release());
 
-  DispatchEvent("storagedetach", eventData.Pass());
+  DispatchEvent("storagedetach", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnGetAVCodecs(

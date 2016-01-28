@@ -33,7 +33,7 @@ XPKPackage::XPKPackage(const base::FilePath& path)
     return;
   scoped_ptr<base::ScopedFILE> file(
       new base::ScopedFILE(base::OpenFile(path, "rb")));
-  file_ = file.Pass();
+  file_ = std::move(file);
   size_t len = fread(&header_, 1, sizeof(header_), file_->get());
   is_valid_ = false;
   if (len < sizeof(header_))

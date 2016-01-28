@@ -120,7 +120,7 @@ void NativeFileSystemInstance::HandleSyncMessage(
     LOG(ERROR) << command << " ASSERT NOT REACHED.";
   }
 
-  SendSyncReplyToJS(result.Pass());
+  SendSyncReplyToJS(std::move(result));
 }
 
 FileSystemChecker::FileSystemChecker(
