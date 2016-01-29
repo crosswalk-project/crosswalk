@@ -34,7 +34,7 @@ scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig() {
   manifest->SetString(manifest_keys::kXWalkVersionKey, kDefaultManifestVersion);
   manifest->SetString(manifest_keys::kNameKey, kDefaultManifestName);
 
-  return manifest.Pass();
+  return manifest;
 }
 
 scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
@@ -46,7 +46,7 @@ scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
                       widget_keys::kWidgetNamespacePrefix);
   manifest->SetString(widget_keys::kVersionKey, kDefaultWidgetVersion);
   manifest->SetString(widget_keys::kNameKey, kDefaultWidgetName);
-  return manifest.Pass();
+  return manifest;
 }
 
 scoped_refptr<ApplicationData> CreateApplication(Manifest::Type type,

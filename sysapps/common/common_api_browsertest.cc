@@ -70,7 +70,7 @@ SysAppsTestExtensionInstance::SysAppsTestExtensionInstance()
 }
 
 void SysAppsTestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  handler_.HandleMessage(msg.Pass());
+  handler_.HandleMessage(std::move(msg));
 }
 
 void SysAppsTestExtensionInstance::OnSysAppsTestObjectContructor(
@@ -79,7 +79,7 @@ void SysAppsTestExtensionInstance::OnSysAppsTestObjectContructor(
   ASSERT_TRUE(info->arguments()->GetString(0, &object_id));
 
   scoped_ptr<BindingObject> obj(new SysAppsTestObject);
-  store_.AddBindingObject(object_id, obj.Pass());
+  store_.AddBindingObject(object_id, std::move(obj));
 }
 
 void SysAppsTestExtensionInstance::OnHasObject(
@@ -90,7 +90,7 @@ void SysAppsTestExtensionInstance::OnHasObject(
   scoped_ptr<base::ListValue> result(new base::ListValue());
   result->AppendBoolean(store_.HasObjectForTesting(object_id));
 
-  info->PostResult(result.Pass());
+  info->PostResult(std::move(result));
 }
 
 SysAppsTestObject::SysAppsTestObject() : is_test_event_active_(false) {
@@ -123,17 +123,17 @@ void SysAppsTestObject::OnIsTestEventActive(
   scoped_ptr<base::ListValue> result(new base::ListValue());
   result->AppendBoolean(is_test_event_active_);
 
-  info->PostResult(result.Pass());
+  info->PostResult(std::move(result));
 }
 
 void SysAppsTestObject::OnFireTestEvent(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   scoped_ptr<base::ListValue> data(new base::ListValue());
   data->AppendString("Lorem ipsum");
-  DispatchEvent("test", data.Pass());
+  DispatchEvent("test", std::move(data));
 
   scoped_ptr<base::ListValue> result(new base::ListValue());
-  info->PostResult(result.Pass());
+  info->PostResult(std::move(result));
 }
 
 void SysAppsTestObject::OnMakeFulfilledPromise(
@@ -142,7 +142,7 @@ void SysAppsTestObject::OnMakeFulfilledPromise(
   result->AppendString("Lorem ipsum");  // Data.
   result->AppendString("");  // Error, empty == no error.
 
-  info->PostResult(result.Pass());
+  info->PostResult(std::move(result));
 }
 
 void SysAppsTestObject::OnMakeRejectedPromise(
@@ -151,7 +151,7 @@ void SysAppsTestObject::OnMakeRejectedPromise(
   result->AppendString("");  // Data.
   result->AppendString("Lorem ipsum");  // Error, !empty == error.
 
-  info->PostResult(result.Pass());
+  info->PostResult(std::move(result));
 }
 
 class SysAppsCommonTest : public InProcessBrowserTest {

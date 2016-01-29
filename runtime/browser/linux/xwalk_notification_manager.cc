@@ -86,7 +86,7 @@ void XWalkNotificationManager::ShowDesktopNotification(
         nullptr);
 
     notifications_map_.set(reinterpret_cast<int64_t>(notification),
-                           delegate.Pass());
+                           std::move(delegate));
     if (!notification_data.tag.empty()) {
       notifications_replace_map_[notification_data.tag] = notification;
     }

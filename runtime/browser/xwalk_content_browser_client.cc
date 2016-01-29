@@ -136,7 +136,7 @@ net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::URLRequestInterceptorScopedVector request_interceptors) {
   url_request_context_getter_ =
       static_cast<XWalkBrowserContext*>(browser_context)->CreateRequestContext(
-          protocol_handlers, request_interceptors.Pass());
+          protocol_handlers, std::move(request_interceptors));
   return url_request_context_getter_;
 }
 
@@ -150,7 +150,7 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
   return static_cast<XWalkBrowserContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers,
-          request_interceptors.Pass());
+          std::move(request_interceptors));
 }
 
 // This allow us to append extra command line switches to the child
@@ -268,7 +268,7 @@ void XWalkContentBrowserClient::SelectClientCertificate(
   XWalkContentsClientBridgeBase* client =
       XWalkContentsClientBridgeBase::FromWebContents(web_contents);
   if (client) {
-    client->SelectClientCertificate(cert_request_info, delegate.Pass());
+    client->SelectClientCertificate(cert_request_info, std::move(delegate));
   } else {
     delegate->ContinueWithCertificate(nullptr);
   }
@@ -355,7 +355,7 @@ content::BrowserPpapiHost*
 #if defined(OS_ANDROID) || defined(OS_LINUX)
 void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
   resource_dispatcher_host_delegate_ =
-      (RuntimeResourceDispatcherHostDelegate::Create()).Pass();
+      (RuntimeResourceDispatcherHostDelegate::Create());
   content::ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
 }
@@ -454,10 +454,9 @@ XWalkContentBrowserClient::CreateThrottlesForNavigation(
   if (navigation_handle->IsInMainFrame()) {
     throttles.push_back(
         navigation_interception::InterceptNavigationDelegate::CreateThrottleFor(
-            navigation_handle)
-            .Pass());
+            navigation_handle));
   }
-  return throttles.Pass();
+  return std::move(throttles);
 }
 #endif
 

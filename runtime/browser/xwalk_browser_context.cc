@@ -285,7 +285,7 @@ net::URLRequestContextGetter* XWalkBrowserContext::CreateRequestContext(
       GetPath(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
-      protocol_handlers, request_interceptors.Pass());
+      protocol_handlers, std::move(request_interceptors));
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
@@ -317,7 +317,7 @@ net::URLRequestContextGetter*
       partition_path,
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
-      protocol_handlers, request_interceptors.Pass());
+      protocol_handlers, std::move(request_interceptors));
 
   context_getters_.insert(
       std::make_pair(partition_path.value(), context_getter));
@@ -325,7 +325,7 @@ net::URLRequestContextGetter*
   // please refer to https://crosswalk-project.org/jira/browse/XWALK-2890
   // for more details.
   if (!url_request_getter_)
-    CreateRequestContext(protocol_handlers, request_interceptors.Pass());
+    CreateRequestContext(protocol_handlers, std::move(request_interceptors));
 
   return context_getter.get();
 #endif
@@ -355,7 +355,7 @@ void XWalkBrowserContext::CreateUserPrefServiceIfNecessary() {
   base::PrefServiceFactory pref_service_factory;
   pref_service_factory.set_user_prefs(make_scoped_refptr(new XWalkPrefStore()));
   pref_service_factory.set_read_error_callback(base::Bind(&HandleReadError));
-  user_pref_service_ = pref_service_factory.Create(pref_registry).Pass();
+  user_pref_service_ = pref_service_factory.Create(pref_registry);
 
   user_prefs::UserPrefs::Set(this, user_pref_service_.get());
 }

@@ -88,7 +88,7 @@ RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
       base_path_(base_path),
       io_loop_(io_loop),
       file_loop_(file_loop),
-      request_interceptors_(request_interceptors.Pass()) {
+      request_interceptors_(std::move(request_interceptors)) {
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
@@ -160,12 +160,12 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // on this local HTTP proxy.
     storage_->set_proxy_service(
         net::ProxyService::CreateWithoutProxyResolver(
-        proxy_config_service_.Pass(),
+        std::move(proxy_config_service_),
         NULL));
 #else
     storage_->set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
-        proxy_config_service_.Pass(),
+        std::move(proxy_config_service_),
         0,
         NULL));
 #endif
@@ -206,7 +206,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         ignore_certificate_errors_;
 
     // Give |storage_| ownership at the end in case it's |mapped_host_resolver|.
-    storage_->set_host_resolver(host_resolver.Pass());
+    storage_->set_host_resolver(std::move(host_resolver));
     network_session_params.host_resolver =
         url_request_context_->host_resolver();
 
@@ -214,7 +214,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         make_scoped_ptr(new net::HttpNetworkSession(network_session_params)));
     storage_->set_http_transaction_factory(
         make_scoped_ptr(new net::HttpCache(storage_->http_network_session(),
-                        main_backend.Pass(),
+                        std::move(main_backend),
                         false /* set_up_quic_server_info */)));
 #if defined(OS_ANDROID)
     scoped_ptr<XWalkURLRequestJobFactory> job_factory_impl(
@@ -279,28 +279,28 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // The chain of responsibility will execute the handlers in reverse to the
     // order in which the elements of the chain are created.
     scoped_ptr<net::URLRequestJobFactory> job_factory(
-        job_factory_impl.Pass());
+        std::move(job_factory_impl));
     for (URLRequestInterceptorVector::reverse_iterator
              i = request_interceptors.rbegin();
          i != request_interceptors.rend();
          ++i) {
       job_factory.reset(new net::URLRequestInterceptingJobFactory(
-          job_factory.Pass(), make_scoped_ptr(*i)));
+          std::move(job_factory), make_scoped_ptr(*i)));
     }
 
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
-        job_factory.Pass();
+        std::move(job_factory);
     for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
              request_interceptors_.rbegin();
          i != request_interceptors_.rend();
          ++i) {
       top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
-          top_job_factory.Pass(), make_scoped_ptr(*i)));
+          std::move(top_job_factory), make_scoped_ptr(*i)));
     }
     request_interceptors_.weak_clear();
 
-    storage_->set_job_factory(top_job_factory.Pass());
+    storage_->set_job_factory(std::move(top_job_factory));
   }
 
   return url_request_context_.get();

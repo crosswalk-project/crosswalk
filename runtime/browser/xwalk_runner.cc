@@ -90,12 +90,12 @@ void XWalkRunner::CreateComponents() {
   // Keep a reference as some code still needs to call
   // XWalkRunner::app_system().
   app_component_ = app_component.get();
-  AddComponent(app_component.Pass());
+  AddComponent(std::move(app_component));
 
   if (XWalkRuntimeFeatures::isSysAppsEnabled())
-    AddComponent(CreateSysAppsComponent().Pass());
+    AddComponent(CreateSysAppsComponent());
   if (XWalkRuntimeFeatures::isStorageAPIEnabled())
-    AddComponent(CreateStorageComponent().Pass());
+    AddComponent(CreateStorageComponent());
 }
 
 void XWalkRunner::DestroyComponents() {
@@ -160,7 +160,7 @@ void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
   InitializeRuntimeVariablesForExtensions(host, runtime_variables.get());
   extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions,
-      runtime_variables.Pass());
+      std::move(runtime_variables));
 }
 
 void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
