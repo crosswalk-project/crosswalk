@@ -8,7 +8,6 @@
 
 #include <string>
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/observer_list.h"
 #include "base/prefs/persistent_pref_store.h"
@@ -32,14 +31,14 @@ class XWalkPrefStore : public PersistentPrefStore {
 
   // PersistentPrefStore overrides:
   bool GetMutableValue(const std::string& key, base::Value** result) override;
-  void ReportValueChanged(const std::string& key, uint32 flags) override;
+  void ReportValueChanged(const std::string& key, uint32_t flags) override;
   void SetValue(const std::string& key,
                 scoped_ptr<base::Value> value,
-                uint32 flags) override;
+                uint32_t flags) override;
   void SetValueSilently(const std::string& key,
                         scoped_ptr<base::Value> value,
-                        uint32 flags) override;
-  void RemoveValue(const std::string& key, uint32 flags) override;
+                        uint32_t flags) override;
+  void RemoveValue(const std::string& key, uint32_t flags) override;
   bool ReadOnly() const override;
   PrefReadError GetReadError() const override;
   PersistentPrefStore::PrefReadError ReadPrefs() override;

@@ -5,7 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_TOP_VIEW_LAYOUT_VIEWS_H_
 #define XWALK_RUNTIME_BROWSER_UI_TOP_VIEW_LAYOUT_VIEWS_H_
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/compiler_specific.h"
 #include "ui/views/layout/layout_manager.h"
 

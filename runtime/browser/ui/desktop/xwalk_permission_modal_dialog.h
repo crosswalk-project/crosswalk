@@ -8,7 +8,6 @@
 #include <map>
 #include <string>
 
-#include "base/basictypes.h"
 #include "base/callback.h"
 #include "base/compiler_specific.h"
 #include "components/app_modal/app_modal_dialog.h"
