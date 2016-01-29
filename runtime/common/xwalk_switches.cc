@@ -10,8 +10,6 @@ namespace switches {
 // Specifies the icon file for the app window.
 const char kAppIcon[] = "app-icon";
 
-const char kDisableComponentUpdate[] = "disable-component-update";
-
 // Disables the usage of Portable Native Client.
 const char kDisablePnacl[] = "disable-pnacl";
 

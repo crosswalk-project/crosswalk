@@ -29,7 +29,6 @@
 #include "xwalk/runtime/common/xwalk_localized_error.h"
 #include "xwalk/runtime/renderer/isolated_file_system.h"
 #include "xwalk/runtime/renderer/pepper/pepper_helper.h"
-#include "xwalk/runtime/renderer/xwalk_key_systems.h"
 
 #if defined(OS_ANDROID)
 #include "components/cdm/renderer/android_key_systems.h"
@@ -276,7 +275,9 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
 
 void XWalkContentRendererClient::AddKeySystems(
     std::vector<media::KeySystemInfo>* key_systems) {
-  AddXwalkKeySystems(key_systems);
+#if defined(OS_ANDROID)
+  cdm::AddAndroidWidevine(key_systems);
+#endif  // defined(OS_ANDROID)
 }
 
 }  // namespace xwalk

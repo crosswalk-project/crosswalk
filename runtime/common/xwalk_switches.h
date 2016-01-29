@@ -11,7 +11,6 @@
 namespace switches {
 
 extern const char kAppIcon[];
-extern const char kDisableComponentUpdate[];
 extern const char kDisablePnacl[];
 extern const char kDiskCacheSize[];
 extern const char kExperimentalFeatures[];
