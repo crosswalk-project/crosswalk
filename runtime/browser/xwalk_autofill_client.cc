@@ -159,13 +159,15 @@ void XWalkAutofillClient::OnUnmaskVerificationResult(PaymentsRpcResult result) {
 }
 
 void XWalkAutofillClient::ConfirmSaveCreditCardLocally(
+    const autofill::CreditCard& card,
     const base::Closure& save_card_callback) {
   NOTIMPLEMENTED();
 }
 
 void XWalkAutofillClient::ConfirmSaveCreditCardToCloud(
-    const base::Closure& callback,
-    scoped_ptr<base::DictionaryValue> legal_message) {
+      const autofill::CreditCard& card,
+      scoped_ptr<base::DictionaryValue> legal_message,
+      const base::Closure& callback) {
   NOTIMPLEMENTED();
 }
 
