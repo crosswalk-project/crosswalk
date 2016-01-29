@@ -8,7 +8,6 @@
 #include <vector>
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "components/update_client/configurator.h"
 #include "content/public/browser/render_process_host.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
@@ -16,7 +15,6 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/application_component.h"
-#include "xwalk/runtime/browser/component_updater/xwalk_component_updater_configurator.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/storage_component.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
@@ -185,20 +183,6 @@ void XWalkRunner::EnableRemoteDebugging(int port) {
 
 void XWalkRunner::DisableRemoteDebugging() {
   remote_debugging_server_.reset();
-}
-
-component_updater::ComponentUpdateService* XWalkRunner::component_updater() {
-  if (!component_updater_) {
-    scoped_refptr<update_client::Configurator> configurator =
-        component_updater::MakeXwalkComponentUpdaterConfigurator(
-            base::CommandLine::ForCurrentProcess(),
-            browser_context_->GetRequestContext());
-    // Creating the component updater does not do anything, components
-    // need to be registered and Start() needs to be called.
-    component_updater_ =
-        component_updater::ComponentUpdateServiceFactory(configurator);
-  }
-  return component_updater_.get();
 }
 
 // static

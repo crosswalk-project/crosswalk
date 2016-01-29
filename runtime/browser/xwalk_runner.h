@@ -10,7 +10,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/values.h"
-#include "components/component_updater/component_updater_service.h"
 
 #include "xwalk/runtime/browser/storage_component.h"
 
@@ -82,8 +81,6 @@ class XWalkRunner {
   void EnableRemoteDebugging(int port);
   void DisableRemoteDebugging();
 
-  component_updater::ComponentUpdateService* component_updater();
-
  protected:
   XWalkRunner();
 
@@ -148,8 +145,6 @@ class XWalkRunner {
 
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
-
-  scoped_ptr<component_updater::ComponentUpdateService> component_updater_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

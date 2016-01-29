@@ -19,9 +19,6 @@ enum {
   FILE_NACL_PLUGIN,            // Full path to the internal NaCl plugin file.
   DIR_PNACL_COMPONENT,         // Full path to the latest PNaCl version
                                // (subdir of DIR_PNACL_BASE).
-  DIR_COMPONENT_WIDEVINE_CDM,  // Directory that contains component-updated
-                               // Widevine CDM files.
-  FILE_WIDEVINE_CDM_ADAPTER,   // Full path to the Widevine CDM adapter file.
   DIR_TEST_DATA,               // Directory where unit test data resides.
   DIR_WGT_STORAGE_PATH,        // Directory where widget storage data resides.
   DIR_APPLICATION_PATH,        // Directory where applications data is stored.

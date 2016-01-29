@@ -5,7 +5,6 @@
 
 // Multiply-included file, no traditional include guard.
 #include <string>
-#include <vector>
 
 #include "content/public/common/common_param_traits.h"
 #include "ipc/ipc_channel_handle.h"
@@ -48,18 +47,3 @@ IPC_MESSAGE_ROUTED1(ViewMsg_HWKeyPressed, int /*keycode*/)  // NOLINT
 // These are messages sent from the renderer to the browser process.
 IPC_MESSAGE_CONTROL1(ViewMsg_OpenLinkExternal,  // NOLINT
                      GURL /* target link */)
-
-#if defined(ENABLE_PEPPER_CDMS)
-// Returns whether any internal plugin supporting |mime_type| is registered and
-// enabled. Does not determine whether the plugin can actually be instantiated
-// (e.g. whether it has all its dependencies).
-// When the returned *|is_available| is true, |additional_param_names| and
-// |additional_param_values| contain the name-value pairs, if any, specified
-// for the *first* non-disabled plugin found that is registered for |mime_type|.
-IPC_SYNC_MESSAGE_CONTROL1_3(  // NOLINT
-    XwalkViewHostMsg_IsInternalPluginAvailableForMimeType,
-    std::string /* mime_type */,
-    bool /* is_available */,
-    std::vector<base::string16> /* additional_param_names */,
-    std::vector<base::string16> /* additional_param_values */)
-#endif  // XWALK_RUNTIME_COMMON_XWALK_COMMON_MESSAGES_H_

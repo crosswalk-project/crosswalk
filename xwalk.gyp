@@ -38,11 +38,9 @@
         '../components/components.gyp:autofill_content_renderer',
         '../components/components.gyp:autofill_core_browser',
         '../components/components.gyp:cdm_renderer',
-        '../components/components.gyp:component_updater',
         '../components/components_resources.gyp:components_resources',
         '../components/components_strings.gyp:components_strings',
         '../components/components.gyp:devtools_http_handler',
-        '../components/components.gyp:update_client',
         '../components/components.gyp:user_prefs',
         '../components/components.gyp:visitedlink_browser',
         '../components/components.gyp:visitedlink_renderer',
@@ -78,7 +76,6 @@
         'extensions/extensions.gyp:xwalk_extensions',
         'sysapps/sysapps.gyp:sysapps',
         '../third_party/boringssl/boringssl.gyp:boringssl',
-        '../third_party/widevine/cdm/widevine_cdm.gyp:widevine_cdm_version_h',
       ],
       'include_dirs': [
         '..',
@@ -300,8 +297,6 @@
         'runtime/common/logging_xwalk.h',
         'runtime/common/paths_mac.h',
         'runtime/common/paths_mac.mm',
-        'runtime/common/widevine_cdm_constants.cc',
-        'runtime/common/widevine_cdm_constants.h',
         'runtime/common/xwalk_common_messages.cc',
         'runtime/common/xwalk_common_messages.h',
         'runtime/common/xwalk_common_message_generator.cc',
@@ -334,8 +329,6 @@
         'runtime/renderer/pepper/xwalk_renderer_pepper_host_factory.h',
         'runtime/renderer/xwalk_content_renderer_client.cc',
         'runtime/renderer/xwalk_content_renderer_client.h',
-        'runtime/renderer/xwalk_key_systems.cc',
-        'runtime/renderer/xwalk_key_systems.h',
         'runtime/renderer/xwalk_render_process_observer_generic.cc',
         'runtime/renderer/xwalk_render_process_observer_generic.h',
       ],
@@ -534,18 +527,6 @@
         ['OS!="android"', {
           'dependencies': [
             'xwalk_strings',
-          ],
-        }],
-        ['OS!="android" and OS!="ios"', {
-          'sources': [
-            'runtime/browser/component_updater/widevine_cdm_component_installer.cc',
-            'runtime/browser/component_updater/widevine_cdm_component_installer.h',
-          ],
-        }],
-        ['OS!="ios"', {
-          'sources': [
-            'runtime/browser/component_updater/xwalk_component_updater_configurator.cc',
-            'runtime/browser/component_updater/xwalk_component_updater_configurator.h',
           ],
         }],
         ['disable_bundled_extensions==1', {
@@ -750,11 +731,6 @@
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
             '../base/allocator/allocator.gyp:allocator',
-          ],
-        }],
-        ['OS=="win" and enable_widevine==1', {
-          'dependencies': [
-            '../third_party/widevine/cdm/widevine_cdm.gyp:widevinecdmadapter',
           ],
         }],
         ['OS=="win"', {

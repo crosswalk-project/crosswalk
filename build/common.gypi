@@ -97,7 +97,6 @@
         }],
 
         ['OS=="win"', {
-          'enable_widevine%': 1,
           'use_rssdk%': 1,
         }],
       ],
