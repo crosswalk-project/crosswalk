@@ -44,7 +44,7 @@ solutions = [
       # Include Intel RSSDK headers and library loader for RealSense camera
       # support.
       'src/third_party/libpxc':
-        crosswalk_git + '/libpxc.git@5ac4620dbd695a1a72c49720062ecc06b76a72a7',
+        crosswalk_git + '/libpxc.git@568e4ecc969b4663e82034e71d08efdd5fa77e1a',
 
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
