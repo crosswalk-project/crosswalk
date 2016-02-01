@@ -276,8 +276,7 @@ void XWalkContentBrowserClient::SelectClientCertificate(
 }
 
 void XWalkContentBrowserClient::AllowCertificateError(
-    int render_process_id,
-    int render_frame_id,
+    content::WebContents* web_contents,
     int cert_error,
     const net::SSLInfo& ssl_info,
     const GURL& request_url,
@@ -287,36 +286,36 @@ void XWalkContentBrowserClient::AllowCertificateError(
     bool expired_previous_decision,
     const base::Callback<void(bool)>& callback, // NOLINT
     content::CertificateRequestResultType* result) {
-  // Currently only Android handles it.
-  // TODO(yongsheng): applies it for other platforms?
-#if defined(OS_ANDROID)
-  XWalkContentsClientBridgeBase* client =
-      XWalkContentsClientBridgeBase::FromRenderFrameID(render_process_id,
-          render_frame_id);
-  bool cancel_request = true;
-  if (client)
-    client->AllowCertificateError(cert_error,
-                                  ssl_info.cert.get(),
-                                  request_url,
-                                  callback,
-                                  &cancel_request);
-  if (cancel_request)
-    *result = content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY;
-#else
-  content::RenderFrameHost* render_frame_host =
-      content::RenderFrameHost::FromID(render_process_id, render_frame_id);
-  content::WebContents* web_contents =
-      content::WebContents::FromRenderFrameHost(render_frame_host);
-  if (!web_contents) {
-    NOTREACHED();
-    return;
-  }
-
-  // The interstitial page shown is responsible for destroying
-  // this instance of SSLErrorPage
-  (new SSLErrorPage(web_contents, cert_error,
-                    ssl_info, request_url, callback))->Show();
-#endif
+//  // Currently only Android handles it.
+//  // TODO(yongsheng): applies it for other platforms?
+//#if defined(OS_ANDROID)
+//  XWalkContentsClientBridgeBase* client =
+//      XWalkContentsClientBridgeBase::FromRenderFrameID(render_process_id,
+//          render_frame_id);
+//  bool cancel_request = true;
+//  if (client)
+//    client->AllowCertificateError(cert_error,
+//                                  ssl_info.cert.get(),
+//                                  request_url,
+//                                  callback,
+//                                  &cancel_request);
+//  if (cancel_request)
+//    *result = content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY;
+//#else
+//  content::RenderFrameHost* render_frame_host =
+//      content::RenderFrameHost::FromID(render_process_id, render_frame_id);
+//  content::WebContents* web_contents =
+//      content::WebContents::FromRenderFrameHost(render_frame_host);
+//  if (!web_contents) {
+//    NOTREACHED();
+//    return;
+//  }
+//
+//  // The interstitial page shown is responsible for destroying
+//  // this instance of SSLErrorPage
+//  (new SSLErrorPage(web_contents, cert_error,
+//                    ssl_info, request_url, callback))->Show();
+//#endif
 }
 
 content::PlatformNotificationService*
