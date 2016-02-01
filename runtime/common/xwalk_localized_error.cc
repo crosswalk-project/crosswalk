@@ -13,6 +13,7 @@
 #include "base/values.h"
 #include "components/error_page/common/net_error_info.h"
 #include "grit/xwalk_resources.h"
+#include "components/strings/grit/components_strings.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
