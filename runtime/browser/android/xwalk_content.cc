@@ -33,6 +33,7 @@
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/state_serializer.h"
 #include "xwalk/runtime/browser/android/xwalk_autofill_client_android.h"
+#include "xwalk/runtime/browser/android/xwalk_content_lifecycle_notifier.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
@@ -131,6 +132,7 @@ XWalkContent* XWalkContent::FromWebContents(
 XWalkContent::XWalkContent(scoped_ptr<content::WebContents> web_contents)
     : web_contents_(web_contents.Pass()) {
   xwalk_autofill_manager_.reset(new XWalkAutofillManager(web_contents_.get()));
+  XWalkContentLifecycleNotifier::OnXWalkViewCreated();
 }
 
 void XWalkContent::SetXWalkAutofillClient(jobject client) {
@@ -152,6 +154,7 @@ void XWalkContent::SetSaveFormData(bool enabled) {
 }
 
 XWalkContent::~XWalkContent() {
+  XWalkContentLifecycleNotifier::OnXWalkViewDestroyed();
 }
 
 void XWalkContent::SetJavaPeers(JNIEnv* env,
