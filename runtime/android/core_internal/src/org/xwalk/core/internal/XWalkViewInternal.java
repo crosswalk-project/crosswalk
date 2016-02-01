@@ -1283,6 +1283,15 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         }
     }
 
+    private static final String IMAGE_TYPE = "image/";
+    private static final String VIDEO_TYPE = "video/";
+    private static final String AUDIO_TYPE = "audio/";
+    private static final String ALL_IMAGE_TYPES = IMAGE_TYPE + "*";
+    private static final String ALL_VIDEO_TYPES = VIDEO_TYPE + "*";
+    private static final String ALL_AUDIO_TYPES = AUDIO_TYPE + "*";
+    private static final String ANY_TYPES = "*/*";
+    private static final String SPLIT_EXPRESSION = ",";
+
     /**
      * Tell the client to show a file chooser.
      * @param uploadFile the callback class to handle the result from caller. It MUST
@@ -1311,18 +1320,34 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                 takePictureIntent = null;
             }
         }
-
-        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        contentSelectionIntent.setType("*/*");
-
         Intent camcorder = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         Intent soundRecorder = new Intent(
                 MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
         ArrayList<Intent> extraIntents = new ArrayList<Intent>();
-        if (takePictureIntent != null) extraIntents.add(takePictureIntent);
-        extraIntents.add(camcorder);
-        extraIntents.add(soundRecorder);
+
+        // A single mime type.
+        if (!(acceptType.contains(SPLIT_EXPRESSION) || acceptType.contains(ANY_TYPES))) {
+            if (acceptType.startsWith(IMAGE_TYPE)) {
+                if (takePictureIntent != null) extraIntents.add(takePictureIntent);
+                contentSelectionIntent.setType(ALL_IMAGE_TYPES);
+            } else if (acceptType.startsWith(VIDEO_TYPE)) {
+                extraIntents.add(camcorder);
+                contentSelectionIntent.setType(ALL_VIDEO_TYPES);
+            } else if (acceptType.startsWith(AUDIO_TYPE)) {
+                extraIntents.add(soundRecorder);
+                contentSelectionIntent.setType(ALL_AUDIO_TYPES);
+            }
+        }
+
+        // Couldn't resolve an accept type.
+        if (extraIntents.isEmpty()) {
+            if (takePictureIntent != null) extraIntents.add(takePictureIntent);
+            extraIntents.add(camcorder);
+            extraIntents.add(soundRecorder);
+            contentSelectionIntent.setType(ANY_TYPES);
+        }
 
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
