@@ -14,7 +14,6 @@ import org.xwalk.core.internal.extension.api.contacts.Contacts;
 import org.xwalk.core.internal.extension.api.device_capabilities.DeviceCapabilities;
 import org.xwalk.core.internal.extension.api.launchscreen.LaunchScreenExtension;
 import org.xwalk.core.internal.extension.api.messaging.Messaging;
-import org.xwalk.core.internal.extension.api.presentation.PresentationExtension;
 import org.xwalk.core.internal.extension.api.wifidirect.WifiDirect;
 
 import android.app.Activity;
@@ -31,17 +30,6 @@ public class BuiltinXWalkExtensions {
 
     public static void load(Context context, Activity activity) {
         // Create all built-in extension instances here.
-        {
-            String jsApiContent = "";
-            try {
-                jsApiContent = getExtensionJSFileContent(
-                        context, PresentationExtension.JS_API_PATH, true);
-                sBuiltinExtensions.put(PresentationExtension.JS_API_PATH,
-                        new PresentationExtension(jsApiContent, activity));
-            } catch (IOException e) {
-                Log.w(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
-            }
-        }
 
         {
             String jsApiContent = "";

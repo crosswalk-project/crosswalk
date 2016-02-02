@@ -175,6 +175,7 @@
         'runtime/android/core_internal/src/org/xwalk/core/internal/AndroidProtocolHandler.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkAutofillClientAndroid.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContent.java',
+        'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkPresentationHost.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsClientBridge.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java',
         'runtime/android/core_internal/src/org/xwalk/core/internal/XWalkCookieManagerInternal.java',
@@ -250,7 +251,6 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/messaging_api.js',
-          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/wifidirect_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
@@ -350,7 +350,6 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi',
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
-            'experimental/presentation/presentation_api.js',
             'experimental/wifidirect/wifidirect_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',

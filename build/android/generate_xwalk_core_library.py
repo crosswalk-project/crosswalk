@@ -79,7 +79,6 @@ def CopyJSBindingFiles(project_source, out_project_dir):
 
   jsfiles_to_copy = [
       'xwalk/experimental/launch_screen/launch_screen_api.js',
-      'xwalk/experimental/presentation/presentation_api.js',
       'xwalk/runtime/android/core_internal/src/org/xwalk/core/'
       + 'internal/extension/api/contacts/contacts_api.js',
       'xwalk/runtime/android/core_internal/src/org/xwalk/core/'

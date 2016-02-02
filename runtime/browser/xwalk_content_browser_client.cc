@@ -81,6 +81,8 @@
 
 #if defined(OS_WIN)
 #include "xwalk/runtime/browser/xwalk_presentation_service_delegate_win.h"
+#elif defined(OS_ANDROID)
+#include "xwalk/runtime/browser/xwalk_presentation_service_delegate_android.h"
 #endif
 
 namespace xwalk {
@@ -424,6 +426,9 @@ content::PresentationServiceDelegate* XWalkContentBrowserClient::
     GetPresentationServiceDelegate(content::WebContents* web_contents) {
 #if defined(OS_WIN)
   return XWalkPresentationServiceDelegateWin::
+      GetOrCreateForWebContents(web_contents);
+#elif defined(OS_ANDROID)
+  return XWalkPresentationServiceDelegateAndroid::
       GetOrCreateForWebContents(web_contents);
 #else
   return nullptr;

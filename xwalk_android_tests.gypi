@@ -55,7 +55,6 @@
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/messaging_api.js',
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/wifidirect_api.js',
         ],
         'conditions': [
@@ -82,7 +81,6 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi',
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
-            'experimental/presentation/presentation_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
@@ -346,7 +344,6 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/messaging_api.js',
-          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/wifidirect_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/manifest.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk-extensions/myextension/myextension.js',
@@ -393,7 +390,6 @@
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi',
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
-            'experimental/presentation/presentation_api.js',
             'experimental/wifidirect/wifidirect_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
             'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',

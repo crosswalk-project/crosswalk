@@ -399,6 +399,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                 XWalkPathHelper.setExternalCacheDirectory(extCacheDir.getPath());
             }
         }
+
+        // Save activity for Presentation API
+        XWalkPresentationHost.createInstanceOnce(mActivity, context);
     }
 
     /**
