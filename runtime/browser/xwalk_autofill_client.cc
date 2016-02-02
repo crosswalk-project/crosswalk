@@ -47,6 +47,11 @@ PrefService* XWalkAutofillClient::GetPrefs() {
       XWalkBrowserContext::GetDefault());
 }
 
+sync_driver::SyncService* XWalkAutofillClient::GetSyncService() {
+  NOTIMPLEMENTED();
+  return nullptr;
+}
+
 IdentityProvider* XWalkAutofillClient::GetIdentityProvider() {
   return nullptr;
 }
