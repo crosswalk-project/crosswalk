@@ -127,12 +127,4 @@
     'xwalk_core_library_artifact_id%': 'xwalk_core_library_canary',
     'xwalk_shared_library_artifact_id%': 'xwalk_shared_library_canary',
   },
-
-  'target_defaults': {
-    'conditions': [
-      ['enable_webcl==1', {
-        'defines': ['ENABLE_WEBCL=1'],
-      }],
-    ],
-  },
 }
