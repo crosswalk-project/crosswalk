@@ -35,6 +35,7 @@ def PrepareFromXwalk(src_dir, target_dir):
   # The source file/directory list to be copied and the target directory list.
   source_target_list = [
     (os.path.join(source_code_dir, 'xwalk/API_VERSION'), target_dir),
+    (os.path.join(source_code_dir, 'xwalk/VERSION'), target_dir),
 
     # The app wrapper code. It's the template Java code.
     (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),
