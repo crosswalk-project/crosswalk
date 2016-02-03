@@ -17,14 +17,14 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExternalExtension::XWalkExternalExtension(const base::FilePath& path)
-    : xw_extension_(0),
+    : library_path_(path),
+      xw_extension_(0),
       created_instance_callback_(NULL),
       destroyed_instance_callback_(NULL),
       shutdown_callback_(NULL),
       handle_msg_callback_(NULL),
       handle_sync_msg_callback_(NULL),
       handle_binary_msg_callback_(NULL),
-      library_path_(path),
       initialized_(false) {
 }
 
