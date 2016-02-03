@@ -874,6 +874,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             if (mSettings != null) {
                 mSettings.setSupportMultipleWindows(value.getBooleanValue());
             }
+        } else if (key.equals(XWalkPreferencesInternal.SPATIAL_NAVIGATION)) {
+            if (mSettings != null) {
+                mSettings.setSupportSpatialNavigation(value.getBooleanValue());
+            }
         }
     }
 

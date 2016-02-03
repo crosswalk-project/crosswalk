@@ -141,6 +141,13 @@ public class XWalkPreferencesInternal {
     public static final String PROFILE_NAME = "profile-name";
 
     /**
+     * The key string to enable/disable spatial navigation like a TV controller.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public static final String SPATIAL_NAVIGATION = "enable-spatial-navigation";
+
+    /**
      * The key string to enable/disable javascript.
      * TODO(wang16): Remove this after cordova removes its dependency.
      */
@@ -162,6 +169,7 @@ public class XWalkPreferencesInternal {
         sPrefMap.put(SUPPORT_MULTIPLE_WINDOWS, new PreferenceValue(false));
         sPrefMap.put(ENABLE_EXTENSIONS, new PreferenceValue(true));
         sPrefMap.put(PROFILE_NAME, new PreferenceValue("Default"));
+        sPrefMap.put(SPATIAL_NAVIGATION, new PreferenceValue(true));
     }
 
     /**

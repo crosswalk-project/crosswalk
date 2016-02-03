@@ -78,6 +78,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mDefaultFontSize", "I");
     default_fixed_font_size =
         GetFieldID(env, clazz, "mDefaultFixedFontSize", "I");
+    spatial_navigation_enabled =
+        GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
   }
 
   // Field ids
@@ -97,6 +99,7 @@ struct XWalkSettings::FieldIds {
   jfieldID text_size_percent;
   jfieldID default_font_size;
   jfieldID default_fixed_font_size;
+  jfieldID spatial_navigation_enabled;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -218,6 +221,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
 
   prefs.double_tap_to_zoom_enabled =
       Java_XWalkSettingsInternal_supportsDoubleTapZoomLocked(env, obj);
+
+  prefs.spatial_navigation_enabled = env->GetBooleanField(
+      obj, field_ids_->spatial_navigation_enabled);
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   prefs.allow_running_insecure_content =

@@ -92,6 +92,8 @@ public class XWalkSettingsInternal {
     private boolean mBuiltInZoomControls = false;
     private boolean mDisplayZoomControls = true;
 
+    private boolean mSpatialNavigationEnabled = true;
+
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
     }
@@ -1025,6 +1027,33 @@ public class XWalkSettingsInternal {
     public boolean supportsMultiTouchZoomForTest() {
         synchronized (mXWalkSettingsLock) {
             return supportsMultiTouchZoomLocked();
+        }
+    }
+
+    /**
+     * Sets whether the XWalkView should support the spatial navigation,
+     * like a TV remote control.
+     * @param enable whether the XWalkView should support the spatial navigation.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setSupportSpatialNavigation(boolean enable) {
+        synchronized (mXWalkSettingsLock) {
+            if (mSpatialNavigationEnabled == enable) return;
+            mSpatialNavigationEnabled = enable;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets whether the XWalkView should support the spatial navigation.
+     * @return true if XWalkView support the spatial navigation.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean getSupportSpatialNavigation() {
+        synchronized (mXWalkSettingsLock) {
+            return mSpatialNavigationEnabled;
         }
     }
 
