@@ -949,6 +949,11 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         client.init(mContentViewCore);
     }
 
+    public void clearSslPreferences() {
+        if (mNativeContent == 0) return;
+        mNavigationController.clearSslPreferences();
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);
