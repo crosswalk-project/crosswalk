@@ -61,7 +61,10 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
         @Override
         public void didChangeThemeColor(int color) {
-            onDidChangeThemeColor(color);
+            boolean themecolor = XWalkPreferencesInternal.getValue(
+                    XWalkPreferencesInternal.THEME_COLOR);
+            if(themecolor)
+                onDidChangeThemeColor(color);
         }
 
         @Override

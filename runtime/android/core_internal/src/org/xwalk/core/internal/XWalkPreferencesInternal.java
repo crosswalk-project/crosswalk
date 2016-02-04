@@ -147,6 +147,14 @@ public class XWalkPreferencesInternal {
     @XWalkAPI
     public static final String SPATIAL_NAVIGATION = "enable-spatial-navigation";
 
+    /*
+     * The key string to enable/disable website's "theme-color" attribute.
+     * Default is true, and it only works on Android Lollipop or later.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public static final String THEME_COLOR = "theme-color";
+
     /**
      * The key string to enable/disable javascript.
      * TODO(wang16): Remove this after cordova removes its dependency.
@@ -170,6 +178,7 @@ public class XWalkPreferencesInternal {
         sPrefMap.put(ENABLE_EXTENSIONS, new PreferenceValue(true));
         sPrefMap.put(PROFILE_NAME, new PreferenceValue("Default"));
         sPrefMap.put(SPATIAL_NAVIGATION, new PreferenceValue(true));
+        sPrefMap.put(THEME_COLOR, new PreferenceValue(true));
     }
 
     /**
