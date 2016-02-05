@@ -20,19 +20,6 @@ namespace {
 // pointer back to ApplicationNativeModule.
 const char* kApplicationNativeModule = "kApplicationNativeModule";
 
-ApplicationNativeModule* GetNativeModule(
-    const v8::FunctionCallbackInfo<v8::Value>& info) {
-  v8::Isolate* isolate = info.GetIsolate();
-  v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::Object> data = info.Data().As<v8::Object>();
-  v8::Handle<v8::Value> module_value =
-    data->Get(v8::String::NewFromUtf8(isolate, kApplicationNativeModule));
-  CHECK(*module_value && module_value->IsExternal());
-  ApplicationNativeModule* module = static_cast<ApplicationNativeModule*>(
-      module_value.As<v8::External>()->Value());
-  return module;
-}
-
 }  // namespace
 
 void ApplicationNativeModule::GetViewByIDCallback(
