@@ -18,10 +18,10 @@ namespace application {
 
 Package::Package(const base::FilePath& source_path,
     Manifest::Type manifest_type)
-    : source_path_(source_path),
-      is_extracted_(false),
-      is_valid_(false),
+    : is_valid_(false),
+      source_path_(source_path),
       name_(source_path_.BaseName().AsUTF8Unsafe()),
+      is_extracted_(false),
       manifest_type_(manifest_type) {
 }
 
