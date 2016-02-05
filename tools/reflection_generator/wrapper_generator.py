@@ -251,7 +251,11 @@ coreWrapper.getBridgeObject(constructorParams.get(i)));
 
         ReflectConstructor constructor = new ReflectConstructor(
                 coreWrapper.getBridgeClass(\"${BRIDGE_NAME}\"), paramTypes);
-        bridge = constructor.newInstance(constructorParams.toArray());
+        try {
+            bridge = constructor.newInstance(constructorParams.toArray());
+        } catch (UnsupportedOperationException e) {
+            return;
+        }
 
         if (postWrapperMethod != null) postWrapperMethod.invoke();
 """)
