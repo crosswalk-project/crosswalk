@@ -69,8 +69,8 @@ namespace application {
 AppWidgetStorage::AppWidgetStorage(Application* application,
                                    const base::FilePath& data_dir)
     : application_(application),
-      db_initialized_(false),
-      data_path_(data_dir) {
+      data_path_(data_dir) ,
+      db_initialized_(false) {
   sqlite_db_.reset(new sql::Connection);
 
   if (!Init()) {
