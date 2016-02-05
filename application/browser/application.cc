@@ -78,11 +78,11 @@ scoped_ptr<Application> Application::Create(
 Application::Application(
     scoped_refptr<ApplicationData> data,
     XWalkBrowserContext* browser_context)
-    : data_(data),
+    : browser_context_(browser_context),
+      data_(data),
       render_process_host_(NULL),
       web_contents_(NULL),
       security_mode_enabled_(false),
-      browser_context_(browser_context),
       observer_(NULL),
       security_policy_(ApplicationSecurityPolicy::Create(data_)),
       weak_factory_(this) {
