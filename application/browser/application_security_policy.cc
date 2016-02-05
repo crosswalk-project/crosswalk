@@ -25,40 +25,6 @@ namespace widget_keys = application_widget_keys;
 
 namespace application {
 
-namespace {
-const char kAsterisk[] = "*";
-
-const char kDirectiveValueSelf[] = "'self'";
-const char kDirectiveValueNone[] = "'none'";
-
-const char kDirectiveNameDefault[] = "default-src";
-const char kDirectiveNameScript[] = "script-src";
-const char kDirectiveNameStyle[] = "style-src";
-const char kDirectiveNameObject[] = "object-src";
-
-// By default:
-// default-src * ; script-src 'self' ; style-src 'self' ; object-src 'none'
-CSPInfo* GetDefaultCSPInfo() {
-  static CSPInfo default_csp_info;
-  if (default_csp_info.GetDirectives().empty()) {
-    std::vector<std::string> directive_all;
-    std::vector<std::string> directive_self;
-    std::vector<std::string> directive_none;
-    directive_all.push_back(kAsterisk);
-    directive_self.push_back(kDirectiveValueSelf);
-    directive_none.push_back(kDirectiveValueNone);
-
-    default_csp_info.SetDirective(kDirectiveNameDefault, directive_all);
-    default_csp_info.SetDirective(kDirectiveNameScript, directive_self);
-    default_csp_info.SetDirective(kDirectiveNameStyle, directive_self);
-    default_csp_info.SetDirective(kDirectiveNameObject, directive_none);
-  }
-
-  return (new CSPInfo(default_csp_info));
-}
-
-}  // namespace
-
 ApplicationSecurityPolicy::WhitelistEntry::WhitelistEntry(
     const GURL& url, bool subdomains)
     : url(url),
