@@ -39,7 +39,7 @@ namespace {
 const char kNaClPluginMimeType[] = "application/x-nacl";
 const char kNaClPluginExtension[] = "";
 const char kNaClPluginDescription[] = "Native Client Executable";
-const uint32 kNaClPluginPermissions = ppapi::PERMISSION_PRIVATE |
+const uint32_t kNaClPluginPermissions = ppapi::PERMISSION_PRIVATE |
                                       ppapi::PERMISSION_DEV;
 
 const char kPnaclPluginMimeType[] = "application/x-pnacl";
@@ -48,7 +48,7 @@ const char kPnaclPluginDescription[] = "Portable Native Client Executable";
 #endif
 
 #if defined(ENABLE_PLUGINS)
-const int32 kPepperFlashPermissions = ppapi::PERMISSION_DEV |
+const int32_t kPepperFlashPermissions = ppapi::PERMISSION_DEV |
                                       ppapi::PERMISSION_PRIVATE |
                                       ppapi::PERMISSION_BYPASS_USER_GESTURE |
                                       ppapi::PERMISSION_FLASH;

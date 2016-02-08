@@ -85,7 +85,7 @@ void XWalkNotificationManager::ShowDesktopNotification(
         base::UTF16ToUTF8(notification_data.body).c_str(),
         nullptr);
 
-    notifications_map_.set(reinterpret_cast<int64>(notification),
+    notifications_map_.set(reinterpret_cast<int64_t>(notification),
                            delegate.Pass());
     if (!notification_data.tag.empty()) {
       notifications_replace_map_[notification_data.tag] = notification;
@@ -115,7 +115,7 @@ void XWalkNotificationManager::NotificationDisplayed(
     NotifyNotification* notification) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   content::DesktopNotificationDelegate* notification_delegate =
-      notifications_map_.get(reinterpret_cast<int64>(notification));
+      notifications_map_.get(reinterpret_cast<int64_t>(notification));
   if (notification_delegate)
     notification_delegate->NotificationDisplayed();
 }
@@ -124,7 +124,7 @@ void XWalkNotificationManager::NotificationClicked(
     NotifyNotification* notification) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   content::DesktopNotificationDelegate* notification_delegate =
-      notifications_map_.get(reinterpret_cast<int64>(notification));
+      notifications_map_.get(reinterpret_cast<int64_t>(notification));
   if (notification_delegate) {
     notification_delegate->NotificationClick();
   }
@@ -134,7 +134,7 @@ void XWalkNotificationManager::NotificationClosed(
     NotifyNotification* notification) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
-      notifications_map_.take_and_erase(reinterpret_cast<int64>(notification));
+    notifications_map_.take_and_erase(reinterpret_cast<int64_t>(notification));
   if (notification_delegate) {
     notification_delegate->NotificationClosed();
   }

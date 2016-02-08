@@ -8,7 +8,6 @@
 
 #include <vector>
 
-#include "base/basictypes.h"
 #include "xwalk/runtime/browser/xwalk_autofill_client.h"
 
 namespace gfx {

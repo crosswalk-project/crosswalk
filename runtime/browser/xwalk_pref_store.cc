@@ -40,18 +40,18 @@ bool XWalkPrefStore::IsInitializationComplete() const {
 
 void XWalkPrefStore::SetValue(const std::string& key,
                               scoped_ptr<base::Value> value,
-                              uint32 flags) {
+                              uint32_t flags) {
   DCHECK(value);
   if (prefs_.SetValue(key, value.Pass()))
       ReportValueChanged(key, flags);
 }
 
 void XWalkPrefStore::SetValueSilently(
-    const std::string& key, scoped_ptr<base::Value> value, uint32 flags) {
+    const std::string& key, scoped_ptr<base::Value> value, uint32_t flags) {
   prefs_.SetValue(key, value.Pass());
 }
 
-void XWalkPrefStore::RemoveValue(const std::string& key, uint32 flags) {
+void XWalkPrefStore::RemoveValue(const std::string& key, uint32_t flags) {
   if (prefs_.RemoveValue(key))
     ReportValueChanged(key, flags);
 }
@@ -71,6 +71,7 @@ PersistentPrefStore::PrefReadError XWalkPrefStore::ReadPrefs() {
 void XWalkPrefStore::ReadPrefsAsync(ReadErrorDelegate* error_delegate_raw) {
 }
 
-void XWalkPrefStore::ReportValueChanged(const std::string& key, uint32 flags) {
+void XWalkPrefStore::ReportValueChanged(const std::string& key,
+                                        uint32_t flags) {
   FOR_EACH_OBSERVER(Observer, observers_, OnPrefValueChanged(key));
 }

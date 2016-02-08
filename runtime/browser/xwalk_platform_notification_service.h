@@ -46,7 +46,7 @@ class XWalkPlatformNotificationService
       base::Closure* cancel_callback) override;
   void DisplayPersistentNotification(
       content::BrowserContext* browser_context,
-      int64 service_worker_registration_id,
+      int64_t service_worker_registration_id,
       const GURL& origin,
       const SkBitmap& icon,
       const content::PlatformNotificationData& notification_data) override {}
