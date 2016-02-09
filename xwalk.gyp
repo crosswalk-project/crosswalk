@@ -822,16 +822,17 @@
       ],
     },
     {
+      'target_name': 'generate_crosswalk_win_zip',
+      'type': 'none',
+      'includes': [
+        'xwalk_win_zip.gypi',
+      ],
+    },
+    {
       'target_name': 'xwalk_builder',
       'type': 'none',
       'conditions': [
-        ['OS!="android"', {
-          'dependencies': [
-            'xwalk',
-            'xwalk_all_tests',
-          ],
-        },
-        {
+        ['OS=="android"', {
           'dependencies': [
             # For internal testing.
             'xwalk_core_internal_shell_apk',
@@ -854,6 +855,17 @@
             'xwalk_core_sample_apk',
             'xwalk_core_library_aar',
             'xwalk_shared_library_aar',
+          ],
+        }, 'OS=="win"', {
+          'dependencies': [
+            'xwalk',
+            'xwalk_all_tests',
+            'generate_crosswalk_win_zip',
+          ],
+        }, {  # OS!="android" and OS!="win"
+          'dependencies': [
+            'xwalk',
+            'xwalk_all_tests',
           ],
         }],
       ],
