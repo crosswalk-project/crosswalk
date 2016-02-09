@@ -175,11 +175,11 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
     extensions::XWalkModuleSystem* module_system) {
   scoped_ptr<extensions::XWalkNativeModule> app_module(
       new application::ApplicationNativeModule());
-  module_system->RegisterNativeModule("application", app_module.Pass());
+  module_system->RegisterNativeModule("application", std::move(app_module));
   scoped_ptr<extensions::XWalkNativeModule> isolated_file_system_module(
       new extensions::IsolatedFileSystem());
   module_system->RegisterNativeModule("isolated_file_system",
-      isolated_file_system_module.Pass());
+      std::move(isolated_file_system_module));
   module_system->RegisterNativeModule("sysapps_common",
       extensions::CreateJSModuleFromResource(IDR_XWALK_SYSAPPS_COMMON_API));
   module_system->RegisterNativeModule("sysapps_promise",

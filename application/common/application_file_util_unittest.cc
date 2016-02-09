@@ -100,7 +100,7 @@ static scoped_refptr<ApplicationData> LoadApplicationManifest(
   scoped_ptr<Manifest> manifest = make_scoped_ptr(
       new Manifest(make_scoped_ptr(values->DeepCopy())));
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      manifest_dir, std::string(), location, manifest.Pass(), error);
+      manifest_dir, std::string(), location, std::move(manifest), error);
   return application;
 }
 

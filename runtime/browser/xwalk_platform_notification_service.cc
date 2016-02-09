@@ -81,7 +81,7 @@ void XWalkPlatformNotificationService::DisplayNotification(
       continue;
     XWalkContentsClientBridgeBase* bridge =
         XWalkContentsClientBridgeBase::FromWebContents(web_contents);
-    bridge->ShowNotification(notification_data, icon, delegate.Pass(),
+    bridge->ShowNotification(notification_data, icon, std::move(delegate),
                              cancel_callback);
     return;
   }
@@ -92,7 +92,7 @@ void XWalkPlatformNotificationService::DisplayNotification(
       browser_context,
       origin,
       notification_data,
-      delegate.Pass(),
+      std::move(delegate),
       cancel_callback);
 #endif
 }

@@ -24,7 +24,7 @@ scoped_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
 
   return make_scoped_ptr(new XWalkExtensionFunctionInfo(
       name,
-      arguments.Pass(),
+      std::move(arguments),
       base::Bind(&DummyCallback)));
 }
 
@@ -46,7 +46,7 @@ class EventTargetTest : public EventTarget {
     scoped_ptr<base::ListValue> data(new base::ListValue());
     data->AppendString(kTestString);
 
-    DispatchEvent(type, data.Pass());
+    DispatchEvent(type, std::move(data));
   }
 
   bool is_event1_active() const {
@@ -152,10 +152,10 @@ TEST(XWalkSysAppsEventTargetTest, DispatchEvent) {
   scoped_ptr<XWalkExtensionFunctionInfo> eventInfo(
       new XWalkExtensionFunctionInfo(
           "addEventListener",
-          argumentsList.Pass(),
+          std::move(argumentsList),
           base::Bind(&DispatchResult, &message_count)));
 
-  EXPECT_TRUE(target->HandleFunction(eventInfo.Pass()));
+  EXPECT_TRUE(target->HandleFunction(std::move(eventInfo)));
 
   for (unsigned i = 0; i < 1000; ++i) {
     target->InjectEvent("event1");

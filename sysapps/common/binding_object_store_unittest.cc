@@ -25,14 +25,14 @@ scoped_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
 
   return make_scoped_ptr(new XWalkExtensionFunctionInfo(
       name,
-      arguments.Pass(),
+      std::move(arguments),
       base::Bind(&DummyCallback)));
 }
 
 class BindingObjectTest : public BindingObject {
  public:
   static scoped_ptr<BindingObject> Create() {
-    return make_scoped_ptr(new BindingObjectTest()).Pass();
+    return make_scoped_ptr(new BindingObjectTest());
   }
 
   BindingObjectTest() : call_count_(0) {
@@ -149,8 +149,8 @@ TEST(XWalkSysAppsBindingObjectStoreTest, OnPostMessageToObject) {
   scoped_ptr<BindingObject> binding_object_ptr1(binding_object1);
   scoped_ptr<BindingObject> binding_object_ptr2(binding_object2);
 
-  store->AddBindingObject("foobar1", binding_object_ptr1.Pass());
-  store->AddBindingObject("foobar2", binding_object_ptr2.Pass());
+  store->AddBindingObject("foobar1", std::move(binding_object_ptr1));
+  store->AddBindingObject("foobar2", std::move(binding_object_ptr2));
   EXPECT_EQ(BindingObjectTest::instance_count(), 2);
 
   for (unsigned i = 0; i < 1000; ++i) {
@@ -170,10 +170,10 @@ TEST(XWalkSysAppsBindingObjectStoreTest, OnPostMessageToObject) {
     scoped_ptr<XWalkExtensionFunctionInfo> postMessageToObjectInfo(
         new XWalkExtensionFunctionInfo(
             "postMessageToObject",
-            arguments.Pass(),
+            std::move(arguments),
             base::Bind(&DummyCallback)));
 
-    EXPECT_TRUE(handler.HandleFunction(postMessageToObjectInfo.Pass()));
+    EXPECT_TRUE(handler.HandleFunction(std::move(postMessageToObjectInfo)));
     EXPECT_EQ(binding_object1->call_count(), i + 1);
   }
 
