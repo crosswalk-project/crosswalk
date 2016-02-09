@@ -257,7 +257,7 @@ void XWalkContentsClientBridge::ShowNotification(
      jicon = gfx::ConvertToJavaBitmap(&icon);
 
   int notification_id = g_next_notification_id_++;
-  g_notification_map_.set(notification_id, delegate.Pass());
+  g_notification_map_.set(notification_id, std::move(delegate));
   Java_XWalkContentsClientBridge_showNotification(
       env, obj.obj(), jtitle.obj(), jbody.obj(),
       jreplace_id.obj(), jicon.obj(), notification_id);

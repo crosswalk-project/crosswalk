@@ -29,7 +29,7 @@ class InProcessExtensionInstance : public XWalkExtensionInstance {
     scoped_ptr<base::ListValue> reply(new base::ListValue);
     reply->AppendBoolean(is_on_ui_thread);
 
-    return reply.Pass();
+    return std::move(reply);
   }
 
   void HandleMessage(scoped_ptr<base::Value> msg) override {

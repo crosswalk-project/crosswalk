@@ -58,7 +58,7 @@ TestExtensionInstance::TestExtensionInstance() : counter_(0), handler_(this) {
 TestExtensionInstance::~TestExtensionInstance() {}
 
 void TestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  handler_.HandleMessage(msg.Pass());
+  handler_.HandleMessage(std::move(msg));
 }
 
 void TestExtensionInstance::OnClearDatabase(

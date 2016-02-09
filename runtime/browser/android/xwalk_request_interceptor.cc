@@ -50,7 +50,7 @@ XWalkRequestInterceptor::QueryForXWalkWebResourceResponse(
   if (!io_thread_client.get())
     return scoped_ptr<XWalkWebResourceResponse>();
 
-  return io_thread_client->ShouldInterceptRequest(location, request).Pass();
+  return io_thread_client->ShouldInterceptRequest(location, request);
 }
 
 net::URLRequestJob* XWalkRequestInterceptor::MaybeInterceptRequest(
@@ -75,7 +75,7 @@ net::URLRequestJob* XWalkRequestInterceptor::MaybeInterceptRequest(
   if (!xwalk_web_resource_response)
     return nullptr;
   return XWalkWebResourceResponse::CreateJobFor(
-    xwalk_web_resource_response.Pass(), request, network_delegate);
+    std::move(xwalk_web_resource_response), request, network_delegate);
 }
 
 }  // namespace xwalk

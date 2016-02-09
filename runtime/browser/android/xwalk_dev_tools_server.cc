@@ -153,7 +153,7 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission,
   scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
       factory(new UnixDomainServerSocketFactory(socket_name_, auth_callback));
   devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
-      factory.Pass(),
+      std::move(factory),
       base::StringPrintf(kFrontEndURL, BLINK_UPSTREAM_REVISION),
       new XWalkAndroidDevToolsHttpHandlerDelegate(),
       base::FilePath(),

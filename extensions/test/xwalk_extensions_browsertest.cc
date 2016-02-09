@@ -38,17 +38,17 @@ class EchoContext : public XWalkExtensionInstance {
   EchoContext() {
   }
   void HandleMessage(scoped_ptr<base::Value> msg) override {
-    PostMessageToJS(msg.Pass());
+    PostMessageToJS(std::move(msg));
   }
   void HandleSyncMessage(scoped_ptr<base::Value> msg) override {
-    SendSyncReplyToJS(msg.Pass());
+    SendSyncReplyToJS(std::move(msg));
   }
 };
 
 class DelayedEchoContext : public XWalkExtensionInstance {
  public:
   void HandleMessage(scoped_ptr<base::Value> msg) override {
-    PostMessageToJS(msg.Pass());
+    PostMessageToJS(std::move(msg));
   }
   void HandleSyncMessage(scoped_ptr<base::Value> msg) override {
     base::MessageLoop::current()->PostDelayedTask(
@@ -58,7 +58,7 @@ class DelayedEchoContext : public XWalkExtensionInstance {
   }
 
   void DelayedReply(scoped_ptr<base::Value> reply) {
-    SendSyncReplyToJS(reply.Pass());
+    SendSyncReplyToJS(std::move(reply));
   }
 };
 

@@ -65,8 +65,8 @@ class InputStreamReaderWrapper
   InputStreamReaderWrapper(
       scoped_ptr<InputStream> input_stream,
       scoped_ptr<InputStreamReader> input_stream_reader)
-      : input_stream_(input_stream.Pass()),
-        input_stream_reader_(input_stream_reader.Pass()) {
+      : input_stream_(std::move(input_stream)),
+        input_stream_reader_(std::move(input_stream_reader)) {
     DCHECK(input_stream_);
     DCHECK(input_stream_reader_);
   }
@@ -99,7 +99,7 @@ AndroidStreamReaderURLRequestJob::AndroidStreamReaderURLRequestJob(
     scoped_ptr<Delegate> delegate,
     const std::string& content_security_policy)
     : URLRequestJob(request, network_delegate),
-      delegate_(delegate.Pass()),
+      delegate_(std::move(delegate)),
       content_security_policy_(content_security_policy),
       weak_factory_(this) {
   DCHECK(delegate_);
@@ -126,9 +126,9 @@ void OpenInputStreamOnWorkerThread(
 
   scoped_ptr<InputStream> input_stream = delegate->OpenInputStream(env, url);
   job_thread_runner->PostTask(FROM_HERE,
-                              base::Bind(callback,
-                                         base::Passed(delegate.Pass()),
-                                         base::Passed(input_stream.Pass())));
+                        base::Bind(callback,
+                                   base::Passed(std::move(delegate)),
+                                   base::Passed(std::move(input_stream))));
 
   DetachFromVM();
 }
@@ -205,7 +205,7 @@ void AndroidStreamReaderURLRequestJob::OnInputStreamOpened(
       scoped_ptr<xwalk::InputStream> input_stream) {
   DCHECK(thread_checker_.CalledOnValidThread());
   DCHECK(returned_delegate);
-  delegate_ = returned_delegate.Pass();
+  delegate_ = std::move(returned_delegate);
 
   if (!input_stream) {
     bool restart_required = false;
@@ -226,7 +226,7 @@ void AndroidStreamReaderURLRequestJob::OnInputStreamOpened(
 
   DCHECK(!input_stream_reader_wrapper_.get());
   input_stream_reader_wrapper_ = new InputStreamReaderWrapper(
-      input_stream.Pass(), input_stream_reader.Pass());
+      std::move(input_stream), std::move(input_stream_reader));
 
   PostTaskAndReplyWithResult(
       GetWorkerThreadRunner(),

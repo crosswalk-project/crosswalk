@@ -21,13 +21,13 @@ class StreamReaderJobDelegateImpl
  public:
   StreamReaderJobDelegateImpl(
       scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response)
-      : xwalk_web_resource_response_(xwalk_web_resource_response.Pass()) {
+      : xwalk_web_resource_response_(std::move(xwalk_web_resource_response)) {
     DCHECK(xwalk_web_resource_response_);
   }
 
   scoped_ptr<InputStream> OpenInputStream(JNIEnv* env,
                                           const GURL& url) override {
-    return xwalk_web_resource_response_->GetInputStream(env).Pass();
+    return xwalk_web_resource_response_->GetInputStream(env);
   }
 
   void OnInputStreamOpenFailed(net::URLRequest* request,
@@ -91,9 +91,9 @@ net::URLRequestJob* XWalkWebResourceResponse::CreateJobFor(
   return new AndroidStreamReaderURLRequestJob(
       request,
       network_delegate,
-      make_scoped_ptr(
-          new StreamReaderJobDelegateImpl(xwalk_web_resource_response.Pass())),
-          content_security_policy);
+      make_scoped_ptr(new StreamReaderJobDelegateImpl(
+                      std::move(xwalk_web_resource_response))),
+      content_security_policy);
 }
 
 }  // namespace xwalk
