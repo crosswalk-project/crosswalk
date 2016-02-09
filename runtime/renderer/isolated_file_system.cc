@@ -85,7 +85,8 @@ IsolatedFileSystem::IsolatedFileSystem() {
       v8::External::New(isolate, this));
 
   // Register native function templates to object template here.
-  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
+  v8::Handle<v8::ObjectTemplate> object_template =
+      v8::ObjectTemplate::New(isolate);
   object_template->Set(
       isolate,
       "getIsolatedFileSystem",
