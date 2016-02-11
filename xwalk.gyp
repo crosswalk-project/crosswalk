@@ -3,16 +3,6 @@
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
-    'conditions': [
-      ['OS=="win" or OS=="mac"', {
-        'disable_nacl': 1,
-      }],
-      ['OS=="android"', {
-        'enable_extensions': 1,
-        # Whether we should verify package integrity before loading Crosswalk runtime libraray in shared mode
-        'verify_xwalk_apk%': 0,
-      }],
-    ], # conditions
   },
   'includes' : [
     'xwalk_tests.gypi',
@@ -832,16 +822,17 @@
       ],
     },
     {
+      'target_name': 'generate_crosswalk_win_zip',
+      'type': 'none',
+      'includes': [
+        'xwalk_win_zip.gypi',
+      ],
+    },
+    {
       'target_name': 'xwalk_builder',
       'type': 'none',
       'conditions': [
-        ['OS!="android"', {
-          'dependencies': [
-            'xwalk',
-            'xwalk_all_tests',
-          ],
-        },
-        {
+        ['OS=="android"', {
           'dependencies': [
             # For internal testing.
             'xwalk_core_internal_shell_apk',
@@ -864,6 +855,17 @@
             'xwalk_core_sample_apk',
             'xwalk_core_library_aar',
             'xwalk_shared_library_aar',
+          ],
+        }, 'OS=="win"', {
+          'dependencies': [
+            'xwalk',
+            'xwalk_all_tests',
+            'generate_crosswalk_win_zip',
+          ],
+        }, {  # OS!="android" and OS!="win"
+          'dependencies': [
+            'xwalk',
+            'xwalk_all_tests',
           ],
         }],
       ],

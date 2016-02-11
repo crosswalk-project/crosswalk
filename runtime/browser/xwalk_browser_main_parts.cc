@@ -21,7 +21,6 @@
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/result_codes.h"
-#include "extensions/browser/extension_system.h"
 #include "net/base/filename_util.h"
 #include "ui/gl/gl_switches.h"
 #include "xwalk/application/browser/application.h"
