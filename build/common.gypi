@@ -44,6 +44,9 @@
       'component%': '<(component)',
       'mediacodecs_EULA%': '<(mediacodecs_EULA)',
 
+      # Whether to disable NaCl support.
+      'disable_nacl%': 0,
+
       # Whether to enable WebCL support in Blink.
       'enable_webcl%': 0,
 
@@ -96,6 +99,10 @@
           'ffmpeg_component%': 'shared_library',
         }],
 
+        ['OS=="mac" or OS=="win"', {
+          'disable_nacl%': 1,
+        }],
+
         ['OS=="win"', {
           'use_rssdk%': 1,
         }],
@@ -103,6 +110,7 @@
     },
     # Copy conditionally-set variables out one scope.
     'component%': '<(component)',
+    'disable_nacl%': '<(disable_nacl)',
     'enable_webcl%': '<(enable_webcl)',
     'enable_widevine%': '<(enable_widevine)',
     'ffmpeg_branding%': '<(ffmpeg_branding)',
@@ -116,11 +124,16 @@
     # capabilities, sysapps etc).
     'disable_bundled_extensions%': 0,
 
+    # From src/build/common.gypi.
     # Whether to include support for proprietary codecs..
     'proprietary_codecs%': 1,
 
     # Whether to use a WebUI-based file picker.
     'use_webui_file_picker%': 0,
+
+    # Android: whether the integrity of the Crosswalk runtime library should be
+    # verified when Crosswalk is run in shared mode.
+    'verify_xwalk_apk%': 0,
 
     # Name of Crosswalk Maven artifacts used to generate their
     # respective POM files.

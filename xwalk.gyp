@@ -3,15 +3,6 @@
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
-    'conditions': [
-      ['OS=="win" or OS=="mac"', {
-        'disable_nacl': 1,
-      }],
-      ['OS=="android"', {
-        # Whether we should verify package integrity before loading Crosswalk runtime libraray in shared mode
-        'verify_xwalk_apk%': 0,
-      }],
-    ], # conditions
   },
   'includes' : [
     'xwalk_tests.gypi',
