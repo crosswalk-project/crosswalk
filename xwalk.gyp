@@ -8,7 +8,6 @@
         'disable_nacl': 1,
       }],
       ['OS=="android"', {
-        'enable_extensions': 1,
         # Whether we should verify package integrity before loading Crosswalk runtime libraray in shared mode
         'verify_xwalk_apk%': 0,
       }],
