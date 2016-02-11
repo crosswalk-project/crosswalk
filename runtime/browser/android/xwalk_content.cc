@@ -130,7 +130,7 @@ XWalkContent* XWalkContent::FromWebContents(
 }
 
 XWalkContent::XWalkContent(scoped_ptr<content::WebContents> web_contents)
-    : web_contents_(web_contents.Pass()) {
+    : web_contents_(std::move(web_contents)) {
   xwalk_autofill_manager_.reset(new XWalkAutofillManager(web_contents_.get()));
   XWalkContentLifecycleNotifier::OnXWalkViewCreated();
 }
@@ -218,7 +218,7 @@ void XWalkContent::SetPendingWebContentsForPopup(
     base::MessageLoop::current()->DeleteSoon(FROM_HERE, pending.release());
     return;
   }
-  pending_contents_.reset(new XWalkContent(pending.Pass()));
+  pending_contents_.reset(new XWalkContent(std::move(pending)));
 }
 
 jlong XWalkContent::ReleasePopupXWalkContent(JNIEnv* env, jobject obj) {
@@ -464,7 +464,7 @@ static jlong Init(JNIEnv* env, const JavaParamRef<jobject>& obj) {
   scoped_ptr<WebContents> web_contents(content::WebContents::Create(
       content::WebContents::CreateParams(
           XWalkRunner::GetInstance()->browser_context())));
-  return reinterpret_cast<intptr_t>(new XWalkContent(web_contents.Pass()));
+  return reinterpret_cast<intptr_t>(new XWalkContent(std::move(web_contents)));
 }
 
 bool RegisterXWalkContent(JNIEnv* env) {

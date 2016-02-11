@@ -161,7 +161,7 @@ class ExtensionManager {
 
     std::vector<std::string> extensions =
         RegisterExternalExtensionsInDirectory(&server_, extensions_dir,
-            runtime_variables.Pass());
+            std::move(runtime_variables));
 
     fprintf(stderr, "\nExtensions Loaded:\n");
     std::vector<std::string>::const_iterator it = extensions.begin();

@@ -216,7 +216,7 @@ void XEShV8Runner::CreateExtensionModules(XWalkModuleSystem* module_system) {
     scoped_ptr<XWalkExtensionModule> module(
         new XWalkExtensionModule(&client_, module_system, it->first,
                                  codepoint->api));
-    module_system->RegisterExtensionModule(module.Pass(),
+    module_system->RegisterExtensionModule(std::move(module),
                                            codepoint->entry_points);
   }
 }

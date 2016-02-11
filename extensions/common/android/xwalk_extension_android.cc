@@ -210,7 +210,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
 
   std::string value;
   if (!msg->GetAsString(&value)) {
-    SendSyncReplyToJS(ret_val.Pass());
+    SendSyncReplyToJS(std::move(ret_val));
     return;
   }
 
@@ -218,7 +218,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object is referenced for sync message routing";
-    SendSyncReplyToJS(ret_val.Pass());
+    SendSyncReplyToJS(std::move(ret_val));
     return;
   }
 
@@ -231,7 +231,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   ret_val.reset(new base::StringValue(str));
   env->ReleaseStringUTFChars(ret.obj(), str);
 
-  SendSyncReplyToJS(ret_val.Pass());
+  SendSyncReplyToJS(std::move(ret_val));
 }
 
 static jlong GetOrCreateExtension(

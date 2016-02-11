@@ -70,7 +70,7 @@ void OnPing(dbus::MethodCall* method_call,
       dbus::Response::FromMethodCall(method_call);
   dbus::MessageWriter writer(response.get());
   writer.AppendString("Pong");
-  response_sender.Run(response.Pass());
+  response_sender.Run(std::move(response));
 }
 
 }  // namespace

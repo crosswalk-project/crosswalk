@@ -269,7 +269,7 @@ net::URLRequestJob* AndroidRequestInterceptorBase::MaybeInterceptRequest(
   return new AndroidStreamReaderURLRequestJob(
       request,
       network_delegate,
-      reader_delegate.Pass(),
+      std::move(reader_delegate),
       content_security_policy);
 }
 
