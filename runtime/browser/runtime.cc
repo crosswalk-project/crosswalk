@@ -11,6 +11,8 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/app_modal/javascript_dialog_manager.h"
+#include "components/content_settings/core/common/content_settings.h"
+#include "components/content_settings/core/common/content_settings_types.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
@@ -30,6 +32,7 @@
 #include "xwalk/runtime/browser/xwalk_autofill_manager.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_content_settings.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -340,10 +343,25 @@ bool Runtime::CheckMediaAccessPermission(
     const GURL& security_origin,
     content::MediaStreamType type) {
   // Requested by Pepper Flash plugin and mediaDevices.enumerateDevices().
-  // FIXME(huningxin): current code grants the access by default. It should
-  // follow the generic permssions mechanism (XWALK-5475). Open XWALK-6083 to
-  // track it.
-  return true;
+#if defined (OS_ANDROID)
+  return false;
+#else
+  // This function may be called for a media request coming from
+  // from WebRTC/mediaDevices. These requests can't be made from HTTP.
+  if (security_origin.SchemeIs(url::kHttpScheme))
+    return false;
+
+  ContentSettingsType content_settings_type =
+      type == content::MEDIA_DEVICE_AUDIO_CAPTURE
+          ? CONTENT_SETTINGS_TYPE_MEDIASTREAM_MIC
+          : CONTENT_SETTINGS_TYPE_MEDIASTREAM_CAMERA;
+  ContentSetting content_setting =
+      XWalkContentSettings::GetInstance()->GetPermission(
+          content_settings_type,
+          security_origin,
+          web_contents_->GetLastCommittedURL().GetOrigin());
+  return content_setting == CONTENT_SETTING_ALLOW;
+#endif
 }
 
 void Runtime::LoadProgressChanged(content::WebContents* source,

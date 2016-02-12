@@ -5,9 +5,26 @@
 
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 
+#include "base/prefs/pref_service.h"
+#include "base/strings/utf_string_conversions.h"
+#include "components/content_settings/core/common/content_settings_types.h"
+#include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/media_capture_devices.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/media_stream_request.h"
+#include "grit/xwalk_resources.h"
+#include "ui/base/l10n/l10n_util.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/runtime/browser/xwalk_browser_context.h"
+#include "xwalk/runtime/browser/xwalk_content_settings.h"
+#include "xwalk/runtime/common/xwalk_system_locale.h"
+
+#if !defined(OS_ANDROID)
+#include "xwalk/runtime/browser/ui/desktop/xwalk_permission_dialog_manager.h"
+#endif
 
 using content::BrowserThread;
 using content::MediaCaptureDevices;
@@ -33,10 +50,34 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
 
 }  // namespace
 
+namespace xwalk {
 
 XWalkMediaCaptureDevicesDispatcher*
     XWalkMediaCaptureDevicesDispatcher::GetInstance() {
   return base::Singleton<XWalkMediaCaptureDevicesDispatcher>::get();
+}
+
+bool ContentTypeIsRequested(ContentSettingsType type,
+    const content::MediaStreamRequest& request) {
+  if (type == CONTENT_SETTINGS_TYPE_MEDIASTREAM_MIC)
+    return request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE;
+  if (type == CONTENT_SETTINGS_TYPE_MEDIASTREAM_CAMERA)
+    return request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE;
+
+  return false;
+}
+
+int GetDialogMessageText(const content::MediaStreamRequest& request) {
+  bool audio_requested =
+      request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE;
+  bool video_requested =
+      request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE;
+  if (audio_requested && video_requested)
+    return IDS_MEDIA_CAPTURE_AUDIO_AND_VIDEO;
+  if (video_requested)
+    return IDS_MEDIA_CAPTURE_VIDEO_ONLY;
+
+  return IDS_MEDIA_CAPTURE_AUDIO_ONLY;
 }
 
 void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
@@ -44,34 +85,128 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
   content::MediaStreamDevices devices;
-  // Based on chrome/browser/media/media_stream_devices_controller.cc.
-  bool microphone_requested =
-      (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
-  bool webcam_requested =
-      (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
-  if (microphone_requested || webcam_requested) {
+  if (ContentTypeIsRequested(
+          CONTENT_SETTINGS_TYPE_MEDIASTREAM_MIC, request) ||
+      ContentTypeIsRequested(
+          CONTENT_SETTINGS_TYPE_MEDIASTREAM_CAMERA, request)) {
     switch (request.request_type) {
       case content::MEDIA_OPEN_DEVICE_PEPPER_ONLY:
       case content::MEDIA_DEVICE_ACCESS:
       case content::MEDIA_GENERATE_STREAM:
-      case content::MEDIA_ENUMERATE_DEVICES:
+      case content::MEDIA_ENUMERATE_DEVICES: {
+#if defined (OS_ANDROID)
         // Get the exact audio and video devices if id is specified.
         // Or get the default devices when requested device id is empty.
         XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
             request.requested_audio_device_id,
             request.requested_video_device_id,
-            microphone_requested,
-            webcam_requested,
+            request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE,
+            request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE,
             &devices);
         break;
+#else
+        RequestPermissionToUser(web_contents, request, callback);
+        break;
+#endif
+      }
     }
   }
+#if defined (OS_ANDROID)
   callback.Run(devices,
                devices.empty() ?
                    content::MEDIA_DEVICE_NO_HARDWARE :
                    content::MEDIA_DEVICE_OK,
                scoped_ptr<content::MediaStreamUI>());
+#endif
 }
+
+#if !defined (OS_ANDROID)
+void XWalkMediaCaptureDevicesDispatcher::RequestPermissionToUser(
+    content::WebContents* web_contents,
+    const content::MediaStreamRequest& request,
+    const content::MediaResponseCallback& callback) {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+
+  if (request.security_origin.SchemeIs(url::kHttpScheme))
+    callback.Run(content::MediaStreamDevices(),
+                 content::MEDIA_DEVICE_PERMISSION_DENIED,
+                 scoped_ptr<content::MediaStreamUI>());
+
+  XWalkPermissionDialogManager* permission_dialog_manager =
+      XWalkPermissionDialogManager::GetPermissionDialogManager(web_contents);
+
+  XWalkBrowserContext* browser_context =
+      static_cast<XWalkBrowserContext*>(web_contents->GetBrowserContext());
+
+  PrefService* pref_service =
+      user_prefs::UserPrefs::Get(browser_context);
+
+  application::Application* app =
+      browser_context->application_service()->GetApplicationByRenderHostID(
+          web_contents->GetMainFrame()->GetProcess()->GetID());
+  std::string app_name;
+  if (app)
+    app_name = app->data()->Name();
+
+  ContentSettingsType content_settings_type =
+      request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE
+          ? CONTENT_SETTINGS_TYPE_MEDIASTREAM_MIC
+          : CONTENT_SETTINGS_TYPE_MEDIASTREAM_CAMERA;
+
+  base::string16 dialog_text = l10n_util::GetStringFUTF16(
+      GetDialogMessageText(request),
+      base::ASCIIToUTF16(app_name));
+
+  permission_dialog_manager->RequestPermission(
+      content_settings_type,
+      request.security_origin,
+      pref_service->GetString(kIntlAcceptLanguage), dialog_text,
+      base::Bind(
+          &XWalkMediaCaptureDevicesDispatcher::OnPermissionRequestFinished,
+          callback, request, web_contents));
+}
+
+void XWalkMediaCaptureDevicesDispatcher::OnPermissionRequestFinished(
+    const content::MediaResponseCallback& callback,
+    const content::MediaStreamRequest& request,
+    content::WebContents* web_contents,
+    bool success) {
+  content::MediaStreamDevices devices;
+  bool audio_requested =
+      request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE;
+  bool video_requested =
+      request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE;
+  // We always request the permission for the audio capture if both audio and
+  // video are requested (though the dialog clearly shows both),
+  // let's make sure we set the video as well in the settings.
+  if (audio_requested && video_requested) {
+    XWalkContentSettings::GetInstance()->SetPermission(
+      CONTENT_SETTINGS_TYPE_MEDIASTREAM_CAMERA,
+      request.security_origin,
+      web_contents->GetLastCommittedURL().GetOrigin(),
+      success ? CONTENT_SETTING_ALLOW : CONTENT_SETTING_BLOCK);
+  }
+  if (success) {
+    // Get the exact audio and video devices if id is specified.
+    // Or get the default devices when requested device id is empty.
+    XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+        request.requested_audio_device_id,
+        request.requested_video_device_id,
+        audio_requested,
+        video_requested,
+        &devices);
+      callback.Run(devices,
+                   devices.empty() ?
+                      content::MEDIA_DEVICE_NO_HARDWARE :
+                      content::MEDIA_DEVICE_OK,
+                   scoped_ptr<content::MediaStreamUI>());
+  } else {
+    callback.Run(devices,
+                 content::MEDIA_DEVICE_PERMISSION_DENIED,
+                 scoped_ptr<content::MediaStreamUI>());
+  }
+}
+#endif
 
 XWalkMediaCaptureDevicesDispatcher::XWalkMediaCaptureDevicesDispatcher() {}
 
@@ -190,7 +325,6 @@ void XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
                                     state));
 }
 
-
 void XWalkMediaCaptureDevicesDispatcher::SetTestAudioCaptureDevices(
     const MediaStreamDevices& devices) {
   test_audio_devices_ = devices;
@@ -200,3 +334,5 @@ void XWalkMediaCaptureDevicesDispatcher::SetTestVideoCaptureDevices(
     const MediaStreamDevices& devices) {
   test_video_devices_ = devices;
 }
+
+}  // namespace xwalk

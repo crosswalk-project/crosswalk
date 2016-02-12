@@ -108,6 +108,9 @@ class XWalkBrowserContext
   void UpdateAcceptLanguages(const std::string& accept_languages);
   void set_save_form_data(bool enable) { save_form_data_ = enable; }
   bool save_form_data() const { return save_form_data_; }
+  application::ApplicationService* application_service() const {
+    return application_service_;
+  }
   void set_application_service(
       application::ApplicationService* application_service) {
     application_service_ = application_service;

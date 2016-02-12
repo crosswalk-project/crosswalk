@@ -16,6 +16,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/media_stream_request.h"
 
+namespace xwalk {
 // This singleton is used to receive updates about media events from the content
 // layer. Based on chrome/browser/media/media_capture_devices_dispatcher.[h|cc].
 class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
@@ -91,6 +92,17 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   XWalkMediaCaptureDevicesDispatcher();
   ~XWalkMediaCaptureDevicesDispatcher() override;
 
+#if !defined (OS_ANDROID)
+  static void OnPermissionRequestFinished(
+      const content::MediaResponseCallback& callback,
+      const content::MediaStreamRequest& request,
+      content::WebContents* web_contents,
+      bool success);
+  static void RequestPermissionToUser(
+      content::WebContents* web_contents,
+      const content::MediaStreamRequest& request,
+      const content::MediaResponseCallback& callback);
+#endif
   // Called by the MediaObserver() functions, executed on UI thread.
   void NotifyAudioDevicesChangedOnUIThread();
   void NotifyVideoDevicesChangedOnUIThread();
@@ -110,5 +122,7 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   // A list of observers for the device update notifications.
   base::ObserverList<Observer> observers_;
 };
+
+}  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_

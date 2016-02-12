@@ -29,6 +29,19 @@ XWalkPermissionDialogManager::~XWalkPermissionDialogManager() {
   CancelPermissionRequest();
 }
 
+XWalkPermissionDialogManager*
+    XWalkPermissionDialogManager::GetPermissionDialogManager(
+        content::WebContents* web_contents) {
+  XWalkPermissionDialogManager* permission_dialog_manager =
+      XWalkPermissionDialogManager::FromWebContents(web_contents);
+  if (!permission_dialog_manager) {
+    XWalkPermissionDialogManager::CreateForWebContents(web_contents);
+    permission_dialog_manager =
+        XWalkPermissionDialogManager::FromWebContents(web_contents);
+  }
+  return permission_dialog_manager;
+}
+
 void XWalkPermissionDialogManager::WebContentsDestroyed() {
   CancelPermissionRequest();
   web_contents_->RemoveUserData(UserDataKey());
@@ -60,10 +73,10 @@ void XWalkPermissionDialogManager::RequestPermission(
   default: {
     app_modal::AppModalDialogQueue::GetInstance()->AddDialog(
         new XWalkPermissionModalDialog(
-        web_contents_,
-        message_text,
-        base::Bind(&XWalkPermissionDialogManager::OnPermissionDialogClosed,
-        base::Unretained(this), type, origin_url, callback)));
+            web_contents_,
+            message_text,
+            base::Bind(&XWalkPermissionDialogManager::OnPermissionDialogClosed,
+            base::Unretained(this), type, origin_url, callback)));
   }
   }
 }

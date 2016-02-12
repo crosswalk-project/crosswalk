@@ -193,6 +193,21 @@
           $1<ex>maps.google.com</ex>
         </ph> wants to use your computer's location.
       </message>
+      <message name="IDS_MEDIA_CAPTURE_AUDIO_AND_VIDEO" desc="Question asked on the dialog whenever a web page requests access to the computer's microphone and camera.">
+        <ph name="HOST">
+          $1<ex>html5rocks.com</ex>
+        </ph> wants to use your camera and microphone.
+      </message>
+      <message name="IDS_MEDIA_CAPTURE_AUDIO_ONLY" desc="Question asked on the dialog whenever a web page requests access to the computer's microphone.">
+        <ph name="HOST">
+          $1<ex>html5rocks.com</ex>
+        </ph> wants to use your microphone.
+      </message>
+      <message name="IDS_MEDIA_CAPTURE_VIDEO_ONLY" desc="Question asked on the dialog whenever a web page requests access to the computer's camera.">
+        <ph name="HOST">
+          $1<ex>html5rocks.com</ex>
+        </ph> wants to use your camera.
+      </message>
       <message name="IDS_PERMISSION_ALLOW" desc="Label on button to allow a permissions request.">
         Allow
       </message>
