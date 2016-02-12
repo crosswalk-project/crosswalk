@@ -1479,4 +1479,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         checkThreadSafety();
         mContent.clearSslPreferences();
     }
+
+    /**
+     * Clears the client certificate preferences stored in response to
+     * proceeding/cancelling client cert requests.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void clearClientCertPreferences(Runnable callback) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.clearClientCertPreferences(callback);
+    }
 }

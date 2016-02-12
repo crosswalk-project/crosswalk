@@ -110,6 +110,14 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
       scoped_ptr<content::ClientCertificateDelegate> delegate);
 
   void HandleErrorInClientCertificateResponse(int id);
+
+  void ClearClientCertPreferences(
+      JNIEnv*, jobject,
+      const base::android::JavaParamRef<jobject>& callback);
+
+  void ClientCertificatesCleared(
+      base::android::ScopedJavaGlobalRef<jobject>* callback);
+
  private:
   JavaObjectWeakGlobalRef java_ref_;
 
