@@ -132,6 +132,12 @@ public class XWalkPreferencesInternal {
             "support-multiple-windows";
 
     /**
+     * The key string to enable/disable spatial navigation like a TV controller.
+     */
+    @XWalkAPI
+    public static final String SPATIAL_NAVIGATION = "enable-spatial-navigation";
+	
+    /**
      * The key string to set xwalk profile name.
      * User data will be kept separated for different profiles.
      * Profile needs to be set before any XWalkView instance created.

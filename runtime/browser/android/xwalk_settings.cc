@@ -81,7 +81,6 @@ struct XWalkSettings::FieldIds {
     spatial_navigation_enabled =
         GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
   }
-
   // Field ids
   jfieldID allow_scripts_to_close_windows;
   jfieldID load_images_automatically;
@@ -200,6 +199,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
 
   prefs.supports_multiple_windows = env->GetBooleanField(
       obj, field_ids_->support_multiple_windows);
+
+  prefs.spatial_navigation_enabled = env->GetBooleanField(
+      obj, field_ids_->spatial_navigation_enabled);
 
   prefs.application_cache_enabled =
       Java_XWalkSettingsInternal_getAppCacheEnabled(env, obj);
