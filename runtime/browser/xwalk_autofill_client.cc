@@ -113,7 +113,6 @@ void XWalkAutofillClient::DidFillOrPreviewField(
 }
 
 void XWalkAutofillClient::OnFirstUserGestureObserved() {
-  NOTIMPLEMENTED();
 }
 
 bool XWalkAutofillClient::IsContextSecure(const GURL& form_origin) {
