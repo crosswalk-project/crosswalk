@@ -45,7 +45,6 @@ import org.chromium.base.ApplicationStatus.ActivityStateListener;
 import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.content.browser.ContentViewCore;
-import org.chromium.net.NetworkChangeNotifier;
 
 import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
 
@@ -296,11 +295,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
         ApplicationStatusManager.init(activity.getApplication());
-
-        // Auto detect network connectivity state.
-        // setAutoDetectConnectivityState() need to be called before activity started.
-        NetworkChangeNotifier.init(activity);
-        NetworkChangeNotifier.setAutoDetectConnectivityState(true);
 
         // We will miss activity onCreate() status in ApplicationStatusManager,
         // informActivityStarted() will simulate these callbacks.
