@@ -120,6 +120,8 @@
         'runtime/browser/android/xwalk_autofill_client_android.h',
         'runtime/browser/android/xwalk_content.cc',
         'runtime/browser/android/xwalk_content.h',
+        'runtime/browser/android/xwalk_content_lifecycle_notifier.cc',
+        'runtime/browser/android/xwalk_content_lifecycle_notifier.h',
         'runtime/browser/android/xwalk_contents_client_bridge.cc',
         'runtime/browser/android/xwalk_contents_client_bridge.h',
         'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
