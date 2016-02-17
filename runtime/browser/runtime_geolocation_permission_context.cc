@@ -107,12 +107,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
 #else
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   XWalkPermissionDialogManager* permission_dialog_manager =
-      XWalkPermissionDialogManager::FromWebContents(web_contents);
-  if (!permission_dialog_manager) {
-    XWalkPermissionDialogManager::CreateForWebContents(web_contents);
-    permission_dialog_manager =
-        XWalkPermissionDialogManager::FromWebContents(web_contents);
-  }
+      XWalkPermissionDialogManager::GetPermissionDialogManager(web_contents);
 
   PrefService* pref_service =
       user_prefs::UserPrefs::Get(XWalkBrowserContext::GetDefault());

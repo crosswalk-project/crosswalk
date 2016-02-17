@@ -21,6 +21,8 @@ class XWalkPermissionDialogManager
     : public content::WebContentsObserver,
       public content::WebContentsUserData<XWalkPermissionDialogManager> {
  public:
+  static XWalkPermissionDialogManager* GetPermissionDialogManager(
+      content::WebContents* web_contents);
   void RequestPermission(
       ContentSettingsType type,
       const GURL& origin_url,
