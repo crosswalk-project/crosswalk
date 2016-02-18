@@ -5,8 +5,6 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_NET_INPUT_STREAM_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_NET_INPUT_STREAM_H_
 
-#include "base/basictypes.h"
-
 namespace net {
 class IOBuffer;
 }

@@ -7,7 +7,6 @@
 
 #include <jni.h>
 #include <string>
-#include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "net/socket/unix_domain_server_socket_posix.h"
 

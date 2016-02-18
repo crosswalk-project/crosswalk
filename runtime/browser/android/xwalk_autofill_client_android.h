@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "base/android/jni_weak_ref.h"
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "xwalk/runtime/browser/xwalk_autofill_client.h"
 

@@ -6,7 +6,6 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_WEBUI_XWALK_WEB_UI_CONTROLLER_FACTORY_H_
 #define XWALK_RUNTIME_BROWSER_UI_WEBUI_XWALK_WEB_UI_CONTROLLER_FACTORY_H_
 
-#include "base/basictypes.h"
 #include "base/memory/singleton.h"
 #include "content/public/browser/web_ui.h"
 #include "content/public/browser/web_ui_controller_factory.h"
