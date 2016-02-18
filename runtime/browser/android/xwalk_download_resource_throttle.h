@@ -5,8 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_DOWNLOAD_RESOURCE_THROTTLE_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_DOWNLOAD_RESOURCE_THROTTLE_H_
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "content/public/browser/resource_throttle.h"
 
 namespace net {

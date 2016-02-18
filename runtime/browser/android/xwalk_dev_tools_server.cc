@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "base/android/jni_string.h"
-#include "base/basictypes.h"
 #include "base/bind.h"
 #include "base/callback.h"
 #include "base/compiler_specific.h"

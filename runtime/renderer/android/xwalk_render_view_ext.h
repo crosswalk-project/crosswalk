@@ -5,7 +5,6 @@
 #ifndef XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_VIEW_EXT_H_
 #define XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_VIEW_EXT_H_
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_view_observer.h"
 #include "third_party/skia/include/core/SkColor.h"
