@@ -437,6 +437,7 @@
       'target_name': 'xwalk_core_library_aar',
       'type': 'none',
       'dependencies': [
+        'xwalk_core_library',
         'xwalk_core_empty_embedder_apk',
         'xwalk_core_library_pom_gen',
       ],
@@ -463,6 +464,7 @@
       'type': 'none',
       'dependencies': [
         'xwalk_core_empty_embedder_apk',
+        'xwalk_shared_library',
         'xwalk_shared_library_pom_gen',
       ],
       'actions': [
