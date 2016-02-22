@@ -140,6 +140,9 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       std::string* partition_name,
       bool* in_memory) override;
 
+  void GetAdditionalAllowedSchemesForFileSystem(
+      std::vector<std::string>* additional_schemes) override;
+
 #if defined(OS_ANDROID)
   virtual void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
