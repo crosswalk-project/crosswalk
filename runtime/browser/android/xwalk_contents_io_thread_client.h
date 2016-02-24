@@ -92,7 +92,7 @@ class XWalkContentsIoThreadClient {
                            const std::string& user_agent,
                            const std::string& content_disposition,
                            const std::string& mime_type,
-                           int64 content_length) = 0;
+                           int64_t content_length) = 0;
 
   // Called when a new login request is detected. See the documentation for
   // WebViewClient.onReceivedLoginRequest for arguments. Note that |account|

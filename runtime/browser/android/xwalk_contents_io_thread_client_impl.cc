@@ -357,7 +357,7 @@ void XWalkContentsIoThreadClientImpl::NewDownload(
     const string& user_agent,
     const string& content_disposition,
     const string& mime_type,
-    int64 content_length) {
+    int64_t content_length) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   if (java_object_.is_null())
     return;

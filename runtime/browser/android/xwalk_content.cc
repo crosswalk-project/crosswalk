@@ -444,13 +444,13 @@ base::android::ScopedJavaLocalRef<jbyteArray> XWalkContent::GetState(
   } else {
     return base::android::ToJavaByteArray(
         env,
-        reinterpret_cast<const uint8*>(pickle.data()),
+        reinterpret_cast<const uint8_t*>(pickle.data()),
         pickle.size());
   }
 }
 
 jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
-  std::vector<uint8> state_vector;
+  std::vector<uint8_t> state_vector;
   base::android::JavaByteArrayToByteVector(env, state, &state_vector);
 
   base::Pickle pickle(reinterpret_cast<const char*>(&state_vector[0]),

@@ -42,7 +42,7 @@ void ConvertHexadecimalToIDAlphabet(std::string* id) {
 // always generate the same output ID.
 void GenerateId(const std::string& input, std::string* output) {
   DCHECK(output);
-  uint8 hash[kIdSize];
+  uint8_t hash[kIdSize];
   crypto::SHA256HashString(input, hash, sizeof(hash));
   *output = base::ToLowerASCII(base::HexEncode(hash, sizeof(hash)));
   ConvertHexadecimalToIDAlphabet(output);
