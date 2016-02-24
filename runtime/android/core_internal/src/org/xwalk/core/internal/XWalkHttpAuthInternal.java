@@ -19,4 +19,7 @@ public interface XWalkHttpAuthInternal {
 
     @XWalkAPI
     public void cancel();
+
+    @XWalkAPI
+    public boolean isFirstAttempt();
 }

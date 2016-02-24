@@ -34,6 +34,7 @@ public class XWalkHttpAuthHandlerInternal implements XWalkHttpAuthInternal {
         }
     }
 
+    @XWalkAPI
     public boolean isFirstAttempt() {
          return mFirstAttempt;
     }
