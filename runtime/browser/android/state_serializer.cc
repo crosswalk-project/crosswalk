@@ -35,7 +35,7 @@ namespace {
 // Sanity check value that we are restoring from a valid pickle.
 // This can potentially used as an actual serialization version number in the
 // future if we ever decide to support restoring from older versions.
-const uint32 AW_STATE_VERSION = 20130814;
+const uint32_t AW_STATE_VERSION = 20130814;
 
 }  // namespace
 
@@ -141,7 +141,7 @@ bool WriteHeaderToPickle(base::Pickle* pickle) {
 }
 
 bool RestoreHeaderFromPickle(base::PickleIterator* iterator) {
-  uint32 state_version = -1;
+  uint32_t state_version = -1;
   if (!iterator->ReadUInt32(&state_version))
     return false;
 
@@ -269,7 +269,7 @@ bool RestoreNavigationEntryFromPickle(base::PickleIterator* iterator,
   }
 
   {
-    int64 timestamp;
+    int64_t timestamp;
     if (!iterator->ReadInt64(&timestamp))
       return false;
     entry->SetTimestamp(base::Time::FromInternalValue(timestamp));

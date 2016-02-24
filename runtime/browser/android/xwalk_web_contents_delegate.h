@@ -43,9 +43,9 @@ class XWalkWebContentsDelegate
   void RendererResponsive(content::WebContents* source) override;
 
   bool AddMessageToConsole(content::WebContents* source,
-                           int32 level,
+                           int32_t level,
                            const base::string16& message,
-                           int32 line_no,
+                           int32_t line_no,
                            const base::string16& source_id) override;
   void HandleKeyboardEvent(
       content::WebContents* source,

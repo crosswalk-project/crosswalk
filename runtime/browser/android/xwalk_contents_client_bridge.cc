@@ -111,7 +111,7 @@ void XWalkContentsClientBridge::AllowCertificateError(
     return;
   ScopedJavaLocalRef<jbyteArray> jcert = base::android::ToJavaByteArray(
       env,
-      reinterpret_cast<const uint8*>(der_string.data()),
+      reinterpret_cast<const uint8_t*>(der_string.data()),
       der_string.length());
   ScopedJavaLocalRef<jstring> jurl(ConvertUTF8ToJavaString(
       env, request_url.spec()));

@@ -168,9 +168,9 @@ void XWalkWebContentsDelegate::RendererResponsive(WebContents* source) {
 
 bool XWalkWebContentsDelegate::AddMessageToConsole(
     content::WebContents* source,
-    int32 level,
+    int32_t level,
     const base::string16& message,
-    int32 line_no,
+    int32_t line_no,
     const base::string16& source_id) {
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);

@@ -58,7 +58,7 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
                    const std::string& user_agent,
                    const std::string& content_disposition,
                    const std::string& mime_type,
-                   int64 content_length) override;
+                   int64_t content_length) override;
   void NewLoginRequest(const std::string& realm,
                        const std::string& account,
                        const std::string& args) override;
