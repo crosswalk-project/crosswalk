@@ -422,6 +422,13 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
 #endif
 }
 
+void XWalkContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
+    std::vector<std::string>* additional_schemes) {
+#if !defined(OS_ANDROID)
+  additional_schemes->push_back("app");
+#endif
+}
+
 content::PresentationServiceDelegate* XWalkContentBrowserClient::
     GetPresentationServiceDelegate(content::WebContents* web_contents) {
 #if defined(OS_WIN)
