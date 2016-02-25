@@ -28,6 +28,7 @@
 #include "ui/gfx/android/java_bitmap.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 #include "net/android/keystore_openssl.h"
+#include "net/cert/cert_database.h"
 #include "net/cert/x509_certificate.h"
 #include "net/ssl/openssl_client_key_store.h"
 
@@ -36,6 +37,7 @@ using base::android::ConvertJavaStringToUTF16;
 using base::android::ConvertUTF8ToJavaString;
 using base::android::ConvertUTF16ToJavaString;
 using base::android::JavaRef;
+using base::android::ScopedJavaGlobalRef;
 using base::android::ScopedJavaLocalRef;
 using base::ScopedPtrHashMap;
 using content::BrowserThread;
@@ -54,6 +56,11 @@ void RecordClientCertificateKey(
   DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
   net::OpenSSLClientKeyStore::GetInstance()->RecordClientCertPrivateKey(
       client_cert.get(), private_key.get());
+}
+
+void NotifyClientCertificatesChanged() {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+  net::CertDatabase::GetInstance()->OnAndroidKeyStoreChanged();
 }
 
 }  // namespace
@@ -558,6 +565,33 @@ void XWalkContentsClientBridge::SelectClientCertificate(
 
   // Release the guard.
   ignore_result(guard.Release());
+}
+
+void XWalkContentsClientBridge::ClearClientCertPreferences(
+    JNIEnv* env, jobject obj,
+    const JavaParamRef<jobject>& callback) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  ScopedJavaGlobalRef<jobject>* j_callback = new ScopedJavaGlobalRef<jobject>();
+  j_callback->Reset(env, callback);
+  content::BrowserThread::PostTaskAndReply(
+      content::BrowserThread::IO,
+      FROM_HERE,
+      base::Bind(&NotifyClientCertificatesChanged),
+      base::Bind(&XWalkContentsClientBridge::ClientCertificatesCleared,
+          base::Unretained(this), base::Owned(j_callback)));
+}
+
+void XWalkContentsClientBridge::ClientCertificatesCleared(
+    ScopedJavaGlobalRef<jobject>* callback) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  JNIEnv* env = AttachCurrentThread();
+
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return;
+
+  Java_XWalkContentsClientBridge_clientCertificatesCleared(
+      env, obj.obj(), callback->obj());
 }
 
 }  // namespace xwalk

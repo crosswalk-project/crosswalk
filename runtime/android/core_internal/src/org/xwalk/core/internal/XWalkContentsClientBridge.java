@@ -737,6 +737,22 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         }
     }
 
+    public void clearClientCertPreferences(Runnable callback) {
+        mLookupTable.clear();
+
+        if (mNativeContentsClientBridge != 0) {
+            nativeClearClientCertPreferences(mNativeContentsClientBridge, callback);
+        } else if (callback != null) {
+            callback.run();
+        }
+    }
+
+    @CalledByNative
+    private void clientCertificatesCleared(Runnable callback) {
+        if (callback == null) return;
+        callback.run();
+    }
+
     private void proceedSslError(boolean proceed, int id) {
         if (mNativeContentsClientBridge == 0) return;
         nativeProceedSslError(mNativeContentsClientBridge, proceed, id);
@@ -890,4 +906,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private native void nativeDownloadIcon(long nativeXWalkContentsClientBridge, String url);
     private native void nativeProvideClientCertificateResponse(
             long nativeXWalkContentsClientBridge, int id, byte[][] certChain, AndroidPrivateKey androidKey);
+    private native void nativeClearClientCertPreferences(
+            long nativeXWalkContentsClientBridge, Runnable callback);
 }
