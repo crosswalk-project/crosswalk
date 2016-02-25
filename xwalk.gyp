@@ -79,6 +79,7 @@
         'experimental/native_file_system/native_file_system_extension.h',
         'experimental/native_file_system/virtual_root_provider.cc',
         'experimental/native_file_system/virtual_root_provider.h',
+        'experimental/native_file_system/virtual_root_provider_android.cc',
         'experimental/native_file_system/virtual_root_provider_linux.cc',
         'experimental/native_file_system/virtual_root_provider_mac.cc',
         'experimental/native_file_system/virtual_root_provider_win.cc',
@@ -239,6 +240,7 @@
         'runtime/browser/ui/taskbar_util_win.cc',
         'runtime/browser/ui/top_view_layout_views.cc',
         'runtime/browser/ui/top_view_layout_views.h',
+        'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
         'runtime/browser/ui/xwalk_views_delegate.cc',
         'runtime/browser/ui/xwalk_views_delegate.h',
         'runtime/browser/xwalk_app_extension_bridge.cc',
@@ -346,9 +348,6 @@
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
           ],
-          'sources': [
-            'experimental/native_file_system/virtual_root_provider_android.cc',
-          ],
           'sources!':[
             'runtime/browser/devtools/xwalk_devtools_frontend.cc',
             'runtime/browser/devtools/xwalk_devtools_frontend.h',
@@ -413,12 +412,10 @@
           ],
           'sources': [
             'runtime/browser/ui/xwalk_javascript_native_dialog_factory.h',
-            'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
           ]
         }, { # toolkit_views==0
           'sources/': [
             ['exclude', 'runtime/browser/ui/xwalk_views_delegate.cc'],
-            ['exclude', 'runtime/browser/ui/color_chooser_aura.cc'],
           ],
         }],  # toolkit_views==1
         ['use_aura==1', {
