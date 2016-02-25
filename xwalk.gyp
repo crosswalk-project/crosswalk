@@ -409,12 +409,6 @@
             'experimental/native_file_system/virtual_root_provider_linux.cc',
           ]
         }],  # OS=="linux"
-        ['os_posix==1 and OS != "mac" and use_allocator=="tcmalloc"', {
-          'dependencies': [
-            # This is needed by content/app/content_main_runner.cc
-            '../base/allocator/allocator.gyp:allocator',
-          ],
-        }],  # os_posix==1 and OS != "mac" and use_allocator=="tcmalloc"
         ['toolkit_views==1', {
           'dependencies': [
             '../components/components.gyp:app_modal',
