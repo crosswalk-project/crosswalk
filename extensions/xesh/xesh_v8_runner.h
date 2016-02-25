@@ -36,8 +36,10 @@ class XEShV8Runner {
 
   ~XEShV8Runner();
 
-  void Initialize(int argc, char** argv, base::MessageLoopProxy* io_loop_proxy,
-      const IPC::ChannelHandle& handle);
+  void Initialize(int argc,
+                  char** argv,
+                  base::SingleThreadTaskRunner* io_task_runner,
+                  const IPC::ChannelHandle& handle);
   void Shutdown();
 
   // Executes a string within the current v8 context.
