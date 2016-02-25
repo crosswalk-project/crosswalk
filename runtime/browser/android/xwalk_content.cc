@@ -559,4 +559,13 @@ void XWalkContent::SetBackgroundColor(JNIEnv* env, jobject obj, jint color) {
   render_view_host_ext_->SetBackgroundColor(color);
 }
 
+void XWalkContent::SetOriginAccessWhitelist(JNIEnv* env, jobject obj,
+                                            jstring url,
+                                            jstring match_patterns) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  render_view_host_ext_->SetOriginAccessWhitelist(
+      base::android::ConvertJavaStringToUTF8(env, url),
+      base::android::ConvertJavaStringToUTF8(env, match_patterns));
+}
+
 }  // namespace xwalk

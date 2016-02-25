@@ -832,6 +832,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.setBackgroundColor(color);
     }
 
+    /**
+     * Set origin access whitelist.
+     * @param url the url for accesssing whitelist.
+     * @param patterns representing hosts which the application should be able to access.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setOriginAccessWhitelist(String url, String[] patterns) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.setOriginAccessWhitelist(url, patterns);
+    }
+
     // We can't let XWalkView's setLayerType call to this via reflection as this method
     // may be called in XWalkView constructor but the XWalkView is not ready yet and then
     // UnsupportedOperationException is thrown, see XWALK-5021/XWALK-5047.
