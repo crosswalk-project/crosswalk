@@ -16,7 +16,7 @@
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
-#include "xwalk/runtime/browser/linux/xwalk_notification_manager.h"
+#include "xwalk/runtime/browser/xwalk_notification_manager_linux.h"
 #endif
 
 namespace xwalk {

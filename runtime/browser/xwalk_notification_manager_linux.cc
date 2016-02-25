@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/linux/xwalk_notification_manager.h"
+#include "xwalk/runtime/browser/xwalk_notification_manager_linux.h"
 
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
