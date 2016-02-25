@@ -77,10 +77,11 @@
         '../extensions/common/url_pattern.h',
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
-        'experimental/native_file_system/virtual_root_provider_mac.cc',
-        'experimental/native_file_system/virtual_root_provider_win.cc',
         'experimental/native_file_system/virtual_root_provider.cc',
         'experimental/native_file_system/virtual_root_provider.h',
+        'experimental/native_file_system/virtual_root_provider_linux.cc',
+        'experimental/native_file_system/virtual_root_provider_mac.cc',
+        'experimental/native_file_system/virtual_root_provider_win.cc',
         'runtime/app/android/xwalk_main_delegate_android.cc',
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
@@ -397,15 +398,6 @@
           'dependencies': [
             'build/system.gyp:libnotify',
           ],
-        }],  # OS=="linux"
-        ['OS=="linux"', {
-          'dependencies': [
-            '../build/linux/system.gyp:fontconfig',
-            '../build/linux/system.gyp:dbus',
-          ],
-          'sources': [
-            'experimental/native_file_system/virtual_root_provider_linux.cc',
-          ]
         }],  # OS=="linux"
         ['toolkit_views==1', {
           'dependencies': [
