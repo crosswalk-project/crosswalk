@@ -261,12 +261,14 @@
         'runtime/browser/xwalk_autofill_manager.h',
         'runtime/browser/xwalk_content_browser_client.cc',
         'runtime/browser/xwalk_content_browser_client.h',
-        'runtime/browser/xwalk_form_database_service.cc',
-        'runtime/browser/xwalk_form_database_service.h',
-        'runtime/browser/xwalk_permission_manager.cc',
-        'runtime/browser/xwalk_permission_manager.h',
         'runtime/browser/xwalk_content_settings.cc',
         'runtime/browser/xwalk_content_settings.h',
+        'runtime/browser/xwalk_form_database_service.cc',
+        'runtime/browser/xwalk_form_database_service.h',
+        'runtime/browser/xwalk_notification_manager_linux.cc',
+        'runtime/browser/xwalk_notification_manager_linux.h',
+        'runtime/browser/xwalk_permission_manager.cc',
+        'runtime/browser/xwalk_permission_manager.h',
         'runtime/browser/xwalk_platform_notification_service.cc',
         'runtime/browser/xwalk_platform_notification_service.h',
         'runtime/browser/xwalk_pref_store.cc',
@@ -395,10 +397,6 @@
           'dependencies': [
             'build/system.gyp:libnotify',
           ],
-          'sources': [
-            'runtime/browser/linux/xwalk_notification_manager.cc',
-            'runtime/browser/linux/xwalk_notification_manager.h',
-          ]
         }],  # OS=="linux"
         ['OS=="linux"', {
           'dependencies': [

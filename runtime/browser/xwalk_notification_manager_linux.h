@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_LINUX_XWALK_NOTIFICATION_MANAGER_H_
-#define XWALK_RUNTIME_BROWSER_LINUX_XWALK_NOTIFICATION_MANAGER_H_
+#ifndef XWALK_RUNTIME_BROWSER_XWALK_NOTIFICATION_MANAGER_LINUX_H_
+#define XWALK_RUNTIME_BROWSER_XWALK_NOTIFICATION_MANAGER_LINUX_H_
 
 #include <libnotify/notification.h>
 #include <libnotify/notify.h>
@@ -58,4 +58,4 @@ class XWalkNotificationManager {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_LINUX_XWALK_NOTIFICATION_MANAGER_H_
+#endif  // XWALK_RUNTIME_BROWSER_XWALK_NOTIFICATION_MANAGER_LINUX_H_
