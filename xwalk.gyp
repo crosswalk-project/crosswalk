@@ -375,12 +375,14 @@
             'runtime/renderer/xwalk_render_process_observer_generic.h',
           ],
         }],
-        ['OS=="win" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '../base/allocator/allocator.gyp:allocator',
-          ],
-        }],
         ['OS=="win"', {
+          'conditions': [
+            ['win_use_allocator_shim==1', {
+              'dependencies': [
+                '../base/allocator/allocator.gyp:allocator',
+              ],
+            }],
+          ],
           'configurations': {
             'Debug_Base': {
               'msvs_settings': {
@@ -705,12 +707,18 @@
         },
       },
       'conditions': [
-        ['OS=="win" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '../base/allocator/allocator.gyp:allocator',
-          ],
-        }],
         ['OS=="win"', {
+          'conditions': [
+            ['win_use_allocator_shim==1', {
+              'dependencies': [
+                '../base/allocator/allocator.gyp:allocator',
+              ],
+            }],
+          ],
+          'dependencies': [
+            '../sandbox/sandbox.gyp:sandbox',
+            'dotnet/dotnet_bridge.gyp:dotnet_bridge'
+          ],
           'sources': [
             '../content/app/sandbox_helper_win.cc', # Needed by InitializedSandbox
             'runtime/resources/xwalk.rc',
@@ -724,12 +732,6 @@
               },
             },
           },
-        }],  # OS=="win"
-        ['OS == "win"', {
-          'dependencies': [
-            '../sandbox/sandbox.gyp:sandbox',
-            'dotnet/dotnet_bridge.gyp:dotnet_bridge'
-          ],
         }],  # OS=="win"
         ['OS=="mac"', {
           'product_name': '<(xwalk_product_name)',
