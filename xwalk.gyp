@@ -7,6 +7,7 @@
   'includes' : [
     'xwalk_tests.gypi',
     'application/xwalk_application.gypi',
+    'extensions/xesh/xesh.gypi',
     'xwalk_installer.gypi',
   ],
   'targets': [
@@ -77,10 +78,12 @@
         '../extensions/common/url_pattern.h',
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
-        'experimental/native_file_system/virtual_root_provider_mac.cc',
-        'experimental/native_file_system/virtual_root_provider_win.cc',
         'experimental/native_file_system/virtual_root_provider.cc',
         'experimental/native_file_system/virtual_root_provider.h',
+        'experimental/native_file_system/virtual_root_provider_android.cc',
+        'experimental/native_file_system/virtual_root_provider_linux.cc',
+        'experimental/native_file_system/virtual_root_provider_mac.cc',
+        'experimental/native_file_system/virtual_root_provider_win.cc',
         'runtime/app/android/xwalk_main_delegate_android.cc',
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
@@ -238,6 +241,7 @@
         'runtime/browser/ui/taskbar_util_win.cc',
         'runtime/browser/ui/top_view_layout_views.cc',
         'runtime/browser/ui/top_view_layout_views.h',
+        'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
         'runtime/browser/ui/xwalk_views_delegate.cc',
         'runtime/browser/ui/xwalk_views_delegate.h',
         'runtime/browser/xwalk_app_extension_bridge.cc',
@@ -345,9 +349,6 @@
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
           ],
-          'sources': [
-            'experimental/native_file_system/virtual_root_provider_android.cc',
-          ],
           'sources!':[
             'runtime/browser/devtools/xwalk_devtools_frontend.cc',
             'runtime/browser/devtools/xwalk_devtools_frontend.h',
@@ -375,12 +376,14 @@
             'runtime/renderer/xwalk_render_process_observer_generic.h',
           ],
         }],
-        ['OS=="win" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '../base/allocator/allocator.gyp:allocator',
-          ],
-        }],
         ['OS=="win"', {
+          'conditions': [
+            ['win_use_allocator_shim==1', {
+              'dependencies': [
+                '../base/allocator/allocator.gyp:allocator',
+              ],
+            }],
+          ],
           'configurations': {
             'Debug_Base': {
               'msvs_settings': {
@@ -398,15 +401,6 @@
             'build/system.gyp:libnotify',
           ],
         }],  # OS=="linux"
-        ['OS=="linux"', {
-          'dependencies': [
-            '../build/linux/system.gyp:fontconfig',
-            '../build/linux/system.gyp:dbus',
-          ],
-          'sources': [
-            'experimental/native_file_system/virtual_root_provider_linux.cc',
-          ]
-        }],  # OS=="linux"
         ['toolkit_views==1', {
           'dependencies': [
             '../components/components.gyp:app_modal',
@@ -421,12 +415,10 @@
           ],
           'sources': [
             'runtime/browser/ui/xwalk_javascript_native_dialog_factory.h',
-            'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
           ]
         }, { # toolkit_views==0
           'sources/': [
             ['exclude', 'runtime/browser/ui/xwalk_views_delegate.cc'],
-            ['exclude', 'runtime/browser/ui/color_chooser_aura.cc'],
           ],
         }],  # toolkit_views==1
         ['use_aura==1', {
@@ -716,12 +708,18 @@
         },
       },
       'conditions': [
-        ['OS=="win" and win_use_allocator_shim==1', {
-          'dependencies': [
-            '../base/allocator/allocator.gyp:allocator',
-          ],
-        }],
         ['OS=="win"', {
+          'conditions': [
+            ['win_use_allocator_shim==1', {
+              'dependencies': [
+                '../base/allocator/allocator.gyp:allocator',
+              ],
+            }],
+          ],
+          'dependencies': [
+            '../sandbox/sandbox.gyp:sandbox',
+            'dotnet/dotnet_bridge.gyp:dotnet_bridge'
+          ],
           'sources': [
             '../content/app/sandbox_helper_win.cc', # Needed by InitializedSandbox
             'runtime/resources/xwalk.rc',
@@ -735,12 +733,6 @@
               },
             },
           },
-        }],  # OS=="win"
-        ['OS == "win"', {
-          'dependencies': [
-            '../sandbox/sandbox.gyp:sandbox',
-            'dotnet/dotnet_bridge.gyp:dotnet_bridge'
-          ],
         }],  # OS=="win"
         ['OS=="mac"', {
           'product_name': '<(xwalk_product_name)',
@@ -864,9 +856,6 @@
     },
   ], # targets
   'conditions': [
-    ['OS=="linux"', {
-      'includes': [ 'extensions/xesh/xesh.gypi' ],
-    }],
     ['OS=="mac"', {
       'targets': [
         {
