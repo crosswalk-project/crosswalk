@@ -7,6 +7,7 @@
   'includes' : [
     'xwalk_tests.gypi',
     'application/xwalk_application.gypi',
+    'extensions/xesh/xesh.gypi',
     'xwalk_installer.gypi',
   ],
   'targets': [
@@ -855,9 +856,6 @@
     },
   ], # targets
   'conditions': [
-    ['OS=="linux"', {
-      'includes': [ 'extensions/xesh/xesh.gypi' ],
-    }],
     ['OS=="mac"', {
       'targets': [
         {
