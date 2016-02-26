@@ -993,15 +993,6 @@
         'xwalk_android_app.gypi',
         'xwalk_core_library_android.gypi',
       ],
-      'targets': [
-      {
-        'target_name': 'All',
-        'type': 'none',
-        'dependencies': [
-          'xwalk',
-        ],
-      }, # target_name: All
-    ],  # targets
     }], # OS=="android"
   ]
 }
