@@ -45,19 +45,6 @@
       <message name="IDS_SELECT_COLOR_DIALOG_TITLE" desc="The default title for the Select Color color chooser dialog.">
         Select Color
       </message>
-      <!-- error messages for network errors -->
-      <message name="IDS_ERRORPAGES_DETAILS_CACHE_MISS" desc="The error message displayed when we couldn't find a resource in the cache, and cannot fall back to the network.">
-        The requested entry was not found in the cache.
-      </message>
-      <message name="IDS_ERRORPAGES_DETAILS_PINNING_FAILURE" desc="Description of the error page for a certificate which doesn't match the built-in pins for that name">
-        The server's certificate appears to be a forgery.
-      </message>
-      <message name="IDS_ERRORPAGES_DETAILS_BLOCKED" desc="The error message displayed when an extension blocks a request.">
-        Requests to the server have been blocked by an extension.
-      </message>
-      <message name="IDS_ERRORPAGES_DETAILS_HTTP_VERSION_NOT_SUPPORTED" desc="The error message displayed when the server returns a 505.">
-        The server does not support the HTTP version used in the request.
-      </message>
       <!-- File-picker strings -->
       <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
         Save file as
