@@ -5,13 +5,13 @@
 {
   'variables': {
     'stripped_library': '<(intermediate_dir)/libs/<(android_app_abi)/libxwalkcore.>(android_product_extension)',
-    'compressed_library': '<(resource_dir)/raw/libxwalkcore.>(android_product_extension).<(android_app_abi)',
+    'compressed_library': '<(intermediate_dir)/libs/<(android_app_abi)/libxwalkcoreCompressed.>(android_product_extension)',
     'native_lib_target': 'libxwalkdummy',
     'additional_bundled_libs': [
       '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
     ],
     'additional_input_paths': [
-      '<(resource_dir)/raw/libxwalkcore.>(android_product_extension).<(android_app_abi)',
+      '<(compressed_library)',
     ],
   },
   'actions': [

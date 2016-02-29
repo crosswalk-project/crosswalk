@@ -13,7 +13,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,23 +23,16 @@ import java.io.OutputStream;
 import SevenZip.Compression.LZMA.Decoder;
 
 class XWalkLibraryDecompressor {
-    private static final String[] MANDATORY_LIBRARIES = { "libxwalkcore.so" };
+    private static final String MANDATORY_LIBRARRY = "libxwalkcore.so";
+    private static final String COMPRESSED_LIBRARY = "libxwalkcoreCompressed.so";
     private static final String TAG = "XWalkLib";
 
     public static boolean isCompressed(Context context) {
-        for (String library : MANDATORY_LIBRARIES) {
-            try {
-                InputStream inputStream = openRawResource(context, library);
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Closing " + library + "has failed: " + e.getMessage());
-                }
-            } catch (Resources.NotFoundException e) {
-                return false;
-            }
-        }
-
+	// The libxwalkcoreCompressed.so exists in default directory if it's decompressed.
+	String defaultLibDir = "/data/data/" + context.getPackageName() + "/lib/";
+	File file = new File(defaultLibDir, COMPRESSED_LIBRARY);
+	if(!file.exists())
+	    return false;
         return true;
     }
 
@@ -64,43 +59,41 @@ class XWalkLibraryDecompressor {
         if (f.exists() && f.isFile()) f.delete();
         if (!f.exists() && !f.mkdirs()) return false;
 
-        for (String library : MANDATORY_LIBRARIES) {
-            File tmpfile = null;
-            InputStream input = null;
-            OutputStream output = null;
+        File tmpfile = null;
+        InputStream input = null;
+        OutputStream output = null;
 
-            try {
-                File outfile = new File(libDir, library);
-                tmpfile = new File(libDir, library + ".tmp");
-                input = new BufferedInputStream(openRawResource(context, library));
-                output = new BufferedOutputStream(new FileOutputStream(tmpfile));
-                decodeWithLzma(input, output);
-                tmpfile.renameTo(outfile);
-            } catch (Resources.NotFoundException e) {
-                Log.d(TAG, "Could not find resource: " + e.getMessage());
-                return false;
-            } catch (Exception e) {
-                Log.d(TAG, "Decompress failed: " + e.getMessage());
-                return false;
-            } finally {
-                if (output != null) {
-                    try {
-                        output.flush();
-                    } catch (IOException e) {
-                    }
-                    try {
-                        output.close();
-                    } catch (IOException e) {
-                    }
+        try {
+            File outfile = new File(libDir, MANDATORY_LIBRARRY);
+            tmpfile = new File(libDir, MANDATORY_LIBRARRY + ".tmp");
+            input = new BufferedInputStream(openDecompressedFile(context, COMPRESSED_LIBRARY));
+            output = new BufferedOutputStream(new FileOutputStream(tmpfile));
+            decodeWithLzma(input, output);
+            tmpfile.renameTo(outfile);
+        } catch (Resources.NotFoundException e) {
+            Log.d(TAG, "Could not find resource: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            Log.d(TAG, "Decompress failed: " + e.getMessage());
+            return false;
+        } finally {
+            if (output != null) {
+                try {
+                    output.flush();
+                } catch (IOException e) {
                 }
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (IOException e) {
-                    }
+                try {
+                    output.close();
+                } catch (IOException e) {
                 }
-                tmpfile.delete();
             }
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                }
+            }
+            tmpfile.delete();
         }
 
         return true;
@@ -134,12 +127,17 @@ class XWalkLibraryDecompressor {
         }
     }
 
-    private static InputStream openRawResource(Context context, String library)
-            throws Resources.NotFoundException {
-        Resources res = context.getResources();
-        String libraryName = library.split("\\.")[0];
-        int id = res.getIdentifier(libraryName, "raw", context.getPackageName());
-        return res.openRawResource(id);
+    private static InputStream openDecompressedFile(Context context, String library)
+            throws FileNotFoundException {
+        String defaultLibDir = "/data/data/" + context.getPackageName() + "/lib/";
+        InputStream input = null;
+        try {
+            input = new FileInputStream(new File(defaultLibDir, library));
+	} catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+        return input;
     }
 
     private static int getLocalVersion(Context context) {
