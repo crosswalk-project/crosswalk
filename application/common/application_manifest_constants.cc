@@ -73,6 +73,9 @@ const char kXWalkLaunchScreenPortrait[] =
     "xwalk_launch_screen.portrait";
 const char kXWalkLaunchScreenReadyWhen[] =
     "xwalk_launch_screen.ready_when";
+
+const char kXWalkWindowsUpdateID[] = "xwalk_windows_update_id";
+
 }  // namespace application_manifest_keys
 
 // manifest keys for widget applications.

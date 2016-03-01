@@ -5,6 +5,7 @@
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/unittest_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace xwalk {
@@ -32,12 +33,8 @@ TEST_F(PermissionsHandlerTest, NonePermission) {
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
   manifest.SetString(keys::kXWalkVersionKey, "0");
-  std::string error;
-  scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(),
-      ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
-      &error);
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_MANIFEST, manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(GetAPIPermissionsInfo(application).size(), 0);
 }
@@ -48,12 +45,8 @@ TEST_F(PermissionsHandlerTest, EmptyPermission) {
   manifest.SetString(keys::kXWalkVersionKey, "0");
   base::ListValue* permissions = new base::ListValue;
   manifest.Set(keys::kPermissionsKey, permissions);
-  std::string error;
-  scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(),
-      ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
-      &error);
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_MANIFEST, manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(GetAPIPermissionsInfo(application).size(), 0);
 }
@@ -65,12 +58,8 @@ TEST_F(PermissionsHandlerTest, DeviceAPIPermission) {
   base::ListValue* permissions = new base::ListValue;
   permissions->AppendString("geolocation");
   manifest.Set(keys::kPermissionsKey, permissions);
-  std::string error;
-  scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(),
-      ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
-      &error);
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_MANIFEST, manifest);
   EXPECT_TRUE(application.get());
   const PermissionSet& permission_list =
       GetAPIPermissionsInfo(application);

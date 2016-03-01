@@ -72,7 +72,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   };
 
   static scoped_refptr<ApplicationData> Create(const base::FilePath& app_path,
-      const std::string& explicit_id, SourceType source_type,
+      const std::string& id, SourceType source_type,
           scoped_ptr<Manifest> manifest, std::string* error_message);
 
   // Returns an absolute url to a resource inside of an application. The
@@ -138,16 +138,13 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   friend class base::RefCountedThreadSafe<ApplicationData>;
   friend class ApplicationStorageImpl;
 
-  ApplicationData(const base::FilePath& path,
+  ApplicationData(const base::FilePath& path, const std::string& id,
       SourceType source_type, scoped_ptr<Manifest> manifest);
   virtual ~ApplicationData();
 
   // Initialize the application from a parsed manifest.
-  bool Init(const std::string& explicit_id, base::string16* error);
+  bool Init(base::string16* error);
 
-  // Chooses the application ID for an application based on a variety of
-  // criteria. The chosen ID will be set in |manifest|.
-  bool LoadID(const std::string& explicit_id, base::string16* error);
   // The following are helpers for InitFromValue to load various features of the
   // application from the manifest.
   bool LoadName(base::string16* error);

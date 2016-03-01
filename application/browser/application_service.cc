@@ -73,9 +73,16 @@ Application* ApplicationService::LaunchFromManifestPath(
 
   base::FilePath app_path = path.DirName();
   LOG(ERROR) << "Loading app from " << app_path.MaybeAsASCII();
-
+  std::string app_id = GenerateIdForPath(app_path);
+#if defined (OS_WIN)
+  std::string update_id;
+  if (manifest->GetString(application_manifest_keys::kXWalkWindowsUpdateID,
+                          &update_id)) {
+    app_id = GenerateId(update_id);
+  }
+#endif
   scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
-      app_path, std::string(), ApplicationData::LOCAL_DIRECTORY,
+      app_path, app_id, ApplicationData::LOCAL_DIRECTORY,
       std::move(manifest), &error);
   if (!application_data.get()) {
     LOG(ERROR) << "Error occurred while trying to load application: "

@@ -5,7 +5,9 @@
 #include "xwalk/application/common/manifest_handlers/unittest_util.h"
 
 #include "base/strings/string_util.h"
+#include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/id_util.h"
 
 namespace xwalk {
 
@@ -53,9 +55,10 @@ scoped_refptr<ApplicationData> CreateApplication(Manifest::Type type,
     const base::DictionaryValue& manifest) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(), ApplicationData::LOCAL_DIRECTORY,
+      base::FilePath(), GenerateId("test"), ApplicationData::LOCAL_DIRECTORY,
       make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()), type)),
       &error);
+  EXPECT_TRUE(error.empty()) << error;
   return application;
 }
 

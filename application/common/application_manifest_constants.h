@@ -66,6 +66,9 @@ namespace application_manifest_keys {
   extern const char kXWalkLaunchScreenLandscape[];
   extern const char kXWalkLaunchScreenPortrait[];
   extern const char kXWalkLaunchScreenReadyWhen[];
+
+  // Windows specific:
+  extern const char kXWalkWindowsUpdateID[];
 }  // namespace application_manifest_keys
 
 namespace application_widget_keys {
