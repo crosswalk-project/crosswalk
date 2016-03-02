@@ -55,6 +55,7 @@ const char kXWalkViewBackgroundColor[] = "xwalk_view.background_color";
 
 // XWalk W3C Manifest (XPK) extensions:
 
+const char kXWalkPackageId[] = "xwalk_package_id";
 const char kPermissionsKey[] = "permissions";
 const char kXWalkVersionKey[] = "xwalk_version";
 const char kXWalkDescriptionKey[] = "xwalk_description";

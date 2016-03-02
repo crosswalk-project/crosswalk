@@ -281,6 +281,8 @@
         'runtime/browser/xwalk_render_message_filter.h',
         'runtime/browser/xwalk_runner.cc',
         'runtime/browser/xwalk_runner.h',
+        'runtime/browser/xwalk_runner_win.cc',
+        'runtime/browser/xwalk_runner_win.h',
         'runtime/browser/xwalk_ssl_host_state_delegate.cc',
         'runtime/browser/xwalk_ssl_host_state_delegate.h',
         'runtime/common/android/xwalk_globals_android.cc',
