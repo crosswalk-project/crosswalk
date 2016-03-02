@@ -26,12 +26,19 @@
     var test2 = {};
     var test3;
     var test4;
+    var test5;
+    var test6;
 
     function inc_collected() {
       collected++;
     }
+    function reset_collected() {
+      collected = 0;
+    }
 
     test1 = test_v8tools.lifecycleTracker();
+    if (test1.destructor !== null)
+      return false;
     test1.destructor = inc_collected;
 
     test2.foo = test_v8tools.lifecycleTracker();
@@ -40,7 +47,25 @@
     test3 = test_v8tools.lifecycleTracker();
     test3.destructor = inc_collected;
 
+    // Setting the destructor to a value that's not a function or null raises
+    // a TypeError.
+    try {
+      test3.destructor = 42;
+    } catch (e) {
+      if (!(e instanceof TypeError))
+        return false;
+    } finally {
+      if (test3.destructor !== inc_collected)
+        return false;
+    }
+
     test4 = test3;
+
+    test5 = test_v8tools.lifecycleTracker();
+
+    test6 = test_v8tools.lifecycleTracker();
+    test6.destructor = reset_collected;
+    test6.destructor = null;
 
     // Should be collected.
     test1 = 0;
@@ -65,6 +90,20 @@
 
     // Should be collected.
     test4 = 0;
+    gc();
+
+    if (collected != 3)
+      return false;
+
+    // Should not do anything, no destructor set.
+    test5 = 0;
+    gc();
+
+    if (collected != 3)
+      return false;
+
+    // Should not do anything, the destructor was reset.
+    test6 = 0;
     gc();
 
     if (collected != 3)
