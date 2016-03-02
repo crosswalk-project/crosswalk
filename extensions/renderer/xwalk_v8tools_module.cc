@@ -33,7 +33,9 @@ void ForceSetPropertyCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
   if (info.Length() != 3 || !info[0]->IsObject() || !info[1]->IsString()) {
     return;
   }
-  info[0].As<v8::Object>()->ForceSet(info[1], info[2]);
+  info[0].As<v8::Object>()->DefineOwnProperty(
+      info.GetIsolate()->GetCurrentContext(),
+      info[1].As<v8::String>(), info[2]).FromJust();
 }
 
 // ================
@@ -177,7 +179,8 @@ void GetWindowObject(const v8::FunctionCallbackInfo<v8::Value>& args) {
 XWalkV8ToolsModule::XWalkV8ToolsModule() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
+  v8::Handle<v8::ObjectTemplate> object_template =
+      v8::ObjectTemplate::New(isolate);
 
   // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
   // update the Chromium (and V8) version.

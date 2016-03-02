@@ -1,6 +1,9 @@
 {
   'targets': [
     {
+      'variables': {
+        'chromium_code': 1,
+      },
       'target_name': 'xwalk_extensions',
       'type': 'static_library',
       'dependencies': [

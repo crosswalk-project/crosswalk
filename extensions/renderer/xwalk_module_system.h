@@ -86,10 +86,10 @@ class XWalkModuleSystem {
                          ExtensionModuleEntry* entry);
 
   static void TrampolineCallback(
-      v8::Local<v8::String> property,
+      v8::Local<v8::Name> property,
       const v8::PropertyCallbackInfo<v8::Value>& info);
   static void TrampolineSetterCallback(
-      v8::Local<v8::String> property,
+      v8::Local<v8::Name> property,
       v8::Local<v8::Value> value,
       const v8::PropertyCallbackInfo<void>& info);
   static void LoadExtensionForTrampoline(
