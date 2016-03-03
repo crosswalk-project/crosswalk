@@ -41,17 +41,19 @@ namespace application {
 
 // static
 scoped_refptr<ApplicationData> ApplicationData::Create(
-    const base::FilePath& path, const std::string& explicit_id,
+    const base::FilePath& path, const std::string& id,
     SourceType source_type, scoped_ptr<Manifest> manifest,
     std::string* error_message) {
   DCHECK(error_message);
+  DCHECK(IsValidApplicationID(id));
+
   base::string16 error;
   if (!manifest->ValidateManifest(error_message))
     return NULL;
 
   scoped_refptr<ApplicationData> app_data =
-      new ApplicationData(path, source_type, std::move(manifest));
-  if (!app_data->Init(explicit_id, &error)) {
+      new ApplicationData(path, id, source_type, std::move(manifest));
+  if (!app_data->Init(&error)) {
     *error_message = base::UTF16ToUTF8(error);
     return NULL;
   }
@@ -98,9 +100,13 @@ bool ApplicationData::IsHostedApp() const {
   return source_type_ == EXTERNAL_URL;
 }
 
-ApplicationData::ApplicationData(const base::FilePath& path,
-  SourceType source_type, scoped_ptr<Manifest> manifest)
+ApplicationData::ApplicationData(
+    const base::FilePath& path,
+    const std::string& id,
+    SourceType source_type,
+    scoped_ptr<Manifest> manifest)
     : manifest_version_(0),
+      application_id_(id),
       path_(path),
       manifest_(manifest.release()),
       finished_parsing_manifest_(false),
@@ -146,15 +152,11 @@ GURL ApplicationData::GetResourceURL(const std::string& relative_path) const {
   return GetResourceURL(URL(), relative_path);
 }
 
-bool ApplicationData::Init(const std::string& explicit_id,
-                           base::string16* error) {
+bool ApplicationData::Init(base::string16* error) {
   DCHECK(error);
   ManifestHandlerRegistry* registry =
       ManifestHandlerRegistry::GetInstance(manifest_type());
   if (!registry->ParseAppManifest(this, error))
-    return false;
-
-  if (!LoadID(explicit_id, error))
     return false;
   if (!LoadName(error))
     return false;
@@ -168,23 +170,6 @@ bool ApplicationData::Init(const std::string& explicit_id,
   application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
 
   finished_parsing_manifest_ = true;
-  return true;
-}
-
-bool ApplicationData::LoadID(const std::string& explicit_id,
-                             base::string16* error) {
-  std::string application_id;
-  if (!explicit_id.empty()) {
-    application_id_ = explicit_id;
-    return true;
-  }
-
-  application_id = GenerateIdForPath(path_);
-  if (application_id.empty()) {
-    NOTREACHED() << "Could not create ID from path.";
-    return false;
-  }
-  application_id_ = application_id;
   return true;
 }
 
