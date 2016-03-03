@@ -250,6 +250,11 @@ void GetUserAgentLocales(const std::string& sys_locale,
   } while (position != std::string::npos);
 }
 
+namespace {
+const char kSpace[] = " ";
+const char kSemicolon[] = ";";
+}  // namespace
+
 net::URLRequestJob*
 ApplicationProtocolHandler::MaybeCreateJob(
     net::URLRequest* request, net::NetworkDelegate* network_delegate) const {
@@ -267,18 +272,16 @@ ApplicationProtocolHandler::MaybeCreateJob(
   std::string content_security_policy;
   if (application.get()) {
     directory_path = application->path();
-
     const char* csp_key = GetCSPKey(application->manifest_type());
     const CSPInfo* csp_info = static_cast<CSPInfo*>(
           application->GetManifestData(csp_key));
     if (csp_info) {
-      const std::map<std::string, std::vector<std::string> >& policies =
-          csp_info->GetDirectives();
-      std::map<std::string, std::vector<std::string> >::const_iterator it =
-          policies.begin();
-      for (; it != policies.end(); ++it) {
-        content_security_policy.append(
-              it->first + ' ' + base::JoinString(it->second, ",") + ';');
+      for (auto& directive : csp_info->GetDirectives()) {
+        content_security_policy.append(directive.first)
+                               .append(kSpace)
+                               .append(base::JoinString(directive.second,
+                                                        kSpace))
+                               .append(kSemicolon);
       }
     }
   }
