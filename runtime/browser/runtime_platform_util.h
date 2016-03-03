@@ -52,6 +52,14 @@ void ActivateWindow(gfx::NativeWindow window);
 // whether the view has the visible attribute set.
 bool IsVisible(gfx::NativeView view);
 
+// Set preferred screen orientation.
+// Preferred means that if desired orientation is not available e.g. in laptop
+// mode, it is still set to be activated once the machine transforms to tablet
+// mode.
+// orientation is defined in manifest - could take any of the values from here
+// https://crosswalk-project.org/documentation/manifest/orientation.html
+void SetPreferredScreenOrientation(const std::string& orientation);
+
 #if defined(OS_MACOSX)
 // On 10.7+, back and forward swipe gestures can be triggered using a scroll
 // gesture, if enabled in System Preferences. This function returns true if

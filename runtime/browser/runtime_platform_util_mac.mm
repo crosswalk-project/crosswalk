@@ -160,3 +160,6 @@ bool IsSwipeTrackingFromScrollEventsEnabled() {
 }
 
 }  // namespace platform_util
+
+void SetPreferredScreenOrientation(const std::string& orientation) {
+}
