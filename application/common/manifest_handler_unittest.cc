@@ -10,6 +10,7 @@
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/manifest_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -219,7 +220,7 @@ TEST_F(ManifestHandlerTest, DependentHandlers) {
   manifest.SetInteger("g", 6);
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(),
+      base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
       make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
@@ -246,7 +247,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   // Succeeds when "a" is not recognized.
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(),
+      base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
       make_scoped_ptr(new Manifest(make_scoped_ptr(manifest_a.DeepCopy()))),
       &error);
@@ -262,7 +263,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   registry.reset(new ScopedTestingManifestHandlerRegistry(handlers));
 
   application = ApplicationData::Create(
-      base::FilePath(), std::string(),
+      base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
       make_scoped_ptr(new Manifest(make_scoped_ptr(manifest_a.DeepCopy()))),
       &error);
@@ -282,7 +283,7 @@ TEST_F(ManifestHandlerTest, Validate) {
   manifest.SetInteger("b", 2);
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(), std::string(),
+      base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
       make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
