@@ -104,6 +104,8 @@ class XWalkRunner {
   virtual void InitializeRuntimeVariablesForExtensions(
       const content::RenderProcessHost* host,
       base::ValueMap* runtime_variables);
+  virtual void InitializeEnvironmentVariablesForGoogleAPIs(
+      content::RenderProcessHost* host);
 
  private:
   friend class XWalkMainDelegate;

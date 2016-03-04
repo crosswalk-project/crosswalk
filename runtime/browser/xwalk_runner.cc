@@ -26,6 +26,10 @@
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
+#if defined(OS_WIN)
+#include "xwalk/runtime/browser/xwalk_runner_win.h"
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -156,11 +160,17 @@ void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
   main_parts->CreateInternalExtensionsForExtensionThread(
       host, &extension_thread_extensions);
 
+  InitializeEnvironmentVariablesForGoogleAPIs(host);
+
   scoped_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
   InitializeRuntimeVariablesForExtensions(host, runtime_variables.get());
   extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions,
       std::move(runtime_variables));
+}
+
+void XWalkRunner::InitializeEnvironmentVariablesForGoogleAPIs(
+    content::RenderProcessHost* host) {
 }
 
 void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
@@ -187,7 +197,11 @@ void XWalkRunner::DisableRemoteDebugging() {
 
 // static
 scoped_ptr<XWalkRunner> XWalkRunner::Create() {
+#if defined (OS_WIN)
+  return scoped_ptr<XWalkRunner>(new XWalkRunnerWin);
+#else
   return scoped_ptr<XWalkRunner>(new XWalkRunner);
+#endif
 }
 
 content::ContentBrowserClient* XWalkRunner::GetContentBrowserClient() {
