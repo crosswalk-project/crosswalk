@@ -54,6 +54,7 @@ namespace application_manifest_keys {
 
   // XWalk extensions:
 
+  extern const char kXWalkPackageId[];
   extern const char kPermissionsKey[];
   extern const char kXWalkVersionKey[];
   extern const char kXWalkDescriptionKey[];
