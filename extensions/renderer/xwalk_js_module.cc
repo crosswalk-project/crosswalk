@@ -44,7 +44,7 @@ v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
       v8::Local<v8::Script>::New(isolate, compiled_script_);
 
   blink::WebScopedMicrotaskSuppression suppression;
-  v8::TryCatch try_catch;
+  v8::TryCatch try_catch(isolate);
   v8::Local<v8::Value> result = script->Run();
   if (try_catch.HasCaught()) {
     LOG(WARNING) << "Error during requireNative(): "
@@ -64,7 +64,7 @@ bool XWalkJSModule::Compile(v8::Isolate* isolate, std::string* error) {
       v8::String::NewFromUtf8(isolate, wrapped_js_code.c_str()));
 
   blink::WebScopedMicrotaskSuppression suppression;
-  v8::TryCatch try_catch;
+  v8::TryCatch try_catch(isolate);
   v8::Handle<v8::Script> script(v8::Script::Compile(v8_code));
   if (try_catch.HasCaught()) {
     *error = "Error compiling JS module: " + ExceptionToString(try_catch);

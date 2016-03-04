@@ -127,7 +127,7 @@ v8::Handle<v8::Value> RunString(const std::string& code,
       v8::String::NewFromUtf8(isolate, code.c_str()));
 
   blink::WebScopedMicrotaskSuppression suppression;
-  v8::TryCatch try_catch;
+  v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
 
   v8::Handle<v8::Script> script(v8::Script::Compile(v8_code));
@@ -176,7 +176,7 @@ void XWalkExtensionModule::LoadExtensionCode(
   };
 
   blink::WebScopedMicrotaskSuppression suppression;
-  v8::TryCatch try_catch;
+  v8::TryCatch try_catch(context->GetIsolate());
   try_catch.SetVerbose(true);
   callable_api_code->Call(context->Global(), argc, argv);
   if (try_catch.HasCaught()) {
@@ -199,7 +199,7 @@ void XWalkExtensionModule::HandleMessageFromNative(const base::Value& msg) {
       v8::Local<v8::Function>::New(isolate, message_listener_);;
 
   blink::WebScopedMicrotaskSuppression suppression;
-  v8::TryCatch try_catch;
+  v8::TryCatch try_catch(isolate);
   message_listener->Call(context->Global(), 1, &v8_value);
   if (try_catch.HasCaught())
     LOG(WARNING) << "Exception when running message listener: "

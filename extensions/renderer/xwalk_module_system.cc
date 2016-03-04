@@ -241,7 +241,7 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
   params->Set(v8::Integer::New(isolate, 1), entry);
 
   // FIXME(cmarcelo): ensure that trampoline is readonly.
-  value.As<v8::Object>()->SetAccessor(
+  value.As<v8::Object>()->SetAccessor(context,
       v8::String::NewFromUtf8(isolate, basename.c_str()),
       TrampolineCallback, TrampolineSetterCallback, params);
   return true;
@@ -409,7 +409,7 @@ v8::Handle<v8::Value> XWalkModuleSystem::RefetchHolder(
 
 // static
 void XWalkModuleSystem::TrampolineCallback(
-    v8::Local<v8::String> property,
+    v8::Local<v8::Name> property,
     const v8::PropertyCallbackInfo<v8::Value>& info) {
   XWalkModuleSystem::LoadExtensionForTrampoline(info.GetIsolate(), info.Data());
   v8::Handle<v8::Value> holder = RefetchHolder(info.GetIsolate(), info.Data());
@@ -421,7 +421,7 @@ void XWalkModuleSystem::TrampolineCallback(
 
 // static
 void XWalkModuleSystem::TrampolineSetterCallback(
-    v8::Local<v8::String> property,
+    v8::Local<v8::Name> property,
     v8::Local<v8::Value> value,
     const v8::PropertyCallbackInfo<void>& info) {
   XWalkModuleSystem::LoadExtensionForTrampoline(info.GetIsolate(), info.Data());
@@ -494,9 +494,10 @@ void XWalkModuleSystem::EnsureExtensionNamespaceIsReadOnly(
 
   v8::Handle<v8::String> v8_extension_name(
       v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()));
-  value.As<v8::Object>()->ForceSet(
+  value.As<v8::Object>()->DefineOwnProperty(
+      context,
       v8_extension_name, value.As<v8::Object>()->Get(v8_extension_name),
-      v8::ReadOnly);
+      v8::ReadOnly).FromJust();
 }
 
 }  // namespace extensions
