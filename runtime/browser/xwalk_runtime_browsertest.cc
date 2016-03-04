@@ -42,12 +42,17 @@ using content::WindowedNotificationObserver;
 using testing::_;
 
 class XWalkRuntimeTest : public InProcessBrowserTest {
+ protected:
+  void SetUp() override {
+    ASSERT_TRUE(embedded_test_server()->Start());
+    InProcessBrowserTest::SetUp();
+  }
 };
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
   size_t len = runtimes().size();
   // Create a new Runtime instance.
-  GURL url(test_server()->GetURL("test.html"));
+  GURL url(embedded_test_server()->GetURL("/test.html"));
   Runtime* runtime = CreateRuntime(url);
   EXPECT_TRUE(url == runtime->web_contents()->GetURL());
   EXPECT_EQ(len + 1, runtimes().size());
@@ -59,7 +64,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
-  GURL url(test_server()->GetURL("test.html"));
+  GURL url(embedded_test_server()->GetURL("/test.html"));
   Runtime* runtime = CreateRuntime(url);
   size_t len = runtimes().size();
   runtime->Close();
@@ -68,7 +73,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
-  GURL url(test_server()->GetURL("test.html"));
+  GURL url(embedded_test_server()->GetURL("/test.html"));
   Runtime* new_runtime = CreateRuntime(url);
   size_t len = runtimes().size();
   new_runtime->window()->Close();
@@ -78,7 +83,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
-  GURL url(test_server()->GetURL("test.html"));
+  GURL url(embedded_test_server()->GetURL("/test.html"));
   NativeAppWindow::CreateParams params;
   params.state = ui::SHOW_STATE_FULLSCREEN;
   Runtime* new_runtime = CreateRuntime(url, params);
