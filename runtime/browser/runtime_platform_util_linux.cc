@@ -85,4 +85,8 @@ void OpenExternal(const GURL& url) {
     XDGOpen(url.spec());
 }
 
+void SetPreferredScreenOrientation(const std::string& orientation) {
+  NOTIMPLEMENTED();
+}
+
 }  // namespace platform_util

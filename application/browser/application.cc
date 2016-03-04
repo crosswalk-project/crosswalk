@@ -24,6 +24,7 @@
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/application/common/package/wgt_package.h"
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -239,6 +240,13 @@ bool Application::Launch() {
   // Only the first runtime can have a launch screen.
   params.splash_screen_path = GetSplashScreenPath();
   runtime->set_ui_delegate(RuntimeUIDelegate::Create(runtime, params));
+
+  // Set preferred orientation just before showing the UI.
+  std::string orientation;
+  if (data_->GetManifest()->GetString(keys::kOrientationKey, &orientation)
+    && !orientation.empty())
+    platform_util::SetPreferredScreenOrientation(orientation);
+
   runtime->Show();
 
   return true;

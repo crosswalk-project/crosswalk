@@ -8,6 +8,7 @@
 #include <dwmapi.h>
 #include <shellapi.h>
 #include <shlobj.h>
+#include <windows.h>
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
@@ -211,5 +212,77 @@ bool IsVisible(gfx::NativeView view) {
   return ::IsWindowVisible(view) != 0;
 }
 #endif
+
+static void GetCurrentDisplaySettings(bool *landscape, bool *flipped) {
+  DEVMODE dm;
+  ZeroMemory(&dm, sizeof(dm));
+  dm.dmSize = sizeof(dm);
+  if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm))
+    return;
+  if (flipped) {
+    *flipped = (dm.dmDisplayOrientation == DMDO_270
+      || dm.dmDisplayOrientation == DMDO_180);
+  }
+  if (landscape)
+    *landscape = (dm.dmPelsWidth > dm.dmPelsHeight);
+}
+
+// SetDisplayAutoRotationPreferences is available on Windows 8 and after.
+static void SetDisplayAutoRotationPreferencesWrapper(
+  ORIENTATION_PREFERENCE orientation) {
+  typedef void(WINAPI *SetDisplayAutoRotationPreferencesPtr)(
+    ORIENTATION_PREFERENCE);
+  static SetDisplayAutoRotationPreferencesPtr
+    set_display_auto_rotation_preferences_func =
+      reinterpret_cast<SetDisplayAutoRotationPreferencesPtr>(
+        GetProcAddress(GetModuleHandleA("user32.dll"),
+        "SetDisplayAutoRotationPreferences"));
+  if (set_display_auto_rotation_preferences_func)
+    set_display_auto_rotation_preferences_func(orientation);
+}
+
+static void SetScreenOrientation(const std::string& orientation) {
+  ORIENTATION_PREFERENCE prefs = ORIENTATION_PREFERENCE_NONE;
+  bool landscape = true;
+  bool flipped = false;
+  if (orientation == "portrait-primary") {
+    prefs = ORIENTATION_PREFERENCE_PORTRAIT;
+  } else if (orientation == "portrait-secondary") {
+    prefs = ORIENTATION_PREFERENCE_PORTRAIT_FLIPPED;
+  } else if (orientation == "landscape-primary") {
+    prefs = ORIENTATION_PREFERENCE_LANDSCAPE;
+  } else if (orientation == "landscape-secondary") {
+    prefs = ORIENTATION_PREFERENCE_LANDSCAPE_FLIPPED;
+  } else if (orientation == "portrait") {
+    GetCurrentDisplaySettings(&landscape, &flipped);
+    prefs = (flipped && !landscape) ? ORIENTATION_PREFERENCE_PORTRAIT_FLIPPED
+                                    : ORIENTATION_PREFERENCE_PORTRAIT;
+  } else if (orientation == "landscape") {
+    GetCurrentDisplaySettings(&landscape, &flipped);
+    prefs = (flipped && landscape) ? ORIENTATION_PREFERENCE_LANDSCAPE_FLIPPED
+                                   : ORIENTATION_PREFERENCE_LANDSCAPE;
+  } else if (orientation == "natural") {
+    GetCurrentDisplaySettings(&landscape, &flipped);
+    prefs = landscape ? ORIENTATION_PREFERENCE_LANDSCAPE
+                      : ORIENTATION_PREFERENCE_PORTRAIT;
+  } else if (orientation == "any") {
+    GetCurrentDisplaySettings(&landscape, &flipped);
+    if (landscape) {
+      prefs = flipped ? ORIENTATION_PREFERENCE_LANDSCAPE_FLIPPED
+                      : ORIENTATION_PREFERENCE_LANDSCAPE;
+    } else {
+      prefs = flipped ? ORIENTATION_PREFERENCE_PORTRAIT_FLIPPED
+                      : ORIENTATION_PREFERENCE_PORTRAIT;
+    }
+  } else {
+    NOTREACHED() << "Invalid value for orientation:" << orientation;
+  }
+  SetDisplayAutoRotationPreferencesWrapper(prefs);
+}
+
+void SetPreferredScreenOrientation(const std::string& orientation) {
+  if (base::win::GetVersion() >= base::win::VERSION_WIN8)
+    SetScreenOrientation(orientation);
+}
 
 }  // namespace platform_util

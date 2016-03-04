@@ -34,4 +34,8 @@ void OpenExternal(const GURL& url) {
   NOTIMPLEMENTED();
 }
 
+void SetPreferredScreenOrientation(const std::string& orientation) {
+  NOTIMPLEMENTED();
+}
+
 }  // namespace platform_util
