@@ -106,8 +106,8 @@ ApplicationData::ApplicationData(
     SourceType source_type,
     scoped_ptr<Manifest> manifest)
     : manifest_version_(0),
-      application_id_(id),
       path_(path),
+      application_id_(id),
       manifest_(manifest.release()),
       finished_parsing_manifest_(false),
       source_type_(source_type) {
