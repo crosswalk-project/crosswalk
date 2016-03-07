@@ -124,7 +124,7 @@ bool XWalkExtensionProcess::CheckAPIAccessControl(
   PermissionCacheType::iterator iter =
       permission_cache_.find(extension_name + api_name);
   if (iter != permission_cache_.end())
-    return iter->second;
+    return iter->second != ALLOW_ONCE;
 
   RuntimePermission result = UNDEFINED_RUNTIME_PERM;
   browser_process_channel_->Send(
@@ -146,7 +146,7 @@ bool XWalkExtensionProcess::CheckAPIAccessControl(
 bool XWalkExtensionProcess::RegisterPermissions(
     const std::string& extension_name,
     const std::string& perm_table) {
-  bool result;
+  bool result = false;
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_RegisterPermissions(
           extension_name, perm_table, &result));
