@@ -77,97 +77,139 @@
 
       function memoryManagement() {
         var garbageCollectionCount = 0;
+        var testObject;
 
-        var testObject = new api.TestObject();
-        testObject.tracker = v8tools.lifecycleTracker();
-        testObject.tracker.destructor = function() {
-          garbageCollectionCount++;
-        };
-
-        testObject = null;
-        gc();
-
-        if (garbageCollectionCount != 1) {
-          reportFail("EventTarget is leaking.");
-          return;
+        // We need to split the test into steps and make each one trigger the
+        // next because the destructor functions are called asynchronously.
+        // The tests themselves do not really depend on one another, and could
+        // be split into separate tests in the future.
+        var steps = [
+          testStep1,
+          testStep2,
+          testStep3,
+          testStep4,
+          testStep5
+        ];
+        function runNextTestStep() {
+          setTimeout(steps.shift(), 0);
         }
 
-        testObject = new api.TestObject();
-        testObject.tracker = v8tools.lifecycleTracker();
-        testObject.tracker.destructor = function() {
-          garbageCollectionCount++;
-        };
+        runNextTestStep();
 
-        // This essentially causes a leak.
-        testObject.addEventListener("test", foo);
-        testObject = null;
-        gc();
-
-        if (garbageCollectionCount != 1) {
-          reportFail("Object should not be gc'ed when listening for events.");
-          return;
-        }
-
-        testObject = new api.TestObject();
-        testObject.tracker = v8tools.lifecycleTracker();
-        testObject.tracker.destructor = function() {
-          garbageCollectionCount++;
-        };
-
-        // Another expected way of leaking an object.
-        testObject.ontest = function() {};
-        testObject = null;
-        gc();
-
-        if (garbageCollectionCount != 1) {
-          reportFail("Object should not be gc'ed when listening for events.");
-          return;
-        }
-
-        testObject = new api.TestObject();
-        testObject.tracker = v8tools.lifecycleTracker();
-        testObject.tracker.destructor = function() {
-          garbageCollectionCount++;
-        };
-
-        testObject.addEventListener("test", bar);
-        testObject.removeEventListener("test", bar);
-        testObject = null;
-        gc();
-
-        if (garbageCollectionCount != 2) {
-          reportFail("Object should be collected when listeners are removed.");
-          return;
-        }
-
-        testObject = new api.TestObject();
-        testObject.tracker = v8tools.lifecycleTracker();
-        testObject.tracker.destructor = function() {
-          garbageCollectionCount++;
-        };
-
-        // Save a reference to the id so we can verify
-        // later if it was really deleted in the backend.
-        var object_id = testObject._id;
-
-        testObject.ontest = function() {};
-        testObject.ontest = null;
-        testObject = null;
-        gc();
-
-        if (garbageCollectionCount != 3) {
-          reportFail("Object should be collected when listeners are removed.");
-          return;
-        }
-
-        api.hasObject(object_id, function(result) {
-          if (result == true) {
-            reportFail("Object not removed from the backend.");
-            return;
+        function testStep1() {
+          testObject = new api.TestObject();
+          testObject.tracker = v8tools.lifecycleTracker();
+          testObject.tracker.destructor = function() {
+            garbageCollectionCount++;
           };
 
-          runNextTest();
-        });
+          testObject = null;
+          gc();
+
+          setTimeout(function() {
+            if (garbageCollectionCount != 1) {
+              reportFail("EventTarget is leaking.");
+              return;
+            }
+            runNextTestStep();
+          }, 0);
+        }
+
+        function testStep2() {
+          testObject = new api.TestObject();
+          testObject.tracker = v8tools.lifecycleTracker();
+          testObject.tracker.destructor = function() {
+            garbageCollectionCount++;
+          };
+
+          // This essentially causes a leak.
+          testObject.addEventListener("test", foo);
+          testObject = null;
+          gc();
+
+          setTimeout(function() {
+            if (garbageCollectionCount != 1) {
+              reportFail("Object should not be gc'ed when listening for events.");
+              return;
+            }
+            runNextTestStep();
+          }, 0);
+        }
+
+        function testStep3() {
+          testObject = new api.TestObject();
+          testObject.tracker = v8tools.lifecycleTracker();
+          testObject.tracker.destructor = function() {
+            garbageCollectionCount++;
+          };
+
+          // Another expected way of leaking an object.
+          testObject.ontest = function() {};
+          testObject = null;
+          gc();
+
+          setTimeout(function() {
+            if (garbageCollectionCount != 1) {
+              reportFail("Object should not be gc'ed when listening for events.");
+              return;
+            }
+            runNextTestStep();
+          }, 0);
+        }
+
+        function testStep4() {
+          testObject = new api.TestObject();
+          testObject.tracker = v8tools.lifecycleTracker();
+          testObject.tracker.destructor = function() {
+            garbageCollectionCount++;
+          };
+
+          testObject.addEventListener("test", bar);
+          testObject.removeEventListener("test", bar);
+
+          testObject = null;
+          gc();
+
+          setTimeout(function() {
+            if (garbageCollectionCount != 2) {
+              reportFail("Object should be collected when listeners are removed.");
+              return;
+            }
+            runNextTestStep();
+          }, 0);
+         }
+
+        function testStep5() {
+          testObject = new api.TestObject();
+          testObject.tracker = v8tools.lifecycleTracker();
+          testObject.tracker.destructor = function() {
+            garbageCollectionCount++;
+          };
+
+          // Save a reference to the id so we can verify
+          // later if it was really deleted in the backend.
+          var object_id = testObject._id;
+
+          testObject.ontest = function() {};
+          testObject.ontest = null;
+          testObject = null;
+          gc();
+
+          setTimeout(function() {
+            if (garbageCollectionCount != 3) {
+              reportFail("Object should be collected when listeners are removed.");
+              return;
+            }
+            api.hasObject(object_id, function(result) {
+              if (result == true) {
+                reportFail("Object not removed from the backend.");
+                return;
+              };
+
+              runNextTest();
+            });
+          }, 0);
+        }
       };
 
       function addEventListener() {

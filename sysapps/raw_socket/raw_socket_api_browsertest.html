@@ -50,10 +50,15 @@
           gc();
           gc();
 
-          if (garbageCollectionCount != 3)
-            reportFail("TCPSocket, TCPServerSocket or UDPSocket is leaking.");
-          else
-            runNextTest();
+          // We need to use setTimeout() here because destructor callbacks are
+          // not run synchronously when the object it refers to is being
+          // garbage-collected.
+          setTimeout(function() {
+            if (garbageCollectionCount != 3)
+              reportFail("TCPSocket, TCPServerSocket or UDPSocket is leaking.");
+            else
+              runNextTest();
+          }, 0);
         };
 
         var server = new api.TCPServerSocket(

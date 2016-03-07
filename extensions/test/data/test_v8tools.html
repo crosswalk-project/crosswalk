@@ -2,9 +2,43 @@
 <head>
 <title></title>
 <script>
+  /*
+   * Test helpers.
+   */
+  function failTest(errormsg) {
+    console.log(new Error(errormsg).stack);
+    document.title = "Fail";
+    // Throw an exception to stop execution and avoid running any other tests.
+    throw new Error("Stopping execution.");
+  }
+
+  function assertEqual(expected, actual) {
+    if (actual !== expected) {
+      failTest("expected '" + expected + "', but got '" + actual + "'");
+    }
+  }
+
+  function assertNotEqual(expected, actual) {
+    if (actual === expected) {
+      failTest("expected '" + expected + "', but got '" + actual + "'");
+    }
+  }
+
+  function gcAndRun(func) {
+    gc();
+
+    // We cannot call |test_function| directly in this test: the destructor
+    // function is not called synchronously when the object it refers to is
+    // garbage-collected, so we need to yield and wait for it to be run as part
+    // of the regular event loop.
+    setTimeout(func, 0);
+  }
+
+  /*
+   * Tests.
+   */
   function forceSetPropertyTest() {
     var obj = {};
-
     Object.defineProperty(obj, "prop", {
       configurable: false,
       writable: false,
@@ -14,111 +48,121 @@
     try {
       test_v8tools.forceSetProperty(obj, "prop", "Pass");
     } catch(e) {
-      return false;
+      failTest("Unable to forceSet() property 'prop'.");
     }
-
-    return true;
+    runNextTest();
   }
 
-  function lifecycleTrackerTest() {
+  function lifecycleTrackerDefaultDestructorTest() {
     var collected = 0;
-    var test1;
-    var test2 = {};
-    var test3;
-    var test4;
-    var test5;
-    var test6;
+    function inc_collected() { ++collected; }
 
-    function inc_collected() {
-      collected++;
-    }
-    function reset_collected() {
-      collected = 0;
-    }
+    var obj = test_v8tools.lifecycleTracker();
+    assertEqual(null, obj.destructor);
 
-    test1 = test_v8tools.lifecycleTracker();
-    if (test1.destructor !== null)
-      return false;
-    test1.destructor = inc_collected;
+    obj.destructor = inc_collected;
+    obj.destructor = null;
+    gcAndRun(function() {
+      assertEqual(0, collected);
+      runNextTest();
+    });
+  }
 
-    test2.foo = test_v8tools.lifecycleTracker();
-    test2.foo.destructor = inc_collected;
+  function lifecycleTrackerInvalidDestructorTest() {
+    function func() {}
 
-    test3 = test_v8tools.lifecycleTracker();
-    test3.destructor = inc_collected;
+    var obj = test_v8tools.lifecycleTracker();
+    obj.destructor = func;
 
     // Setting the destructor to a value that's not a function or null raises
     // a TypeError.
     try {
-      test3.destructor = 42;
+      obj.destructor = 42;
     } catch (e) {
-      if (!(e instanceof TypeError))
-        return false;
+      if (!(e instanceof TypeError)) {
+        failTest("lifecycleTracker returned an unexpected exception.");
+      }
     } finally {
-      if (test3.destructor !== inc_collected)
-        return false;
+      assertEqual(func, obj.destructor);
     }
+    runNextTest();
+  };
 
-    test4 = test3;
-
-    test5 = test_v8tools.lifecycleTracker();
-
-    test6 = test_v8tools.lifecycleTracker();
-    test6.destructor = reset_collected;
-    test6.destructor = null;
-
-    // Should be collected.
-    test1 = 0;
-    gc();
-
-    if (collected != 1)
-      return false;
-
-    // Should be collected.
-    test2 = 0;
-    gc();
-
-    if (collected != 2)
-      return false;
-
-    // Should not, still referenced by test4.
-    test3 = 0;
-    gc();
-
-    if (collected != 2)
-      return false;
-
-    // Should be collected.
-    test4 = 0;
-    gc();
-
-    if (collected != 3)
-      return false;
-
-    // Should not do anything, no destructor set.
-    test5 = 0;
-    gc();
-
-    if (collected != 3)
-      return false;
-
-    // Should not do anything, the destructor was reset.
-    test6 = 0;
-    gc();
-
-    if (collected != 3)
-      return false;
-
-    return true;
+  function lifecycleTrackerDeletedObjectTest() {
+    var obj1 = test_v8tools.lifecycleTracker();
+    var obj2 = test_v8tools.lifecycleTracker();
+    obj1.val = 42;
+    obj1.destructor = function() {
+      // By the time the destructor is run, the object itself must have already
+      // been destroyed.
+      assertEqual(null, obj1);
+      runNextTest();
+    };
+    obj1 = null;
+    gcAndRun(function(){});  // Just allow the destructor to be invoked.
   }
 
-  if (!forceSetPropertyTest())
-    document.title = "Fail";
-  else if(!lifecycleTrackerTest())
-    document.title = "Fail";
-  else
-    document.title = "Pass";
+  function lifecycleTrackerReferencesTest() {
+    var collected = 0;
+    function inc_collected() { ++collected; }
 
+    var obj1 = test_v8tools.lifecycleTracker();
+    obj1.destructor = inc_collected;
+    var obj2 = obj1;
+
+    obj1 = null;
+    gcAndRun(function() {
+      // |obj2| still holds a reference.
+      assertEqual(0, collected);
+      obj2 = null;
+      gcAndRun(function() {
+        assertEqual(1, collected);
+        runNextTest();
+      });
+    });
+  }
+
+  function lifecycleTrackerMultipleObjectsTest() {
+    var collected = 0;
+    function inc_collected() { ++collected; }
+
+    var obj1 = test_v8tools.lifecycleTracker();
+    obj1.destructor = inc_collected;
+    var obj2 = test_v8tools.lifecycleTracker();
+    obj2.destructor = inc_collected;
+
+    obj1 = null;
+    gcAndRun(function() {
+      assertEqual(1, collected);
+      obj2 = null;
+      gcAndRun(function() {
+        assertEqual(2, collected);
+        runNextTest();
+      });
+    });
+  }
+
+  function finishTests() {
+    document.title = "Pass";
+  }
+
+  var tests = [
+    forceSetPropertyTest,
+    lifecycleTrackerDefaultDestructorTest,
+    lifecycleTrackerInvalidDestructorTest,
+    lifecycleTrackerDeletedObjectTest,
+    lifecycleTrackerReferencesTest,
+    lifecycleTrackerMultipleObjectsTest,
+    finishTests
+  ];
+
+  function runNextTest() {
+    if (tests.length == 0)
+      return;
+    setTimeout(tests.shift(), 0);
+  }
+
+  runNextTest();
 </script>
 </head>
 </html>
