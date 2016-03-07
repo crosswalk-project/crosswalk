@@ -1037,6 +1037,11 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return SslUtil.getCertificateFromDerBytes(nativeGetCertificate(mNativeContent));
     }
 
+    public boolean hasPermission(final String permission) {
+        if (mNativeContent == 0) return false;
+        return mWindow.hasPermission(permission);
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);
