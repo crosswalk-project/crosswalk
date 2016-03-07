@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -1354,20 +1355,36 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         // A single mime type.
         if (!(acceptType.contains(SPLIT_EXPRESSION) || acceptType.contains(ANY_TYPES))) {
-            if (acceptType.startsWith(IMAGE_TYPE)) {
-                if (takePictureIntent != null) extraIntents.add(takePictureIntent);
-                contentSelectionIntent.setType(ALL_IMAGE_TYPES);
-            } else if (acceptType.startsWith(VIDEO_TYPE)) {
-                extraIntents.add(camcorder);
-                contentSelectionIntent.setType(ALL_VIDEO_TYPES);
-            } else if (acceptType.startsWith(AUDIO_TYPE)) {
-                extraIntents.add(soundRecorder);
-                contentSelectionIntent.setType(ALL_AUDIO_TYPES);
+            if (capture.equals("true")) {
+                if (acceptType.startsWith(IMAGE_TYPE)) {
+                    if (takePictureIntent != null) {
+                        getActivity().startActivityForResult(takePictureIntent, INPUT_FILE_REQUEST_CODE);
+                        return true;
+                    }
+                } else if (acceptType.startsWith(VIDEO_TYPE)) {
+                    getActivity().startActivityForResult(camcorder, INPUT_FILE_REQUEST_CODE);
+                    return true;
+                } else if (acceptType.startsWith(AUDIO_TYPE)) {
+                    getActivity().startActivityForResult(soundRecorder, INPUT_FILE_REQUEST_CODE);
+                    return true;
+                }
+            } else {
+                if (acceptType.startsWith(IMAGE_TYPE)) {
+                    if (takePictureIntent != null) extraIntents.add(takePictureIntent);
+                    contentSelectionIntent.setType(ALL_IMAGE_TYPES);
+                } else if (acceptType.startsWith(VIDEO_TYPE)) {
+                    extraIntents.add(camcorder);
+                    contentSelectionIntent.setType(ALL_VIDEO_TYPES);
+                } else if (acceptType.startsWith(AUDIO_TYPE)) {
+                    extraIntents.add(soundRecorder);
+                    contentSelectionIntent.setType(ALL_AUDIO_TYPES);
+                }
             }
         }
 
         // Couldn't resolve an accept type.
-        if (extraIntents.isEmpty()) {
+        if (extraIntents.isEmpty() &&
+                mContent.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (takePictureIntent != null) extraIntents.add(takePictureIntent);
             extraIntents.add(camcorder);
             extraIntents.add(soundRecorder);
@@ -1376,8 +1393,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
-                extraIntents.toArray(new Intent[] { }));
+        if (!extraIntents.isEmpty()) {
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
+                    extraIntents.toArray(new Intent[] { }));
+        }
         getActivity().startActivityForResult(chooserIntent, INPUT_FILE_REQUEST_CODE);
         return true;
     }
@@ -1401,7 +1420,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             return File.createTempFile(imageFileName, ".jpg", storageDir);
         } catch (IOException ex) {
             // Error occurred while creating the File
-            Log.e(TAG, "Unable to create Image File", ex);
+            Log.e(TAG, "Unable to create Image File, " +
+                "please make sure permission 'WRITE_EXTERNAL_STORAGE' was added.", ex);
         }
         return null;
     }
