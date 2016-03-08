@@ -50,11 +50,14 @@ void LifecycleTrackerCleanup2(
     const v8::WeakCallbackInfo<LifecycleTrackerWrapper>& data) {
   LifecycleTrackerWrapper* wrapper = data.GetParameter();
   if (!wrapper->destructor.IsEmpty()) {
+    v8::HandleScope handle_scope(data.GetIsolate());
     v8::Local<v8::Context> context = v8::Context::New(data.GetIsolate());
-    v8::TryCatch try_catch(data.GetIsolate());
+    v8::Context::Scope scope(context);
     v8::Local<v8::Function> destructor =
         wrapper->destructor.Get(data.GetIsolate());
     CHECK(destructor->IsFunction());
+    blink::WebScopedMicrotaskSuppression suppression;
+    v8::TryCatch try_catch(data.GetIsolate());
     destructor->Call(context->Global(), 0, nullptr);
     if (try_catch.HasCaught()) {
       LOG(WARNING) << "Exception when running LifecycleTracker destructor: "
@@ -67,9 +70,15 @@ void LifecycleTrackerCleanup2(
 void LifecycleTrackerCleanup1(
     const v8::WeakCallbackInfo<LifecycleTrackerWrapper>& data) {
   data.GetParameter()->handle.Reset();
-  // Other V8 APIs must not be called in the first callback, we must set a
-  // second pass callback for the rest of the cleanup.
-  data.SetSecondPassCallback(LifecycleTrackerCleanup2);
+  // Behave like Chromium's extensions::GCCallback and, instead of calling
+  // v8::WeakCallbackInfo::SetSecondPassCallback(), run the actual callback
+  // function as a main loop task: if we run the code here or as a second-pass
+  // callback we are stuck inbetween Blink's GC prologue and epilogue that
+  // forbid script execution and crash Crosswalk in debug mode when certain
+  // objects (such as `console') are referenced.
+  base::MessageLoop::current()->PostTask(
+      FROM_HERE, base::Bind(&LifecycleTrackerCleanup2,
+                            data));
 }
 
 void LifecycleTrackerDestructorGetter(
