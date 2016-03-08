@@ -50,6 +50,9 @@ class Runtime : public content::WebContentsDelegate,
       // Called when a Runtime instance is removed.
       virtual void OnRuntimeClosed(Runtime* runtime) = 0;
 
+      // Called when there is a request to exit the application.
+      virtual void OnApplicationExitRequested(Runtime* runtime) = 0;
+
    protected:
       virtual ~Observer() {}
   };
@@ -96,6 +99,7 @@ class Runtime : public content::WebContentsDelegate,
   bool AddDownloadItem(content::DownloadItem* download_item,
       const content::DownloadTargetCallback& callback,
       const base::FilePath& suggested_path);
+  void RequestApplicationExit();
 
  protected:
   explicit Runtime(content::WebContents* web_contents);

@@ -292,6 +292,10 @@ void Application::OnRuntimeClosed(Runtime* runtime) {
                    weak_factory_.GetWeakPtr()));
 }
 
+void Application::OnApplicationExitRequested(Runtime* runtime) {
+  Terminate();
+}
+
 void Application::RenderProcessExited(RenderProcessHost* host,
                                       base::TerminationStatus,
                                       int) {

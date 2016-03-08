@@ -270,6 +270,7 @@ class PresentationSession :
       const SystemString& display_id);
   void OnNewRuntimeAdded(Runtime* new_runtime) override;
   void OnRuntimeClosed(Runtime* runtime) override;
+  void OnApplicationExitRequested(Runtime* runtime) override;
   void NotifyClose();
 
   SessionInfo session_info_;
@@ -349,6 +350,9 @@ void PresentationSession::OnRuntimeClosed(Runtime* runtime) {
         base::Bind(&PresentationSession::NotifyClose,
         weak_factory_.GetWeakPtr()));
   }
+}
+
+void PresentationSession::OnApplicationExitRequested(Runtime* runtime) {
 }
 
 void PresentationSession::NotifyClose() {

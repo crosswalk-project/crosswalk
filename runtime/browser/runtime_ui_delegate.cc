@@ -11,6 +11,8 @@
 #include "xwalk/runtime/browser/runtime_ui_delegate_desktop.h"
 #endif
 
+#include "xwalk/runtime/common/xwalk_switches.h"
+
 namespace xwalk {
 // FIXME : Need to figure out what code paths are used by Android and not
 // compile the unneeded files.

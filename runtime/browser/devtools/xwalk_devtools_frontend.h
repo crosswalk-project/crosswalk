@@ -62,6 +62,7 @@ class XWalkDevToolsFrontend : public content::WebContentsObserver,
 
   void OnRuntimeClosed(Runtime* runtime) override;
   void OnNewRuntimeAdded(Runtime* runtime) override {};
+  void OnApplicationExitRequested(Runtime* runtime) override {}
 
   // content::DevToolsAgentHostClient implementation.
   void AgentHostClosed(

@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/runtime_ui_delegate_desktop.h"
 
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 namespace xwalk {
 
@@ -30,6 +31,10 @@ void RuntimeUIDelegateDesktop::OnReloadPressed() {
 
 void RuntimeUIDelegateDesktop::OnStopPressed() {
   runtime_->Stop();
+}
+
+void RuntimeUIDelegateDesktop::OnApplicationExitRequested() {
+  runtime_->RequestApplicationExit();
 }
 
 void RuntimeUIDelegateDesktop::SetLoadProgress(double progress) {

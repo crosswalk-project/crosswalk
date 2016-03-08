@@ -25,6 +25,9 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/native_widget_types.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_system.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
@@ -190,6 +193,11 @@ void Runtime::CloseContents(content::WebContents* source) {
 
   if (observer_)
     observer_->OnRuntimeClosed(this);
+}
+
+void Runtime::RequestApplicationExit() {
+  if (observer_)
+    observer_->OnApplicationExitRequested(this);
 }
 
 bool Runtime::CanOverscrollContent() const {

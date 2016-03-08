@@ -214,6 +214,15 @@
       <message name="IDS_PERMISSION_DENY" desc="Label on button to deny a permissions request.">
         Block
       </message>
+      <message name="IDS_FULLSCREEN_USER_ENTERED_FULLSCREEN" desc="The message in exclusive access bubble.">
+	    You have gone full screen.
+	  </message>
+      <message name="IDS_FULLSCREEN_EXIT_MODE" desc="The link text in exclusive access bubble">
+        Exit full screen
+      </message>
+      <message name="IDS_DISPLAY_MODE_FULLSCREEN_EXIT_APPLICATION" desc="The link text in exclusive access bubble">
+        Exit the application
+      </message>
     </messages>
   </release>
 </grit>

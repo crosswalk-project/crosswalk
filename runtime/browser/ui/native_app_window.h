@@ -30,6 +30,7 @@ class NativeAppWindowDelegate {
   virtual void OnReloadPressed() {}
   virtual void OnStopPressed() {}
   virtual void OnWindowDestroyed() {}
+  virtual void OnApplicationExitRequested() {}
 
  protected:
   virtual ~NativeAppWindowDelegate() {}
@@ -107,6 +108,8 @@ class NativeAppWindow {
   // Close the window as soon as possible. The close action may be delayed
   // if an operation is in progress (e.g. a drag operation).
   virtual void Close() = 0;
+  // Close all the open windows and exit the application.
+  virtual void ExitApplication() = 0;
 
   // Returns true if the window is currently the active/focused window.
   virtual bool IsActive() const = 0;
