@@ -252,7 +252,7 @@ bool XWalkContentBrowserClient::AllowSetCookie(
       context,
       render_process_id,
       render_frame_id,
-      &options);
+      options);
 #else
   return true;
 #endif
