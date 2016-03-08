@@ -30,10 +30,10 @@ namespace xwalk {
 using application::Application;
 using application::ApplicationService;
 
+using content::PresentationConnectionStateChangedCallback;
 using content::PresentationScreenAvailabilityListener;
 using content::PresentationSessionMessage;
 using content::RenderFrameHost;
-using content::SessionStateChangedCallback;
 
 using DelegateObserver = content::PresentationServiceDelegate::Observer;
 using PresentationSessionErrorCallback =
@@ -379,8 +379,10 @@ class PresentationFrame : public PresentationSession::Observer,
       PresentationScreenAvailabilityListener* listener);
   bool RemoveScreenAvailabilityListener(
       PresentationScreenAvailabilityListener* listener);
-  void ListenForSessionStateChange(
-      const content::SessionStateChangedCallback& state_changed_cb);
+  void ListenForConnectionStateChange(
+      const content::PresentationSessionInfo& connection,
+      const content::PresentationConnectionStateChangedCallback&
+          state_changed_cb);
   void Reset();
 
   void OnPresentationSessionStarted(
@@ -413,7 +415,7 @@ class PresentationFrame : public PresentationSession::Observer,
   std::string default_presentation_url_;
   DelegateObserver* delegate_observer_;
   scoped_refptr<PresentationSession> session_;
-  SessionStateChangedCallback state_changed_cb_;
+  PresentationConnectionStateChangedCallback state_changed_cb_;
   PresentationScreenAvailabilityListener* screen_listener_;
   RenderFrameHostId render_frame_host_id_;
 };
@@ -450,18 +452,14 @@ void PresentationFrame::OnPresentationSessionStarted(
   DisplayInfoManager::GetInstance()->MarkAsUsed(session_->display_id(), true);
 
   if (!state_changed_cb_.is_null()) {
-    state_changed_cb_.Run(
-        session->session_info(),
-        content::PRESENTATION_CONNECTION_STATE_CONNECTED);
+    state_changed_cb_.Run(content::PRESENTATION_CONNECTION_STATE_CONNECTED);
   }
 }
 
 void PresentationFrame::OnPresentationSessionClosed(
     const SessionInfo& session_info) {
   if (!state_changed_cb_.is_null()) {
-    state_changed_cb_.Run(
-        session_info,
-        content::PRESENTATION_CONNECTION_STATE_CLOSED);
+    state_changed_cb_.Run(content::PRESENTATION_CONNECTION_STATE_CLOSED);
   }
 
   DisplayInfoManager::GetInstance()->MarkAsUsed(session_->display_id(), false);
@@ -538,8 +536,10 @@ void PresentationFrame::Reset() {
   state_changed_cb_.Reset();
 }
 
-void PresentationFrame::ListenForSessionStateChange(
-    const content::SessionStateChangedCallback& state_changed_cb) {
+void PresentationFrame::ListenForConnectionStateChange(
+    const content::PresentationSessionInfo& connection,
+    const content::PresentationConnectionStateChangedCallback&
+        state_changed_cb) {
   CHECK(state_changed_cb_.is_null());
   state_changed_cb_ = state_changed_cb;
 }
@@ -707,7 +707,14 @@ void XWalkPresentationServiceDelegateAndroid::JoinSession(
       + presentation_url));
 }
 
-void XWalkPresentationServiceDelegateAndroid::CloseSession(
+void XWalkPresentationServiceDelegateAndroid::CloseConnection(
+    int render_process_id,
+    int render_frame_id,
+    const std::string& presentation_id) {
+  NOTIMPLEMENTED();
+}
+
+void XWalkPresentationServiceDelegateAndroid::Terminate(
     int render_process_id,
     int render_frame_id,
     const std::string& presentation_id) {
@@ -719,13 +726,17 @@ void XWalkPresentationServiceDelegateAndroid::CloseSession(
     session->Close();
 }
 
-void XWalkPresentationServiceDelegateAndroid::ListenForSessionStateChange(
+void XWalkPresentationServiceDelegateAndroid::ListenForConnectionStateChange(
     int render_process_id,
     int render_frame_id,
-    const SessionStateChangedCallback& state_changed_cb) {
+    const content::PresentationSessionInfo& connection,
+    const content::PresentationConnectionStateChangedCallback& state_changed_cb) {
   RenderFrameHostId id(render_process_id, render_frame_id);
-  PresentationFrame* presentation_frame = GetOrAddPresentationFrame(id);
-  presentation_frame->ListenForSessionStateChange(state_changed_cb);
+  auto presentation_frame = presentation_frames_.get(id);
+  if (presentation_frame) {
+    presentation_frame->ListenForConnectionStateChange(connection,
+                                                       state_changed_cb);
+  }
 }
 
 PresentationFrame* XWalkPresentationServiceDelegateAndroid::
