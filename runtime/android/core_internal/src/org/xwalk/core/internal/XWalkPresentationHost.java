@@ -6,6 +6,9 @@ package org.xwalk.core.internal;
 
 import java.util.HashMap;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.Context;
@@ -17,9 +20,10 @@ import android.view.Display;
 import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.annotations.CalledByNative;
 
-@JNINamespace("xwalk")
+import org.xwalk.core.internal.extension.api.XWalkDisplayManager;
 
-class XWalkPresentationHost implements DisplayManager.DisplayListener {
+@JNINamespace("xwalk")
+class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
     private static String TAG = "XWalkPresentationHost";
     private static Activity sEnduringActivity = null;
     private static XWalkPresentationHost sInstance;
@@ -40,8 +44,8 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
 
         @Override
         public boolean equals(Object obj) {
-            if ( obj instanceof RenderFrameHostId ) {
-                if ( obj == this ) {
+            if (obj instanceof RenderFrameHostId) {
+                if (obj == this) {
                     return true;
                 } else {
                     RenderFrameHostId that = (RenderFrameHostId)obj;
@@ -74,10 +78,10 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
 
     private HashMap<RenderFrameHostId, PresentationSession> mExistingSessions;
     private long mNativePresentationHost;
-    private DisplayManager mDisplayManager;
+    private XWalkDisplayManager mDisplayManager;
 
     public static XWalkPresentationHost createInstanceOnce(Activity activity, Context context) {
-        if ( sInstance == null ) {
+        if (sInstance == null) {
             sInstance = new XWalkPresentationHost(context);
             sInstance.saveActivityOnce(activity);
         }
@@ -85,7 +89,7 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
     }
 
     private void saveActivityOnce(Activity activity) {
-        if ( sEnduringActivity == null ) {
+        if (sEnduringActivity == null) {
             sEnduringActivity = activity;
         }
     }
@@ -103,17 +107,20 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
     }
 
     private boolean startNewSession(PresentationSession session, final int displayId, final String url) {
-        if ( session != null ) {
-            Display[] presentationDisplays = mDisplayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION);
+        if (session != null) {
+            Display[] presentationDisplays = {};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                presentationDisplays = mDisplayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION);
+            }
             if (presentationDisplays.length > 0) {
                 Display display = null;
-                for ( Display query : presentationDisplays ) {
-                    if ( query.getDisplayId() == displayId ) {
+                for (Display query : presentationDisplays) {
+                    if (query.getDisplayId() == displayId) {
                         display = query;
                     }
                 }
 
-                if ( display != null ) {
+                if (display != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     session.presentationScreen = new PresentationScreen(session.context, session.activity, display);
                     session.presentationScreen.show();
                     session.presentationScreen.loadUrl(url);
@@ -132,8 +139,8 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
     private void closeSession(final int renderProcessID, final int renderFrameID) {
         RenderFrameHostId id = new RenderFrameHostId(renderProcessID, renderFrameID);
         PresentationSession session = mExistingSessions.get(id);
-        if ( session != null ) {
-            if ( session.presentationScreen != null ) {
+        if (session != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (session.presentationScreen != null) {
                 session.presentationScreen.dismiss();
                 session.presentationScreen = null;
                 this.nativeOnPresentationClosed(mNativePresentationHost, renderProcessID, renderFrameID);
@@ -144,13 +151,13 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
 
     private XWalkPresentationHost (Context context) {
         mExistingSessions = new HashMap<RenderFrameHostId, PresentationSession>();
-        mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+        mDisplayManager = XWalkDisplayManager.getInstance(context);
         setNativeObject(nativeInit());
         listenToSystemDisplayChange();
     }
 
     public void listenToSystemDisplayChange() {
-        mDisplayManager.registerDisplayListener(this, null);
+        mDisplayManager.registerDisplayListener(this);
     }
 
     public void stopListenToSystemDisplayChange() {
@@ -159,7 +166,11 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
 
     @CalledByNative
     public Display[] getAndroidDisplayInfo() {
-        return mDisplayManager.getDisplays();
+        final Display[] emptyDisplay = {};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            return mDisplayManager.getDisplays();
+        else
+            return emptyDisplay;
     }
 
     @CalledByNative
@@ -167,7 +178,7 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
         final int displayId, final String url) {
         RenderFrameHostId id = new RenderFrameHostId(renderProcessID, renderFrameID);
         PresentationSession session = mExistingSessions.get(id);
-        if ( session == null ) {
+        if (session == null) {
             session = this.createNewSession(id);
         }
         return this.startNewSession(session, displayId, url);
@@ -194,6 +205,7 @@ class XWalkPresentationHost implements DisplayManager.DisplayListener {
     private native void nativeOnDisplayChanged(long nativeXWalkPresentationHost, int displayId);
     private native void nativeOnDisplayRemoved(long nativeXWalkPresentationHost, int displayId);
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private final class PresentationScreen extends Presentation {
         private XWalkViewInternal mContentView;
         private Context mContext;
