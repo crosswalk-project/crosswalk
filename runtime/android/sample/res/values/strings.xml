@@ -7,5 +7,5 @@ found in the LICENSE file.
 -->
 
 <resources>
-    
+    <string name="run_animation">Run Animation</string>
 </resources>

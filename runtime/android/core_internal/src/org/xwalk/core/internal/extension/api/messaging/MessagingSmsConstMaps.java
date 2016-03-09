@@ -4,6 +4,8 @@
 
 package org.xwalk.core.internal.extension.api.messaging;
 
+
+import android.util.SparseArray;
 import java.util.HashMap;
 import org.xwalk.core.internal.extension.api.messaging.MessagingSmsConsts;
 
@@ -12,10 +14,10 @@ public class MessagingSmsConstMaps {
         new HashMap<String, String>();
     final public static HashMap<String, Integer> smsDeliveryStatusDictS2I = 
         new HashMap<String, Integer>();
-    final public static HashMap<Integer, String> smsDiliveryStatusDictI2S = 
-        new HashMap<Integer, String>();
-    final public static HashMap<Integer, String> smsStateDictI2S = 
-        new HashMap<Integer, String>();
+    final public static SparseArray<String> smsDiliveryStatusDictI2S = 
+        new SparseArray<String>();
+    final public static SparseArray<String> smsStateDictI2S = 
+        new SparseArray<String>();
     final public static HashMap<String, Integer> smsStateDictS2I = 
         new HashMap<String, Integer>();
     final public static HashMap<String, String> sortOrderDict = 

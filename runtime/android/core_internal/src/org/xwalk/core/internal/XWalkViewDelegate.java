@@ -191,7 +191,7 @@ class XWalkViewDelegate {
                         XWalkSwitches.PROFILE_NAME,
                         XWalkPreferencesInternal.getStringValue(XWalkPreferencesInternal.PROFILE_NAME));
 
-                if (XWalkPreferencesInternal.getValue(XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW) &&
+                if (XWalkPreferencesInternal.getBooleanValue(XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW) &&
                         !CommandLine.getInstance().hasSwitch(XWalkSwitches.DISABLE_GPU_RASTERIZATION)) {
                     CommandLine.getInstance().appendSwitch(XWalkSwitches.DISABLE_GPU_RASTERIZATION);
                 }
@@ -314,8 +314,13 @@ class XWalkViewDelegate {
 
     private static native boolean nativeIsLibraryBuiltForIA();
 
+    @SuppressWarnings("deprecation")
+    private static final String getCPUABI() {
+        return Build.CPU_ABI;
+    }
+
     static {
-        sRunningOnIA = Build.CPU_ABI.equalsIgnoreCase("x86") || Build.CPU_ABI.equalsIgnoreCase("x86_64");
+        sRunningOnIA = getCPUABI().equalsIgnoreCase("x86") || getCPUABI().equalsIgnoreCase("x86_64");
         if (!sRunningOnIA) {
             // This is not the final decision yet.
             // With latest Houdini, an app with ARM binary will see system abi as if it's running on

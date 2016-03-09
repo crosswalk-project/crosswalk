@@ -165,7 +165,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         assert mNativeContent == 0 && mCleanupReference == null && mContentViewCore == null;
 
         // Initialize ContentViewRenderView
-        boolean animated = XWalkPreferencesInternal.getValue(
+        boolean animated = XWalkPreferencesInternal.getBooleanValue(
                 XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
@@ -221,7 +221,8 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
         mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
-        String language = Locale.getDefault().toString().replaceAll("_", "-").toLowerCase();
+        String language = Locale.getDefault().toString().replaceAll("_", "-").toLowerCase(
+                Locale.getDefault());
         if (language.isEmpty()) language = "en";
         mSettings.setAcceptLanguages(language);
 

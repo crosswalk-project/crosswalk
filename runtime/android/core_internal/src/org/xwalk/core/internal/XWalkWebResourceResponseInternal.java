@@ -10,7 +10,6 @@ import org.chromium.base.annotations.CalledByNative;
 import org.chromium.base.annotations.JNINamespace;
 
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.util.Map;
 
 /**
@@ -129,9 +128,11 @@ public class XWalkWebResourceResponseInternal{
      * @since 6.0
      */
     @XWalkAPI
+    @SuppressWarnings("deprecation")
     public void setData(InputStream data) {
         // If data is (or is a subclass of) StringBufferInputStream
-        if (data != null && StringBufferInputStream.class.isAssignableFrom(data.getClass())) {
+        if (data != null &&
+                java.io.StringBufferInputStream.class.isAssignableFrom(data.getClass())) {
             throw new IllegalArgumentException("StringBufferInputStream is deprecated and must " +
                 "not be passed to a XWalkWebResourceResponse");
         }
@@ -235,7 +236,7 @@ public class XWalkWebResourceResponseInternal{
      * @return The headers for the resource response.
      * @since 6.0
      */
-    @XWalkAPI
+    @XWalkAPI(unchecked = true)
     public Map<String, String> getResponseHeaders() {
         return mResponseHeaders;
     }

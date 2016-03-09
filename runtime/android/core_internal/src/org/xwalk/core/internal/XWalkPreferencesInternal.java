@@ -258,7 +258,7 @@ public class XWalkPreferencesInternal {
      * @since 1.0
      * @deprecated
      */
-    @XWalkAPI
+    @XWalkAPI(deprecated = true)
     public static synchronized boolean getValue(String key) throws RuntimeException {
         checkKey(key);
         return sPrefMap.get(key).getBooleanValue();

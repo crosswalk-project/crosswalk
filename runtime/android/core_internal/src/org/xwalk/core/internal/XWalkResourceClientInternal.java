@@ -199,7 +199,7 @@ public class XWalkResourceClientInternal {
      *        instead.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(deprecated = true)
     public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
         return null;
     }

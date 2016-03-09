@@ -431,7 +431,7 @@ public class XWalkUpdater {
 
     private String getXWalkApkUrl() {
         String url = getAppMetaData(META_XWALK_APK_URL);
-        return url == null ? "" : url + ARCH_QUERY_STRING + Build.CPU_ABI;
+        return url == null ? "" : url + ARCH_QUERY_STRING + getCPUABI();
     }
 
     private class ForegroundListener implements DownloadListener {
@@ -596,11 +596,11 @@ public class XWalkUpdater {
             for (String resource : XWALK_LIB_RESOURCES) {
                 String entryDir = "";
                 if (isNativeLibrary(resource)) {
-                    if(Build.CPU_ABI.equalsIgnoreCase("armeabi")) {
+                    if(getCPUABI().equalsIgnoreCase("armeabi")) {
                         // We build armeabi-v7a native lib for both armeabi & armeabi-v7a
                         entryDir = "lib" + File.separator + "armeabi-v7a" + File.separator;
                     } else {
-                        entryDir = "lib" + File.separator + Build.CPU_ABI + File.separator;
+                        entryDir = "lib" + File.separator + getCPUABI() + File.separator;
                     }
                 } else if (isAsset(resource)) {
                     entryDir = "assets" + File.separator;
@@ -767,6 +767,15 @@ public class XWalkUpdater {
         if (outputException != null) {
             if (file.isFile()) file.delete();
             throw outputException;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private final String getCPUABI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return Build.SUPPORTED_ABIS[0];
+        } else {
+            return Build.CPU_ABI;
         }
     }
 }

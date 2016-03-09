@@ -122,6 +122,8 @@ class Method(object):
     self._is_static = is_static
     self._is_abstract = is_abstract
     self._is_delegate = False
+    self._is_deprecated = False
+    self._is_unchecked = False
     self._disable_reflect_method = False
     self._method_name = method_name
     self._method_return = method_return
@@ -175,6 +177,14 @@ class Method(object):
   @property
   def is_delegate(self):
     return self._is_delegate
+
+  @property
+  def is_deprecated(self):
+    return self._is_deprecated
+
+  @property
+  def is_unchecked(self):
+    return self._is_unchecked
 
   @property
   def disable_reflect_method(self):
@@ -234,6 +244,24 @@ class Method(object):
         self._is_delegate = True
       elif delegate == 'false':
         self._is_delegate = False
+
+    deprecated_re = re.compile('deprecated\s*=\s*'
+        '(?P<deprecated>(true|false))')
+    for match in re.finditer(deprecated_re, annotation):
+      deprecated = match.group('deprecated')
+      if deprecated == 'true':
+        self._is_deprecated = True
+      elif deprecated == 'false':
+        self._is_deprecated = False
+
+    unchecked_re = re.compile('unchecked\s*=\s*'
+        '(?P<unchecked>(true|false))')
+    for match in re.finditer(unchecked_re, annotation):
+      unchecked = match.group('unchecked')
+      if unchecked == 'true':
+        self._is_unchecked = True
+      elif unchecked == 'false':
+        self._is_unchecked = False
 
     disable_reflect_method_re = re.compile('disableReflectMethod\s*=\s*'
         '(?P<disableReflectMethod>(true|false))')
@@ -492,11 +520,17 @@ class Method(object):
       return template.substitute(value)
 
   def GenerateBridgeStaticMethod(self):
-    template = Template("""\
+    deprecation_str = """\
+    @SuppressWarnings({"deprecation"})\n"""
+    common_str = """\
     public static ${RETURN_TYPE} ${NAME}($PARAMS) {
         ${RETURN}${CLASS_NAME}.${NAME}(${PARAMS_PASSING});
     }
-""")
+"""
+    if self._is_deprecated:
+      template = Template(deprecation_str + common_str)
+    else:
+      template = Template(common_str)
 
     value = {'RETURN_TYPE': self.method_return,
              'NAME': self.method_name,
@@ -509,8 +543,9 @@ class Method(object):
   def GenerateBridgeOverrideMethod(self):
     if not self._bridge_override_condition:
       return '    @Override'
-    template = Template("""\
-    @Override
+    override_str = """\
+    @Override\n"""
+    common_str = """\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         if (${IF_CONDITION}) {
             ${RETURN}${NAME}(${BRIDGE_PARAMS_PASSING});
@@ -518,7 +553,13 @@ class Method(object):
             ${RETURN}super.${NAME}(${PARAMS_PASSING});
         }
     }
-""")
+"""
+    if self._is_deprecated:
+      deprecation_str = """\
+    @SuppressWarnings({"deprecation"})\n"""
+      template = Template(override_str + deprecation_str + common_str)
+    else:
+      template = Template(override_str + common_str)
 
     value = {'NAME': self.method_name,
              'RETURN_TYPE': self.method_return,
@@ -553,7 +594,7 @@ ${PARAMS_PASSING});
     }
 """)
     else :
-      template = Template("""\
+      commom_str = """\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         if (${METHOD_DECLARE_NAME}.isNull()) {
             ${RETURN_SUPER}${NAME}Super(${PARAMS_PASSING_SUPER});
@@ -562,7 +603,12 @@ ${PARAMS_PASSING});
 ${PARAMS_PASSING});
         }
     }
-""")
+"""
+      if self._is_unchecked:
+        unchecked_str = """    @SuppressWarnings("unchecked")\n"""
+        template = Template(unchecked_str + commom_str)
+      else:
+        template = Template(commom_str)
 
     if self._method_return == 'void':
       return_statement = ''
@@ -605,19 +651,9 @@ ${PARAMS_PASSING});
     if self._is_abstract:
       return ''
 
-    if self._class_java_data.HasCreateInternallyAnnotation():
-      if no_return_value:
-        template = Template("""\
-    public void ${NAME}Super(${PARAMS}) {
-        if (internal == null) {
-            super.${NAME}(${PARAM_PASSING});
-        } else {
-            internal.${NAME}(${PARAM_PASSING});
-        }
-    }
-""")
-      else:
-        template = Template("""\
+    deprecation_str = """\
+    @SuppressWarnings({"deprecation"})\n"""
+    internal_return_common_str = """\
     public ${RETURN_TYPE} ${NAME}Super(${PARAMS}) {
         ${INTERNAL_RETURN_TYPE} ret;
         if (internal == null) {
@@ -628,23 +664,54 @@ ${PARAMS_PASSING});
         ${IF_NULL_RETURN_NULL}
         return ${RETURN_VALUE};
     }
-""")
-    else:
-      if no_return_value:
-        template = Template("""\
+"""
+
+    internal_no_return_common_str ="""\
     public void ${NAME}Super(${PARAMS}) {
-        super.${NAME}(${PARAM_PASSING});
+        if (internal == null) {
+            super.${NAME}(${PARAM_PASSING});
+        } else {
+            internal.${NAME}(${PARAM_PASSING});
+        }
     }
-""")
-      else:
-        template = Template("""\
+"""
+
+    external_return_common_str = """\
     public ${RETURN_TYPE} ${NAME}Super(${PARAMS}) {
         ${INTERNAL_RETURN_TYPE} ret;
         ret = super.${NAME}(${PARAM_PASSING});
         ${IF_NULL_RETURN_NULL}
         return ${RETURN_VALUE};
     }
-""")
+"""
+
+    external_no_return_common_str = """\
+    public void ${NAME}Super(${PARAMS}) {
+        super.${NAME}(${PARAM_PASSING});
+    }
+"""
+    if self._class_java_data.HasCreateInternallyAnnotation():
+      if no_return_value:
+        if self._is_deprecated:
+          template = Template(deprecation_str + internal_no_return_common_str)
+        else:
+          template = Template(internal_no_return_common_str)
+      else:
+        if self._is_deprecated:
+          template = Template(deprecation_str + internal_return_common_str)
+        else:
+          template = Template(internal_return_common_str)
+    else:
+      if no_return_value:
+        if self._is_deprecated:
+          template = Template(deprecation_str + external_no_return_common_str)
+        else:
+          template = Template(external_no_return_common_str)
+      else:
+        if self._is_deprecated:
+          template = Template(deprecation_str + external_return_common_str)
+        else:
+          template = Template(external_return_common_str)
 
     if return_is_internal:
       return_value = return_type_java_data.UseAsReturnInBridgeSuperCall('ret')
@@ -810,12 +877,19 @@ ${PRE_WRAP_LINES}
     }
 """)
     else:
-      template = Template("""\
-${DOC}
+      doc_str = """${DOC}"""
+      common_str = """\
+
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
     }
-""")
+"""
+      if self._is_unchecked:
+        unchecked_str = """\n\
+    @SuppressWarnings("unchecked")"""
+        template = Template(doc_str + unchecked_str + common_str)
+      else:
+        template = Template(doc_str + common_str)
     if return_is_internal:
       return_type = return_type_java_data.wrapper_name
     else:

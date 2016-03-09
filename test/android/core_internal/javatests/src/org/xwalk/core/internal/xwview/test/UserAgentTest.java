@@ -12,8 +12,6 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.concurrent.Callable;
 
-import org.apache.http.Header;
-import org.apache.http.HttpRequest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.internal.XWalkClient;
@@ -65,6 +63,7 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
 
     @MediumTest
     @Feature({"UserAgent"})
+    @SuppressWarnings("deprecation")
     public void testUserAgentWithTestServer() throws Throwable {
         XWalkSettingsInternal settings = getXWalkSettingsOnUiThread();
         final String customUserAgentString =
@@ -80,11 +79,11 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
             loadUrlSync(url);
 
             assertEquals(1, webServer.getRequestCount(httpPath));
-            HttpRequest request = webServer.getLastRequest(httpPath);
-            Header[] matchingHeaders  = request.getHeaders("User-Agent");
+            org.apache.http.HttpRequest request = webServer.getLastRequest(httpPath);
+            org.apache.http.Header[] matchingHeaders  = request.getHeaders("User-Agent");
             assertEquals(1, matchingHeaders.length);
 
-            Header header = matchingHeaders[0];
+            org.apache.http.Header header = matchingHeaders[0];
             assertEquals(customUserAgentString, header.getValue());
         } finally {
             webServer.shutdown();

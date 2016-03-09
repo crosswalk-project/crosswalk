@@ -18,6 +18,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
+import android.util.SparseArray;
 
 import org.xwalk.core.internal.XWalkContentsClientBridge;
 import org.xwalk.core.internal.XWalkNotificationService;
@@ -50,7 +51,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     private XWalkViewInternal mView;
     private NotificationManager mNotificationManager;
     private BroadcastReceiver mNotificationCloseReceiver;
-    private HashMap<Integer, WebNotification> mExistNotificationIds;
+    private SparseArray<WebNotification> mExistNotificationIds;
     private HashMap<String, WebNotification>  mExistReplaceIds;
 
     public XWalkNotificationServiceImpl(Context context, XWalkViewInternal view) {
@@ -66,7 +67,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
             }
         };
 
-        mExistNotificationIds = new HashMap<Integer, WebNotification>();
+        mExistNotificationIds = new SparseArray<WebNotification>();
         mExistReplaceIds      = new HashMap<String, WebNotification>();
     }
 
@@ -81,7 +82,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
 
     @Override
     public void shutdown() {
-        if (!mExistNotificationIds.isEmpty()) {
+        if (mExistNotificationIds.size() > 0) {
             unregisterReceiver();
         }
         mBridge = null;
@@ -242,7 +243,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     }
 
     private void notificationChanged() {
-        if (mExistNotificationIds.isEmpty()) {
+        if (mExistNotificationIds.size() == 0) {
             Log.i(TAG, "notifications are all cleared," +
                     "unregister broadcast receiver for close pending intent");
             unregisterReceiver();
@@ -254,8 +255,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter(
                 mView.getActivity().getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX);
-
-        for(Integer id : mExistNotificationIds.keySet()) {
+        for(int id = 1; id <= mExistNotificationIds.size(); id++) {
             filter.addCategory(getCategoryFromNotificationId(id));
         }
 

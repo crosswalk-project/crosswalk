@@ -12,7 +12,7 @@
     android:orientation="vertical" >
 
     <LinearLayout
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
@@ -22,18 +22,20 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:scaleType="center"
-            android:src="@android:drawable/ic_media_previous" />
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="@null" />
 
         <ImageButton
             android:id="@+id/next"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:scaleType="center"
-            android:src="@android:drawable/ic_media_next" />
+            android:src="@android:drawable/ic_media_next"
+            android:contentDescription="@null" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >

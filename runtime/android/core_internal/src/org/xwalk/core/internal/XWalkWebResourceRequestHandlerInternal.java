@@ -43,7 +43,7 @@ public class XWalkWebResourceRequestHandlerInternal implements XWalkWebResourceR
         return mRequest.method;
     }
 
-    @XWalkAPI
+    @XWalkAPI(unchecked = true)
     public Map<String, String> getRequestHeaders() {
         return mRequest.requestHeaders;
     }

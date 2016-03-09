@@ -26,10 +26,10 @@ public class MultiXWalkViewOverlayActivity extends XWalkBaseActivity {
         LinearLayout parent = (LinearLayout) findViewById(R.id.container);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.FILL_PARENT,
-                FrameLayout.LayoutParams.FILL_PARENT);
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
         FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.FILL_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
 
         mSwapButton = new Button(this);
