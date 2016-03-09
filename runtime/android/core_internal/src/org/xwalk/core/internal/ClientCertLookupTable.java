@@ -4,13 +4,12 @@
 
 package org.xwalk.core.internal;
 
+import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.chromium.net.AndroidPrivateKey;
 
 /**
  * Store user's client certificate decision for a host and port pair. Not thread-safe. All accesses are done on UI
@@ -31,7 +30,7 @@ public class ClientCertLookupTable {
         mDenieds.clear();
     }
 
-    public void allow(String host, int port, AndroidPrivateKey privateKey, byte[][] chain) {
+    public void allow(String host, int port, PrivateKey privateKey, byte[][] chain) {
         String host_and_port = hostAndPort(host, port);
         mCerts.put(host_and_port, new Cert(privateKey, chain));
         mDenieds.remove(host_and_port);
@@ -61,11 +60,11 @@ public class ClientCertLookupTable {
      * A container for the certificate data.
      */
     public static class Cert {
-        AndroidPrivateKey privateKey;
-        byte[][] certChain;
+        PrivateKey mPrivateKey;
+        byte[][] mCertChain;
 
-        public Cert(AndroidPrivateKey privateKey, byte[][] certChain) {
-            this.privateKey = privateKey;
+        public Cert(PrivateKey privateKey, byte[][] certChain) {
+            this.mPrivateKey = privateKey;
 
             byte[][] newChain = new byte[certChain.length][];
 
@@ -73,7 +72,7 @@ public class ClientCertLookupTable {
                 newChain[i] = Arrays.copyOf(certChain[i], certChain[i].length);
             }
 
-            this.certChain = newChain;
+            this.mCertChain = newChain;
         }
     }
 }
