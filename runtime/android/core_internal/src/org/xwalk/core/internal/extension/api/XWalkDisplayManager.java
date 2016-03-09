@@ -54,6 +54,11 @@ public abstract class XWalkDisplayManager {
     public abstract Display[] getDisplays();
 
     /**
+     * Gets all currently valid logical displays of the specified category.
+     */
+    public abstract Display[] getDisplays (String category);
+
+    /**
      * Get all valid secondary displays, excluding the built-in display. The returned array
      * is sorted for preference. The first display in the returned array is the most preferred
      * display for presentation show.

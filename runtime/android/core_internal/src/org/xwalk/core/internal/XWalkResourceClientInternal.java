@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.http.SslError;
+import android.os.Build;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -374,7 +375,11 @@ public class XWalkResourceClientInternal {
         final EditText userNameEditText = new EditText(context);
         final EditText passwordEditText = new EditText(context);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPaddingRelative(10, 0, 10, 20);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            layout.setPaddingRelative(10, 0, 10, 20);
+        } else {
+            layout.setPadding(10, 0, 10, 20);
+        }
         userNameEditText.setHint(R.string.http_auth_user_name);
         passwordEditText.setHint(R.string.http_auth_password);
         passwordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);

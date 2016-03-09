@@ -6,6 +6,7 @@ package org.xwalk.core.internal.extension.api.device_capabilities;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
@@ -78,10 +79,12 @@ class DeviceCapabilitiesDisplay {
 
     public JSONObject convertDisplayToJSON(Display disp) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        disp.getRealMetrics(displayMetrics);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            disp.getRealMetrics(displayMetrics);
 
         Point realSize = new Point();
-        disp.getRealSize(realSize);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            disp.getRealSize(realSize);
 
         Point availSize = new Point();
         disp.getSize(availSize);
@@ -89,7 +92,11 @@ class DeviceCapabilitiesDisplay {
         JSONObject out = new JSONObject();
         try {
             out.put("id", Integer.toString(disp.getDisplayId()));
-            out.put("name", disp.getName());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                out.put("name", disp.getName());
+            } else {
+                out.put("name", "");
+            }
             out.put("primary", disp.getDisplayId() == disp.DEFAULT_DISPLAY);
             out.put("external", disp.getDisplayId() != disp.DEFAULT_DISPLAY);
             out.put("deviceXDPI", (int) displayMetrics.xdpi);

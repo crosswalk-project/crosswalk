@@ -4,13 +4,16 @@
 
 package org.xwalk.core.internal.extension.api;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.view.Display;
 
 /**
  * A wrapper class for DisplayManager implementation on Android JellyBean MR1 (API Level 17).
  */
+@SuppressLint("NewApi")
 public class DisplayManagerJBMR1 extends XWalkDisplayManager implements DisplayManager.DisplayListener {
     private DisplayManager mDisplayManager;
 
@@ -26,6 +29,11 @@ public class DisplayManagerJBMR1 extends XWalkDisplayManager implements DisplayM
     @Override
     public Display[] getDisplays() {
         return mDisplayManager.getDisplays();
+    }
+
+    @Override
+    public Display[] getDisplays(String category) {
+        return mDisplayManager.getDisplays(category);
     }
 
     @Override

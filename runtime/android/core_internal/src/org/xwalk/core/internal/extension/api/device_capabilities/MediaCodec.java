@@ -4,7 +4,12 @@
 
 package org.xwalk.core.internal.extension.api.device_capabilities;
 
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
+import android.os.Build;
+
 import java.util.HashSet;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,11 +57,26 @@ class MediaCodec extends XWalkMediaCodec {
     }
 
     public void getCodecsList() {
-        int numCodecs = android.media.MediaCodecList.getCodecCount();
-        for (int i = 0; i < numCodecs; i++) {
-            android.media.MediaCodecInfo codecInfo =
-                    android.media.MediaCodecList.getCodecInfoAt(i);
-            String name = codecInfo.getName().toUpperCase();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MediaCodecList allCodecs = new MediaCodecList(MediaCodecList.ALL_CODECS);
+            MediaCodecInfo[] allInfos = allCodecs.getCodecInfos();
+            for (MediaCodecInfo codecInfo : allInfos)
+                addToCodecSet(codecInfo);
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                int numCodecs = android.media.MediaCodecList.getCodecCount();
+                for (int i = 0; i < numCodecs; i++) {
+                    android.media.MediaCodecInfo codecInfo =
+                            android.media.MediaCodecList.getCodecInfoAt(i);
+                    addToCodecSet(codecInfo);
+                }
+            }
+        }
+    }
+
+    private void addToCodecSet(MediaCodecInfo codecInfo) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            String name = codecInfo.getName().toUpperCase(Locale.US);
             boolean hasAdded = false;
 
             for (String nameListElement : AUDIO_CODEC_NAMES) {
@@ -67,19 +87,18 @@ class MediaCodec extends XWalkMediaCodec {
                 }
             }
 
-            if (hasAdded) {
-                continue;
-            }
-
-            for (String nameListElement : VIDEO_CODEC_NAMES) {
-                if (name.contains(nameListElement)) {
-                    boolean isEncoder = codecInfo.isEncoder();
-                    // FIXME(fyraimar): Get the right hwAccel value.
-                    mVideoCodecsSet.add(new VideoCodecElement(
-                            nameListElement, isEncoder, false));
-                    break;
+            if (!hasAdded) {
+                for (String nameListElement : VIDEO_CODEC_NAMES) {
+                    if (name.contains(nameListElement)) {
+                        boolean isEncoder = codecInfo.isEncoder();
+                        // FIXME(fyraimar): Get the right hwAccel value.
+                        mVideoCodecsSet.add(new VideoCodecElement(
+                                nameListElement, isEncoder, false));
+                        break;
+                    }
                 }
             }
         }
+        // Do nothing if API level is less than Jelly Bean.
     }
 }
