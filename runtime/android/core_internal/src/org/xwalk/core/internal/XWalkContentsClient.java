@@ -20,16 +20,13 @@ import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 
-import java.security.KeyStore.PrivateKeyEntry;  
-import java.security.Principal;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.chromium.content.browser.ContentViewClient;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.content_public.browser.WebContentsObserver;
-import org.chromium.net.AndroidPrivateKey;
-import org.chromium.net.DefaultAndroidKeyStore;
 import org.chromium.net.NetError;
 
 /**
@@ -51,8 +48,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     private double mDIPScale;
 
-    protected DefaultAndroidKeyStore mLocalKeyStore;
-    protected ClientCertLookupTable mLookupTable;
 
     public class XWalkWebContentsObserver extends WebContentsObserver {
         public XWalkWebContentsObserver(WebContents webContents) {
@@ -249,7 +244,7 @@ abstract class XWalkContentsClient extends ContentViewClient {
     public abstract void didFinishLoad(String url);
 
     public abstract void provideClientCertificateResponse(int id, byte[][] certChain,
-            AndroidPrivateKey androidKey);
+            PrivateKey privateKey);
 
     //--------------------------------------------------------------------------------------------
     //                              Other XWalkViewInternal-specific methods
