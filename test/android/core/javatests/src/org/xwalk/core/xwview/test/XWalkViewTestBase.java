@@ -310,15 +310,11 @@ public class XWalkViewTestBase
         });
     }
 
-    protected boolean pollOnUiThread(final Callable<Boolean> callable) throws Exception {
-        return CriteriaHelper.pollForCriteria(new Criteria() {
+    protected void pollOnUiThread(final Callable<Boolean> callable) throws Exception {
+        poll(new Callable<Boolean>() {
             @Override
-            public boolean isSatisfied() {
-                try {
-                    return runTestOnUiThreadAndGetResult(callable);
-                } catch (Throwable e) {
-                    return false;
-                }
+            public Boolean call() throws Exception {
+                return runTestOnUiThreadAndGetResult(callable);
             }
         });
     }
@@ -680,7 +676,7 @@ public class XWalkViewTestBase
         }
         final String script1 = str + " != null";
         final String script2 = str + ".dispatchEvent(evObj);";
-        Assert.assertTrue(CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollForCriteria(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 try {
@@ -692,7 +688,7 @@ public class XWalkViewTestBase
                     return false;
                 }
             }
-        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL));
+        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL);
 
         try {
             loadJavaScriptUrl("javascript:var evObj = document.createEvent('Events'); " +
@@ -892,7 +888,7 @@ public class XWalkViewTestBase
     }
 
     protected void poll(final Callable<Boolean> callable) throws Exception {
-        assertTrue(CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollForCriteria(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 try {
@@ -902,7 +898,7 @@ public class XWalkViewTestBase
                     return false;
                 }
             }
-        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL));
+        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL);
     }
 
     static class ViewPair {
