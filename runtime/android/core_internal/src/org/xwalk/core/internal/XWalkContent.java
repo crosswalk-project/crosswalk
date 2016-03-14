@@ -523,11 +523,15 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             });
             return;
         }
-        if (isOpaque(color) == false) {
+        if (isOpaque(color) == true) {
+            setOverlayVideoMode(false);
+            mContentViewCore.setBackgroundOpaque(true);
+        } else {
             setOverlayVideoMode(true);
-            mContentViewRenderView.setSurfaceViewBackgroundColor(color);
             mContentViewCore.setBackgroundOpaque(false);
         }
+        mContentViewCore.setBackgroundColor(color);
+        mContentViewRenderView.setSurfaceViewBackgroundColor(color);
         nativeSetBackgroundColor(mNativeContent, color);
     }
 
