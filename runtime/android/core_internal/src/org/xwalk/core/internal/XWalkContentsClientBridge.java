@@ -245,6 +245,11 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             mXWalkResourceClient.onProgressChanged(mXWalkView, progress);
         }
     }
+ 
+    @Override
+    public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+        mXWalkView.onOverScrolledDelegate(scrollX, scrollY, clampedX, clampedY);
+    }
 
     @Override
     public XWalkWebResourceResponseInternal shouldInterceptRequest(

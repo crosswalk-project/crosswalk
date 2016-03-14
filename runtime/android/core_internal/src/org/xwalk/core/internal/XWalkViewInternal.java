@@ -1426,6 +1426,27 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
     }
 
+    /**
+     * Called by overScrollBy(int, int, int, int, int, int, int, int, int, boolean) to respond to the
+     * results of an over-scroll operation and called by over scroll event is fired.
+     * @param scrollX means scroll layer offset on horizontal orientation or
+     *        overScrollBy scroll target offset on horizontal orientation.
+     * @param scrollY means scroll layer offset on vertical or
+     *        overScrollBy scroll target offset on vertical orientation.
+     * @param clampedX means whether over-scroll event is fired on horizontal orientation.
+     * @param clampedY means whether over-scroll event is fired on vertical orientation.
+     **/
+    @Override
+    @XWalkAPI
+    public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+        // TODO: Adding scrollTo method
+    }
+
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onOverScrolled(scrollX, scrollY, clampedX, clampedY);"})
+    public void onOverScrolledDelegate(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+    }
+
     // Override XWalkView.setOnTouchListener to install the listener to ContentView
     // therefore touch event intercept through onTouchListener is available on XWalkView.
     @Override
