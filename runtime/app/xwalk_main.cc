@@ -67,7 +67,7 @@ int main(int argc, const char** argv) {
     // Do the delegate work in xwalk_content_main to avoid having to export the
   // delegate types.
   return ::ContentMain(argc, argv);
-#else
+#elif !defined(OS_ANDROID)
   xwalk::XWalkMainDelegate delegate;
   content::ContentMainParams params(&delegate);
 
