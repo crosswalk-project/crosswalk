@@ -1447,6 +1447,59 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Compute the horizontal range that the horizontal scrollbar represents.
+     * @return the range of horizontal scrollbar.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int computeHorizontalScrollRange() {
+        return mContent.computeHorizontalScrollRange();
+    }
+
+    /**
+     * Compute the horizontal offset of the horizontal scrollbar's
+     * thumb within the horizontal range.
+     * @return the horizontal offset of the horizontal scrollbar's thumb.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int computeHorizontalScrollOffset() {
+        return mContent.computeHorizontalScrollOffset();
+    }
+
+    /**
+     * Compute the vertical range that the vertical scrollbar represents.
+     * @return the range of the vertical scrollbar.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int computeVerticalScrollRange() {
+        return mContent.computeVerticalScrollRange();
+    }
+
+    /**
+     * Compute the vertical offset the vertical scrollbar's thumb
+     * within the horizontal range.
+     * @return the vertical offset of the vertical scrollbar's thumb.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int computeVerticalScrollOffset() {
+        return mContent.computeVerticalScrollOffset();
+    }
+
+    /**
+     * Compute the vertical extent of the vertical scrollbar's thumb
+     * within the vertical range.
+     * @return vertical offset of the vertical scrollbar's thumb.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public int computeVerticalScrollExtent() {
+        return mContent.computeVerticalScrollExtent();
+    }
+
+    /**
      * Get the external extension manager for current XWalkView.
      * Embedders could employ this manager to load their own external extensions.
      * @return the external extension manager.

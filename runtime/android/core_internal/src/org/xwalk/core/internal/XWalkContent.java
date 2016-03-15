@@ -714,6 +714,26 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentView.scrollBy(x, y);
     }
 
+    public int computeHorizontalScrollRange() {
+        return mContentView.computeHorizontalScrollRangeDelegate();
+    }
+
+    public int computeHorizontalScrollOffset() {
+        return mContentView.computeHorizontalScrollOffsetDelegate();
+    }
+
+    public int computeVerticalScrollRange() {
+        return mContentView.computeVerticalScrollRangeDelegate();
+    }
+
+    public int computeVerticalScrollOffset() {
+        return mContentView.computeVerticalScrollOffsetDelegate();
+    }
+
+    public int computeVerticalScrollExtent() {
+        return mContentView.computeVerticalScrollExtentDelegate();
+    }
+
     //--------------------------------------------------------------------------------------------
     private class XWalkIoThreadClientImpl extends XWalkContentsIoThreadClient {
         // All methods are called on the IO thread.
