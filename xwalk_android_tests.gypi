@@ -45,6 +45,7 @@
           '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
         ],
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/cross_origin.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_left_frame.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_main.html',
@@ -75,6 +76,7 @@
             'test/android/data/request_focus_main.html',
             'test/android/data/request_focus_right_frame.html',
             'test/android/data/request_focus_right_frame1.html',
+            'test/android/data/www/cross_origin.html',
           ],
         },
         {

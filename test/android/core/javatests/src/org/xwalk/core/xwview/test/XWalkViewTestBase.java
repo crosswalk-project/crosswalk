@@ -762,6 +762,15 @@ public class XWalkViewTestBase
         });
     }
 
+    protected void setOriginAccessWhitelist(final String url, final String[] patterns) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.setOriginAccessWhitelist(url, patterns);
+            }
+        });
+    }
+
     protected double getDipScale() {
         return DeviceDisplayInfo.create(mXWalkView.getContext()).getDIPScale();
     }

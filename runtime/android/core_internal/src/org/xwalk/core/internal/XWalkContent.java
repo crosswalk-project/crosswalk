@@ -33,6 +33,7 @@ import android.widget.FrameLayout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Locale;
 
 import org.chromium.base.annotations.CalledByNative;
@@ -56,6 +57,7 @@ import org.chromium.content_public.browser.navigation_controller.UserAgentOverri
 import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.base.ActivityWindowAndroid;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
+import org.json.JSONArray;
 
 @JNINamespace("xwalk")
 /**
@@ -594,6 +596,19 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mIsLoaded = true;
     }
 
+    public void setOriginAccessWhitelist(String url, String[] patterns) {
+        if (mNativeContent == 0 || TextUtils.isEmpty(url)) return;
+
+        // Reset origin access whitelists if pattern is null.
+        String matchPatterns = "";
+        if (patterns != null) {
+            JSONArray arrays = new JSONArray(Arrays.asList(patterns));
+            matchPatterns = arrays.toString();
+        }
+
+        nativeSetOriginAccessWhitelist(mNativeContent, url, matchPatterns);
+    }
+
     public XWalkNavigationHistoryInternal getNavigationHistory() {
         if (mNativeContent == 0) return null;
 
@@ -990,4 +1005,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private native byte[] nativeGetState(long nativeXWalkContent);
     private native boolean nativeSetState(long nativeXWalkContent, byte[] state);
     private native void nativeSetBackgroundColor(long nativeXWalkContent, int color);
+    private native void nativeSetOriginAccessWhitelist(
+            long nativeXWalkContent, String url, String patterns);
 }
