@@ -71,6 +71,30 @@ public class XWalkContentView extends ContentView {
         mXWalkView.onOverScrolledDelegate(l, t, false, false);
     }
 
+    /**
+     * Since compute* APIs in ContentView are all protected, use delegate methods
+     * to get the result.
+     */
+    public int computeHorizontalScrollRangeDelegate() {
+        return computeHorizontalScrollRange();
+    }
+
+    public int computeHorizontalScrollOffsetDelegate() {
+        return computeHorizontalScrollOffset();
+    }
+
+    public int computeVerticalScrollRangeDelegate() {
+        return computeVerticalScrollRange();
+    }
+
+    public int computeVerticalScrollOffsetDelegate() {
+        return computeVerticalScrollOffset();
+    }
+
+    public int computeVerticalScrollExtentDelegate() {
+        return computeVerticalScrollExtent();
+    }
+
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
         mXWalkView.onFocusChangedDelegate(gainFocus, direction, previouslyFocusedRect);
