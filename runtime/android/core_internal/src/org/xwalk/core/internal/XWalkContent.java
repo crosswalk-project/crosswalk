@@ -516,7 +516,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     @CalledByNative
     public void setBackgroundColor(final int color) {
         if (mNativeContent == 0) return;
-        if (mIsLoaded == false) {
+        if (!mIsLoaded) {
             mXWalkView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -525,7 +525,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             });
             return;
         }
-        if (isOpaque(color) == true) {
+        if (isOpaque(color)) {
             setOverlayVideoMode(false);
             mContentViewCore.setBackgroundOpaque(true);
         } else {
@@ -639,9 +639,8 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // but is optimized out in the restoreState case because the title is
         // already restored. See WebContentsImpl::UpdateTitleForEntry. So we
         // call the callback explicitly here.
-        if (result) {
-            mContentsClientBridge.onUpdateTitle(mWebContents.getTitle());
-        }
+        if (result) mContentsClientBridge.onUpdateTitle(mWebContents.getTitle());
+        
 
         return result ? getNavigationHistory() : null;
     }
