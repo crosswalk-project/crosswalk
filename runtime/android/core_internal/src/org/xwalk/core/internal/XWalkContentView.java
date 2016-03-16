@@ -65,6 +65,34 @@ public class XWalkContentView extends ContentView {
     @Override
     public void onScrollChanged(int l, int t, int oldl, int oldt) {
         mXWalkView.onScrollChangedDelegate(l, t, oldl, oldt);
+
+        // To keep the same behaviour with WebView onOverScrolled method,
+        // call onOverScrolledDelegate here.
+        mXWalkView.onOverScrolledDelegate(l, t, false, false);
+    }
+
+    /**
+     * Since compute* APIs in ContentView are all protected, use delegate methods
+     * to get the result.
+     */
+    public int computeHorizontalScrollRangeDelegate() {
+        return computeHorizontalScrollRange();
+    }
+
+    public int computeHorizontalScrollOffsetDelegate() {
+        return computeHorizontalScrollOffset();
+    }
+
+    public int computeVerticalScrollRangeDelegate() {
+        return computeVerticalScrollRange();
+    }
+
+    public int computeVerticalScrollOffsetDelegate() {
+        return computeVerticalScrollOffset();
+    }
+
+    public int computeVerticalScrollExtentDelegate() {
+        return computeVerticalScrollExtent();
     }
 
     @Override

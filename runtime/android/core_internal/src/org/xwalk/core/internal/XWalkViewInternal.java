@@ -1439,6 +1439,27 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
     }
 
+    /**
+     * Called by overScrollBy(int, int, int, int, int, int, int, int, int, boolean) to respond to the
+     * results of an over-scroll operation and called by over scroll event is fired.
+     * @param scrollX means scroll layer offset on horizontal orientation or
+     *        overScrollBy scroll target offset on horizontal orientation.
+     * @param scrollY means scroll layer offset on vertical or
+     *        overScrollBy scroll target offset on vertical orientation.
+     * @param clampedX means whether over-scroll event is fired on horizontal orientation.
+     * @param clampedY means whether over-scroll event is fired on vertical orientation.
+     **/
+    @Override
+    @XWalkAPI
+    public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+        // TODO: Adding scrollTo method
+    }
+
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onOverScrolled(scrollX, scrollY, clampedX, clampedY);"})
+    public void onOverScrolledDelegate(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+    }
+
     // Override XWalkView.setOnTouchListener to install the listener to ContentView
     // therefore touch event intercept through onTouchListener is available on XWalkView.
     @Override
@@ -1457,6 +1478,62 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void scrollBy(int x, int y) {
         mContent.scrollBy(x, y);
+    }
+
+    @Override
+    @XWalkAPI
+    public boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
+        boolean isOverScrolled = super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
+        mContent.overScrollTo(scrollX + deltaX, scrollY + deltaY);
+        return isOverScrolled;
+    }
+
+    /**
+     * Compute the horizontal range that the horizontal scrollbar represents.
+     * @return the range of horizontal scrollbar.
+     */
+    @XWalkAPI
+    public int computeHorizontalScrollRange() {
+        return mContent.computeHorizontalScrollRange();
+    }
+
+    /**
+     * Compute the horizontal offset of the horizontal scrollbar's
+     * thumb within the horizontal range.
+     * @return the horizontal offset of the horizontal scrollbar's thumb.
+     */
+    @XWalkAPI
+    public int computeHorizontalScrollOffset() {
+        return mContent.computeHorizontalScrollOffset();
+    }
+
+    /**
+     * Compute the vertical range that the vertical scrollbar represents.
+     * @return the range of the vertical scrollbar.
+     */
+    @XWalkAPI
+    public int computeVerticalScrollRange() {
+        return mContent.computeVerticalScrollRange();
+    }
+
+    /**
+     * Compute the vertical offset the vertical scrollbar's thumb
+     * within the horizontal range.
+     * @return the vertical offset of the vertical scrollbar's thumb.
+     */
+    @XWalkAPI
+    public int computeVerticalScrollOffset() {
+        return mContent.computeVerticalScrollOffset();
+    }
+
+    /**
+     * Compute the vertical extent of the vertical scrollbar's thumb
+     * within the vertical range.
+     * @return vertical offset of the vertical scrollbar's thumb.
+     */
+    @XWalkAPI
+    public int computeVerticalScrollExtent() {
+        return mContent.computeVerticalScrollExtent();
     }
 
     /**
