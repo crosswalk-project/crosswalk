@@ -1467,6 +1467,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.scrollBy(x, y);
     }
 
+    @Override
+    @XWalkAPI
+    public boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
+        boolean isOverScrolled = super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
+        mContent.overScrollTo(scrollX + deltaX, scrollY + deltaY);
+        return isOverScrolled;
+    }
+
     /**
      * Compute the horizontal range that the horizontal scrollbar represents.
      * @return the range of horizontal scrollbar.

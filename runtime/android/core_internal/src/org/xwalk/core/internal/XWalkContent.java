@@ -714,6 +714,25 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentView.scrollBy(x, y);
     }
 
+    private int clampHorizontalScroll(int scrollX) {
+        scrollX = Math.max(0, scrollX);
+        scrollX = Math.min(computeHorizontalScrollRange(), scrollX);
+        return scrollX;
+    }
+
+    private int clampVerticalScroll(int scrollY) {
+        scrollY = Math.max(0, scrollY);
+        scrollY = Math.min(computeVerticalScrollRange(), scrollY);
+        return scrollY;
+    }
+
+    public void overScrollTo(int scrollX, int scrollY) {
+        scrollX = clampHorizontalScroll(scrollX);
+        scrollY = clampVerticalScroll(scrollY);
+        scrollTo(scrollX, scrollY);
+    }
+
+
     public int computeHorizontalScrollRange() {
         return mContentView.computeHorizontalScrollRangeDelegate();
     }
