@@ -4,6 +4,7 @@
 
 package org.xwalk.core.extension;
 
+import android.os.Build;
 import android.util.Log;
 
 import java.lang.Byte;
@@ -57,9 +58,11 @@ public class MessageInfo {
                 mCallbackId = mArgs.getString(1);
                 mObjectId = mArgs.getString(2);
 
-                mArgs.remove(0);
-                mArgs.remove(0);
-                mArgs.remove(0);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    mArgs.remove(0);
+                    mArgs.remove(0);
+                    mArgs.remove(0);
+                }
             } catch (JSONException e) {
                 Log.e(TAG, e.toString());
             }
