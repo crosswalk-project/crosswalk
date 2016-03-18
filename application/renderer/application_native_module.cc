@@ -28,7 +28,7 @@ void ApplicationNativeModule::GetViewByIDCallback(
   if (info.Length() != 1 || !info[0]->IsInt32())
     return;
 
-  int main_routing_id = info[0]->ToInt32()->Value();
+  int main_routing_id = info[0]->ToInt32(info.GetIsolate())->Value();
   content::RenderView* render_view =
     content::RenderView::FromRoutingID(main_routing_id);
   if (!render_view)
@@ -63,7 +63,8 @@ ApplicationNativeModule::ApplicationNativeModule() {
       v8::External::New(isolate, this));
 
   // Register native function templates to object template here.
-  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
+  v8::Handle<v8::ObjectTemplate> object_template =
+      v8::ObjectTemplate::New(isolate);
   object_template->Set(
       isolate,
       "getViewByID",
