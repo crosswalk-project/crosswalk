@@ -159,7 +159,7 @@ class XWalkCoreWrapper {
         Assert.assertNull(sInstance);
 
         Log.d(TAG, "Attach xwalk core");
-        sProvisionalInstance = new XWalkCoreWrapper(context, -1);
+        sProvisionalInstance = new XWalkCoreWrapper(context, 1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
             if (sProvisionalInstance.isDownloadMode()) {
                 if (XWalkUpdater.getAutoUpdate() &&
@@ -328,12 +328,20 @@ class XWalkCoreWrapper {
     }
 
     private boolean checkCoreVersion() {
+        Log.d(TAG, "[App Version] build:" + XWalkAppVersion.XWALK_BUILD_VERSION
+                + ", api:" + mApiVersion + ", min_api:" + mMinApiVersion);
+
         try {
             Class<?> clazz = getBridgeClass("XWalkCoreVersion");
+            String buildVersion = "";
+            try {
+                buildVersion = (String) new ReflectField(clazz, "XWALK_BUILD_VERSION").get();
+            } catch (RuntimeException e) {
+            }
             int libVersion = (int) new ReflectField(clazz, "API_VERSION").get();
             int minLibVersion = (int) new ReflectField(clazz, "MIN_API_VERSION").get();
-            Log.d(TAG, "lib version, api:" + libVersion + ", min api:" + minLibVersion);
-            Log.d(TAG, "app version, api:" + mApiVersion + ", min api:" + mMinApiVersion);
+            Log.d(TAG, "[Lib Version] build:" + buildVersion
+                    + ", api:" + libVersion + ", min_api:" + minLibVersion);
 
             if (mMinApiVersion > libVersion) {
                 mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
