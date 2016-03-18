@@ -22,7 +22,8 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:scaleType="center"
-            android:src="@android:drawable/ic_media_pause" />
+            android:src="@android:drawable/ic_media_pause"
+            android:contentDescription="@null" />
     </LinearLayout>
 
     <org.xwalk.core.XWalkView

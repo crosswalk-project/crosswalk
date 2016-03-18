@@ -23,6 +23,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Shader.TileMode;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -91,6 +92,14 @@ public class XWalkLaunchScreenManager
         mIntentFilterStr = mActivity.getPackageName() + ".hideLaunchScreen";
     }
 
+    @SuppressWarnings("deprecation")
+    private Drawable getDrawable(int resId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return mActivity.getResources().getDrawable(resId, null);
+        }
+        return mActivity.getResources().getDrawable(resId);
+    }
+
     public void displayLaunchScreen(String readyWhen, final String imageBorderList) {
         if (mXWalkView == null) return;
         setReadyWhen(readyWhen);
@@ -102,7 +111,7 @@ public class XWalkLaunchScreenManager
                 if (bgResId == 0) return;
                 Drawable bgDrawable = null;
                 try {
-                    bgDrawable = mActivity.getResources().getDrawable(bgResId);
+                    bgDrawable = getDrawable(bgResId);
                 } catch (OutOfMemoryError e) {
                     e.printStackTrace();
                 }

@@ -54,7 +54,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
 
     public void onXWalkReady() {
         // XWalkPreferences.ENABLE_EXTENSIONS
-        if (XWalkPreferences.getValue("enable-extensions")) {
+        if (XWalkPreferences.getBooleanValue("enable-extensions")) {
             // Enable xwalk extension mechanism and start load extensions here.
             // Note that it has to be after above initialization.
             // RuntimeView will finally employ XWalkView to load external extensions.

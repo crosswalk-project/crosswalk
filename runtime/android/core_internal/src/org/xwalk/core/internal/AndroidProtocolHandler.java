@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Locale;
 
 import org.chromium.base.annotations.CalledByNative;
 import org.chromium.base.annotations.JNINamespace;
@@ -61,7 +62,8 @@ class AndroidProtocolHandler {
             } else if (uri.getScheme().equals(APP_SCHEME)) {
                 // The host should be the same as the lower case of the package
                 // name, otherwise the resource request should be rejected.
-                if (!uri.getHost().equals(context.getPackageName().toLowerCase())) return null;
+                if (!uri.getHost().equals(context.getPackageName().toLowerCase(Locale.US)))
+                    return null;
 
                 // path == "/" or path == ""
                 if (path.length() <= 1) return null;

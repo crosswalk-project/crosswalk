@@ -247,6 +247,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public XWalkWebResourceResponseInternal shouldInterceptRequest(
             WebResourceRequestInner request) {
         if (isOwnerActivityRunning()) {

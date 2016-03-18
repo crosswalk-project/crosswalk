@@ -4,6 +4,7 @@
 
 package org.xwalk.core;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -360,6 +361,7 @@ class XWalkCoreWrapper {
         return true;
     }
 
+    @SuppressLint("SdCardPath")
     private boolean checkCoreArchitecture() {
         try {
             Class<?> clazz = getBridgeClass("XWalkViewDelegate");

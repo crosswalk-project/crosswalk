@@ -7,7 +7,6 @@ package org.xwalk.core.xwview.shell;
 import java.util.HashMap;
 
 import android.app.ActionBar;
-import android.app.ActionBar.Tab;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
@@ -43,6 +42,7 @@ import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
+@SuppressWarnings("deprecation")
 public class XWalkViewShellActivity extends XWalkActivity
         implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
@@ -325,12 +325,12 @@ public class XWalkViewShellActivity extends XWalkActivity
     }
 
     @Override
-    public void onTabReselected(Tab tab, FragmentTransaction ft) {
+    public void onTabReselected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
         // Do nothing here currently, just make compiler happy.
     }
 
     @Override
-    public void onTabSelected(Tab tab, FragmentTransaction ft) {
+    public void onTabSelected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
         mViewPager.setCurrentItem(tab.getPosition());
         Fragment fragment = mSectionsPagerAdapter.getItem(tab.getPosition());
         if (fragment != null && fragment instanceof XWalkViewSectionFragment) {
@@ -349,7 +349,7 @@ public class XWalkViewShellActivity extends XWalkActivity
     }
 
     @Override
-    public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+    public void onTabUnselected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
         // Do nothing here currently, just make compiler happy.
     }
 

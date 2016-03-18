@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -194,6 +195,18 @@ public class MessagingSmsManager {
         }        
     }
 
+    @SuppressWarnings("deprecation")
+    private SmsMessage getMessage(Bundle bundle, Object pdus) {
+        SmsMessage msgs;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String format = bundle.getString("format");
+            msgs = SmsMessage.createFromPdu((byte[])pdus, format);
+        } else {
+            msgs = SmsMessage.createFromPdu((byte[])pdus);
+        }
+        return msgs;
+    }
+
     public void registerIntentFilters() {
         Activity activity = mActivity.get();
         if (activity == null) return;
@@ -212,9 +225,7 @@ public class MessagingSmsManager {
                     try {
                         JSONObject jsonMsg = new JSONObject();
                         jsonMsg.put("cmd", "received");
-
-                        SmsMessage msgs = SmsMessage.createFromPdu((byte[])pdus[i]);
-                        
+                        SmsMessage msgs = getMessage(bundle, pdus[i]);
                         JSONObject jsData = new JSONObject();
                         jsonMsg.put("data", jsData);
                         JSONObject jsMsg = new JSONObject();

@@ -7,9 +7,7 @@ package org.xwalk.core.extension;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.util.SparseArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +31,7 @@ public class XWalkExternalExtension {
     // The Entry points that will trigger the extension loading
     protected String[] mEntryPoints;
 
-    private Map<Integer, ExtensionInstanceHelper> instanceHelpers;
+    private SparseArray<ExtensionInstanceHelper> instanceHelpers;
 
     // The context used by extensions.
     protected XWalkExtensionContextClient mExtensionContext;
@@ -71,7 +69,7 @@ public class XWalkExternalExtension {
         mJsApi = jsApi;
         mEntryPoints = entryPoints;
         mExtensionContext = context;
-        instanceHelpers = new HashMap<Integer, ExtensionInstanceHelper>();
+        instanceHelpers = new SparseArray<ExtensionInstanceHelper>();
         mHandler = new MessageHandler();
 
         if (mJsApi == null || mJsApi.length() == 0) {

@@ -10,7 +10,6 @@ import android.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpRequest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.XWalkCookieManager;
@@ -29,6 +28,7 @@ public class DownloadListenerTest extends XWalkViewTestBase {
 
     @SmallTest
     @Feature({"onDownloadStart"})
+    @SuppressWarnings("deprecation")
     public void testOnDownloadStart() throws Throwable {
         final String data = "download data";
         final String contentDisposition = "attachment;filename=\"download.txt\"";
@@ -59,7 +59,7 @@ public class DownloadListenerTest extends XWalkViewTestBase {
             assertEquals(data.length(), mDownloadStartHelper.getContentLength());
             assertEquals(userAgent, mDownloadStartHelper.getUserAgent());
 
-            final HttpRequest lastRequest = webServer.getLastRequest(requestPath);
+            final org.apache.http.HttpRequest lastRequest = webServer.getLastRequest(requestPath);
             assertEquals(cookieValue, lastRequest.getFirstHeader("Cookie").getValue());
         } finally {
             webServer.shutdown();

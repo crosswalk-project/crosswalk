@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.TypedValue;
 
 /**
@@ -120,14 +121,25 @@ class XWalkMixedResources extends Resources {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public Drawable getDrawable(int id) {
         boolean calledInLibrary = isCalledInLibrary();
-        try {
-            if (calledInLibrary) return mLibraryResource.getDrawable(id);
-            else return super.getDrawable(id);
-        } catch (NotFoundException e) {
-            if (calledInLibrary) return super.getDrawable(id);
-            else return mLibraryResource.getDrawable(id);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            try {
+                if (calledInLibrary) return mLibraryResource.getDrawable(id, null);
+                else return super.getDrawable(id, null);
+            } catch (NotFoundException e) {
+                if (calledInLibrary) return super.getDrawable(id, null);
+                else return mLibraryResource.getDrawable(id, null);
+            }
+        } else {
+            try {
+                if (calledInLibrary) return mLibraryResource.getDrawable(id);
+                else return super.getDrawable(id);
+            } catch (NotFoundException e) {
+                if (calledInLibrary) return super.getDrawable(id);
+                else return mLibraryResource.getDrawable(id);
+            }
         }
     }
 }
