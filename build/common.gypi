@@ -29,8 +29,20 @@
     # check for a variable set in a condition block below, so we need to put
     # variables such as |enable_widevine| into an inner scope to avoid having
     # the conditions block here be at the same level as one from another file.
+    # Lastly, we have some extra conditional blocks (like for |use_sysroot|)
+    # because src/build/common.gypi might define some variables in nested
+    # blocks and to override their value we must set them at least within the
+    # same scope level.
     'variables': {
       'variables': {
+        'variables': {
+          # From src/build/common.gypi.
+          # Android and Windows do not use the sysroot, and we cannot use it on
+          # Linux because we use libnotify that is not present there.
+          'use_sysroot%': 0,
+        },
+        'use_sysroot%': '<(use_sysroot)',
+
         # From src/build/common.gypi.
         # Which target type to build most targets as.
         'component%': 'static_library',
@@ -43,6 +55,7 @@
       },
       'component%': '<(component)',
       'mediacodecs_EULA%': '<(mediacodecs_EULA)',
+      'use_sysroot%': '<(use_sysroot)',
 
       # Whether to disable NaCl support.
       'disable_nacl%': 0,
@@ -118,6 +131,7 @@
     'mediacodecs_EULA%': '<(mediacodecs_EULA)',
     'release_unwind_tables%': '<(release_unwind_tables)',
     'use_rssdk%': '<(use_rssdk)',
+    'use_sysroot%': '<(use_sysroot)',
     'v8_use_external_startup_data%': '<(v8_use_external_startup_data)',
 
     # Whether to build and use Crosswalk's internal extensions (device
