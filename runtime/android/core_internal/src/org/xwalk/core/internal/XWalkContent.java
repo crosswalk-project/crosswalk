@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 
 import org.chromium.base.annotations.CalledByNative;
 import org.chromium.base.annotations.JNINamespace;
@@ -265,7 +266,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewCore.onShow();
     }
 
-    void doLoadUrl(String url, String content) {
+    void doLoadUrl(String url, String content, Map<String, String> headers) {
         // Handle the same url loading by parameters.
         if (url != null && !url.isEmpty() &&
                 TextUtils.equals(url, mWebContents.getUrl())) {
@@ -289,13 +290,14 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
                 }
             }
             params.setOverrideUserAgent(UserAgentOverrideOption.TRUE);
+            if (headers != null) params.setExtraHeaders(headers);
             mNavigationController.loadUrl(params);
         }
 
         mContentView.requestFocus();
     }
 
-    public void loadUrl(String url, String data) {
+    public void loadUrl(String url, String data, Map<String, String> headers) {
         if (mNativeContent == 0) return;
 
         if ((url == null || url.isEmpty()) &&
@@ -303,7 +305,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             return;
         }
 
-        doLoadUrl(url, data);
+        doLoadUrl(url, data, headers);
         mIsLoaded = true;
     }
 
@@ -640,7 +642,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // already restored. See WebContentsImpl::UpdateTitleForEntry. So we
         // call the callback explicitly here.
         if (result) mContentsClientBridge.onUpdateTitle(mWebContents.getTitle());
-        
+
 
         return result ? getNavigationHistory() : null;
     }
@@ -658,7 +660,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     @CalledByNative
     public void onGetUrlFromManifest(String url) {
         if (url != null && !url.isEmpty()) {
-            loadUrl(url, null);
+            loadUrl(url, null, null);
         }
     }
 
@@ -667,7 +669,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         if (url == null || url.isEmpty()) return;
         mLaunchScreenManager.displayLaunchScreen(readyWhen, imageBorder);
         mContentsClientBridge.registerPageLoadListener(mLaunchScreenManager);
-        loadUrl(url, null);
+        loadUrl(url, null, null);
     }
 
     @CalledByNative

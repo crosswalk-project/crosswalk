@@ -39,6 +39,7 @@ import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
@@ -417,7 +418,21 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void load(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
-        mContent.loadUrl(url, content);
+        mContent.loadUrl(url, content, null);
+    }
+
+    /**
+     * Load a web page/app from a given base URL or a content with specified HTTP headers
+     * @param url the url for web page/app.
+     * @param content the content for the web page/app. Could be empty.
+     * @param headers the additional HTTP headers
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void load(String url, String content, Map<String, String> headers) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.loadUrl(url, content, headers);
     }
 
     /**
@@ -1269,7 +1284,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         assert(getActivity() == activity);
 
         if (mExternalExtensionManager != null) {
-            mExternalExtensionManager.onActivityStateChange(activity, newState); 
+            mExternalExtensionManager.onActivityStateChange(activity, newState);
         }
 
         switch (newState) {
