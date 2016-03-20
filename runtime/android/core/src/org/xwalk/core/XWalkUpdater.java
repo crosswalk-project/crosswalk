@@ -13,6 +13,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -242,7 +243,8 @@ public class XWalkUpdater {
         public void onXWalkUpdateCompleted();
     }
 
-    private static final String XWALK_APK_MARKET_URL = "market://details?id=org.xwalk.core";
+    private static final String ANDROID_MARKET_DETAILS = "market://details?id=";
+    private static final String GOOGLE_PLAY_PACKAGE = "com.android.vending";
 
     private static final String META_XWALK_APK_URL = "xwalk_apk_url";
     private static final String META_XWALK_VERIFY = "xwalk_verify";
@@ -409,8 +411,38 @@ public class XWalkUpdater {
         }
 
         try {
+            String packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            mActivity.startActivity(intent.setData(Uri.parse(XWALK_APK_MARKET_URL)));
+            intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
+            List<ResolveInfo> infos = mActivity.getPackageManager().queryIntentActivities(
+                    intent, PackageManager.MATCH_ALL);
+            boolean primaryStoreIsGooglePlay =
+                    infos.get(0).activityInfo.packageName.equals(GOOGLE_PLAY_PACKAGE);
+
+            String primaryCpuAbi = XWalkCoreWrapper.getPrimaryCpuAbi();
+            boolean isArmDevice = primaryCpuAbi.equalsIgnoreCase("armeabi-v7a")
+                    || primaryCpuAbi.equalsIgnoreCase("arm64-v8a");
+
+            String appAbi = XWalkCoreWrapper.getApplicationAbi();
+            boolean appIs32Bit = appAbi.equalsIgnoreCase("x86")
+                    || appAbi.equalsIgnoreCase("armeabi-v7a");
+
+            if (appIs32Bit) {
+                if (primaryStoreIsGooglePlay || isArmDevice) {
+                    packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
+                } else {
+                    packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
+                }
+            } else {
+                if (primaryStoreIsGooglePlay || isArmDevice) {
+                    packageName = XWalkLibraryInterface.XWALK_CORE64_PACKAGE;
+                } else {
+                    packageName = XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE;
+                }
+            }
+
+            intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
+            mActivity.startActivity(intent);
 
             Log.d(TAG, "Market opened");
             mDialogManager.dismissDialog();
