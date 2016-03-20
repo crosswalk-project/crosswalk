@@ -756,8 +756,7 @@ ${DOC}
                 ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_PASSING});
                 XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
             } else {
-                e.printStackTrace();
-                Assert.fail("This Method doesn't exist in the runtime library");
+                XWalkCoreWrapper.handleRuntimeError(e);
             }
         }
         ${RETURN_NULL}
@@ -771,11 +770,10 @@ ${DOC}
         try {
             ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
         } catch (UnsupportedOperationException e) {
-            e.printStackTrace();
             if (coreWrapper == null) {
                 Assert.fail("Cannot call this method before xwalk is ready");
             } else {
-                Assert.fail("This Method doesn't exist in the runtime library");
+                XWalkCoreWrapper.handleRuntimeError(e);
             }
         }
         ${RETURN_NULL}
@@ -817,11 +815,10 @@ ${DOC}
             return (${RETURN_TYPE}) coreWrapper.getWrapperObject(\
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
         } catch (UnsupportedOperationException e) {
-            e.printStackTrace();
             if (coreWrapper == null) {
                 Assert.fail("Cannot call this method before xwalk is ready");
             } else {
-                Assert.fail("This Method doesn't exist in the runtime library");
+                XWalkCoreWrapper.handleRuntimeError(e);
             }
         }
         ${RETURN_NULL}
@@ -838,8 +835,7 @@ ${DOC}
                 ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_RESERVING});
                 XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
             } else {
-                e.printStackTrace();
-                Assert.fail("This Method doesn't exist in the runtime library");
+                XWalkCoreWrapper.handleRuntimeError(e);
             }
         }
         ${RETURN_NULL}
@@ -865,11 +861,10 @@ ${DOC}
         try {
             ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
         } catch (UnsupportedOperationException e) {
-            e.printStackTrace();
             if (coreWrapper == null) {
                 Assert.fail("Cannot call this method before xwalk is ready");
             } else {
-                Assert.fail("This Method doesn't exist in the runtime library");
+                XWalkCoreWrapper.handleRuntimeError(e);
             }
         }
         ${RETURN_NULL}
