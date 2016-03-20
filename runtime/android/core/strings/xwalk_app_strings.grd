@@ -51,7 +51,7 @@
         Please repackage APP_NAME.
       </message>
       <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
-        Mismatch of CPU Architecture for the Crosswalk Project Service
+        Mismatch of CPU Architecture
       </message>
       <message desc="Startup Architecture Mismatched Message [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_MESSAGE">
         The Crosswalk Project Service must be updated to match the CPU architecture of the device. Please install it from the app store, then restart APP_NAME.
