@@ -138,7 +138,7 @@ ${DOC}
     private XWalkCoreWrapper coreWrapper;
     private Object bridge;
 
-    Object getBridge() {
+    protected Object getBridge() {
         return bridge;
     }
 """
