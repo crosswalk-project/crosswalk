@@ -16,6 +16,9 @@ import android.os.Build;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -32,7 +35,6 @@ import junit.framework.Assert;
  * handlePreInit() - attachXWalkCore() - dockXWalkCore() - handlePostInit() - over
  */
 class XWalkCoreWrapper {
-    private static final String XWALK_APK_PACKAGE = "org.xwalk.core";
     private static final String WRAPPER_PACKAGE = "org.xwalk.core";
     private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
     private static final String TAG = "XWalkLib";
@@ -180,15 +182,38 @@ class XWalkCoreWrapper {
 
         Log.d(TAG, "Attach xwalk core");
         sProvisionalInstance = new XWalkCoreWrapper(context, 1);
-        if (!sProvisionalInstance.findEmbeddedCore()) {
-            if (sProvisionalInstance.isDownloadMode()) {
-                if (XWalkUpdater.getAutoUpdate() &&
-                        !sProvisionalInstance.checkXWalkRuntimeBuildVersion()) {
-                    return sProvisionalInstance.mCoreStatus;
+        if (sProvisionalInstance.findEmbeddedCore()) {
+            return sProvisionalInstance.mCoreStatus;
+        }
+
+        if (sProvisionalInstance.isDownloadMode()) {
+            if (XWalkUpdater.getAutoUpdate() &&
+                    !sProvisionalInstance.checkXWalkRuntimeBuildVersion()) {
+                return sProvisionalInstance.mCoreStatus;
+            }
+
+            sProvisionalInstance.findDownloadedCore();
+            return sProvisionalInstance.mCoreStatus;
+        }
+
+        if (!XWalkAppVersion.VERIFY_XWALK_APK) {
+            Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
+        }
+
+        if (sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_PACKAGE)) {
+            return sProvisionalInstance.mCoreStatus;
+        }
+
+        String cpuAbi = getPrimaryCpuAbi();
+        if (cpuAbi.equalsIgnoreCase("arm64-v8a")) {
+            sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_PACKAGE);
+        } else if (cpuAbi.equalsIgnoreCase("x86")) {
+            sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE);
+        } else if (cpuAbi.equalsIgnoreCase("x86_64")) {
+            if (!sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_PACKAGE)) {
+                if (!sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE)) {
+                    sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE);
                 }
-                sProvisionalInstance.findDownloadedCore();
-            } else {
-                sProvisionalInstance.findSharedCore();
             }
         }
         return sProvisionalInstance.mCoreStatus;
@@ -260,8 +285,8 @@ class XWalkCoreWrapper {
         return true;
     }
 
-    private boolean findSharedCore() {
-        if (!checkCorePackage()) return false;
+    private boolean findSharedCore(String packageName) {
+        if (!checkCorePackage(packageName)) return false;
 
         mBridgeLoader = mBridgeContext.getClassLoader();
         if (!checkCoreVersion() || !checkCoreArchitecture()) {
@@ -434,34 +459,33 @@ class XWalkCoreWrapper {
         return true;
     }
 
-    private boolean checkCorePackage() {
-        if (!XWalkAppVersion.VERIFY_XWALK_APK) {
-            Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
-        } else {
+    private boolean checkCorePackage(String packageName) {
+        if (XWalkAppVersion.VERIFY_XWALK_APK) {
             try {
                 PackageInfo packageInfo = mWrapperContext.getPackageManager().getPackageInfo(
-                        XWALK_APK_PACKAGE, PackageManager.GET_SIGNATURES);
+                        packageName, PackageManager.GET_SIGNATURES);
                 if (!verifyPackageInfo(packageInfo,
                         XWalkAppVersion.XWALK_APK_HASH_ALGORITHM,
                         XWalkAppVersion.XWALK_APK_HASH_CODE)) {
+                    Log.d(TAG, packageName + " signature verification failed");
                     mCoreStatus = XWalkLibraryInterface.STATUS_SIGNATURE_CHECK_ERROR;
                     return false;
                 }
             } catch (NameNotFoundException e) {
-                Log.d(TAG, "Crosswalk package not found");
+                Log.d(TAG, packageName + " not found");
                 return false;
             }
         }
 
         try {
-            mBridgeContext = mWrapperContext.createPackageContext(XWALK_APK_PACKAGE,
+            mBridgeContext = mWrapperContext.createPackageContext(packageName,
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
         } catch (NameNotFoundException e) {
-            Log.d(TAG, "Crosswalk package not found");
+            Log.d(TAG, packageName + " not found");
             return false;
         }
 
-        Log.d(TAG, "Created package context for " + XWALK_APK_PACKAGE);
+        Log.d(TAG, "Created package context for " + packageName);
         return true;
     }
 
@@ -539,5 +563,28 @@ class XWalkCoreWrapper {
         } catch (ClassNotFoundException e) {
         }
         return null;
+    }
+
+    public static String getApplicationAbi() {
+        return Build.CPU_ABI;
+    }
+
+    public static String getPrimaryCpuAbi() {
+        try {
+            return Build.SUPPORTED_ABIS[0];
+        } catch (NoSuchFieldError e) {
+            try {
+                Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
+                InputStreamReader ir = new InputStreamReader(process.getInputStream());
+                BufferedReader input = new BufferedReader(ir);
+                String abi = input.readLine();
+                input.close();
+                ir.close();
+                return abi;
+            } catch (IOException ex) {
+            }
+        }
+        // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
+        return Build.CPU_ABI;
     }
 }
