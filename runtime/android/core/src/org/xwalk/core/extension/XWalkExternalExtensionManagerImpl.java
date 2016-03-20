@@ -53,6 +53,16 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
         super(view);
 
         mXWalkView = view;
+
+        if (getBridge() == null) {
+            Log.e(TAG, "Cannot load external extensions due to old version of runtime library");
+            mContext = null;
+            mActivity = null;
+            mLoadExternalExtensions = false;
+            mNativeExtensionLoader = null;
+            return;
+        }
+
         mContext = getViewContext();
         mActivity = getViewActivity();
         mLoadExternalExtensions = true;
