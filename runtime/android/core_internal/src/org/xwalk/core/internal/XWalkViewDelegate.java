@@ -44,8 +44,8 @@ import org.chromium.content.browser.DeviceUtils;
 class XWalkViewDelegate {
     private static boolean sInitialized = false;
     private static boolean sLibraryLoaded = false;
-    private static boolean sRunningOnIA = true;
     private static boolean sLoadedByHoudini = false;
+    private static String sDeviceAbi = "";
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
@@ -64,7 +64,7 @@ class XWalkViewDelegate {
     private static final String[] MANDATORY_LIBRARIES = {
         "xwalkcore"
     };
-    private static final String TAG = "XWalkViewDelegate";
+    private static final String TAG = "XWalkLib";
     private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
     private static final String XWALK_PAK_NAME = "xwalk.pak";
 
@@ -140,11 +140,15 @@ class XWalkViewDelegate {
             libraryLoader.loadNow(context);
         } catch (ProcessInitException e) {
         }
-        // If sRunningOnIA is true and nativeIsLibraryBuiltForIA() is false,
-        // it means that library was loaded successfully by houdini.
-        if (sRunningOnIA != nativeIsLibraryBuiltForIA()) {
-            sLoadedByHoudini = true;
-            return false;
+
+        if (nativeIsLibraryBuiltForIA()) {
+            Log.d(TAG, "Native library is built for IA");
+        } else {
+            Log.d(TAG, "Native library is built for ARM");
+            if (sDeviceAbi.equalsIgnoreCase("x86") || sDeviceAbi.equalsIgnoreCase("x86_64")) {
+                sLoadedByHoudini = true;
+                return false;
+            }
         }
 
         sLibraryLoaded = true;
@@ -308,29 +312,31 @@ class XWalkViewDelegate {
         return resourceId;
     }
 
-    public static boolean isRunningOnIA() {
-        return sRunningOnIA;
-    }
-
     private static native boolean nativeIsLibraryBuiltForIA();
 
     static {
-        sRunningOnIA = Build.CPU_ABI.equalsIgnoreCase("x86") || Build.CPU_ABI.equalsIgnoreCase("x86_64");
-        if (!sRunningOnIA) {
-            // This is not the final decision yet.
-            // With latest Houdini, an app with ARM binary will see system abi as if it's running on
-            // arm device. Here needs some further check for real system abi.
+        try {
+            sDeviceAbi = Build.SUPPORTED_ABIS[0];
+
+            StringBuffer supported_abis = new StringBuffer();
+            supported_abis.append(sDeviceAbi);
+            for (int i = 1; i < Build.SUPPORTED_ABIS.length; ++i) {
+                supported_abis.append(", " + Build.SUPPORTED_ABIS[i]);
+            }
+            Log.d(TAG, "Supported ABIs: " + supported_abis.toString());
+        } catch (NoSuchFieldError e) {
             try {
                 Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
                 InputStreamReader ir = new InputStreamReader(process.getInputStream());
                 BufferedReader input = new BufferedReader(ir);
-                String abi = input.readLine();
-                sRunningOnIA = abi.contains("x86");
+                sDeviceAbi = input.readLine();
                 input.close();
                 ir.close();
-            } catch (IOException e) {
-                Log.w(TAG, Log.getStackTraceString(e));
+            } catch (IOException ex) {
+                // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
+                sDeviceAbi = Build.CPU_ABI;
             }
         }
+        Log.d(TAG, "Device ABI: " + sDeviceAbi);
     }
 }
