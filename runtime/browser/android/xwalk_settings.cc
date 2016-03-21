@@ -80,6 +80,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mDefaultFixedFontSize", "I");
     spatial_navigation_enabled =
         GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
+    quirks_mode_enabled =
+        GetFieldID(env, clazz, "mQuirksModeEnabled", "Z");
   }
 
   // Field ids
@@ -100,6 +102,7 @@ struct XWalkSettings::FieldIds {
   jfieldID default_font_size;
   jfieldID default_fixed_font_size;
   jfieldID spatial_navigation_enabled;
+  jfieldID quirks_mode_enabled;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -255,6 +258,11 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   int fixed_font_size = env->GetIntField(obj,
       field_ids_->default_fixed_font_size);
   prefs.default_fixed_font_size = fixed_font_size;
+
+  bool support_quirks = env->GetBooleanField(
+      obj, field_ids_->quirks_mode_enabled);
+  prefs.viewport_meta_non_user_scalable_quirk = support_quirks;
+  prefs.clobber_user_agent_initial_scale_quirk = support_quirks;
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }

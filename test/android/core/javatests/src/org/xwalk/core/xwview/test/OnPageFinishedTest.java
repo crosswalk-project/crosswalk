@@ -13,7 +13,6 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer;
 import org.chromium.net.test.util.TestWebServer;
 
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkClient;
 
 import java.util.concurrent.TimeUnit;
 
@@ -121,7 +120,7 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
         loadJavaScriptUrl("javascript: try { console.log('foo'); } catch(e) {};");
 
         onPageFinishedHelper.waitForCallback(currentCallCount);
-        assertEquals("about:blank", onPageFinishedHelper.getUrl());
+        assertTrue(onPageFinishedHelper.getUrl().startsWith("data:text/html;"));
         // onPageFinished won't be called for javascript: url.
         assertEquals(1, onPageFinishedHelper.getCallCount());
     }
