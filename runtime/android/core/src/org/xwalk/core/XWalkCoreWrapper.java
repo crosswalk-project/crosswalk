@@ -4,6 +4,7 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -21,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -39,6 +42,8 @@ class XWalkCoreWrapper {
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
     private static final String XWALK_PREF_FILE = "xwalk_pref";
     private static final String XWALK_PREF_BUILD_VERSION = "xwalk_build_version";
+    private static final String PATTERN_BIT_MISMATCH =
+            "dlopen failed: \".+\" is (32|64)-bit instead of (32|64)-bit";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -82,7 +87,7 @@ class XWalkCoreWrapper {
     }
 
     public static int getCoreStatus() {
-        if (sInstance != null) return XWalkLibraryInterface.STATUS_MATCH;
+        if (sInstance != null) return sInstance.mCoreStatus;
         if (sProvisionalInstance == null) return XWalkLibraryInterface.STATUS_PENDING;
         return sProvisionalInstance.mCoreStatus;
     }
@@ -119,6 +124,21 @@ class XWalkCoreWrapper {
         String tag = sReservedActivities.getLast();
         Log.d(TAG, "Reserve method " + method.toString() + " to " + tag);
         sReservedActions.get(tag).add(new ReservedAction(method));
+    }
+
+    public static void handleRuntimeError(RuntimeException e) {
+        e.printStackTrace();
+        sInstance.mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
+        final Activity activity = (Activity) sInstance.mWrapperContext;
+        XWalkUpdater xwalkUpdater = new XWalkUpdater(
+            new XWalkUpdater.XWalkUpdateListener() {
+                @Override
+                public void onXWalkUpdateCancelled() {
+                    activity.finish();
+                }
+            },
+            activity);
+        xwalkUpdater.updateXWalkRuntime();
     }
 
     /**
@@ -159,7 +179,7 @@ class XWalkCoreWrapper {
         Assert.assertNull(sInstance);
 
         Log.d(TAG, "Attach xwalk core");
-        sProvisionalInstance = new XWalkCoreWrapper(context, -1);
+        sProvisionalInstance = new XWalkCoreWrapper(context, 1);
         if (!sProvisionalInstance.findEmbeddedCore()) {
             if (sProvisionalInstance.isDownloadMode()) {
                 if (XWalkUpdater.getAutoUpdate() &&
@@ -328,12 +348,20 @@ class XWalkCoreWrapper {
     }
 
     private boolean checkCoreVersion() {
+        Log.d(TAG, "[App Version] build:" + XWalkAppVersion.XWALK_BUILD_VERSION
+                + ", api:" + mApiVersion + ", min_api:" + mMinApiVersion);
+
         try {
             Class<?> clazz = getBridgeClass("XWalkCoreVersion");
+            String buildVersion = "";
+            try {
+                buildVersion = (String) new ReflectField(clazz, "XWALK_BUILD_VERSION").get();
+            } catch (RuntimeException e) {
+            }
             int libVersion = (int) new ReflectField(clazz, "API_VERSION").get();
             int minLibVersion = (int) new ReflectField(clazz, "MIN_API_VERSION").get();
-            Log.d(TAG, "lib version, api:" + libVersion + ", min api:" + minLibVersion);
-            Log.d(TAG, "app version, api:" + mApiVersion + ", min api:" + mMinApiVersion);
+            Log.d(TAG, "[Lib Version] build:" + buildVersion
+                    + ", api:" + libVersion + ", min_api:" + minLibVersion);
 
             if (mMinApiVersion > libVersion) {
                 mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
@@ -391,10 +419,14 @@ class XWalkCoreWrapper {
         } catch (RuntimeException e) {
             Log.d(TAG, e.getLocalizedMessage());
             if (e.getCause() instanceof UnsatisfiedLinkError) {
-                mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
-            } else {
-                mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
+                Pattern pattern = Pattern.compile(PATTERN_BIT_MISMATCH);
+                Matcher matcher = pattern.matcher(e.getLocalizedMessage());
+                if (matcher.find()) {
+                    mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
+                    return false;
+                }
             }
+            mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
             return false;
         }
 

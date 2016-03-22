@@ -31,6 +31,21 @@ def ConvertPrimitiveTypeToObject(class_name):
   }
   return primitive_map.get(class_name, class_name)
 
+
+def GetPrimitiveTypeDefaultValue(class_name):
+  primitive_map = {
+      'byte': '0',
+      'short': '0',
+      'int': '0',
+      'long': '0L',
+      'float': '0.0f',
+      'double': '0.0d',
+      'char': "'\u0000'",
+      'boolean': 'false',
+  }
+  return primitive_map.get(class_name, 'null')
+
+
 class ParamType(object):
   """Internal representation of the type of a parameter of a method."""
   def __init__(self, expression, class_loader):
@@ -734,12 +749,17 @@ ${POST_WRAP_LINES}
 ${DOC}
     public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         reflectionInit();
-        if (${METHOD_DECLARE_NAME}.isNull()) {
-            ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_PASSING});
-            XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
-            return;
+        try {
+            ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        } catch (UnsupportedOperationException e) {
+            if (coreWrapper == null) {
+                ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_PASSING});
+                XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
+            } else {
+                XWalkCoreWrapper.handleRuntimeError(e);
+            }
         }
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        ${RETURN_NULL}
     }
 """)
     else:
@@ -747,18 +767,30 @@ ${DOC}
 ${DOC}
     public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         reflectionInit();
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        try {
+            ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        } catch (UnsupportedOperationException e) {
+            if (coreWrapper == null) {
+                Assert.fail("Cannot call this method before xwalk is ready");
+            } else {
+                XWalkCoreWrapper.handleRuntimeError(e);
+            }
+        }
+        ${RETURN_NULL}
     }
 """)
 
-    return_type = ConvertPrimitiveTypeToObject(self.method_return)
+    return_type = self.method_return
     if self._method_return == 'void':
       return_state = ''
+      return_null = ''
     else:
-      return_state = 'return (%s) ' % return_type
+      return_state = 'return (%s) ' % ConvertPrimitiveTypeToObject(return_type)
+      return_null = 'return %s;' % GetPrimitiveTypeDefaultValue(return_type)
 
     value = {'RETURN_TYPE': self.method_return,
              'RETURN': return_state,
+             'RETURN_NULL': return_null,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
              'PARAMS': self._wrapper_params_declare,
@@ -767,7 +799,6 @@ ${DOC}
     return template.substitute(value)
 
   def GenerateWrapperBridgeMethod(self):
-    no_return_value = self._method_return == 'void'
     return_is_internal = self.IsInternalClass(self._method_return)
     if return_is_internal:
       return_type_java_data = self.GetJavaData(self._method_return)
@@ -780,20 +811,34 @@ ${DOC}
       template = Template("""\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        return (${RETURN_TYPE}) coreWrapper.getWrapperObject(\
+        try {
+            return (${RETURN_TYPE}) coreWrapper.getWrapperObject(\
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
+        } catch (UnsupportedOperationException e) {
+            if (coreWrapper == null) {
+                Assert.fail("Cannot call this method before xwalk is ready");
+            } else {
+                XWalkCoreWrapper.handleRuntimeError(e);
+            }
+        }
+        ${RETURN_NULL}
     }
 """)
     elif self.is_reservable:
       template = Template("""\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        if (${METHOD_DECLARE_NAME}.isNull()) {
-            ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_RESERVING});
-            XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
-            return;
+        try {
+            ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        } catch (UnsupportedOperationException e) {
+            if (coreWrapper == null) {
+                ${METHOD_DECLARE_NAME}.setArguments(${PARAMS_RESERVING});
+                XWalkCoreWrapper.reserveReflectMethod(${METHOD_DECLARE_NAME});
+            } else {
+                XWalkCoreWrapper.handleRuntimeError(e);
+            }
         }
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        ${RETURN_NULL}
     }
 """)
     elif self._is_delegate:
@@ -813,17 +858,29 @@ ${PRE_WRAP_LINES}
       template = Template("""\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        try {
+            ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
+        } catch (UnsupportedOperationException e) {
+            if (coreWrapper == null) {
+                Assert.fail("Cannot call this method before xwalk is ready");
+            } else {
+                XWalkCoreWrapper.handleRuntimeError(e);
+            }
+        }
+        ${RETURN_NULL}
     }
 """)
     if return_is_internal:
       return_type = return_type_java_data.wrapper_name
     else:
       return_type = self.method_return
-    if no_return_value:
+
+    if self._method_return == 'void':
       return_state = ''
+      return_null = ''
     else:
       return_state = 'return (%s)' % ConvertPrimitiveTypeToObject(return_type)
+      return_null = 'return %s;' % GetPrimitiveTypeDefaultValue(return_type)
 
     params_reserving = []
     for param in self._wrapper_params_pass_to_bridge.split(', '):
@@ -839,6 +896,7 @@ ${DOC}
 
     value = {'RETURN_TYPE': return_type,
              'RETURN': return_state,
+             'RETURN_NULL': return_null,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
              'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>',
