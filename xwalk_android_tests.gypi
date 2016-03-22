@@ -194,7 +194,6 @@
           ],
         },
       ],
-      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_core_unittests',
@@ -487,7 +486,6 @@
           ],
         },
       ],
-      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_runtime_client_embedded_shell_apk_java',
@@ -546,7 +544,6 @@
           ],
         },
       ],
-      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'xwalk_core_sample_apk',
@@ -754,7 +751,6 @@
           ],
         },
       ],
-      'includes': [ '../build/java_apk.gypi' ],
     },
     {
       'target_name': 'libxwalkdummy',
