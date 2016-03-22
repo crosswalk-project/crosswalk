@@ -17,7 +17,9 @@
 #include "content/public/renderer/render_view.h"
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
+#include "net/base/net_errors.h"
 #include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
@@ -272,13 +274,13 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
     const blink::WebURLError& error,
     std::string* error_html,
     base::string16* error_description) {
-  bool is_post = base::EqualsASCII(
-      base::StringPiece16(failed_request.httpMethod()), "POST");
-
   // TODO(guangzhen): Check whether error_html is needed in xwalk runtime.
 
   if (error_description) {
-    *error_description = LocalizedError::GetErrorDetails(error, is_post);
+    if (error.localizedDescription.isEmpty())
+      *error_description = base::ASCIIToUTF16(net::ErrorToString(error.reason));
+    else
+      *error_description = error.localizedDescription;
   }
 }
 

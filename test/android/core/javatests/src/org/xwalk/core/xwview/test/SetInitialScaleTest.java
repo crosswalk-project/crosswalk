@@ -30,7 +30,7 @@ public class SetInitialScaleTest extends XWalkViewTestBase {
     @SmallTest
     @Feature({"setInitialScale"})
     public void testSetInitialScale1() throws Throwable {
-
+        setQuirksMode(true);
         final String pageTemplate = "<html><head>"
                 + "<meta name='viewport' content='initial-scale=%d' />"
                 + "</head><body>"
