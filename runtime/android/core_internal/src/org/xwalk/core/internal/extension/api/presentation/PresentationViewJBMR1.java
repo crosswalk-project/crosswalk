@@ -4,6 +4,7 @@
 
 package org.xwalk.core.internal.extension.api.presentation;
 
+import android.annotation.SuppressLint;
 import android.app.Presentation;
 import android.os.Build;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.view.View;
 /**
  * A wrapper class of android.app.Presentation class introduced from API level 17.
  */
+@SuppressLint("NewApi")
 public class PresentationViewJBMR1 extends PresentationView
         implements DialogInterface.OnShowListener, DialogInterface.OnDismissListener {
 

@@ -26,6 +26,11 @@ public class DisplayManagerNull extends XWalkDisplayManager {
     }
 
     @Override
+    public Display[] getDisplays(String category) {
+        return NO_DISPLAYS;
+    }
+
+    @Override
     public Display[] getPresentationDisplays() {
         return NO_DISPLAYS;
     }
