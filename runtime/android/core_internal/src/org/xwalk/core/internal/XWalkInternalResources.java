@@ -25,7 +25,8 @@ class XWalkInternalResources {
     // Doing org.chromium.content.R.<class>.<name> = org.xwalk.core.R.<class>.<name>
     // Use reflection to iterate over the target class is to avoid hardcode.
     private static void doResetIds(Context context) {
-        ClassLoader classLoader = context.getClassLoader();
+        // internal classes are loaded with the same classLoader of XWalkInternalResources
+        ClassLoader classLoader = XWalkInternalResources.class.getClassLoader();
         ClassLoader appClassLoader = context.getApplicationContext().getClassLoader();
         for (String resourceClass : INTERNAL_RESOURCE_CLASSES) {
             try {
