@@ -91,6 +91,12 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
     }
 
     @Override
+    public void showRepostFormWarningDialog() {
+        if (mXWalkContentsClient == null) return;
+        mXWalkContentsClient.resetSwipeRefreshHandler();
+    }
+
+    @Override
     public void toggleFullscreen(boolean enterFullscreen) {
         if (!enterFullscreen) {
             ContentVideoView videoView = ContentVideoView.getContentVideoView();

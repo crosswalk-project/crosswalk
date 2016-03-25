@@ -40,6 +40,9 @@ abstract class XWalkWebContentsDelegate extends WebContentsDelegateAndroid {
             int lineNumber,String sourceId);
 
     @CalledByNative
+    public abstract void showRepostFormWarningDialog();
+
+    @CalledByNative
     public abstract boolean shouldOverrideRunFileChooser(
             int processId, int renderId, int mode,
             String acceptTypes, boolean capture);
