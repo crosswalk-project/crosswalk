@@ -84,10 +84,14 @@ class XWalkPresentationServiceDelegateAndroid
       const content::PresentationSessionStartedCallback& success_cb,
       const content::PresentationSessionErrorCallback& error_cb) override;
 
-  void CloseSession(
+  void CloseConnection(
       int render_process_id,
       int render_frame_id,
       const std::string& presentation_id) override;
+
+  void Terminate(int render_process_id,
+                 int render_frame_id,
+                 const std::string& presentation_id) override;
 
   void ListenForSessionMessages(
       int render_process_id,
@@ -103,10 +107,12 @@ class XWalkPresentationServiceDelegateAndroid
       scoped_ptr<content::PresentationSessionMessage> message_request,
       const SendMessageCallback& send_message_cb) override {}
 
-  void ListenForSessionStateChange(
+  void ListenForConnectionStateChange(
       int render_process_id,
       int render_frame_id,
-      const content::SessionStateChangedCallback& state_changed_cb) override;
+      const content::PresentationSessionInfo& connection,
+      const content::PresentationConnectionStateChangedCallback&
+          state_changed_cb) override;
 
  private:
   PresentationFrame* GetOrAddPresentationFrame(

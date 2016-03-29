@@ -77,11 +77,10 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                       content::ResourceContext* context,
                       int render_process_id,
                       int render_frame_id,
-                      net::CookieOptions* options) override;
+                      const net::CookieOptions& options) override;
 
   void AllowCertificateError(
-      int render_process_id,
-      int render_frame_id,
+      content::WebContents* web_contents,
       int cert_error,
       const net::SSLInfo& ssl_info,
       const GURL& request_url,

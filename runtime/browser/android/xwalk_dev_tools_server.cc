@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "base/android/context_utils.h"
 #include "base/android/jni_string.h"
 #include "base/bind.h"
 #include "base/callback.h"
