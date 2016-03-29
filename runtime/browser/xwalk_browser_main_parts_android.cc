@@ -144,6 +144,8 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // Disable ExtensionProcess for Android.
   // External extensions will run in the BrowserProcess (in process mode).
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
+  // Enable viewport.
+  command_line->AppendSwitch(switches::kEnableViewport);
 
   // Only force to enable WebGL for Android for IA platforms because
   // we've tested the WebGL conformance test. For other platforms, just

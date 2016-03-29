@@ -39,7 +39,6 @@
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #else
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebView.h"
 #endif
 
 #if !defined(DISABLE_NACL)
@@ -169,14 +168,6 @@ void XWalkContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
 #if defined(OS_ANDROID)
   XWalkRenderViewExt::RenderViewCreated(render_view);
-#else
-  if (blink::WebView* webview = render_view->GetWebView()) {
-    // This sets 'user agent' values which override page min and max
-    // zoom from meta viewport tag. Thus we avoid scaling out the page
-    // layout. See XWALK-6269.
-    // NOTE: This must be re-considered after crbug.com/591326 is solved.
-    webview->setIgnoreViewportTagScaleLimits(true);
-  }
 #endif
 }
 
