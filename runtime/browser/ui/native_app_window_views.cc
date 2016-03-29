@@ -13,9 +13,12 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/screen.h"
 #include "ui/views/controls/webview/webview.h"
+#include "components/constrained_window/constrained_window_views.h"
+#include "components/constrained_window/constrained_window_views_client.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
 #include "xwalk/runtime/browser/image_util.h"
+#include "xwalk/runtime/browser/ui/desktop/exclusive_access_bubble_views.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 #include "xwalk/runtime/browser/ui/xwalk_views_delegate.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
@@ -144,6 +147,21 @@ void NativeAppWindowViews::SetFullscreen(bool fullscreen) {
       xwalk::NOTIFICATION_FULLSCREEN_CHANGED,
       content::Source<NativeAppWindow>(this),
       content::NotificationService::NoDetails());
+
+  ExclusiveAccessBubble::Type bubble_type =
+      (create_params_.state == ui::SHOW_STATE_FULLSCREEN) ?
+      ExclusiveAccessBubble::TYPE_APPLICATION_FULLSCREEN_CLOSE_INSTRUCTION
+      : ExclusiveAccessBubble::TYPE_BROWSER_FULLSCREEN_EXIT_INSTRUCTION;
+
+  // Add a popup window to exit full screen mode or end the application.
+  if (fullscreen) {
+    gfx::NativeWindow parent = web_contents_->GetTopLevelNativeWindow();
+    exclusive_access_bubble_.reset(
+        new ExclusiveAccessBubbleViews(this, bubble_type, parent));
+    exclusive_access_bubble_->UpdateContent(bubble_type);
+  } else {
+    exclusive_access_bubble_.reset();
+  }
 }
 
 void NativeAppWindowViews::Restore() {
@@ -156,6 +174,10 @@ void NativeAppWindowViews::FlashFrame(bool flash) {
 
 void NativeAppWindowViews::Close() {
   window_->Close();
+}
+
+void NativeAppWindowViews::ExitApplication() {
+  delegate_->OnApplicationExitRequested();
 }
 
 bool NativeAppWindowViews::IsActive() const {
@@ -315,6 +337,23 @@ void NativeAppWindowViews::OnWidgetBoundsChanged(views::Widget* widget,
 bool NativeAppWindowViews::PlatformHandleContextMenu(
     const content::ContextMenuParams& params) {
   return false;
+}
+
+// Currently, immersive mode is only available for Chrome OS.
+bool NativeAppWindowViews::IsImmersiveModeEnabled() {
+  return false;
+}
+
+NativeAppWindow* NativeAppWindowViews::GetNativeAppViews() {
+  return this;
+}
+
+views::Widget* NativeAppWindowViews::GetBubbleAssociatedWidget() {
+  return GetWidget();
+}
+
+gfx::Rect NativeAppWindowViews::GetTopContainerBoundsInScreen() {
+  return gfx::Rect();
 }
 
 // static

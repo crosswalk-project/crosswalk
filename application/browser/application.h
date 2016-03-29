@@ -118,6 +118,7 @@ class Application : public Runtime::Observer,
   // Runtime::Observer implementation.
   void OnNewRuntimeAdded(Runtime* runtime) override;
   void OnRuntimeClosed(Runtime* runtime) override;
+  void OnApplicationExitRequested(Runtime* runtime) override;
 
   // Get the path of splash screen image. Return empty path by default.
   // Sub class can override it to return a specific path.

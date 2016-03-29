@@ -13,6 +13,7 @@
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
 #include "ui/views/views_delegate.h"
+#include "xwalk/runtime/browser/ui/desktop/exclusive_access_bubble_views_context.h"
 
 namespace views {
 class WebView;
@@ -21,10 +22,12 @@ class WebView;
 namespace xwalk {
 
 class TopViewLayout;
+class ExclusiveAccessBubbleViews;
 
 class NativeAppWindowViews : public NativeAppWindow,
                              public views::WidgetObserver,
-                             public views::WidgetDelegateView {
+                             public views::WidgetDelegateView,
+                             public ExclusiveAccessBubbleViewsContext {
  public:
   explicit NativeAppWindowViews(const NativeAppWindow::CreateParams& params);
   ~NativeAppWindowViews() override;
@@ -51,12 +54,18 @@ class NativeAppWindowViews : public NativeAppWindow,
   bool IsMaximized() const override;
   bool IsMinimized() const override;
   bool IsFullscreen() const override;
+  void ExitApplication() override;
 
   views::Widget* GetWidget() override;
   const views::Widget* GetWidget() const override;
 
   bool PlatformHandleContextMenu(
     const content::ContextMenuParams& params) override;
+
+  NativeAppWindow* GetNativeAppViews() override;
+  views::Widget* GetBubbleAssociatedWidget() override;
+  bool IsImmersiveModeEnabled() override;
+  gfx::Rect GetTopContainerBoundsInScreen() override;
 
  protected:
   TopViewLayout* top_view_layout();
@@ -116,6 +125,8 @@ class NativeAppWindowViews : public NativeAppWindow,
   gfx::Size minimum_size_;
   gfx::Size maximum_size_;
   bool resizable_;
+
+  scoped_ptr<ExclusiveAccessBubbleViews> exclusive_access_bubble_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowViews);
 };

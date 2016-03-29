@@ -67,6 +67,7 @@ class InProcessBrowserTest : public content::BrowserTestBase,
   // xwalk::Runtime::Observer
   void OnNewRuntimeAdded(xwalk::Runtime* runtime) override;
   void OnRuntimeClosed(xwalk::Runtime* runtime) override;
+  void OnApplicationExitRequested(xwalk::Runtime* runtime) override;
 
   void CloseAll();
   // Create data path directory for this test to avoid pollution in default

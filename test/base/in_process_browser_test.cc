@@ -119,6 +119,9 @@ void InProcessBrowserTest::OnRuntimeClosed(Runtime* runtime) {
         FROM_HERE, base::MessageLoop::QuitWhenIdleClosure());
 }
 
+void InProcessBrowserTest::OnApplicationExitRequested(Runtime* runtime) {
+}
+
 void InProcessBrowserTest::CloseAll() {
   if (runtimes_.empty())
     return;
