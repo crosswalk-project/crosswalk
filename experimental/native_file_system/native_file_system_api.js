@@ -40,10 +40,6 @@ var requestNativeFileSystem = function(path, success, error) {
   postMessage(msg, get_file_system_id_success, error);
 }
 
-var getDirectoryList = function() {
-  extension.internal.sendSyncMessage("get");
-}
-
 var getRealPath = function(virtual_root) {
   var _msg = {
     cmd : "getRealPath",
@@ -55,7 +51,6 @@ var getRealPath = function(virtual_root) {
 NativeFileSystem.prototype = new Object();
 NativeFileSystem.prototype.constructor = NativeFileSystem;
 NativeFileSystem.prototype.requestNativeFileSystem = requestNativeFileSystem;
-NativeFileSystem.prototype.getDirectoryList = getDirectoryList;
 NativeFileSystem.prototype.getRealPath = getRealPath;
 
 exports = new NativeFileSystem();
