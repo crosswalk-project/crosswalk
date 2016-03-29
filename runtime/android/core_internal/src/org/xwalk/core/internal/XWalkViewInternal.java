@@ -1454,6 +1454,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void onFocusChangedDelegate(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
     }
 
+    @XWalkAPI(delegate = true,
+              preWrapperLines = {"onOverScrolled(scrollX, scrollY, clampedX, clampedY);"})
+    public void onOverScrolledDelegate(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+    }
+
     // Override XWalkView.setOnTouchListener to install the listener to ContentView
     // therefore touch event intercept through onTouchListener is available on XWalkView.
     @Override
