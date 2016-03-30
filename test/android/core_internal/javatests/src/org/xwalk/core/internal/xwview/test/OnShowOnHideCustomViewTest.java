@@ -61,8 +61,8 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
         // ever moves.
         TouchCommon.singleClickView(mWebChromeClient.getCustomView());
 
-        Assert.assertTrue(DOMUtils.waitForMediaPlay(
-                mContentViewCore.getWebContents(), VideoTestWebServer.VIDEO_ID));
+        DOMUtils.waitForMediaPlay(
+                mContentViewCore.getWebContents(), VideoTestWebServer.VIDEO_ID);
     }
 
     private void doOnShowAndHideCustomViewTest(final Runnable existFullscreen) throws Throwable {

@@ -120,13 +120,13 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
     public void testSaveRestoreStateWithTitle() throws Throwable {
         setServerResponseAndLoad(1);
         saveAndRestoreStateOnUiThread();
-        assertTrue(pollOnUiThread(new Callable<Boolean>() {
+        pollOnUiThread(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 // TODO(hengzhi): add the judge about updated title.
                 return TITLES[0].equals(mXWalkView.getTitle());
             }
-        }));
+        });
     }
 
     //@SmallTest

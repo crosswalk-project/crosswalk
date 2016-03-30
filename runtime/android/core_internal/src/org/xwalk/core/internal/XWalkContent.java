@@ -46,9 +46,8 @@ import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
 import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType;
 import org.chromium.content.browser.ContentViewStatics;
-import org.chromium.content.browser.ContentReadbackHandler;
-import org.chromium.content.browser.ContentReadbackHandler.GetBitmapCallback;
 import org.chromium.content.common.CleanupReference;
+import org.chromium.content_public.browser.ContentBitmapCallback;
 import org.chromium.content_public.browser.JavaScriptCallback;
 import org.chromium.content_public.browser.LoadUrlParams;
 import org.chromium.content_public.browser.NavigationHistory;
@@ -87,8 +86,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private boolean mIsLoaded = false;
     private XWalkAutofillClientAndroid mXWalkAutofillClient;
     private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
-    private ContentReadbackHandler mContentReadbackHandler;
-    private GetBitmapCallback mGetBitmapCallback;
+    private ContentBitmapCallback mGetBitmapCallback;
 
     long mNativeContent;
     long mNativeWebContents;
@@ -142,8 +140,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     private void initCaptureBitmapAsync() {
-        mContentReadbackHandler = mContentViewRenderView.getContentReadbackHandler();
-        mGetBitmapCallback = new GetBitmapCallback() {
+        mGetBitmapCallback = new ContentBitmapCallback() {
             @Override
             public void onFinishGetBitmap(Bitmap bitmap, int response) {
                 if (mXWalkGetBitmapCallbackInternal == null) return;
@@ -153,10 +150,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     public void captureBitmapAsync(XWalkGetBitmapCallbackInternal callback) {
-        if (mContentReadbackHandler == null) return;
+        if (mNativeContent == 0) return;
         mXWalkGetBitmapCallbackInternal = callback;
-        mContentReadbackHandler.getContentBitmapAsync(1.0f, new Rect(), mContentViewCore,
-            Bitmap.Config.ARGB_8888, mGetBitmapCallback);
+        mWebContents.getContentBitmapAsync(Bitmap.Config.ARGB_8888, 1.0f,
+            new Rect(), mGetBitmapCallback);
     }
 
     private void setNativeContent(long newNativeContent) {

@@ -4,7 +4,6 @@
 
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
-#include "base/basictypes.h"
 #include "base/files/file_path.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"

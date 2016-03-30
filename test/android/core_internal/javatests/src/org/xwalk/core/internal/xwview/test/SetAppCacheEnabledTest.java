@@ -76,13 +76,12 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
 
         private int waitUntilResourceIsRequested(
                 final String path, final int initialRequestCount) throws InterruptedException {
-            boolean result = CriteriaHelper.pollForCriteria(new Criteria() {
+            CriteriaHelper.pollForCriteria(new Criteria() {
                 @Override
                 public boolean isSatisfied() {
                     return mWebServer.getRequestCount(path) > initialRequestCount;
                 }
             }, TEST_TIMEOUT, CHECK_INTERVAL);
-            assertTrue(result);
             return mWebServer.getRequestCount(path);
         }
     }

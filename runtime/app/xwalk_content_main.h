@@ -5,8 +5,6 @@
 #ifndef XWALK_RUNTIME_APP_XWALK_CONTENT_MAIN_H_
 #define XWALK_RUNTIME_APP_XWALK_CONTENT_MAIN_H_
 
-#include "base/basictypes.h"
-
 #if defined(OS_MACOSX)
 extern "C" {
 __attribute__((visibility("default")))

@@ -13,8 +13,6 @@ import java.security.PrivateKey;
 import java.util.List;
 
 import org.chromium.base.ThreadUtils;
-import org.chromium.net.AndroidPrivateKey;
-import org.chromium.net.DefaultAndroidKeyStore;
 
 @XWalkAPI(impl = ClientCertRequestInternal.class, createInternally = true)
 public class ClientCertRequestHandlerInternal implements ClientCertRequestInternal {
@@ -102,9 +100,8 @@ public class ClientCertRequestHandlerInternal implements ClientCertRequestIntern
 
     private void proceedOnUiThread(PrivateKey privateKey, X509Certificate[] chain) {
         checkIfCalled();
-        AndroidPrivateKey key = mContentsClient.mLocalKeyStore.createKey(privateKey);
 
-        if ((key == null) || (chain == null) || (chain.length == 0)) {
+        if ((privateKey == null) || (chain == null) || (chain.length == 0)) {
             Log.w(TAG, "Empty client certificate chain?");
             provideResponse(null, null);
 
@@ -125,8 +122,8 @@ public class ClientCertRequestHandlerInternal implements ClientCertRequestIntern
             return;
         }
 
-        mContentsClient.mLookupTable.allow(mHost, mPort, key, encodedChain);
-        provideResponse(key, encodedChain);
+        mContentsClient.mLookupTable.allow(mHost, mPort, privateKey, encodedChain);
+        provideResponse(privateKey, encodedChain);
     }
 
     private void ignoreOnUiThread() {
@@ -148,7 +145,7 @@ public class ClientCertRequestHandlerInternal implements ClientCertRequestIntern
         mIsCalled = true;
     }
 
-    private void provideResponse(AndroidPrivateKey androidKey, byte[][] certChain) {
-        mContentsClient.provideClientCertificateResponse(mId, certChain, androidKey);
+    private void provideResponse(PrivateKey privateKey, byte[][] certChain) {
+        mContentsClient.provideClientCertificateResponse(mId, certChain, privateKey);
     }
 }

@@ -44,8 +44,6 @@ import org.chromium.components.navigation_interception.NavigationParams;
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.chromium.content.browser.ContentViewDownloadDelegate;
 import org.chromium.content.browser.DownloadInfo;
-import org.chromium.net.AndroidPrivateKey;
-import org.chromium.net.DefaultAndroidKeyStore;
 
 import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 
@@ -84,6 +82,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     private float mPageScaleFactor;
 
+    protected ClientCertLookupTable mLookupTable;
+
     private class InterceptNavigationDelegateImpl implements InterceptNavigationDelegate {
         private XWalkContentsClient mContentsClient;
         public InterceptNavigationDelegateImpl(XWalkContentsClient client) {
@@ -107,7 +107,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     public XWalkContentsClientBridge(XWalkViewInternal xwView) {
         mXWalkView = xwView;
-        mLocalKeyStore = new DefaultAndroidKeyStore();
         mLookupTable = new ClientCertLookupTable();
         mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl(this);
 
@@ -657,8 +656,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     public void provideClientCertificateResponse(int id, byte[][] certChain,
-            AndroidPrivateKey androidKey) {
-        nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id, certChain, androidKey);
+            PrivateKey privateKey) {
+        nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id, certChain, privateKey);
     }
 
     public Bitmap getFavicon() {
@@ -712,7 +711,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
             if (cert != null) {
                 nativeProvideClientCertificateResponse(mNativeContentsClientBridge, id,
-                        cert.certChain, cert.privateKey);
+                        cert.mCertChain, cert.mPrivateKey);
 
                 return;
             }
@@ -910,7 +909,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             int processId, int renderId, int mode_flags);
     private native void nativeDownloadIcon(long nativeXWalkContentsClientBridge, String url);
     private native void nativeProvideClientCertificateResponse(
-            long nativeXWalkContentsClientBridge, int id, byte[][] certChain, AndroidPrivateKey androidKey);
+            long nativeXWalkContentsClientBridge, int id, byte[][] certChain, PrivateKey privateKey);
     private native void nativeClearClientCertPreferences(
             long nativeXWalkContentsClientBridge, Runnable callback);
 }
