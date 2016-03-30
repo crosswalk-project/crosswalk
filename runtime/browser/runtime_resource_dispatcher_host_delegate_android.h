@@ -51,7 +51,8 @@ class RuntimeResourceDispatcherHostDelegateAndroid
   bool HandleExternalProtocol(
       const GURL& url,
       int child_id,
-      int route_id,
+      const content::ResourceRequestInfo::WebContentsGetter&
+          web_contents_getter,
       bool is_main_frame,
       ui::PageTransition page_transition,
       bool has_user_gesture) override;
@@ -68,6 +69,7 @@ class RuntimeResourceDispatcherHostDelegateAndroid
   static void AddPendingThrottle(int render_process_id,
                                  int render_frame_id,
                                  IoThreadClientThrottle* pending_throttle);
+
  private:
   // These methods must be called on IO thread.
   void OnIoThreadClientReadyInternal(int new_render_process_id,

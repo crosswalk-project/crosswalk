@@ -13,6 +13,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/threading/thread_checker.h"
+#include "net/base/net_errors.h"
 #include "net/http/http_byte_range.h"
 #include "net/url_request/url_request_job.h"
 
@@ -86,9 +87,7 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
   // URLRequestJob:
   void Start() override;
   void Kill() override;
-  bool ReadRawData(net::IOBuffer* buf,
-                   int buf_size,
-                   int* bytes_read) override;
+  int ReadRawData(net::IOBuffer* buf, int buf_size) override;
   void SetExtraRequestHeaders(
       const net::HttpRequestHeaders& headers) override;
   bool GetMimeType(std::string* mime_type) const override;
@@ -118,6 +117,7 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
   void OnReaderReadCompleted(int bytes_read);
 
   net::HttpByteRange byte_range_;
+  net::Error range_parse_result_;
   scoped_ptr<net::HttpResponseInfo> response_info_;
   scoped_ptr<Delegate> delegate_;
   std::string content_security_policy_;

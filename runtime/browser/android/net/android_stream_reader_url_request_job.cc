@@ -21,7 +21,6 @@
 #include "content/public/browser/browser_thread.h"
 #include "net/base/io_buffer.h"
 #include "net/base/mime_util.h"
-#include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
@@ -99,6 +98,7 @@ AndroidStreamReaderURLRequestJob::AndroidStreamReaderURLRequestJob(
     scoped_ptr<Delegate> delegate,
     const std::string& content_security_policy)
     : URLRequestJob(request, network_delegate),
+      range_parse_result_(net::OK),
       delegate_(std::move(delegate)),
       content_security_policy_(content_security_policy),
       weak_factory_(this) {
@@ -165,6 +165,12 @@ void AndroidStreamReaderURLRequestJob::Start() {
         return;
       }
     }
+  }
+
+  if (range_parse_result_ != net::OK) {
+    NotifyStartError(net::URLRequestStatus(net::URLRequestStatus::FAILED,
+                                           range_parse_result_));
+    return;
   }
 
   // Start reading asynchronously so that all error reporting and data
@@ -246,45 +252,28 @@ void AndroidStreamReaderURLRequestJob::OnReaderSeekCompleted(int result) {
     set_expected_content_size(result);
     HeadersComplete(kHTTPOk, kHTTPOkText);
   } else {
-    NotifyDone(net::URLRequestStatus(net::URLRequestStatus::FAILED, result));
+    NotifyStartError(
+        net::URLRequestStatus(net::URLRequestStatus::FAILED, result));
   }
 }
 
 void AndroidStreamReaderURLRequestJob::OnReaderReadCompleted(int result) {
   DCHECK(thread_checker_.CalledOnValidThread());
-  // The URLRequest API contract requires that:
-  // * NotifyDone be called once, to set the status code, indicate the job is
-  //   finished (there will be no further IO),
-  // * NotifyReadComplete be called if false is returned from ReadRawData to
-  //   indicate that the IOBuffer will not be used by the job anymore.
-  // There might be multiple calls to ReadRawData (and thus multiple calls to
-  // NotifyReadComplete), which is why NotifyDone is called only on errors
-  // (result < 0) and end of data (result == 0).
-  if (result == 0) {
-    NotifyDone(net::URLRequestStatus());
-  } else if (result < 0) {
-    NotifyDone(net::URLRequestStatus(net::URLRequestStatus::FAILED, result));
-  } else {
-    // Clear the IO_PENDING status.
-    SetStatus(net::URLRequestStatus());
-  }
-  NotifyReadComplete(result);
+  ReadRawDataComplete(result);
 }
 
 base::TaskRunner* AndroidStreamReaderURLRequestJob::GetWorkerThreadRunner() {
   return static_cast<base::TaskRunner*>(BrowserThread::GetBlockingPool());
 }
 
-bool AndroidStreamReaderURLRequestJob::ReadRawData(net::IOBuffer* dest,
-                                                   int dest_size,
-                                                   int* bytes_read) {
+int AndroidStreamReaderURLRequestJob::ReadRawData(net::IOBuffer* dest,
+                                                  int dest_size) {
   DCHECK(thread_checker_.CalledOnValidThread());
   if (!input_stream_reader_wrapper_.get()) {
     // This will happen if opening the InputStream fails in which case the
     // error is communicated by setting the HTTP response status header rather
     // than failing the request during the header fetch phase.
-    *bytes_read = 0;
-    return true;
+    return 0;
   }
 
   PostTaskAndReplyWithResult(
@@ -297,9 +286,7 @@ bool AndroidStreamReaderURLRequestJob::ReadRawData(net::IOBuffer* dest,
       base::Bind(&AndroidStreamReaderURLRequestJob::OnReaderReadCompleted,
                  weak_factory_.GetWeakPtr()));
 
-  SetStatus(net::URLRequestStatus(net::URLRequestStatus::IO_PENDING,
-                                  net::ERR_IO_PENDING));
-  return false;
+  return net::ERR_IO_PENDING;
 }
 
 bool AndroidStreamReaderURLRequestJob::GetMimeType(
@@ -397,19 +384,18 @@ void AndroidStreamReaderURLRequestJob::SetExtraRequestHeaders(
     const net::HttpRequestHeaders& headers) {
   std::string range_header;
   if (headers.GetHeader(net::HttpRequestHeaders::kRange, &range_header)) {
-    // We only extract the "Range" header so that we know how many bytes in the
-    // stream to skip and how many to read after that.
+    // This job only cares about the Range header so that we know how many bytes
+    // in the stream to skip and how many to read after that. Note that
+    // validation is deferred to DoStart(), because NotifyStartError() is not
+    // legal to call since the job has not started.
     std::vector<net::HttpByteRange> ranges;
     if (net::HttpUtil::ParseRangeHeader(range_header, &ranges)) {
-      if (ranges.size() == 1) {
+      if (ranges.size() == 1)
         byte_range_ = ranges[0];
-      } else {
-        // We don't support multiple range requests in one single URL request,
-        // because we need to do multipart encoding here.
-        NotifyDone(net::URLRequestStatus(
-            net::URLRequestStatus::FAILED,
-            net::ERR_REQUEST_RANGE_NOT_SATISFIABLE));
-      }
+    } else {
+      // We don't support multiple range requests in one single URL request,
+      // because we need to do multipart encoding here.
+      range_parse_result_ = net::ERR_REQUEST_RANGE_NOT_SATISFIABLE;
     }
   }
 }

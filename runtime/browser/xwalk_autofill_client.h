@@ -57,6 +57,7 @@ class XWalkAutofillClient : public autofill::AutofillClient {
   autofill::PersonalDataManager* GetPersonalDataManager() override;
   scoped_refptr<autofill::AutofillWebDataService> GetDatabase() override;
   PrefService* GetPrefs() override;
+  sync_driver::SyncService* GetSyncService() override;
   IdentityProvider* GetIdentityProvider() override;
   rappor::RapporService* GetRapporService() override;
   void HideRequestAutocompleteDialog() override;
@@ -66,10 +67,12 @@ class XWalkAutofillClient : public autofill::AutofillClient {
       base::WeakPtr<autofill::CardUnmaskDelegate> delegate) override;
   void OnUnmaskVerificationResult(PaymentsRpcResult result) override;
   void ConfirmSaveCreditCardLocally(
+      const autofill::CreditCard& card,
       const base::Closure& callback) override;
   void ConfirmSaveCreditCardToCloud(
-      const base::Closure& callback,
-      scoped_ptr<base::DictionaryValue> legal_message) override;
+      const autofill::CreditCard& card,
+      scoped_ptr<base::DictionaryValue> legal_message,
+      const base::Closure& callback) override;
   void LoadRiskData(
       const base::Callback<void(const std::string&)>& callback) override;
   bool HasCreditCardScanFeature() override;

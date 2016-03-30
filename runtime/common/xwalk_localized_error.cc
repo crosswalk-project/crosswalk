@@ -13,6 +13,7 @@
 #include "base/values.h"
 #include "components/error_page/common/net_error_info.h"
 #include "grit/xwalk_resources.h"
+#include "components/strings/grit/components_strings.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
@@ -68,7 +69,7 @@ const LocalizedErrorMap net_error_options[] = {
     IDS_ERRORPAGES_DETAILS_FILE_NOT_FOUND,
   },
   { net::ERR_CACHE_MISS,
-    IDS_ERRORPAGES_DETAILS_CACHE_MISS,
+    IDS_ERRORPAGES_DETAILS_CACHE_READ_FAILURE,
   },
   { net::ERR_CACHE_READ_FAILURE,
     IDS_ERRORPAGES_DETAILS_CACHE_READ_FAILURE,
@@ -107,13 +108,13 @@ const LocalizedErrorMap net_error_options[] = {
     IDS_ERRORPAGES_DETAILS_SSL_PROTOCOL_ERROR,
   },
   { net::ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN,
-    IDS_ERRORPAGES_DETAILS_PINNING_FAILURE,
+    IDS_CERT_ERROR_SUMMARY_PINNING_FAILURE_DESCRIPTION,
   },
   { net::ERR_TEMPORARILY_THROTTLED,
     IDS_ERRORPAGES_DETAILS_TEMPORARILY_THROTTLED,
   },
   { net::ERR_BLOCKED_BY_CLIENT,
-    IDS_ERRORPAGES_DETAILS_BLOCKED,
+    IDS_ERRORPAGES_DETAILS_BLOCKED_BY_EXTENSION,
   },
   { net::ERR_NETWORK_CHANGED,
     IDS_ERRORPAGES_DETAILS_NETWORK_CHANGED,
@@ -129,7 +130,7 @@ const LocalizedErrorMap net_error_options[] = {
 
 const LocalizedErrorMap repost_error = {
   net::ERR_CACHE_MISS,
-  IDS_ERRORPAGES_DETAILS_CACHE_MISS,
+  IDS_ERRORPAGES_DETAILS_CACHE_READ_FAILURE,
 };
 
 const LocalizedErrorMap http_error_options[] = {
@@ -154,9 +155,6 @@ const LocalizedErrorMap http_error_options[] = {
   },
   { 504,
     IDS_ERRORPAGES_DETAILS_GATEWAY_TIMEOUT,
-  },
-  { 505,
-    IDS_ERRORPAGES_DETAILS_HTTP_VERSION_NOT_SUPPORTED,
   },
 };
 

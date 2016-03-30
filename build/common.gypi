@@ -60,9 +60,6 @@
       # Whether to disable NaCl support.
       'disable_nacl%': 0,
 
-      # Whether to enable WebCL support in Blink.
-      'enable_webcl%': 0,
-
       # From src/third_party/widevine/cdm/widevine_cdm.gyp.
       # Whether to build Crosswalk with support for the Widevine CDM.
       'enable_widevine%': 0,
@@ -93,8 +90,6 @@
         }],
 
         ['OS=="android"', {
-          'enable_webcl%': 1,
-
           # Make release builds smaller by omitting stack unwind support for
           # backtrace().
           # TODO(rakuco): determine if we only want this in official builds.
@@ -124,7 +119,6 @@
     # Copy conditionally-set variables out one scope.
     'component%': '<(component)',
     'disable_nacl%': '<(disable_nacl)',
-    'enable_webcl%': '<(enable_webcl)',
     'enable_widevine%': '<(enable_widevine)',
     'ffmpeg_branding%': '<(ffmpeg_branding)',
     'ffmpeg_component%': '<(ffmpeg_component)',

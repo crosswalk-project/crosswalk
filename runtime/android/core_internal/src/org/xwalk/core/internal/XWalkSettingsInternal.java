@@ -93,6 +93,7 @@ public class XWalkSettingsInternal {
     private boolean mDisplayZoomControls = true;
 
     private boolean mSpatialNavigationEnabled = true;
+    private boolean mQuirksModeEnabled = false;
 
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
@@ -1054,6 +1055,32 @@ public class XWalkSettingsInternal {
     public boolean getSupportSpatialNavigation() {
         synchronized (mXWalkSettingsLock) {
             return mSpatialNavigationEnabled;
+        }
+    }
+
+    /**
+     * Sets whether the XWalkView should support the quirks mode.
+     * @param enable whether the XWalkView should support the quirks mode.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setSupportQuirksMode(boolean enable) {
+        synchronized (mXWalkSettingsLock) {
+            if (mQuirksModeEnabled == enable) return;
+            mQuirksModeEnabled = enable;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets whether the XWalkView should support the quirks mode.
+     * @return true if XWalkView supports the quirks mode.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean getSupportQuirksMode() {
+        synchronized (mXWalkSettingsLock) {
+            return mQuirksModeEnabled;
         }
     }
 
