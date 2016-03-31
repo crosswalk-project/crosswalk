@@ -444,12 +444,8 @@ class XWalkCoreWrapper {
         } catch (RuntimeException e) {
             Log.d(TAG, e.getLocalizedMessage());
             if (e.getCause() instanceof UnsatisfiedLinkError) {
-                Pattern pattern = Pattern.compile(PATTERN_BIT_MISMATCH);
-                Matcher matcher = pattern.matcher(e.getLocalizedMessage());
-                if (matcher.find()) {
-                    mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
-                    return false;
-                }
+                mCoreStatus = XWalkLibraryInterface.STATUS_ARCHITECTURE_MISMATCH;
+                return false;
             }
             mCoreStatus = XWalkLibraryInterface.STATUS_INCOMPLETE_LIBRARY;
             return false;
