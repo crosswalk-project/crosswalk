@@ -3,5 +3,6 @@
 // found in the LICENSE file.
 
 // Multiply-included file, hence no include guard.
+// NOLINT(build/header_guard)
 
 #include "xwalk/runtime/common/xwalk_common_messages.h"
