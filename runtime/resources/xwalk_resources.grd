@@ -87,6 +87,11 @@
           $1<ex>html5rocks.com</ex>
         </ph> wants to use your camera.
       </message>
+      <message name="IDS_NOTIFICATIONS_DIALOG_QUESTION" desc="Question asked on the dialog whenever URL wants to access the notification system.">
+        <ph name="URL">
+          $1<ex>maps.google.com</ex>
+        </ph> wants to show notifications.
+      </message>
       <message name="IDS_PERMISSION_ALLOW" desc="Label on button to allow a permissions request.">
         Allow
       </message>

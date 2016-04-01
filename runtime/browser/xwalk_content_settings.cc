@@ -64,8 +64,8 @@ void XWalkContentSettings::Shutdown() {
 
 ContentSetting XWalkContentSettings::GetPermission(
     ContentSettingsType type,
-  const GURL& requesting_origin,
-  const GURL& embedding_origin) {
+    const GURL& requesting_origin,
+    const GURL& embedding_origin) {
   return host_content_settings_map_->GetContentSetting(
       requesting_origin,
       embedding_origin,

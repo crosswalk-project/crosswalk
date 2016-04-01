@@ -56,6 +56,16 @@ XWalkPermissionManager::XWalkPermissionManager(
 XWalkPermissionManager::~XWalkPermissionManager() {
 }
 
+void XWalkPermissionManager::GetApplicationName(
+    content::RenderFrameHost* render_frame_host,
+    std::string* name) {
+  application::Application* app =
+      application_service_->GetApplicationByRenderHostID(
+      render_frame_host->GetProcess()->GetID());
+  if (app)
+    *name = app->data()->Name();
+}
+
 int XWalkPermissionManager::RequestPermission(
       content::PermissionType permission,
       content::RenderFrameHost* render_frame_host,
@@ -88,12 +98,8 @@ int XWalkPermissionManager::RequestPermission(
           geolocation_permission_context_ =
               new RuntimeGeolocationPermissionContext();
         }
-        application::Application* app =
-            application_service_->GetApplicationByRenderHostID(
-            render_frame_host->GetProcess()->GetID());
         std::string app_name;
-        if (app)
-          app_name = app->data()->Name();
+        GetApplicationName(render_frame_host, &app_name);
         geolocation_permission_context_->RequestGeolocationPermission(
             content::WebContents::FromRenderFrameHost(render_frame_host),
             requesting_origin,
@@ -103,11 +109,31 @@ int XWalkPermissionManager::RequestPermission(
       }
       break;
     }
+    case content::PermissionType::NOTIFICATIONS: {
+      request_id = pending_requests_.Add(new PendingRequest(
+        permission, requesting_origin,
+        embedding_origin, render_frame_host,
+        callback));
+      if (should_delegate_request) {
+        if (!notification_permission_context_.get()) {
+          notification_permission_context_ =
+              new RuntimeNotificationPermissionContext();
+        }
+        std::string app_name;
+        GetApplicationName(render_frame_host, &app_name);
+        notification_permission_context_->RequestNotificationPermission(
+            content::WebContents::FromRenderFrameHost(render_frame_host),
+            requesting_origin,
+            app_name,
+            base::Bind(&OnRequestResponse, weak_ptr_factory_.GetWeakPtr(),
+                request_id, callback));
+      }
+      break;
+    }
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
       callback.Run(content::PERMISSION_STATUS_GRANTED);
       break;
     case content::PermissionType::MIDI_SYSEX:
-    case content::PermissionType::NOTIFICATIONS:
     case content::PermissionType::PUSH_MESSAGING:
     case content::PermissionType::MIDI:
     case content::PermissionType::DURABLE_STORAGE:

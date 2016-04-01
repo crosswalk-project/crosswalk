@@ -17,6 +17,10 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
 #include "xwalk/runtime/browser/xwalk_notification_manager_linux.h"
+#elif defined(OS_WIN)
+#include "base/win/windows_version.h"
+#include "xwalk/runtime/browser/xwalk_notification_manager_win.h"
+#include "xwalk/runtime/browser/xwalk_content_settings.h"
 #endif
 
 namespace xwalk {
@@ -38,8 +42,18 @@ XWalkPlatformNotificationService::CheckPermissionOnUIThread(
     int render_process_id) {
 #if defined(OS_ANDROID)
   return blink::WebNotificationPermissionAllowed;
-#elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
+#elif defined(OS_LINUX) && defined(USE_LIBNOTIFY) || defined(OS_WIN)
   return blink::WebNotificationPermissionAllowed;
+#elif defined(OS_WIN)
+  ContentSetting setting =
+      XWalkContentSettings::GetInstance()->GetPermission(
+          CONTENT_SETTINGS_TYPE_NOTIFICATIONS, origin, origin);
+  if (setting == CONTENT_SETTING_ALLOW)
+    return blink::WebNotificationPermissionAllowed;
+  if (setting == CONTENT_SETTING_BLOCK)
+    return blink::WebNotificationPermissionDenied;
+
+  return blink::WebNotificationPermissionDefault;
 #else
   return blink::WebNotificationPermissionDenied;
 #endif
@@ -54,6 +68,16 @@ XWalkPlatformNotificationService::CheckPermissionOnIOThread(
   return blink::WebNotificationPermissionAllowed;
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
   return blink::WebNotificationPermissionAllowed;
+#elif defined(OS_WIN)
+  ContentSetting setting =
+      XWalkContentSettings::GetInstance()->GetPermission(
+          CONTENT_SETTINGS_TYPE_NOTIFICATIONS, origin, origin);
+  if (setting == CONTENT_SETTING_ALLOW)
+    return blink::WebNotificationPermissionAllowed;
+  if (setting == CONTENT_SETTING_BLOCK)
+    return blink::WebNotificationPermissionDenied;
+
+  return blink::WebNotificationPermissionDefault;
 #else
   return blink::WebNotificationPermissionDenied;
 #endif
@@ -94,6 +118,21 @@ void XWalkPlatformNotificationService::DisplayNotification(
       notification_data,
       std::move(delegate),
       cancel_callback);
+#elif defined(OS_WIN)
+  const base::win::OSInfo* os_info = base::win::OSInfo::GetInstance();
+  if (os_info->version() < base::win::VERSION_WIN8)
+    return;
+  if (!notification_manager_win_)
+    notification_manager_win_.reset(new XWalkNotificationManager());
+
+  notification_manager_win_->ShowDesktopNotification(
+      browser_context,
+      origin,
+      notification_data,
+      icon,
+      std::move(delegate),
+      cancel_callback);
+
 #endif
 }
 
