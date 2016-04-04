@@ -92,7 +92,7 @@ def CheckChangeOnUpload(input_api, output_api):
   input_api._current_presubmit_path = os.path.dirname(
     input_api.PresubmitLocalPath())
   results.extend(cr._CheckParseErrors(input_api, output_api))
-  # results.extend(cr._CheckFilePermissions(input_api, output_api))
+  results.extend(cr._CheckFilePermissions(input_api, output_api))
   # Our DEPS rules need to be adjusted before we can enable this check.
   # results.extend(cr._CheckUnwantedDependencies(input_api, output_api))
 
