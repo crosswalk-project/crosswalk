@@ -84,7 +84,7 @@ def CheckChangeOnUpload(input_api, output_api):
   # results.extend(cr._CheckSpamLogging(input_api, output_api))
   # results.extend(cr._CheckNoDeprecatedJS(input_api, output_api))
   # results.extend(cr._CheckForIPCRules(input_api, output_api))
-  # results.extend(cr._CheckForWindowsLineEndings(input_api, output_api))
+  results.extend(cr._CheckForWindowsLineEndings(input_api, output_api))
   # results.extend(cr._AndroidSpecificOnUploadChecks(input_api, output_api))
 
   # Some checks input_api.PresubmitLocalPath() returns Chromium's root
