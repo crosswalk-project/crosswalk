@@ -17,7 +17,7 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'b15365d1d214d75f0ad43371531a24893966dcb1'
+chromium_crosswalk_rev = 'c9cd89ce3f52946577be3733b460b10c592579cd'
 v8_crosswalk_rev = 'c3984c3872af2a3632f9c3c74beeb1f0d1cf3680'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
@@ -36,10 +36,6 @@ solutions = [
         crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
-
-      # Include OpenCL header files for WebCL support, target version 1.2.
-      'src/third_party/khronos/CL':
-        crosswalk_git + '/khronos-cl-api-1.2.git@6f4be98d10f03ce2b12c769cd9835c73a441c00f',
 
       # Include Intel RSSDK headers and library loader for RealSense camera
       # support.
