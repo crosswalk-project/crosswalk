@@ -76,11 +76,11 @@ def CheckChangeOnUpload(input_api, output_api):
   #   cr._CheckNoProductionCodeUsingTestOnlyFunctions(input_api, output_api))
   # results.extend(cr._CheckNoBannedFunctions(input_api, output_api))
   # results.extend(cr._CheckIncludeOrder(input_api, output_api))
-  # results.extend(
-  #   input_api.canned_checks.CheckChangeHasNoTabs(
-  #     input_api,
-  #     output_api,
-  #     source_file_filter=lambda x: x.LocalPath().endswith('.grd')))
+  results.extend(
+    input_api.canned_checks.CheckChangeHasNoTabs(
+      input_api,
+      output_api,
+      source_file_filter=lambda x: x.LocalPath().endswith('.grd')))
   # results.extend(cr._CheckSpamLogging(input_api, output_api))
   # results.extend(cr._CheckNoDeprecatedJS(input_api, output_api))
   # results.extend(cr._CheckForIPCRules(input_api, output_api))
