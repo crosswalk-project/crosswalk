@@ -3,6 +3,9 @@
 // found in the LICENSE file.
 #include "xwalk/runtime/browser/xwalk_notification_win.h"
 
+#include <shlobj.h>
+#include <vector>
+
 #include "NotificationActivationCallback.h"
 #include "base/files/file_util.h"
 #include "base/md5.h"
@@ -10,12 +13,11 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/desktop_notification_delegate.h"
+#include "content/public/common/notification_resources.h"
 #include "url/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "xwalk/runtime/browser/xwalk_notification_manager_win.h"
-
-#include <shlobj.h>
 
 namespace {
 
@@ -57,7 +59,7 @@ base::string16 MakeStdWString(HSTRING hstring) {
   return base::string16(str, size);
 }
 
-} // namespace
+}  // namespace
 
 namespace xwalk {
 
@@ -122,8 +124,7 @@ bool XWalkNotificationWin::Initialize() {
 
 bool XWalkNotificationWin::SetImageSrc(
     const std::wstring& imagePath,
-    winxml::Dom::IXmlDocument *toastXml)
-{
+    winxml::Dom::IXmlDocument *toastXml) {
   mswr::ComPtr<winxml::Dom::IXmlNodeList> nodeList;
   if (FAILED(toastXml->GetElementsByTagName(MakeHString(L"image"), &nodeList)))
     return false;
@@ -143,7 +144,8 @@ bool XWalkNotificationWin::SetImageSrc(
   std::wstringstream image_path;
   image_path << imagePath.c_str();
   mswr::ComPtr<winxml::Dom::IXmlText> inputText;
-  if (FAILED(toastXml->CreateTextNode(MakeHString(image_path.str()), &inputText)))
+  if (FAILED(toastXml->CreateTextNode(MakeHString(image_path.str()),
+                                                  &inputText)))
     return false;
 
   mswr::ComPtr<winxml::Dom::IXmlNode> inputTextNode;
@@ -228,8 +230,7 @@ bool XWalkNotificationWin::CreateToastXml(
     const std::wstring& body,
     const std::wstring& icon_path,
     const bool silent,
-    winxml::Dom::IXmlDocument** input_xml)
-{
+    winxml::Dom::IXmlDocument** input_xml) {
   winui::Notifications::ToastTemplateType template_type;
   if (title.empty() || body.empty()) {
     // Single line toast.
@@ -343,13 +344,14 @@ void XWalkNotificationWin::Show(
     const base::string16& title,
     const base::string16& body,
     const GURL& icon_url,
-    const SkBitmap& icon,
+    const content::NotificationResources& notification_resources,
     const bool silent) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   content::BrowserThread::PostTask(
       content::BrowserThread::FILE, FROM_HERE,
       base::Bind(&XWalkNotificationWin::SaveIconToFilesystemAndProceed,
-          this, title, body, icon_url, icon, silent));
+          this, title, body, icon_url,
+          notification_resources.notification_icon, silent));
 }
 
 void XWalkNotificationWin::ShowNotification(
@@ -364,10 +366,12 @@ void XWalkNotificationWin::ShowNotification(
 
   mswr::ComPtr<winui::Notifications::IToastNotificationFactory> factory;
   if (FAILED(winfoundtn::GetActivationFactory(
-      MakeHString(RuntimeClass_Windows_UI_Notifications_ToastNotification), &factory)))
+      MakeHString(RuntimeClass_Windows_UI_Notifications_ToastNotification),
+      &factory)))
     return;
 
-  if (FAILED(factory->CreateToastNotification(toast_xml.Get(), &toast_notification_)))
+  if (FAILED(factory->CreateToastNotification(toast_xml.Get(),
+                                              &toast_notification_)))
     return;
 
   mswr::ComPtr<NotificationEventHandlerWin> event_handler_ =

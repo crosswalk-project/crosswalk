@@ -16,7 +16,7 @@ XWalkAccessTokenStore::~XWalkAccessTokenStore() {
 }
 
 void XWalkAccessTokenStore::LoadAccessTokens(
-    const LoadAccessTokensCallbackType& callback) {
+    const LoadAccessTokensCallback& callback) {
   base::MessageLoop::current()->PostTask(
       FROM_HERE,
       base::Bind(&XWalkAccessTokenStore::DidLoadAccessTokens,
@@ -25,9 +25,9 @@ void XWalkAccessTokenStore::LoadAccessTokens(
 
 void XWalkAccessTokenStore::DidLoadAccessTokens(
     net::URLRequestContextGetter* request_context,
-    const LoadAccessTokensCallbackType& callback) {
-  AccessTokenSet access_token_set;
-  callback.Run(access_token_set, request_context);
+    const LoadAccessTokensCallback& callback) {
+  AccessTokenMap access_token_map;
+  callback.Run(access_token_map, request_context);
 }
 
 void XWalkAccessTokenStore::SaveAccessToken(

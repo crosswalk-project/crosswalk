@@ -21,9 +21,11 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
+#include "content/public/common/notification_resources.h"
 #include "content/public/common/platform_notification_data.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkImageInfo.h"
 #include "url/gurl.h"
 #include "ui/gfx/android/java_bitmap.h"
 #include "ui/shell_dialogs/selected_file_info.h"
@@ -243,7 +245,7 @@ static void CancelNotification(
 
 void XWalkContentsClientBridge::ShowNotification(
     const content::PlatformNotificationData& notification_data,
-    const SkBitmap& icon,
+    const content::NotificationResources& notification_resources,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -260,8 +262,11 @@ void XWalkContentsClientBridge::ShowNotification(
   ScopedJavaLocalRef<jstring> jreplace_id(
     ConvertUTF8ToJavaString(env, notification_data.tag));
   ScopedJavaLocalRef<jobject> jicon;
-  if (!icon.empty())
-     jicon = gfx::ConvertToJavaBitmap(&icon);
+  if (notification_resources.notification_icon.colorType() !=
+      SkColorType::kUnknown_SkColorType) {
+    jicon = gfx::ConvertToJavaBitmap(
+        &notification_resources.notification_icon);
+  }
 
   int notification_id = g_next_notification_id_++;
   g_notification_map_.set(notification_id, std::move(delegate));
@@ -329,7 +334,9 @@ void XWalkContentsClientBridge::ExitFullscreen(
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   WebContents* web_contents = reinterpret_cast<WebContents*>(j_web_contents);
   if (web_contents)
-    web_contents->ExitFullscreen();
+    // TODO(mrunal): Instead of hardcoding the value below we can accept this
+    // as a parameter
+    web_contents->ExitFullscreen(/*will_cause_resize=*/false);
 }
 
 void XWalkContentsClientBridge::NotificationDisplayed(

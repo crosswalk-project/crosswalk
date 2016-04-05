@@ -8,7 +8,6 @@
 #include "base/logging.h"
 #include "base/numerics/safe_conversions.h"
 #include "net/base/net_errors.h"
-#include "net/base/net_util.h"
 #include "xwalk/sysapps/raw_socket/tcp_socket.h"
 
 using namespace xwalk::jsapi::tcp_socket; // NOLINT

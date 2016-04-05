@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "base/compiler_specific.h"
-#include "base/prefs/pref_registry_simple.h"
-#include "base/prefs/pref_service_factory.h"
+#include "components/prefs/pref_registry_simple.h"
+#include "components/prefs/pref_service_factory.h"
 #include "components/autofill/core/browser/autofill_client.h"
 #include "content/public/browser/web_contents_user_data.h"
 

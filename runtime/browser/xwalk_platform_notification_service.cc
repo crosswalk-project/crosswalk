@@ -11,6 +11,7 @@
 #include "content/public/browser/render_widget_host_iterator.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/notification_resources.h"
 #include "content/public/common/platform_notification_data.h"
 
 #if defined(OS_ANDROID)
@@ -86,8 +87,8 @@ XWalkPlatformNotificationService::CheckPermissionOnIOThread(
 void XWalkPlatformNotificationService::DisplayNotification(
     content::BrowserContext* browser_context,
     const GURL& origin,
-    const SkBitmap& icon,
     const content::PlatformNotificationData& notification_data,
+    const content::NotificationResources& notification_resources,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
@@ -105,8 +106,8 @@ void XWalkPlatformNotificationService::DisplayNotification(
       continue;
     XWalkContentsClientBridgeBase* bridge =
         XWalkContentsClientBridgeBase::FromWebContents(web_contents);
-    bridge->ShowNotification(notification_data, icon, std::move(delegate),
-                             cancel_callback);
+    bridge->ShowNotification(notification_data, notification_resources,
+                             std::move(delegate), cancel_callback);
     return;
   }
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
@@ -129,7 +130,7 @@ void XWalkPlatformNotificationService::DisplayNotification(
       browser_context,
       origin,
       notification_data,
-      icon,
+      notification_resources,
       std::move(delegate),
       cancel_callback);
 

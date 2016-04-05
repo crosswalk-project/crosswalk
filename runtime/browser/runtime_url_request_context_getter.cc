@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/command_line.h"
@@ -51,6 +52,7 @@
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
+#include "xwalk/runtime/browser/android/net/xwalk_cookie_store_wrapper.h"
 #include "xwalk/runtime/browser/android/net/xwalk_url_request_job_factory.h"
 #include "xwalk/runtime/browser/android/xwalk_request_interceptor.h"
 #endif
@@ -122,23 +124,17 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 #if defined(OS_ANDROID)
-    storage_->set_cookie_store(xwalk::GetCookieMonster());
+    storage_->set_cookie_store(new XWalkCookieStoreWrapper());
 #else
     content::CookieStoreConfig cookie_config(base_path_.Append(
         application::kCookieDatabaseFilename),
         content::CookieStoreConfig::PERSISTANT_SESSION_COOKIES,
         NULL, NULL);
+
+    cookie_config.cookieable_schemes.push_back(application::kApplicationScheme);
+    cookie_config.cookieable_schemes.push_back(content::kChromeDevToolsScheme);
+
     net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
-
-    std::vector<const char*> cookieable_schemes(
-        net::CookieMonster::kDefaultCookieableSchemes,
-        net::CookieMonster::kDefaultCookieableSchemes +
-            net::CookieMonster::kDefaultCookieableSchemesCount - 1);
-    cookieable_schemes.push_back(application::kApplicationScheme);
-    cookieable_schemes.push_back(content::kChromeDevToolsScheme);
-
-    cookie_store->GetCookieMonster()->SetCookieableSchemes(
-        &cookieable_schemes[0], cookieable_schemes.size());
     storage_->set_cookie_store(cookie_store);
 #endif
     storage_->set_channel_id_service(make_scoped_ptr(new net::ChannelIDService(

@@ -17,7 +17,7 @@
         '../components/components.gyp:visitedlink_renderer',
         '../components/components.gyp:web_contents_delegate_android',
         '../skia/skia.gyp:skia',
-        '../third_party/mojo/mojo_public.gyp:mojo_cpp_bindings',
+        '../mojo/mojo_public.gyp:mojo_cpp_bindings',
         'xwalk_core_extensions_native_jni',
         'xwalk_core_jar_jni',
         'xwalk_core_native_jni',
