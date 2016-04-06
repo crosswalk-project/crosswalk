@@ -22,6 +22,12 @@ class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
   void OnOpenLinkExternal(const GURL& url);
 #if defined(OS_ANDROID)
   void OnSubFrameCreated(int parent_render_frame_id, int child_render_frame_id);
+  void OnShouldOverrideUrlLoading(int routing_id,
+                                  const base::string16& url,
+                                  bool has_user_gesture,
+                                  bool is_redirect,
+                                  bool is_main_frame,
+                                  bool* ignore_navigation);
 #endif
   ~XWalkRenderMessageFilter() override {}
 

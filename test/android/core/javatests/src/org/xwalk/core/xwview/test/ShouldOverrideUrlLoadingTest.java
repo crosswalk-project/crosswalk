@@ -140,16 +140,16 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
 
         loadUrlSync(httpPathOnServer);
         loadUrlSync(url);
-        assertEquals(2, mShouldOverrideUrlLoadingHelper.getCallCount());
+        assertEquals(0, mShouldOverrideUrlLoadingHelper.getCallCount());
         String oldTitle = getTitleOnUiThread();
         goBackSync();
         assertFalse(oldTitle.equals(getTitleOnUiThread()));
-        assertEquals(3, mShouldOverrideUrlLoadingHelper.getCallCount());
+        assertEquals(0, mShouldOverrideUrlLoadingHelper.getCallCount());
 
         oldTitle = getTitleOnUiThread();
         goForwardSync();
         assertFalse(oldTitle.equals(getTitleOnUiThread()));
-        assertEquals(4, mShouldOverrideUrlLoadingHelper.getCallCount());
+        assertEquals(0, mShouldOverrideUrlLoadingHelper.getCallCount());
     }
 
     @SmallTest
@@ -417,7 +417,7 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
         // Since the targetURL was loaded from the test server it means all processing related
         // to dispatching a shouldOverrideUrlLoading callback had finished and checking the call
         // is stable.
-        assertEquals(shouldOverrideUrlLoadingCallCount + 1,
+        assertEquals(shouldOverrideUrlLoadingCallCount,
                 mShouldOverrideUrlLoadingHelper.getCallCount());
     }
 
@@ -458,6 +458,8 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
         final String pageWithIframeUrl = addPageToTestServer(mWebServer, "/iframe_intercept.html",
                 makeHtmlPageFrom("", "<iframe src=\"" + iframeRedirectUrl + "\" />"));
 
+        final int shouldOverrideUrlLoadingCallCount =
+                mShouldOverrideUrlLoadingHelper.getCallCount();
         assertEquals(0, mWebServer.getRequestCount(REDIRECT_TARGET_PATH));
         loadUrlSync(pageWithIframeUrl);
 
@@ -469,7 +471,7 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
             }
         });
 
-        assertEquals(1, mShouldOverrideUrlLoadingHelper.getCallCount());
+        assertEquals(shouldOverrideUrlLoadingCallCount, mShouldOverrideUrlLoadingHelper.getCallCount());
     }
 
     /**
@@ -488,20 +490,22 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
         int directLoadCallCount = mShouldOverrideUrlLoadingHelper.getCallCount();
         loadUrlSync(redirectUrl);
 
-        mShouldOverrideUrlLoadingHelper.waitForCallback(directLoadCallCount, 2);
+        mShouldOverrideUrlLoadingHelper.waitForCallback(directLoadCallCount, 1);
         assertEquals(redirectTarget,
                 mShouldOverrideUrlLoadingHelper.getShouldOverrideUrlLoadingUrl());
 
         int indirectLoadCallCount = mShouldOverrideUrlLoadingHelper.getCallCount();
         loadUrlSync(pageWithLinkToRedirectUrl);
+        assertEquals(indirectLoadCallCount, mShouldOverrideUrlLoadingHelper.getCallCount());
 
         clickOnElementId("link", null);
 
-        mShouldOverrideUrlLoadingHelper.waitForCallback(indirectLoadCallCount, 3);
+        mShouldOverrideUrlLoadingHelper.waitForCallback(indirectLoadCallCount, 1);
+        assertEquals(redirectUrl,
+                mShouldOverrideUrlLoadingHelper.getShouldOverrideUrlLoadingUrl());
+        mShouldOverrideUrlLoadingHelper.waitForCallback(indirectLoadCallCount + 1, 1);
         assertEquals(redirectTarget,
                 mShouldOverrideUrlLoadingHelper.getShouldOverrideUrlLoadingUrl());
-        assertEquals(redirectUrl,
-                mShouldOverrideUrlLoadingHelper.getPreviousShouldOverrideUrlLoadingUrl());
     }
 
     @SmallTest

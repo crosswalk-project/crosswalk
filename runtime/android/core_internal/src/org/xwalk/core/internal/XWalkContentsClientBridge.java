@@ -92,9 +92,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
         public boolean shouldIgnoreNavigation(NavigationParams navigationParams) {
             final String url = navigationParams.url;
-            boolean ignoreNavigation = shouldOverrideUrlLoading(url) ||
-                     (mNavigationHandler != null &&
-                      mNavigationHandler.handleNavigation(navigationParams));
+            boolean ignoreNavigation = mNavigationHandler != null &&
+                     mNavigationHandler.handleNavigation(navigationParams);
 
             if (!ignoreNavigation) {
                 // Post a message to UI thread to notify the page is starting to load.
@@ -814,6 +813,12 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                     XWalkUIClientInternal.JavascriptMessageTypeInternal.JAVASCRIPT_BEFOREUNLOAD,
                     url, message, "", result);
         }
+    }
+
+    @CalledByNative
+    private boolean shouldOverrideUrlLoading(
+            String url, boolean hasUserGesture, boolean isRedirect, boolean isMainFrame) {
+         return shouldOverrideUrlLoading(url);
     }
 
     @CalledByNative

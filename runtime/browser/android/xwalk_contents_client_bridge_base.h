@@ -78,6 +78,10 @@ class XWalkContentsClientBridgeBase {
       base::Closure* cancel_callback)
       = 0;
   virtual void OnWebLayoutPageScaleFactorChanged(float page_scale_factor) = 0;
+  virtual bool ShouldOverrideUrlLoading(const base::string16& url,
+                                        bool has_user_gesture,
+                                        bool is_redirect,
+                                        bool is_main_frame) = 0;
 };
 
 }  // namespace xwalk

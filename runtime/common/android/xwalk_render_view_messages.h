@@ -115,6 +115,20 @@ IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_PictureUpdated) // NOLINT(*)
 IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidActivateAcceleratedCompositing, // NOLINT(*)
                     int /* input_handler_id */)
 
+// Sent immediately before a top level navigation is initiated within Blink.
+// There are some exclusions, the most important ones are it is not sent
+// when creating a popup window, and not sent for application initiated
+// navigations. See XWalkContentRendererClient::HandleNavigation for all
+// cornercases. This is sent before updating the NavigationController state
+// or creating a URLRequest for the main frame resource.
+IPC_SYNC_MESSAGE_CONTROL5_1(XWalkViewHostMsg_ShouldOverrideUrlLoading, // NOLINT(*)
+                            int /* render_frame_id id */,
+                            base::string16 /* in - url */,
+                            bool /* in - has_user_gesture */,
+                            bool /* in - is_redirect */,
+                            bool /* in - is_main_frame */,
+                            bool /* out - result */)
+
 // Sent when a subframe is created.
 IPC_MESSAGE_CONTROL2(XWalkViewHostMsg_SubFrameCreated, // NOLINT(*)
                      int, /* parent_render_frame_id */
