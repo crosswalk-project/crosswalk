@@ -24,6 +24,17 @@ import org.chromium.content_public.browser.WebContents;
 @JNINamespace("xwalk")
 @XWalkAPI(createInternally = true)
 public class XWalkSettingsInternal {
+    /**
+     * This enum corresponds to WebSettings.LayoutAlgorithm.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public enum LayoutAlgorithmInternal {
+        NORMAL,
+        SINGLE_COLUMN,
+        NARROW_COLUMNS,
+        TEXT_AUTOSIZING
+    }
 
     private static final String TAG = "XWalkSettings";
 
@@ -94,6 +105,8 @@ public class XWalkSettingsInternal {
 
     private boolean mSpatialNavigationEnabled = true;
     private boolean mQuirksModeEnabled = false;
+
+    private LayoutAlgorithmInternal mLayoutAlgorithm = LayoutAlgorithmInternal.NARROW_COLUMNS;
 
     static class LazyDefaultUserAgent{
         private static final String sInstance = nativeGetDefaultUserAgent();
@@ -1082,6 +1095,39 @@ public class XWalkSettingsInternal {
         synchronized (mXWalkSettingsLock) {
             return mQuirksModeEnabled;
         }
+    }
+
+    /**
+     * Sets the underlying layout algorithm.
+     * This will cause a relayout of the WebView. The default is NARROW_COLUMNS.
+     * @param la the layout algorithm to use.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public void setLayoutAlgorithm(LayoutAlgorithmInternal la) {
+        synchronized (mXWalkSettingsLock) {
+            if (mLayoutAlgorithm == la) return;
+            mLayoutAlgorithm = la;
+            mEventHandler.updateWebkitPreferencesLocked();
+        }
+    }
+
+    /**
+     * Gets the current layout algorithm.
+     * @return the layout algorithm in use.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public LayoutAlgorithmInternal getLayoutAlgorithm() {
+        synchronized (mXWalkSettingsLock) {
+            return mLayoutAlgorithm;
+        }
+    }
+
+    @CalledByNative
+    private boolean getTextAutosizingEnabledLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
+        return mLayoutAlgorithm == LayoutAlgorithmInternal.TEXT_AUTOSIZING;
     }
 
     private native long nativeInit(WebContents webContents);

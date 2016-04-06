@@ -853,12 +853,11 @@ ${PRE_WRAP_LINES}
     }
 """)
     else:
-      template = Template("""\
+      prefix_str = """\
 ${DOC}
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        try {
-            ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
-        } catch (UnsupportedOperationException e) {
+        try {\n"""
+      suffix_str = """\n        } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
                 Assert.fail("Cannot call this method before xwalk is ready");
             } else {
@@ -867,7 +866,18 @@ ${DOC}
         }
         ${RETURN_NULL}
     }
-""")
+"""
+      return_str = """            ${RETURN}${METHOD_DECLARE_NAME}.invoke(\
+${PARAMS_PASSING});"""
+      if self._method_return in self._class_java_data.enums:
+        # Here only detects enum declared in the same class as
+        # the method itself. Using enum across class is not supported.
+        self._method_return = self._method_return.replace('Internal', '')
+        return_str = """            ${RETURN} %s.valueOf(\
+${METHOD_DECLARE_NAME}.invoke(\
+${PARAMS_PASSING}).toString());""" % self._method_return
+
+      template = Template(prefix_str + return_str + suffix_str)
     if return_is_internal:
       return_type = return_type_java_data.wrapper_name
     else:
