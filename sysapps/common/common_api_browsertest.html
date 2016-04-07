@@ -317,8 +317,8 @@
         var call_count = 0;
 
         for (var i = 0; i < call_max; ++i) {
-          testObject.makeRejectedPromise().then(null, function(data) {
-            if (data == "Lorem ipsum") {
+          testObject.makeRejectedPromise().then(null, function(error) {
+            if (error.message == "Lorem ipsum") {
               if (++call_count == call_max)
                 runNextTest();
             } else
