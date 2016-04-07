@@ -12,8 +12,6 @@ var v8tools = requireNative('v8tools');
 var common = requireNative('sysapps_common');
 common.setupSysAppsCommon(internal, v8tools);
 
-var Promise = requireNative('sysapps_promise').Promise;
-
 var DeviceCapabilities = function() {
   common.BindingObject.call(this, common.getUniqueId());
   common.EventTarget.call(this);
@@ -25,11 +23,11 @@ var DeviceCapabilities = function() {
   this._addEvent("storageattach");
   this._addEvent("storagedetach");
 
-  this._addMethodWithPromise("getAVCodecs", Promise);
-  this._addMethodWithPromise("getCPUInfo", Promise);
-  this._addMethodWithPromise("getDisplayInfo", Promise);
-  this._addMethodWithPromise("getMemoryInfo", Promise);
-  this._addMethodWithPromise("getStorageInfo", Promise);
+  this._addMethodWithPromise("getAVCodecs");
+  this._addMethodWithPromise("getCPUInfo");
+  this._addMethodWithPromise("getDisplayInfo");
+  this._addMethodWithPromise("getMemoryInfo");
+  this._addMethodWithPromise("getStorageInfo");
 };
 
 DeviceCapabilities.prototype = new common.EventTargetPrototype();

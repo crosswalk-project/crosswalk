@@ -13,15 +13,6 @@ function getUniqueId() {
   return (unique_id++).toString();
 }
 
-function wrapPromiseAsCallback(promise) {
-  return function(data, error) {
-    if (error)
-      promise.reject(error);
-    else
-      promise.fulfill(data);
-  };
-};
-
 // The BindingObject is responsible for bridging between the JavaScript
 // implementation and the native code. It keeps a unique ID for each
 // instance of a given object that is used by the BindingObjectStore to
@@ -80,13 +71,18 @@ var BindingObjectPrototype = function() {
     });
   };
 
-  function addMethodWithPromise(name, Promise) {
+  function addMethodWithPromise(name) {
     Object.defineProperty(this, name, {
       value: function() {
-        var promise_instance = new Promise();
         var args = Array.prototype.slice.call(arguments);
-        this._postMessage(name, args, wrapPromiseAsCallback(promise_instance));
-        return promise_instance;
+        return new Promise((resolve, reject) => {
+          this._postMessage(name, args, (data, error_message) => {
+            if (error_message)
+              reject(new Error(error_message));
+            else
+              resolve(data);
+          });
+        });
       },
       enumerable: isEnumerable(name),
     });
