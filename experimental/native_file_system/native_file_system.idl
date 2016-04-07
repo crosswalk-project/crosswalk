@@ -1,0 +1,15 @@
+// Copyright (c) 2016 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// Native FileSystem API.
+// This does not correspond to any spec (or even the JS API we export in
+// native_file_system_api.js). This IDL is used to make it easier to parse
+// messages sent to the extension and prepare responses to the JavaScript side.
+namespace native_file_system {
+    callback RequestCallback = void (DOMString filesystem_id, DOMString error);
+
+    interface Functions {
+        static void requestNativeFileSystem(DOMString path, RequestCallback callback);
+    };
+};

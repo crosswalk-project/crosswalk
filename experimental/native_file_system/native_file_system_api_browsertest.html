@@ -6,6 +6,7 @@
     <script>
       var current_test = 0;
       var test_list = [
+        getRealPath,
         writeFile,
         readFile,
         removeFile,
@@ -21,8 +22,8 @@
         }
       };
 
-      function reportFail(message) {
-        console.log(message);
+      function reportFail(error) {
+        console.log(error);
         document.title = "Fail";
         document.body.innerText = "Fail";
       };
@@ -31,7 +32,19 @@
         document.title = "Pass";
         document.body.innerText = "Pass";
       };
-      
+
+      function getRealPath() {
+        var doesNotExist =
+            xwalk.experimental.native_file_system.getRealPath("invalid!");
+        if (doesNotExist !== "")
+          reportFail("getRealPath should have failed.");
+        else
+          runNextTest();
+
+        // Implementing a check for a valid path, which depends on the OS and
+        // user locale, is left as an exercise to the reader.
+      }
+
       function writeFile() {
         xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
           function(fs) {
@@ -41,9 +54,9 @@
                 writer.write(blob);
                 runNextTest();
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             },
-          function(e) {reportFail(JSON.stringify(e))});
+          function(e) {reportFail(e)});
         });
       }
 
@@ -62,11 +75,11 @@
                   };
                   reader.readAsText(file);
                 },
-                function(e) {reportFail(JSON.stringify(e))});
+                function(e) {reportFail(e)});
             },
-            function(e) {reportFail(JSON.stringify(e))});
+            function(e) {reportFail(e)});
         },
-        function(e) {reportFail(JSON.stringify(e))});
+        function(e) {reportFail(e)});
       };
 
 
@@ -77,9 +90,9 @@
                 entry.remove(function () {
                       runNextTest();
                     },
-                    function(e) {reportFail(JSON.stringify(e))});
+                    function(e) {reportFail(e)});
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
@@ -90,7 +103,7 @@
               fs.root.getDirectory("/documents/justfortest", {create: true}, function (entry) {
                 runNextTest();
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
@@ -108,11 +121,11 @@
                       reportFail("You app home directory is empty!");
                     }
                   },
-                  function(e) {reportFail(JSON.stringify(e))}
+                  function(e) {reportFail(e)}
                 );
                 runNextTest();
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
@@ -122,9 +135,9 @@
             function(fs) {
               fs.root.getDirectory("/documents/justfortest", {create: false}, function (entry) {
                 entry.remove(function () {runNextTest();},
-                    function(e) {reportFail(JSON.stringify(e))});
+                    function(e) {reportFail(e)});
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
