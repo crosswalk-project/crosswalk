@@ -2,85 +2,38 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-var _promises = {};
-var _next_promise_id = 0;
+let isolated_fs = requireNative("isolated_file_system");
+let internal = requireNative("internal");
+internal.setupInternalExtension(extension);
 
-var Promise = requireNative('sysapps_promise').Promise;
-var IsolatedFileSystem = requireNative('isolated_file_system');
-
-var postMessage = function(msg, success, error) {
-  var p = new Promise();
-  p.then(success, error);
-
-  _promises[_next_promise_id] = p;
-  msg._promise_id = _next_promise_id.toString();
-  _next_promise_id += 1;
-
-  extension.postMessage(msg);
-};
-
-function _isFunction(fn) {
-  return !!fn && !fn.nodeName &&
-      fn.constructor != String && fn.constructor != RegExp &&
-      fn.constructor != Array && /function/i.test(fn + "");
-}
-
-var NativeFileSystem = function() {
-};
-
-var requestNativeFileSystem = function(path, success, error) {
-  var msg = new Object();
-  msg.data = new Object();
-  msg.data.virtual_root = path;
-  msg.cmd = "requestNativeFileSystem";
-  function get_file_system_id_success(data) {
-    var fs = IsolatedFileSystem.getIsolatedFileSystem(data.file_system_id);
-    success(fs);
+class NativeFileSystem {
+  // The extension side of the implementation is ugly, this function is not
+  // well-thought and the whole thing is needlessly hard to test. At the very
+  // least it should be made asynchronous, at best it should be removed
+  // altogether.
+  // It is being kept for the time being for backwards compatibility.
+  getRealPath(virtual_root) {
+    return extension.internal.sendSyncMessage({
+      'command': 'getRealPath',
+      'path': virtual_root
+    });
   }
-  postMessage(msg, get_file_system_id_success, error);
-}
 
-var getDirectoryList = function() {
-  extension.internal.sendSyncMessage("get");
-}
+  requestNativeFileSystem(path, success, error) {
+    if (typeof path !== "string" || !(success instanceof Function)) {
+      throw new TypeError("Wrong parameters passed to requestNativeFileSystem.");
+    }
+    error = error || (_ => {});
 
-var getRealPath = function(virtual_root) {
-  var _msg = {
-    cmd : "getRealPath",
-    path : virtual_root
+    internal.postMessage(
+      "requestNativeFileSystem", [path],
+      (filesystem_id, error_message) => {
+        if (error_message)
+          error(new Error(error_message));
+        else
+          success(isolated_fs.getIsolatedFileSystem(filesystem_id));
+      });
   }
-  return extension.internal.sendSyncMessage(_msg);
 }
-
-NativeFileSystem.prototype = new Object();
-NativeFileSystem.prototype.constructor = NativeFileSystem;
-NativeFileSystem.prototype.requestNativeFileSystem = requestNativeFileSystem;
-NativeFileSystem.prototype.getDirectoryList = getDirectoryList;
-NativeFileSystem.prototype.getRealPath = getRealPath;
 
 exports = new NativeFileSystem();
-
-function handlePromise(msgObj) {
-  if (msgObj.data.error) {
-    if (_isFunction(_promises[msgObj._promise_id].reject)) {
-      _promises[msgObj._promise_id].reject(msgObj.data);
-    }
-  } else {
-    if (_isFunction(_promises[msgObj._promise_id].fulfill)) {
-      _promises[msgObj._promise_id].fulfill(msgObj.data);
-    }
-  }
-  delete _promises[msgObj._promise_id];
-}
-
-extension.setMessageListener(function(msgStr) {
-  // TODO(shawngao5): This part of code should be refactored.
-  // Follow DeviceCapability extension way to implement.
-  var msgObj = JSON.parse(msgStr);
-  switch (msgObj.cmd) {
-    case "requestNativeFileSystem_ret":
-      handlePromise(msgObj);
-    default:
-      break;
-  }
-});

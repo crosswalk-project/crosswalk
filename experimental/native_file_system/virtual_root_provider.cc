@@ -4,7 +4,8 @@
 
 #include "xwalk/experimental/native_file_system/virtual_root_provider.h"
 
-#include <map>
+#include <algorithm>
+#include <cctype>
 #include <string>
 
 #include "base/lazy_instance.h"
@@ -21,7 +22,10 @@ VirtualRootProvider* VirtualRootProvider::GetInstance() {
 }
 
 std::string VirtualRootProvider::GetRealPath(const std::string& virtual_root) {
-  return virtual_root_map_[virtual_root].AsUTF8Unsafe();
+  std::string uppercase_virtual_root = virtual_root;
+  std::transform(virtual_root.begin(), virtual_root.end(),
+                 uppercase_virtual_root.begin(), ::toupper);
+  return virtual_root_map_[uppercase_virtual_root].AsUTF8Unsafe();
 }
 
 VirtualRootProvider::~VirtualRootProvider() {}
