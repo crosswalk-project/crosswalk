@@ -76,6 +76,7 @@
         '../extensions/common/constants.h',
         '../extensions/common/url_pattern.cc',
         '../extensions/common/url_pattern.h',
+        'experimental/native_file_system/native_file_system.idl',
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
         'experimental/native_file_system/virtual_root_provider.cc',

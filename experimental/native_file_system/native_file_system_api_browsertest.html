@@ -22,8 +22,8 @@
         }
       };
 
-      function reportFail(message) {
-        console.log(message);
+      function reportFail(error) {
+        console.log(error);
         document.title = "Fail";
         document.body.innerText = "Fail";
       };
@@ -54,9 +54,9 @@
                 writer.write(blob);
                 runNextTest();
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             },
-          function(e) {reportFail(JSON.stringify(e))});
+          function(e) {reportFail(e)});
         });
       }
 
@@ -75,11 +75,11 @@
                   };
                   reader.readAsText(file);
                 },
-                function(e) {reportFail(JSON.stringify(e))});
+                function(e) {reportFail(e)});
             },
-            function(e) {reportFail(JSON.stringify(e))});
+            function(e) {reportFail(e)});
         },
-        function(e) {reportFail(JSON.stringify(e))});
+        function(e) {reportFail(e)});
       };
 
 
@@ -90,9 +90,9 @@
                 entry.remove(function () {
                       runNextTest();
                     },
-                    function(e) {reportFail(JSON.stringify(e))});
+                    function(e) {reportFail(e)});
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
@@ -103,7 +103,7 @@
               fs.root.getDirectory("/documents/justfortest", {create: true}, function (entry) {
                 runNextTest();
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
@@ -121,11 +121,11 @@
                       reportFail("You app home directory is empty!");
                     }
                   },
-                  function(e) {reportFail(JSON.stringify(e))}
+                  function(e) {reportFail(e)}
                 );
                 runNextTest();
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }
@@ -135,9 +135,9 @@
             function(fs) {
               fs.root.getDirectory("/documents/justfortest", {create: false}, function (entry) {
                 entry.remove(function () {runNextTest();},
-                    function(e) {reportFail(JSON.stringify(e))});
+                    function(e) {reportFail(e)});
               },
-              function(e) {reportFail(JSON.stringify(e))});
+              function(e) {reportFail(e)});
             }
         );
       }

@@ -4,15 +4,61 @@
 
 #include "xwalk/experimental/native_file_system/native_file_system_extension.h"
 
-#include "base/json/json_reader.h"
-#include "base/json/json_writer.h"
+#include <string>
+
+#include "base/callback.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/values.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "grit/xwalk_resources.h"
 #include "storage/browser/fileapi/file_system_url.h"
 #include "storage/browser/fileapi/isolated_context.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk/experimental/native_file_system/native_file_system.h"
 #include "xwalk/experimental/native_file_system/virtual_root_provider.h"
+
+using namespace xwalk::jsapi::native_file_system;
+
+namespace {
+
+scoped_ptr<base::StringValue> GetRealPath(scoped_ptr<base::Value> msg) {
+  base::DictionaryValue* dict;
+  std::string virtual_root;
+  if (!msg->GetAsDictionary(&dict) || !dict->GetString("path", &virtual_root)) {
+    LOG(ERROR) << "Malformed getRealPath request.";
+    return make_scoped_ptr(new base::StringValue(std::string()));
+  }
+
+  const std::string real_path =
+      VirtualRootProvider::GetInstance()->GetRealPath(virtual_root);
+  return make_scoped_ptr(new base::StringValue(real_path));
+}
+
+void RegisterFileSystemAndSendResponse(
+    int process_id,
+    const std::string& path,
+    const std::string& root_name,
+    scoped_ptr<xwalk::experimental::XWalkExtensionFunctionInfo> info) {
+  CHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+  storage::IsolatedContext* isolated_context =
+      storage::IsolatedContext::GetInstance();
+  CHECK(isolated_context);
+
+  const std::string filesystem_id = isolated_context->RegisterFileSystemForPath(
+      storage::kFileSystemTypeNativeForPlatformApp, std::string(),
+      base::FilePath::FromUTF8Unsafe(path),
+      const_cast<std::string*>(&root_name));
+
+  content::ChildProcessSecurityPolicy* policy =
+      content::ChildProcessSecurityPolicy::GetInstance();
+  policy->GrantCreateReadWriteFileSystem(process_id, filesystem_id);
+
+  info->PostResult(
+      RequestNativeFileSystem::Results::Create(filesystem_id, std::string()));
+}
+
+}  // namespace
 
 namespace xwalk {
 namespace experimental {
@@ -36,125 +82,56 @@ NativeFileSystemInstance::NativeFileSystemInstance(
     content::RenderProcessHost* host)
     : handler_(this),
       host_(host) {
+  handler_.Register(
+      "requestNativeFileSystem",
+      base::Bind(&NativeFileSystemInstance::OnRequestNativeFileSystem,
+                 base::Unretained(this)));
 }
 
 void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  base::DictionaryValue* msg_value = NULL;
-  if (!msg->GetAsDictionary(&msg_value) || NULL == msg_value) {
-    LOG(ERROR) << "Message object should be a dictionary.";
-    return;
-  }
-  std::string promise_id_string;
-  if (!msg_value->GetString("_promise_id", &promise_id_string)) {
-    LOG(ERROR) << "Invalid promise id.";
-    return;
-  }
-  std::string cmd_string;
-  if (!msg_value->GetString("cmd", &cmd_string) ||
-      "requestNativeFileSystem" != cmd_string) {
-    LOG(ERROR) << "Invalid cmd: " << cmd_string;
-    return;
-  }
-  std::string virtual_root_string;
-  if (!msg_value->GetString("data.virtual_root", &virtual_root_string)) {
-    LOG(ERROR) << "Invalid virtual root: " << virtual_root_string;
-    return;
-  }
-
-  std::string real_path =
-      VirtualRootProvider::GetInstance()->GetRealPath(virtual_root_string);
-  if (real_path.empty()) {
-    const scoped_ptr<base::DictionaryValue> res(new base::DictionaryValue());
-    res->SetString("_promise_id", promise_id_string);
-    res->SetString("cmd", "requestNativeFileSystem_ret");
-    res->SetBoolean("data.error", true);
-    res->SetString("data.errorMessage", "Invalid name of virtual root.");
-    std::string msg_string;
-    base::JSONWriter::Write(*res, &msg_string);
-    PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg_string)));
-    return;
-  }
-
-  scoped_refptr<FileSystemChecker> checker(
-      new FileSystemChecker(host_->GetID(),
-                            real_path,
-                            virtual_root_string,
-                            promise_id_string,
-                            this));
-  checker->DoTask();
+  handler_.HandleMessage(std::move(msg));
 }
 
-void NativeFileSystemInstance::HandleSyncMessage(
-    scoped_ptr<base::Value> msg) {
+void NativeFileSystemInstance::OnRequestNativeFileSystem(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<RequestNativeFileSystem::Params> params(
+      RequestNativeFileSystem::Params::Create(*info->arguments()));
+  if (!params) {
+    LOG(ERROR) << "Malformed parameters passed to " << info->name();
+    return;
+  }
+
+  const std::string real_path =
+      VirtualRootProvider::GetInstance()->GetRealPath(params->path);
+
+  if (real_path.empty()) {
+    info->PostResult(RequestNativeFileSystem::Results::Create(
+        std::string(), "Invalid virtual root name."));
+  } else {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&RegisterFileSystemAndSendResponse, host_->GetID(),
+                   real_path, params->path, base::Passed(&info)));
+  }
+}
+
+void NativeFileSystemInstance::HandleSyncMessage(scoped_ptr<base::Value> msg) {
   base::DictionaryValue* dict;
   std::string command;
 
-  if (!msg->GetAsDictionary(&dict) || !dict->GetString("cmd", &command)) {
-    LOG(ERROR) << "Fail to handle command sync message.";
+  if (!msg->GetAsDictionary(&dict) || !dict->GetString("command", &command)) {
+    LOG(ERROR) << "Fail to handle sync message.";
     SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue("")));
     return;
   }
 
   scoped_ptr<base::Value> result(new base::StringValue(""));
-  std::string virtual_root_string;
-  if ("getRealPath" ==  command &&
-      dict->GetString("path", &virtual_root_string)) {
-    std::string real_path =
-        VirtualRootProvider::GetInstance()->GetRealPath(virtual_root_string);
-    result.reset(new base::StringValue(real_path));
+  if (command == "getRealPath") {
+    result = GetRealPath(std::move(msg));
   } else {
-    LOG(ERROR) << command << " ASSERT NOT REACHED.";
+    LOG(ERROR) << "Unknown command '" << command << "'";
   }
-
   SendSyncReplyToJS(std::move(result));
-}
-
-FileSystemChecker::FileSystemChecker(
-    int process_id,
-    const std::string& path,
-    const std::string& root_name,
-    const std::string& promise_id,
-    XWalkExtensionInstance* instance)
-    : process_id_(process_id),
-      path_(path),
-      root_name_(root_name),
-      promise_id_(promise_id),
-      instance_(instance) {
-}
-
-void FileSystemChecker::DoTask() {
-  content::BrowserThread::PostTask(
-      content::BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(&FileSystemChecker::RegisterFileSystemsAndSendResponse, this));
-}
-
-void FileSystemChecker::RegisterFileSystemsAndSendResponse() {
-  CHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
-  storage::IsolatedContext* isolated_context =
-      storage::IsolatedContext::GetInstance();
-  CHECK(isolated_context);
-
-  std::string filesystem_id = isolated_context->RegisterFileSystemForPath(
-      storage::kFileSystemTypeNativeForPlatformApp,
-      std::string(),
-      base::FilePath::FromUTF8Unsafe(path_),
-      &root_name_);
-
-  content::ChildProcessSecurityPolicy* policy =
-      content::ChildProcessSecurityPolicy::GetInstance();
-  policy->GrantCreateReadWriteFileSystem(process_id_, filesystem_id);
-
-  const scoped_ptr<base::DictionaryValue> res(new base::DictionaryValue());
-  res->SetString("_promise_id", promise_id_);
-  res->SetString("cmd", "requestNativeFileSystem_ret");
-  res->SetBoolean("data.error", false);
-  res->SetString("data.file_system_id", filesystem_id);
-  std::string msg_string;
-  base::JSONWriter::Write(*res, &msg_string);
-  instance_->PostMessageToJS(
-      scoped_ptr<base::Value>(
-          new base::StringValue(msg_string)));
 }
 
 }  // namespace experimental
