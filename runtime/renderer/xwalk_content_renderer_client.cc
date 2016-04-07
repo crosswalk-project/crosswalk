@@ -184,9 +184,6 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
       std::move(isolated_file_system_module));
   module_system->RegisterNativeModule("sysapps_common",
       extensions::CreateJSModuleFromResource(IDR_XWALK_SYSAPPS_COMMON_API));
-  module_system->RegisterNativeModule("sysapps_promise",
-      extensions::CreateJSModuleFromResource(
-          IDR_XWALK_SYSAPPS_COMMON_PROMISE_API));
   module_system->RegisterNativeModule("widget_common",
       extensions::CreateJSModuleFromResource(
           IDR_XWALK_APPLICATION_WIDGET_COMMON_API));
