@@ -4,9 +4,6 @@
 
 #include "xwalk/experimental/native_file_system/native_file_system_extension.h"
 
-#include <algorithm>
-#include <map>
-
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "content/public/browser/browser_thread.h"
@@ -64,14 +61,8 @@ void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
     return;
   }
 
-  std::string upper_virtual_root_string = virtual_root_string;
-  std::transform(upper_virtual_root_string.begin(),
-      upper_virtual_root_string.end(),
-      upper_virtual_root_string.begin(),
-      ::toupper);
   std::string real_path =
-      VirtualRootProvider::GetInstance()->GetRealPath(
-          upper_virtual_root_string);
+      VirtualRootProvider::GetInstance()->GetRealPath(virtual_root_string);
   if (real_path.empty()) {
     const scoped_ptr<base::DictionaryValue> res(new base::DictionaryValue());
     res->SetString("_promise_id", promise_id_string);
@@ -105,16 +96,11 @@ void NativeFileSystemInstance::HandleSyncMessage(
   }
 
   scoped_ptr<base::Value> result(new base::StringValue(""));
-  std::string virtual_root_string = "";
+  std::string virtual_root_string;
   if ("getRealPath" ==  command &&
       dict->GetString("path", &virtual_root_string)) {
-    std::transform(virtual_root_string.begin(),
-                   virtual_root_string.end(),
-                   virtual_root_string.begin(),
-                   ::toupper);
     std::string real_path =
-        VirtualRootProvider::GetInstance()->GetRealPath(
-            virtual_root_string);
+        VirtualRootProvider::GetInstance()->GetRealPath(virtual_root_string);
     result.reset(new base::StringValue(real_path));
   } else {
     LOG(ERROR) << command << " ASSERT NOT REACHED.";
