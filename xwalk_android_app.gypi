@@ -123,7 +123,10 @@
           ],
           'action': [
             'python', 'build/android/generate_app_packaging_tool.py',
-            '<(PRODUCT_DIR)/xwalk_app_template'
+            '--build-dir', '<(PRODUCT_DIR)',
+            '--build-mode', '<(CONFIGURATION_NAME)',
+            '--output-dir', '<(PRODUCT_DIR)/xwalk_app_template',
+            '--source-dir', '<(DEPTH)/xwalk',
           ],
         },
       ],
