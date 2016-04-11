@@ -182,6 +182,8 @@
         'runtime/browser/runtime_javascript_dialog_manager.h',
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
+        'runtime/browser/runtime_notification_permission_context.cc',
+        'runtime/browser/runtime_notification_permission_context.h',
         'runtime/browser/runtime_platform_util.h',
         'runtime/browser/runtime_platform_util_android.cc',
         'runtime/browser/runtime_platform_util_aura.cc',
@@ -277,6 +279,10 @@
         'runtime/browser/xwalk_form_database_service.h',
         'runtime/browser/xwalk_notification_manager_linux.cc',
         'runtime/browser/xwalk_notification_manager_linux.h',
+        'runtime/browser/xwalk_notification_manager_win.cc',
+        'runtime/browser/xwalk_notification_manager_win.h',
+        'runtime/browser/xwalk_notification_win.cc',
+        'runtime/browser/xwalk_notification_win.h',
         'runtime/browser/xwalk_permission_manager.cc',
         'runtime/browser/xwalk_permission_manager.h',
         'runtime/browser/xwalk_platform_notification_service.cc',
@@ -400,6 +406,11 @@
                 },
               },
             },
+          },
+          'link_settings': {
+            'libraries': [
+              '-lruntimeobject.lib',
+            ],
           },
           # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
           'msvs_disabled_warnings': [ 4267, ],

@@ -14,6 +14,7 @@
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/permission_manager.h"
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
+#include "xwalk/runtime/browser/runtime_notification_permission_context.h"
 
 namespace xwalk {
 
@@ -63,6 +64,9 @@ class XWalkPermissionManager : public content::PermissionManager {
   struct PendingRequest;
   using PendingRequestsMap = IDMap<PendingRequest, IDMapOwnPointer>;
 
+  void GetApplicationName(
+      content::RenderFrameHost* render_frame_host,
+      std::string* name);
   static void OnRequestResponse(
       const base::WeakPtr<XWalkPermissionManager>& manager,
       int request_id,
@@ -71,7 +75,9 @@ class XWalkPermissionManager : public content::PermissionManager {
 
   PendingRequestsMap pending_requests_;
   scoped_refptr<RuntimeGeolocationPermissionContext>
-    geolocation_permission_context_;
+      geolocation_permission_context_;
+  scoped_refptr<RuntimeNotificationPermissionContext>
+      notification_permission_context_;
   application::ApplicationService* application_service_;
   base::WeakPtrFactory<XWalkPermissionManager> weak_ptr_factory_;
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionManager);

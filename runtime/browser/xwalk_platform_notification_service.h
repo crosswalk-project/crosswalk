@@ -13,7 +13,7 @@
 #include "content/public/browser/platform_notification_service.h"
 
 namespace xwalk {
-#if defined(OS_LINUX) && defined(USE_LIBNOTIFY)
+#if defined(OS_LINUX) && defined(USE_LIBNOTIFY) || defined(OS_WIN)
 class XWalkNotificationManager;
 #endif
 
@@ -65,6 +65,9 @@ class XWalkPlatformNotificationService
 
 #if defined(OS_LINUX) && defined(USE_LIBNOTIFY)
   scoped_ptr<XWalkNotificationManager> notification_manager_linux_;
+#endif
+#if defined(OS_WIN)
+  scoped_ptr<XWalkNotificationManager> notification_manager_win_;
 #endif
 };
 
