@@ -30,7 +30,8 @@ def GenerateAppTemplate(build_dir, build_mode, output_dir, source_dir):
     (os.path.join(source_dir, 'VERSION'),
      os.path.join(output_dir, 'VERSION')),
     (os.path.join(build_dir, 'lib.java', 'xwalk_app_runtime_java.jar'),
-     os.path.join(output_dir, 'libs', 'xwalk_app_runtime_java.jar')),
+     os.path.join(output_dir, 'template', 'libs',
+                  'xwalk_app_runtime_java.jar')),
   )
 
   for src, dest in dirs:
