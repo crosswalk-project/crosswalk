@@ -16,8 +16,6 @@
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
-#include "base/strings/string_util.h"
-#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
@@ -81,7 +79,7 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
   base::FilePath generated_name = net::GenerateFileName(
       download->GetURL(),
       download->GetContentDisposition(),
-      base::EmptyString(),
+      std::string(),
       download->GetSuggestedFilename(),
       download->GetMimeType(),
       "download");
