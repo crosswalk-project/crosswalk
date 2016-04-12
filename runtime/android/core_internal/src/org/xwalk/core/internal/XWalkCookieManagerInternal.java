@@ -123,7 +123,7 @@ public class XWalkCookieManagerInternal {
      * of cookie data can take place.
      * <p>
      * Note that calls to this method will have no effect if made after a
-     * WebView or CookieManager instance has been created.
+     * CookieManager instance has done any real work.
      * @param accept Whether accept cookies for file scheme URLs
      * @since 5.0
      */
