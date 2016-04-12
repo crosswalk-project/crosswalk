@@ -20,7 +20,7 @@ namespace {
 const float kDpi96 = 96;
 
 linked_ptr<DisplayUnit> makeDisplayUnit(const gfx::Display& display) {
-  gfx::Screen* screen = gfx::Screen::GetNativeScreen();
+  gfx::Screen* screen = gfx::Screen::GetScreen();
   const int64_t primary_display_id = screen->GetPrimaryDisplay().id();
 
   linked_ptr<DisplayUnit> display_unit(new DisplayUnit);
@@ -62,7 +62,7 @@ DisplayInfoProvider::~DisplayInfoProvider() {}
 scoped_ptr<SystemDisplay> DisplayInfoProvider::display_info() {
   scoped_ptr<SystemDisplay> info(new SystemDisplay);
 
-  gfx::Screen* screen = gfx::Screen::GetNativeScreen();
+  gfx::Screen* screen = gfx::Screen::GetScreen();
   std::vector<gfx::Display> displays = screen->GetAllDisplays();
 
   for (std::vector<gfx::Display>::const_iterator it = displays.begin();
@@ -96,12 +96,12 @@ bool DisplayInfoProvider::HasObserver(Observer* observer) const {
 }
 
 void DisplayInfoProvider::StartDisplayMonitoring() {
-  gfx::Screen* screen = gfx::Screen::GetNativeScreen();
+  gfx::Screen* screen = gfx::Screen::GetScreen();
   screen->AddObserver(this);
 }
 
 void DisplayInfoProvider::StopDisplayMonitoring() {
-  gfx::Screen* screen = gfx::Screen::GetNativeScreen();
+  gfx::Screen* screen = gfx::Screen::GetScreen();
   screen->RemoveObserver(this);
 }
 
