@@ -265,9 +265,7 @@ class PresentationSession :
 
   SystemString display_id() const { return display_id_; }
 
-#if defined(OS_ANDROID)
-  void OnAndoridPresentationClosed();
-#endif
+  void OnAndroidPresentationClosed();
 
  protected:
   ~PresentationSession() override;
@@ -362,18 +360,14 @@ void PresentationSession::NotifyClose() {
                     OnPresentationSessionClosed(session_info_));
 }
 
-#if defined(OS_ANDROID)
-void PresentationSession::OnAndoridPresentationClosed() {
+void PresentationSession::OnAndroidPresentationClosed() {
   this->NotifyClose();
 }
-#endif
 
 // Used by PresentationServiceDelegateImpl to manage
 // listeners and default presentation info in a render frame.
 class PresentationFrame : public PresentationSession::Observer,
-#if defined(OS_ANDROID)
                           public XWalkPresentationHost::SessionObserver,
-#endif
                           public DisplayInfoManager::Observer {
  public:
   explicit PresentationFrame(const RenderFrameHostId& render_frame_host_id);
@@ -403,10 +397,8 @@ class PresentationFrame : public PresentationSession::Observer,
 
   PresentationSession* session() { return session_.get(); }
 
-#if defined(OS_ANDROID)
   virtual void OnPresentationClosed(int render_process_id,
     int render_frame_id) override;
-#endif
 
  private:
   // PresentationSession::Observer overrides.
@@ -430,11 +422,9 @@ PresentationFrame::PresentationFrame(
   : screen_listener_(nullptr),
     render_frame_host_id_(render_frame_host_id) {
   DisplayInfoManager::GetInstance()->AddObserver(this);
-#if defined(OS_ANDROID)
-  if ( XWalkPresentationHost* p = XWalkPresentationHost::GetInstance() ) {
+  if (XWalkPresentationHost* p = XWalkPresentationHost::GetInstance()) {
     p->AddSessionObserver(this);
   }
-#endif
 }
 
 PresentationFrame::~PresentationFrame() {
@@ -443,11 +433,9 @@ PresentationFrame::~PresentationFrame() {
   if (session_)
     session_->RemoveObserver(this);
   DisplayInfoManager::GetInstance()->RemoveObserver(this);
-#if defined(OS_ANDROID)
-  if ( auto presentation_api = XWalkPresentationHost::GetInstance() ) {
+  if (auto presentation_api = XWalkPresentationHost::GetInstance()) {
     presentation_api->RemoveSessionObserver(this);
   }
-#endif
 }
 
 void PresentationFrame::OnPresentationSessionStarted(
@@ -471,15 +459,13 @@ void PresentationFrame::OnPresentationSessionClosed(
   session_ = nullptr;
 }
 
-#if defined(OS_ANDROID)
 void PresentationFrame::OnPresentationClosed(int render_process_id,
     int render_frame_id) {
-  if ( this->render_frame_host_id_.first == render_process_id
-    && this->render_frame_host_id_.second == render_frame_id ) {
-    this->session_->OnAndoridPresentationClosed();
+  if (this->render_frame_host_id_.first == render_process_id &&
+      this->render_frame_host_id_.second == render_frame_id) {
+    this->session_->OnAndroidPresentationClosed();
   }
 }
-#endif
 
 void PresentationFrame::OnDisplayInfoChanged(
     const std::vector<DisplayInfo>& info_list) {
