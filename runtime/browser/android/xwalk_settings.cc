@@ -242,6 +242,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
       GURL(ConvertJavaStringToUTF8(str)) : GURL();
 
   int text_size_percent = env->GetIntField(obj, field_ids_->text_size_percent);
+
+  prefs.text_autosizing_enabled =
+      Java_XWalkSettingsInternal_getTextAutosizingEnabledLocked(env, obj);
   if (prefs.text_autosizing_enabled) {
     prefs.font_scale_factor = text_size_percent / 100.0f;
     prefs.force_enable_zoom = text_size_percent >= 130;
