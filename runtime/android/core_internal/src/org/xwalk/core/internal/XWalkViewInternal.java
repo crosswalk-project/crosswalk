@@ -1554,6 +1554,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mExternalExtensionManager = manager;
     }
 
+    public void resetSwipeRefreshHandler() {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.resetSwipeRefreshHandler();
+    }
+
+    public void stopSwipeRefreshHandler() {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.stopSwipeRefreshHandler();
+    }
+
     /**
      * Clears the SSL preferences table stored in response to proceeding with
      * SSL certificate errors.
