@@ -51,6 +51,9 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
             Request request = new Request(Uri.parse(url));
             request.addRequestHeader("Cookie", mCookieManager.getCookie(url));
             request.addRequestHeader("User-Agent", userAgent);
+            request.setNotificationVisibility(
+                    DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setTitle(fileName);
             request.setDestinationInExternalPublicDir(
                     Environment.DIRECTORY_DOWNLOADS, fileName);
             getDownloadManager().enqueue(request);
