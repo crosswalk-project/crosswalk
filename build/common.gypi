@@ -116,6 +116,10 @@
     # capabilities, sysapps etc).
     'disable_bundled_extensions%': 0,
 
+    # Disable WebVR altogether in crosswalk-18. The code is very experimental
+    # and ends up pulling additional dependencies into our JARs.
+    'enable_webvr%': 0,
+
     # Whether to include support for proprietary codecs..
     'proprietary_codecs%': 1,
 
