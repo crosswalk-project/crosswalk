@@ -491,6 +491,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Get the content height of current web page/app.
+     * NOTE: When page finished loading, it's content size info may not be updated.
+     * Pls wait for a while for info updating.
+     * @return the height of current web page/app in Css coordinate.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public int getContentHeight() {
+        return mContent.getContentHeight();
+    }
+
+    /**
      * Get the title of current web page/app. This may be different from what's passed
      * by caller.
      * @return the title for current web page/app.

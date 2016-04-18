@@ -599,6 +599,15 @@ public class XWalkViewTestBase
         });
     }
 
+    protected int getContentHeightOnUiThread() throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                return mXWalkView.getContentHeight();
+            }
+        });
+    }
+
     protected XWalkNavigationItem getCurrentItemOnUiThread() throws Throwable {
         return runTestOnUiThreadAndGetResult(new Callable<XWalkNavigationItem>() {
             @Override
