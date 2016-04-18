@@ -133,6 +133,11 @@
     'disable_bundled_extensions%': 0,
 
     # From src/build/common.gypi.
+    # Disable WebVR support. The code is still experimental and and ends up
+    # pulling additional dependencies into our JARs (XWALK-6597).
+    'enable_webvr%': 0,
+
+    # From src/build/common.gypi.
     # Whether to include support for proprietary codecs..
     'proprietary_codecs%': 1,
 
