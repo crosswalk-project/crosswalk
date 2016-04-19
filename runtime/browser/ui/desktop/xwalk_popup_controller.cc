@@ -54,8 +54,7 @@ void XWalkPopupController::UnregisterKeyPressCallback() {
 
 gfx::Display XWalkPopupController::GetDisplayNearestPoint(
   const gfx::Point& point) const {
-  return gfx::Screen::GetScreenFor(container_view_)->GetDisplayNearestPoint(
-      point);
+  return gfx::Screen::GetScreen()->GetDisplayNearestPoint(point);
 }
 
 gfx::Rect XWalkPopupController::RoundedElementBounds() const {
