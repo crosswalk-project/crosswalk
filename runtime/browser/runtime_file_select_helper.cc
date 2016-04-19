@@ -190,7 +190,7 @@ void RuntimeFileSelectHelper::StartNewEnumeration(
   entry->lister_.reset(new net::DirectoryLister(path,
                                net::DirectoryLister::NO_SORT_RECURSIVE,
                                entry->delegate_.get()));
-  if (!entry->lister_->Start()) {
+  if (!entry->lister_->Start(base::WorkerPool::GetTaskRunner(true).get())) {
     if (request_id == kFileSelectEnumerationId)
       FileSelectionCanceled(NULL);
     else
