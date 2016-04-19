@@ -54,7 +54,7 @@ void XWalkContentSettings::Init() {
 
   HostContentSettingsMap::RegisterProfilePrefs(pref_registry_.get());
   host_content_settings_map_ =
-      new HostContentSettingsMap(pref_service_.get(), false);
+      new HostContentSettingsMap(pref_service_.get(), false, false);
 }
 
 void XWalkContentSettings::Shutdown() {
