@@ -5,7 +5,7 @@
 
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 
-#include "base/prefs/pref_service.h"
+#include "components/prefs/pref_service.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/user_prefs/user_prefs.h"

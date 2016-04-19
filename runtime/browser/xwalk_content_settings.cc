@@ -9,8 +9,8 @@
 #include "base/base_paths.h"
 #include "base/files/file_util.h"
 #include "base/path_service.h"
-#include "base/prefs/pref_filter.h"
-#include "base/prefs/pref_service_factory.h"
+#include "components/prefs/pref_filter.h"
+#include "components/prefs/pref_service_factory.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "content/public/browser/browser_thread.h"
 #include "url/gurl.h"
@@ -47,7 +47,7 @@ void XWalkContentSettings::Init() {
 
   // The name is misleading, we do not sync anything.
   pref_registry_ = new user_prefs::PrefRegistrySyncable();
-  base::PrefServiceFactory pref_service_factory;
+  PrefServiceFactory pref_service_factory;
   pref_service_factory.set_user_prefs(pref_store_);
 
   pref_service_ = pref_service_factory.Create(pref_registry_.get());
