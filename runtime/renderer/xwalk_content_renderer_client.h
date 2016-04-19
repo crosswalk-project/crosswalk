@@ -47,8 +47,6 @@ class XWalkContentRendererClient
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
   bool IsExternalPepperPlugin(const std::string& module_name) override;
-  const void* CreatePPAPIInterface(
-      const std::string& interface_name) override;
 #if defined(OS_ANDROID)
   unsigned long long VisitedLinkHash(const char* canonical_url, // NOLINT
                                              size_t length) override;
