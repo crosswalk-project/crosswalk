@@ -24,7 +24,6 @@
 #include "net/android/network_change_notifier_factory_android.h"
 #include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
-#include "net/base/net_util.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/cookies/cookie_store.h"
 #include "net/grit/net_resources.h"

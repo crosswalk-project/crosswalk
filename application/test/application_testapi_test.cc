@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "content/public/test/browser_test_utils.h"
-#include "net/base/net_util.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"

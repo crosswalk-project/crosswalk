@@ -19,7 +19,6 @@
 #include "content/public/browser/web_contents.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "net/base/net_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_system_locale.h"
 #if defined(OS_ANDROID)

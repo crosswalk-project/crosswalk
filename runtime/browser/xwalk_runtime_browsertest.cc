@@ -27,7 +27,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "net/base/net_util.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
 #if defined(USE_AURA)
