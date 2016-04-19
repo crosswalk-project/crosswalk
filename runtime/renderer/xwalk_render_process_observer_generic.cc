@@ -7,7 +7,7 @@
 
 #include "content/public/renderer/render_thread.h"
 #include "ipc/ipc_message_macros.h"
-#include "third_party/WebKit/public/web/WebSecurityOrigin.h"
+#include "third_party/WebKit/public/platform/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
