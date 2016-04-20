@@ -132,6 +132,7 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
       # 'natives_blob.bin',
       # 'snapshot_blob.bin',
       'xwalk.pak',
+      'xwalk_100_percent.pak',
   ]
 
   pak_list_xml = Document()

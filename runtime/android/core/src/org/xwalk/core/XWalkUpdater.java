@@ -256,6 +256,7 @@ public class XWalkUpdater {
         "classes.dex",
         "icudtl.dat",
         "xwalk.pak",
+        "xwalk_100_percent",
     };
 
     private static final String TAG = "XWalkLib";
