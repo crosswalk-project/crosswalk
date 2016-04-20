@@ -116,7 +116,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     // (ie before it is destroyed).
     private CleanupReference mCleanupReference;
 
-    public XWalkContent(Context context, AttributeSet attrs, XWalkViewInternal xwView) {
+    public XWalkContent(Context context, String animatable, XWalkViewInternal xwView) {
         // Initialize the WebContensDelegate.
         mXWalkView = xwView;
         mViewContext = mXWalkView.getContext();
@@ -134,7 +134,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         MediaPlayerBridge.setResourceLoadingFilter(
                 new XWalkMediaPlayerResourceLoadingFilter());
 
-        setNativeContent(nativeInit());
+        setNativeContent(nativeInit(), animatable);
 
         XWalkPreferencesInternal.load(this);
         initCaptureBitmapAsync();
@@ -157,7 +157,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             new Rect(), mGetBitmapCallback);
     }
 
-    private void setNativeContent(long newNativeContent) {
+    private void setNativeContent(long newNativeContent, String animatable) {
         if (mNativeContent != 0) {
             destroy();
             mContentViewCore = null;
@@ -166,10 +166,15 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         assert mNativeContent == 0 && mCleanupReference == null && mContentViewCore == null;
 
         // Initialize ContentViewRenderView
-        boolean animated = XWalkPreferencesInternal.getValue(
-                XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
+        boolean animated;
+        if(animatable == null)
+            animated = XWalkPreferencesInternal.getValue(
+                    XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
+        else
+            animated = animatable.equalsIgnoreCase("true");
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
+        Log.d(TAG, "CompositingSurfaceType is " + (animated ? "TextureView" : "SurfaceView"));
         mContentViewRenderView = new ContentViewRenderView(mViewContext, surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
@@ -259,7 +264,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     private void receivePopupContents(long popupNativeXWalkContents) {
-        setNativeContent(popupNativeXWalkContents);
+        setNativeContent(popupNativeXWalkContents, null);
 
         mContentViewCore.onShow();
     }
