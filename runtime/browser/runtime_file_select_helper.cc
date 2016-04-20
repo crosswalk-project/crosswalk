@@ -243,7 +243,7 @@ RuntimeFileSelectHelper::GetFileTypesFromAcceptType(
     const std::vector<base::string16>& accept_types) {
   scoped_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
       new ui::SelectFileDialog::FileTypeInfo());
-  base_file_type->support_drive = true;
+  base_file_type->allowed_paths = ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
   if (accept_types.empty())
     return base_file_type;
 
