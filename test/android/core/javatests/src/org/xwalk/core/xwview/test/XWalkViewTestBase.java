@@ -8,6 +8,7 @@ package org.xwalk.core.xwview.test;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
@@ -1150,6 +1151,15 @@ public class XWalkViewTestBase
             @Override
             public void run() {
                 view.getSettings().setUseWideViewPort(value);
+            }
+        });
+    }
+
+    protected SslCertificate getCertificateOnUiThread() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<SslCertificate>() {
+            @Override
+            public SslCertificate call() throws Exception {
+                return mXWalkView.getCertificate();
             }
         });
     }

@@ -22,11 +22,14 @@
 #include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/cert_store.h"
 #include "content/public/browser/devtools_agent_host.h"
+#include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/renderer_preferences.h"
+#include "content/public/common/ssl_status.h"
 #include "content/public/common/url_constants.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
@@ -569,6 +572,29 @@ void XWalkContent::SetOriginAccessWhitelist(JNIEnv* env, jobject obj,
   render_view_host_ext_->SetOriginAccessWhitelist(
       base::android::ConvertJavaStringToUTF8(env, url),
       base::android::ConvertJavaStringToUTF8(env, match_patterns));
+}
+
+base::android::ScopedJavaLocalRef<jbyteArray> XWalkContent::GetCertificate(
+    JNIEnv* env,
+    const JavaParamRef<jobject>& obj) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  content::NavigationEntry* entry =
+      web_contents_->GetController().GetLastCommittedEntry();
+  if (!entry)
+    return ScopedJavaLocalRef<jbyteArray>();
+  // Get the certificate
+  int cert_id = entry->GetSSL().cert_id;
+  scoped_refptr<net::X509Certificate> cert;
+  bool ok = content::CertStore::GetInstance()->RetrieveCert(cert_id, &cert);
+  if (!ok)
+    return ScopedJavaLocalRef<jbyteArray>();
+
+  // Convert the certificate and return it
+  std::string der_string;
+  net::X509Certificate::GetDEREncoded(cert->os_cert_handle(), &der_string);
+  return base::android::ToJavaByteArray(
+      env, reinterpret_cast<const uint8_t*>(der_string.data()),
+      der_string.length());
 }
 
 }  // namespace xwalk
