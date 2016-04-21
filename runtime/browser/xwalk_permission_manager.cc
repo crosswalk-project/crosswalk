@@ -70,7 +70,6 @@ int XWalkPermissionManager::RequestPermission(
       content::PermissionType permission,
       content::RenderFrameHost* render_frame_host,
       const GURL& requesting_origin,
-      bool user_gesture,
       const base::Callback<void(content::PermissionStatus)>& callback) {
   bool should_delegate_request = true;
   for (PendingRequestsMap::Iterator<PendingRequest> it(&pending_requests_);
@@ -131,7 +130,7 @@ int XWalkPermissionManager::RequestPermission(
       break;
     }
     case content::PermissionType::PROTECTED_MEDIA_IDENTIFIER:
-      callback.Run(content::PERMISSION_STATUS_GRANTED);
+      callback.Run(content::PermissionStatus::GRANTED);
       break;
     case content::PermissionType::MIDI_SYSEX:
     case content::PermissionType::PUSH_MESSAGING:
@@ -141,11 +140,11 @@ int XWalkPermissionManager::RequestPermission(
     case content::PermissionType::VIDEO_CAPTURE:
       NOTIMPLEMENTED() << "RequestPermission is not implemented for "
                        << static_cast<int>(permission);
-      callback.Run(content::PERMISSION_STATUS_DENIED);
+      callback.Run(content::PermissionStatus::DENIED);
       break;
     case content::PermissionType::NUM:
       NOTREACHED() << "PermissionType::NUM was not expected here.";
-      callback.Run(content::PERMISSION_STATUS_DENIED);
+      callback.Run(content::PermissionStatus::DENIED);
       break;
   }
   return request_id;
@@ -155,7 +154,6 @@ int XWalkPermissionManager::RequestPermissions(
     const std::vector<content::PermissionType>& permissions,
     content::RenderFrameHost* render_frame_host,
     const GURL& requesting_origin,
-    bool user_gesture,
     const base::Callback<void(
         const std::vector<content::PermissionStatus>&)>& callback) {
   // TODO(mrunalk): Rework this as per,
@@ -203,8 +201,8 @@ void XWalkPermissionManager::OnRequestResponse(
     int request_id,
     const base::Callback<void(PermissionStatus)>& callback,
     bool allowed) {
-  PermissionStatus status = allowed ? content::PERMISSION_STATUS_GRANTED
-                                    : content::PERMISSION_STATUS_DENIED;
+  PermissionStatus status = allowed ? content::PermissionStatus::GRANTED
+                                    : content::PermissionStatus::DENIED;
   if (manager.get()) {
     PendingRequest* pending_request =
     manager->pending_requests_.Lookup(request_id);
@@ -235,9 +233,9 @@ content::PermissionStatus XWalkPermissionManager::GetPermissionStatus(
     const GURL& requesting_origin,
     const GURL& embedding_origin) {
   if (permission == content::PermissionType::PROTECTED_MEDIA_IDENTIFIER)
-    return content::PERMISSION_STATUS_GRANTED;
+    return content::PermissionStatus::GRANTED;
 
-  return content::PERMISSION_STATUS_DENIED;
+  return content::PermissionStatus::DENIED;
 }
 
 void XWalkPermissionManager::RegisterPermissionUsage(
