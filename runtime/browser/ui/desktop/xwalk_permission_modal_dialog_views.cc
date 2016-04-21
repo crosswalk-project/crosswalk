@@ -90,10 +90,6 @@ bool XWalkPermissionModalDialogViews::Accept() {
   return true;
 }
 
-void XWalkPermissionModalDialogViews::OnClosed() {
-  parent_->OnClose();
-}
-
 views::Widget* XWalkPermissionModalDialogViews::GetWidget() {
   return message_box_view_->GetWidget();
 }
