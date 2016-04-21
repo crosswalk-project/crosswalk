@@ -79,10 +79,10 @@
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_mac.h"
 #endif
 
-#if defined(OS_WIN)
-#include "xwalk/runtime/browser/xwalk_presentation_service_delegate_win.h"
-#elif defined(OS_ANDROID)
+#if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/xwalk_presentation_service_delegate_android.h"
+#elif defined(OS_WIN)
+#include "xwalk/runtime/browser/xwalk_presentation_service_delegate_win.h"
 #endif
 
 namespace xwalk {
