@@ -285,6 +285,20 @@ void XWalkContentsClientBridge::OnWebLayoutPageScaleFactorChanged(
       env, obj.obj(), page_scale_factor);
 }
 
+bool XWalkContentsClientBridge::ShouldOverrideUrlLoading(
+    const base::string16& url,
+    bool has_user_gesture,
+    bool is_redirect,
+    bool is_main_frame) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return false;
+  ScopedJavaLocalRef<jstring> jurl = ConvertUTF16ToJavaString(env, url);
+  return Java_XWalkContentsClientBridge_shouldOverrideUrlLoading(
+      env, obj.obj(), jurl.obj(), has_user_gesture, is_redirect, is_main_frame);
+}
+
 void XWalkContentsClientBridge::ConfirmJsResult(JNIEnv* env,
                                                 jobject,
                                                 int id,

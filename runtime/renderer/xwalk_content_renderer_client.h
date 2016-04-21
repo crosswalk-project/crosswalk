@@ -62,6 +62,16 @@ class XWalkContentRendererClient
                        GURL* new_url) override;
 
   void AddKeySystems(std::vector<media::KeySystemInfo>* key_systems) override;
+#if defined(OS_ANDROID)
+  bool HandleNavigation(content::RenderFrame* render_frame,
+                        bool is_content_initiated,
+                        int opener_id,
+                        blink::WebFrame* frame,
+                        const blink::WebURLRequest& request,
+                        blink::WebNavigationType type,
+                        blink::WebNavigationPolicy default_policy,
+                        bool is_redirect) override;
+#endif
 
  protected:
   scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
