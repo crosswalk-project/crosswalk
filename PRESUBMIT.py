@@ -26,9 +26,13 @@ _LICENSE_HEADER_RE = (
 def _CheckChangeLintsClean(input_api, output_api):
   class PrefixedFileInfo(cpplint.FileInfo):
     def RepositoryName(self):
-      # RepositoryNames() will trim everything up to 'xwalk/'. We need to
-      # override it because 'xwalk/' is part of the path in our include guards.
-      return 'xwalk/' + super(PrefixedFileInfo, self).RepositoryName()
+      fullname = self.FullName()
+      repo_pos = fullname.find('xwalk/')
+      if repo_pos == -1:
+        # Something weird happened, bail out.
+        return [output_api.PresubmitError(
+            'Cannot find "xwalk/" in %s.' % fullname)]
+      return fullname[repo_pos:]
   input_api.cpplint.FileInfo = PrefixedFileInfo
   source_filter = lambda filename: input_api.FilterSourceFile(
     filename, white_list=(r'.+\.(cc|h)$',))
