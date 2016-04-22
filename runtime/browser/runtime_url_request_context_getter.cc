@@ -128,17 +128,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         application::kCookieDatabaseFilename),
         content::CookieStoreConfig::PERSISTANT_SESSION_COOKIES,
         NULL, NULL);
+
+    cookie_config.cookieable_schemes.push_back(application::kApplicationScheme);
+    cookie_config.cookieable_schemes.push_back(content::kChromeDevToolsScheme);
+
     net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
-
-    std::vector<const char*> cookieable_schemes(
-        net::CookieMonster::kDefaultCookieableSchemes,
-        net::CookieMonster::kDefaultCookieableSchemes +
-            net::CookieMonster::kDefaultCookieableSchemesCount - 1);
-    cookieable_schemes.push_back(application::kApplicationScheme);
-    cookieable_schemes.push_back(content::kChromeDevToolsScheme);
-
-    cookie_store->GetCookieMonster()->SetCookieableSchemes(
-        &cookieable_schemes[0], cookieable_schemes.size());
     storage_->set_cookie_store(cookie_store);
 #endif
     storage_->set_channel_id_service(make_scoped_ptr(new net::ChannelIDService(
