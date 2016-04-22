@@ -430,6 +430,12 @@ class InternalJavaFileData(object):
                'INTERNAL_VAR': var if clazz == self._class_name else\
                                    '(%s) %s' % (clazz, var)}
       var = typed_var_template.substitute(value)
+    else:
+      typed_var_template = Template('(${VAR} instanceof ${BRIDGE_TYPE} ?'\
+          ' ((${BRIDGE_TYPE}) ${VAR} ) : null)')
+      value = {'VAR': var,
+               'BRIDGE_TYPE': self.GetJavaData(clazz).bridge_name}
+      var = typed_var_template.substitute(value)
     return var
 
   def UseAsInstanceInBridgeSuperCall(self, var):

@@ -665,6 +665,23 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Add fake APIs to make Lite-17 compatible with Cordova-plugin 1.7.0(match Crosswalk-18)
+     * Below 2 APIs are new added since Crosswalk-18.
+     * getExtensionManager()
+     * startActivityForResult()
+    **/
+
+    @XWalkAPI
+    public XWalkExternalExtensionManagerInternal getExtensionManager() {
+        return new XWalkExternalExtensionManagerInternal();
+    }
+
+    @XWalkAPI
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
+        return;
+    }
+
+    /**
      * Pass through activity result to XWalkViewInternal. Many internal facilities need this
      * to handle activity result like JavaScript dialog, Crosswalk extensions, etc.
      * See <a href="http://developer.android.com/reference/android/app/Activity.html">
