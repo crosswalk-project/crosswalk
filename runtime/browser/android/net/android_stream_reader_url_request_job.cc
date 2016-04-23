@@ -172,11 +172,6 @@ void AndroidStreamReaderURLRequestJob::Start() {
     return;
   }
 
-  // Start reading asynchronously so that all error reporting and data
-  // callbacks happen as they would for network requests.
-  SetStatus(net::URLRequestStatus(net::URLRequestStatus::IO_PENDING,
-                                  net::ERR_IO_PENDING));
-
   // This could be done in the InputStreamReader but would force more
   // complex synchronization in the delegate.
   GetWorkerThreadRunner()->PostTask(
@@ -218,8 +213,6 @@ void AndroidStreamReaderURLRequestJob::OnInputStreamOpened(
     if (restart_required) {
       NotifyRestartRequired();
     } else {
-      // Clear the IO_PENDING status set in Start().
-      SetStatus(net::URLRequestStatus());
       HeadersComplete(kHTTPNotFound, kHTTPNotFoundText);
     }
     return;
@@ -245,8 +238,6 @@ void AndroidStreamReaderURLRequestJob::OnInputStreamOpened(
 
 void AndroidStreamReaderURLRequestJob::OnReaderSeekCompleted(int result) {
   DCHECK(thread_checker_.CalledOnValidThread());
-  // Clear the IO_PENDING status set in Start().
-  SetStatus(net::URLRequestStatus());
   if (result >= 0) {
     set_expected_content_size(result);
     HeadersComplete(kHTTPOk, kHTTPOkText);
