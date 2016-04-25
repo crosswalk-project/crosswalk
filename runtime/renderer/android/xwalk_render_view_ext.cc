@@ -13,6 +13,7 @@
 #include "content/public/renderer/document_state.h"
 #include "content/public/renderer/render_view.h"
 #include "skia/ext/refptr.h"
+#include "third_party/WebKit/public/platform/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/platform/WebSize.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebVector.h"
@@ -20,10 +21,10 @@
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebElementCollection.h"
+#include "third_party/WebKit/public/web/WebFrameWidget.h"
 #include "third_party/WebKit/public/web/WebHitTestResult.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebNode.h"
-#include "third_party/WebKit/public/platform/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/skia/include/core/SkPicture.h"
 #include "xwalk/runtime/common/android/xwalk_hit_test_data.h"
@@ -249,9 +250,10 @@ void XWalkRenderViewExt::OnSetInitialPageScale(double page_scale_factor) {
 }
 
 void XWalkRenderViewExt::OnSetBackgroundColor(SkColor c) {
-  if (!render_view() || !render_view()->GetWebView())
+  if (!render_view() || !render_view()->GetWebFrameWidget())
     return;
-  render_view()->GetWebView()->setBaseBackgroundColor(c);
+  blink::WebFrameWidget* web_frame_widget = render_view()->GetWebFrameWidget();
+  web_frame_widget->setBaseBackgroundColor(c);
 }
 
 void XWalkRenderViewExt::OnSetTextZoomFactor(float zoom_factor) {
