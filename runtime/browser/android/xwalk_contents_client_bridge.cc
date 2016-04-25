@@ -21,6 +21,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
+#include "content/public/common/notification_resources.h"
 #include "content/public/common/platform_notification_data.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -243,6 +244,7 @@ static void CancelNotification(
 
 void XWalkContentsClientBridge::ShowNotification(
     const content::PlatformNotificationData& notification_data,
+    const content::NotificationResources& notification_resources,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -259,8 +261,7 @@ void XWalkContentsClientBridge::ShowNotification(
   ScopedJavaLocalRef<jstring> jreplace_id(
     ConvertUTF8ToJavaString(env, notification_data.tag));
   ScopedJavaLocalRef<jobject> jicon;
-  if (!icon.empty())
-     jicon = gfx::ConvertToJavaBitmap(&icon);
+  jicon = gfx::ConvertToJavaBitmap(&notification_resources.notification_icon);
 
   int notification_id = g_next_notification_id_++;
   g_notification_map_.set(notification_id, std::move(delegate));

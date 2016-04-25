@@ -106,8 +106,8 @@ void XWalkPlatformNotificationService::DisplayNotification(
       continue;
     XWalkContentsClientBridgeBase* bridge =
         XWalkContentsClientBridgeBase::FromWebContents(web_contents);
-    bridge->ShowNotification(notification_data, icon, std::move(delegate),
-                             cancel_callback);
+    bridge->ShowNotification(notification_data, notification_resources, 
+                             std::move(delegate), cancel_callback);
     return;
   }
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)

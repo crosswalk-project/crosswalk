@@ -70,7 +70,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
       override;
   void ShowNotification(
       const content::PlatformNotificationData& notification_data,
-      const SkBitmap& icon,
+      const content::NotificationResources& notification_resources,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
       override;
