@@ -29,6 +29,10 @@
 #include "base/nix/xdg_util.h"
 #endif
 
+#if defined(OS_WIN)
+#include "ui/base/win/open_file_name_win.h"
+#endif
+
 using content::BrowserThread;
 
 namespace xwalk {
@@ -155,27 +159,14 @@ void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
 
   base::FilePath result;
 #if defined(OS_WIN) && !defined(USE_AURA)
-  std::wstring file_part = base::FilePath(suggested_path).BaseName().value();
-  wchar_t file_name[MAX_PATH];
-  base::wcslcpy(file_name, file_part.c_str(), arraysize(file_name));
-  OPENFILENAME save_as;
-  ZeroMemory(&save_as, sizeof(save_as));
-  save_as.lStructSize = sizeof(OPENFILENAME);
-  save_as.hwndOwner = item->GetWebContents()->GetView()->GetNativeView();
-  save_as.lpstrFile = file_name;
-  save_as.nMaxFile = arraysize(file_name);
-
-  std::wstring directory;
-  if (!suggested_path.empty())
-    directory = suggested_path.DirName().value();
-
-  save_as.lpstrInitialDir = directory.c_str();
-  save_as.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING |
-                  OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
-
-  if (GetSaveFileName(&save_as))
-    result = base::FilePath(std::wstring(save_as.lpstrFile));
-
+  ui::win::OpenFileName open_file_name(
+      item->GetWebContents()->GetView()->GetNativeView(),
+      OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR |
+          OFN_PATHMUSTEXIST);
+  open_file_name.SetInitialSelection(suggested_path.DirName(),
+                                     suggested_path.BaseName());
+  if (::GetSaveFileName(open_file_name.GetOPENFILENAME()))
+    result = open_file_name.GetSingleResult();
   callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
                content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
 #elif defined(OS_LINUX)
