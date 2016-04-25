@@ -296,7 +296,6 @@ void CookieManager::SetAcceptFileSchemeCookies(bool accept) {
   // if cookies have been read or written from the store). If that turns out to
   // be a problemin future, it looks like it maybe possible to relax the
   // DCHECK.
-  cookie_monster_->SetEnableFileScheme(accept);
 }
 
 }  // namespace

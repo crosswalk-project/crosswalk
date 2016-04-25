@@ -221,8 +221,12 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
       BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
   cookie_config.background_task_runner = background_task_runner;
   cookie_store_ = content::CreateCookieStore(cookie_config);
-  cookie_store_->GetCookieMonster()->SetPersistSessionCookies(true);
-  SetCookieMonsterOnNetworkStackInit(cookie_store_->GetCookieMonster());
+
+  // TODO(mrunal): Since there has been a push to get rid of the dependency
+  // on CookieMonster as can be seen here, https://crbug.com/579653 we need to 
+  // do the same.
+  //cookie_store_->GetCookieMonster()->SetPersistSessionCookies(true);
+  //SetCookieMonsterOnNetworkStackInit(cookie_store_->GetCookieMonster());
 }
 
 void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {
