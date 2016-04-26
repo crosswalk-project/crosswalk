@@ -12,6 +12,7 @@ import android.net.Uri;
 import org.chromium.media.MediaPlayerBridge;
 
 import java.io.File;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,9 +23,15 @@ import java.util.List;
 
 class XWalkMediaPlayerResourceLoadingFilter extends
         MediaPlayerBridge.ResourceLoadingFilter {
+    private XWalkContentsClientBridge mContentsClientBridge;
+
+    XWalkMediaPlayerResourceLoadingFilter(XWalkContentsClientBridge clientBridge) {
+        mContentsClientBridge = clientBridge;
+    }
+
     @Override
     public boolean shouldOverrideResourceLoading(MediaPlayer mediaPlayer,
-            Context context, Uri uri) {
+            Context context, Uri uri, Map<String, String> headers) {
         String scheme = uri.getScheme();
         if (scheme == null) return false;
         if (scheme.equals(AndroidProtocolHandler.APP_SCHEME)) {
@@ -32,17 +39,18 @@ class XWalkMediaPlayerResourceLoadingFilter extends
         }
 
         scheme = uri.getScheme();
-        if (!scheme.equals(AndroidProtocolHandler.FILE_SCHEME)) return false;
-
-        try {
-            AssetFileDescriptor afd =
-                    context.getAssets().openFd(AndroidProtocolHandler.getAssetPath(uri));
-            mediaPlayer.setDataSource(
-                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-
-            return true;
-        } catch (Exception e) {
-            return false;
+        if (scheme.equals(AndroidProtocolHandler.FILE_SCHEME)) {
+            try {
+                AssetFileDescriptor afd =
+                        context.getAssets().openFd(AndroidProtocolHandler.getAssetPath(uri));
+                mediaPlayer.setDataSource(
+                        afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
+
+        return mContentsClientBridge.shouldOverrideMediaPlaying(mediaPlayer, context, uri, headers);
     }
 }
