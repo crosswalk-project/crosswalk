@@ -94,7 +94,6 @@
         'application/test/application_testapi_test.cc',
         'experimental/native_file_system/native_file_system_api_browsertest.cc',
         'runtime/browser/devtools/xwalk_devtools_browsertest.cc',
-        'runtime/browser/ui/taskbar_util_browsertest_win.cc',
         'runtime/browser/xwalk_download_browsertest.cc',
         'runtime/browser/xwalk_form_input_browsertest.cc',
         'runtime/browser/xwalk_runtime_browsertest.cc',

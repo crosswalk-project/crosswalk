@@ -245,8 +245,6 @@
         'runtime/browser/ui/desktop/xwalk_permission_dialog_manager.h',
         'runtime/browser/ui/desktop/xwalk_popup_controller.cc',
         'runtime/browser/ui/desktop/xwalk_popup_controller.h',
-        'runtime/browser/ui/taskbar_util.h',
-        'runtime/browser/ui/taskbar_util_win.cc',
         'runtime/browser/ui/top_view_layout_views.cc',
         'runtime/browser/ui/top_view_layout_views.h',
         'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',

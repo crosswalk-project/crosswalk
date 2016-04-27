@@ -18,6 +18,10 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
+#if defined(OS_WIN)
+#include <shobjidl.h>
+#endif
+
 namespace xwalk {
 
 namespace application {
@@ -55,6 +59,11 @@ Application* ApplicationService::Launch(
   }
 
   application->set_observer(this);
+
+#if defined (OS_WIN)
+  ::SetCurrentProcessExplicitAppUserModelID(
+      base::ASCIIToUTF16(application->data()->Name()).c_str());
+#endif
 
   FOR_EACH_OBSERVER(Observer, observers_,
                     DidLaunchApplication(application));
