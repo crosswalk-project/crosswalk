@@ -41,7 +41,9 @@ public class ClearSslPreferenceTest extends XWalkViewTestBase {
                 mTestHelperBridge.getOnReceivedSslErrorHelper();
         int onSslErrorCallCount = onReceivedSslErrorHelper.getCallCount();
 
+        assertNull(getCertificateOnUiThread());
         loadUrlSync(pageUrl);
+        assertNotNull(getCertificateOnUiThread());
 
         assertEquals(onSslErrorCallCount + 1, onReceivedSslErrorHelper.getCallCount());
         assertEquals(1, mWebServer.getRequestCount(pagePath));
@@ -70,6 +72,7 @@ public class ClearSslPreferenceTest extends XWalkViewTestBase {
         // because we only remember user's decision if it is "allow".
         onSslErrorCallCount = onReceivedSslErrorHelper.getCallCount();
         loadUrlSync(pageUrl);
+        assertNotNull(getCertificateOnUiThread());
         assertEquals(onSslErrorCallCount + 1, onReceivedSslErrorHelper.getCallCount());
     }
 }

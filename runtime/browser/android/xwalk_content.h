@@ -15,6 +15,7 @@
 #include "content/public/common/permission_status.mojom.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
+using base::android::JavaParamRef;
 using base::android::ScopedJavaLocalRef;
 
 namespace content {
@@ -86,6 +87,10 @@ class XWalkContent {
 
   void SetXWalkAutofillClient(jobject client);
   void SetSaveFormData(bool enabled);
+
+  base::android::ScopedJavaLocalRef<jbyteArray> GetCertificate(
+      JNIEnv* env,
+      const JavaParamRef<jobject>& obj);
 
  private:
   JavaObjectWeakGlobalRef java_ref_;

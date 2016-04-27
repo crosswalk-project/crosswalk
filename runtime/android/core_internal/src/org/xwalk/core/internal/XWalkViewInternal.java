@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.net.http.SslCertificate;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -1588,5 +1589,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.clearClientCertPreferences(callback);
+    }
+
+    /**
+     * Gets the SSL certificate for the main top-level page or null
+     * if there is no certificate (the site is not secure).
+     * @return the SSL certificate for the main top-level page.
+     * @since 6.0
+     */
+    @XWalkAPI
+    public SslCertificate getCertificate() {
+        if (mContent == null) return null;
+        checkThreadSafety();
+        return mContent.getCertificate();
     }
 }

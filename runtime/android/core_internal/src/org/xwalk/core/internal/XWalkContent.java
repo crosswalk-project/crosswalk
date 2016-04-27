@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.net.http.SslCertificate;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -1031,6 +1032,11 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentsClientBridge.clearClientCertPreferences(callback);
     }
 
+    public SslCertificate getCertificate() {
+        if (mNativeContent == 0) return null;
+        return SslUtil.getCertificateFromDerBytes(nativeGetCertificate(mNativeContent));
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);
@@ -1056,4 +1062,5 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private native void nativeSetBackgroundColor(long nativeXWalkContent, int color);
     private native void nativeSetOriginAccessWhitelist(
             long nativeXWalkContent, String url, String patterns);
+    private native byte[] nativeGetCertificate(long nativeXWalkContent);
 }
