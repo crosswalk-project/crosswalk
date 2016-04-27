@@ -15,7 +15,6 @@
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/extension_process/xwalk_extension_process_main.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
-#include "xwalk/runtime/browser/ui/taskbar_util.h"
 #include "xwalk/runtime/common/logging_xwalk.h"
 #include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -56,13 +55,6 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
 #if defined(OS_MACOSX)
   OverrideFrameworkBundlePath();
   OverrideChildProcessPath();
-#elif defined(OS_WIN)
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  std::string process_type =
-          command_line->GetSwitchValueASCII(switches::kProcessType);
-  // Only set the id for browser process
-  if (process_type.empty())
-    SetTaskbarGroupIdForProcess();
 #endif
 
 #if !defined(DISABLE_NACL) && defined(OS_LINUX)
