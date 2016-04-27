@@ -381,6 +381,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return mContentsClientBridge.getXWalkWebChromeClient();
     }
 
+    public int getContentHeight() {
+        return (int)Math.ceil(mContentViewCore.getContentHeightCss());
+    }
+
     public void setXWalkClient(XWalkClient client) {
         if (mNativeContent == 0) return;
         mContentsClientBridge.setXWalkClient(client);
