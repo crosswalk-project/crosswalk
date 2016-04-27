@@ -320,14 +320,6 @@ public class XWalkViewTestBase
         });
     }
 
-    protected void loadJavaScriptUrl(final String url) throws Exception {
-        if (!url.startsWith("javascript:")) {
-            Log.w(TAG, "loadJavascriptUrl only accepts javascript: url");
-            return;
-        }
-        loadUrlAsync(url);
-    }
-
     protected void loadUrlSync(final String url) throws Exception {
         CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
@@ -623,6 +615,15 @@ public class XWalkViewTestBase
         return helper.getJsonResultAndClear();
     }
 
+    protected void executeJavaScript(final String code) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.evaluateJavascriptForTests(code);
+            }
+        });
+    }
+
     protected String getUrlOnUiThread() throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
@@ -692,7 +693,7 @@ public class XWalkViewTestBase
         }, WAIT_TIMEOUT_MS, CHECK_INTERVAL);
 
         try {
-            loadJavaScriptUrl("javascript:var evObj = document.createEvent('Events'); " +
+            executeJavaScript("var evObj = document.createEvent('Events'); " +
                 "evObj.initEvent('click', true, false); " +
                 script2 +
                 "console.log('element with id [" + id + "] clicked');");

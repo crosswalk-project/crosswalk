@@ -104,13 +104,13 @@ public class CookieManagerTest extends XWalkViewTestBase {
     }
 
     private void setCookie(final String name, final String value) throws Exception {
-        String jsCommand = "javascript:void((function(){" +
+        String jsCommand = "void((function(){" +
                 "var expirationDate = new Date();" +
                 "expirationDate.setDate(expirationDate.getDate() + 5);" +
                 "document.cookie='" + name + "=" + value +
                         "; expires=' + expirationDate.toUTCString();" +
                 "})())";
-        loadJavaScriptUrl(jsCommand);
+        executeJavaScript(jsCommand);
     }
 
     private void waitForCookie(final String url) throws InterruptedException {

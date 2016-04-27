@@ -360,6 +360,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewCore.getWebContents().evaluateJavaScript(script, coreCallback);
     }
 
+    public void evaluateJavascriptForTests(String script) {
+        mWebContents.evaluateJavaScriptForTests(script);
+    }
+
     public void setUIClient(XWalkUIClientInternal client) {
         if (mNativeContent == 0) return;
         mContentsClientBridge.setUIClient(client);
