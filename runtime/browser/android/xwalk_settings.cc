@@ -213,6 +213,7 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.databases_enabled = env->GetBooleanField(
       obj, field_ids_->database_enabled);
 
+  prefs.wide_viewport_quirk = true;
   prefs.double_tap_to_zoom_enabled = prefs.use_wide_viewport =
       env->GetBooleanField(obj, field_ids_->use_wide_viewport);
 
