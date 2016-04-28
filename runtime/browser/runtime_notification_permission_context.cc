@@ -9,8 +9,8 @@
 
 #include "base/bind.h"
 #include "base/callback.h"
-#include "base/prefs/pref_service.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/prefs/pref_service.h"
 #include "components/url_formatter/url_formatter.h"
 #include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_thread.h"
@@ -20,7 +20,6 @@
 #include "content/public/browser/web_contents.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "net/base/net_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/common/xwalk_system_locale.h"
 
