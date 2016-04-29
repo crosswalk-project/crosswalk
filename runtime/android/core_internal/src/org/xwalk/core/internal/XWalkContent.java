@@ -88,8 +88,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private XWalkAutofillClientAndroid mXWalkAutofillClient;
     private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
     private ContentBitmapCallback mGetBitmapCallback;
-    // Controls overscroll pull-to-refresh behavior.
-    private SwipeRefreshHandler mSwipeRefreshHandler;
 
     long mNativeContent;
     long mNativeWebContents;
@@ -207,9 +205,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
         mContentsClientBridge.installWebContentsObserver(mWebContents);
-        // For swipe-to-refresh
-        mSwipeRefreshHandler = new SwipeRefreshHandler(mViewContext);
-        mSwipeRefreshHandler.setContentViewCore(mContentViewCore);
 
         // Set the third argument isAccessFromFileURLsGrantedByDefault to false, so that
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
@@ -697,27 +692,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         }
     }
 
-    /**
-     * Reset swipe-to-refresh handler.
-     */
-    void resetSwipeRefreshHandler() {
-        // When the dialog is visible, keeping the refresh animation active
-        // in the background is distracting and unnecessary (and likely to
-        // jank when the dialog is shown).
-        if (mSwipeRefreshHandler != null) {
-            mSwipeRefreshHandler.reset();
-        }
-    }
-
-    /**
-     * Stop swipe-to-refresh animation.
-     */
-    void stopSwipeRefreshHandler() {
-        if (mSwipeRefreshHandler != null) {
-            mSwipeRefreshHandler.didStopRefreshing();
-        }
-    }
-
     public void destroy() {
         if (mNativeContent == 0) return;
 
@@ -728,11 +702,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mXWalkView.removeView(mContentView);
         mXWalkView.removeView(mContentViewRenderView);
         mContentViewRenderView.setCurrentContentViewCore(null);
-
-        if (mSwipeRefreshHandler != null) {
-            mSwipeRefreshHandler.setContentViewCore(null);
-            mSwipeRefreshHandler = null;
-        }
 
         // Destroy the native resources.
         mContentViewRenderView.destroy();

@@ -223,15 +223,6 @@ void XWalkWebContentsDelegate::HandleKeyboardEvent(
   Java_XWalkWebContentsDelegate_handleKeyboardEvent(env, obj.obj(), key_event);
 }
 
-void XWalkWebContentsDelegate::ShowRepostFormWarningDialog(
-    WebContents* source) {
-  JNIEnv* env = AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
-  if (obj.is_null())
-    return;
-  Java_XWalkWebContentsDelegate_showRepostFormWarningDialog(env, obj.obj());
-}
-
 void XWalkWebContentsDelegate::EnterFullscreenModeForTab(
     content::WebContents* web_contents,
     const GURL&) {
