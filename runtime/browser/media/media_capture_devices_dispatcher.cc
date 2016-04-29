@@ -15,6 +15,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/media_stream_request.h"
 #include "grit/xwalk_resources.h"
+#include "net/base/net_util.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
@@ -127,7 +128,10 @@ void XWalkMediaCaptureDevicesDispatcher::RequestPermissionToUser(
     const content::MediaResponseCallback& callback) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
 
-  if (request.security_origin.SchemeIs(url::kHttpScheme))
+  // This function may be called for a media request coming from
+  // from WebRTC/mediaDevices. These requests can't be made from HTTP.
+  if (request.security_origin.SchemeIs(url::kHttpScheme) &&
+      !net::IsLocalhost(request.security_origin.host()))
     callback.Run(content::MediaStreamDevices(),
                  content::MEDIA_DEVICE_PERMISSION_DENIED,
                  scoped_ptr<content::MediaStreamUI>());
