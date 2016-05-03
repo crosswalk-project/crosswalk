@@ -36,6 +36,7 @@ using NotificationFailedEventHandler =
 
 namespace content {
 class DesktopNotificationDelegate;
+struct NotificationResources;
 }  // namespace content
 
 class GURL;
@@ -61,7 +62,7 @@ public:
     const base::string16& title,
     const base::string16& body,
     const GURL& icon_url,
-    const SkBitmap& icon,
+    const content::NotificationResources& notification_resources,
     const bool silent);
 
   void Dismiss();

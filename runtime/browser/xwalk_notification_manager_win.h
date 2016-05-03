@@ -17,6 +17,7 @@ class SkBitmap;
 namespace content {
 class BrowserContext;
 class DesktopNotificationDelegate;
+struct NotificationResources;
 struct PlatformNotificationData;
 }  // namespace content
 
@@ -35,7 +36,7 @@ public:
       content::BrowserContext* browser_context,
       const GURL& origin,
       const content::PlatformNotificationData& notification_data,
-      const SkBitmap& icon,
+      const content::NotificationResources& notification_resources,
       scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback);
   void RemoveNotification(XWalkNotificationWin* notification);

@@ -428,14 +428,16 @@ void PresentationFrame::OnPresentationSessionStarted(
   session_->AddObserver(this);
   DisplayInfoManager::GetInstance()->MarkAsUsed(session_->display_id(), true);
   if (!state_changed_cb_.is_null()) {
-    state_changed_cb_.Run(content::PRESENTATION_CONNECTION_STATE_CONNECTED);
+    state_changed_cb_.Run(content::PresentationConnectionStateChangeInfo(
+        content::PRESENTATION_CONNECTION_STATE_CONNECTED));
   }
 }
 
 void PresentationFrame::OnPresentationSessionClosed(
     const SessionInfo& session_info) {
   if (!state_changed_cb_.is_null()) {
-    state_changed_cb_.Run(content::PRESENTATION_CONNECTION_STATE_CLOSED);
+    state_changed_cb_.Run(content::PresentationConnectionStateChangeInfo(
+        content::PRESENTATION_CONNECTION_STATE_CLOSED));
   }
   DisplayInfoManager::GetInstance()->MarkAsUsed(session_->display_id(), false);
   session_ = nullptr;

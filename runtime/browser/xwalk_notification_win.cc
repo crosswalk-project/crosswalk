@@ -10,6 +10,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/desktop_notification_delegate.h"
+#include "content/public/common/notification_resources.h"
 #include "url/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/codec/png_codec.h"
@@ -343,13 +344,14 @@ void XWalkNotificationWin::Show(
     const base::string16& title,
     const base::string16& body,
     const GURL& icon_url,
-    const SkBitmap& icon,
+    const content::NotificationResources& notification_resources,
     const bool silent) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   content::BrowserThread::PostTask(
       content::BrowserThread::FILE, FROM_HERE,
       base::Bind(&XWalkNotificationWin::SaveIconToFilesystemAndProceed,
-          this, title, body, icon_url, icon, silent));
+          this, title, body, icon_url,
+          notification_resources.notification_icon, silent));
 }
 
 void XWalkNotificationWin::ShowNotification(

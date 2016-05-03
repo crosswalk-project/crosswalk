@@ -34,7 +34,7 @@ void XWalkNotificationManager::ShowDesktopNotification(
     content::BrowserContext* browser_context,
     const GURL& origin,
     const content::PlatformNotificationData& notification_data,
-    const SkBitmap& icon,
+    const content::NotificationResources& notification_resources,
     scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   if (!initialized_)
@@ -49,7 +49,7 @@ void XWalkNotificationManager::ShowDesktopNotification(
       notification_data.title,
       notification_data.body,
       notification_data.icon,
-      icon,
+      notification_resources,
       notification_data.silent);
   *cancel_callback = base::Bind(&DismissNotification,
       notification);
