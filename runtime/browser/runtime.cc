@@ -25,6 +25,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/native_widget_types.h"
+#include "net/base/net_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
@@ -356,7 +357,8 @@ bool Runtime::CheckMediaAccessPermission(
 #else
   // This function may be called for a media request coming from
   // from WebRTC/mediaDevices. These requests can't be made from HTTP.
-  if (security_origin.SchemeIs(url::kHttpScheme))
+  if (security_origin.SchemeIs(url::kHttpScheme) &&
+      !net::IsLocalhost(security_origin.host()))
     return false;
 
   ContentSettingsType content_settings_type =
