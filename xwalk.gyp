@@ -657,15 +657,11 @@
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_application_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_extensions_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_sysapps_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/strings/app_locale_settings_en-US.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/strings/ui_strings_en-US.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/components/components_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/strings/content_strings_en-US.pak',
             ],
@@ -680,6 +676,21 @@
                 ],
               },
             }],
+          ],
+          'includes': ['../build/repack_action.gypi'],
+        },
+        {
+          'action_name': 'repack_xwalk_resources_100_percent',
+          'variables': {
+            'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_100_percent.pak',
+            ],
+            'pak_output': '<(PRODUCT_DIR)/xwalk_100_percent.pak',
+          },
+          'conditions': [
             ['toolkit_views==1', {
               'variables': {
                 'pak_inputs+': [
@@ -688,6 +699,39 @@
               },
             }],
           ],
+          'includes': ['../build/repack_action.gypi'],
+        },
+        {
+          'action_name': 'repack_xwalk_resources_200_percent',
+          'variables': {
+            'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_200_percent.pak',
+            ],
+            'pak_output': '<(PRODUCT_DIR)/xwalk_200_percent.pak',
+          },
+          'conditions': [
+            ['toolkit_views==1', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/views/resources/views_resources_200_percent.pak',
+                ],
+              },
+            }],
+          ],
+          'includes': ['../build/repack_action.gypi'],
+        },
+        {
+          'action_name': 'repack_xwalk_resources_300_percent',
+          'variables': {
+            'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_300_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_300_percent.pak',
+            ],
+            'pak_output': '<(PRODUCT_DIR)/xwalk_300_percent.pak',
+          },
           'includes': ['../build/repack_action.gypi'],
         },
       ],
@@ -883,6 +927,9 @@
           'mac_bundle_resources': [
             'runtime/app/English.lproj/MainMenu.xib',
             '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/xwalk_100_percent.pak',
+            '<(PRODUCT_DIR)/xwalk_200_percent.pak',
+            '<(PRODUCT_DIR)/xwalk_300_percent.pak',
             '<(PRODUCT_DIR)/snapshot_blob.bin',
             '<(PRODUCT_DIR)/natives_blob.bin',
           ],

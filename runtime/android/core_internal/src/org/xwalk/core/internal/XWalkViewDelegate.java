@@ -55,6 +55,7 @@ class XWalkViewDelegate {
     private static final String[] MANDATORY_PAKS = {
             "xwalk.pak",
             "icudtl.dat",
+            "xwalk_100_percent.pak",
             // Please refer to XWALK-3516, disable v8 use external startup data,
             // reopen it if needed later.
             // "natives_blob.bin",

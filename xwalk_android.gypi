@@ -254,6 +254,7 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/messaging_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/wifidirect_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk_100_percent.pak',
         ],
         'conditions': [
           ['icu_use_data_file_flag==1', {
@@ -287,6 +288,7 @@
             'base_inputs': [
               '<(dex_path)',
               '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
+              '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk_100_percent.pak',
               '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
             ],
             'build_system_inputs': [
@@ -326,6 +328,7 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/xwalk_100_percent.pak',
           ],
           'conditions': [
             ['icu_use_data_file_flag==1', {

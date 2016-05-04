@@ -114,23 +114,30 @@ void XWalkMainDelegate::ZygoteStarting(
 // static
 void XWalkMainDelegate::InitializeResourceBundle() {
   base::FilePath pak_file;
+  base::FilePath pak_dir;
 #if defined(OS_MACOSX)
   pak_file = GetResourcesPakFilePath();
+  pak_dir = pak_file.DirName();
 #else
-  base::FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   DCHECK(!pak_dir.empty());
-
-  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
 #endif
 
 #if !defined(OS_ANDROID)
   ui::ResourceBundle::InitSharedInstanceWithLocale(
       "en-US", nullptr, ui::ResourceBundle::DO_NOT_LOAD_COMMON_RESOURCES);
+  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
   ResourceBundle::GetSharedInstance().AddDataPackFromPath(
       pak_file, ui::SCALE_FACTOR_NONE);
-#else
-  ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
+  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_100_percent.pak"));
+  ResourceBundle::GetSharedInstance().AddDataPackFromPath(
+      pak_file, ui::SCALE_FACTOR_100P);
+  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_200_percent.pak"));
+  ResourceBundle::GetSharedInstance().AddDataPackFromPath(
+      pak_file, ui::SCALE_FACTOR_200P);
+  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_300_percent.pak"));
+  ResourceBundle::GetSharedInstance().AddDataPackFromPath(
+      pak_file, ui::SCALE_FACTOR_300P);
 #endif
 }
 

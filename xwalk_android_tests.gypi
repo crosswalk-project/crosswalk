@@ -52,6 +52,7 @@
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame1.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk_100_percent.pak',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/contacts_api.js',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/launch_screen_api.js',
@@ -103,6 +104,7 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/xwalk_100_percent.pak',
           ],
           'conditions': [
             ['icu_use_data_file_flag==1', {
@@ -352,6 +354,7 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk-extensions/myextension/myextension.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk_100_percent.pak',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_self.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_inline_script.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/cross_origin.html',
@@ -423,6 +426,7 @@
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/xwalk_100_percent.pak',
           ],
           'conditions': [
             ['icu_use_data_file_flag==1', {
@@ -578,6 +582,7 @@
           '<(PRODUCT_DIR)/sample/assets/new_window.html',
           '<(PRODUCT_DIR)/sample/assets/pause_timers.html',
           '<(PRODUCT_DIR)/sample/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/sample/assets/xwalk_100_percent.pak',
         ],
         'conditions': [
           ['icu_use_data_file_flag==1', {
@@ -610,6 +615,7 @@
             'runtime/android/sample/assets/pause_timers.html',
             'test/android/data/echo_java.html',
             '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/xwalk_100_percent.pak',
           ],
           'conditions': [
             ['icu_use_data_file_flag==1', {
@@ -646,6 +652,7 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/xwalk_100_percent.pak',
         ],
         'conditions': [
           ['icu_use_data_file_flag==1', {
@@ -683,6 +690,7 @@
           'destination': '<(PRODUCT_DIR)/xwalk_internal_xwview/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+            '<(PRODUCT_DIR)/xwalk_100_percent.pak',
           ],
           'conditions': [
             ['icu_use_data_file_flag==1', {

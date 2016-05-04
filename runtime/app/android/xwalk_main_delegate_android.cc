@@ -67,6 +67,9 @@ void XWalkMainDelegateAndroid::InitResourceBundle() {
   pak_dir = pak_dir.Append(FILE_PATH_LITERAL("paks"));
   pak_file = pak_dir.Append(FILE_PATH_LITERAL(kXWalkPakFilePath));
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
+  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_100_percent.pak"));
+  ResourceBundle::GetSharedInstance().AddDataPackFromPath(
+      pak_file, ui::SCALE_FACTOR_100P);
 }
 
 }  // namespace xwalk
