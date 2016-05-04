@@ -31,7 +31,7 @@ class XWalkExtensionData {
   XWalkExtensionData();
   ~XWalkExtensionData();
 
-  XWalkExtensionServer* in_process_ui_thread_server() {
+  XWalkExtensionServer* in_process_ui_thread_server() const {
     return in_process_ui_thread_server_.get();
   }
 
@@ -39,8 +39,12 @@ class XWalkExtensionData {
     return std::move(extension_process_host_);
   }
 
-  content::RenderProcessHost* render_process_host() {
+  content::RenderProcessHost* render_process_host() const {
     return render_process_host_;
+  }
+
+  ExtensionServerMessageFilter* in_process_message_filter() const {
+    return in_process_message_filter_;
   }
 
   void set_in_process_extension_thread_server(
@@ -65,6 +69,10 @@ class XWalkExtensionData {
     render_process_host_ = rph;
   }
 
+  void set_in_process_message_filter(ExtensionServerMessageFilter* filter) {
+    in_process_message_filter_ = filter;
+  }
+
  private:
   // Extension servers living on their respective threads.
   scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
@@ -76,6 +84,7 @@ class XWalkExtensionData {
   base::Thread* extension_thread_;
 
   content::RenderProcessHost* render_process_host_;
+  ExtensionServerMessageFilter* in_process_message_filter_;
 };
 
 }  // namespace extensions
