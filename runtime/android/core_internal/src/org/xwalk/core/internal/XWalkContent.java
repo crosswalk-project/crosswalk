@@ -1000,6 +1000,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentsClientBridge.clearClientCertPreferences(callback);
     }
 
+    public boolean hasPermission(final String permission) {
+        return mWindow.hasPermission(permission);
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);
