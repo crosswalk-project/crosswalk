@@ -15,6 +15,9 @@ class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
   XWalkRenderMessageFilter();
 #if defined(OS_ANDROID)
   explicit XWalkRenderMessageFilter(int process_id);
+  // BrowserMessageFilter methods.
+  void OverrideThreadForMessage(const IPC::Message& message,
+                                content::BrowserThread::ID* thread) override;
 #endif
   bool OnMessageReceived(const IPC::Message& message) override;
 
