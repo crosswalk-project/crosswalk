@@ -12,6 +12,9 @@
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"
+#include "base/win/scoped_co_mem.h"
+#include <knownfolders.h>
+#include <shlobj.h>
 #elif defined(OS_LINUX)
 #include "base/environment.h"
 #include "base/nix/xdg_util.h"
@@ -116,6 +119,54 @@ bool GetInternalPluginsDirectory(base::FilePath* result) {
   return PathService::Get(base::DIR_MODULE, result);
 }
 
+#if defined(OS_WIN)
+// Generic function to call SHGetFolderPath().
+bool GetUserDirectory(int csidl_folder, base::FilePath* result) {
+  wchar_t path_buf[MAX_PATH];
+  path_buf[0] = 0;
+  if (FAILED(SHGetFolderPath(NULL, csidl_folder, NULL,
+      SHGFP_TYPE_CURRENT, path_buf))) {
+    return false;
+  }
+  *result = base::FilePath(path_buf);
+  return true;
+}
+
+bool GetUserDownloadDirectory(base::FilePath* result) {
+  typedef HRESULT(WINAPI *GetKnownFolderPath)(
+      REFKNOWNFOLDERID, DWORD, HANDLE, PWSTR*);
+  GetKnownFolderPath known_folder_path = reinterpret_cast<GetKnownFolderPath>(
+      GetProcAddress(GetModuleHandle(L"shell32.dll"), "SHGetKnownFolderPath"));
+  base::win::ScopedCoMem<wchar_t> path_buf;
+  if (known_folder_path &&
+      SUCCEEDED(known_folder_path(FOLDERID_Downloads, 0, NULL, &path_buf))) {
+    *result = base::FilePath(base::string16(path_buf));
+    return true;
+  }
+
+  // Fallback to MyDocuments if the above didn't work.
+  if (!GetUserDirectory(CSIDL_MYDOCUMENTS, result))
+    return false;
+
+  *result = result->Append(L"Downloads");
+  return true;
+}
+#endif
+
+bool GetDownloadPath(base::FilePath* result) {
+#if defined(OS_LINUX)
+  *result = base::nix::GetXDGUserDirectory("DOWNLOAD", "Downloads");
+  return true;
+#elif defined(OS_WIN)
+  return GetUserDownloadDirectory(result);
+#else
+  if (!PathService::Get(DIR_DATA_PATH, result))
+    return false;
+  result->Append(FILE_PATH_LITERAL("Downloads"));
+  return true;
+#endif
+}
+
 }  // namespace
 
 bool PathProvider(int key, base::FilePath* path) {
@@ -195,6 +246,10 @@ bool PathProvider(int key, base::FilePath* path) {
       if (!GetXWalkDataPath(&cur))
         return false;
       cur = cur.Append(FILE_PATH_LITERAL("applications"));
+      break;
+    case xwalk::DIR_DOWNLOAD_PATH:
+      if (!GetDownloadPath(&cur))
+        return false;
       break;
     default:
       return false;
