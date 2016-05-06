@@ -96,15 +96,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                      mNavigationHandler.handleNavigation(navigationParams);
 
             if (!ignoreNavigation) {
-                // Check whether the fallback url is existed for scheme: intent://.
-                final String fallbackUrl = mNavigationHandler.getFallbackUrl();
-                if (fallbackUrl != null) {
-                    mNavigationHandler.resetFallbackUrl();
-                    mXWalkView.load(fallbackUrl, null);
-                } else {
-                    // Post a message to UI thread to notify the page is starting to load.
-                    mContentsClient.getCallbackHelper().postOnPageStarted(url);
-                }
+                // Post a message to UI thread to notify the page is starting to load.
+                mContentsClient.getCallbackHelper().postOnPageStarted(url);
             }
 
             return ignoreNavigation;
