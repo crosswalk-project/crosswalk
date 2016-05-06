@@ -4,6 +4,11 @@
 
 package org.xwalk.core.internal;
 
+import android.util.Log;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.chromium.base.annotations.JNINamespace;
 
 /**
@@ -14,6 +19,8 @@ import org.chromium.base.annotations.JNINamespace;
 @JNINamespace("xwalk")
 @XWalkAPI(createExternally = true)
 public class XWalkCookieManagerInternal {
+    private static final String TAG = "XWalkCookieManager";
+
     /**
      * Control whether cookie is enabled or disabled
      * @param accept TRUE if accept cookie
@@ -44,7 +51,11 @@ public class XWalkCookieManagerInternal {
      */
     @XWalkAPI
     public void setCookie(final String url, final String value) {
-        nativeSetCookie(url, value);
+        try {
+            nativeSetCookie(new URL(url).toString(), value);
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "Not setting cookie due to invalid URL", e);
+        }
     }
 
     /**
@@ -56,9 +67,14 @@ public class XWalkCookieManagerInternal {
      */
     @XWalkAPI
     public String getCookie(final String url) {
-        String cookie = nativeGetCookie(url.toString());
-        // Return null if the string is empty to match legacy behavior
-        return cookie == null || cookie.trim().isEmpty() ? null : cookie;
+        try {
+            String cookie = nativeGetCookie(new URL(url).toString());
+            // Return null if the string is empty to match legacy behavior
+            return cookie == null || cookie.trim().isEmpty() ? null : cookie;
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "Unable to get cookies due to invalid URL", e);
+            return null;
+        }
     }
 
     /**
