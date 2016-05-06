@@ -16,6 +16,7 @@
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/download_manager.h"
@@ -24,6 +25,7 @@
 #include "content/shell/common/shell_switches.h"
 #include "net/base/filename_util.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_LINUX)
 #include "base/nix/xdg_util.h"
@@ -62,15 +64,8 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   // This assignment needs to be here because even at the call to
   // SetDownloadManager, the system is not fully initialized.
-  if (default_download_path_.empty()) {
-#if defined(OS_LINUX)
-    default_download_path_ =
-        base::nix::GetXDGUserDirectory("DOWNLOAD", "Downloads");
-#else
-    default_download_path_ = download_manager_->GetBrowserContext()->GetPath().
-        Append(FILE_PATH_LITERAL("Downloads"));
-#endif
-  }
+  if (default_download_path_.empty())
+    PathService::Get(xwalk::DIR_DOWNLOAD_PATH, &default_download_path_);
 
   if (!download->GetForcedFilePath().empty()) {
     callback.Run(download->GetForcedFilePath(),
@@ -157,19 +152,8 @@ void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
   if (!item || (item->GetState() != content::DownloadItem::IN_PROGRESS))
     return;
 
+#if defined(OS_LINUX) || defined(OS_WIN)
   base::FilePath result;
-#if defined(OS_WIN) && !defined(USE_AURA)
-  ui::win::OpenFileName open_file_name(
-      item->GetWebContents()->GetView()->GetNativeView(),
-      OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR |
-          OFN_PATHMUSTEXIST);
-  open_file_name.SetInitialSelection(suggested_path.DirName(),
-                                     suggested_path.BaseName());
-  if (::GetSaveFileName(open_file_name.GetOPENFILENAME()))
-    result = open_file_name.GetSingleResult();
-  callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
-               content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
-#elif defined(OS_LINUX)
   content::WebContents* contents = item->GetWebContents();
   Runtime* runtime = static_cast<Runtime*>(contents->GetDelegate());
   if (!runtime->AddDownloadItem(item, callback, suggested_path)) {
