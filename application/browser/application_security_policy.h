@@ -37,18 +37,21 @@ class ApplicationSecurityPolicy {
 
  protected:
   struct WhitelistEntry {
-    WhitelistEntry(const GURL& url, bool subdomains);
-    GURL url;
+    WhitelistEntry(const GURL& dest,
+                   const std::string& dest_host,
+                   bool subdomains);
+    GURL dest;
+    std::string dest_host;
     bool subdomains;
 
-    bool operator==(const WhitelistEntry& o) const {
-      return o.url == url && o.subdomains == subdomains;
-    }
+    bool operator==(const WhitelistEntry& o) const;
   };
 
   ApplicationSecurityPolicy(scoped_refptr<ApplicationData> app_data,
                             SecurityMode mode);
-  void AddWhitelistEntry(const GURL& url, bool subdomains);
+  void AddWhitelistEntry(const GURL& url,
+                         const std::string& dest_host,
+                         bool subdomains);
 
   virtual void InitEntries() = 0;
 

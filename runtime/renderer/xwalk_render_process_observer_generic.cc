@@ -6,10 +6,12 @@
 #include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
 
 #include "content/public/renderer/render_thread.h"
+#include "extensions/common/url_pattern.h"
 #include "ipc/ipc_message_macros.h"
 #include "third_party/WebKit/public/web/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
+#include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 
@@ -18,26 +20,33 @@ namespace xwalk {
 struct AccessWhitelistItem {
   AccessWhitelistItem(const GURL& source,
                       const GURL& dest,
+                      const std::string& dest_host,
                       bool allow_subdomains);
-  GURL source_;
-  GURL dest_;
-  bool allow_subdomains_;
+  GURL source;
+  GURL dest;
+  // Have host as a separate field in order to consider CSP directives ('*');
+  std::string dest_host;
+  bool allow_subdomains;
 };
 
 AccessWhitelistItem::AccessWhitelistItem(
-    const GURL& source, const GURL& dest, bool allow_subdomains)
-    : source_(source),
-      dest_(dest),
-      allow_subdomains_(allow_subdomains) {
+    const GURL& source, const GURL& dest, const std::string& dest_host, bool allow_subdomains)
+    : source(source),
+      dest(dest),
+      dest_host(dest_host),
+      allow_subdomains(allow_subdomains) {
 }
 
 
 void XWalkRenderProcessObserver::AddAccessWhiteListEntry(
-    const GURL& source, const GURL& dest, bool allow_subdomains) {
+    const GURL& source,
+    const GURL& dest,
+    const std::string& dest_host,
+    bool allow_subdomains) {
   blink::WebSecurityPolicy::addOriginAccessWhitelistEntry(
       source.GetOrigin(),
       blink::WebString::fromUTF8(dest.scheme()),
-      blink::WebString::fromUTF8(dest.HostNoBrackets()),
+      blink::WebString::fromUTF8(dest_host),
       allow_subdomains);
 }
 
@@ -64,7 +73,8 @@ void XWalkRenderProcessObserver::WebKitInitialized() {
   base::AutoLock lock(lock_);
   is_blink_initialized_ = true;
   for (const auto& it : access_whitelist_)
-    AddAccessWhiteListEntry(it->source_, it->dest_, it->allow_subdomains_);
+    AddAccessWhiteListEntry(
+        it->source, it->dest, it->dest_host, it->allow_subdomains);
 }
 
 void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
@@ -73,13 +83,14 @@ void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
 
 void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
                                                       const GURL& dest,
+                                                      const std::string& dest_host,
                                                       bool allow_subdomains) {
   base::AutoLock lock(lock_);
   if (is_blink_initialized_)
-    AddAccessWhiteListEntry(source, dest, allow_subdomains);
+    AddAccessWhiteListEntry(source, dest, dest_host, allow_subdomains);
 
   access_whitelist_.push_back(
-      new AccessWhitelistItem(source, dest, allow_subdomains));
+      new AccessWhitelistItem(source, dest, dest_host, allow_subdomains));
 }
 
 void XWalkRenderProcessObserver::OnEnableSecurityMode(
@@ -97,19 +108,19 @@ bool XWalkRenderProcessObserver::CanRequest(const GURL& orig,
   // Need to check the port.
   base::AutoLock lock(lock_);
   for (const auto& whitelist_entry : access_whitelist_) {
-    if (whitelist_entry->source_.GetOrigin() != orig.GetOrigin())
+    if (whitelist_entry->source.GetOrigin() != orig.GetOrigin())
       continue;
-    if (!whitelist_entry->allow_subdomains_ &&
-        whitelist_entry->dest_.GetOrigin() == dest.GetOrigin() &&
-        base::StartsWith(dest.path(), whitelist_entry->dest_.path(),
+    const GURL& dest_url = whitelist_entry->dest;
+    if (!whitelist_entry->allow_subdomains &&
+        whitelist_entry->dest.GetOrigin() == dest.GetOrigin() &&
+        base::StartsWith(dest.path(), dest_url.path(),
                          base::CompareCase::INSENSITIVE_ASCII))
       return true;
-    const GURL& rule = whitelist_entry->dest_;
-    if (whitelist_entry->allow_subdomains_ &&
-        dest.scheme() == rule.scheme() &&
-        dest.DomainIs(rule.host().c_str()) &&
-        dest.port() == rule.port() &&
-        base::StartsWith(dest.path(), rule.path(),
+    if (whitelist_entry->allow_subdomains &&
+        dest.scheme() == dest_url.scheme() &&
+        dest.DomainIs(dest_url.host().c_str()) &&
+        dest.port() == dest_url.port() &&
+        base::StartsWith(dest.path(), dest_url.path(),
                          base::CompareCase::INSENSITIVE_ASCII))
       return true;
   }
