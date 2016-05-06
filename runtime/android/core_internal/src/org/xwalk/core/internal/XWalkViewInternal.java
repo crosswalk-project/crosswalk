@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2006 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -1510,6 +1525,76 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void scrollBy(int x, int y) {
         mContent.scrollBy(x, y);
+    }
+
+    /**
+     * Scroll the view with standard behaviour for scrolling beyond the normal content boundaries.
+     * @param deltaX scroll delta distance on the horizontal orientation.
+     * @param deltaY scroll delta distance on the vertical orientation.
+     * @param scrollX current view offset on the horizontal orientation.
+     * @param scrollY current view offset on the vertical orientation.
+     * @param scrollRangeX the right boundaries of the view.
+     * @param scrollRangeY the bottom boundaries of the view.
+     * @param maxOverScrollX the max distance the view could over scrolled on the horizontal orientation.
+     * @param maxOverScrollY the max distance the view could over scrolled on the vertical orientation.
+     * @param isTouchEvent whether there is touch event.
+     * @return return whether the scroll reach boundaries and triage over scroll event.
+     * @since 6.0
+     */
+    @Override
+    @XWalkAPI
+    // NOTE: This API implementation is almost the same as the parent, but our onOverScrolled couldn't
+    //       invoke scrollTo (because the view scroll is async in XWalkView and it may cause crash).
+    protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY,
+                                int scrollRangeX, int scrollRangeY, int maxOverScrollX,
+                                int maxOverScrollY, boolean isTouchEvent) {
+        final int overScrollMode = super.getOverScrollMode();
+        final boolean canScrollHorizontal =
+                computeHorizontalScrollRange() > computeHorizontalScrollExtent();
+        final boolean canScrollVertical =
+                computeVerticalScrollRange() > computeVerticalScrollExtent();
+        final boolean overScrollHorizontal = overScrollMode == OVER_SCROLL_ALWAYS ||
+                (overScrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollHorizontal);
+        final boolean overScrollVertical = overScrollMode == OVER_SCROLL_ALWAYS ||
+                (overScrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollVertical);
+
+        int newScrollX = scrollX + deltaX;
+        if (!overScrollHorizontal) {
+            maxOverScrollX = 0;
+        }
+
+        int newScrollY = scrollY + deltaY;
+        if (!overScrollVertical) {
+            maxOverScrollY = 0;
+        }
+
+        // Clamp values if at the limits and record
+        final int left = -maxOverScrollX;
+        final int right = maxOverScrollX + scrollRangeX;
+        final int top = -maxOverScrollY;
+        final int bottom = maxOverScrollY + scrollRangeY;
+
+        boolean clampedX = false;
+        if (newScrollX > right) {
+            newScrollX = right;
+            clampedX = true;
+        } else if (newScrollX < left) {
+            newScrollX = left;
+            clampedX = true;
+        }
+
+        boolean clampedY = false;
+        if (newScrollY > bottom) {
+            newScrollY = bottom;
+            clampedY = true;
+        } else if (newScrollY < top) {
+            newScrollY = top;
+            clampedY = true;
+        }
+
+        scrollTo(newScrollX, newScrollY);
+
+        return clampedX || clampedY;
     }
 
     /**
