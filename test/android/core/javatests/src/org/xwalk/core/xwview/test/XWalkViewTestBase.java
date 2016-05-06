@@ -55,8 +55,6 @@ public class XWalkViewTestBase
     private XWalkView mXWalkView;
     private boolean mAllowSslError = true;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
-    private static final boolean ENABLED = true;
-    private static final boolean DISABLED = false;
 
     class TestXWalkUIClientBase extends XWalkUIClient {
         TestHelperBridge mInnerContentsClient;
@@ -1059,16 +1057,6 @@ public class XWalkViewTestBase
         });
     }
 
-    protected void setQuirksModeByXWalkView(final boolean value,
-            final XWalkView view) throws Exception {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                view.getSettings().setSupportQuirksMode(value);
-            }
-        });
-    }
-
     // This class provides helper methods for testing of settings related to
     // the text autosizing feature.
     abstract class XWalkSettingsTextAutosizingTestHelper<T> extends XWalkSettingsTestHelper<T> {
@@ -1183,76 +1171,5 @@ public class XWalkViewTestBase
                 return mXWalkView.getCertificate();
             }
         });
-    }
-
-    protected boolean getUseWideViewPortOnUiThreadByXWalkView(
-            final XWalkView view) throws Exception {
-        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return view.getSettings().getUseWideViewPort();
-            }
-        });
-    }
-
-    // To verify whether UseWideViewport works, we check, if the page width specified
-    // in the "meta viewport" tag is applied. When UseWideViewport is turned off, the
-    // "viewport" tag is ignored, and the layout width is set to device width in DIP pixels.
-    // We specify a very high width value to make sure that it doesn't intersect with
-    // device screen widths (in DIP pixels).
-    class XWalkSettingsUseWideViewportTestHelper extends XWalkSettingsTestHelper<Boolean> {
-        private static final String VIEWPORT_TAG_LAYOUT_WIDTH = "3000";
-        XWalkView mView;
-        TestHelperBridge mBridge;
-
-        XWalkSettingsUseWideViewportTestHelper(XWalkView view,
-                TestHelperBridge bridge) throws Throwable {
-            super(view);
-            mView = view;
-            mBridge = bridge;
-        }
-
-        @Override
-        protected Boolean getAlteredValue() {
-            return ENABLED;
-        }
-
-        @Override
-        protected Boolean getInitialValue() {
-            return DISABLED;
-        }
-
-        @Override
-        protected Boolean getCurrentValue() {
-            try {
-                return getUseWideViewPortOnUiThreadByXWalkView(mView);
-            } catch (Exception e) {
-                Log.e(TAG, "Get UseWideViewPort failed.", e);
-            }
-            return false;
-        }
-
-        @Override
-        protected void setCurrentValue(Boolean value) throws Throwable {
-            setUseWideViewPortOnUiThreadByXWalkView(value, mView);
-        }
-
-        @Override
-        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
-            loadDataSyncWithXWalkView(getData(), mView, mBridge);
-            final String bodyWidth = getTitleOnUiThreadByContent(mView);
-            if (value) {
-                assertTrue(bodyWidth, VIEWPORT_TAG_LAYOUT_WIDTH.equals(bodyWidth));
-            } else {
-                assertFalse(bodyWidth, VIEWPORT_TAG_LAYOUT_WIDTH.equals(bodyWidth));
-            }
-        }
-
-        private String getData() {
-            return "<html><head>"
-                    + "<meta name='viewport' content='width=" + VIEWPORT_TAG_LAYOUT_WIDTH + "' />"
-                    + "</head>"
-                    + "<body onload='document.title=document.body.clientWidth'></body></html>";
-        }
     }
 }
