@@ -14,4 +14,15 @@ interface XWalkNavigationHandler {
      * @return true if the navigation request is handled.
      */
     boolean handleNavigation(NavigationParams params);
+
+    /**
+     * Gets the fallback url for special chemes, e.g. intent://.
+     * @return the fallback url if it was specified.
+     */
+    String getFallbackUrl();
+
+    /**
+     * Resets the fallback url to null.
+     */
+    void resetFallbackUrl();
 }
