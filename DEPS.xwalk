@@ -42,6 +42,10 @@ solutions = [
       'src/third_party/libpxc':
         crosswalk_git + '/libpxc.git@568e4ecc969b4663e82034e71d08efdd5fa77e1a',
 
+      # ICS Support.
+      'src/third_party/ffmpeg':
+        crosswalk_git + '/ffmpeg-crosswalk.git@39e084a3dc90a260602872773c3929e7023d4afd',
+
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
       # are not used and also saves some bandwidth.
