@@ -10,6 +10,7 @@
 
 #include "base/numerics/safe_conversions.h"
 #include "content/public/browser/render_process_host.h"
+#include "extensions/common/url_pattern.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -26,9 +27,17 @@ namespace widget_keys = application_widget_keys;
 namespace application {
 
 ApplicationSecurityPolicy::WhitelistEntry::WhitelistEntry(
-    const GURL& url, bool subdomains)
-    : url(url),
+    const GURL& dest, const std::string& dest_host, bool subdomains)
+    : dest(dest),
+      dest_host(dest_host),
       subdomains(subdomains) {
+}
+
+bool ApplicationSecurityPolicy::WhitelistEntry::operator==(
+    const ApplicationSecurityPolicy::WhitelistEntry& other) const {
+  return other.dest == dest &&
+         other.dest_host == dest_host &&
+         other.subdomains == subdomains;
 }
 
 scoped_ptr<ApplicationSecurityPolicy> ApplicationSecurityPolicy::
@@ -66,7 +75,7 @@ bool ApplicationSecurityPolicy::IsAccessAllowed(const GURL& url) const {
     return true;
 
   for (const WhitelistEntry& entry : whitelist_entries_) {
-    const GURL& policy = entry.url;
+    const GURL& policy = entry.dest;
     bool subdomains = entry.subdomains;
     bool is_host_matched = subdomains ?
         url.DomainIs(policy.host().c_str()) : url.host() == policy.host();
@@ -89,15 +98,15 @@ void ApplicationSecurityPolicy::EnforceForRenderer(
   const GURL& app_url = app_data_->URL();
   for (const WhitelistEntry& entry : whitelist_entries_) {
     rph->Send(new ViewMsg_SetAccessWhiteList(
-        app_url, entry.url, entry.subdomains));
+        app_url, entry.dest, entry.dest_host, entry.subdomains));
   }
 
   rph->Send(new ViewMsg_EnableSecurityMode(app_url, mode_));
 }
 
 void ApplicationSecurityPolicy::AddWhitelistEntry(
-    const GURL& url, bool subdomains) {
-  WhitelistEntry entry = WhitelistEntry(url, subdomains);
+    const GURL& url, const std::string& dest_host, bool subdomains) {
+  WhitelistEntry entry = WhitelistEntry(url, dest_host, subdomains);
   auto it =
       std::find(whitelist_entries_.begin(), whitelist_entries_.end(), entry);
   if (it != whitelist_entries_.end())
@@ -140,7 +149,9 @@ void ApplicationSecurityPolicyWARP::InitEntries() {
     // The default subdomains attribute should be "false".
     std::string subdomains = "false";
     value->GetString(widget_keys::kAccessSubdomainsKey, &subdomains);
-    AddWhitelistEntry(dest_url, (subdomains == "true"));
+    AddWhitelistEntry(dest_url,
+                      dest_url.HostNoBrackets(),
+                      (subdomains == "true"));
     enabled_ = true;
   }
 }
@@ -166,9 +177,13 @@ void ApplicationSecurityPolicyCSP::InitEntries() {
 
       for (const auto& directive : policies) {
         for (const auto& it : directive.second) {
+          URLPattern allowedUrl(URLPattern::SCHEME_ALL);
+          if (allowedUrl.Parse(it) != URLPattern::PARSE_SUCCESS)
+            continue;
           GURL url(it);
-          if (url.is_valid())
-            AddWhitelistEntry(url, false);
+          if (!url.is_valid())
+            continue;
+          AddWhitelistEntry(url, allowedUrl.host(), allowedUrl.match_subdomains());
         }
       }
     }
@@ -188,7 +203,7 @@ void ApplicationSecurityPolicyCSP::InitEntries() {
     if (internalUrl.is_valid())
       // All links out of whitelist will be opened in system default web
       // browser.
-      AddWhitelistEntry(internalUrl, false);
+      AddWhitelistEntry(internalUrl, internalUrl.HostNoBrackets(), false);
     else
       LOG(INFO) << "URL " << internalUrl.spec() << " is wrong.";
   }
