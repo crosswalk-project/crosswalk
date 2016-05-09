@@ -27,6 +27,14 @@ XWalkRenderMessageFilter::XWalkRenderMessageFilter(int process_id)
     : BrowserMessageFilter(AndroidWebViewMsgStart),
       process_id_(process_id) {
 }
+
+void XWalkRenderMessageFilter::OverrideThreadForMessage(
+    const IPC::Message& message,
+    BrowserThread::ID* thread) {
+  if (message.type() == XWalkViewHostMsg_ShouldOverrideUrlLoading::ID) {
+    *thread = BrowserThread::UI;
+  }
+}
 #endif
 
 bool XWalkRenderMessageFilter::OnMessageReceived(
