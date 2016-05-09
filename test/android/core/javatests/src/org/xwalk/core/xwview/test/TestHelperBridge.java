@@ -512,6 +512,34 @@ class TestHelperBridge {
         }
     }
 
+    public class OnFindResultReceivedHelper extends CallbackHelper {
+        private int mIndex;
+        private int mMatches;
+        private boolean mIsDone;
+
+        public int getIndex() {
+            assert getCallCount() > 0;
+            return mIndex;
+        }
+
+        public int getMatches() {
+            assert getCallCount() > 0;
+            return mMatches;
+        }
+
+        public boolean isDone() {
+            assert getCallCount() > 0;
+            return mIsDone;
+        }
+
+        public void notifyCalled(int index, int matches, boolean isDone) {
+            mIndex = index;
+            mMatches = matches;
+            mIsDone = isDone;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
@@ -545,6 +573,7 @@ class TestHelperBridge {
     private final OnReceivedResponseHeadersHelper mOnReceivedResponseHeadersHelper;
     private final OnReceivedHttpAuthRequestHelper mOnReceivedHttpAuthRequestHelper;
     private final CallbackHelper mOnReceivedSslErrorHelper;
+    private final OnFindResultReceivedHelper mOnFindResultReceivedHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -576,6 +605,7 @@ class TestHelperBridge {
         mOnReceivedResponseHeadersHelper = new OnReceivedResponseHeadersHelper();
         mOnReceivedHttpAuthRequestHelper = new OnReceivedHttpAuthRequestHelper();
         mOnReceivedSslErrorHelper = new CallbackHelper();
+        mOnFindResultReceivedHelper = new OnFindResultReceivedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -645,9 +675,9 @@ class TestHelperBridge {
     public OnJsConfirmHelper getOnJsConfirmHelper() {
         return mOnJsConfirmHelper;
     }
-   
+
     public OnJsPromptHelper getOnJsPromptHelper() {
-        return mOnJsPromptHelper;    
+        return mOnJsPromptHelper;
     }
 
     public OpenFileChooserHelper getOpenFileChooserHelper() {
@@ -692,6 +722,10 @@ class TestHelperBridge {
 
     public CallbackHelper getOnReceivedSslErrorHelper() {
         return mOnReceivedSslErrorHelper;
+    }
+
+    public OnFindResultReceivedHelper getOnFindResultReceivedHelper() {
+        return mOnFindResultReceivedHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -804,6 +838,12 @@ class TestHelperBridge {
             String contentDisposition, String mimetype, long contentLength) {
         mOnDownloadStartHelper.notifyCalled(url, userAgent, contentDisposition,
                 mimetype, contentLength);
+    }
+
+    public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches,
+            boolean isDoneCounting) {
+        mOnFindResultReceivedHelper.notifyCalled(activeMatchOrdinal, numberOfMatches,
+                isDoneCounting);
     }
 
     public void onReceivedClientCertRequest(XWalkView view, ClientCertRequest handler) {

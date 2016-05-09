@@ -25,7 +25,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 import java.security.cert.X509Certificate;
-import java.security.KeyStore.PrivateKeyEntry;  
+import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -64,6 +64,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private XWalkWebChromeClient mXWalkWebChromeClient;
     private Bitmap mFavicon;
     private XWalkDownloadListenerInternal mDownloadListener;
+    private XWalkFindListenerInternal mFindListener;
     private InterceptNavigationDelegate mInterceptNavigationDelegate;
     private PageLoadListener mPageLoadListener;
     private XWalkNavigationHandler mNavigationHandler;
@@ -407,6 +408,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @Override
     public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches,
             boolean isDoneCounting) {
+        if (mFindListener == null) return;
+        mFindListener.onFindResultReceived(activeMatchOrdinal, numberOfMatches, isDoneCounting);
     }
 
     @Override
@@ -862,6 +865,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     void setDownloadListener(XWalkDownloadListenerInternal listener) {
         mDownloadListener = listener;
+    }
+
+    void setFindListener(XWalkFindListenerInternal listener) {
+        mFindListener = listener;
     }
 
     // Implement ContentViewDownloadDelegate methods.

@@ -70,6 +70,13 @@ class XWalkWebContentsDelegate
       const std::string& partition_id,
       content::SessionStorageNamespace* session_storage_namespace) override;
 
+  void FindReply(content::WebContents* web_contents,
+                 int request_id,
+                 int number_of_matches,
+                 const gfx::Rect& selection_rect,
+                 int active_match_ordinal,
+                 bool final_update) override;
+
  private:
   scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);

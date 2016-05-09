@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Find</title>
+  <script type="text/javascript">
+    function findAll(text)  { testObject.findAll(text); }
+    function findNext()     { testObject.findNext(true); }
+    function findPrevious() { testObject.findNext(false); }
+    function clearMatches() { testObject.clearMatches(); }
+  </script>
+</head>
+<body>
+  <p>Find All<button onclick="findAll('Find');">button</button></p>
+  <p>Find Next<button onclick="findNext();">button</button></p>
+  <p>Find Previous<button onclick="findPrevious();">button</button></p>
+  <p>Clear Matches<button onclick="clearMatches();">button</button></p>
+</body>
+</html>

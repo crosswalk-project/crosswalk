@@ -1020,6 +1020,33 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return mWindow.hasPermission(permission);
     }
 
+    public void setFindListener(XWalkFindListenerInternal listener) {
+        if (mNativeContent == 0) return;
+        mContentsClientBridge.setFindListener(listener);
+    }
+
+    public void findAllAsync(String searchString) {
+        if (mNativeContent == 0) return;
+        nativeFindAllAsync(mNativeContent, searchString);
+    }
+
+    public void findNext(boolean forward) {
+        if (mNativeContent == 0) return;
+        nativeFindNext(mNativeContent, forward);
+    }
+
+    public void clearMatches() {
+        if (mNativeContent == 0) return;
+        nativeClearMatches(mNativeContent);
+    }
+
+    @CalledByNative
+    public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches,
+            boolean isDoneCounting) {
+        mContentsClientBridge.onFindResultReceived(activeMatchOrdinal, numberOfMatches,
+                isDoneCounting);
+    }
+
     private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
     private native WebContents nativeGetWebContents(long nativeXWalkContent);
@@ -1046,4 +1073,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private native void nativeSetOriginAccessWhitelist(
             long nativeXWalkContent, String url, String patterns);
     private native byte[] nativeGetCertificate(long nativeXWalkContent);
+    private native void nativeFindAllAsync(long nativeXWalkContent, String searchString);
+    private native void nativeFindNext(long nativeXWalkContent, boolean forward);
+    private native void nativeClearMatches(long nativeXWalkContent);
 }
