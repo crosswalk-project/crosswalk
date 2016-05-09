@@ -573,6 +573,20 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Removes a previously injected Java object from this XWalkView. Note that
+     * the removal will not be reflected in JavaScript until the page is next
+     * (re)loaded. See {@link #addJavascriptInterface}.
+     * @param name the name used to expose the object in JavaScript
+     * @since 7.0
+     */
+    @XWalkAPI(reservable = true)
+    public void removeJavascriptInterface(String name) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.removeJavascriptInterface(name);
+    }
+
+    /**
      * Evaluate a fragment of JavaScript code and get the result via callback.
      * @param script the JavaScript string.
      * @param callback the callback to handle the evaluated result.
