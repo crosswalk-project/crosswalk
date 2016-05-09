@@ -1708,4 +1708,61 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         checkThreadSafety();
         return mContent.getCertificate();
     }
+
+    /**
+     * Registers the listener to be notified as find-on-page operations progress.
+     *
+     * @param listener an implementation of {@link XWalkFindListener}
+     * @since 7.0
+     */
+    @XWalkAPI(reservable = true)
+    public void setFindListener(XWalkFindListenerInternal listener) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.setFindListener(listener);
+    }
+
+    /**
+     * Finds all instances of find on the page and highlights them asynchronously.
+     * Notifies any registered {@link XWalkFindListener}.
+     * Successive calls to this will cancel any pending searches.
+     *
+     * @param searchString the string to find.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void findAllAsync(String searchString) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.findAllAsync(searchString);
+    }
+
+    /**
+     * Highlights and scrolls to the next match found by {@link #findAllAsync},
+     * wrapping around page boundaries as necessary.
+     * Notifies any registered {@link XWalkFindListener}.
+     * If {@link #findAllAsync} has not been called yet, or if {@link #clearMatches} has been
+     * called since the last find operation, this function does nothing.
+     *
+     * @param forward the direction to search
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void findNext(boolean forward) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.findNext(forward);
+    }
+
+    /**
+     * Clears the highlighting surrounding text matches created by {@link #findAllAsync}.
+     *
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void clearMatches() {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.clearMatches();
+    }
 }
