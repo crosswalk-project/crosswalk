@@ -6,6 +6,7 @@
 
 #include "content/public/browser/browser_thread.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
 using content::BrowserThread;
@@ -14,16 +15,19 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionData::XWalkExtensionData()
-    : extension_thread_(NULL),
-      render_process_host_(NULL) {}
+    : extension_thread_(nullptr),
+      render_process_host_(nullptr),
+      in_process_message_filter_(nullptr) {}
 
 XWalkExtensionData::~XWalkExtensionData() {
   DCHECK(in_process_extension_thread_server_);
   DCHECK(in_process_ui_thread_server_);
+  DCHECK(in_process_message_filter_);
   DCHECK(extension_thread_);
 
   in_process_extension_thread_server_->Invalidate();
   in_process_ui_thread_server_->Invalidate();
+  in_process_message_filter_->Invalidate();
 
   extension_thread_->message_loop()->DeleteSoon(
       FROM_HERE, in_process_extension_thread_server_.release());
