@@ -51,8 +51,8 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
  public:
   ExtensionServerMessageFilter(
       scoped_refptr<base::SequencedTaskRunner> task_runner,
-      XWalkExtensionServer* extension_thread_server,
-      XWalkExtensionServer* ui_thread_server)
+      const base::WeakPtr<XWalkExtensionServer>& extension_thread_server,
+      const base::WeakPtr<XWalkExtensionServer>& ui_thread_server)
       : sender_(NULL),
         task_runner_(task_runner),
         extension_thread_server_(extension_thread_server),
@@ -90,7 +90,7 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
     int64_t id = GetInstanceIDFromMessage(message);
     DCHECK_NE(id, -1);
 
-    XWalkExtensionServer* server;
+    base::WeakPtr<XWalkExtensionServer> server;
     base::TaskRunner* task_runner;
     scoped_refptr<base::TaskRunner> task_runner_ref;
 
@@ -106,13 +106,13 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
 
     base::Closure closure = base::Bind(
         base::IgnoreResult(&XWalkExtensionServer::OnMessageReceived),
-        server->AsWeakPtr(), message);
+        server, message);
 
     task_runner->PostTask(FROM_HERE, closure);
   }
 
   void OnCreateInstance(int64_t instance_id, std::string name) {
-    XWalkExtensionServer* server;
+    base::WeakPtr<XWalkExtensionServer> server;
     base::TaskRunner* task_runner;
     scoped_refptr<base::TaskRunner> task_runner_ref;
 
@@ -129,7 +129,7 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
 
     base::Closure closure = base::Bind(
         base::IgnoreResult(&XWalkExtensionServer::OnCreateInstance),
-        server->AsWeakPtr(), instance_id, name);
+        server, instance_id, name);
 
     task_runner->PostTask(FROM_HERE, closure);
   }
@@ -181,8 +181,8 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
 
   IPC::Sender* sender_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
-  XWalkExtensionServer* extension_thread_server_;
-  XWalkExtensionServer* ui_thread_server_;
+  base::WeakPtr<XWalkExtensionServer> extension_thread_server_;
+  base::WeakPtr<XWalkExtensionServer> ui_thread_server_;
   std::set<int64_t> extension_thread_instances_ids_;
 };
 
@@ -360,8 +360,8 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
   ExtensionServerMessageFilter* message_filter =
       new ExtensionServerMessageFilter(extension_thread_.task_runner(),
-                                       extension_thread_server.get(),
-                                       ui_thread_server.get());
+                                       extension_thread_server->AsWeakPtr(),
+                                       ui_thread_server->AsWeakPtr());
 
   channel->AddFilter(message_filter);
 
