@@ -10,10 +10,6 @@
 #include "base/memory/ref_counted.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 
-namespace net {
-class CookieStore;
-}
-
 namespace xwalk {
 
 class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
@@ -45,7 +41,6 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
 
  private:
   extensions::XWalkExtensionVector extensions_;
-  scoped_refptr<net::CookieStore> cookie_store_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsAndroid);
 };

@@ -24,8 +24,6 @@
 #include "net/android/network_change_notifier_factory_android.h"
 #include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
-#include "net/cookies/cookie_monster.h"
-#include "net/cookies/cookie_store.h"
 #include "net/grit/net_resources.h"
 #include "ui/base/layout.h"
 #include "ui/base/l10n/l10n_util_android.h"
@@ -51,62 +49,6 @@ base::StringPiece PlatformResourceProvider(int key) {
     return html_data;
   }
   return base::StringPiece();
-}
-
-void ImportKitkatDataIfNecessary(const base::FilePath& old_data_dir,
-                                 const base::FilePath& profile) {
-  if (!base::DirectoryExists(old_data_dir))
-    return;
-
-  const char* possible_data_dir_names[] = {
-      "Cache",
-      "Cookies",
-      "Cookies-journal",
-      "IndexedDB",
-      "Local Storage",
-  };
-  for (size_t i = 0; i < arraysize(possible_data_dir_names); i++) {
-    base::FilePath dir = old_data_dir.Append(possible_data_dir_names[i]);
-    if (base::PathExists(dir)) {
-      if (!base::Move(dir, profile.Append(possible_data_dir_names[i]))) {
-        NOTREACHED() << "Failed to import previous user data: "
-                     << possible_data_dir_names[i];
-      }
-    }
-  }
-}
-
-void ImportPreKitkatDataIfNecessary(const base::FilePath& old_data_dir,
-                                    const base::FilePath& profile) {
-  if (!base::DirectoryExists(old_data_dir))
-    return;
-
-  // Local Storage.
-  base::FilePath local_storage_path = old_data_dir.Append("localstorage");
-  if (base::PathExists(local_storage_path)) {
-    if (!base::Move(local_storage_path, profile.Append("Local Storage"))) {
-      NOTREACHED() << "Failed to import previous user data: localstorage";
-    }
-  }
-}
-
-void MoveUserDataDirIfNecessary(const base::FilePath& user_data_dir,
-                                const base::FilePath& profile) {
-  if (base::DirectoryExists(profile))
-    return;
-
-  if (!base::CreateDirectory(profile))
-    return;
-
-  // Import pre-crosswalk-8 data.
-  ImportKitkatDataIfNecessary(user_data_dir, profile);
-  // Import Android Kitkat System webview data.
-  base::FilePath old_data_dir = user_data_dir.DirName().Append(
-      kKitkatDataDirectory);
-  ImportKitkatDataIfNecessary(old_data_dir, profile);
-  // Import pre-Kitkat System webview data.
-  old_data_dir = user_data_dir.DirName().Append(kPreKitkatDataDirectory);
-  ImportPreKitkatDataIfNecessary(old_data_dir, profile);
 }
 
 }  // namespace
@@ -195,38 +137,7 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   content::RenderFrameHost::AllowInjectingJavaScriptForAndroidWebView();
 
   // Prepare the cookie store.
-  base::FilePath user_data_dir;
-  if (!PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir)) {
-    NOTREACHED() << "Failed to get app data directory for Crosswalk";
-  }
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kXWalkProfileName)) {
-    base::FilePath profile = user_data_dir.Append(
-        command_line->GetSwitchValuePath(switches::kXWalkProfileName));
-    MoveUserDataDirIfNecessary(user_data_dir, profile);
-    user_data_dir = profile;
-  }
 
-  base::FilePath cookie_store_path = user_data_dir.Append(
-      FILE_PATH_LITERAL("Cookies"));
-  scoped_refptr<base::SequencedTaskRunner> background_task_runner =
-      BrowserThread::GetBlockingPool()->GetSequencedTaskRunner(
-          BrowserThread::GetBlockingPool()->GetSequenceToken());
-
-  content::CookieStoreConfig cookie_config(
-      cookie_store_path,
-      content::CookieStoreConfig::RESTORED_SESSION_COOKIES,
-      NULL, NULL);
-  cookie_config.client_task_runner =
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
-  cookie_config.background_task_runner = background_task_runner;
-  cookie_store_ = content::CreateCookieStore(cookie_config);
-
-  // TODO(mrunal): Since there has been a push to get rid of the dependency
-  // on CookieMonster as can be seen here, https://crbug.com/579653 we need to 
-  // do the same.
-  //cookie_store_->GetCookieMonster()->SetPersistSessionCookies(true);
-  //SetCookieMonsterOnNetworkStackInit(cookie_store_->GetCookieMonster());
 }
 
 void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {

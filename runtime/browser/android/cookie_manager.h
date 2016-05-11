@@ -8,14 +8,12 @@
 #include <jni.h>
 
 namespace net {
-class CookieMonster;
+class CookieStore;
 }  // namespace net
 
 namespace xwalk {
 
-void SetCookieMonsterOnNetworkStackInit(net::CookieMonster* cookie_monster);
-
-net::CookieMonster* GetCookieMonster();
+net::CookieStore* GetCookieStore();
 
 bool RegisterCookieManager(JNIEnv* env);
 
