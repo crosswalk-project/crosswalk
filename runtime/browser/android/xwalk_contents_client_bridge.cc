@@ -25,6 +25,7 @@
 #include "content/public/common/platform_notification_data.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkImageInfo.h"
 #include "url/gurl.h"
 #include "ui/gfx/android/java_bitmap.h"
 #include "ui/shell_dialogs/selected_file_info.h"
@@ -261,7 +262,11 @@ void XWalkContentsClientBridge::ShowNotification(
   ScopedJavaLocalRef<jstring> jreplace_id(
     ConvertUTF8ToJavaString(env, notification_data.tag));
   ScopedJavaLocalRef<jobject> jicon;
-  jicon = gfx::ConvertToJavaBitmap(&notification_resources.notification_icon);
+  if (notification_resources.notification_icon.colorType() !=
+      SkColorType::kUnknown_SkColorType) {
+    jicon = gfx::ConvertToJavaBitmap(
+        &notification_resources.notification_icon);
+  }
 
   int notification_id = g_next_notification_id_++;
   g_notification_map_.set(notification_id, std::move(delegate));
