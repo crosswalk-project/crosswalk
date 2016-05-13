@@ -20,6 +20,7 @@ public class XWalkActivityDelegate
             implements DecompressListener, ActivateListener {
     private static final String TAG = "XWalkActivity";
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
+    private static final String META_XWALK_DOWNLOAD_MODE = "xwalk_download_mode";
 
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
@@ -38,7 +39,13 @@ public class XWalkActivityDelegate
         mActivity = activity;
         mCancelCommand = cancelCommand;
         mCompleteCommand = completeCommand;
-        mIsDownloadMode = isDownloadModeEnabled();
+
+        String enable = getApplicationMetaData(META_XWALK_DOWNLOAD_MODE);
+        if (enable == null) {
+            enable = getApplicationMetaData(META_XWALK_ENABLE_DOWNLOAD_MODE);
+        }
+        mIsDownloadMode = enable != null
+                && (enable.equalsIgnoreCase("enable") || enable.equalsIgnoreCase("true"));
 
         if (mIsDownloadMode) {
             mXWalkUpdater = new XWalkUpdater(
@@ -179,14 +186,14 @@ public class XWalkActivityDelegate
         mCompleteCommand.run();
     }
 
-    private boolean isDownloadModeEnabled() {
+    private String getApplicationMetaData(String name) {
         try {
-            ApplicationInfo appInfo = mActivity.getPackageManager().getApplicationInfo(
+            PackageManager packageManager = mActivity.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(
                     mActivity.getPackageName(), PackageManager.GET_META_DATA);
-            String enableStr = appInfo.metaData.getString(META_XWALK_ENABLE_DOWNLOAD_MODE);
-            return enableStr.equalsIgnoreCase("enable");
+            return appInfo.metaData.getString(name);
         } catch (NameNotFoundException | NullPointerException e) {
         }
-        return false;
+        return null;
     }
 }
