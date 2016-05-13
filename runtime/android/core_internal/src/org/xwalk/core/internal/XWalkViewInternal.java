@@ -860,6 +860,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Support third party MediaPlayer in Crosswalk with implementing the api
+     * from XWalkMediaPlayerInternal.
+     * @param mediaPlayer the XWalkMediaPlayerInternal implemented by customers.
+     * @since 7.0
+     */
+    @XWalkAPI(reservable = true)
+    public void setXWalkMediaPlayer(XWalkMediaPlayerInternal mediaPlayer) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.setXWalkMediaPlayer(mediaPlayer);
+    }
+
+    /**
      * Set Background color of the view
      */
     @Override
