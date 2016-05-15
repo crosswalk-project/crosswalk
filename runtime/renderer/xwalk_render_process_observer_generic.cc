@@ -8,7 +8,7 @@
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/url_pattern.h"
 #include "ipc/ipc_message_macros.h"
-#include "third_party/WebKit/public/web/WebSecurityOrigin.h"
+#include "third_party/WebKit/public/platform/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "xwalk/application/common/constants.h"
@@ -30,7 +30,8 @@ struct AccessWhitelistItem {
 };
 
 AccessWhitelistItem::AccessWhitelistItem(
-    const GURL& source, const GURL& dest, const std::string& dest_host, bool allow_subdomains)
+    const GURL& source, const GURL& dest,
+    const std::string& dest_host, bool allow_subdomains)
     : source(source),
       dest(dest),
       dest_host(dest_host),
@@ -81,10 +82,9 @@ void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
   is_blink_initialized_ = false;
 }
 
-void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
-                                                      const GURL& dest,
-                                                      const std::string& dest_host,
-                                                      bool allow_subdomains) {
+void XWalkRenderProcessObserver::OnSetAccessWhiteList(
+    const GURL& source, const GURL& dest,
+    const std::string& dest_host, bool allow_subdomains) {
   base::AutoLock lock(lock_);
   if (is_blink_initialized_)
     AddAccessWhiteListEntry(source, dest, dest_host, allow_subdomains);

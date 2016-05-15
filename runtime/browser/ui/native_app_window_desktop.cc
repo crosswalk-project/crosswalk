@@ -396,7 +396,7 @@ void NativeAppWindowDesktop::AddDownloadItem(
       ui::SelectFileDialog::Create(this, new RuntimeSelectFilePolicy);
   ui::SelectFileDialog::FileTypeInfo file_type_info;
   file_type_info.include_all_files = true;
-  file_type_info.support_drive = true;
+  file_type_info.allowed_paths = ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
   DownloadSelectFileParams* params =
       new DownloadSelectFileParams(download_item, callback);
   select_file_dialog_->SelectFile(ui::SelectFileDialog::SELECT_SAVEAS_FILE,

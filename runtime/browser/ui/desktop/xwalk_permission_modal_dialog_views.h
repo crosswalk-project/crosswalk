@@ -42,7 +42,6 @@ class XWalkPermissionModalDialogViews : public app_modal::NativeAppModalDialog,
   ui::ModalType GetModalType() const override;
   views::View* GetContentsView() override;
   views::View* GetInitiallyFocusedView() override;
-  void OnClosed() override;
   views::Widget* GetWidget() override;
   const views::Widget* GetWidget() const override;
 

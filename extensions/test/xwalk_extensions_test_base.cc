@@ -14,7 +14,6 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "net/base/net_util.h"
 
 using xwalk::extensions::XWalkExtensionVector;
 using xwalk::extensions::XWalkExtensionService;

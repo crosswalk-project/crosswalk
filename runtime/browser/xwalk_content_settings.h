@@ -7,8 +7,8 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
-#include "base/prefs/pref_service.h"
-#include "base/prefs/json_pref_store.h"
+#include "components/prefs/pref_service.h"
+#include "components/prefs/json_pref_store.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 
 namespace xwalk {

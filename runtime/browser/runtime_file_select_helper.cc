@@ -190,7 +190,7 @@ void RuntimeFileSelectHelper::StartNewEnumeration(
   entry->lister_.reset(new net::DirectoryLister(path,
                                net::DirectoryLister::NO_SORT_RECURSIVE,
                                entry->delegate_.get()));
-  if (!entry->lister_->Start()) {
+  if (!entry->lister_->Start(base::WorkerPool::GetTaskRunner(true).get())) {
     if (request_id == kFileSelectEnumerationId)
       FileSelectionCanceled(NULL);
     else
@@ -243,7 +243,7 @@ RuntimeFileSelectHelper::GetFileTypesFromAcceptType(
     const std::vector<base::string16>& accept_types) {
   scoped_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
       new ui::SelectFileDialog::FileTypeInfo());
-  base_file_type->support_drive = true;
+  base_file_type->allowed_paths = ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
   if (accept_types.empty())
     return base_file_type;
 

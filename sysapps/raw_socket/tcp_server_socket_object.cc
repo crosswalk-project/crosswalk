@@ -9,7 +9,6 @@
 #include "base/logging.h"
 #include "net/base/ip_endpoint.h"
 #include "net/base/net_errors.h"
-#include "net/base/net_util.h"
 #include "net/socket/stream_socket.h"
 #include "xwalk/sysapps/common/binding_object_store.h"
 #include "xwalk/sysapps/raw_socket/tcp_server_socket.h"

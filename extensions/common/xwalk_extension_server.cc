@@ -245,13 +245,8 @@ void XWalkExtensionServer::SendSyncReplyToJSCallback(
 
   base::ListValue wrapped_reply;
   wrapped_reply.Append(reply.release());
-
-  // TODO(cmarcelo): we need to inline WriteReplyParams here because it takes
-  // a copy of the parameter and ListValue is noncopyable. This may be
-  // improved in ipc_message_utils.h so we don't need to inline the code here.
-  XWalkExtensionServerMsg_SendSyncMessageToNative::ReplyParam
-      reply_param(wrapped_reply);
-  IPC::WriteParam(data.pending_reply, reply_param);
+  XWalkExtensionServerMsg_SendSyncMessageToNative::WriteReplyParams(
+      data.pending_reply, wrapped_reply);
   Send(data.pending_reply);
 
   data.pending_reply = NULL;

@@ -41,7 +41,7 @@ import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.components.navigation_interception.NavigationParams;
-import org.chromium.content.browser.ContentVideoViewClient;
+import org.chromium.content.browser.ContentVideoViewEmbedder;
 import org.chromium.content.browser.ContentViewDownloadDelegate;
 import org.chromium.content.browser.DownloadInfo;
 
@@ -657,7 +657,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public ContentVideoViewClient getContentVideoViewClient() {
+    public ContentVideoViewEmbedder getContentVideoViewEmbedder() {
         return new XWalkContentVideoViewClient(this, mXWalkView.getActivity(), mXWalkView);
     }
 

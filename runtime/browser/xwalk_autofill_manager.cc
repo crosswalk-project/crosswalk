@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "base/prefs/pref_service.h"
+#include "components/prefs/pref_service.h"
 #include "components/autofill/content/browser/content_autofill_driver_factory.h"
 #include "components/autofill/core/browser/autofill_manager.h"
 #include "components/user_prefs/user_prefs.h"

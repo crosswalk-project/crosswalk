@@ -47,8 +47,6 @@ public class GeolocationPermissionTest extends XWalkViewInternalTestBase {
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
                     XWalkGeolocationPermissions.Callback callback) {
-                // The origin is empty for data stream.
-                assertTrue(origin.isEmpty());
                 callback.invoke(origin, true, true);
                 mCalledCount++;
             }
@@ -64,7 +62,8 @@ public class GeolocationPermissionTest extends XWalkViewInternalTestBase {
                 getXWalkView().setXWalkWebChromeClient(testWebChromeClient);
             }
         });
-        loadAssetFile("geolocation.html");
+        String fileContent = getFileContent("geolocation.html");
+        loadDataSync("https://google.com/", fileContent, "text/html", false);
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
