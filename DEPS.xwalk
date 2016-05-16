@@ -17,7 +17,7 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'a58a09a6963cd2a1ffd4fcc2d6a302f5c3b6dc18'
+chromium_crosswalk_rev = '073233556d0f3a05d05151481bb8f6e172a68d2f'
 v8_crosswalk_rev = '04e36ca961519430e18bf7265baffa2a8b7f1964'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
