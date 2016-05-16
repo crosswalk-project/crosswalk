@@ -749,4 +749,14 @@ public class XWalkViewInternalTestBase
             }
         }, WAIT_TIMEOUT_MS, CHECK_INTERVAL);
     }
+
+    protected void setUseWideViewPortOnUiThreadByXWalkView(final boolean value,
+            final XWalkViewInternal view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setUseWideViewPort(value);
+            }
+        });
+    }
 }
