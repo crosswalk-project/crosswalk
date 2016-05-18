@@ -49,6 +49,7 @@ class XWalkViewDelegate {
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
+    private static final String META_XWALK_DOWNLOAD_MODE = "xwalk_download_mode";
 
     // TODO(rakuco,lincsoon): This list is also in generate_xwalk_core_library.py.
     // We should remove it from one of the places to avoid duplication.
@@ -211,18 +212,6 @@ class XWalkViewDelegate {
         });
     }
 
-    private static boolean isDownloadModeEnabled(final Context context) {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(
-                    context.getPackageName(), PackageManager.GET_META_DATA);
-            String enableStr = appInfo.metaData.getString(META_XWALK_ENABLE_DOWNLOAD_MODE);
-            return enableStr.equalsIgnoreCase("enable");
-        } catch (NameNotFoundException | NullPointerException e) {
-        }
-        return false;
-    }
-
     /**
      * Plugs an instance of ResourceExtractor.ResourceIntercepter() into ResourceExtractor.
      *
@@ -232,7 +221,13 @@ class XWalkViewDelegate {
     private static void setupResourceInterceptor(final Context context) throws IOException {
         final boolean isSharedMode =
                 !context.getPackageName().equals(context.getApplicationContext().getPackageName());
-        final boolean isDownloadMode = isDownloadModeEnabled(context);
+
+        String enable = getApplicationMetaData(context, META_XWALK_DOWNLOAD_MODE);
+        if (enable == null) {
+            enable = getApplicationMetaData(context, META_XWALK_ENABLE_DOWNLOAD_MODE);
+        }
+        final boolean isDownloadMode = enable != null
+                && (enable.equalsIgnoreCase("enable") || enable.equalsIgnoreCase("true"));
 
         // The test APKs (XWalkCoreShell, XWalkCoreInternalShell etc) are different from normal
         // Crosswalk apps: even though they use Crosswalk in embedded mode, the resources are stored
@@ -311,6 +306,17 @@ class XWalkViewDelegate {
                     resourceName, resourceType, context.getPackageName());
         }
         return resourceId;
+    }
+
+    private static String getApplicationMetaData(Context context, String name) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(
+                    context.getPackageName(), PackageManager.GET_META_DATA);
+            return appInfo.metaData.getString(name);
+        } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return null;
     }
 
     private static native boolean nativeIsLibraryBuiltForIA();

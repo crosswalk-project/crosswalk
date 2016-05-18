@@ -12,51 +12,57 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 
 /**
  * <p><code>XWalkInitializer</code> is an alternative to {@link XWalkActivity} with the difference
- * that it provides a way to initialize the Crosswalk runtime in background silently. Another
+ * that it provides a way of initializing Crosswalk Project runtime in background silently. Another
  * advantage is that the developer can use their own activity class directly rather than having it
  * extend {@link XWalkActivity}. However, {@link XWalkActivity} is still recommended because it
  * makes the code simpler.</p>
  *
- * <p>If the initialization failed, which means the Crosswalk runtime doesn't exist or doesn't match
- * the app, you could use {@link XWalkUpdater} to prompt the user to download suiteble Crosswalk
- * runtime.
+ * <p>If the initialization failed, which means Crosswalk Project runtime doesn't exist or doesn't
+ * match the application, you could use {@link XWalkUpdater} to download suitable Crosswalk Project
+ * runtime.</p>
  *
- * <p>For example:</p>
+ * <p>Here is the sample code for embedded mode and shared mode:</p>
  *
  * <pre>
- * public class MyActivity extends Activity implements XWalkInitializer.XWalkInitListener {
- *     XWalkView mXWalkView;
+ * import android.app.Activity;
+ * import android.os.Bundle;
+ * import org.xwalk.core.XWalkInitializer;
+ * import org.xwalk.core.XWalkUpdater;
+ * import org.xwalk.core.XWalkView;
+ *
+ * public class MainActivity extends Activity implements
+ *        XWalkInitializer.XWalkInitListener,
+ *        XWalkUpdater.XWalkUpdateListener {
+ *
  *     XWalkInitializer mXWalkInitializer;
+ *     XWalkUpdater mXWalkUpdater;
+ *     XWalkView mXWalkView;
  *
  *     &#64;Override
  *     protected void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
  *
- *         // Must call initAsync() before anything that involes the embedding API, including
- *         // invoking setContentView() with the layout which holds the XWalkView object.
- *
+ *         // Must call initAsync() before anything that involves the embedding
+ *         // API, including invoking setContentView() with the layout which
+ *         // holds the XWalkView object.
  *         mXWalkInitializer = new XWalkInitializer(this, this);
  *         mXWalkInitializer.initAsync();
  *
- *         // Until onXWalkInitCompleted() is invoked, you should do nothing with the embedding API
- *         // except the following:
- *         // 1. Instanciate the XWalkView object
+ *         // Until onXWalkReady() is invoked, you should do nothing with the
+ *         // embedding API except the following:
+ *         // 1. Instantiate the XWalkView object
  *         // 2. Call XWalkPreferences.setValue()
- *         // 3. Call XWalkView.setUIClient()
- *         // 4. Call XWalkView.setResourceClient()
- *
- *         XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
- *
- *         setContentView(R.layout.activity_xwalkview);
+ *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
+ *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
+ *         // 5. Call mXWalkView.addJavascriptInterface()
+ *         setContentView(R.layout.activity_main);
  *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
- *         mXWalkView.setUIClient(new MyXWalkUIClient(mXWalkView));
- *         mXWalkView.setResourceClient(new MyXWalkResourceClient(mXWalkView));
  *     }
  *
  *     &#64;Override
  *     public void onXWalkInitCompleted() {
  *         // Do anyting with the embedding API
- *         mXWalkView.load("http://crosswalk-project.org/", null);
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
  *     }
  *
  *     &#64;Override
@@ -70,10 +76,32 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  *
  *     &#64;Override
  *     public void onXWalkInitFailed() {
- *         // Perform error handling here, or launch the XWalkUpdater
+ *         if (mXWalkUpdater == null) {
+ *             mXWalkUpdater = new XWalkUpdater(this, this);
+ *         }
+ *
+ *         // The updater won't be launched if previous update dialog is
+ *         // showing.
+ *         mXWalkUpdater.updateXWalkRuntime();
+ *     }
+ *
+ *     &#64;Override
+ *     protected void onResume() {
+ *         super.onResume();
+ *
+ *         // Try to initialize again when the user completed updating and
+ *         // returned to current activity. The initAsync() will do nothing if
+ *         // the initialization has already been completed successfully.
+ *         mXWalkInitializer.initAsync();
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkUpdateCancelled() {
+ *         // Perform error handling here
  *     }
  * }
  * </pre>
+ *
  */
 public class XWalkInitializer {
     /**

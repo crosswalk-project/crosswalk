@@ -12,10 +12,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.File;
@@ -181,7 +183,7 @@ class XWalkLibraryLoader {
     /**
      * Attempt to cancel decompression
      *
-     * @return False if decompression is not running or could not be cancelled, true otherwise
+     * @return false if decompression is not running or could not be cancelled, true otherwise
      */
     public static boolean cancelDecompress() {
         DecompressTask task = (DecompressTask) sActiveTask;
@@ -207,23 +209,40 @@ class XWalkLibraryLoader {
      * @param listener The {@link DownloadListener} to use
      * @param context The context to get DownloadManager
      * @param url The URL of the Crosswalk runtime
-     * @param downloadMode true if it works under download mode.
      */
-    public static void startDownload(DownloadListener listener, Context context, String url,
-            boolean downloadMode) {
-        if (downloadMode) {
-            new XWalkDownloadTask(listener, context, url).execute();
-        } else {
-            new DownloadTask(listener, context, url).execute();
-        }
+    public static void startDownloadManager(DownloadListener listener, Context context,
+            String url) {
+        new DownloadManagerTask(listener, context, url).execute();
     }
 
     /**
-     * Attempt to cancel download
+     * Attempt to cancel download manager
+     *
+     * @return false if download is not running or could not be cancelled, true otherwise
+     */
+    public static boolean cancelDownloadManager() {
+        return sActiveTask != null && sActiveTask.cancel(true);
+    }
+
+    /**
+     * Start downloading the Crosswalk runtime in background via HTTP connection
+     *
+     * <p>This method must be invoked on the UI thread.
+     *
+     * @param listener The {@link DownloadListener} to use
+     * @param context The context to get DownloadManager
+     * @param url The URL of the Crosswalk runtime
+     */
+    public static void startHttpDownload(DownloadListener listener, Context context, String url) {
+        new HttpDownloadTask(listener, context, url).execute();
+    }
+
+    /**
+     * Attempt to cancel http download
      *
      * @return False if download is not running or could not be cancelled, true otherwise
      */
-    public static boolean cancelDownload() {
+    public static boolean cancelHttpDownload() {
         return sActiveTask != null && sActiveTask.cancel(true);
     }
 
@@ -244,8 +263,13 @@ class XWalkLibraryLoader {
             Log.d(TAG, "DecompressTask started");
             sActiveTask = this;
 
-            mIsCompressed = XWalkLibraryDecompressor.isCompressed(mContext);
-            if (mIsCompressed) mIsDecompressed = XWalkLibraryDecompressor.isDecompressed(mContext);
+            mIsCompressed = XWalkDecompressor.isLibraryCompressed(mContext);
+            if (mIsCompressed) {
+                SharedPreferences sp = mContext.getSharedPreferences("libxwalkcore",
+                        Context.MODE_PRIVATE);
+                int version = sp.getInt("version", 0);
+                mIsDecompressed = version > 0 && version == XWalkAppVersion.API_VERSION;
+            }
             if (mIsCompressed && !mIsDecompressed) mListener.onDecompressStarted();
         }
 
@@ -253,8 +277,11 @@ class XWalkLibraryLoader {
         protected Integer doInBackground(Void... params) {
             if (!mIsCompressed || mIsDecompressed) return 0;
 
-            if (!XWalkLibraryDecompressor.decompressLibrary(mContext)) return 1;
+            if (!XWalkDecompressor.decompressLibrary(mContext)) return 1;
 
+            SharedPreferences sp = mContext.getSharedPreferences("libxwalkcore",
+                    Context.MODE_PRIVATE);
+            sp.edit().putInt("version", XWalkAppVersion.API_VERSION).apply();
             return 0;
         }
 
@@ -316,7 +343,7 @@ class XWalkLibraryLoader {
         }
     }
 
-    private static class DownloadTask extends AsyncTask<Void, Integer, Integer> {
+    private static class DownloadManagerTask extends AsyncTask<Void, Integer, Integer> {
         private static final int QUERY_INTERVAL_MS = 100;
         private static final int MAX_PAUSED_COUNT = 6000; // 10 minutes
 
@@ -326,7 +353,7 @@ class XWalkLibraryLoader {
         private DownloadManager mDownloadManager;
         private long mDownloadId;
 
-        DownloadTask(DownloadListener listener, Context context, String url) {
+        DownloadManagerTask(DownloadListener listener, Context context, String url) {
             super();
             mListener = listener;
             mContext = context;
@@ -336,7 +363,7 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onPreExecute() {
-            Log.d(TAG, "DownloadTask started, " + mDownloadUrl);
+            Log.d(TAG, "DownloadManagerTask started, " + mDownloadUrl);
             sActiveTask = this;
 
             String savedFile = DEFAULT_DOWNLOAD_FILE_NAME;
@@ -403,7 +430,7 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
-            Log.d(TAG, "DownloadTask updated: " + progress[0] + "/" + progress[1]);
+            Log.d(TAG, "DownloadManagerTask updated: " + progress[0] + "/" + progress[1]);
             int percentage = 0;
             if (progress[1] > 0) percentage = (int) (progress[0] * 100.0 / progress[1]);
             mListener.onDownloadUpdated(percentage);
@@ -413,14 +440,14 @@ class XWalkLibraryLoader {
         protected void onCancelled(Integer result) {
             mDownloadManager.remove(mDownloadId);
 
-            Log.d(TAG, "DownloadTask cancelled");
+            Log.d(TAG, "DownloadManagerTask cancelled");
             sActiveTask = null;
             mListener.onDownloadCancelled();
         }
 
         @Override
         protected void onPostExecute(Integer result) {
-            Log.d(TAG, "DownloadTask finished, " + result);
+            Log.d(TAG, "DownloadManagerTask finished, " + result);
             sActiveTask = null;
 
             if (result == DownloadManager.STATUS_SUCCESSFUL) {
@@ -455,8 +482,9 @@ class XWalkLibraryLoader {
 
     // This is used only in download mode where we want to save the downloaded file to application
     // private storage and it's also intended to solve the exception found in XWALK-5951
-    private static class XWalkDownloadTask extends AsyncTask<Void, Integer, Integer> {
+    private static class HttpDownloadTask extends AsyncTask<Void, Integer, Integer> {
         private static final String XWALK_DOWNLOAD_DIR = "xwalk_download";
+        private static final int UPDATE_INTERVAL_MS = 500;
         private static final int DOWNLOAD_SUCCESS = 0;
         private static final int DOWNLOAD_FAILED = -1;
 
@@ -464,8 +492,9 @@ class XWalkLibraryLoader {
         private Context mContext;
         private String mDownloadUrl;
         private File mDownloadedFile;
+        private long mProgressUpdateTime;
 
-        XWalkDownloadTask(DownloadListener listener, Context context, String url) {
+        HttpDownloadTask(DownloadListener listener, Context context, String url) {
             super();
             mListener = listener;
             mContext = context;
@@ -474,7 +503,7 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onPreExecute() {
-            Log.d(TAG, "XWalkDownloadTask started, " + mDownloadUrl);
+            Log.d(TAG, "HttpDownloadTask started, " + mDownloadUrl);
             sActiveTask = this;
 
             String savedFile = DEFAULT_DOWNLOAD_FILE_NAME;
@@ -522,8 +551,13 @@ class XWalkLibraryLoader {
                 while ((count = input.read(data)) != -1) {
                     if (isCancelled()) return DOWNLOAD_FAILED;
                     total += count;
-                    publishProgress((int)total, fileLength);
                     output.write(data, 0, count);
+
+                    long time = SystemClock.uptimeMillis();
+                    if (time - mProgressUpdateTime > UPDATE_INTERVAL_MS) {
+                        mProgressUpdateTime = time;
+                        publishProgress((int)total, fileLength);
+                    }
                 }
                 output.flush();
             } catch (Exception e) {
@@ -542,7 +576,7 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
-            Log.d(TAG, "XWalkDownloadTask updated: " + progress[0] + "/" + progress[1]);
+            Log.d(TAG, "HttpDownloadTask updated: " + progress[0] + "/" + progress[1]);
             int percentage = 0;
             if (progress[1] > 0) percentage = (int) (progress[0] * 100.0 / progress[1]);
             mListener.onDownloadUpdated(percentage);
@@ -550,14 +584,14 @@ class XWalkLibraryLoader {
 
         @Override
         protected void onCancelled(Integer result) {
-            Log.d(TAG, "XWalkDownloadTask cancelled");
+            Log.d(TAG, "HttpDownloadTask cancelled");
             sActiveTask = null;
             mListener.onDownloadCancelled();
         }
 
         @Override
         protected void onPostExecute(Integer result) {
-            Log.d(TAG, "XWalkDownloadTask finished, " + result);
+            Log.d(TAG, "HttpDownloadTask finished, " + result);
             sActiveTask = null;
 
             if (result == DOWNLOAD_SUCCESS) {
