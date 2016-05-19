@@ -565,7 +565,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param name the name injected in JavaScript.
      * @since 1.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void addJavascriptInterface(Object object, String name) {
         if (mContent == null) return;
         checkThreadSafety();
@@ -1263,7 +1263,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param listener an implementation of XWalkDownloadListenerInternal
      * @since 5.0
      */
-    @XWalkAPI
+    @XWalkAPI(reservable = true)
     public void setDownloadListener(XWalkDownloadListenerInternal listener) {
         if (mContent == null) return;
         checkThreadSafety();
