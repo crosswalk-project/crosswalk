@@ -41,7 +41,6 @@
         '../content/content.gyp:content_browser',
         '../content/content.gyp:content_common',
         '../content/content.gyp:content_gpu',
-        '../content/content.gyp:content_plugin',
         '../content/content.gyp:content_ppapi_plugin',
         '../content/content.gyp:content_renderer',
         '../content/content.gyp:content_utility',
