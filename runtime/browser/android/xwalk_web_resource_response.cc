@@ -5,6 +5,7 @@
 
 #include "xwalk/runtime/browser/android/xwalk_web_resource_response.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "net/http/http_response_headers.h"
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"
@@ -20,12 +21,12 @@ class StreamReaderJobDelegateImpl
     : public AndroidStreamReaderURLRequestJob::Delegate {
  public:
   StreamReaderJobDelegateImpl(
-      scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response)
+      std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response)
       : xwalk_web_resource_response_(std::move(xwalk_web_resource_response)) {
     DCHECK(xwalk_web_resource_response_);
   }
 
-  scoped_ptr<InputStream> OpenInputStream(JNIEnv* env,
+  std::unique_ptr<InputStream> OpenInputStream(JNIEnv* env,
                                           const GURL& url) override {
     return xwalk_web_resource_response_->GetInputStream(env);
   }
@@ -70,14 +71,14 @@ class StreamReaderJobDelegateImpl
   }
 
  private:
-  scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response_;
+  std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response_;
 };
 
 }  // namespace
 
 // static
 net::URLRequestJob* XWalkWebResourceResponse::CreateJobFor(
-    scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response,
+    std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response,
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) {
   DCHECK(xwalk_web_resource_response);
@@ -91,7 +92,7 @@ net::URLRequestJob* XWalkWebResourceResponse::CreateJobFor(
   return new AndroidStreamReaderURLRequestJob(
       request,
       network_delegate,
-      make_scoped_ptr(new StreamReaderJobDelegateImpl(
+      base::WrapUnique(new StreamReaderJobDelegateImpl(
                       std::move(xwalk_web_resource_response))),
       content_security_policy);
 }

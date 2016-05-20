@@ -5,7 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_SCREEN_ORIENTATION_H_
 #define XWALK_RUNTIME_BROWSER_UI_SCREEN_ORIENTATION_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
 
 namespace xwalk {
 
@@ -43,7 +43,7 @@ class MultiOrientationScreen {
   virtual Orientation GetCurrentOrientation() const = 0;
 
  private:
-  scoped_ptr<Observer> observer_;
+  std::unique_ptr<Observer> observer_;
 };
 
 }  // namespace xwalk

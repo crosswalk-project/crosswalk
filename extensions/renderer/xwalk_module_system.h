@@ -6,10 +6,11 @@
 #define XWALK_EXTENSIONS_RENDERER_XWALK_MODULE_SYSTEM_H_
 
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
+
 #include "base/values.h"
-#include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
 
 namespace xwalk {
@@ -42,15 +43,15 @@ class XWalkModuleSystem {
   static XWalkModuleSystem* GetModuleSystemFromContext(
       v8::Handle<v8::Context> context);
   static void SetModuleSystemInContext(
-      scoped_ptr<XWalkModuleSystem> module_system,
+      std::unique_ptr<XWalkModuleSystem> module_system,
       v8::Handle<v8::Context> context);
   static void ResetModuleSystemFromContext(v8::Handle<v8::Context> context);
 
-  void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module,
+  void RegisterExtensionModule(std::unique_ptr<XWalkExtensionModule> module,
                                const std::vector<std::string>& entry_points);
 
   void RegisterNativeModule(const std::string& name,
-                            scoped_ptr<XWalkNativeModule> module);
+                            std::unique_ptr<XWalkNativeModule> module);
   v8::Handle<v8::Object> RequireNative(const std::string& name);
 
   void Initialize();

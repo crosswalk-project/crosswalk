@@ -95,7 +95,7 @@ bool RestoreFromPickle(base::PickleIterator* iterator,
   if (selected_entry >= entry_count)
     return false;
 
-  std::vector<scoped_ptr<content::NavigationEntry>> entries;
+  std::vector<std::unique_ptr<content::NavigationEntry>> entries;
   entries.reserve(entry_count);
   for (int i = 0; i < entry_count; ++i) {
     entries.push_back(content::NavigationEntry::Create());

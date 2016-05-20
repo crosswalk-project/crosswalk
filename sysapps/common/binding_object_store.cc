@@ -25,7 +25,7 @@ BindingObjectStore::BindingObjectStore(XWalkExtensionFunctionHandler* handler)
 BindingObjectStore::~BindingObjectStore() {}
 
 void BindingObjectStore::AddBindingObject(const std::string& id,
-                                          scoped_ptr<BindingObject> obj) {
+                                          std::unique_ptr<BindingObject> obj) {
   if (ContainsKey(objects_, id)) {
     LOG(WARNING) << "The object with the ID " << id << " already exists.";
     return;
@@ -39,8 +39,8 @@ bool BindingObjectStore::HasObjectForTesting(const std::string& id) const {
 }
 
 void BindingObjectStore::OnJSObjectCollected(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<DestroyObject::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<DestroyObject::Params>
       params(DestroyObject::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -60,8 +60,8 @@ void BindingObjectStore::OnJSObjectCollected(
 }
 
 void BindingObjectStore::OnPostMessageToObject(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<PostMessageToObject::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<PostMessageToObject::Params>
       params(PostMessageToObject::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -79,10 +79,10 @@ void BindingObjectStore::OnPostMessageToObject(
     return;
   }
 
-  scoped_ptr<base::ListValue> new_args(
+  std::unique_ptr<base::ListValue> new_args(
       static_cast<base::ListValue*>(params->arguments.release()));
 
-  scoped_ptr<XWalkExtensionFunctionInfo> new_info(
+  std::unique_ptr<XWalkExtensionFunctionInfo> new_info(
       new XWalkExtensionFunctionInfo(
           params->name,
           std::move(new_args),

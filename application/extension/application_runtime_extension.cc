@@ -41,17 +41,17 @@ AppRuntimeExtensionInstance::AppRuntimeExtensionInstance(
                  base::Unretained(this)));
 }
 
-void AppRuntimeExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void AppRuntimeExtensionInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   handler_.HandleMessage(std::move(msg));
 }
 
 void AppRuntimeExtensionInstance::OnGetManifest(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   base::DictionaryValue* manifest_data =
           application_->data()->GetManifest()->value()->DeepCopy();
 
-  scoped_ptr<base::ListValue> results(new base::ListValue());
+  std::unique_ptr<base::ListValue> results(new base::ListValue());
   if (manifest_data)
     results->Append(manifest_data);
   else

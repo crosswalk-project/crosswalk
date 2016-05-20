@@ -13,6 +13,7 @@
 
 #include "base/debug/stack_trace.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/run_loop.h"
 #include "base/threading/platform_thread.h"
@@ -33,7 +34,7 @@ int XWalkExtensionProcessMain(const content::MainFunctionParams& parameters) {
   // it by declaring it explicitly. For other platforms we will stick with
   // TYPE_DEFAULT for now.
   base::MessageLoop main_message_loop(
-      make_scoped_ptr<base::MessagePump>(new base::MessagePumpGlib()));
+      base::WrapUnique(new base::MessagePumpGlib()));
 #else
   base::MessageLoop main_message_loop(base::MessageLoop::TYPE_DEFAULT);
 #endif

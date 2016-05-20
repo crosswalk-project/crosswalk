@@ -11,6 +11,7 @@
 #include "base/android/jni_string.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/lazy_instance.h"
+#include "base/memory/ptr_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -62,7 +63,7 @@ void XWalkWebContentsDelegate::AddNewContents(
 
   if (create_popup) {
     XWalkContent::FromWebContents(source)->SetPendingWebContentsForPopup(
-        make_scoped_ptr(new_contents));
+        base::WrapUnique(new_contents));
     new_contents->WasHidden();
   } else {
     base::MessageLoop::current()->DeleteSoon(FROM_HERE, new_contents);

@@ -62,7 +62,7 @@ class XWalkExtensionServer : public IPC::Listener,
   void Initialize(IPC::ChannelProxy* channelProxy);
   bool Send(IPC::Message* msg);
 
-  bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
+  bool RegisterExtension(std::unique_ptr<XWalkExtension> extension);
   bool ContainsExtension(const std::string& extension_name) const;
 
   void Invalidate();
@@ -93,10 +93,10 @@ class XWalkExtensionServer : public IPC::Listener,
       const base::ListValue& msg, IPC::Message* ipc_reply);
 
   void PostMessageToJSCallback(int64_t instance_id,
-                               scoped_ptr<base::Value> msg);
+                               std::unique_ptr<base::Value> msg);
 
   void SendSyncReplyToJSCallback(int64_t instance_id,
-                                 scoped_ptr<base::Value> reply);
+                                 std::unique_ptr<base::Value> reply);
 
   void DeleteInstanceMap();
 
@@ -121,7 +121,7 @@ class XWalkExtensionServer : public IPC::Listener,
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir,
-    scoped_ptr<base::ValueMap> runtime_variables);
+    std::unique_ptr<base::ValueMap> runtime_variables);
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name);
 

@@ -83,10 +83,10 @@ class NativeAppWindowDesktop : public NativeAppWindowViews,
   views::View* contents_view_;
   DownloadBarView* download_bar_view_;
   scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
-  scoped_ptr<ContextMenuModel> context_menu_model_;
-  scoped_ptr<views::MenuRunner> context_menu_runner_;
+  std::unique_ptr<ContextMenuModel> context_menu_model_;
+  std::unique_ptr<views::MenuRunner> context_menu_runner_;
 
-  scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
+  std::unique_ptr<DevToolsWebContentsObserver> devtools_observer_;
   XWalkDevToolsFrontend* devtools_frontend_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowDesktop);

@@ -55,7 +55,7 @@ int RuntimeNetworkDelegate::OnHeadersReceived(
   int render_process_id, render_frame_id;
   if (content::ResourceRequestInfo::GetRenderFrameForRequest(
       request, &render_process_id, &render_frame_id)) {
-    scoped_ptr<XWalkContentsIoThreadClient> io_thread_client =
+    std::unique_ptr<XWalkContentsIoThreadClient> io_thread_client =
         XWalkContentsIoThreadClient::FromID(render_process_id, render_frame_id);
     if (io_thread_client.get()) {
       io_thread_client->OnReceivedResponseHeaders(request,

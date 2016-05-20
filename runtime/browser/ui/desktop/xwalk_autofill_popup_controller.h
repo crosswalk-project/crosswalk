@@ -143,7 +143,7 @@ class XWalkAutofillPopupController {
 
   // Contains common popup functionality such as popup layout. Protected for
   // testing.
-  scoped_ptr<XWalkPopupController> popup_controller_;
+  std::unique_ptr<XWalkPopupController> popup_controller_;
 
   // Clear the internal state of the controller. This is needed to ensure that
   // when the popup is reused it doesn't leak values between uses.

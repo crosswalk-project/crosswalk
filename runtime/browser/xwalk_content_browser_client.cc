@@ -130,29 +130,6 @@ content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
   return main_parts_;
 }
 
-net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
-    content::BrowserContext* browser_context,
-    content::ProtocolHandlerMap* protocol_handlers,
-    content::URLRequestInterceptorScopedVector request_interceptors) {
-  url_request_context_getter_ =
-      static_cast<XWalkBrowserContext*>(browser_context)->CreateRequestContext(
-          protocol_handlers, std::move(request_interceptors));
-  return url_request_context_getter_;
-}
-
-net::URLRequestContextGetter*
-XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
-    content::BrowserContext* browser_context,
-    const base::FilePath& partition_path,
-    bool in_memory,
-    content::ProtocolHandlerMap* protocol_handlers,
-    content::URLRequestInterceptorScopedVector request_interceptors) {
-  return static_cast<XWalkBrowserContext*>(browser_context)->
-      CreateRequestContextForStoragePartition(
-          partition_path, in_memory, protocol_handlers,
-          std::move(request_interceptors));
-}
-
 // This allow us to append extra command line switches to the child
 // process we launch.
 void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -263,7 +240,7 @@ bool XWalkContentBrowserClient::AllowSetCookie(
 void XWalkContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
-    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+    std::unique_ptr<content::ClientCertificateDelegate> delegate) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* client =
       XWalkContentsClientBridgeBase::FromWebContents(web_contents);
@@ -318,7 +295,7 @@ void XWalkContentBrowserClient::DidCreatePpapiPlugin(
     content::BrowserPpapiHost* browser_host) {
 #if defined(ENABLE_PLUGINS)
   browser_host->GetPpapiHost()->AddHostFactoryFilter(
-      scoped_ptr<ppapi::host::HostFactory>(
+      std::unique_ptr<ppapi::host::HostFactory>(
           new XWalkBrowserPepperHostFactory(browser_host)));
 #endif
 }

@@ -37,7 +37,7 @@ class FileDeleter {
 
 // Loads an application manifest from the specified directory. Returns NULL
 // on failure, with a description of the error in |error|.
-scoped_ptr<Manifest> LoadManifest(
+std::unique_ptr<Manifest> LoadManifest(
     const base::FilePath& file_path, Manifest::Type type, std::string* error);
 
 base::FilePath GetManifestPath(

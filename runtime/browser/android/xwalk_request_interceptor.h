@@ -5,7 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_REQUEST_INTERCEPTOR_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_REQUEST_INTERCEPTOR_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "net/url_request/url_request_interceptor.h"
 
 class GURL;
@@ -36,7 +37,7 @@ class XWalkRequestInterceptor
       net::NetworkDelegate* network_delegate) const override;
 
  private:
-  scoped_ptr<XWalkWebResourceResponse> QueryForXWalkWebResourceResponse(
+  std::unique_ptr<XWalkWebResourceResponse> QueryForXWalkWebResourceResponse(
       const GURL& location,
       net::URLRequest* request) const;
 

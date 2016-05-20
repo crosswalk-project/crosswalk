@@ -7,10 +7,10 @@
 
 #include <stdint.h>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/shared_memory.h"
 #include "base/values.h"
 #include "ipc/ipc_listener.h"
@@ -48,9 +48,9 @@ class XWalkExtensionClient : public IPC::Listener {
                          InstanceHandler* handler);
   void DestroyInstance(int64_t instance_id);
 
-  void PostMessageToNative(int64_t instance_id, scoped_ptr<base::Value> msg);
-  scoped_ptr<base::Value> SendSyncMessageToNative(int64_t instance_id,
-      scoped_ptr<base::Value> msg);
+  void PostMessageToNative(int64_t instance_id, std::unique_ptr<base::Value> msg);
+  std::unique_ptr<base::Value> SendSyncMessageToNative(int64_t instance_id,
+      std::unique_ptr<base::Value> msg);
 
   void Initialize(IPC::Sender* sender);
 

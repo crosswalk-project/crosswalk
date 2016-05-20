@@ -114,7 +114,7 @@ XWalkModuleSystem* XWalkModuleSystem::GetModuleSystemFromContext(
 
 // static
 void XWalkModuleSystem::SetModuleSystemInContext(
-    scoped_ptr<XWalkModuleSystem> module_system,
+    std::unique_ptr<XWalkModuleSystem> module_system,
     v8::Handle<v8::Context> context) {
   context->SetAlignedPointerInEmbedderData(kModuleSystemEmbedderDataIndex,
                                            module_system.release());
@@ -124,11 +124,11 @@ void XWalkModuleSystem::SetModuleSystemInContext(
 void XWalkModuleSystem::ResetModuleSystemFromContext(
     v8::Handle<v8::Context> context) {
   delete GetModuleSystemFromContext(context);
-  SetModuleSystemInContext(scoped_ptr<XWalkModuleSystem>(), context);
+  SetModuleSystemInContext(std::unique_ptr<XWalkModuleSystem>(), context);
 }
 
 void XWalkModuleSystem::RegisterExtensionModule(
-    scoped_ptr<XWalkExtensionModule> module,
+    std::unique_ptr<XWalkExtensionModule> module,
     const std::vector<std::string>& entry_points) {
   const std::string& extension_name = module->extension_name();
   if (ContainsEntryPoint(extension_name)) {
@@ -154,7 +154,7 @@ void XWalkModuleSystem::RegisterExtensionModule(
 }
 
 void XWalkModuleSystem::RegisterNativeModule(
-    const std::string& name, scoped_ptr<XWalkNativeModule> module) {
+    const std::string& name, std::unique_ptr<XWalkNativeModule> module) {
   CHECK(!ContainsKey(native_modules_, name));
   native_modules_[name] = module.release();
 }

@@ -3,7 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
@@ -33,7 +34,7 @@ class CSPHandlerTest: public testing::Test {
 // FIXME: the default CSP policy settings in CSP manifest handler
 // are temporally removed, since they had affected some tests and legacy apps.
 TEST_F(CSPHandlerTest, DISABLED_NoCSP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultManifestConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultManifestConfig();
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_MANIFEST, *manifest);
   EXPECT_TRUE(application.get());
@@ -41,7 +42,7 @@ TEST_F(CSPHandlerTest, DISABLED_NoCSP) {
 }
 
 TEST_F(CSPHandlerTest, EmptyCSP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultManifestConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultManifestConfig();
   manifest->SetString(keys::kCSPKey, "");
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_MANIFEST, *manifest);
@@ -50,7 +51,7 @@ TEST_F(CSPHandlerTest, EmptyCSP) {
 }
 
 TEST_F(CSPHandlerTest, CSP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultManifestConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultManifestConfig();
   manifest->SetString(keys::kCSPKey, "default-src    'self'   ");
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_MANIFEST, *manifest);

@@ -131,10 +131,10 @@ namespace {
 //
 // Implementing param traits for base::Value is not a viable option at the
 // moment (would require fork base::Value and create a new empty type).
-scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
+std::unique_ptr<base::ListValue> WrapValueInList(std::unique_ptr<base::Value> value) {
   if (!value)
-    return scoped_ptr<base::ListValue>();
-  scoped_ptr<base::ListValue> list_value(new base::ListValue);
+    return std::unique_ptr<base::ListValue>();
+  std::unique_ptr<base::ListValue> list_value(new base::ListValue);
   list_value->Append(value.release());
   return list_value;
 }
@@ -142,19 +142,19 @@ scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
 }  // namespace
 
 void XWalkExtensionClient::PostMessageToNative(int64_t instance_id,
-    scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::ListValue> list_msg = WrapValueInList(std::move(msg));
+    std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::ListValue> list_msg = WrapValueInList(std::move(msg));
   Send(new XWalkExtensionServerMsg_PostMessageToNative(instance_id, *list_msg));
 }
 
-scoped_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
-    int64_t instance_id, scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(std::move(msg));
+std::unique_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
+    int64_t instance_id, std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::ListValue> wrapped_msg = WrapValueInList(std::move(msg));
   base::ListValue* wrapped_reply = new base::ListValue;
   Send(new XWalkExtensionServerMsg_SendSyncMessageToNative(instance_id,
       *wrapped_msg, wrapped_reply));
 
-  scoped_ptr<base::Value> reply;
+  std::unique_ptr<base::Value> reply;
   wrapped_reply->Remove(0, &reply);
   return reply;
 }

@@ -7,7 +7,8 @@
 #include "base/bind_helpers.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/storage_partition.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_transaction_factory.h"
@@ -32,7 +33,7 @@ void CallDoomAllEntries(Backend** backend, int rv) {
   (*backend)->DoomAllEntries(base::Bind(&Noop));
 }
 
-void CallDoomEntry(const std::string& key, Backend** backend, int rv) {
+void CallDoomEntry(Backend** backend, const std::string& key, int rv) {
   DCHECK(rv == net::OK);
   (*backend)->DoomEntry(key, base::Bind(&Noop));
 }
@@ -44,8 +45,8 @@ void ClearHttpDiskCacheOfContext(URLRequestContextGetter* context_getter,
   CompletionCallback callback;
   if (!key.empty()) {
     callback = base::Bind(&CallDoomEntry,
-                          key,
-                          base::Owned(backend_ptr));
+                          base::Owned(backend_ptr),
+                          key);
   } else {
     callback = base::Bind(&CallDoomAllEntries,
                           base::Owned(backend_ptr));
@@ -72,20 +73,15 @@ void ClearHttpDiskCacheOnIoThread(
 
 namespace xwalk {
 
-void RemoveHttpDiskCache(content::BrowserContext* browser_context,
-                         int renderer_child_id,
+void RemoveHttpDiskCache(content::RenderProcessHost* render_process_host,
                          const std::string& key) {
-  URLRequestContextGetter* main_context_getter =
-      browser_context->GetRequestContextForRenderProcess(renderer_child_id);
-  URLRequestContextGetter* media_context_getter =
-      browser_context->GetMediaRequestContextForRenderProcess(
-          renderer_child_id);
-
   BrowserThread::PostTask(
       BrowserThread::IO, FROM_HERE,
       base::Bind(&ClearHttpDiskCacheOnIoThread,
-                 base::Unretained(main_context_getter),
-                 base::Unretained(media_context_getter),
+                 base::Unretained(render_process_host->GetStoragePartition()->
+                     GetURLRequestContext()),
+                 base::Unretained(render_process_host->GetStoragePartition()->
+                     GetMediaURLRequestContext()),
                  key));
 }
 

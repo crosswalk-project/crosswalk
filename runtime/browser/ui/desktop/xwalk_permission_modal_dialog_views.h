@@ -5,7 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_DESKTOP_XWALK_PERMISSION_MODAL_DIALOG_VIEWS_H_
 #define XWALK_RUNTIME_BROWSER_UI_DESKTOP_XWALK_PERMISSION_MODAL_DIALOG_VIEWS_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "components/app_modal/native_app_modal_dialog.h"
 #include "ui/views/window/dialog_delegate.h"
 
@@ -47,10 +48,10 @@ class XWalkPermissionModalDialogViews : public app_modal::NativeAppModalDialog,
 
  private:
   // A pointer to the AppModalDialog that owns us.
-  scoped_ptr<XWalkPermissionModalDialog> parent_;
+  std::unique_ptr<XWalkPermissionModalDialog> parent_;
 
   // The message box view whose commands we handle.
-  scoped_ptr<views::MessageBoxView> message_box_view_;
+  std::unique_ptr<views::MessageBoxView> message_box_view_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionModalDialogViews);
 };

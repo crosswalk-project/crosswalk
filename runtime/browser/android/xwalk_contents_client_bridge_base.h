@@ -52,7 +52,7 @@ class XWalkContentsClientBridgeBase {
 
   virtual void SelectClientCertificate(
       net::SSLCertRequestInfo* cert_request_info,
-      scoped_ptr<content::ClientCertificateDelegate> delegate) = 0;
+      std::unique_ptr<content::ClientCertificateDelegate> delegate) = 0;
 
   virtual void AllowCertificateError(int cert_error,
                                      net::X509Certificate* cert,
@@ -69,13 +69,12 @@ class XWalkContentsClientBridgeBase {
       = 0;
   virtual void RunBeforeUnloadDialog(
       const GURL& origin_url,
-      const base::string16& message_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       = 0;
   virtual void ShowNotification(
       const content::PlatformNotificationData& notification_data,
       const content::NotificationResources& notification_resources,
-      scoped_ptr<content::DesktopNotificationDelegate> delegate,
+      std::unique_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
       = 0;
   virtual void OnWebLayoutPageScaleFactorChanged(float page_scale_factor) = 0;

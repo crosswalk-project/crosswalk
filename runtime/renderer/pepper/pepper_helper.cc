@@ -17,6 +17,6 @@ PepperHelper::~PepperHelper() {
 
 void PepperHelper::DidCreatePepperPlugin(content::RendererPpapiHost* host) {
   host->GetPpapiHost()->AddHostFactoryFilter(
-      scoped_ptr<ppapi::host::HostFactory>(
+      std::unique_ptr<ppapi::host::HostFactory>(
           new XWalkRendererPepperHostFactory(host)));
 }

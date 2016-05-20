@@ -75,7 +75,7 @@ class XWalkExtensionModule : public XWalkExtensionClient::InstanceHandler {
 
   // TODO(cmarcelo): Move to a single converter, since we always use same
   // parameters.
-  scoped_ptr<content::V8ValueConverter> converter_;
+  std::unique_ptr<content::V8ValueConverter> converter_;
 
   XWalkExtensionClient* client_;
   XWalkModuleSystem* module_system_;

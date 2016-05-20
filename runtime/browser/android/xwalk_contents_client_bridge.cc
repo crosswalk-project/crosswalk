@@ -23,12 +23,14 @@
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/notification_resources.h"
 #include "content/public/common/platform_notification_data.h"
+#include "grit/components_strings.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkImageInfo.h"
-#include "url/gurl.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/android/java_bitmap.h"
 #include "ui/shell_dialogs/selected_file_info.h"
+#include "url/gurl.h"
 #include "net/android/keystore_openssl.h"
 #include "net/cert/cert_database.h"
 #include "net/cert/x509_certificate.h"
@@ -71,7 +73,7 @@ namespace {
 
 int g_next_notification_id_ = 1;
 
-ScopedPtrHashMap<int, scoped_ptr<content::DesktopNotificationDelegate>>
+ScopedPtrHashMap<int, std::unique_ptr<content::DesktopNotificationDelegate>>
     g_notification_map_;
 
 }  // namespace
@@ -195,7 +197,6 @@ void XWalkContentsClientBridge::RunJavaScriptDialog(
 
 void XWalkContentsClientBridge::RunBeforeUnloadDialog(
     const GURL& origin_url,
-    const base::string16& message_text,
     const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
@@ -203,6 +204,9 @@ void XWalkContentsClientBridge::RunBeforeUnloadDialog(
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null())
     return;
+
+  const base::string16 message_text =
+      l10n_util::GetStringUTF16(IDS_BEFOREUNLOAD_MESSAGEBOX_MESSAGE);
 
   int callback_id = pending_js_dialog_callbacks_.Add(
       new content::JavaScriptDialogManager::DialogClosedCallback(callback));
@@ -246,7 +250,7 @@ static void CancelNotification(
 void XWalkContentsClientBridge::ShowNotification(
     const content::PlatformNotificationData& notification_data,
     const content::NotificationResources& notification_resources,
-    scoped_ptr<content::DesktopNotificationDelegate> delegate,
+    std::unique_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
@@ -341,7 +345,7 @@ void XWalkContentsClientBridge::NotificationDisplayed(
 void XWalkContentsClientBridge::NotificationClicked(
     JNIEnv*, jobject, jint id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
+  std::unique_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
     notification_delegate->NotificationClick();
@@ -350,7 +354,7 @@ void XWalkContentsClientBridge::NotificationClicked(
 void XWalkContentsClientBridge::NotificationClosed(
     JNIEnv*, jobject, jint id, bool by_user) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
+  std::unique_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
     notification_delegate->NotificationClosed();
@@ -495,7 +499,7 @@ void XWalkContentsClientBridge::ProvideClientCertificateResponse(
       base::Bind(&RecordClientCertificateKey, client_cert,
          base::Passed(&private_key)),
       base::Bind(&content::ClientCertificateDelegate::ContinueWithCertificate,
-      base::Owned(delegate), client_cert));
+      base::Owned(delegate), base::RetainedRef(client_cert)));
 }
 
 // Use to cleanup if there is an error in client certificate response.
@@ -510,7 +514,7 @@ void XWalkContentsClientBridge::HandleErrorInClientCertificateResponse(
 
 void XWalkContentsClientBridge::SelectClientCertificate(
     net::SSLCertRequestInfo* cert_request_info,
-    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+    std::unique_ptr<content::ClientCertificateDelegate> delegate) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
 
   // Add the callback to id map.

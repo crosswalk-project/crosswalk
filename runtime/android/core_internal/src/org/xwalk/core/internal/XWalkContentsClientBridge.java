@@ -867,7 +867,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     // Implement ContentViewDownloadDelegate methods.
-    public void requestHttpGetDownload(DownloadInfo downloadInfo) {
+    public void requestHttpGetDownload(DownloadInfo downloadInfo, boolean mustDownload) {
         if (mDownloadListener != null) {
             mDownloadListener.onDownloadStart(downloadInfo.getUrl(), downloadInfo.getUserAgent(),
             downloadInfo.getContentDisposition(), downloadInfo.getMimeType(), downloadInfo.getContentLength());
@@ -877,7 +877,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     public void onDownloadStarted(String filename, String mimeType) {
     }
 
-    public void onDangerousDownload(String filename, int downloadId) {
+    public void onDangerousDownload(String filename, String downloadGuid) {
     }
 
     public void requestFileAccess(final long callbackId) {

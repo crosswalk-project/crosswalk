@@ -114,7 +114,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
     }
 
     private void waitForCookie(final String url) throws InterruptedException {
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 return mCookieManager.getCookie(url) != null;
@@ -149,7 +149,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
         mCookieManager.setCookie(url, cookie);
         assertEquals(cookie, mCookieManager.getCookie(url));
 
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 return mCookieManager.hasCookies();
@@ -158,7 +158,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
 
         // Clean up all cookies.
         mCookieManager.removeAllCookie();
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 return !mCookieManager.hasCookies();
@@ -202,7 +202,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
         assertTrue(allCookies.contains(cookie3));
 
         mCookieManager.removeSessionCookie();
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 String c = mCookieManager.getCookie(url);
@@ -213,7 +213,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
         // Wait for cookie to expire.
         Thread.sleep(expiration + 1000);
         mCookieManager.removeExpiredCookie();
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 String c = mCookieManager.getCookie(url);
@@ -222,7 +222,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
         });
 
         mCookieManager.removeAllCookie();
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 return mCookieManager.getCookie(url) == null;

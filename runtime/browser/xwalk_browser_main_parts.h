@@ -5,8 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
 
+#include <memory>
 #include <string>
-#include "base/memory/scoped_ptr.h"
+
 #include "base/memory/scoped_vector.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
@@ -83,11 +84,11 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   // True if we need to run the default message loop defined in content.
   bool run_default_message_loop_;
 
-  scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
+  std::unique_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
 
  private:
 #if defined(USE_AURA)
-  scoped_ptr<wm::WMState> wm_state_;
+  std::unique_ptr<wm::WMState> wm_state_;
 #endif
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainParts);
 };

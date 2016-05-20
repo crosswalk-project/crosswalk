@@ -11,11 +11,11 @@ using xwalk::jsapi::device_capabilities::SystemCPU;
 using xwalk::sysapps::CPUInfoProvider;
 
 TEST(XWalkSysAppsDeviceCapabilitiesTest, CPUInfoProvider) {
-  scoped_ptr<CPUInfoProvider> provider(new CPUInfoProvider());
-  scoped_ptr<SystemCPU> info_cached(provider->cpu_info());
+  std::unique_ptr<CPUInfoProvider> provider(new CPUInfoProvider());
+  std::unique_ptr<SystemCPU> info_cached(provider->cpu_info());
 
   for (unsigned i = 0; i < 1000; ++i) {
-    scoped_ptr<SystemCPU> info(provider->cpu_info());
+    std::unique_ptr<SystemCPU> info(provider->cpu_info());
 
     // These data should be constant across multiple calls.
     EXPECT_EQ(info->num_of_processors, info_cached->num_of_processors);

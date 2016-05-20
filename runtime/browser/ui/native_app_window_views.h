@@ -126,7 +126,7 @@ class NativeAppWindowViews : public NativeAppWindow,
   gfx::Size maximum_size_;
   bool resizable_;
 
-  scoped_ptr<ExclusiveAccessBubbleViews> exclusive_access_bubble_;
+  std::unique_ptr<ExclusiveAccessBubbleViews> exclusive_access_bubble_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowViews);
 };

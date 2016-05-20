@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_RENDERER_PEPPER_XWALK_RENDERER_PEPPER_HOST_FACTORY_H_
 #define XWALK_RUNTIME_RENDERER_PEPPER_XWALK_RENDERER_PEPPER_HOST_FACTORY_H_
 
+#include "base/macros.h"
 #include "ppapi/host/host_factory.h"
 
 namespace content {
@@ -17,7 +18,7 @@ class XWalkRendererPepperHostFactory : public ppapi::host::HostFactory {
   ~XWalkRendererPepperHostFactory() override;
 
   // HostFactory.
-  scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
+  std::unique_ptr<ppapi::host::ResourceHost> CreateResourceHost(
       ppapi::host::PpapiHost* host,
       PP_Resource resource,
       PP_Instance instance,

@@ -11,6 +11,7 @@
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
@@ -73,11 +74,11 @@ class TCPServerSocketFactory
 
  private:
   // DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
-    scoped_ptr<net::ServerSocket> socket(
+  std::unique_ptr<net::ServerSocket> CreateForHttpServer() override {
+    std::unique_ptr<net::ServerSocket> socket(
         new net::TCPServerSocket(nullptr, net::NetLog::Source()));
     if (socket->ListenWithAddressAndPort(address_, port_, kBackLog) != net::OK)
-      return scoped_ptr<net::ServerSocket>();
+      return std::unique_ptr<net::ServerSocket>();
 
     return socket;
   }
@@ -88,16 +89,16 @@ class TCPServerSocketFactory
   DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
 };
 
-scoped_ptr<DevToolsHttpHandler::ServerSocketFactory>
+std::unique_ptr<DevToolsHttpHandler::ServerSocketFactory>
 CreateSocketFactory(uint16_t port) {
-  return scoped_ptr<DevToolsHttpHandler::ServerSocketFactory>(
+  return std::unique_ptr<DevToolsHttpHandler::ServerSocketFactory>(
       new TCPServerSocketFactory(kLocalHost, port));
 }
 
-scoped_ptr<devtools_discovery::DevToolsTargetDescriptor>
+std::unique_ptr<devtools_discovery::DevToolsTargetDescriptor>
 CreateNewShellTarget(XWalkBrowserContext* browser_context, const GURL& url) {
   Runtime* runtime = Runtime::Create(browser_context);
-  return make_scoped_ptr(new devtools_discovery::BasicTargetDescriptor(
+  return base::WrapUnique(new devtools_discovery::BasicTargetDescriptor(
       content::DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }
 

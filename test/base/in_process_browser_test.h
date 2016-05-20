@@ -5,12 +5,12 @@
 #ifndef XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
 #define XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
 
+#include <memory>
 #include <vector>
 
 #include "base/compiler_specific.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_base.h"

@@ -3,7 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/unittest_util.h"
@@ -129,7 +130,7 @@ class WidgetHandlerTest: public testing::Test {
 };
 
 TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   manifest->SetString(keys::kWidgetNamespaceKey, keys::kWidgetNamespacePrefix);
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
@@ -162,7 +163,7 @@ TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
 TEST_F(WidgetHandlerTest,
        ParseManifestWithAllOfOtherItemsAndOnePreferenceItem) {
   // Create a manifest with one preference item.
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
   manifest->Set(keys::kPreferencesKey,
                 GetPreferencesItem<Manifest::TYPE_MANIFEST>(0));
@@ -174,13 +175,13 @@ TEST_F(WidgetHandlerTest,
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
   EXPECT_NE(nullptr, info);
-  scoped_ptr<base::DictionaryValue>
+  std::unique_ptr<base::DictionaryValue>
       deep_copy(info->GetWidgetInfo()->DeepCopy());
   base::DictionaryValue* widget_parsed_from_manifest;
   EXPECT_TRUE(deep_copy->GetAsDictionary(&widget_parsed_from_manifest));
 
   // Create a widget with one preference item manually.
-  scoped_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
+  std::unique_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
   SetAllInfoToWidget(widget.get());
   widget->Set(kWidgetPreferences,
               GetPreferencesItem<Manifest::TYPE_WIDGET>(0));
@@ -193,9 +194,9 @@ TEST_F(WidgetHandlerTest,
 TEST_F(WidgetHandlerTest,
        ParseManifestWithAllOfOtherItemsAndThreePreferenceItemsList) {
   // Create a manifest with three preference items.
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
-  scoped_ptr<base::ListValue> manifestPreferences(new base::ListValue);
+  std::unique_ptr<base::ListValue> manifestPreferences(new base::ListValue);
   for (int i = 0; i < 3; i++) {
     manifestPreferences->Append(GetPreferencesItem<Manifest::TYPE_MANIFEST>(i));
   }
@@ -209,15 +210,15 @@ TEST_F(WidgetHandlerTest,
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
   EXPECT_NE(nullptr, info);
-  scoped_ptr<base::DictionaryValue>
+  std::unique_ptr<base::DictionaryValue>
       deep_copy(info->GetWidgetInfo()->DeepCopy());
   base::DictionaryValue* widget_parsed_from_manifest;
   EXPECT_TRUE(deep_copy->GetAsDictionary(&widget_parsed_from_manifest));
 
   // Create a widget with three preference items manually.
-  scoped_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
+  std::unique_ptr<base::DictionaryValue> widget(new base::DictionaryValue);
   SetAllInfoToWidget(widget.get());
-  scoped_ptr<base::ListValue> widgetPreferences(new base::ListValue);
+  std::unique_ptr<base::ListValue> widgetPreferences(new base::ListValue);
   for (int i = 0; i < 3; i++) {
     widgetPreferences->Append(GetPreferencesItem<Manifest::TYPE_WIDGET>(i));
   }
@@ -230,7 +231,7 @@ TEST_F(WidgetHandlerTest,
 
 TEST_F(WidgetHandlerTest,
        ParseManifestWithInvalidAuthorHrefValue) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   SetAllInfoToManifest(manifest.get());
   manifest->SetString(keys::kAuthorHrefKey, "INVALID_HREF");
 

@@ -32,7 +32,7 @@ XWalkExternalInstance::~XWalkExternalInstance() {
   XWalkExternalAdapter::GetInstance()->UnregisterInstance(this);
 }
 
-void XWalkExternalInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void XWalkExternalInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   XW_HandleMessageCallback callback = extension_->handle_msg_callback_;
   XW_HandleBinaryMessageCallback binary_callback =
       extension_->handle_binary_msg_callback_;
@@ -55,7 +55,7 @@ void XWalkExternalInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   return;
 }
 
-void XWalkExternalInstance::HandleSyncMessage(scoped_ptr<base::Value> msg) {
+void XWalkExternalInstance::HandleSyncMessage(std::unique_ptr<base::Value> msg) {
   XW_HandleSyncMessageCallback callback = extension_->handle_sync_msg_callback_;
   if (!callback) {
     LOG(WARNING) << "Ignoring sync message sent for external extension '"
@@ -81,17 +81,17 @@ void* XWalkExternalInstance::CoreGetInstanceData() {
 }
 
 void XWalkExternalInstance::MessagingPostMessage(const char* msg) {
-  PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
+  PostMessageToJS(std::unique_ptr<base::Value>(new base::StringValue(msg)));
 }
 
 void XWalkExternalInstance::MessagingPostBinaryMessage(const char* msg,
                                                        const size_t size) {
-  PostMessageToJS(scoped_ptr<base::Value>(
+  PostMessageToJS(std::unique_ptr<base::Value>(
       base::BinaryValue::CreateWithCopiedBuffer(msg, size)));
 }
 
 void XWalkExternalInstance::SyncMessagingSetSyncReply(const char* reply) {
-  SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue(reply)));
+  SendSyncReplyToJS(std::unique_ptr<base::Value>(new base::StringValue(reply)));
 }
 
 }  // namespace extensions

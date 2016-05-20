@@ -97,13 +97,13 @@ class UnixDomainServerSocketFactory
 
  private:
   // content::DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
-    scoped_ptr<net::UnixDomainServerSocket> socket(
+  std::unique_ptr<net::ServerSocket> CreateForHttpServer() override {
+    std::unique_ptr<net::UnixDomainServerSocket> socket(
         new net::UnixDomainServerSocket(
             auth_callback_,
             true /* use_abstract_namespace */));
     if (socket->BindAndListen(socket_name_, kBackLog) != net::OK)
-      return scoped_ptr<net::ServerSocket>();
+      return std::unique_ptr<net::ServerSocket>();
 
     return std::move(socket);
   }
@@ -150,7 +150,7 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission,
       base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
                  base::Unretained(this));
 
-  scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
+  std::unique_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
       factory(new UnixDomainServerSocketFactory(socket_name_, auth_callback));
   devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
       std::move(factory),
@@ -169,7 +169,7 @@ void XWalkDevToolsServer::Stop() {
 }
 
 bool XWalkDevToolsServer::IsStarted() const {
-  return devtools_http_handler_;
+  return !!devtools_http_handler_;
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {

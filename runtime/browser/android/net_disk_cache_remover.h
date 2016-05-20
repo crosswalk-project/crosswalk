@@ -9,7 +9,7 @@
 
 namespace content {
 
-class BrowserContext;
+class RenderProcessHost;
 
 }  // namespace content
 
@@ -17,8 +17,7 @@ namespace xwalk {
 
 // Clear all http disk cache for this renderer. This method is asynchronous and
 // will noop if a previous call has not finished.
-void RemoveHttpDiskCache(content::BrowserContext* browser_context,
-                         int renderer_child_id,
+void RemoveHttpDiskCache(content::RenderProcessHost* render_process_host,
                          const std::string& key);
 
 }  // namespace xwalk

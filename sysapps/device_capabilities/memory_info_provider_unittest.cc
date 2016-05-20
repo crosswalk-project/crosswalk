@@ -11,8 +11,8 @@ using xwalk::jsapi::device_capabilities::SystemMemory;
 using xwalk::sysapps::MemoryInfoProvider;
 
 TEST(XWalkSysAppsDeviceCapabilitiesTest, MemoryInfoProvider) {
-  scoped_ptr<MemoryInfoProvider> provider(new MemoryInfoProvider());
-  scoped_ptr<SystemMemory> info(provider->memory_info());
+  std::unique_ptr<MemoryInfoProvider> provider(new MemoryInfoProvider());
+  std::unique_ptr<SystemMemory> info(provider->memory_info());
 
   EXPECT_GE(info->avail_capacity, 0);
   EXPECT_GE(info->capacity, 0);

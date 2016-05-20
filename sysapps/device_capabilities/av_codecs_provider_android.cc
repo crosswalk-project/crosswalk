@@ -4,6 +4,8 @@
 
 #include "xwalk/sysapps/device_capabilities/av_codecs_provider_android.h"
 
+#include "base/memory/ptr_util.h"
+
 namespace xwalk {
 namespace sysapps {
 
@@ -11,9 +13,9 @@ AVCodecsProviderAndroid::AVCodecsProviderAndroid() {}
 
 AVCodecsProviderAndroid::~AVCodecsProviderAndroid() {}
 
-scoped_ptr<SystemAVCodecs> AVCodecsProviderAndroid::GetSupportedCodecs() const {
+std::unique_ptr<SystemAVCodecs> AVCodecsProviderAndroid::GetSupportedCodecs() const {
   NOTIMPLEMENTED();
-  return make_scoped_ptr(new SystemAVCodecs);
+  return base::WrapUnique(new SystemAVCodecs);
 }
 
 }  // namespace sysapps

@@ -717,7 +717,7 @@ public class XWalkViewTestBase
         }
         final String script1 = str + " != null";
         final String script2 = str + ".dispatchEvent(evObj);";
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 try {
@@ -938,7 +938,7 @@ public class XWalkViewTestBase
     }
 
     protected void poll(final Callable<Boolean> callable) throws Exception {
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 try {

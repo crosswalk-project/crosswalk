@@ -4,10 +4,11 @@
 
 #include "xwalk/experimental/native_file_system/native_file_system_extension.h"
 
+#include <memory>
 #include <string>
 
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
+#include "base/memory/ptr_util.h"
 #include "base/values.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_security_policy.h"
@@ -22,24 +23,24 @@ using namespace xwalk::jsapi::native_file_system;
 
 namespace {
 
-scoped_ptr<base::StringValue> GetRealPath(scoped_ptr<base::Value> msg) {
+std::unique_ptr<base::StringValue> GetRealPath(std::unique_ptr<base::Value> msg) {
   base::DictionaryValue* dict;
   std::string virtual_root;
   if (!msg->GetAsDictionary(&dict) || !dict->GetString("path", &virtual_root)) {
     LOG(ERROR) << "Malformed getRealPath request.";
-    return make_scoped_ptr(new base::StringValue(std::string()));
+    return base::WrapUnique(new base::StringValue(std::string()));
   }
 
   const std::string real_path =
       VirtualRootProvider::GetInstance()->GetRealPath(virtual_root);
-  return make_scoped_ptr(new base::StringValue(real_path));
+  return base::WrapUnique(new base::StringValue(real_path));
 }
 
 void RegisterFileSystemAndSendResponse(
     int process_id,
     const std::string& path,
     const std::string& root_name,
-    scoped_ptr<xwalk::experimental::XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<xwalk::experimental::XWalkExtensionFunctionInfo> info) {
   CHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   storage::IsolatedContext* isolated_context =
       storage::IsolatedContext::GetInstance();
@@ -88,13 +89,13 @@ NativeFileSystemInstance::NativeFileSystemInstance(
                  base::Unretained(this)));
 }
 
-void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void NativeFileSystemInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   handler_.HandleMessage(std::move(msg));
 }
 
 void NativeFileSystemInstance::OnRequestNativeFileSystem(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<RequestNativeFileSystem::Params> params(
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<RequestNativeFileSystem::Params> params(
       RequestNativeFileSystem::Params::Create(*info->arguments()));
   if (!params) {
     LOG(ERROR) << "Malformed parameters passed to " << info->name();
@@ -115,17 +116,17 @@ void NativeFileSystemInstance::OnRequestNativeFileSystem(
   }
 }
 
-void NativeFileSystemInstance::HandleSyncMessage(scoped_ptr<base::Value> msg) {
+void NativeFileSystemInstance::HandleSyncMessage(std::unique_ptr<base::Value> msg) {
   base::DictionaryValue* dict;
   std::string command;
 
   if (!msg->GetAsDictionary(&dict) || !dict->GetString("command", &command)) {
     LOG(ERROR) << "Fail to handle sync message.";
-    SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue("")));
+    SendSyncReplyToJS(std::unique_ptr<base::Value>(new base::StringValue("")));
     return;
   }
 
-  scoped_ptr<base::Value> result(new base::StringValue(""));
+  std::unique_ptr<base::Value> result(new base::StringValue(""));
   if (command == "getRealPath") {
     result = GetRealPath(std::move(msg));
   } else {

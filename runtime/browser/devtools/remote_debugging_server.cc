@@ -41,11 +41,11 @@ class TCPServerSocketFactory
 
  private:
   // devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
-    scoped_ptr<net::ServerSocket> socket(
+  std::unique_ptr<net::ServerSocket> CreateForHttpServer() override {
+    std::unique_ptr<net::ServerSocket> socket(
         new net::TCPServerSocket(NULL, net::NetLog::Source()));
     if (socket->ListenWithAddressAndPort(address_, port_, backlog_) != net::OK)
-      return scoped_ptr<net::ServerSocket>();
+      return std::unique_ptr<net::ServerSocket>();
     return socket;
   }
   std::string address_;
@@ -146,7 +146,7 @@ RemoteDebuggingServer::RemoteDebuggingServer(
     int port,
     const std::string& frontend_url) {
   base::FilePath output_dir;
-  scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
+  std::unique_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
       factory(new TCPServerSocketFactory(ip, port, 1));
   devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
           std::move(factory),

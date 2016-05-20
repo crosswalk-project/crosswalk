@@ -174,7 +174,7 @@ void XWalkRenderViewExt::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
   content::DocumentState* document_state =
       content::DocumentState::FromDataSource(frame->dataSource());
   if (document_state->can_load_local_resources()) {
-    blink::WebSecurityOrigin origin = frame->document().securityOrigin();
+    blink::WebSecurityOrigin origin = frame->document().getSecurityOrigin();
     origin.grantLoadLocalResources();
   }
 }

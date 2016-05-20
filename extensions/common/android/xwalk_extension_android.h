@@ -6,13 +6,13 @@
 #define XWALK_EXTENSIONS_COMMON_ANDROID_XWALK_EXTENSION_ANDROID_H_
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/callback.h"
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 
@@ -90,10 +90,10 @@ class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
   ~XWalkExtensionAndroidInstance();
 
   void PostMessageWrapper(const char* msg) {
-    PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
+    PostMessageToJS(std::unique_ptr<base::Value>(new base::StringValue(msg)));
   }
   void PostBinaryMessageWrapper(const char* msg, const size_t size) {
-    PostMessageToJS(scoped_ptr<base::Value>(
+    PostMessageToJS(std::unique_ptr<base::Value>(
         base::BinaryValue::CreateWithCopiedBuffer(msg, size)));
   }
 
@@ -102,8 +102,8 @@ class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
   }
 
  private:
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
-  void HandleSyncMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
+  void HandleSyncMessage(std::unique_ptr<base::Value> msg) override;
 
   XWalkExtensionAndroid* extension_;
   // Hold a refenerence to Java-side XWalkExtensionAndroid object.

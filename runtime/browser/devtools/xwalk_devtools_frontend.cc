@@ -188,7 +188,7 @@ void XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   std::string method;
   base::ListValue* params = nullptr;
   base::DictionaryValue* dict = nullptr;
-  scoped_ptr<base::Value> parsed_message = base::JSONReader::Read(message);
+  std::unique_ptr<base::Value> parsed_message = base::JSONReader::Read(message);
   if (!parsed_message ||
       !parsed_message->GetAsDictionary(&dict) ||
       !dict->GetString("method", &method)) {
@@ -232,7 +232,7 @@ void XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     fetcher->SetRequestContext(web_contents()->GetBrowserContext()->
         GetRequestContext());
     fetcher->SetExtraRequestHeaders(headers);
-    fetcher->SaveResponseWithWriter(scoped_ptr<net::URLFetcherResponseWriter>(
+    fetcher->SaveResponseWithWriter(std::unique_ptr<net::URLFetcherResponseWriter>(
         new ResponseWriter(weak_factory_.GetWeakPtr(), stream_id)));
     fetcher->Start();
     return;

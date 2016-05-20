@@ -195,13 +195,13 @@ void XEShV8Runner::CreateModuleSystem() {
 
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
-      scoped_ptr<XWalkModuleSystem>(module_system),
+      std::unique_ptr<XWalkModuleSystem>(module_system),
       context);
 
   // FIXME(jeez): Register the 'internal' native module.
   // FIXME(jeez): Register the 'window' module (for setTimeout(), etc).
   module_system->RegisterNativeModule("v8tools",
-      scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
+      std::unique_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
 
   CreateExtensionModules(module_system);
   module_system->Initialize();
@@ -216,7 +216,7 @@ void XEShV8Runner::CreateExtensionModules(XWalkModuleSystem* module_system) {
     XWalkExtensionClient::ExtensionCodePoints* codepoint = it->second;
     if (codepoint->api.empty())
       continue;
-    scoped_ptr<XWalkExtensionModule> module(
+    std::unique_ptr<XWalkExtensionModule> module(
         new XWalkExtensionModule(&client_, module_system, it->first,
                                  codepoint->api));
     module_system->RegisterExtensionModule(std::move(module),

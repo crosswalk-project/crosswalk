@@ -31,7 +31,7 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
                        base::string16* error) {
   if (type_ != application->manifest_type())
     return false;
-  scoped_ptr<CSPInfo> csp_info(new CSPInfo);
+  std::unique_ptr<CSPInfo> csp_info(new CSPInfo);
   std::string policies_str;
   const char* csp_key = GetCSPKey(type_);
   if (application->GetManifest()->HasPath(csp_key) &&

@@ -16,7 +16,7 @@ class RuntimeResourceDispatcherHostDelegate
   ~RuntimeResourceDispatcherHostDelegate() override;
 
   static void ResourceDispatcherHostCreated();
-  static scoped_ptr<RuntimeResourceDispatcherHostDelegate> Create();
+  static std::unique_ptr<RuntimeResourceDispatcherHostDelegate> Create();
 
   void RequestBeginning(
       net::URLRequest* request,
