@@ -372,7 +372,7 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, XWalkExtensionData* data,
     std::unique_ptr<base::ValueMap> runtime_variables) {
-  data->set_extension_process_host(make_std::unique_ptr(
+  data->set_extension_process_host(make_scoped_ptr(
       new XWalkExtensionProcessHost(host, external_extensions_path_, this,
                                     std::move(runtime_variables))));
 }

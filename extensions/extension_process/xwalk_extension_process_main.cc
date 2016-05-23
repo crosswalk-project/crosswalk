@@ -33,7 +33,7 @@ int XWalkExtensionProcessMain(const content::MainFunctionParams& parameters) {
   // it by declaring it explicitly. For other platforms we will stick with
   // TYPE_DEFAULT for now.
   base::MessageLoop main_message_loop(
-      make_std::unique_ptr<base::MessagePump>(new base::MessagePumpGlib()));
+      make_scoped_ptr<base::MessagePump>(new base::MessagePumpGlib()));
 #else
   base::MessageLoop main_message_loop(base::MessageLoop::TYPE_DEFAULT);
 #endif

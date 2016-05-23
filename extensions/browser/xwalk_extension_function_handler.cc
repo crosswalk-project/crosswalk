@@ -61,7 +61,7 @@ void XWalkExtensionFunctionHandler::HandleMessage(std::unique_ptr<base::Value> m
   std::unique_ptr<XWalkExtensionFunctionInfo> info(
       new XWalkExtensionFunctionInfo(
           function_name,
-          make_std::unique_ptr(static_cast<base::ListValue*>(msg.release())),
+          make_scoped_ptr(static_cast<base::ListValue*>(msg.release())),
           base::Bind(&XWalkExtensionFunctionHandler::DispatchResult,
                      weak_factory_.GetWeakPtr(),
                      base::ThreadTaskRunnerHandle::IsSet()
