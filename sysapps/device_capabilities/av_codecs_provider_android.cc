@@ -11,7 +11,7 @@ AVCodecsProviderAndroid::AVCodecsProviderAndroid() {}
 
 AVCodecsProviderAndroid::~AVCodecsProviderAndroid() {}
 
-scoped_ptr<SystemAVCodecs> AVCodecsProviderAndroid::GetSupportedCodecs() const {
+std::unique_ptr<SystemAVCodecs> AVCodecsProviderAndroid::GetSupportedCodecs() const {
   NOTIMPLEMENTED();
   return make_scoped_ptr(new SystemAVCodecs);
 }

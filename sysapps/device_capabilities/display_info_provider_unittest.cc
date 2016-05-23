@@ -50,7 +50,7 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, DisplayInfoProvider) {
   DisplayInfoProvider* provider(SysAppsManager::GetDisplayInfoProvider());
   EXPECT_TRUE(provider != NULL);
 
-  scoped_ptr<SystemDisplay> info(provider->display_info());
+  std::unique_ptr<SystemDisplay> info(provider->display_info());
   EXPECT_TRUE(info != NULL);
 
   std::vector<linked_ptr<DisplayUnit> > displays = info->displays;

@@ -22,7 +22,7 @@ class SysAppsRawSocketTestInstance : public XWalkExtensionInstance {
  public:
   SysAppsRawSocketTestInstance() {}
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class SysAppsRawSocketTestExtension : public XWalkExtension {

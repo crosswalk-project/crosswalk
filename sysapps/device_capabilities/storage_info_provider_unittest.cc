@@ -32,7 +32,7 @@ void TestClosure() {
   EXPECT_TRUE(provider != NULL);
   EXPECT_TRUE(provider->IsInitialized());
 
-  scoped_ptr<SystemStorage> info(provider->storage_info());
+  std::unique_ptr<SystemStorage> info(provider->storage_info());
   EXPECT_TRUE(info != NULL);
 
   std::vector<linked_ptr<StorageUnit> > storages = info->storages;

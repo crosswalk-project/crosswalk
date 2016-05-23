@@ -6,8 +6,9 @@
 #ifndef XWALK_SYSAPPS_DEVICE_CAPABILITIES_MEMORY_INFO_PROVIDER_H_
 #define XWALK_SYSAPPS_DEVICE_CAPABILITIES_MEMORY_INFO_PROVIDER_H_
 
-#include "base/memory/scoped_ptr.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
+
+#include <memory>
 
 namespace xwalk {
 namespace sysapps {
@@ -19,7 +20,7 @@ class MemoryInfoProvider {
   MemoryInfoProvider();
   ~MemoryInfoProvider();
 
-  scoped_ptr<SystemMemory> memory_info() const;
+  std::unique_ptr<SystemMemory> memory_info() const;
 
  private:
   double amount_of_physical_memory_;

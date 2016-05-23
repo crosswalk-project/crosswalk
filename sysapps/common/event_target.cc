@@ -25,7 +25,7 @@ void EventTarget::DispatchEvent(const std::string& type) {
 }
 
 void EventTarget::DispatchEvent(const std::string& type,
-                                scoped_ptr<base::ListValue> data) {
+                                std::unique_ptr<base::ListValue> data) {
   EventMap::iterator it = events_.find(type);
   if (it == events_.end())
     return;
@@ -38,8 +38,8 @@ bool EventTarget::IsEventActive(const std::string& type) const {
 }
 
 void EventTarget::OnAddEventListener(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<AddEventListener::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<AddEventListener::Params>
       params(AddEventListener::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -59,8 +59,8 @@ void EventTarget::OnAddEventListener(
 }
 
 void EventTarget::OnRemoveEventListener(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<RemoveEventListener::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<RemoveEventListener::Params>
       params(RemoveEventListener::Params::Create(*info->arguments()));
 
   if (!params) {

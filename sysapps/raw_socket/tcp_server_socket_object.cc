@@ -54,8 +54,8 @@ void TCPServerSocketObject::StopEvent(const std::string& type) {
 }
 
 void TCPServerSocketObject::OnInit(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<Init::Params> params(Init::Params::Create(*info->arguments()));
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<Init::Params> params(Init::Params::Create(*info->arguments()));
   if (!params) {
     LOG(WARNING) << "Malformed parameters passed to " << info->name();
     setReadyState(READY_STATE_CLOSED);
@@ -88,7 +88,7 @@ void TCPServerSocketObject::OnInit(
 }
 
 void TCPServerSocketObject::OnClose(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   if (socket_)
     socket_.reset();
 
@@ -97,12 +97,12 @@ void TCPServerSocketObject::OnClose(
 }
 
 void TCPServerSocketObject::OnSuspend(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   is_suspended_ = true;
 }
 
 void TCPServerSocketObject::OnResume(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   is_suspended_ = false;
 }
 
@@ -119,15 +119,15 @@ void TCPServerSocketObject::OnAccept(int status) {
     options.use_secure_transport = false;
 
     std::string object_id = base::GenerateGUID();
-    scoped_ptr<BindingObject> obj(new TCPSocketObject(
+    std::unique_ptr<BindingObject> obj(new TCPSocketObject(
                             std::move(accepted_socket_)));
     instance_->AddBindingObject(object_id, std::move(obj));
 
-    scoped_ptr<base::ListValue> dataList(new base::ListValue);
+    std::unique_ptr<base::ListValue> dataList(new base::ListValue);
     dataList->AppendString(object_id);
     dataList->Append(options.ToValue().release());
 
-    scoped_ptr<base::ListValue> eventData(new base::ListValue);
+    std::unique_ptr<base::ListValue> eventData(new base::ListValue);
     eventData->Append(dataList.release());
 
     DispatchEvent("connect", std::move(eventData));

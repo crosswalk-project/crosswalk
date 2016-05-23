@@ -59,8 +59,8 @@ DisplayInfoProvider::DisplayInfoProvider() {}
 DisplayInfoProvider::~DisplayInfoProvider() {}
 
 // static
-scoped_ptr<SystemDisplay> DisplayInfoProvider::display_info() {
-  scoped_ptr<SystemDisplay> info(new SystemDisplay);
+std::unique_ptr<SystemDisplay> DisplayInfoProvider::display_info() {
+  std::unique_ptr<SystemDisplay> info(new SystemDisplay);
 
   gfx::Screen* screen = gfx::Screen::GetScreen();
   std::vector<gfx::Display> displays = screen->GetAllDisplays();

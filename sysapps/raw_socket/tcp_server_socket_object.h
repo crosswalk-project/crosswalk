@@ -29,10 +29,10 @@ class TCPServerSocketObject : public RawSocketObject {
   void StopEvent(const std::string& type) override;
 
   // JavaScript function handlers.
-  void OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnClose(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnSuspend(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnResume(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnInit(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnClose(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnSuspend(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnResume(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   // net::TCPServerSocket callbacks.
   void OnAccept(int status);
@@ -40,8 +40,8 @@ class TCPServerSocketObject : public RawSocketObject {
   bool is_suspended_;
   bool is_accepting_;
 
-  scoped_ptr<net::TCPServerSocket> socket_;
-  scoped_ptr<net::StreamSocket> accepted_socket_;
+  std::unique_ptr<net::TCPServerSocket> socket_;
+  std::unique_ptr<net::StreamSocket> accepted_socket_;
 
   RawSocketInstance* instance_;
 };

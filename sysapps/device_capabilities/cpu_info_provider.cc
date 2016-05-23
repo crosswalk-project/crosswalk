@@ -17,8 +17,8 @@ CPUInfoProvider::CPUInfoProvider()
 
 CPUInfoProvider::~CPUInfoProvider() {}
 
-scoped_ptr<SystemCPU> CPUInfoProvider::cpu_info() const {
-  scoped_ptr<SystemCPU> info(new SystemCPU);
+std::unique_ptr<SystemCPU> CPUInfoProvider::cpu_info() const {
+  std::unique_ptr<SystemCPU> info(new SystemCPU);
 
   info->num_of_processors = number_of_processors_;
   info->arch_name = processor_architecture_;
