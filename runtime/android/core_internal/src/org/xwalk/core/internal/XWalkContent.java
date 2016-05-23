@@ -341,6 +341,11 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
                 javascriptInterfaceClass);
     }
 
+    public void removeJavascriptInterface(String name) {
+        if (mNativeContent == 0) return;
+        mContentViewCore.removeJavascriptInterface(name);
+    }
+
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
         if (mNativeContent == 0) return;
         final ValueCallback<String>  fCallback = callback;
