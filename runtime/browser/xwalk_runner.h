@@ -5,9 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_RUNNER_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_RUNNER_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/values.h"
 
@@ -90,13 +90,13 @@ class XWalkRunner {
   virtual void DestroyComponents();
 
   // Should be used by CreateComponents() implementations.
-  void AddComponent(scoped_ptr<XWalkComponent> component);
+  void AddComponent(std::unique_ptr<XWalkComponent> component);
 
   // These specific factory functions are used to allow ports to customize
   // components.
-  virtual scoped_ptr<ApplicationComponent> CreateAppComponent();
-  virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent();
-  virtual scoped_ptr<StorageComponent> CreateStorageComponent();
+  virtual std::unique_ptr<ApplicationComponent> CreateAppComponent();
+  virtual std::unique_ptr<SysAppsComponent> CreateSysAppsComponent();
+  virtual std::unique_ptr<StorageComponent> CreateStorageComponent();
 
  protected:
   // These variables are used to export some values from the browser process
@@ -127,16 +127,16 @@ class XWalkRunner {
   // Create the XWalkRunner object. We use a factory function so that we can
   // switch the concrete class on compile time based on the platform, separating
   // the per-platform behavior and data in the subclasses.
-  static scoped_ptr<XWalkRunner> Create();
+  static std::unique_ptr<XWalkRunner> Create();
 
   // Note: this is not public as we want to discourage the rest of Crosswalk to
   // rely directly on this object.
   content::ContentBrowserClient* GetContentBrowserClient();
 
-  scoped_ptr<XWalkContentBrowserClient> content_browser_client_;
-  scoped_ptr<XWalkBrowserContext> browser_context_;
-  scoped_ptr<extensions::XWalkExtensionService> extension_service_;
-  scoped_ptr<XWalkAppExtensionBridge> app_extension_bridge_;
+  std::unique_ptr<XWalkContentBrowserClient> content_browser_client_;
+  std::unique_ptr<XWalkBrowserContext> browser_context_;
+  std::unique_ptr<extensions::XWalkExtensionService> extension_service_;
+  std::unique_ptr<XWalkAppExtensionBridge> app_extension_bridge_;
 
   // XWalkRunner uses the XWalkComponent interface to be able to handle
   // different subsystems and call them in specific situations, e.g. when
@@ -146,7 +146,7 @@ class XWalkRunner {
   ApplicationComponent* app_component_;
 
   // Remote debugger server.
-  scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
+  std::unique_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

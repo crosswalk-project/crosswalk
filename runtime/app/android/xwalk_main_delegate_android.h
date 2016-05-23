@@ -5,9 +5,9 @@
 #ifndef XWALK_RUNTIME_APP_ANDROID_XWALK_MAIN_DELEGATE_ANDROID_H_
 #define XWALK_RUNTIME_APP_ANDROID_XWALK_MAIN_DELEGATE_ANDROID_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 
@@ -32,8 +32,8 @@ class XWalkMainDelegateAndroid : public XWalkMainDelegate {
   void InitResourceBundle();
 
  private:
-  scoped_ptr<content::BrowserMainRunner> browser_runner_;
-  scoped_ptr<content::ContentClient> content_client_;
+  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
+  std::unique_ptr<content::ContentClient> content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkMainDelegateAndroid);
 };

@@ -60,7 +60,7 @@ void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
   if (base_url.empty() || match_patterns.empty())
     return;
 
-  scoped_ptr<base::Value> patterns = base::JSONReader::Read(match_patterns);
+  std::unique_ptr<base::Value> patterns = base::JSONReader::Read(match_patterns);
   if (!patterns)
     return;
 

@@ -6,13 +6,13 @@
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -144,7 +144,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         new net::StaticHttpUserAgentSettings("en-us,en",
                                              xwalk::GetUserAgent())));
 
-    scoped_ptr<net::HostResolver> host_resolver(
+    std::unique_ptr<net::HostResolver> host_resolver(
         net::HostResolver::CreateDefaultResolver(NULL));
 
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
@@ -168,11 +168,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
     storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerFactory::CreateDefault(host_resolver.get()));
-    storage_->set_http_server_properties(scoped_ptr<net::HttpServerProperties>(
+    storage_->set_http_server_properties(std::unique_ptr<net::HttpServerProperties>(
         new net::HttpServerPropertiesImpl));
 
     base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
-    scoped_ptr<net::HttpCache::DefaultBackend> main_backend(
+    std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
@@ -213,10 +213,10 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
                         std::move(main_backend),
                         false /* set_up_quic_server_info */)));
 #if defined(OS_ANDROID)
-    scoped_ptr<XWalkURLRequestJobFactory> job_factory_impl(
+    std::unique_ptr<XWalkURLRequestJobFactory> job_factory_impl(
         new XWalkURLRequestJobFactory);
 #else
-    scoped_ptr<net::URLRequestJobFactoryImpl> job_factory_impl(
+    std::unique_ptr<net::URLRequestJobFactoryImpl> job_factory_impl(
         new net::URLRequestJobFactoryImpl);
 #endif
 
@@ -274,7 +274,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
     // The chain of responsibility will execute the handlers in reverse to the
     // order in which the elements of the chain are created.
-    scoped_ptr<net::URLRequestJobFactory> job_factory(
+    std::unique_ptr<net::URLRequestJobFactory> job_factory(
         std::move(job_factory_impl));
     for (URLRequestInterceptorVector::reverse_iterator
              i = request_interceptors.rbegin();
@@ -285,7 +285,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     }
 
     // Set up interceptors in the reverse order.
-    scoped_ptr<net::URLRequestJobFactory> top_job_factory =
+    std::unique_ptr<net::URLRequestJobFactory> top_job_factory =
         std::move(job_factory);
     for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
              request_interceptors_.rbegin();

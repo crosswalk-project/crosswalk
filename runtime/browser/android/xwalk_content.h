@@ -7,11 +7,11 @@
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_H_
 
 #include <list>
+#include <memory>
 #include <utility>
 
 #include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/common/permission_status.mojom.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
@@ -31,7 +31,7 @@ class XWalkContentsClientBridge;
 
 class XWalkContent {
  public:
-  explicit XWalkContent(scoped_ptr<content::WebContents> web_contents);
+  explicit XWalkContent(std::unique_ptr<content::WebContents> web_contents);
   ~XWalkContent();
 
   static XWalkContent* FromID(int render_process_id, int render_view_id);
@@ -39,7 +39,7 @@ class XWalkContent {
 
   base::android::ScopedJavaLocalRef<jobject> GetWebContents(JNIEnv* env,
                                                             jobject obj);
-  void SetPendingWebContentsForPopup(scoped_ptr<content::WebContents> pending);
+  void SetPendingWebContentsForPopup(std::unique_ptr<content::WebContents> pending);
   jlong ReleasePopupXWalkContent(JNIEnv* env, jobject obj);
   void SetJavaPeers(JNIEnv* env,
                     jobject obj,
@@ -99,12 +99,12 @@ class XWalkContent {
   // these two, we need to redesign XWalkContent in the future.
   // Currently as a workaround, below declaration order makes sure
   // the WebContents destructed before WebContentsDelegate.
-  scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
-  scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
-  scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
-  scoped_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
-  scoped_ptr<content::WebContents> web_contents_;
-  scoped_ptr<XWalkContent> pending_contents_;
+  std::unique_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
+  std::unique_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
+  std::unique_ptr<XWalkContentsClientBridge> contents_client_bridge_;
+  std::unique_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
+  std::unique_ptr<content::WebContents> web_contents_;
+  std::unique_ptr<XWalkContent> pending_contents_;
 
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result

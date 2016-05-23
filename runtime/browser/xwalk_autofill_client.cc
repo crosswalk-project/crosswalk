@@ -171,7 +171,7 @@ void XWalkAutofillClient::ConfirmSaveCreditCardLocally(
 
 void XWalkAutofillClient::ConfirmSaveCreditCardToCloud(
       const autofill::CreditCard& card,
-      scoped_ptr<base::DictionaryValue> legal_message,
+      std::unique_ptr<base::DictionaryValue> legal_message,
       const base::Closure& callback) {
   NOTIMPLEMENTED();
 }

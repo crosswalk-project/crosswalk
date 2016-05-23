@@ -263,7 +263,7 @@ bool XWalkContentBrowserClient::AllowSetCookie(
 void XWalkContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
-    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+    std::unique_ptr<content::ClientCertificateDelegate> delegate) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* client =
       XWalkContentsClientBridgeBase::FromWebContents(web_contents);
@@ -318,7 +318,7 @@ void XWalkContentBrowserClient::DidCreatePpapiPlugin(
     content::BrowserPpapiHost* browser_host) {
 #if defined(ENABLE_PLUGINS)
   browser_host->GetPpapiHost()->AddHostFactoryFilter(
-      scoped_ptr<ppapi::host::HostFactory>(
+      std::unique_ptr<ppapi::host::HostFactory>(
           new XWalkBrowserPepperHostFactory(browser_host)));
 #endif
 }

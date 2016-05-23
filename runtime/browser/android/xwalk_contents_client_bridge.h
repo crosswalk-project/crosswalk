@@ -71,7 +71,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   void ShowNotification(
       const content::PlatformNotificationData& notification_data,
       const content::NotificationResources& notification_resources,
-      scoped_ptr<content::DesktopNotificationDelegate> delegate,
+      std::unique_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
       override;
   void OnWebLayoutPageScaleFactorChanged(
@@ -111,7 +111,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
 
   virtual void SelectClientCertificate(
       net::SSLCertRequestInfo* cert_request_info,
-      scoped_ptr<content::ClientCertificateDelegate> delegate);
+      std::unique_ptr<content::ClientCertificateDelegate> delegate);
 
   void HandleErrorInClientCertificateResponse(int id);
 
@@ -140,7 +140,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   IDMap<SelectCertificateCallback, IDMapOwnPointer>
       pending_client_cert_request_callbacks_;
 
-  scoped_ptr<XWalkIconHelper> icon_helper_;
+  std::unique_ptr<XWalkIconHelper> icon_helper_;
 };
 
 bool RegisterXWalkContentsClientBridge(JNIEnv* env);

@@ -4,8 +4,9 @@
 
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 
+#include <memory>
+
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_thread.h"
 
 using base::AutoLock;

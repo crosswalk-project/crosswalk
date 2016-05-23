@@ -6,10 +6,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
 #define XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
 
+#include <memory>
 #include <string>
 
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "base/observer_list.h"
 #include "content/public/browser/media_observer.h"

@@ -29,7 +29,7 @@ class SubscriptionWrapper {
  public:
   SubscriptionWrapper() : weak_factory_(this) {}
 
-  scoped_ptr<net::CookieStore::CookieChangedSubscription> Subscribe(
+  std::unique_ptr<net::CookieStore::CookieChangedSubscription> Subscribe(
       const GURL& url,
       const std::string& name,
       const net::CookieStore::CookieChangedCallback& callback) {
@@ -79,7 +79,7 @@ class SubscriptionWrapper {
     base::WeakPtr<SubscriptionWrapper> subscription_wrapper_;
     scoped_refptr<base::TaskRunner> client_task_runner_;
 
-    scoped_ptr<net::CookieStore::CookieChangedSubscription> subscription_;
+    std::unique_ptr<net::CookieStore::CookieChangedSubscription> subscription_;
 
     DISALLOW_COPY_AND_ASSIGN(NestedSubscription);
   };
@@ -316,7 +316,7 @@ void XWalkCookieStoreWrapper::SetForceKeepSessionState() {
       base::Bind(&SetForceKeepSessionStateOnCookieThread));
 }
 
-scoped_ptr<net::CookieStore::CookieChangedSubscription>
+std::unique_ptr<net::CookieStore::CookieChangedSubscription>
 XWalkCookieStoreWrapper::AddCallbackForCookie(
     const GURL& url,
     const std::string& name,

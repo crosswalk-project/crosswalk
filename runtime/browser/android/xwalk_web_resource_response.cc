@@ -20,12 +20,12 @@ class StreamReaderJobDelegateImpl
     : public AndroidStreamReaderURLRequestJob::Delegate {
  public:
   StreamReaderJobDelegateImpl(
-      scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response)
+      std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response)
       : xwalk_web_resource_response_(std::move(xwalk_web_resource_response)) {
     DCHECK(xwalk_web_resource_response_);
   }
 
-  scoped_ptr<InputStream> OpenInputStream(JNIEnv* env,
+  std::unique_ptr<InputStream> OpenInputStream(JNIEnv* env,
                                           const GURL& url) override {
     return xwalk_web_resource_response_->GetInputStream(env);
   }
@@ -70,14 +70,14 @@ class StreamReaderJobDelegateImpl
   }
 
  private:
-  scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response_;
+  std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response_;
 };
 
 }  // namespace
 
 // static
 net::URLRequestJob* XWalkWebResourceResponse::CreateJobFor(
-    scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response,
+    std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response,
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) {
   DCHECK(xwalk_web_resource_response);

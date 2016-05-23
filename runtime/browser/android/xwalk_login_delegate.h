@@ -5,9 +5,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_LOGIN_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_LOGIN_DELEGATE_H_
 
+#include <memory>
+
 #include "xwalk/runtime/browser/android/xwalk_http_auth_handler_base.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/strings/string16.h"
 #include "content/public/browser/resource_dispatcher_host_login_delegate.h"
 
@@ -39,7 +40,7 @@ class XWalkLoginDelegate
                          const base::string16& password);
   void DeleteAuthHandlerSoon();
 
-  scoped_ptr<XWalkHttpAuthHandlerBase> xwalk_http_auth_handler_;
+  std::unique_ptr<XWalkHttpAuthHandlerBase> xwalk_http_auth_handler_;
   scoped_refptr<net::AuthChallengeInfo> auth_info_;
   net::URLRequest* request_;
   int render_process_id_;

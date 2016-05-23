@@ -5,9 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_IO_THREAD_CLIENT_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_IO_THREAD_CLIENT_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
 
 class GURL;
 
@@ -60,7 +60,7 @@ class XWalkContentsIoThreadClient {
   // |render_process_id|, |render_frame_id| pair.
   // This method can be called from any thread.
   // An empty scoped_ptr is a valid return value.
-  static scoped_ptr<XWalkContentsIoThreadClient> FromID(int render_process_id,
+  static std::unique_ptr<XWalkContentsIoThreadClient> FromID(int render_process_id,
                                                         int render_frame_id);
 
   // Called on the IO thread when a subframe is created.
@@ -69,7 +69,7 @@ class XWalkContentsIoThreadClient {
                               int child_render_frame_id);
 
   // This method is called on the IO thread only.
-  virtual scoped_ptr<XWalkWebResourceResponse> ShouldInterceptRequest(
+  virtual std::unique_ptr<XWalkWebResourceResponse> ShouldInterceptRequest(
       const GURL& location,
       const net::URLRequest* request) = 0;
 

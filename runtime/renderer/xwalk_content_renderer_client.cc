@@ -231,10 +231,10 @@ void XWalkContentRendererClient::RenderViewCreated(
 
 void XWalkContentRendererClient::DidCreateModuleSystem(
     extensions::XWalkModuleSystem* module_system) {
-  scoped_ptr<extensions::XWalkNativeModule> app_module(
+  std::unique_ptr<extensions::XWalkNativeModule> app_module(
       new application::ApplicationNativeModule());
   module_system->RegisterNativeModule("application", std::move(app_module));
-  scoped_ptr<extensions::XWalkNativeModule> isolated_file_system_module(
+  std::unique_ptr<extensions::XWalkNativeModule> isolated_file_system_module(
       new extensions::IsolatedFileSystem());
   module_system->RegisterNativeModule("isolated_file_system",
       std::move(isolated_file_system_module));

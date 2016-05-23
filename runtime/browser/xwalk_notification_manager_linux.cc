@@ -64,7 +64,7 @@ void XWalkNotificationManager::ShowDesktopNotification(
     content::BrowserContext* browser_context,
     const GURL& origin,
     const content::PlatformNotificationData& notification_data,
-    scoped_ptr<content::DesktopNotificationDelegate> delegate,
+    std::unique_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   if (!initialized_)
     return;
@@ -133,7 +133,7 @@ void XWalkNotificationManager::NotificationClicked(
 void XWalkNotificationManager::NotificationClosed(
     NotifyNotification* notification) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
+  std::unique_ptr<content::DesktopNotificationDelegate> notification_delegate =
     notifications_map_.take_and_erase(reinterpret_cast<int64_t>(notification));
   if (notification_delegate) {
     notification_delegate->NotificationClosed();

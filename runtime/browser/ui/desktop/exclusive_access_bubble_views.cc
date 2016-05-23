@@ -98,7 +98,7 @@ ExclusiveAccessBubbleViews::ExclusiveAccessView::ExclusiveAccessView(
 
   SkColor background_color = SkColorSetA(SK_ColorBLACK, kBackgroundOpacity);
   SkColor foreground_color = SK_ColorWHITE;
-  scoped_ptr<views::BubbleBorder> bubble_border(new views::BubbleBorder(
+  std::unique_ptr<views::BubbleBorder> bubble_border(new views::BubbleBorder(
       views::BubbleBorder::NONE, shadow_type, background_color));
   set_background(new views::BubbleBackground(bubble_border.get()));
   SetBorder(std::move(bubble_border));

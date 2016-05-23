@@ -43,7 +43,7 @@ void XWalkContentSettings::Init() {
 
   pref_store_ = new JsonPrefStore(GetPrefFilePathFromPath(xwalk_data_dir),
       sequenced_task_runner_.get(),
-      scoped_ptr<PrefFilter>());
+      std::unique_ptr<PrefFilter>());
 
   // The name is misleading, we do not sync anything.
   pref_registry_ = new user_prefs::PrefRegistrySyncable();

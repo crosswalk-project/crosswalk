@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -14,7 +15,6 @@
 #include "base/android/jni_weak_ref.h"
 #include "base/lazy_instance.h"
 #include "base/memory/linked_ptr.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
@@ -191,19 +191,19 @@ struct WebResourceRequest {
 // XWalkContentsIoThreadClientImpl -------------------------------------------
 
 // static
-scoped_ptr<XWalkContentsIoThreadClient>
+std::unique_ptr<XWalkContentsIoThreadClient>
 XWalkContentsIoThreadClient::FromID(int render_process_id,
                                     int render_frame_id) {
   pair<int, int> rfh_id(render_process_id, render_frame_id);
   IoThreadClientData client_data;
   if (!RfhToIoThreadClientMap::GetInstance()->Get(rfh_id, &client_data))
-    return scoped_ptr<XWalkContentsIoThreadClient>();
+    return std::unique_ptr<XWalkContentsIoThreadClient>();
 
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jobject> java_delegate =
       client_data.io_thread_client.get(env);
   DCHECK(!client_data.pending_association || java_delegate.is_null());
-  return scoped_ptr<XWalkContentsIoThreadClient>(
+  return std::unique_ptr<XWalkContentsIoThreadClient>(
       new XWalkContentsIoThreadClientImpl(
           client_data.pending_association, java_delegate));
 }
@@ -270,13 +270,13 @@ XWalkContentsIoThreadClientImpl::GetCacheMode() const {
           env, java_object_.obj()));
 }
 
-scoped_ptr<XWalkWebResourceResponse>
+std::unique_ptr<XWalkWebResourceResponse>
 XWalkContentsIoThreadClientImpl::ShouldInterceptRequest(
     const GURL& location,
     const net::URLRequest* request) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   if (java_object_.is_null())
-    return scoped_ptr<XWalkWebResourceResponse>();
+    return std::unique_ptr<XWalkWebResourceResponse>();
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   bool is_main_frame = info &&
@@ -317,8 +317,8 @@ XWalkContentsIoThreadClientImpl::ShouldInterceptRequest(
           jstringArray_headers_names.obj(),
           jstringArray_headers_values.obj());
   if (ret.is_null())
-    return scoped_ptr<XWalkWebResourceResponse>();
-  return scoped_ptr<XWalkWebResourceResponse>(
+    return std::unique_ptr<XWalkWebResourceResponse>();
+  return std::unique_ptr<XWalkWebResourceResponse>(
       new XWalkWebResourceResponseImpl(ret));
 }
 

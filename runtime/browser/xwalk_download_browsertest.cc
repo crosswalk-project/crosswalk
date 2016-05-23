@@ -73,7 +73,7 @@ IN_PROC_BROWSER_TEST_F(XWalkDownloadBrowserTest, FileDownload) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath().AppendASCII("download"),
       base::FilePath().AppendASCII("test.lib"));
-  scoped_ptr<DownloadTestObserver> observer(CreateWaiter(runtime_, 1));
+  std::unique_ptr<DownloadTestObserver> observer(CreateWaiter(runtime_, 1));
   xwalk_test_utils::NavigateToURL(runtime_, url);
   observer->WaitForFinished();
   EXPECT_EQ(1u, observer->NumDownloadsSeenInState(DownloadItem::COMPLETE));

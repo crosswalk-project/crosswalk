@@ -5,11 +5,11 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_PRESENTATION_SERVICE_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_PRESENTATION_SERVICE_DELEGATE_H_
 
+#include <memory>
 #include <string>
 #include <utility>
 
 #include "base/containers/scoped_ptr_hash_map.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/presentation_service_delegate.h"
 #include "content/public/browser/web_contents_user_data.h"
@@ -85,7 +85,7 @@ class XWalkPresentationServiceDelegate
       int render_process_id,
       int render_frame_id,
       const content::PresentationSessionInfo& session,
-      scoped_ptr<content::PresentationSessionMessage> message_request,
+      std::unique_ptr<content::PresentationSessionMessage> message_request,
       const SendMessageCallback& send_message_cb) override {}
 
   void ListenForConnectionStateChange(
@@ -107,7 +107,7 @@ class XWalkPresentationServiceDelegate
       const RenderFrameHostId& render_frame_host_id);
 
   content::WebContents* web_contents_;
-  base::ScopedPtrHashMap<RenderFrameHostId, scoped_ptr<PresentationFrame>>
+  base::ScopedPtrHashMap<RenderFrameHostId, std::unique_ptr<PresentationFrame>>
       presentation_frames_;
 };
 

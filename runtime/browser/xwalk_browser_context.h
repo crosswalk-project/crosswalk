@@ -11,12 +11,12 @@
 #endif
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
@@ -70,7 +70,7 @@ class XWalkBrowserContext
       content::WebContents* web_contents);
 
   // BrowserContext implementation.
-  scoped_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
+  std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
       const base::FilePath& partition_path) override;
   base::FilePath GetPath() const override;
   bool IsOffTheRecord() const override;
@@ -138,23 +138,23 @@ class XWalkBrowserContext
 #endif
 
   application::ApplicationService* application_service_;
-  scoped_ptr<RuntimeResourceContext> resource_context_;
+  std::unique_ptr<RuntimeResourceContext> resource_context_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
-  scoped_ptr<PrefService> user_pref_service_;
-  scoped_ptr<XWalkFormDatabaseService> form_database_service_;
+  std::unique_ptr<PrefService> user_pref_service_;
+  std::unique_ptr<XWalkFormDatabaseService> form_database_service_;
   bool save_form_data_;
 #if defined(OS_ANDROID)
   std::string csp_;
-  scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
+  std::unique_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 #endif
 
   typedef std::map<base::FilePath::StringType,
       scoped_refptr<RuntimeURLRequestContextGetter> >
       PartitionPathContextGetterMap;
   PartitionPathContextGetterMap context_getters_;
-  scoped_ptr<XWalkSSLHostStateDelegate> ssl_host_state_delegate_;
-  scoped_ptr<content::PermissionManager> permission_manager_;
+  std::unique_ptr<XWalkSSLHostStateDelegate> ssl_host_state_delegate_;
+  std::unique_ptr<content::PermissionManager> permission_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserContext);
 };

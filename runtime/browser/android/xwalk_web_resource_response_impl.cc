@@ -27,14 +27,14 @@ XWalkWebResourceResponseImpl::XWalkWebResourceResponseImpl(
 XWalkWebResourceResponseImpl::~XWalkWebResourceResponseImpl() {
 }
 
-scoped_ptr<InputStream>
+std::unique_ptr<InputStream>
 XWalkWebResourceResponseImpl::GetInputStream(JNIEnv* env) const {
   ScopedJavaLocalRef<jobject> jstream =
       Java_XWalkWebResourceResponseInternal_getDataNative(
          env, java_object_.obj());
   if (jstream.is_null())
-    return scoped_ptr<InputStream>();
-  return make_scoped_ptr<InputStream>(new InputStreamImpl(jstream));
+    return std::unique_ptr<InputStream>();
+  return make_std::unique_ptr<InputStream>(new InputStreamImpl(jstream));
 }
 
 bool XWalkWebResourceResponseImpl::GetMimeType(

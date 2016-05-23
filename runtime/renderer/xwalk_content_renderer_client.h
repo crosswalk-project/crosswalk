@@ -6,11 +6,11 @@
 #ifndef XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 #define XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/files/file.h"
 #include "base/strings/string16.h"
 #include "content/public/renderer/content_renderer_client.h"
@@ -72,18 +72,18 @@ class XWalkContentRendererClient
 #endif
 
  protected:
-  scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+  std::unique_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
 
  private:
   // XWalkExtensionRendererController::Delegate implementation.
   void DidCreateModuleSystem(
       extensions::XWalkModuleSystem* module_system) override;
 
-  scoped_ptr<extensions::XWalkExtensionRendererController>
+  std::unique_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
 #if defined(OS_ANDROID)
-  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
+  std::unique_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 #endif
 
   void GetNavigationErrorStrings(

@@ -7,11 +7,11 @@
 #define XWALK_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_FRONTEND_H_
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/values.h"
 #include "content/public/browser/devtools_agent_host.h"
@@ -88,7 +88,7 @@ class XWalkDevToolsFrontend : public content::WebContentsObserver,
   NativeAppWindowDesktop* runtime_window_;
   content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
-  scoped_ptr<content::DevToolsFrontendHost> frontend_host_;
+  std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;
   base::DictionaryValue preferences_;

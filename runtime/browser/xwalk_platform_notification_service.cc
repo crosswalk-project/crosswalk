@@ -89,10 +89,10 @@ void XWalkPlatformNotificationService::DisplayNotification(
     const GURL& origin,
     const content::PlatformNotificationData& notification_data,
     const content::NotificationResources& notification_resources,
-    scoped_ptr<content::DesktopNotificationDelegate> delegate,
+    std::unique_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
-  scoped_ptr<content::RenderWidgetHostIterator> widgets(
+  std::unique_ptr<content::RenderWidgetHostIterator> widgets(
       content::RenderWidgetHost::GetRenderWidgetHosts());
   while (content::RenderWidgetHost* rwh = widgets->GetNextHost()) {
     if (!rwh->GetProcess())

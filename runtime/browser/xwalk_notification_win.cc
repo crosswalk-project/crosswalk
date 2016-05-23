@@ -73,7 +73,7 @@ mswr::ComPtr<winui::Notifications::IToastNotifier>
 
 XWalkNotificationWin::XWalkNotificationWin(
     XWalkNotificationManager* manager,
-    scoped_ptr<content::DesktopNotificationDelegate> delegate)
+    std::unique_ptr<content::DesktopNotificationDelegate> delegate)
     : manager_(manager),
       delegate_(std::move(delegate)) {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));

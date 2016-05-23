@@ -24,7 +24,7 @@ XWalkRendererPepperHostFactory::XWalkRendererPepperHostFactory(
 XWalkRendererPepperHostFactory::~XWalkRendererPepperHostFactory() {
 }
 
-scoped_ptr<ResourceHost>
+std::unique_ptr<ResourceHost>
 XWalkRendererPepperHostFactory::CreateResourceHost(
     ppapi::host::PpapiHost* host,
     PP_Resource resource,
@@ -34,24 +34,24 @@ XWalkRendererPepperHostFactory::CreateResourceHost(
 
   // Make sure the plugin is giving us a valid instance for this resource.
   if (!host_->IsValidInstance(instance))
-    return scoped_ptr<ResourceHost>();
+    return std::unique_ptr<ResourceHost>();
 
   if (host_->GetPpapiHost()->permissions().HasPermission(
           ppapi::PERMISSION_FLASH)) {
     switch (message.type()) {
       case PpapiHostMsg_Flash_Create::ID: {
-        return scoped_ptr<ResourceHost>(
+        return std::unique_ptr<ResourceHost>(
             new PepperFlashRendererHost(host_, instance, resource));
       }
       case PpapiHostMsg_FlashFullscreen_Create::ID: {
-        return scoped_ptr<ResourceHost>(
+        return std::unique_ptr<ResourceHost>(
             new PepperFlashFullscreenHost(host_, instance, resource));
       }
       case PpapiHostMsg_FlashMenu_Create::ID: {
         ppapi::proxy::SerializedFlashMenu serialized_menu;
         if (ppapi::UnpackMessage<PpapiHostMsg_FlashMenu_Create>(
                 message, &serialized_menu)) {
-          return scoped_ptr<ResourceHost>(new PepperFlashMenuHost(
+          return std::unique_ptr<ResourceHost>(new PepperFlashMenuHost(
               host_, instance, resource, serialized_menu));
         }
         break;
@@ -69,13 +69,13 @@ XWalkRendererPepperHostFactory::CreateResourceHost(
         PP_PrivateFontCharset charset;
         if (ppapi::UnpackMessage<PpapiHostMsg_FlashFontFile_Create>(
                 message, &description, &charset)) {
-          return scoped_ptr<ResourceHost>(new PepperFlashFontFileHost(
+          return std::unique_ptr<ResourceHost>(new PepperFlashFontFileHost(
               host_, instance, resource, description, charset));
         }
         break;
       }
       case PpapiHostMsg_FlashDRM_Create::ID:
-        return scoped_ptr<ResourceHost>(
+        return std::unique_ptr<ResourceHost>(
             new PepperFlashDRMRendererHost(host_, instance, resource));
     }
   }
@@ -85,9 +85,9 @@ XWalkRendererPepperHostFactory::CreateResourceHost(
   // interfaces are available only for whitelisted apps which may not have
   // access to the other private interfaces.
   if (message.type() == PpapiHostMsg_UMA_Create::ID) {
-    return scoped_ptr<ResourceHost>(new PepperUMAHost(
+    return std::unique_ptr<ResourceHost>(new PepperUMAHost(
         host_, instance, resource));
   }
 
-  return scoped_ptr<ResourceHost>();
+  return std::unique_ptr<ResourceHost>();
 }
