@@ -91,6 +91,8 @@
         'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/android/cookie_manager.cc',
         'runtime/browser/android/cookie_manager.h',
+        'runtime/browser/android/find_helper.cc',
+        'runtime/browser/android/find_helper.h',
         'runtime/browser/android/net/android_protocol_handler.cc',
         'runtime/browser/android/net/android_protocol_handler.h',
         'runtime/browser/android/net/android_stream_reader_url_request_job.cc',

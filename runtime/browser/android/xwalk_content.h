@@ -13,6 +13,7 @@
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/common/permission_status.mojom.h"
+#include "xwalk/runtime/browser/android/find_helper.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
 using base::android::JavaParamRef;
@@ -29,7 +30,7 @@ class XWalkAutofillManager;
 class XWalkWebContentsDelegate;
 class XWalkContentsClientBridge;
 
-class XWalkContent {
+class XWalkContent : public FindHelper::Listener {
  public:
   explicit XWalkContent(scoped_ptr<content::WebContents> web_contents);
   ~XWalkContent();
@@ -92,6 +93,20 @@ class XWalkContent {
       JNIEnv* env,
       const JavaParamRef<jobject>& obj);
 
+  FindHelper* GetFindHelper();
+  void FindAllAsync(JNIEnv* env,
+                    const JavaParamRef<jobject>& obj,
+                    const JavaParamRef<jstring>& search_string);
+  void FindNext(JNIEnv* env,
+                const JavaParamRef<jobject>& obj,
+                jboolean forward);
+  void ClearMatches(JNIEnv* env, const JavaParamRef<jobject>& obj);
+
+  // FindHelper::Listener implementation.
+  void OnFindResultReceived(int active_ordinal,
+                            int match_count,
+                            bool finished) override;
+
  private:
   JavaObjectWeakGlobalRef java_ref_;
   // TODO(guangzhen): The WebContentsDelegate need to take ownership of
@@ -105,6 +120,7 @@ class XWalkContent {
   scoped_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
   scoped_ptr<content::WebContents> web_contents_;
   scoped_ptr<XWalkContent> pending_contents_;
+  scoped_ptr<FindHelper> find_helper_;
 
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result

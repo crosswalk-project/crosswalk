@@ -273,6 +273,22 @@ bool XWalkWebContentsDelegate::ShouldCreateWebContents(
       java_url.obj());
 }
 
+void XWalkWebContentsDelegate::FindReply(WebContents* web_contents,
+                                         int request_id,
+                                         int number_of_matches,
+                                         const gfx::Rect& selection_rect,
+                                         int active_match_ordinal,
+                                         bool final_update) {
+  XWalkContent* xwalk_content = XWalkContent::FromWebContents(web_contents);
+  if (!xwalk_content)
+    return;
+
+  xwalk_content->GetFindHelper()->HandleFindReply(request_id,
+                                                  number_of_matches,
+                                                  active_match_ordinal,
+                                                  final_update);
+}
+
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
   return RegisterNativesImpl(env);
 }

@@ -597,4 +597,45 @@ base::android::ScopedJavaLocalRef<jbyteArray> XWalkContent::GetCertificate(
       der_string.length());
 }
 
+FindHelper* XWalkContent::GetFindHelper() {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  if (!find_helper_.get()) {
+    find_helper_.reset(new FindHelper(web_contents_.get()));
+    find_helper_->SetListener(this);
+  }
+  return find_helper_.get();
+}
+
+void XWalkContent::FindAllAsync(JNIEnv* env,
+                                const JavaParamRef<jobject>& obj,
+                                const JavaParamRef<jstring>& search_string) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  GetFindHelper()->FindAllAsync(ConvertJavaStringToUTF16(env, search_string));
+}
+
+void XWalkContent::FindNext(JNIEnv* env,
+                            const JavaParamRef<jobject>& obj,
+                            jboolean forward) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  GetFindHelper()->FindNext(forward);
+}
+
+void XWalkContent::ClearMatches(JNIEnv* env, const JavaParamRef<jobject>& obj) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  GetFindHelper()->ClearMatches();
+}
+
+void XWalkContent::OnFindResultReceived(int active_ordinal,
+                                        int match_count,
+                                        bool finished) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return;
+
+  Java_XWalkContent_onFindResultReceived(
+      env, obj.obj(), active_ordinal, match_count, finished);
+}
+
 }  // namespace xwalk
