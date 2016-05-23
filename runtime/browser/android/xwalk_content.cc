@@ -132,7 +132,7 @@ XWalkContent* XWalkContent::FromWebContents(
   return XWalkContentUserData::GetContents(web_contents);
 }
 
-XWalkContent::XWalkContent(scoped_ptr<content::WebContents> web_contents)
+XWalkContent::XWalkContent(std::unique_ptr<content::WebContents> web_contents)
     : web_contents_(std::move(web_contents)) {
   xwalk_autofill_manager_.reset(new XWalkAutofillManager(web_contents_.get()));
   XWalkContentLifecycleNotifier::OnXWalkViewCreated();
@@ -212,7 +212,7 @@ XWalkContent::GetWebContents(JNIEnv* env, jobject obj) {
 }
 
 void XWalkContent::SetPendingWebContentsForPopup(
-    scoped_ptr<content::WebContents> pending) {
+    std::unique_ptr<content::WebContents> pending) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   if (pending_contents_.get()) {
     // TODO(benm): Support holding multiple pop up window requests.
@@ -287,7 +287,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string json_input =
       base::android::ConvertJavaStringToUTF8(env, manifest_string);
 
-  scoped_ptr<base::Value> manifest_value = base::JSONReader::Read(json_input);
+  std::unique_ptr<base::Value> manifest_value = base::JSONReader::Read(json_input);
   if (!manifest_value || !manifest_value->IsType(base::Value::TYPE_DICTIONARY))
       return false;
 
@@ -464,7 +464,7 @@ jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
 }
 
 static jlong Init(JNIEnv* env, const JavaParamRef<jobject>& obj) {
-  scoped_ptr<WebContents> web_contents(content::WebContents::Create(
+  std::unique_ptr<WebContents> web_contents(content::WebContents::Create(
       content::WebContents::CreateParams(
           XWalkRunner::GetInstance()->browser_context())));
   return reinterpret_cast<intptr_t>(new XWalkContent(std::move(web_contents)));

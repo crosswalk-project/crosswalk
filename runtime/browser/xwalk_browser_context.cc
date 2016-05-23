@@ -130,7 +130,7 @@ void XWalkBrowserContext::InitWhileIOAllowed() {
 #endif
 }
 
-scoped_ptr<content::ZoomLevelDelegate>
+std::unique_ptr<content::ZoomLevelDelegate>
 XWalkBrowserContext::CreateZoomLevelDelegate(
     const base::FilePath& partition_path) {
   return nullptr;

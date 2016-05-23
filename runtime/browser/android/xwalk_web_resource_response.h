@@ -6,10 +6,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_WEB_RESOURCE_RESPONSE_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_WEB_RESOURCE_RESPONSE_H_
 
+#include <memory>
 #include <string>
 
 #include "base/android/jni_android.h"
-#include "base/memory/scoped_ptr.h"
 
 namespace net {
 class HttpResponseHeaders;
@@ -28,7 +28,7 @@ class XWalkWebResourceResponse {
  public:
   virtual ~XWalkWebResourceResponse() {}
 
-  virtual scoped_ptr<InputStream> GetInputStream(JNIEnv* env) const = 0;
+  virtual std::unique_ptr<InputStream> GetInputStream(JNIEnv* env) const = 0;
   virtual bool GetMimeType(JNIEnv* env, std::string* mime_type) const = 0;
   virtual bool GetCharset(JNIEnv* env, std::string* charset) const = 0;
   virtual bool GetPackageName(JNIEnv* env, std::string* name) const = 0;
@@ -46,7 +46,7 @@ class XWalkWebResourceResponse {
   // network or to the cache).
   // The newly created job takes ownership of |xwalk_web_resource_response|.
   static net::URLRequestJob* CreateJobFor(
-      scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response,
+      std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response,
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate);
 

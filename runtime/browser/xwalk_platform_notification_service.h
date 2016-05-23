@@ -42,7 +42,7 @@ class XWalkPlatformNotificationService
       const GURL& origin,
       const content::PlatformNotificationData& notification_data,
       const content::NotificationResources& notification_resources,
-      scoped_ptr<content::DesktopNotificationDelegate> delegate,
+      std::unique_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback) override;
   void DisplayPersistentNotification(
       content::BrowserContext* browser_context,
@@ -64,10 +64,10 @@ class XWalkPlatformNotificationService
   ~XWalkPlatformNotificationService() override;
 
 #if defined(OS_LINUX) && defined(USE_LIBNOTIFY)
-  scoped_ptr<XWalkNotificationManager> notification_manager_linux_;
+  std::unique_ptr<XWalkNotificationManager> notification_manager_linux_;
 #endif
 #if defined(OS_WIN)
-  scoped_ptr<XWalkNotificationManager> notification_manager_win_;
+  std::unique_ptr<XWalkNotificationManager> notification_manager_win_;
 #endif
 };
 

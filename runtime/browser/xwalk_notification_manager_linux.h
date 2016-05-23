@@ -39,7 +39,7 @@ class XWalkNotificationManager {
       content::BrowserContext* browser_context,
       const GURL& origin,
       const content::PlatformNotificationData& notification_data,
-      scoped_ptr<content::DesktopNotificationDelegate> delegate,
+      std::unique_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback);
 
   void NotificationDisplayed(NotifyNotification* notification);
@@ -48,7 +48,7 @@ class XWalkNotificationManager {
 
  private:
   base::ScopedPtrHashMap<int64_t,
-                         scoped_ptr<content::DesktopNotificationDelegate>>
+                         std::unique_ptr<content::DesktopNotificationDelegate>>
       notifications_map_;
   std::map<std::string, NotifyNotification*> notifications_replace_map_;
   std::map<NotifyNotification*, gulong> notifications_handler_map_;

@@ -5,10 +5,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "content/public/browser/notification_observer.h"
@@ -186,9 +186,9 @@ class Runtime : public content::WebContentsDelegate,
   content::NotificationRegistrar registrar_;
   base::ThreadChecker thread_checker_;
 
-  scoped_ptr<content::WebContents> web_contents_;
+  std::unique_ptr<content::WebContents> web_contents_;
 #if !defined(OS_ANDROID)
-  scoped_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
+  std::unique_ptr<XWalkAutofillManager> xwalk_autofill_manager_;
 #endif
 
   gfx::Image app_icon_;

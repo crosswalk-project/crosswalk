@@ -94,7 +94,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   void SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
-      scoped_ptr<content::ClientCertificateDelegate> delegate) override;
+      std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
 
   content::SpeechRecognitionManagerDelegate*
       CreateSpeechRecognitionManagerDelegate() override;
@@ -176,7 +176,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
-  scoped_ptr<content::ClientCertificateDelegate> delegate_;
+  std::unique_ptr<content::ClientCertificateDelegate> delegate_;
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
   base::ScopedFD v8_natives_fd_;
   base::ScopedFD v8_snapshot_fd_;
@@ -185,7 +185,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   XWalkBrowserMainParts* main_parts_;
   XWalkBrowserContext* browser_context_;
 
-  scoped_ptr<RuntimeResourceDispatcherHostDelegate>
+  std::unique_ptr<RuntimeResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);

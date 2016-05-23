@@ -57,7 +57,7 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
       return gfx::Image();
 
     gfx::Image image;
-    scoped_ptr<SkBitmap> bitmap(IconUtil::CreateSkBitmapFromHICON(icon));
+    std::unique_ptr<SkBitmap> bitmap(IconUtil::CreateSkBitmapFromHICON(icon));
     if (bitmap.get()) {
       gfx::ImageSkia image_skia = gfx::ImageSkia::CreateFrom1xBitmap(*bitmap);
       image = gfx::Image(image_skia);

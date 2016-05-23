@@ -71,7 +71,7 @@ namespace {
 
 int g_next_notification_id_ = 1;
 
-ScopedPtrHashMap<int, scoped_ptr<content::DesktopNotificationDelegate>>
+ScopedPtrHashMap<int, std::unique_ptr<content::DesktopNotificationDelegate>>
     g_notification_map_;
 
 }  // namespace
@@ -246,7 +246,7 @@ static void CancelNotification(
 void XWalkContentsClientBridge::ShowNotification(
     const content::PlatformNotificationData& notification_data,
     const content::NotificationResources& notification_resources,
-    scoped_ptr<content::DesktopNotificationDelegate> delegate,
+    std::unique_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
@@ -341,7 +341,7 @@ void XWalkContentsClientBridge::NotificationDisplayed(
 void XWalkContentsClientBridge::NotificationClicked(
     JNIEnv*, jobject, jint id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
+  std::unique_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
     notification_delegate->NotificationClick();
@@ -350,7 +350,7 @@ void XWalkContentsClientBridge::NotificationClicked(
 void XWalkContentsClientBridge::NotificationClosed(
     JNIEnv*, jobject, jint id, bool by_user) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  scoped_ptr<content::DesktopNotificationDelegate> notification_delegate =
+  std::unique_ptr<content::DesktopNotificationDelegate> notification_delegate =
       g_notification_map_.take_and_erase(id);
   if (notification_delegate.get())
     notification_delegate->NotificationClosed();
@@ -510,7 +510,7 @@ void XWalkContentsClientBridge::HandleErrorInClientCertificateResponse(
 
 void XWalkContentsClientBridge::SelectClientCertificate(
     net::SSLCertRequestInfo* cert_request_info,
-    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+    std::unique_ptr<content::ClientCertificateDelegate> delegate) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
 
   // Add the callback to id map.

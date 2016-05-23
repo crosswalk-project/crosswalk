@@ -6,8 +6,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_DESKTOP_EXCLUSIVE_ACCESS_BUBBLE_VIEWS_H_
 #define XWALK_RUNTIME_BROWSER_UI_DESKTOP_EXCLUSIVE_ACCESS_BUBBLE_VIEWS_H_
 
+#include <memory>
+
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "ui/views/widget/widget_observer.h"
@@ -95,7 +96,7 @@ class ExclusiveAccessBubbleViews : public ExclusiveAccessBubble,
   views::Widget* popup_;
 
   // Animation controlling showing/hiding of the exit bubble.
-  scoped_ptr<gfx::SlideAnimation> animation_;
+  std::unique_ptr<gfx::SlideAnimation> animation_;
 
   // Attribute animated by |animation_|.
   AnimatedAttribute animated_attribute_;

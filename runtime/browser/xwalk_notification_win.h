@@ -52,7 +52,7 @@ class XWalkNotificationWin :
  public:
   XWalkNotificationWin(
       XWalkNotificationManager* manager,
-      scoped_ptr<content::DesktopNotificationDelegate> delegate);
+      std::unique_ptr<content::DesktopNotificationDelegate> delegate);
 
   ~XWalkNotificationWin();
 
@@ -114,7 +114,7 @@ class XWalkNotificationWin :
 
   base::ScopedTempDir temp_dir_;
   XWalkNotificationManager* manager_;
-  scoped_ptr<content::DesktopNotificationDelegate> delegate_;
+  std::unique_ptr<content::DesktopNotificationDelegate> delegate_;
   EventRegistrationToken activated_token_;
   EventRegistrationToken dismissed_token_;
   EventRegistrationToken failed_token_;

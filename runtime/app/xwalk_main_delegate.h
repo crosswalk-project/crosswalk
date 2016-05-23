@@ -5,10 +5,10 @@
 #ifndef XWALK_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
 #define XWALK_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
 
+#include <memory>
 #include <string>
 
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 
@@ -38,9 +38,9 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   static void InitializeResourceBundle();
 
  private:
-  scoped_ptr<XWalkRunner> xwalk_runner_;
-  scoped_ptr<content::ContentRendererClient> renderer_client_;
-  scoped_ptr<content::ContentClient> content_client_;
+  std::unique_ptr<XWalkRunner> xwalk_runner_;
+  std::unique_ptr<content::ContentRendererClient> renderer_client_;
+  std::unique_ptr<content::ContentClient> content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkMainDelegate);
 };

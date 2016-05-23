@@ -158,7 +158,7 @@ void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
+    std::unique_ptr<XWalkExtension> extension) {
   // Since the creation of extension object is driven by Java side, and each
   // Java extension is backed by a native extension object. However, the Java
   // object may be destroyed by Android lifecycle management without destroying

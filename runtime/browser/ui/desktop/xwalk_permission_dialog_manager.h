@@ -5,9 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_DESKTOP_XWALK_PERMISSION_DIALOG_MANAGER_H_
 #define XWALK_RUNTIME_BROWSER_UI_DESKTOP_XWALK_PERMISSION_DIALOG_MANAGER_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "content/public/browser/web_contents.h"

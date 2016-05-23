@@ -17,7 +17,7 @@ class XWalkRendererPepperHostFactory : public ppapi::host::HostFactory {
   ~XWalkRendererPepperHostFactory() override;
 
   // HostFactory.
-  scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
+  std::unique_ptr<ppapi::host::ResourceHost> CreateResourceHost(
       ppapi::host::PpapiHost* host,
       PP_Resource resource,
       PP_Instance instance,

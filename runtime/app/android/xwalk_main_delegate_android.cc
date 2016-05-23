@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/app/android/xwalk_main_delegate_android.h"
 
+#include <memory>
 #include <string>
 
 #include "base/command_line.h"
@@ -11,7 +12,6 @@
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/base_paths_android.h"
 #include "base/path_service.h"
 #include "base/files/file.h"

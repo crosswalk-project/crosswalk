@@ -412,7 +412,7 @@ void NativeAppWindowDesktop::AddDownloadItem(
 void NativeAppWindowDesktop::FileSelected(const base::FilePath& path,
     int index,
     void* params) {
-  scoped_ptr<DownloadSelectFileParams> scoped_params(
+  std::unique_ptr<DownloadSelectFileParams> scoped_params(
       static_cast<DownloadSelectFileParams*>(params));
   content::DownloadItem* item = scoped_params->item;
   content::DownloadTargetCallback& callback = scoped_params->callback;
@@ -428,7 +428,7 @@ void NativeAppWindowDesktop::FileSelected(const base::FilePath& path,
 }
 
 void NativeAppWindowDesktop::FileSelectionCanceled(void* params) {
-  scoped_ptr<DownloadSelectFileParams> scoped_params(
+  std::unique_ptr<DownloadSelectFileParams> scoped_params(
       static_cast<DownloadSelectFileParams*>(params));
   const base::FilePath empty;
   scoped_params->callback.Run(empty,

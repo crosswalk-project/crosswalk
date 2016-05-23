@@ -6,9 +6,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_NET_XWALK_URL_REQUEST_JOB_FACTORY_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_NET_XWALK_URL_REQUEST_JOB_FACTORY_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_job_factory.h"
 
 namespace net {
@@ -29,7 +29,7 @@ class XWalkURLRequestJobFactory : public net::URLRequestJobFactory {
   ~XWalkURLRequestJobFactory() override;
 
   bool SetProtocolHandler(const std::string& scheme,
-                          scoped_ptr<ProtocolHandler> protocol_handler);
+                          std::unique_ptr<ProtocolHandler> protocol_handler);
 
   // net::URLRequestJobFactory implementation.
   virtual net::URLRequestJob* MaybeCreateJobWithProtocolHandler(
@@ -53,7 +53,7 @@ class XWalkURLRequestJobFactory : public net::URLRequestJobFactory {
  private:
   // By default calls are forwarded to this factory, to avoid having to
   // subclass an existing implementation class.
-  scoped_ptr<net::URLRequestJobFactoryImpl> next_factory_;
+  std::unique_ptr<net::URLRequestJobFactoryImpl> next_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkURLRequestJobFactory);
 };

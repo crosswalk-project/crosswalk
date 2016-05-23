@@ -19,7 +19,7 @@ class XWalkBrowserPepperHostFactory : public ppapi::host::HostFactory {
   explicit XWalkBrowserPepperHostFactory(content::BrowserPpapiHost* host);
   ~XWalkBrowserPepperHostFactory() override;
 
-  scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
+  std::unique_ptr<ppapi::host::ResourceHost> CreateResourceHost(
       ppapi::host::PpapiHost* host,
       PP_Resource resource,
       PP_Instance instance,

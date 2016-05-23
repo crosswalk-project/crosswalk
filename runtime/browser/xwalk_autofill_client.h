@@ -71,7 +71,7 @@ class XWalkAutofillClient : public autofill::AutofillClient {
       const base::Closure& callback) override;
   void ConfirmSaveCreditCardToCloud(
       const autofill::CreditCard& card,
-      scoped_ptr<base::DictionaryValue> legal_message,
+      std::unique_ptr<base::DictionaryValue> legal_message,
       const base::Closure& callback) override;
   void LoadRiskData(
       const base::Callback<void(const std::string&)>& callback) override;
