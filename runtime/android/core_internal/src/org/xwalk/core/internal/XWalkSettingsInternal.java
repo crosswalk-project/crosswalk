@@ -60,7 +60,6 @@ public class XWalkSettingsInternal {
     private boolean mDomStorageEnabled = true;
     private boolean mDatabaseEnabled = true;
     private boolean mUseWideViewport = false;
-    private boolean mLoadWithOverviewMode = false;
     private boolean mMediaPlaybackRequiresUserGesture = false;
     private String mDefaultVideoPosterURL;
     private final boolean mPasswordEchoEnabled;
@@ -1131,43 +1130,6 @@ public class XWalkSettingsInternal {
         return mLayoutAlgorithm == LayoutAlgorithmInternal.TEXT_AUTOSIZING;
     }
 
-    /**
-     * Sets whether the XWalkView loads pages in overview mode, that is, zooms out
-     * the content to fit on screen by width. This setting is taken into account
-     * when the content width is greater than the width of the XWalkView control,
-     * for example, when getUseWideViewPort() is enabled. The default is false.
-     * @param overview whether this XWalkView loads pages in overview mode.
-     * @since 7.0
-     */
-    @XWalkAPI
-    public void setLoadWithOverviewMode(boolean overview) {
-        synchronized (mXWalkSettingsLock) {
-            if (mLoadWithOverviewMode == overview) return;
-            mLoadWithOverviewMode = overview;
-            mEventHandler.maybeRunOnUiThreadBlocking(new Runnable() {
-                @Override
-                public void run() {
-                    if (mNativeXWalkSettings != 0) {
-                        mEventHandler.updateWebkitPreferencesLocked();
-                        nativeResetScrollAndScaleState(mNativeXWalkSettings);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Gets whether this XWalkView loads pages in overview mode.
-     * @return whether this XWalkView loads pages in overview mode.
-     * @since 7.0
-     */
-    @XWalkAPI
-    public boolean getLoadWithOverviewMode() {
-        synchronized (mXWalkSettingsLock) {
-            return mLoadWithOverviewMode;
-        }
-    }
-
     private native long nativeInit(WebContents webContents);
 
     private native void nativeDestroy(long nativeXWalkSettings);
@@ -1185,6 +1147,4 @@ public class XWalkSettingsInternal {
     private native void nativeUpdateFormDataPreferences(long nativeXWalkSettings);
 
     private native void nativeUpdateInitialPageScale(long nativeXWalkSettings);
-
-    private native void nativeResetScrollAndScaleState(long nativeXWalkSettings);
 }
