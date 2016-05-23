@@ -170,7 +170,7 @@ AndroidStreamReaderURLRequestJobDelegateImpl::OpenInputStream(
     DLOG(ERROR) << "Unable to open input stream for Android URL";
     return std::unique_ptr<InputStream>();
   }
-  return make_std::unique_ptr<InputStream>(new InputStreamImpl(stream));
+  return make_scoped_ptr<InputStream>(new InputStreamImpl(stream));
 }
 
 void AndroidStreamReaderURLRequestJobDelegateImpl::OnInputStreamOpenFailed(
@@ -330,7 +330,7 @@ bool RegisterAndroidProtocolHandler(JNIEnv* env) {
 // static
 std::unique_ptr<net::URLRequestInterceptor>
 CreateContentSchemeRequestInterceptor() {
-  return make_std::unique_ptr<net::URLRequestInterceptor>(
+  return make_scoped_ptr<net::URLRequestInterceptor>(
       new ContentSchemeRequestInterceptor());
 }
 
@@ -342,7 +342,7 @@ std::unique_ptr<net::URLRequestInterceptor> CreateAssetFileRequestInterceptor() 
 
 // static
 std::unique_ptr<net::URLRequestInterceptor> CreateAppSchemeRequestInterceptor() {
-  return make_std::unique_ptr<net::URLRequestInterceptor>(
+  return make_scoped_ptr<net::URLRequestInterceptor>(
       new AppSchemeRequestInterceptor());
 }
 

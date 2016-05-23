@@ -46,7 +46,7 @@ TEST(XWalkExtensionFunctionHandlerTest, PostResult) {
 
   XWalkExtensionFunctionInfo info(
       "test",
-      make_std::unique_ptr(new base::ListValue()),
+      make_scoped_ptr(new base::ListValue()),
       base::Bind(&DispatchResult, &str));
 
   std::unique_ptr<base::ListValue> data(new base::ListValue());
@@ -120,6 +120,6 @@ TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
   // Posting a result after deleting the handler should not
   // crash because internally, the reference to the handler
   // is weak.
-  info->PostResult(make_std::unique_ptr(new base::ListValue));
+  info->PostResult(make_scoped_ptr(new base::ListValue));
   delete info;
 }
