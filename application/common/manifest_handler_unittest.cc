@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "base/files/file_path.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_data.h"
@@ -42,7 +42,7 @@ class ScopedTestingManifestHandlerRegistry {
         prev_registry_, Manifest::TYPE_MANIFEST);
   }
 
-  scoped_ptr<ManifestHandlerRegistry> registry_;
+  std::unique_ptr<ManifestHandlerRegistry> registry_;
   ManifestHandlerRegistry* prev_registry_;
 };
 
@@ -233,7 +233,7 @@ TEST_F(ManifestHandlerTest, DependentHandlers) {
 }
 
 TEST_F(ManifestHandlerTest, FailingHandlers) {
-  scoped_ptr<ScopedTestingManifestHandlerRegistry> registry(
+  std::unique_ptr<ScopedTestingManifestHandlerRegistry> registry(
       new ScopedTestingManifestHandlerRegistry(
           std::vector<ManifestHandler*>()));
   // Can't use ApplicationBuilder, because this application will fail to
@@ -272,7 +272,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
 }
 
 TEST_F(ManifestHandlerTest, Validate) {
-  scoped_ptr<ScopedTestingManifestHandlerRegistry> registry(
+  std::unique_ptr<ScopedTestingManifestHandlerRegistry> registry(
       new ScopedTestingManifestHandlerRegistry(
           std::vector<ManifestHandler*>()));
   base::DictionaryValue manifest;

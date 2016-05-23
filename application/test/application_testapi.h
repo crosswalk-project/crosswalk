@@ -25,7 +25,7 @@ class ApiTestExtensionInstance : public XWalkExtensionInstance {
   class Observer {
    public:
     virtual void OnTestNotificationReceived(
-        scoped_ptr<XWalkExtensionFunctionInfo> info,
+        std::unique_ptr<XWalkExtensionFunctionInfo> info,
         const std::string& result_str) = 0;
    protected:
     virtual ~Observer() {}
@@ -33,12 +33,12 @@ class ApiTestExtensionInstance : public XWalkExtensionInstance {
 
   explicit ApiTestExtensionInstance(Observer* observer = NULL);
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
 
  private:
-  void OnNotifyPass(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnNotifyFail(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnNotifyTimeout(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnNotifyPass(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnNotifyFail(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnNotifyTimeout(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   Observer* observer_;
   XWalkExtensionFunctionHandler handler_;
@@ -75,7 +75,7 @@ class ApiTestRunner : public ApiTestExtensionInstance::Observer {
 
   // Implement ApiTestExtensionInstance::Observer.
   void OnTestNotificationReceived(
-      scoped_ptr<XWalkExtensionFunctionInfo> info,
+      std::unique_ptr<XWalkExtensionFunctionInfo> info,
       const std::string& result_str) override;
 
   void PostResultToNotificationCallback();
@@ -86,7 +86,7 @@ class ApiTestRunner : public ApiTestExtensionInstance::Observer {
   // Reset current test result, then it can wait again.
   void ResetResult();
 
-  scoped_ptr<XWalkExtensionFunctionInfo> notify_func_info_;
+  std::unique_ptr<XWalkExtensionFunctionInfo> notify_func_info_;
   Result result_;
   scoped_refptr<content::MessageLoopRunner> message_loop_runner_;
 };

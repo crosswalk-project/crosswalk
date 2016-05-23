@@ -58,7 +58,7 @@ WGTPackage::WGTPackage(const base::FilePath& path)
     id_ = GenerateId(value);
     is_valid_ = true;
   }
-  scoped_ptr<base::ScopedFILE> file(
+  std::unique_ptr<base::ScopedFILE> file(
       new base::ScopedFILE(base::OpenFile(path, "rb")));
 
   file_ = std::move(file);

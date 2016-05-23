@@ -24,7 +24,7 @@ class ApplicationBrowserTest: public InProcessBrowserTest {
 
   xwalk::application::ApplicationService* application_sevice() const;
 
-  scoped_ptr<ApiTestRunner> test_runner_;
+  std::unique_ptr<ApiTestRunner> test_runner_;
   base::FilePath test_data_dir_;
 
  private:

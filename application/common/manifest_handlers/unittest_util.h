@@ -5,10 +5,11 @@
 #ifndef XWALK_APPLICATION_COMMON_MANIFEST_HANDLERS_UNITTEST_UTIL_H_
 #define XWALK_APPLICATION_COMMON_MANIFEST_HANDLERS_UNITTEST_UTIL_H_
 
+#include <memory>
 #include <string>
 #include <vector>
+
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/manifest.h"
@@ -22,10 +23,10 @@ extern const char kDefaultWidgetName[];
 extern const char kDefaultWidgetVersion[];
 
 // Creates a minimal valid manifest configuration.
-scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig();
+std::unique_ptr<base::DictionaryValue> CreateDefaultManifestConfig();
 
 // Creates a minimal valid widget configuration.
-scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig();
+std::unique_ptr<base::DictionaryValue> CreateDefaultWidgetConfig();
 
 // Creates an ApplicationData for specified configuration data.
 scoped_refptr<ApplicationData> CreateApplication(Manifest::Type type,
@@ -41,7 +42,7 @@ std::string MakeElementPath(const std::string& parent,
 // directly, otherwise it is added as another dictionary in a list of
 // dictionaries. If parent is null, it does nothing.
 bool AddDictionary(const std::string& key,
-    scoped_ptr<base::DictionaryValue> child, base::DictionaryValue* parent);
+    std::unique_ptr<base::DictionaryValue> child, base::DictionaryValue* parent);
 
 }  // namespace application
 }  // namespace xwalk

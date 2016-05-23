@@ -7,11 +7,11 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <set>
 #include <vector>
 
-#include "base/memory/scoped_ptr.h"
 #include "base/strings/string16.h"
 #include "base/values.h"
 
@@ -28,7 +28,7 @@ class Manifest {
   };
 
   explicit Manifest(
-      scoped_ptr<base::DictionaryValue> value, Type type = TYPE_MANIFEST);
+      std::unique_ptr<base::DictionaryValue> value, Type type = TYPE_MANIFEST);
   ~Manifest();
 
   // Returns false and |error| will be non-empty if the manifest is malformed.
@@ -93,11 +93,11 @@ class Manifest {
   bool CanAccessKey(const std::string& key) const;
 
   // The underlying dictionary representation of the manifest.
-  scoped_ptr<base::DictionaryValue> data_;
-  scoped_ptr<base::DictionaryValue> i18n_data_;
+  std::unique_ptr<base::DictionaryValue> data_;
+  std::unique_ptr<base::DictionaryValue> i18n_data_;
 
   std::string default_locale_;
-  scoped_ptr<std::list<std::string> > user_agent_locales_;
+  std::unique_ptr<std::list<std::string> > user_agent_locales_;
 
   Type type_;
 

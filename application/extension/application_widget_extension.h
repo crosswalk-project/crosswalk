@@ -32,24 +32,24 @@ class AppWidgetExtensionInstance : public XWalkExtensionInstance {
   explicit AppWidgetExtensionInstance(Application* application);
   ~AppWidgetExtensionInstance() override;
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
-  void HandleSyncMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
+  void HandleSyncMessage(std::unique_ptr<base::Value> msg) override;
 
  private:
-  scoped_ptr<base::StringValue> GetWidgetInfo(scoped_ptr<base::Value> msg);
-  scoped_ptr<base::FundamentalValue> SetPreferencesItem(
-      scoped_ptr<base::Value> mgs);
-  scoped_ptr<base::FundamentalValue> RemovePreferencesItem(
-      scoped_ptr<base::Value> mgs);
-  scoped_ptr<base::FundamentalValue> ClearAllItems(scoped_ptr<base::Value> mgs);
-  scoped_ptr<base::DictionaryValue> GetAllItems(scoped_ptr<base::Value> mgs);
-  scoped_ptr<base::StringValue> GetItemValueByKey(scoped_ptr<base::Value> mgs);
-  scoped_ptr<base::FundamentalValue> KeyExists(
-      scoped_ptr<base::Value> mgs) const;
-  void PostMessageToOtherFrames(scoped_ptr<base::DictionaryValue> msg);
+  std::unique_ptr<base::StringValue> GetWidgetInfo(std::unique_ptr<base::Value> msg);
+  std::unique_ptr<base::FundamentalValue> SetPreferencesItem(
+      std::unique_ptr<base::Value> mgs);
+  std::unique_ptr<base::FundamentalValue> RemovePreferencesItem(
+      std::unique_ptr<base::Value> mgs);
+  std::unique_ptr<base::FundamentalValue> ClearAllItems(std::unique_ptr<base::Value> mgs);
+  std::unique_ptr<base::DictionaryValue> GetAllItems(std::unique_ptr<base::Value> mgs);
+  std::unique_ptr<base::StringValue> GetItemValueByKey(std::unique_ptr<base::Value> mgs);
+  std::unique_ptr<base::FundamentalValue> KeyExists(
+      std::unique_ptr<base::Value> mgs) const;
+  void PostMessageToOtherFrames(std::unique_ptr<base::DictionaryValue> msg);
 
   Application* application_;
-  scoped_ptr<class AppWidgetStorage> widget_storage_;
+  std::unique_ptr<class AppWidgetStorage> widget_storage_;
 };
 
 }  // namespace application

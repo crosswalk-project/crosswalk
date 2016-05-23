@@ -30,8 +30,8 @@ const char kDefaultManifestVersion[] = "0";
 const char kDefaultWidgetName[] = "no name";
 const char kDefaultWidgetVersion[] = "0";
 
-scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig() {
-  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
+std::unique_ptr<base::DictionaryValue> CreateDefaultManifestConfig() {
+  std::unique_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
 
   manifest->SetString(manifest_keys::kXWalkVersionKey, kDefaultManifestVersion);
   manifest->SetString(manifest_keys::kNameKey, kDefaultManifestName);
@@ -39,8 +39,8 @@ scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig() {
   return manifest;
 }
 
-scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
-  scoped_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
+std::unique_ptr<base::DictionaryValue> CreateDefaultWidgetConfig() {
+  std::unique_ptr<base::DictionaryValue> manifest(new base::DictionaryValue());
 
   // widget attributes
 
@@ -71,11 +71,11 @@ std::string MakeElementPath(const std::string& parent,
 }
 
 bool AddDictionary(const std::string& key,
-    scoped_ptr<base::DictionaryValue> child, base::DictionaryValue* parent) {
+    std::unique_ptr<base::DictionaryValue> child, base::DictionaryValue* parent) {
   if (key.empty() || !child || !parent)
     return false;
 
-  scoped_ptr<base::Value> existing_child;
+  std::unique_ptr<base::Value> existing_child;
   base::DictionaryValue* unused;
   if (parent->GetDictionary(key, &unused)) {
     if (!parent->Remove(key, &existing_child))
@@ -83,7 +83,7 @@ bool AddDictionary(const std::string& key,
   }
 
   if (existing_child) {
-    scoped_ptr<base::ListValue> list(new base::ListValue);
+    std::unique_ptr<base::ListValue> list(new base::ListValue);
     list->Set(list->GetSize(), existing_child.release());
     list->Set(list->GetSize(), child.release());
     parent->Set(key, list.release());

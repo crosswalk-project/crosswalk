@@ -117,22 +117,22 @@ AppWidgetExtensionInstance::AppWidgetExtensionInstance(
 
 AppWidgetExtensionInstance::~AppWidgetExtensionInstance() {}
 
-void AppWidgetExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void AppWidgetExtensionInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
 }
 
 void AppWidgetExtensionInstance::HandleSyncMessage(
-    scoped_ptr<base::Value> msg) {
+    std::unique_ptr<base::Value> msg) {
   base::DictionaryValue* dict;
   std::string command;
   msg->GetAsDictionary(&dict);
 
   if (!msg->GetAsDictionary(&dict) || !dict->GetString(kCommandKey, &command)) {
     LOG(ERROR) << "Fail to handle command sync message.";
-    SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue("")));
+    SendSyncReplyToJS(std::unique_ptr<base::Value>(new base::StringValue("")));
     return;
   }
 
-  scoped_ptr<base::Value> result(new base::StringValue(""));
+  std::unique_ptr<base::Value> result(new base::StringValue(""));
   if (command == "GetWidgetInfo") {
     result = GetWidgetInfo(std::move(msg));
   } else if (command == "SetPreferencesItem") {
@@ -154,9 +154,9 @@ void AppWidgetExtensionInstance::HandleSyncMessage(
   SendSyncReplyToJS(std::move(result));
 }
 
-scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
-    scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::StringValue> result(new base::StringValue(""));
+std::unique_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
+    std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::StringValue> result(new base::StringValue(""));
   std::string key;
   std::string value;
   base::DictionaryValue* dict;
@@ -176,9 +176,9 @@ scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
   return result;
 }
 
-scoped_ptr<base::FundamentalValue>
-AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::FundamentalValue> result(
+std::unique_ptr<base::FundamentalValue>
+AppWidgetExtensionInstance::SetPreferencesItem(std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::FundamentalValue> result(
       new base::FundamentalValue(false));
   std::string key;
   std::string value;
@@ -204,7 +204,7 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
   if (widget_storage_->AddEntry(key, value, false)) {
     result.reset(new base::FundamentalValue(true));
 
-    scoped_ptr<base::DictionaryValue> event(new base::DictionaryValue());
+    std::unique_ptr<base::DictionaryValue> event(new base::DictionaryValue());
     event->SetString("key", key);
     event->SetString("oldValue", old_value);
     event->SetString("newValue", value);
@@ -214,9 +214,9 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
   return result;
 }
 
-scoped_ptr<base::FundamentalValue>
-AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::FundamentalValue> result(
+std::unique_ptr<base::FundamentalValue>
+AppWidgetExtensionInstance::RemovePreferencesItem(std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::FundamentalValue> result(
       new base::FundamentalValue(false));
   std::string key;
   base::DictionaryValue* dict;
@@ -238,7 +238,7 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
   if (widget_storage_->RemoveEntry(key)) {
     result.reset(new base::FundamentalValue(true));
 
-    scoped_ptr<base::DictionaryValue> event(new base::DictionaryValue());
+    std::unique_ptr<base::DictionaryValue> event(new base::DictionaryValue());
     event->SetString("key", key);
     event->SetString("oldValue", old_value);
     event->SetString("newValue", "");
@@ -248,12 +248,12 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
   return result;
 }
 
-scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
-    scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::FundamentalValue> result(
+std::unique_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
+    std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::FundamentalValue> result(
       new base::FundamentalValue(false));
 
-  scoped_ptr<base::DictionaryValue> entries(new base::DictionaryValue());
+  std::unique_ptr<base::DictionaryValue> entries(new base::DictionaryValue());
   widget_storage_->GetAllEntries(entries.get());
 
   if (!widget_storage_->Clear())
@@ -265,7 +265,7 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
     if (!widget_storage_->EntryExists(key)) {
       std::string old_value;
       it.value().GetAsString(&old_value);
-      scoped_ptr<base::DictionaryValue> event(new base::DictionaryValue());
+      std::unique_ptr<base::DictionaryValue> event(new base::DictionaryValue());
       event->SetString("key", key);
       event->SetString("oldValue", old_value);
       event->SetString("newValue", "");
@@ -277,16 +277,16 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
   return result;
 }
 
-scoped_ptr<base::DictionaryValue> AppWidgetExtensionInstance::GetAllItems(
-    scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::DictionaryValue> result(new base::DictionaryValue());
+std::unique_ptr<base::DictionaryValue> AppWidgetExtensionInstance::GetAllItems(
+    std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::DictionaryValue> result(new base::DictionaryValue());
   widget_storage_->GetAllEntries(result.get());
 
   return result;
 }
 
-scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetItemValueByKey(
-    scoped_ptr<base::Value> msg) {
+std::unique_ptr<base::StringValue> AppWidgetExtensionInstance::GetItemValueByKey(
+    std::unique_ptr<base::Value> msg) {
   base::DictionaryValue* dict;
   msg->GetAsDictionary(&dict);
 
@@ -295,13 +295,13 @@ scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetItemValueByKey(
   if (!dict->GetString(kPreferencesItemKey, &key) ||
       !widget_storage_->GetValueByKey(key, &value))
     value = "";
-  scoped_ptr<base::StringValue> result(new base::StringValue(value));
+  std::unique_ptr<base::StringValue> result(new base::StringValue(value));
   return result;
 }
 
-scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
-    scoped_ptr<base::Value> msg) const {
-  scoped_ptr<base::FundamentalValue> result(
+std::unique_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
+    std::unique_ptr<base::Value> msg) const {
+  std::unique_ptr<base::FundamentalValue> result(
       new base::FundamentalValue(false));
   std::string key;
   base::DictionaryValue* dict;
@@ -319,7 +319,7 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
 }
 
 void AppWidgetExtensionInstance::PostMessageToOtherFrames(
-    scoped_ptr<base::DictionaryValue> msg) {
+    std::unique_ptr<base::DictionaryValue> msg) {
   const std::vector<Runtime*>& runtime_set = application_->runtimes();
   std::vector<Runtime*>::const_iterator it;
   for (it = runtime_set.begin(); it != runtime_set.end(); ++it) {

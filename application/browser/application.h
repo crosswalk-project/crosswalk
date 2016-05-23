@@ -139,7 +139,7 @@ class Application : public Runtime::Observer,
  private:
   // We enforce ApplicationService ownership.
   friend class ApplicationService;
-  static scoped_ptr<Application> Create(scoped_refptr<ApplicationData> data,
+  static std::unique_ptr<Application> Create(scoped_refptr<ApplicationData> data,
       XWalkBrowserContext* context);
 
   // content::RenderProcessHostObserver implementation.
@@ -166,7 +166,7 @@ class Application : public Runtime::Observer,
   // Application's session permissions.
   StoredPermissionMap permission_map_;
   // Security policy.
-  scoped_ptr<ApplicationSecurityPolicy> security_policy_;
+  std::unique_ptr<ApplicationSecurityPolicy> security_policy_;
   // WeakPtrFactory should be always declared the last.
   base::WeakPtrFactory<Application> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(Application);
