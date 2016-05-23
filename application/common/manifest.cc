@@ -42,8 +42,8 @@ std::string GetLocalizedKey(const std::string& key,
   return key + kPathConnectSymbol + lower_local;
 }
 
-scoped_ptr<List> ExpandUserAgentLocalesList(const scoped_ptr<List>& list) {
-  scoped_ptr<List> expansion_list(new List);
+std::unique_ptr<List> ExpandUserAgentLocalesList(const std::unique_ptr<List>& list) {
+  std::unique_ptr<List> expansion_list(new List);
   for (List::const_iterator it = list->begin(); it != list->end(); ++it) {
     std::string copy_locale(*it);
     size_t position;
@@ -58,7 +58,7 @@ scoped_ptr<List> ExpandUserAgentLocalesList(const scoped_ptr<List>& list) {
 
 }  // namespace
 
-Manifest::Manifest(scoped_ptr<base::DictionaryValue> value, Type type)
+Manifest::Manifest(std::unique_ptr<base::DictionaryValue> value, Type type)
     : data_(std::move(value)),
       i18n_data_(new base::DictionaryValue),
       type_(type) {
@@ -157,7 +157,7 @@ bool Manifest::GetList(
 
 Manifest* Manifest::DeepCopy() const {
   Manifest* manifest = new Manifest(
-      scoped_ptr<base::DictionaryValue>(data_->DeepCopy()),
+      std::unique_ptr<base::DictionaryValue>(data_->DeepCopy()),
       type());
   return manifest;
 }
@@ -175,7 +175,7 @@ bool Manifest::CanAccessKey(const std::string& key) const {
 }
 
 void Manifest::SetSystemLocale(const std::string& locale) {
-  scoped_ptr<List> list_for_expand(new List);
+  std::unique_ptr<List> list_for_expand(new List);
   list_for_expand->push_back(locale);
   list_for_expand->push_back(default_locale_);
   list_for_expand->push_back(kLocaleUnlocalized);

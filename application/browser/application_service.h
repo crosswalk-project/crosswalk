@@ -5,10 +5,10 @@
 #ifndef XWALK_APPLICATION_BROWSER_APPLICATION_SERVICE_H_
 #define XWALK_APPLICATION_BROWSER_APPLICATION_SERVICE_H_
 
+#include <memory>
 #include <string>
 
 #include "base/files/file_path.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
 #include "xwalk/application/browser/application.h"
@@ -36,7 +36,7 @@ class ApplicationService : public Application::Observer {
 
   ~ApplicationService() override;
 
-  static scoped_ptr<ApplicationService> Create(
+  static std::unique_ptr<ApplicationService> Create(
     XWalkBrowserContext* browser_context);
 
   // Launch an unpacked application using path to the manifest file

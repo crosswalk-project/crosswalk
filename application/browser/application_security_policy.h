@@ -27,7 +27,7 @@ class ApplicationSecurityPolicy {
     WARP
   };
 
-  static scoped_ptr<ApplicationSecurityPolicy> Create(
+  static std::unique_ptr<ApplicationSecurityPolicy> Create(
       scoped_refptr<ApplicationData> app_data);
   virtual ~ApplicationSecurityPolicy();
 

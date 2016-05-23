@@ -271,7 +271,7 @@ namespace {
 // }
 base::DictionaryValue* LoadXMLNode(
     xmlNode* root, const std::string& inherit_dir = "") {
-  scoped_ptr<base::DictionaryValue> value(new base::DictionaryValue);
+  std::unique_ptr<base::DictionaryValue> value(new base::DictionaryValue);
   if (root->type != XML_ELEMENT_NODE)
     return NULL;
 
@@ -354,14 +354,14 @@ base::DictionaryValue* LoadXMLNode(
 }  // namespace
 
 template <Manifest::Type>
-scoped_ptr<Manifest> LoadManifest(
+std::unique_ptr<Manifest> LoadManifest(
     const base::FilePath& manifest_path, std::string* error);
 
 template <>
-scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
+std::unique_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
     const base::FilePath& manifest_path, std::string* error) {
   JSONFileValueDeserializer deserializer(manifest_path);
-  scoped_ptr<base::Value> root(deserializer.Deserialize(NULL, error));
+  std::unique_ptr<base::Value> root(deserializer.Deserialize(NULL, error));
   if (!root) {
     if (error->empty()) {
       // If |error| is empty, than the file could not be read.
@@ -373,21 +373,21 @@ scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
       *error = base::StringPrintf("%s  %s",
           errors::kManifestParseError, error->c_str());
     }
-    return scoped_ptr<Manifest>();
+    return std::unique_ptr<Manifest>();
   }
 
   if (!root->IsType(base::Value::TYPE_DICTIONARY)) {
     *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-    return scoped_ptr<Manifest>();
+    return std::unique_ptr<Manifest>();
   }
 
-  scoped_ptr<base::DictionaryValue> dv = make_scoped_ptr(
+  std::unique_ptr<base::DictionaryValue> dv = make_scoped_ptr(
       static_cast<base::DictionaryValue*>(root.release()));
   return make_scoped_ptr(new Manifest(std::move(dv), Manifest::TYPE_MANIFEST));
 }
 
 template <>
-scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
+std::unique_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
     const base::FilePath& manifest_path,
     std::string* error) {
   xmlDoc * doc = NULL;
@@ -395,11 +395,11 @@ scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
   doc = xmlReadFile(manifest_path.MaybeAsASCII().c_str(), NULL, 0);
   if (doc == NULL) {
     *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-    return scoped_ptr<Manifest>();
+    return std::unique_ptr<Manifest>();
   }
   root_node = xmlDocGetRootElement(doc);
   base::DictionaryValue* dv = LoadXMLNode(root_node);
-  scoped_ptr<base::DictionaryValue> result(new base::DictionaryValue);
+  std::unique_ptr<base::DictionaryValue> result(new base::DictionaryValue);
   if (dv)
     result->Set(ToConstCharPointer(root_node->name), dv);
 
@@ -407,7 +407,7 @@ scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
                                       Manifest::TYPE_WIDGET));
 }
 
-scoped_ptr<Manifest> LoadManifest(const base::FilePath& manifest_path,
+std::unique_ptr<Manifest> LoadManifest(const base::FilePath& manifest_path,
     Manifest::Type type, std::string* error) {
   if (type == Manifest::TYPE_MANIFEST)
     return LoadManifest<Manifest::TYPE_MANIFEST>(manifest_path, error);
@@ -416,7 +416,7 @@ scoped_ptr<Manifest> LoadManifest(const base::FilePath& manifest_path,
     return LoadManifest<Manifest::TYPE_WIDGET>(manifest_path, error);
 
   *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-  return scoped_ptr<Manifest>();
+  return std::unique_ptr<Manifest>();
 }
 
 base::FilePath GetManifestPath(
@@ -442,7 +442,7 @@ scoped_refptr<ApplicationData> LoadApplication(
     std::string* error) {
   base::FilePath manifest_path = GetManifestPath(app_root, manifest_type);
 
-  scoped_ptr<Manifest> manifest = LoadManifest(
+  std::unique_ptr<Manifest> manifest = LoadManifest(
       manifest_path, manifest_type, error);
   if (!manifest)
     return NULL;

@@ -3,7 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/unittest_util.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
@@ -32,7 +33,7 @@ class WARPHandlerTest: public testing::Test {
 // FIXME: the default WARP policy settings in WARP manifest handler
 // are temporally removed, since they had affected some tests and legacy apps.
 TEST_F(WARPHandlerTest, NoWARP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
@@ -43,14 +44,14 @@ TEST_F(WARPHandlerTest, OneWARP) {
   base::DictionaryValue* warp = new base::DictionaryValue;
   warp->SetString(keys::kAccessOriginKey, "http://www.sample.com");
   warp->SetBoolean(keys::kAccessSubdomainsKey, true);
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   manifest->Set(keys::kAccessKey, warp);
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
   const WARPInfo* info = GetWARPInfo(application);
   EXPECT_TRUE(info);
-  scoped_ptr<base::ListValue> list(info->GetWARP()->DeepCopy());
+  std::unique_ptr<base::ListValue> list(info->GetWARP()->DeepCopy());
   base::DictionaryValue* new_warp;
   list->GetDictionary(0, &new_warp);
   EXPECT_TRUE(new_warp);
@@ -68,7 +69,7 @@ TEST_F(WARPHandlerTest, WARPs) {
   warp_list->Append(warp1);
   warp_list->Append(warp2);
 
-  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  std::unique_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   manifest->Set(keys::kAccessKey, warp_list);
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_WIDGET, *manifest);
@@ -77,7 +78,7 @@ TEST_F(WARPHandlerTest, WARPs) {
   const WARPInfo* info = GetWARPInfo(application);
   EXPECT_TRUE(info);
 
-  scoped_ptr<base::ListValue> list(info->GetWARP()->DeepCopy());
+  std::unique_ptr<base::ListValue> list(info->GetWARP()->DeepCopy());
 
   base::DictionaryValue* new_warp1;
   list->GetDictionary(0, &new_warp1);

@@ -25,7 +25,7 @@ class WARPInfo : public ApplicationData::ManifestData {
   const base::ListValue* GetWARP() const { return warp_.get(); }
 
  private:
-  scoped_ptr<const base::ListValue> warp_;
+  std::unique_ptr<const base::ListValue> warp_;
 };
 
 class WARPHandler : public ManifestHandler {

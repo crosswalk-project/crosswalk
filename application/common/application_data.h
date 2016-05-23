@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <utility>
@@ -16,7 +17,6 @@
 #include "base/files/file_path.h"
 #include "base/memory/linked_ptr.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/strings/string_util.h"
 #include "base/synchronization/lock.h"
 #include "base/threading/thread_checker.h"
@@ -73,7 +73,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   static scoped_refptr<ApplicationData> Create(const base::FilePath& app_path,
       const std::string& id, SourceType source_type,
-          scoped_ptr<Manifest> manifest, std::string* error_message);
+          std::unique_ptr<Manifest> manifest, std::string* error_message);
 
   // Returns an absolute url to a resource inside of an application. The
   // |application_url| argument should be the url() from an Application object.
@@ -139,7 +139,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   friend class ApplicationStorageImpl;
 
   ApplicationData(const base::FilePath& path, const std::string& id,
-      SourceType source_type, scoped_ptr<Manifest> manifest);
+      SourceType source_type, std::unique_ptr<Manifest> manifest);
   virtual ~ApplicationData();
 
   // Initialize the application from a parsed manifest.
@@ -182,13 +182,13 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   GURL application_url_;
 
   // The application's version.
-  scoped_ptr<base::Version> version_;
+  std::unique_ptr<base::Version> version_;
 
   // An optional longer description of the application.
   std::string description_;
 
   // The manifest from which this application was created.
-  scoped_ptr<Manifest> manifest_;
+  std::unique_ptr<Manifest> manifest_;
 
   // Stored parsed manifest data.
   ManifestDataMap manifest_data_;

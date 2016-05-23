@@ -36,7 +36,7 @@ bool WARPHandler::Parse(scoped_refptr<ApplicationData> application,
     return false;
   }
 
-  scoped_ptr<base::ListValue> warp_list;
+  std::unique_ptr<base::ListValue> warp_list;
   if (value->IsType(base::Value::TYPE_DICTIONARY)) {
     warp_list.reset(new base::ListValue);
     warp_list->Append(value->DeepCopy());
@@ -53,7 +53,7 @@ bool WARPHandler::Parse(scoped_refptr<ApplicationData> application,
     return false;
   }
 
-  scoped_ptr<WARPInfo> warp_info(new WARPInfo);
+  std::unique_ptr<WARPInfo> warp_info(new WARPInfo);
   warp_info->SetWARP(warp_list.release());
   application->SetManifestData(keys::kAccessKey, warp_info.release());
 

@@ -69,7 +69,7 @@ GURL GetDefaultWidgetEntryPage(
 
 namespace application {
 
-scoped_ptr<Application> Application::Create(
+std::unique_ptr<Application> Application::Create(
     scoped_refptr<ApplicationData> data,
     XWalkBrowserContext* context) {
   return make_scoped_ptr(new Application(data, context));
@@ -325,7 +325,7 @@ bool Application::RegisterPermissions(const std::string& extension_name,
   // TODO(Bai): Parse the permission table and fill in the name_perm_map_
   // The perm_table format is a simple JSON string, like
   // [{"permission_name":"echo","apis":["add","remove","get"]}]
-  scoped_ptr<base::Value> root = base::JSONReader().ReadToValue(perm_table);
+  std::unique_ptr<base::Value> root = base::JSONReader().ReadToValue(perm_table);
   if (root.get() == NULL || !root->IsType(base::Value::TYPE_LIST))
     return false;
 

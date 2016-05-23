@@ -99,7 +99,7 @@ void WidgetInfo::SetString(const std::string& key, const std::string& value) {
   value_->SetString(key, value);
 }
 
-void WidgetInfo::Set(const std::string& key, scoped_ptr<base::Value> value) {
+void WidgetInfo::Set(const std::string& key, std::unique_ptr<base::Value> value) {
   value_->Set(key, std::move(value));
 }
 
@@ -121,7 +121,7 @@ WidgetHandler::~WidgetHandler() {}
 
 bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
                           base::string16* error) {
-  scoped_ptr<WidgetInfo> widget_info(new WidgetInfo);
+  std::unique_ptr<WidgetInfo> widget_info(new WidgetInfo);
   const Manifest* manifest = application->GetManifest();
   DCHECK(manifest);
 
@@ -142,19 +142,19 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
 
   std::set<std::string> preference_names_used;
   if (pref_value && pref_value->IsType(base::Value::TYPE_DICTIONARY)) {
-    scoped_ptr<base::DictionaryValue> preferences(new base::DictionaryValue);
+    std::unique_ptr<base::DictionaryValue> preferences(new base::DictionaryValue);
     base::DictionaryValue* dict;
     pref_value->GetAsDictionary(&dict);
     if (ParsePreferenceItem(dict, preferences.get(), &preference_names_used))
       widget_info->Set(kPreferences, std::move(preferences));
   } else if (pref_value && pref_value->IsType(base::Value::TYPE_LIST)) {
-    scoped_ptr<base::ListValue> preferences(new base::ListValue);
+    std::unique_ptr<base::ListValue> preferences(new base::ListValue);
     base::ListValue* list;
     pref_value->GetAsList(&list);
 
     for (base::ListValue::iterator it = list->begin();
          it != list->end(); ++it) {
-      scoped_ptr<base::DictionaryValue> pref(new base::DictionaryValue);
+      std::unique_ptr<base::DictionaryValue> pref(new base::DictionaryValue);
       base::DictionaryValue* dict;
       (*it)->GetAsDictionary(&dict);
       if (ParsePreferenceItem(dict, pref.get(), &preference_names_used))

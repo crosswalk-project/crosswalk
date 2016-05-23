@@ -29,7 +29,7 @@ class PackageTest : public testing::Test {
   }
 
  protected:
-  scoped_ptr<Package> package_;
+  std::unique_ptr<Package> package_;
   base::ScopedTempDir temp_dir_;
 };
 
