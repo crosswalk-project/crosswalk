@@ -33,7 +33,7 @@ class CleanInstance : public XWalkExtensionInstance {
   CleanInstance() {
     g_clean_extension_loaded = true;
   }
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class DirtyInstance : public XWalkExtensionInstance {
@@ -41,7 +41,7 @@ class DirtyInstance : public XWalkExtensionInstance {
   DirtyInstance() {
     g_dirty_extension_loaded = true;
   }
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class CleanExtension : public XWalkExtension {

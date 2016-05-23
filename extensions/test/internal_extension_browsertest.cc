@@ -57,18 +57,18 @@ TestExtensionInstance::TestExtensionInstance() : counter_(0), handler_(this) {
 
 TestExtensionInstance::~TestExtensionInstance() {}
 
-void TestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void TestExtensionInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   handler_.HandleMessage(std::move(msg));
 }
 
 void TestExtensionInstance::OnClearDatabase(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   database()->clear();
 }
 
 void TestExtensionInstance::OnAddPerson(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<AddPerson::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<AddPerson::Params>
       params(AddPerson::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -81,8 +81,8 @@ void TestExtensionInstance::OnAddPerson(
 }
 
 void TestExtensionInstance::OnAddPersonObject(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<AddPersonObject::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<AddPersonObject::Params>
       params(AddPersonObject::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -95,8 +95,8 @@ void TestExtensionInstance::OnAddPersonObject(
 }
 
 void TestExtensionInstance::OnGetAllPersons(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<GetAllPersons::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<GetAllPersons::Params>
       params(GetAllPersons::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -120,8 +120,8 @@ void TestExtensionInstance::OnGetAllPersons(
 }
 
 void TestExtensionInstance::OnGetPersonAge(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<GetPersonAge::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<GetPersonAge::Params>
       params(GetPersonAge::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -140,7 +140,7 @@ void TestExtensionInstance::OnGetPersonAge(
 }
 
 void TestExtensionInstance::OnStartHeartbeat(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   heartbeat_info_.reset(info.release());
   timer_.Start(FROM_HERE, base::TimeDelta::FromMilliseconds(50),
                this,
@@ -148,7 +148,7 @@ void TestExtensionInstance::OnStartHeartbeat(
 }
 
 void TestExtensionInstance::OnStopHeartbeat(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   timer_.Stop();
 }
 

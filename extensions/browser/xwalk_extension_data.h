@@ -5,7 +5,7 @@
 #ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_DATA_H_
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_DATA_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
 
 namespace base {
 class Thread;
@@ -35,7 +35,7 @@ class XWalkExtensionData {
     return in_process_ui_thread_server_.get();
   }
 
-  scoped_ptr<XWalkExtensionProcessHost> extension_process_host() {
+  std::unique_ptr<XWalkExtensionProcessHost> extension_process_host() {
     return std::move(extension_process_host_);
   }
 
@@ -48,16 +48,16 @@ class XWalkExtensionData {
   }
 
   void set_in_process_extension_thread_server(
-      scoped_ptr<XWalkExtensionServer> server) {
+      std::unique_ptr<XWalkExtensionServer> server) {
     in_process_extension_thread_server_.reset(server.release());
   }
 
   void set_in_process_ui_thread_server(
-      scoped_ptr<XWalkExtensionServer> server) {
+      std::unique_ptr<XWalkExtensionServer> server) {
     in_process_ui_thread_server_.reset(server.release());
   }
 
-  void set_extension_process_host(scoped_ptr<XWalkExtensionProcessHost> host) {
+  void set_extension_process_host(std::unique_ptr<XWalkExtensionProcessHost> host) {
     extension_process_host_.reset(host.release());
   }
 
@@ -75,11 +75,11 @@ class XWalkExtensionData {
 
  private:
   // Extension servers living on their respective threads.
-  scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
-  scoped_ptr<XWalkExtensionServer> in_process_ui_thread_server_;
+  std::unique_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
+  std::unique_ptr<XWalkExtensionServer> in_process_ui_thread_server_;
 
   // This object lives on the IO-thread.
-  scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
+  std::unique_ptr<XWalkExtensionProcessHost> extension_process_host_;
 
   base::Thread* extension_thread_;
 

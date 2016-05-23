@@ -22,21 +22,21 @@ class InProcessExtensionInstance : public XWalkExtensionInstance {
  public:
   InProcessExtensionInstance() {}
 
-  scoped_ptr<base::Value> InRunningOnUIThread() {
+  std::unique_ptr<base::Value> InRunningOnUIThread() {
     bool is_on_ui_thread =
         content::BrowserThread::CurrentlyOn(content::BrowserThread::UI);
 
-    scoped_ptr<base::ListValue> reply(new base::ListValue);
+    std::unique_ptr<base::ListValue> reply(new base::ListValue);
     reply->AppendBoolean(is_on_ui_thread);
 
     return std::move(reply);
   }
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override {
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {
     PostMessageToJS(InRunningOnUIThread());
   }
 
-  void HandleSyncMessage(scoped_ptr<base::Value> msg) override {
+  void HandleSyncMessage(std::unique_ptr<base::Value> msg) override {
     SendSyncReplyToJS(InRunningOnUIThread());
   }
 };

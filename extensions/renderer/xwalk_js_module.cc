@@ -12,11 +12,11 @@
 namespace xwalk {
 namespace extensions {
 
-scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
+std::unique_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
   std::string js_api(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           resource_id).as_string());
-  scoped_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
+  std::unique_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
   return module;
 }
 

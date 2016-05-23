@@ -11,12 +11,14 @@
 // The overall implementation started upon v8/samples/shell.cc .
 
 #include <unistd.h>
+
+#include <memory>
 #include <string>
+
 #include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/files/file_path.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_pump_libevent.h"
 #include "base/run_loop.h"
@@ -155,7 +157,7 @@ class ExtensionManager {
         base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
             switches::kXWalkExternalExtensionsPath);
 
-    scoped_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
+    std::unique_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
     (*runtime_variables)["app_id"] = new base::StringValue("xesh");
 
     std::vector<std::string> extensions =
@@ -184,7 +186,7 @@ class ExtensionManager {
   IPC::ChannelHandle handle_;
   base::WaitableEvent shutdown_event_;
   XWalkExtensionServer server_;
-  scoped_ptr<IPC::SyncChannel> server_channel_;
+  std::unique_ptr<IPC::SyncChannel> server_channel_;
 };
 }  // namespace
 

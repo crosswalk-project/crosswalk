@@ -103,18 +103,18 @@ class XWalkExtensionInstance {
 
   // Allow to handle messages sent from JavaScript code running in renderer
   // process.
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) = 0;
+  virtual void HandleMessage(std::unique_ptr<base::Value> msg) = 0;
 
   // Allow to handle synchronous messages sent from JavaScript code. Renderer
   // will block until SendSyncReplyToJS() is called with the reply. The reply
   // can be sent after HandleSyncMessage() function returns.
-  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg);
+  virtual void HandleSyncMessage(std::unique_ptr<base::Value> msg);
 
   // Callbacks used by extension instance to communicate back to JS. These are
   // set by the extension system. Callbacks will take the ownership of the
   // message.
-  typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
-  typedef base::Callback<void(scoped_ptr<base::Value> msg)>
+  typedef base::Callback<void(std::unique_ptr<base::Value> msg)> PostMessageCallback;
+  typedef base::Callback<void(std::unique_ptr<base::Value> msg)>
       SendSyncReplyCallback;
 
   void SetPostMessageCallback(const PostMessageCallback& callback);
@@ -123,7 +123,7 @@ class XWalkExtensionInstance {
   // Function to be used by extensions Instances to post messages back to
   // JavaScript in the renderer process. This function will take the ownership
   // of the message.
-  void PostMessageToJS(scoped_ptr<base::Value> msg) {
+  void PostMessageToJS(std::unique_ptr<base::Value> msg) {
     post_message_.Run(std::move(msg));
   }
 
@@ -131,7 +131,7 @@ class XWalkExtensionInstance {
   XWalkExtensionInstance();
 
   // Unblocks the renderer waiting on a SyncMessage.
-  void SendSyncReplyToJS(scoped_ptr<base::Value> reply) {
+  void SendSyncReplyToJS(std::unique_ptr<base::Value> reply) {
     send_sync_reply_.Run(std::move(reply));
   }
 

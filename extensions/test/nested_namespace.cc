@@ -26,7 +26,7 @@ class OuterInstance : public XWalkExtensionInstance {
   OuterInstance() {
     g_outer_extension_loaded = true;
   }
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class OuterExtension : public XWalkExtension {
@@ -46,7 +46,7 @@ class InnerInstance : public XWalkExtensionInstance {
   InnerInstance() {
     g_inner_extension_loaded = true;
   }
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class InnerExtension : public XWalkExtension {
@@ -66,7 +66,7 @@ class AnotherInstance : public XWalkExtensionInstance {
   AnotherInstance() {
     g_another_extension_loaded = true;
   }
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class AnotherExtension : public XWalkExtension {

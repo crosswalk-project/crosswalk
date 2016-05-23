@@ -56,7 +56,7 @@ void XWalkExtensionInstance::SetSendSyncReplyCallback(
 }
 
 void XWalkExtensionInstance::HandleSyncMessage(
-    scoped_ptr<base::Value> msg) {
+    std::unique_ptr<base::Value> msg) {
   LOG(FATAL) << "Sending sync message to extension which doesn't support it!";
 }
 
