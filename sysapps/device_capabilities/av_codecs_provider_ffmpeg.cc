@@ -25,8 +25,8 @@ AVCodecsProviderFFmpeg::AVCodecsProviderFFmpeg() {
 
 AVCodecsProviderFFmpeg::~AVCodecsProviderFFmpeg() {}
 
-scoped_ptr<SystemAVCodecs> AVCodecsProviderFFmpeg::GetSupportedCodecs() const {
-  scoped_ptr<SystemAVCodecs> av_codecs(new SystemAVCodecs);
+std::unique_ptr<SystemAVCodecs> AVCodecsProviderFFmpeg::GetSupportedCodecs() const {
+  std::unique_ptr<SystemAVCodecs> av_codecs(new SystemAVCodecs);
 
   // Get a list of supported codecs.
   AVCodec* codec = NULL;

@@ -42,18 +42,18 @@ RawSocketInstance::RawSocketInstance()
                  base::Unretained(this)));
 }
 
-void RawSocketInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void RawSocketInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   handler_.HandleMessage(std::move(msg));
 }
 
 void RawSocketInstance::AddBindingObject(const std::string& object_id,
-                                         scoped_ptr<BindingObject> obj) {
+                                         std::unique_ptr<BindingObject> obj) {
   store_.AddBindingObject(object_id, std::move(obj));
 }
 
 void RawSocketInstance::OnTCPServerSocketConstructor(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<TCPServerSocketConstructor::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<TCPServerSocketConstructor::Params>
       params(TCPServerSocketConstructor::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -61,13 +61,13 @@ void RawSocketInstance::OnTCPServerSocketConstructor(
     return;
   }
 
-  scoped_ptr<BindingObject> obj(new TCPServerSocketObject(this));
+  std::unique_ptr<BindingObject> obj(new TCPServerSocketObject(this));
   store_.AddBindingObject(params->object_id, std::move(obj));
 }
 
 void RawSocketInstance::OnTCPSocketConstructor(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<TCPSocketConstructor::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<TCPSocketConstructor::Params>
       params(TCPSocketConstructor::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -75,13 +75,13 @@ void RawSocketInstance::OnTCPSocketConstructor(
     return;
   }
 
-  scoped_ptr<BindingObject> obj(new TCPSocketObject);
+  std::unique_ptr<BindingObject> obj(new TCPSocketObject);
   store_.AddBindingObject(params->object_id, std::move(obj));
 }
 
 void RawSocketInstance::OnUDPSocketConstructor(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<UDPSocketConstructor::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<UDPSocketConstructor::Params>
       params(UDPSocketConstructor::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -89,7 +89,7 @@ void RawSocketInstance::OnUDPSocketConstructor(
     return;
   }
 
-  scoped_ptr<BindingObject> obj(new UDPSocketObject);
+  std::unique_ptr<BindingObject> obj(new UDPSocketObject);
   store_.AddBindingObject(params->object_id, std::move(obj));
 }
 

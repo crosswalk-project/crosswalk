@@ -33,7 +33,7 @@ TCPSocketObject::TCPSocketObject()
   RegisterHandlers();
 }
 
-TCPSocketObject::TCPSocketObject(scoped_ptr<net::StreamSocket> socket)
+TCPSocketObject::TCPSocketObject(std::unique_ptr<net::StreamSocket> socket)
     : has_write_pending_(false),
       is_suspended_(false),
       is_half_closed_(false),
@@ -73,13 +73,13 @@ void TCPSocketObject::DoRead() {
     OnRead(ret);
 }
 
-void TCPSocketObject::OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void TCPSocketObject::OnInit(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   if (socket_.get()) {
     DoRead();
     return;
   }
 
-  scoped_ptr<Init::Params> params(Init::Params::Create(*info->arguments()));
+  std::unique_ptr<Init::Params> params(Init::Params::Create(*info->arguments()));
   if (!params) {
     LOG(WARNING) << "Malformed parameters passed to " << info->name();
     setReadyState(READY_STATE_CLOSED);
@@ -100,7 +100,7 @@ void TCPSocketObject::OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info) {
     OnResolved(ret);
 }
 
-void TCPSocketObject::OnClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void TCPSocketObject::OnClose(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   if (socket_.get())
     socket_->Disconnect();
 
@@ -108,7 +108,7 @@ void TCPSocketObject::OnClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DispatchEvent("close");
 }
 
-void TCPSocketObject::OnHalfClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void TCPSocketObject::OnHalfClose(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   if (!socket_.get() || !socket_->IsConnected())
     return;
 
@@ -116,23 +116,23 @@ void TCPSocketObject::OnHalfClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
   setReadyState(READY_STATE_HALFCLOSED);
 }
 
-void TCPSocketObject::OnSuspend(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void TCPSocketObject::OnSuspend(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   is_suspended_ = true;
 }
 
-void TCPSocketObject::OnResume(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void TCPSocketObject::OnResume(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   is_suspended_ = false;
 }
 
 void TCPSocketObject::OnSendString(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   if (is_half_closed_ || has_write_pending_)
     return;
 
   if (!socket_.get() || !socket_->IsConnected())
     return;
 
-  scoped_ptr<SendDOMString::Params>
+  std::unique_ptr<SendDOMString::Params>
       params(SendDOMString::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -176,7 +176,7 @@ void TCPSocketObject::OnConnect(int status) {
 }
 
 void TCPSocketObject::OnRead(int status) {
-  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  std::unique_ptr<base::ListValue> eventData(new base::ListValue);
 
   // No data means the other side has
   // disconnected the socket.
@@ -186,7 +186,7 @@ void TCPSocketObject::OnRead(int status) {
     return;
   }
 
-  scoped_ptr<base::Value> data(base::BinaryValue::CreateWithCopiedBuffer(
+  std::unique_ptr<base::Value> data(base::BinaryValue::CreateWithCopiedBuffer(
       static_cast<char*>(read_buffer_->data()), status));
 
   eventData->Append(data.release());

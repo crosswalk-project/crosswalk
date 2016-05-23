@@ -6,7 +6,8 @@
 #ifndef XWALK_SYSAPPS_DEVICE_CAPABILITIES_DISPLAY_INFO_PROVIDER_H_
 #define XWALK_SYSAPPS_DEVICE_CAPABILITIES_DISPLAY_INFO_PROVIDER_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "base/observer_list.h"
 #include "ui/gfx/display_observer.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
@@ -22,7 +23,7 @@ class DisplayInfoProvider : public gfx::DisplayObserver {
   DisplayInfoProvider();
   ~DisplayInfoProvider() override;
 
-  static scoped_ptr<SystemDisplay> display_info();
+  static std::unique_ptr<SystemDisplay> display_info();
 
   class Observer {
    public:

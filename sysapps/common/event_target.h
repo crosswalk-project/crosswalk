@@ -35,13 +35,13 @@ class EventTarget : public BindingObject {
   // least one listener, so it is safe to call this method without concerning
   // about performance issues.
   void DispatchEvent(const std::string& type);
-  void DispatchEvent(const std::string& type, scoped_ptr<base::ListValue> data);
+  void DispatchEvent(const std::string& type, std::unique_ptr<base::ListValue> data);
 
   bool IsEventActive(const std::string& type) const;
 
  private:
-  void OnAddEventListener(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnRemoveEventListener(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnAddEventListener(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnRemoveEventListener(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   typedef std::map<std::string,
       XWalkExtensionFunctionInfo::PostResultCallback> EventMap;

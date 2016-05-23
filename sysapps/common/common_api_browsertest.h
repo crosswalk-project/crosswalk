@@ -28,12 +28,12 @@ class SysAppsTestExtensionInstance : public XWalkExtensionInstance {
  public:
   SysAppsTestExtensionInstance();
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
 
  private:
   void OnSysAppsTestObjectContructor(
-      scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnHasObject(scoped_ptr<XWalkExtensionFunctionInfo> info);
+      std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnHasObject(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
   BindingObjectStore store_;
@@ -49,10 +49,10 @@ class SysAppsTestObject : public EventTarget {
   void StopEvent(const std::string& type) override;
 
   // JavaScript function handlers.
-  void OnIsTestEventActive(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnFireTestEvent(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnMakeFulfilledPromise(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnMakeRejectedPromise(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnIsTestEventActive(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnFireTestEvent(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnMakeFulfilledPromise(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnMakeRejectedPromise(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   bool is_test_event_active_;
 };

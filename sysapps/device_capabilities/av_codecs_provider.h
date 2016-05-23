@@ -5,8 +5,9 @@
 #ifndef XWALK_SYSAPPS_DEVICE_CAPABILITIES_AV_CODECS_PROVIDER_H_
 #define XWALK_SYSAPPS_DEVICE_CAPABILITIES_AV_CODECS_PROVIDER_H_
 
-#include "base/memory/scoped_ptr.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
+
+#include <memory>
 
 namespace xwalk {
 namespace sysapps {
@@ -20,7 +21,7 @@ class AVCodecsProvider {
   AVCodecsProvider() {}
   virtual ~AVCodecsProvider() {}
 
-  virtual scoped_ptr<SystemAVCodecs> GetSupportedCodecs() const = 0;
+  virtual std::unique_ptr<SystemAVCodecs> GetSupportedCodecs() const = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(AVCodecsProvider);

@@ -53,8 +53,8 @@ StorageInfoProviderChromium::StorageInfoProviderChromium() {
 
 StorageInfoProviderChromium::~StorageInfoProviderChromium() {}
 
-scoped_ptr<SystemStorage> StorageInfoProviderChromium::storage_info() const {
-  scoped_ptr<SystemStorage> info(new SystemStorage);
+std::unique_ptr<SystemStorage> StorageInfoProviderChromium::storage_info() const {
+  std::unique_ptr<SystemStorage> info(new SystemStorage);
 
   StorageMonitor* monitor = StorageMonitor::GetInstance();
   DCHECK(monitor->IsInitialized());

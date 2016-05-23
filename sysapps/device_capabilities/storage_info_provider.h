@@ -5,9 +5,10 @@
 #ifndef XWALK_SYSAPPS_DEVICE_CAPABILITIES_STORAGE_INFO_PROVIDER_H_
 #define XWALK_SYSAPPS_DEVICE_CAPABILITIES_STORAGE_INFO_PROVIDER_H_
 
+#include <memory>
 #include <vector>
+
 #include "base/callback_forward.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
 
@@ -28,7 +29,7 @@ class StorageInfoProvider {
   bool IsInitialized() const { return is_initialized_; }
   void MarkInitialized();
 
-  virtual scoped_ptr<SystemStorage> storage_info() const = 0;
+  virtual std::unique_ptr<SystemStorage> storage_info() const = 0;
 
   class Observer {
    public:

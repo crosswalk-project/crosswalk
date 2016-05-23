@@ -33,11 +33,11 @@ class DeviceCapabilitiesObject : public EventTarget,
   void OnStorageDetached(const StorageUnit& storage) override;
 
  private:
-  void OnGetAVCodecs(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnGetCPUInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnGetDisplayInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnGetMemoryInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnGetStorageInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetAVCodecs(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetCPUInfo(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetDisplayInfo(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetMemoryInfo(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetStorageInfo(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 };
 
 }  // namespace sysapps
