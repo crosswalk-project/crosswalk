@@ -63,9 +63,9 @@ class XWalkExtensionProcess : public IPC::Listener,
 
   base::WaitableEvent shutdown_event_;
   base::Thread io_thread_;
-  scoped_ptr<IPC::SyncChannel> browser_process_channel_;
+  std::unique_ptr<IPC::SyncChannel> browser_process_channel_;
   XWalkExtensionServer extensions_server_;
-  scoped_ptr<IPC::SyncChannel> render_process_channel_;
+  std::unique_ptr<IPC::SyncChannel> render_process_channel_;
   IPC::ChannelHandle rp_channel_handle_;
   typedef std::map<std::string, RuntimePermission> PermissionCacheType;
   PermissionCacheType permission_cache_;

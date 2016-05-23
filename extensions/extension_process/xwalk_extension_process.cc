@@ -67,7 +67,7 @@ void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path, const base::ListValue& browser_variables_lv) {
   if (!path.empty()) {
-    scoped_ptr<base::ValueMap> browser_variables(new base::ValueMap);
+    std::unique_ptr<base::ValueMap> browser_variables(new base::ValueMap);
 
     ToValueMap(&const_cast<base::ListValue&>(browser_variables_lv),
           browser_variables.get());

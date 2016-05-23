@@ -176,7 +176,7 @@ XWalkExtensionAndroidInstance::~XWalkExtensionAndroidInstance() {
 }
 
 void XWalkExtensionAndroidInstance::HandleMessage(
-    scoped_ptr<base::Value> msg) {
+    std::unique_ptr<base::Value> msg) {
   std::string value;
   const base::BinaryValue* binary_value = nullptr;
 
@@ -205,8 +205,8 @@ void XWalkExtensionAndroidInstance::HandleMessage(
 }
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(
-    scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::Value> ret_val(new base::StringValue(""));
+    std::unique_ptr<base::Value> msg) {
+  std::unique_ptr<base::Value> ret_val(new base::StringValue(""));
 
   std::string value;
   if (!msg->GetAsString(&value)) {
@@ -251,7 +251,7 @@ static jlong GetOrCreateExtension(
   if (!extension) {
     extension = new XWalkExtensionAndroid(env, obj, name,
                                           js_api, js_entry_points);
-    main_parts->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
+    main_parts->RegisterExtension(std::unique_ptr<XWalkExtension>(extension));
   } else {
     static_cast<XWalkExtensionAndroid*>(extension)->BindToJavaObject(env, obj);
   }

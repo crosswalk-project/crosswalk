@@ -78,7 +78,7 @@ void ExtensionServerMessageFilter::OnChannelError() {
 
   // IPC::Sender implementation.
 bool ExtensionServerMessageFilter::Send(IPC::Message* msg_ptr) {
-  scoped_ptr<IPC::Message> msg(msg_ptr);
+  std::unique_ptr<IPC::Message> msg(msg_ptr);
 
   if (!sender_)
     return false;
@@ -218,7 +218,7 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
-    scoped_ptr<base::ValueMap> runtime_variables) {
+    std::unique_ptr<base::ValueMap> runtime_variables) {
   XWalkExtensionData* data = new XWalkExtensionData;
   data->set_render_process_host(host);
 
@@ -242,7 +242,7 @@ void XWalkExtensionService::OnRenderProcessWillLaunch(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
-    scoped_ptr<base::ValueMap> runtime_variables) {
+    std::unique_ptr<base::ValueMap> runtime_variables) {
   CHECK(host);
 
   if (!g_external_extensions_path_for_testing_.empty()) {
@@ -313,7 +313,7 @@ void RegisterExtensionsIntoServer(XWalkExtensionVector* extensions,
   XWalkExtensionVector::iterator it = extensions->begin();
   for (; it != extensions->end(); ++it) {
     std::string name = (*it)->name();
-    if (!server->RegisterExtension(scoped_ptr<XWalkExtension>(*it))) {
+    if (!server->RegisterExtension(std::unique_ptr<XWalkExtension>(*it))) {
       LOG(WARNING) << "Couldn't register extension with name '"
                    << name << "'\n";
     }
@@ -328,9 +328,9 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
     content::RenderProcessHost* host, XWalkExtensionData* data,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions) {
-  scoped_ptr<XWalkExtensionServer> extension_thread_server(
+  std::unique_ptr<XWalkExtensionServer> extension_thread_server(
       new XWalkExtensionServer);
-  scoped_ptr<XWalkExtensionServer> ui_thread_server(
+  std::unique_ptr<XWalkExtensionServer> ui_thread_server(
       new XWalkExtensionServer);
 
   IPC::ChannelProxy* channel = host->GetChannel();
@@ -371,8 +371,8 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
 void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, XWalkExtensionData* data,
-    scoped_ptr<base::ValueMap> runtime_variables) {
-  data->set_extension_process_host(make_scoped_ptr(
+    std::unique_ptr<base::ValueMap> runtime_variables) {
+  data->set_extension_process_host(make_std::unique_ptr(
       new XWalkExtensionProcessHost(host, external_extensions_path_, this,
                                     std::move(runtime_variables))));
 }

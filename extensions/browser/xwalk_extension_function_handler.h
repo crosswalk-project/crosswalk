@@ -21,11 +21,11 @@ class XWalkExtensionInstance;
 // signature of a method in JavaScript. The struct can be safely passed around.
 class XWalkExtensionFunctionInfo {
  public:
-  typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
+  typedef base::Callback<void(std::unique_ptr<base::ListValue> result)>
       PostResultCallback;
 
   XWalkExtensionFunctionInfo(const std::string& name,
-                             scoped_ptr<base::ListValue> arguments,
+                             std::unique_ptr<base::ListValue> arguments,
                              const PostResultCallback& post_result_cb);
 
   ~XWalkExtensionFunctionInfo();
@@ -35,7 +35,7 @@ class XWalkExtensionFunctionInfo {
   // will ultimately dispatch the result to the appropriated instance or
   // do nothing in case the instance doesn't exist anymore. PostResult can
   // be called from any thread.
-  void PostResult(scoped_ptr<base::ListValue> result) const {
+  void PostResult(std::unique_ptr<base::ListValue> result) const {
     post_result_cb_.Run(std::move(result));
   }
 
@@ -53,7 +53,7 @@ class XWalkExtensionFunctionInfo {
 
  private:
   std::string name_;
-  scoped_ptr<base::ListValue> arguments_;
+  std::unique_ptr<base::ListValue> arguments_;
 
   PostResultCallback post_result_cb_;
 
@@ -67,18 +67,18 @@ class XWalkExtensionFunctionInfo {
 class XWalkExtensionFunctionHandler {
  public:
   typedef base::Callback<void(
-      scoped_ptr<XWalkExtensionFunctionInfo> info)> FunctionHandler;
+      std::unique_ptr<XWalkExtensionFunctionInfo> info)> FunctionHandler;
 
   explicit XWalkExtensionFunctionHandler(XWalkExtensionInstance* instance);
   ~XWalkExtensionFunctionHandler();
 
   // Converts a raw message from the renderer to a XWalkExtensionFunctionInfo
   // data structure and invokes HandleFunction().
-  void HandleMessage(scoped_ptr<base::Value> msg);
+  void HandleMessage(std::unique_ptr<base::Value> msg);
 
   // Executes the handler associated to the |name| tag of the |info| argument
   // passed as parameter.
-  bool HandleFunction(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  bool HandleFunction(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   // This method will register a callback to handle a message tagged as
   // |function_name|. When invoked, the handler will get a
@@ -91,7 +91,7 @@ class XWalkExtensionFunctionHandler {
   //
   // The signature of a function handler should be like the following:
   //
-  //   void Foobar::OnShow(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  //   void Foobar::OnShow(std::unique_ptr<XWalkExtensionFunctionInfo> info);
   //
   // And register them like this, preferable at the Foobar constructor:
   //
@@ -107,9 +107,9 @@ class XWalkExtensionFunctionHandler {
       const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
       scoped_refptr<base::SingleThreadTaskRunner> client_task_runner,
       const std::string& callback_id,
-      scoped_ptr<base::ListValue> result);
+      std::unique_ptr<base::ListValue> result);
 
-  void PostMessageToInstance(scoped_ptr<base::Value> msg);
+  void PostMessageToInstance(std::unique_ptr<base::Value> msg);
 
   typedef std::map<std::string, FunctionHandler> FunctionHandlerMap;
   FunctionHandlerMap handlers_;

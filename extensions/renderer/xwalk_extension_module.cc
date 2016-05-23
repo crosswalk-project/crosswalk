@@ -217,7 +217,7 @@ void XWalkExtensionModule::PostMessageCallback(
   }
 
   v8::Handle<v8::Context> context = info.GetIsolate()->GetCurrentContext();
-  scoped_ptr<base::Value> value(
+  std::unique_ptr<base::Value> value(
       module->converter_->FromV8Value(info[0], context));
 
   CHECK(module->instance_id_);
@@ -236,11 +236,11 @@ void XWalkExtensionModule::SendSyncMessageCallback(
   }
 
   v8::Handle<v8::Context> context = info.GetIsolate()->GetCurrentContext();
-  scoped_ptr<base::Value> value(
+  std::unique_ptr<base::Value> value(
       module->converter_->FromV8Value(info[0], context));
 
   CHECK(module->instance_id_);
-  scoped_ptr<base::Value> reply(
+  std::unique_ptr<base::Value> reply(
       module->client_->SendSyncMessageToNative(module->instance_id_,
                                                std::move(value)));
 

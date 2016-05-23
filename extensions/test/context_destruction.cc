@@ -37,7 +37,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
     g_contexts_destroyed++;
   }
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override {
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {
     std::string answer;
     if (answered_) {
       answer = "Fail";
@@ -45,7 +45,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
       answer = base::StringPrintf("Pass");
       answered_ = true;
     }
-    PostMessageToJS(scoped_ptr<base::Value>(
+    PostMessageToJS(std::unique_ptr<base::Value>(
         new base::StringValue(answer)));
   }
 

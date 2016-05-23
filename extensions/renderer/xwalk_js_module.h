@@ -11,7 +11,7 @@
 namespace xwalk {
 namespace extensions {
 
-scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id);
+std::unique_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id);
 
 // Provides a module for the Module System based on a JavaScript code. This is
 // useful for providing JS helpers and small libraries to extensions creators.
