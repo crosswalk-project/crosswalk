@@ -37,11 +37,11 @@ class NativeFileSystemInstance : public XWalkExtensionInstance {
   explicit NativeFileSystemInstance(content::RenderProcessHost* host);
 
   // XWalkExtensionInstance implementation.
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
-  void HandleSyncMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
+  void HandleSyncMessage(std::unique_ptr<base::Value> msg) override;
 
  private:
-  void OnRequestNativeFileSystem(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnRequestNativeFileSystem(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
   content::RenderProcessHost* host_;
