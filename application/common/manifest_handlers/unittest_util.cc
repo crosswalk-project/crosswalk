@@ -4,6 +4,7 @@
 
 #include "xwalk/application/common/manifest_handlers/unittest_util.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/strings/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/application/common/application_manifest_constants.h"

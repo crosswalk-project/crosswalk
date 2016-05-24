@@ -8,6 +8,7 @@
 #include "base/android/jni_android.h"
 #include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
+#include "base/memory/ptr_util.h"
 #include "jni/XWalkWebResourceResponseInternal_jni.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"

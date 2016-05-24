@@ -8,6 +8,7 @@
 #include <vector>
 #include "base/callback.h"
 #include "base/command_line.h"
+#include "base/memory/ptr_util.h"
 #include "base/pickle.h"
 #include "base/scoped_native_library.h"
 #include "base/synchronization/lock.h"

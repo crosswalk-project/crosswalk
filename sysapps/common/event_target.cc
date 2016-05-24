@@ -4,6 +4,7 @@
 
 #include "xwalk/sysapps/common/event_target.h"
 
+#include "base/memory/ptr_util.h"
 #include "xwalk/sysapps/common/common.h"
 
 using namespace xwalk::jsapi::common; // NOLINT

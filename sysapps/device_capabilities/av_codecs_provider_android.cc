@@ -4,6 +4,8 @@
 
 #include "xwalk/sysapps/device_capabilities/av_codecs_provider_android.h"
 
+#include "base/memory/ptr_util.h"
+
 namespace xwalk {
 namespace sysapps {
 

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "base/files/file_path.h"
+#include "base/memory/ptr_util.h"
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_data.h"

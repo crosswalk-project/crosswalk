@@ -5,6 +5,7 @@
 #include "xwalk/application/browser/application_service.h"
 
 #include "base/files/file_util.h"
+#include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"

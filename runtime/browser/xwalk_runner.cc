@@ -8,6 +8,7 @@
 #include <vector>
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "content/public/browser/render_process_host.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"

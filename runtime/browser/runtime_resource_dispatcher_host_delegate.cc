@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "base/memory/ptr_util.h"
 #include "base/memory/scoped_vector.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_controller.h"

@@ -15,6 +15,7 @@
 #include "base/i18n/rtl.h"
 #include "base/json/json_file_value_serializer.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/metrics/histogram.h"
 #include "base/path_service.h"
 #include "base/strings/string16.h"
