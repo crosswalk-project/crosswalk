@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 
+#include "base/memory/ptr_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using xwalk::extensions::XWalkExtensionFunctionHandler;

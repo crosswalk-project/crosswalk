@@ -5,6 +5,7 @@
 
 #include "xwalk/runtime/browser/android/xwalk_web_resource_response.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "net/http/http_response_headers.h"
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"

@@ -4,6 +4,7 @@
 
 #include "xwalk/sysapps/common/binding_object_store.h"
 
+#include "base/memory/ptr_util.h"
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

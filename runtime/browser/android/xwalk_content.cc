@@ -16,6 +16,7 @@
 #include "base/base_paths_android.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
+#include "base/memory/ptr_util.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "base/strings/string_number_conversions.h"

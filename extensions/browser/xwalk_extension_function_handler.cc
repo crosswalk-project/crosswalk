@@ -5,6 +5,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 
 #include "base/location.h"
+#include "base/memory/ptr_util.h"
 #include "base/thread_task_runner_handle.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 

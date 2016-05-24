@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/callback.h"
+#include "base/memory/ptr_util.h"
 #include "base/values.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_security_policy.h"
