@@ -22,7 +22,7 @@ std::unique_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
   std::unique_ptr<base::ListValue> arguments(new base::ListValue);
   arguments->AppendString(str_argument);
 
-  return make_scoped_ptr(new XWalkExtensionFunctionInfo(
+  return base::WrapUnique(new XWalkExtensionFunctionInfo(
       name,
       std::move(arguments),
       base::Bind(&DummyCallback)));

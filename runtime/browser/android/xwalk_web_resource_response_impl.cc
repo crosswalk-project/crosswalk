@@ -34,7 +34,7 @@ XWalkWebResourceResponseImpl::GetInputStream(JNIEnv* env) const {
          env, java_object_.obj());
   if (jstream.is_null())
     return std::unique_ptr<InputStream>();
-  return make_scoped_ptr<InputStream>(new InputStreamImpl(jstream));
+  return base::WrapUnique(new InputStreamImpl(jstream));
 }
 
 bool XWalkWebResourceResponseImpl::GetMimeType(

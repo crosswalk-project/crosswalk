@@ -97,7 +97,7 @@ CreateSocketFactory(uint16_t port) {
 std::unique_ptr<devtools_discovery::DevToolsTargetDescriptor>
 CreateNewShellTarget(XWalkBrowserContext* browser_context, const GURL& url) {
   Runtime* runtime = Runtime::Create(browser_context);
-  return make_scoped_ptr(new devtools_discovery::BasicTargetDescriptor(
+  return base::WrapUnique(new devtools_discovery::BasicTargetDescriptor(
       content::DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }
 

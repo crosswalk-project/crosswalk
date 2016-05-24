@@ -30,11 +30,11 @@ namespace xwalk {
 std::unique_ptr<RuntimeResourceDispatcherHostDelegate>
 RuntimeResourceDispatcherHostDelegate::Create() {
 #if defined(OS_ANDROID)
-  return make_scoped_ptr(
+  return base::WrapUnique(
       static_cast<RuntimeResourceDispatcherHostDelegate*>(
             new RuntimeResourceDispatcherHostDelegateAndroid()));
 #else
-  return make_scoped_ptr(new RuntimeResourceDispatcherHostDelegate());
+  return base::WrapUnique(new RuntimeResourceDispatcherHostDelegate());
 #endif
 }
 

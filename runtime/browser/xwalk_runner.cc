@@ -116,15 +116,15 @@ void XWalkRunner::AddComponent(std::unique_ptr<XWalkComponent> component) {
 }
 
 std::unique_ptr<ApplicationComponent> XWalkRunner::CreateAppComponent() {
-  return make_scoped_ptr(new ApplicationComponent(browser_context_.get()));
+  return base::WrapUnique(new ApplicationComponent(browser_context_.get()));
 }
 
 std::unique_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
-  return make_scoped_ptr(new SysAppsComponent());
+  return base::WrapUnique(new SysAppsComponent());
 }
 
 std::unique_ptr<StorageComponent> XWalkRunner::CreateStorageComponent() {
-  return make_scoped_ptr(new StorageComponent());
+  return base::WrapUnique(new StorageComponent());
 }
 
 void XWalkRunner::InitializeRuntimeVariablesForExtensions(

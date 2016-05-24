@@ -62,7 +62,7 @@ void XWalkWebContentsDelegate::AddNewContents(
 
   if (create_popup) {
     XWalkContent::FromWebContents(source)->SetPendingWebContentsForPopup(
-        make_scoped_ptr(new_contents));
+        base::WrapUnique(new_contents));
     new_contents->WasHidden();
   } else {
     base::MessageLoop::current()->DeleteSoon(FROM_HERE, new_contents);
