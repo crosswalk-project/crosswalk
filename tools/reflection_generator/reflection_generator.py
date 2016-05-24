@@ -31,6 +31,7 @@ CLASSES_TO_BE_PROCESS = [
     'XWalkDownloadListenerInternal',
     'XWalkExtensionInternal',
     'XWalkExternalExtensionManagerInternal',
+    'XWalkFindListenerInternal',
     'XWalkGetBitmapCallbackInternal',
     'XWalkHttpAuthHandlerInternal',
     'XWalkHttpAuthInternal',
