@@ -118,12 +118,21 @@ public abstract class XWalkActivity extends Activity {
     private XWalkActivityDelegate mActivityDelegate;
 
     /**
-     * Run on the UI thread to notify the Crosswalk runtime is ready.
+     * Run on the UI thread to notify Crosswalk Project runtime is ready.
      */
     protected abstract void onXWalkReady();
 
     /**
-     * Return true if the Crosswalk runtime is ready, false otherwise.
+     * Run on the UI thread to notify the initialization of Crosswalk Project runtime failed or is
+     * cancelled. Then, your won't be able to use {@link XWalkView}. By default, it will call
+     * finish() to close your activity.
+     */
+    protected void onXWalkFailed() {
+        finish();
+    }
+
+    /**
+     * Return true if Crosswalk Project runtime is ready, false otherwise.
      */
     public boolean isXWalkReady() {
         return mActivityDelegate.isXWalkReady();
@@ -143,7 +152,7 @@ public abstract class XWalkActivity extends Activity {
         Runnable cancelCommand = new Runnable() {
             @Override
             public void run() {
-                finish();
+                onXWalkFailed();
             }
         };
         Runnable completeCommand = new Runnable() {
