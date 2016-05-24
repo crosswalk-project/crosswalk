@@ -10,7 +10,6 @@
 #include "base/values.h"
 #include "content/public/child/v8_value_converter.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
-#include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
@@ -126,7 +125,8 @@ v8::Handle<v8::Value> RunString(const std::string& code,
   v8::Handle<v8::String> v8_code(
       v8::String::NewFromUtf8(isolate, code.c_str()));
 
-  blink::WebScopedMicrotaskSuppression suppression;
+  v8::MicrotasksScope microtasks(
+      isolate, v8::MicrotasksScope::kDoNotRunMicrotasks);
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
 
@@ -175,7 +175,8 @@ void XWalkExtensionModule::LoadExtensionCode(
     requireNative
   };
 
-  blink::WebScopedMicrotaskSuppression suppression;
+  v8::MicrotasksScope microtasks(
+      context->GetIsolate(), v8::MicrotasksScope::kDoNotRunMicrotasks);
   v8::TryCatch try_catch(context->GetIsolate());
   try_catch.SetVerbose(true);
   callable_api_code->Call(context->Global(), argc, argv);
@@ -198,7 +199,8 @@ void XWalkExtensionModule::HandleMessageFromNative(const base::Value& msg) {
   v8::Handle<v8::Function> message_listener =
       v8::Local<v8::Function>::New(isolate, message_listener_);;
 
-  blink::WebScopedMicrotaskSuppression suppression;
+  v8::MicrotasksScope microtasks(
+      isolate, v8::MicrotasksScope::kDoNotRunMicrotasks);
   v8::TryCatch try_catch(isolate);
   message_listener->Call(context->Global(), 1, &v8_value);
   if (try_catch.HasCaught())
