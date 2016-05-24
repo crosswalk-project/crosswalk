@@ -131,6 +131,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         content::CookieStoreConfig::PERSISTANT_SESSION_COOKIES,
         NULL, NULL);
 
+    cookie_config.cookieable_schemes.insert(
+        cookie_config.cookieable_schemes.begin(),
+        net::CookieMonster::kDefaultCookieableSchemes,
+        net::CookieMonster::kDefaultCookieableSchemes +
+        net::CookieMonster::kDefaultCookieableSchemesCount);
     cookie_config.cookieable_schemes.push_back(application::kApplicationScheme);
     cookie_config.cookieable_schemes.push_back(content::kChromeDevToolsScheme);
 
