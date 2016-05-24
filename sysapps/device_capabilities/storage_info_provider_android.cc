@@ -15,7 +15,7 @@ StorageInfoProviderAndroid::~StorageInfoProviderAndroid() {}
 
 std::unique_ptr<SystemStorage> StorageInfoProviderAndroid::storage_info() const {
   NOTIMPLEMENTED();
-  return make_scoped_ptr(new SystemStorage);
+  return base::WrapUnique(new SystemStorage);
 }
 
 void StorageInfoProviderAndroid::StartStorageMonitoring() {

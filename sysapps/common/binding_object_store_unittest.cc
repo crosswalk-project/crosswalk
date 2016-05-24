@@ -23,7 +23,7 @@ std::unique_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
   std::unique_ptr<base::ListValue> arguments(new base::ListValue);
   arguments->AppendString(str_argument);
 
-  return make_scoped_ptr(new XWalkExtensionFunctionInfo(
+  return base::WrapUnique(new XWalkExtensionFunctionInfo(
       name,
       std::move(arguments),
       base::Bind(&DummyCallback)));
@@ -32,7 +32,7 @@ std::unique_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
 class BindingObjectTest : public BindingObject {
  public:
   static std::unique_ptr<BindingObject> Create() {
-    return make_scoped_ptr(new BindingObjectTest());
+    return base::WrapUnique(new BindingObjectTest());
   }
 
   BindingObjectTest() : call_count_(0) {

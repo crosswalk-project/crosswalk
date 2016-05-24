@@ -76,10 +76,10 @@ class XWalkConstrainedWindowViewsClient
 void InstallXWalkJavaScriptNativeDialogFactory() {
   app_modal::JavaScriptDialogManager::GetInstance()->
       SetNativeDialogFactory(
-          make_scoped_ptr(new XWalkJavaScriptNativeDialogViewsFactory));
+          base::WrapUnique(new XWalkJavaScriptNativeDialogViewsFactory));
 
   constrained_window::SetConstrainedWindowViewsClient(
-      make_scoped_ptr(new XWalkConstrainedWindowViewsClient));
+      base::WrapUnique(new XWalkConstrainedWindowViewsClient));
 }
 
 namespace web_modal {

@@ -21,7 +21,7 @@ EventTarget::EventTarget() {
 EventTarget::~EventTarget() {}
 
 void EventTarget::DispatchEvent(const std::string& type) {
-  DispatchEvent(type, make_scoped_ptr(new base::ListValue));
+  DispatchEvent(type, base::WrapUnique(new base::ListValue));
 }
 
 void EventTarget::DispatchEvent(const std::string& type,

@@ -97,8 +97,8 @@ static scoped_refptr<ApplicationData> LoadApplicationManifest(
     ApplicationData::SourceType location,
     int extra_flags,
     std::string* error) {
-  std::unique_ptr<Manifest> manifest = make_scoped_ptr(
-      new Manifest(make_scoped_ptr(values->DeepCopy())));
+  std::unique_ptr<Manifest> manifest = base::WrapUnique(
+      new Manifest(base::WrapUnique(values->DeepCopy())));
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       manifest_dir, GenerateIdForPath(manifest_dir), location,
           std::move(manifest), error);

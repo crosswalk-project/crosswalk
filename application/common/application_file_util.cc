@@ -381,9 +381,9 @@ std::unique_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
     return std::unique_ptr<Manifest>();
   }
 
-  std::unique_ptr<base::DictionaryValue> dv = make_scoped_ptr(
+  std::unique_ptr<base::DictionaryValue> dv = base::WrapUnique(
       static_cast<base::DictionaryValue*>(root.release()));
-  return make_scoped_ptr(new Manifest(std::move(dv), Manifest::TYPE_MANIFEST));
+  return base::WrapUnique(new Manifest(std::move(dv), Manifest::TYPE_MANIFEST));
 }
 
 template <>
@@ -403,7 +403,7 @@ std::unique_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
   if (dv)
     result->Set(ToConstCharPointer(root_node->name), dv);
 
-  return make_scoped_ptr(new Manifest(std::move(result),
+  return base::WrapUnique(new Manifest(std::move(result),
                                       Manifest::TYPE_WIDGET));
 }
 

@@ -56,7 +56,7 @@ scoped_refptr<ApplicationData> CreateApplication(Manifest::Type type,
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(), GenerateId("test"), ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()), type)),
+      base::WrapUnique(new Manifest(base::WrapUnique(manifest.DeepCopy()), type)),
       &error);
   EXPECT_TRUE(error.empty()) << error;
   return application;

@@ -195,7 +195,7 @@ void XWalkContent::SetJavaPeers(JNIEnv* env,
   RuntimeResourceDispatcherHostDelegateAndroid::OnIoThreadClientReady(
       render_process_id, render_frame_id);
   InterceptNavigationDelegate::Associate(web_contents_.get(),
-      make_scoped_ptr(new InterceptNavigationDelegate(
+      base::WrapUnique(new InterceptNavigationDelegate(
           env, intercept_navigation_delegate)));
   web_contents_->SetDelegate(web_contents_delegate_.get());
 
@@ -292,7 +292,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       return false;
 
   xwalk::application::Manifest manifest(
-      make_scoped_ptr(
+      base::WrapUnique(
           static_cast<base::DictionaryValue*>(manifest_value.release())));
 
   std::string url;

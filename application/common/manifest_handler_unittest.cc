@@ -222,7 +222,7 @@ TEST_F(ManifestHandlerTest, DependentHandlers) {
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
+      base::WrapUnique(new Manifest(base::WrapUnique(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
   // A, B, C.EZ, C.D, K
@@ -249,7 +249,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest_a.DeepCopy()))),
+      base::WrapUnique(new Manifest(base::WrapUnique(manifest_a.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
 
@@ -265,7 +265,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   application = ApplicationData::Create(
       base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest_a.DeepCopy()))),
+      base::WrapUnique(new Manifest(base::WrapUnique(manifest_a.DeepCopy()))),
       &error);
   EXPECT_FALSE(application.get());
   EXPECT_EQ("A", error);
@@ -285,7 +285,7 @@ TEST_F(ManifestHandlerTest, Validate) {
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(), GenerateId("test"),
       ApplicationData::LOCAL_DIRECTORY,
-      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
+      base::WrapUnique(new Manifest(base::WrapUnique(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
 

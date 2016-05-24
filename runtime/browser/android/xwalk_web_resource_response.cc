@@ -91,7 +91,7 @@ net::URLRequestJob* XWalkWebResourceResponse::CreateJobFor(
   return new AndroidStreamReaderURLRequestJob(
       request,
       network_delegate,
-      make_scoped_ptr(new StreamReaderJobDelegateImpl(
+      base::WrapUnique(new StreamReaderJobDelegateImpl(
                       std::move(xwalk_web_resource_response))),
       content_security_policy);
 }

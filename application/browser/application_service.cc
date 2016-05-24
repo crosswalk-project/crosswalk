@@ -32,7 +32,7 @@ ApplicationService::ApplicationService(XWalkBrowserContext* browser_context)
 
 std::unique_ptr<ApplicationService> ApplicationService::Create(
     XWalkBrowserContext* browser_context) {
-  return make_scoped_ptr(new ApplicationService(browser_context));
+  return base::WrapUnique(new ApplicationService(browser_context));
 }
 
 ApplicationService::~ApplicationService() {
@@ -244,7 +244,7 @@ void ApplicationService::OnApplicationTerminated(
       // further we need to add an appropriate logic to handle it.
       content::BrowserContext::GarbageCollectStoragePartitions(
           browser_context_,
-          make_scoped_ptr(new base::hash_set<base::FilePath>()), // NOLINT
+          base::WrapUnique(new base::hash_set<base::FilePath>()), // NOLINT
           base::Bind(&base::DoNothing));
   }
 

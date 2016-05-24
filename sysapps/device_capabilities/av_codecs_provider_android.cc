@@ -13,7 +13,7 @@ AVCodecsProviderAndroid::~AVCodecsProviderAndroid() {}
 
 std::unique_ptr<SystemAVCodecs> AVCodecsProviderAndroid::GetSupportedCodecs() const {
   NOTIMPLEMENTED();
-  return make_scoped_ptr(new SystemAVCodecs);
+  return base::WrapUnique(new SystemAVCodecs);
 }
 
 }  // namespace sysapps

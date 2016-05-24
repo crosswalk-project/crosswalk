@@ -27,12 +27,12 @@ std::unique_ptr<base::StringValue> GetRealPath(std::unique_ptr<base::Value> msg)
   std::string virtual_root;
   if (!msg->GetAsDictionary(&dict) || !dict->GetString("path", &virtual_root)) {
     LOG(ERROR) << "Malformed getRealPath request.";
-    return make_scoped_ptr(new base::StringValue(std::string()));
+    return base::WrapUnique(new base::StringValue(std::string()));
   }
 
   const std::string real_path =
       VirtualRootProvider::GetInstance()->GetRealPath(virtual_root);
-  return make_scoped_ptr(new base::StringValue(real_path));
+  return base::WrapUnique(new base::StringValue(real_path));
 }
 
 void RegisterFileSystemAndSendResponse(

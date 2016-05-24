@@ -137,10 +137,10 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
     storage_->set_cookie_store(cookie_store);
 #endif
-    storage_->set_channel_id_service(make_scoped_ptr(new net::ChannelIDService(
+    storage_->set_channel_id_service(base::WrapUnique(new net::ChannelIDService(
         new net::DefaultChannelIDStore(NULL),
         base::WorkerPool::GetTaskRunner(true))));
-    storage_->set_http_user_agent_settings(make_scoped_ptr(
+    storage_->set_http_user_agent_settings(base::WrapUnique(
         new net::StaticHttpUserAgentSettings("en-us,en",
                                              xwalk::GetUserAgent())));
 
@@ -149,7 +149,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
-        make_scoped_ptr(new net::TransportSecurityState));
+        base::WrapUnique(new net::TransportSecurityState));
 #if defined(OS_ANDROID)
     // Android provides a local HTTP proxy that handles all the proxying.
     // Create the proxy without a resolver since we rely
@@ -207,9 +207,9 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         url_request_context_->host_resolver();
 
     storage_->set_http_network_session(
-        make_scoped_ptr(new net::HttpNetworkSession(network_session_params)));
+        base::WrapUnique(new net::HttpNetworkSession(network_session_params)));
     storage_->set_http_transaction_factory(
-        make_scoped_ptr(new net::HttpCache(storage_->http_network_session(),
+        base::WrapUnique(new net::HttpCache(storage_->http_network_session(),
                         std::move(main_backend),
                         false /* set_up_quic_server_info */)));
 #if defined(OS_ANDROID)
@@ -229,7 +229,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
          it != protocol_handlers_.end();
          ++it) {
       set_protocol = job_factory_impl->SetProtocolHandler(
-          it->first, make_scoped_ptr(it->second.release()));
+          it->first, base::WrapUnique(it->second.release()));
       DCHECK(set_protocol);
     }
     protocol_handlers_.clear();
@@ -238,11 +238,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // Add new basic schemes.
     set_protocol = job_factory_impl->SetProtocolHandler(
         url::kDataScheme,
-        make_scoped_ptr(new net::DataProtocolHandler));
+        base::WrapUnique(new net::DataProtocolHandler));
     DCHECK(set_protocol);
     set_protocol = job_factory_impl->SetProtocolHandler(
         url::kFileScheme,
-        make_scoped_ptr(new net::FileProtocolHandler(
+        base::WrapUnique(new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
             GetTaskRunnerWithShutdownBehavior(
                 base::SequencedWorkerPool::SKIP_ON_SHUTDOWN))));
@@ -281,7 +281,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
          i != request_interceptors.rend();
          ++i) {
       job_factory.reset(new net::URLRequestInterceptingJobFactory(
-          std::move(job_factory), make_scoped_ptr(*i)));
+          std::move(job_factory), base::WrapUnique(*i)));
     }
 
     // Set up interceptors in the reverse order.
@@ -292,7 +292,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
          i != request_interceptors_.rend();
          ++i) {
       top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
-          std::move(top_job_factory), make_scoped_ptr(*i)));
+          std::move(top_job_factory), base::WrapUnique(*i)));
     }
     request_interceptors_.weak_clear();
 
@@ -315,7 +315,7 @@ void RuntimeURLRequestContextGetter::UpdateAcceptLanguages(
     const std::string& accept_languages) {
   if (!storage_)
     return;
-  storage_->set_http_user_agent_settings(make_scoped_ptr(
+  storage_->set_http_user_agent_settings(base::WrapUnique(
       new net::StaticHttpUserAgentSettings(accept_languages,
                                            xwalk::GetUserAgent())));
 }
