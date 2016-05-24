@@ -9,7 +9,6 @@
 #include "ipc/ipc_message.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
@@ -56,7 +55,8 @@ void LifecycleTrackerCleanup2(
     v8::Local<v8::Function> destructor =
         wrapper->destructor.Get(data.GetIsolate());
     CHECK(destructor->IsFunction());
-    blink::WebScopedMicrotaskSuppression suppression;
+    v8::MicrotasksScope microtasks(
+      data.GetIsolate(), v8::MicrotasksScope::kDoNotRunMicrotasks);
     v8::TryCatch try_catch(data.GetIsolate());
     destructor->Call(context->Global(), 0, nullptr);
     if (try_catch.HasCaught()) {
