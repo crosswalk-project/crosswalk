@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 // Device Capabilities API
-namespace device_capabilities {
+[use_movable_types=true] namespace device_capabilities {
   dictionary AudioCodec {
     DOMString format;
   };

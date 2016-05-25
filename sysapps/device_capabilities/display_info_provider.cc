@@ -6,6 +6,7 @@
 #include "xwalk/sysapps/device_capabilities/display_info_provider.h"
 
 #include <vector>
+
 #include "base/strings/string_number_conversions.h"
 #include "base/sys_info.h"
 #include "ui/gfx/display.h"
@@ -19,11 +20,11 @@ namespace {
 // ChromiumOS. See display_info_provider_chromeos.cc.
 const float kDpi96 = 96;
 
-linked_ptr<DisplayUnit> makeDisplayUnit(const gfx::Display& display) {
+std::unique_ptr<DisplayUnit> makeDisplayUnit(const gfx::Display& display) {
   gfx::Screen* screen = gfx::Screen::GetScreen();
   const int64_t primary_display_id = screen->GetPrimaryDisplay().id();
 
-  linked_ptr<DisplayUnit> display_unit(new DisplayUnit);
+  std::unique_ptr<DisplayUnit> display_unit(new DisplayUnit);
 
   display_unit->id = base::Int64ToString(display.id());
   // FIXME(YuZhiqiangX): find which field reflects 'name'.
@@ -67,7 +68,8 @@ std::unique_ptr<SystemDisplay> DisplayInfoProvider::display_info() {
 
   for (std::vector<gfx::Display>::const_iterator it = displays.begin();
       it != displays.end(); ++it) {
-    info->displays.push_back(makeDisplayUnit(*it));
+    auto display_unit = makeDisplayUnit(*it);
+    info->displays.push_back(std::move(*display_unit));
   }
 
   return info;

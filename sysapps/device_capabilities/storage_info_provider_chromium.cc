@@ -18,8 +18,8 @@ using namespace xwalk::jsapi::device_capabilities; // NOLINT
 
 namespace {
 
-linked_ptr<StorageUnit> makeStorageUnit(const StorageInfo& storage) {
-  linked_ptr<StorageUnit> storage_unit(make_linked_ptr(new StorageUnit));
+std::unique_ptr<StorageUnit> makeStorageUnit(const StorageInfo& storage) {
+  std::unique_ptr<StorageUnit> storage_unit(new StorageUnit);
 
   storage_unit->id = storage.device_id();
   storage_unit->name = base::UTF16ToUTF8(storage.GetDisplayName(false));
@@ -62,7 +62,8 @@ std::unique_ptr<SystemStorage> StorageInfoProviderChromium::storage_info() const
   std::vector<StorageInfo> storages = monitor->GetAllAvailableStorages();
   for (std::vector<StorageInfo>::const_iterator it = storages.begin();
       it != storages.end(); ++it) {
-    info->storages.push_back(makeStorageUnit(*it));
+    auto storage_unit = makeStorageUnit(*it);
+    info->storages.push_back(std::move(*storage_unit));
   }
 
   return info;
