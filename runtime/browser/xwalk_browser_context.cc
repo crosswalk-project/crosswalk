@@ -85,9 +85,7 @@ XWalkBrowserContext::XWalkBrowserContext()
     save_form_data_(true) {
   InitWhileIOAllowed();
   InitFormDatabaseService();
-#if defined(OS_ANDROID)
   InitVisitedLinkMaster();
-#endif
   CHECK(!g_browser_context);
   g_browser_context = this;
 }
@@ -390,6 +388,7 @@ void XWalkBrowserContext::SetCSPString(const std::string& csp) {
 std::string XWalkBrowserContext::GetCSPString() const {
   return csp_;
 }
+#endif
 
 void XWalkBrowserContext::InitVisitedLinkMaster() {
   visitedlink_master_.reset(
@@ -409,7 +408,5 @@ void XWalkBrowserContext::RebuildTable(
   // Therefore this initialization path is not used.
   enumerator->OnComplete(true);
 }
-
-#endif
 
 }  // namespace xwalk

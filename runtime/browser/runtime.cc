@@ -10,6 +10,7 @@
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/threading/non_thread_safe.h"
 #include "components/app_modal/javascript_dialog_manager.h"
 #include "components/content_settings/core/common/content_settings.h"
 #include "components/content_settings/core/common/content_settings_types.h"
@@ -314,6 +315,16 @@ void Runtime::DidUpdateFaviconURL(const std::vector<FaviconURL>& candidates) {
 void Runtime::TitleWasSet(content::NavigationEntry* entry, bool explicit_set) {
   if (ui_delegate_)
     ui_delegate_->UpdateTitle(entry->GetTitle());
+}
+
+void Runtime::DidNavigateAnyFrame(
+    content::RenderFrameHost* render_frame_host,
+    const content::LoadCommittedDetails& details,
+    const content::FrameNavigateParams& params) {
+  DCHECK(thread_checker_.CalledOnValidThread());
+
+  XWalkBrowserContext::FromWebContents(web_contents())
+      ->AddVisitedURLs(params.redirects);
 }
 
 void Runtime::DidDownloadFavicon(int id,
