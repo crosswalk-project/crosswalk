@@ -35,20 +35,20 @@ std::unique_ptr<SystemAVCodecs> AVCodecsProviderFFmpeg::GetSupportedCodecs() con
       // Ensure the codec is supported by converting an FFmpeg audio codec ID
       // into its corresponding supported codec id.
       if (media::CodecIDToAudioCodec(codec->id)) {
-        linked_ptr<AudioCodec> audio_codec(new AudioCodec);
-        audio_codec->format = std::string(codec->name);
-        av_codecs->audio_codecs.push_back(audio_codec);
+        AudioCodec audio_codec;
+        audio_codec.format = std::string(codec->name);
+        av_codecs->audio_codecs.push_back(std::move(audio_codec));
       }
     } else if (codec->type == AVMEDIA_TYPE_VIDEO) {
       // Ensure the codec is supported by converting an FFmpeg video codec ID
       // into its corresponding supported codec id.
       if (media::CodecIDToVideoCodec(codec->id)) {
-        linked_ptr<VideoCodec> video_codec(new VideoCodec);
-        video_codec->format = std::string(codec->name);
+        VideoCodec video_codec;
+        video_codec.format = std::string(codec->name);
         // FIXME(qjia7): find how to get hwAccel value
-        video_codec->hw_accel = false;
-        video_codec->encode = av_codec_is_encoder(codec) != 0;
-        av_codecs->video_codecs.push_back(video_codec);
+        video_codec.hw_accel = false;
+        video_codec.encode = av_codec_is_encoder(codec) != 0;
+        av_codecs->video_codecs.push_back(std::move(video_codec));
       }
     }
   }
