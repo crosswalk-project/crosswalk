@@ -2,6 +2,25 @@
 
 Note: dates indicate the day when the release was promoted to the Stable channel.
 
+## Crosswalk 20
+
+* Rebase to Chromium 50
+* Android: launch external apps via custom URL schemes
+* Windows: add download support
+* Windows: support notifications
+
+### Embedding API changes
+
+* Add support for removeJavascriptInterface
+* setLoadWithOverviewMode
+* New APIs to find text in web page and manage the results
+* New APIs to customize the dialog shown when downloading shared Crosswalk
+* Add support for getContentHeight
+
+### Notable bug fixes
+
+* [XWALK-6630] - shouldOverrideUrlLoading blocks js execution in some cases
+
 ## Crosswalk 19 (Jun 22, 2016)
 
 * Rebase to Chromium 49
