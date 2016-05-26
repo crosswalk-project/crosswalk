@@ -56,6 +56,8 @@ public class XWalkViewTestBase
     private XWalkView mXWalkView;
     private boolean mAllowSslError = true;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
+    private static final boolean ENABLED = true;		
+    private static final boolean DISABLED = false;
 
     class TestXWalkUIClientBase extends XWalkUIClient {
         TestHelperBridge mInnerContentsClient;
@@ -1076,6 +1078,16 @@ public class XWalkViewTestBase
         });
     }
 
+    protected void setQuirksModeByXWalkView(final boolean value,
+            final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setSupportQuirksMode(value);
+            }
+        });
+    }
+
     // This class provides helper methods for testing of settings related to
     // the text autosizing feature.
     abstract class XWalkSettingsTextAutosizingTestHelper<T> extends XWalkSettingsTestHelper<T> {
@@ -1208,5 +1220,179 @@ public class XWalkViewTestBase
                 mXWalkView.findNext(forward);
             }
         });
+    }
+
+    protected boolean getUseWideViewPortOnUiThreadByXWalkView(
+            final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return view.getSettings().getUseWideViewPort();
+            }
+        });
+    }
+
+    // To verify whether UseWideViewport works, we check, if the page width specified
+    // in the "meta viewport" tag is applied. When UseWideViewport is turned off, the
+    // "viewport" tag is ignored, and the layout width is set to device width in DIP pixels.
+    // We specify a very high width value to make sure that it doesn't intersect with
+    // device screen widths (in DIP pixels).
+    class XWalkSettingsUseWideViewportTestHelper extends XWalkSettingsTestHelper<Boolean> {
+        private static final String VIEWPORT_TAG_LAYOUT_WIDTH = "3000";
+        XWalkView mView;
+        TestHelperBridge mBridge;
+
+        XWalkSettingsUseWideViewportTestHelper(XWalkView view,
+                TestHelperBridge bridge) throws Throwable {
+            super(view);
+            mView = view;
+            mBridge = bridge;
+        }
+
+        @Override
+        protected Boolean getAlteredValue() {
+            return ENABLED;
+        }
+
+        @Override
+        protected Boolean getInitialValue() {
+            return DISABLED;
+        }
+
+        @Override
+        protected Boolean getCurrentValue() {
+            try {
+                return getUseWideViewPortOnUiThreadByXWalkView(mView);
+            } catch (Exception e) {
+                Log.e(TAG, "Get UseWideViewPort failed.", e);
+            }
+            return false;
+        }
+
+        @Override
+        protected void setCurrentValue(Boolean value) throws Throwable {
+            setUseWideViewPortOnUiThreadByXWalkView(value, mView);
+        }
+
+        @Override
+        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
+            loadDataSyncWithXWalkView(getData(), mView, mBridge);
+            final String bodyWidth = getTitleOnUiThreadByContent(mView);
+            if (value) {
+                assertTrue(bodyWidth, VIEWPORT_TAG_LAYOUT_WIDTH.equals(bodyWidth));
+            } else {
+                assertFalse(bodyWidth, VIEWPORT_TAG_LAYOUT_WIDTH.equals(bodyWidth));
+            }
+        }
+
+        private String getData() {
+            return "<html><head>"
+                    + "<meta name='viewport' content='width=" + VIEWPORT_TAG_LAYOUT_WIDTH + "' />"
+                    + "</head>"
+                    + "<body onload='document.title=document.body.clientWidth'></body></html>";
+        }
+    }
+
+    private float getScaleFactorByXWalkViewAndHelperBridge(final XWalkView view,
+            final TestHelperBridge bridge) {
+        final float newScale = bridge.getOnScaleChangedHelper().getNewScale();
+        // If new scale is 0.0f, it means the page does not zoom,
+        // return the default scale factior: 1.0f.
+        if (Float.compare(newScale, 0.0f) == 0) return 1.0f;
+        return newScale / (float) DeviceDisplayInfo.create(view.getContext()).getDIPScale();
+    }
+
+    protected void setLoadWithOverviewModeOnUiThreadByXWalkView(
+            final boolean value, final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setLoadWithOverviewMode(value);
+            }
+        });
+    }
+
+    protected boolean getLoadWithOverviewModeOnUiThreadByXWalkView(
+            final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return view.getSettings().getLoadWithOverviewMode();
+            }
+        });
+    }
+
+    class XWalkSettingsLoadWithOverviewModeTestHelper extends XWalkSettingsTestHelper<Boolean> {
+        private static final float DEFAULT_PAGE_SCALE = 1.0f;
+        private final boolean mWithViewPortTag;
+        private boolean mExpectScaleChange;
+        private int mOnScaleChangedCallCount;
+        XWalkView mView;
+        TestHelperBridge mBridge;
+
+        XWalkSettingsLoadWithOverviewModeTestHelper(
+                XWalkView view,
+                TestHelperBridge bridge,
+                boolean withViewPortTag) throws Throwable {
+            super(view);
+            mView = view;
+            mBridge = bridge;
+            mWithViewPortTag = withViewPortTag;
+            setUseWideViewPortOnUiThreadByXWalkView(true, view);
+        }
+
+        @Override
+        protected Boolean getAlteredValue() {
+            return ENABLED;
+        }
+
+        @Override
+        protected Boolean getInitialValue() {
+            return DISABLED;
+        }
+
+        @Override
+        protected Boolean getCurrentValue() {
+            try {
+                return getLoadWithOverviewModeOnUiThreadByXWalkView(mView);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @Override
+        protected void setCurrentValue(Boolean value) {
+            try {
+                mExpectScaleChange = getLoadWithOverviewModeOnUiThreadByXWalkView(mView) != value;
+                if (mExpectScaleChange)
+                    mOnScaleChangedCallCount = mBridge.getOnScaleChangedHelper().getCallCount();
+                setLoadWithOverviewModeOnUiThreadByXWalkView(value, mView);
+            } catch (Exception e) {
+            }
+        }
+
+        @Override
+        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
+            loadDataSyncWithXWalkView(getData(), mView, mBridge);
+            if (mExpectScaleChange) {
+                mBridge.getOnScaleChangedHelper().waitForCallback(mOnScaleChangedCallCount);
+                mExpectScaleChange = false;
+            }
+
+            float currentScale = getScaleFactorByXWalkViewAndHelperBridge(mView, mBridge);
+            if (value) {
+                assertTrue("Expected: " + currentScale + " < " + DEFAULT_PAGE_SCALE,
+                        currentScale < DEFAULT_PAGE_SCALE);
+            } else {
+                assertEquals(DEFAULT_PAGE_SCALE, currentScale);
+            }
+        }
+
+        private String getData() {
+            return "<html><head>"
+                    + (mWithViewPortTag ? "<meta name='viewport' content='width=3000' />" : "")
+                    + "</head>"
+                    + "<body></body></html>";
+        }
     }
 }

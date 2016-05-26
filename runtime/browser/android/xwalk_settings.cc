@@ -82,6 +82,8 @@ struct XWalkSettings::FieldIds {
         GetFieldID(env, clazz, "mSpatialNavigationEnabled", "Z");
     quirks_mode_enabled =
         GetFieldID(env, clazz, "mQuirksModeEnabled", "Z");
+    initialize_at_minimum_page_scale =
+        GetFieldID(env, clazz, "mLoadWithOverviewMode", "Z");
   }
 
   // Field ids
@@ -103,6 +105,7 @@ struct XWalkSettings::FieldIds {
   jfieldID default_fixed_font_size;
   jfieldID spatial_navigation_enabled;
   jfieldID quirks_mode_enabled;
+  jfieldID initialize_at_minimum_page_scale;
 };
 
 XWalkSettings::XWalkSettings(JNIEnv* env,
@@ -213,6 +216,8 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.databases_enabled = env->GetBooleanField(
       obj, field_ids_->database_enabled);
 
+  prefs.initialize_at_minimum_page_scale =
+      env->GetBooleanField(obj, field_ids_->initialize_at_minimum_page_scale);
   prefs.double_tap_to_zoom_enabled = prefs.use_wide_viewport =
       env->GetBooleanField(obj, field_ids_->use_wide_viewport);
 
@@ -266,6 +271,8 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
       obj, field_ids_->quirks_mode_enabled);
   prefs.viewport_meta_non_user_scalable_quirk = support_quirks;
   prefs.clobber_user_agent_initial_scale_quirk = support_quirks;
+
+  prefs.wide_viewport_quirk = true;
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }
@@ -336,6 +343,12 @@ void XWalkSettings::UpdateInitialPageScale(JNIEnv* env, jobject obj) {
       Java_XWalkSettingsInternal_getDIPScaleLocked(env, obj));
   render_view_host_ext->SetInitialPageScale(
       initial_page_scale_percent / dip_scale / 100.0f);
+}
+
+void XWalkSettings::ResetScrollAndScaleState(JNIEnv* env, jobject obj) {
+  XWalkRenderViewHostExt* rvhe = GetXWalkRenderViewHostExt();
+  if (!rvhe) return;
+  rvhe->ResetScrollAndScaleState();
 }
 
 bool RegisterXWalkSettings(JNIEnv* env) {
