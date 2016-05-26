@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_RENDERER_PEPPER_XWALK_RENDERER_PEPPER_HOST_FACTORY_H_
 #define XWALK_RUNTIME_RENDERER_PEPPER_XWALK_RENDERER_PEPPER_HOST_FACTORY_H_
 
+#include "base/macros.h"
 #include "ppapi/host/host_factory.h"
 
 namespace content {
