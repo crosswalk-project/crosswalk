@@ -25,7 +25,6 @@ RuntimeJavaScriptDialogManager::~RuntimeJavaScriptDialogManager() {
 void RuntimeJavaScriptDialogManager::RunJavaScriptDialog(
     content::WebContents* web_contents,
     const GURL& origin_url,
-    const std::string& accept_lang,
     content::JavaScriptMessageType javascript_message_type,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
@@ -47,14 +46,12 @@ void RuntimeJavaScriptDialogManager::RunJavaScriptDialog(
 
 void RuntimeJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::WebContents* web_contents,
-    const base::string16& message_text,
     bool is_reload,
     const DialogClosedCallback& callback) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* bridge =
       XWalkContentsClientBridgeBase::FromWebContents(web_contents);
   bridge->RunBeforeUnloadDialog(web_contents->GetURL(),
-                                message_text,
                                 callback);
 #else
   NOTIMPLEMENTED();
