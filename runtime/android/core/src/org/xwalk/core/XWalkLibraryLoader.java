@@ -32,8 +32,6 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 
-import junit.framework.Assert;
-
 /**
  * XWalkLibraryLoader is a low level inteface to schedule decompressing, downloading, activating
  * the Crosswalk runtime. Normal user is recommended to use XWalkActivity or XWalkInitializer which
@@ -295,7 +293,9 @@ class XWalkLibraryLoader {
         @Override
         protected void onPostExecute(Integer result) {
             Log.d(TAG, "DecompressTask finished, " + result);
-            Assert.assertEquals(result.intValue(), 0);
+            if (result.intValue() != 0) {
+                throw new RuntimeException("Decompression Failed");
+            }
             sActiveTask = null;
             mListener.onDecompressCompleted();
         }

@@ -235,7 +235,8 @@ class XWalkCoreWrapper {
         Log.d(TAG, "Init embedded mode");
         XWalkCoreWrapper provisionalInstance = new XWalkCoreWrapper(null, -1);
         if (!provisionalInstance.findEmbeddedCore()) {
-            Assert.fail("Please have your activity extend XWalkActivity for shared mode");
+            throw new RuntimeException(
+                    "Please have your activity extend XWalkActivity for shared mode");
         }
 
         sInstance = provisionalInstance;
@@ -453,12 +454,12 @@ class XWalkCoreWrapper {
         try {
             md = MessageDigest.getInstance(hashAlgorithm);
         } catch (NoSuchAlgorithmException | NullPointerException e) {
-            Assert.fail("Invalid hash algorithm");
+            throw new IllegalArgumentException("Invalid hash algorithm");
         }
 
         byte[] hashArray = hexStringToByteArray(hashCode);
         if (hashArray == null) {
-            Assert.fail("Invalid hash code");
+            throw new IllegalArgumentException("Invalid hash code");
         }
 
         for (int i = 0; i < packageInfo.signatures.length; ++i) {
