@@ -53,17 +53,17 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, DisplayInfoProvider) {
   std::unique_ptr<SystemDisplay> info(provider->display_info());
   EXPECT_TRUE(info != NULL);
 
-  std::vector<linked_ptr<DisplayUnit> > displays = info->displays;
+  std::vector<DisplayUnit> displays = std::move(info->displays);
 
   size_t display_count = displays.size();
   EXPECT_GE(display_count, 0u);
 
   for (size_t i = 0; i < display_count; ++i) {
-    EXPECT_FALSE(displays[i]->id.empty());
-    EXPECT_GE(displays[i]->width, 0);
-    EXPECT_GE(displays[i]->height, 0);
-    EXPECT_GE(displays[i]->avail_width, 0);
-    EXPECT_GE(displays[i]->avail_height, 0);
+    EXPECT_FALSE(displays[i].id.empty());
+    EXPECT_GE(displays[i].width, 0);
+    EXPECT_GE(displays[i].height, 0);
+    EXPECT_GE(displays[i].avail_width, 0);
+    EXPECT_GE(displays[i].avail_height, 0);
   }
 
   TestObserver test_observer;

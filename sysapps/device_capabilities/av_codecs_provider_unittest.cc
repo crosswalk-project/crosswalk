@@ -25,11 +25,11 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, AVCodecsProvider) {
   EXPECT_TRUE(provider != NULL);
 
   std::unique_ptr<SystemAVCodecs> info(provider->GetSupportedCodecs());
-  std::vector<linked_ptr<AudioCodec> > audio_codecs = info->audio_codecs;
+  std::vector<AudioCodec> audio_codecs = std::move(info->audio_codecs);
   for (size_t i = 0; i < audio_codecs.size(); ++i)
-    EXPECT_FALSE(audio_codecs[i]->format.empty());
+    EXPECT_FALSE(audio_codecs[i].format.empty());
 
-  std::vector<linked_ptr<VideoCodec> > video_codecs = info->video_codecs;
+  std::vector<VideoCodec> video_codecs = std::move(info->video_codecs);
   for (size_t i = 0; i < video_codecs.size(); ++i)
-    EXPECT_FALSE(video_codecs[i]->format.empty());
+    EXPECT_FALSE(video_codecs[i].format.empty());
 }

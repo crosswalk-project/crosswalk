@@ -35,7 +35,7 @@ void TestClosure() {
   std::unique_ptr<SystemStorage> info(provider->storage_info());
   EXPECT_TRUE(info != NULL);
 
-  std::vector<linked_ptr<StorageUnit> > storages = info->storages;
+  std::vector<StorageUnit> storages = std::move(info->storages);
 
   // We should have at least one storage, otherwise where is the binary
   // of this unit test being stored?
@@ -45,8 +45,8 @@ void TestClosure() {
   // The only information we can verify is the fact that the storage
   // has some capacity and has an ID. The rest, like the name, can be empty.
   for (size_t i = 0; i < storage_count; ++i) {
-    EXPECT_FALSE(storages[i]->id.empty());
-    EXPECT_GE(storages[i]->capacity, 0);
+    EXPECT_FALSE(storages[i].id.empty());
+    EXPECT_GE(storages[i].capacity, 0);
   }
 
   // We can just test if adding and removing the observers works, but
