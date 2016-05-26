@@ -171,6 +171,7 @@ class InternalJavaFileData(object):
       # Determine whether the import rule should be ignored for generated code.
       # TODO: Currently we only use a blacklist to filter the import rule.
       if imported.startswith('org.xwalk.core.internal') or \
+          imported.startswith('org.xwalk.core') or \
           imported.startswith('org.chromium'):
         continue
       self._imports.append(imported)

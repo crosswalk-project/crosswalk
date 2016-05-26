@@ -119,12 +119,6 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *    "XWalkContent: CompositingSurfaceType is TextureView"
  *   </ol>
  *
- * <p>In embedded mode, the developer can use XWalkViewInternal in <code>onCreate()</code> directly.
- * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
- * activity is created, so the embedding API won't be usable immediately. To make your code
- * compatible with all modes, please refer to the examples in {@link XWalkActivity} or
- * {@link XWalkInitializer}.</p>
- *
  * <p>XWalkViewInternal needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
  * "android:hardwareAccelerated" and its value must be set as "true".</p>
@@ -143,77 +137,95 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * components like videos when activity paused, resume back them when activity resumed.
  * When activity is about to destroy, XWalkViewInternal will destroy itself as well.
  * Embedders can also call onHide() and pauseTimers() to explicitly pause XWalkViewInternal.
- * Similarily with onShow(), resumeTimers() and onDestroy().
+ * Similarily with onShow(), resumeTimers() and onDestroy().</p>
  *
- * For example:</p>
+ * <p>Unlike WebView, you shouldn't use XWalkView directly. It must be accompanied with
+ * {@link XWalkActivity} or {@link XWalkInitializer}. For example:</p>
  *
  * <pre>
- *   import android.app.Activity;
- *   import android.os.Bundle;
+ * import android.content.Intent;
+ * import android.os.Bundle;
+ * import android.webkit.ValueCallback;
+ * import org.xwalk.core.XWalkActivity;
+ * import org.xwalk.core.XWalkViewInternal;
+ * import org.xwalk.core.XWalkResourceClientInternal;
+ * import org.xwalk.core.XWalkUIClientInternal;
+ * import org.xwalk.core.XWalkWebResourceRequestInternal;
+ * import org.xwalk.core.XWalkWebResourceResponseInternal;
  *
- *   import org.xwalk.core.internal.XWalkResourceClientInternal;
- *   import org.xwalk.core.internal.XWalkUIClientInternal;
- *   import org.xwalk.core.internal.XWalkViewInternal;
- *   import org.xwalk.core.internal.XWalkWebResourceRequestInternal;
- *   import org.xwalk.core.internal.XWalkWebResourceResponseInternal;
+ * public class MainActivity extends XWalkActivity {
+ *     XWalkViewInternal mXWalkView;
  *
- *   public class MyActivity extends Activity {
- *       XWalkViewInternal mXwalkView;
+ *     private class MyResourceClient extends XWalkResourceClientInternal {
+ *         public MyResourceClient(XWalkViewInternal view) {
+ *             super(view);
+ *         }
  *
- *       class MyResourceClient extends XWalkResourceClientInternal {
- *           MyResourceClient(XWalkViewInternal view) {
- *               super(view);
- *           }
+ *         &#64;Override
+ *         public XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
+ *                 XWalkWebResourceRequestInternal request) {
+ *             // Handle it here.
+ *             // Use createXWalkWebResourceResponse instead of "new XWalkWebResourceResponse"
+ *             // to create the response.
+ *             // Similar with before, there are two function to use:
+ *             // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
+ *             // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
+ *             //             int statusCode, String reasonPhrase, Map&lt;String, String&gt; responseHeaders)
+ *             return createXWalkWebResourceResponse("text/html", "UTF-8", null);
+ *         }
+ *     }
  *
- *           &#64;Override
- *           XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
- *                   XWalkWebResourceRequestInternal request) {
- *               // Handle it here.
- *               // Use createXWalkWebResourceResponse instead of "new XWalkWebResourceResponse"
- *               // to create the response.
- *               // Similar with before, there are two function to use:
- *               // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
- *               // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
- *               //             int statusCode, String reasonPhrase, Map&lt;String, String&gt; responseHeaders)
- *               ...
- *           }
- *       }
+ *     private class MyUIClient extends XWalkUIClientInternal {
+ *         public MyUIClient(XWalkViewInternal view) {
+ *             super(view);
+ *         }
  *
- *       class MyUIClient extends XWalkUIClientInternal {
- *           MyUIClient(XWalkViewInternal view) {
- *               super(view);
- *           }
+ *         &#64;Override
+ *         public boolean onCreateWindowRequested(XWalkView view, InitiateBy initiator,
+ *                 ValueCallback&lt;XWalkViewInternal&gt; callback) {
+ *             XWalkViewInternal newView = new XWalkViewInternal(MainActivity.this);
+ *             callback.onReceiveValue(newView);
+ *             return true;
+ *         }
+ *     }
  *
- *           &#64;Override
- *           void onFullscreenToggled(XWalkViewInternal view, String url) {
- *               // Handle it here.
- *               ...
- *           }
- *       }
+ *     &#64;Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
  *
- *       &#64;Override
- *       protected void onCreate(Bundle savedInstanceState) {
- *           mXwalkView = new XWalkViewInternal(this);
- *           setContentView(mXwalkView);
- *           mXwalkView.setResourceClient(new MyResourceClient(mXwalkView));
- *           mXwalkView.setUIClient(new MyUIClient(mXwalkView));
- *           mXwalkView.load("http://www.crosswalk-project.org", null);
- *       }
+ *         // Until onXWalkReady() is invoked, you should do nothing with the
+ *         // embedding API except the following:
+ *         // 1. Instantiate the XWalkView object
+ *         // 2. Call XWalkPreferences.setValue()
+ *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
+ *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
+ *         // 5. Call mXWalkView.addJavascriptInterface()
+ *         setContentView(R.layout.activity_main);
+ *         mXWalkView = (XWalkViewInternal) findViewById(R.id.xwalkview);
+ *         mXWalkView.setResourceClient(new MyResourceClient(mXWalkView));
+ *         mXWalkView.setUIClient(new MyUIClient(mXWalkView));
+ *     }
  *
- *       &#64;Override
- *       protected void onActivityResult(int requestCode, int resultCode, Intent data) {
- *           if (mXwalkView != null) {
- *               mXwalkView.onActivityResult(requestCode, resultCode, data);
- *           }
- *       }
+ *     &#64;Override
+ *     public void onXWalkReady() {
+ *         // Do anyting with the embedding API
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *     }
  *
- *       &#64;Override
- *       protected void onNewIntent(Intent intent) {
- *           if (mXwalkView != null) {
- *               mXwalkView.onNewIntent(intent);
- *           }
- *       }
- *   }
+ *     &#64;Override
+ *     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+ *         if (mXWalkView != null) {
+ *             mXWalkView.onActivityResult(requestCode, resultCode, data);
+ *         }
+ *     }
+ *
+ *     &#64;Override
+ *     protected void onNewIntent(Intent intent) {
+ *         if (mXWalkView != null) {
+ *             mXWalkView.onNewIntent(intent);
+ *         }
+ *     }
+ * }
  * </pre>
  */
 @XWalkAPI(extendClass = FrameLayout.class, createExternally = true)
@@ -876,10 +888,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @return the string of API level.
      * @since 1.0
      */
-    // TODO(yongsheng): make it static?
     @XWalkAPI
     public String getAPIVersion() {
-        return "5.0";
+        return String.valueOf(XWalkCoreVersion.API_VERSION) + ".0";
     }
 
     /**
@@ -887,7 +898,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @return the string of Crosswalk.
      * @since 1.0
      */
-    // TODO(yongsheng): make it static?
     @XWalkAPI
     public String getXWalkVersion() {
         if (mContent == null) return null;

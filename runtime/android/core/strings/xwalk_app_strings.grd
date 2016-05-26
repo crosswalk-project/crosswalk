@@ -2,30 +2,6 @@
 <grit current_release="1" latest_public_release="0">
   <release allow_pseudo="false" seq="1">
     <messages fallback_to_english="true">
-      <message desc="Crosswalk Install Title [CHAR-LIMIT=100]" name="IDS_CROSSWALK_INSTALL_TITLE">
-        Crosswalk Project Install
-      </message>
-      <message desc="Decompression Progress Message [CHAR-LIMIT=100]" name="IDS_DECOMPRESSION_PROGRESS_MESSAGE">
-        Decompressing the Crosswalk Project Service...
-      </message>
-      <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
-        Downloading the Crosswalk Project Service from remote host...
-      </message>
-      <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
-        Download failed. A network error occurred.
-      </message>
-      <message desc="Download Failed Not Found [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_DEVICE_NOT_FOUND">
-        Download failed. Storage device not found.
-      </message>
-      <message desc="Download Failed Insufficient space [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_INSUFFICIENT_SPACE">
-        Download failed. Insufficient disk space.
-      </message>
-      <message desc="Download Failed Time Out [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_TIME_OUT">
-        Download failed. The network connection timed out.
-      </message>
-      <message desc="Market Open Failed Message [CHAR-LIMIT=100]" name="IDS_MARKET_OPEN_FAILED_MESSAGE">
-        Failed to open the app store. You need an app store to download the Crosswalk Project Service.
-      </message>
       <message desc="Startup Not Found Title [CHAR-LIMIT=100]" name="IDS_STARTUP_NOT_FOUND_TITLE">
         Crosswalk Project Service Not Found
       </message>
@@ -44,12 +20,6 @@
       <message desc="Startup Newer Version Message [CHAR-LIMIT=100]" name="IDS_STARTUP_NEWER_VERSION_MESSAGE">
         APP_NAME is not compatible with the installed version of the Crosswalk Project Service.
       </message>
-      <message desc="Startup Incomplete Library Title [CHAR-LIMIT=100]" name="IDS_STARTUP_INCOMPLETE_LIBRARY_TITLE">
-        Incomplete Crosswalk Project Service
-      </message>
-      <message desc="Startup Incomplete Library Message [CHAR-LIMIT=100]" name="IDS_STARTUP_INCOMPLETE_LIBRARY_MESSAGE">
-        Please repackage APP_NAME.
-      </message>
       <message desc="Startup Architecture Mismatched Title [CHAR-LIMIT=100]" name="IDS_STARTUP_ARCHITECTURE_MISMATCH_TITLE">
         Mismatch of CPU Architecture
       </message>
@@ -61,6 +31,18 @@
       </message>
       <message desc="Startup Signature Check Error Message [CHAR-LIMIT=100]" name="IDS_STARTUP_SIGNATURE_CHECK_ERROR_MESSAGE">
         The integrity of the Crosswalk Project Service cannot be verified. Please uninstall it and restart APP_NAME.
+      </message>
+      <message desc="Crosswalk Install Title [CHAR-LIMIT=100]" name="IDS_CROSSWALK_INSTALL_TITLE">
+        Crosswalk Project Install
+      </message>
+      <message desc="Download Failed Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_FAILED_MESSAGE">
+        Download failed.
+      </message>
+      <message desc="Decompression Progress Message [CHAR-LIMIT=100]" name="IDS_DECOMPRESSION_PROGRESS_MESSAGE">
+        Decompressing the Crosswalk Project Service...
+      </message>
+      <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
+        Downloading the Crosswalk Project Service from remote host...
       </message>
       <message desc="Label of Get Crosswalk [CHAR-LIMIT=100]" name="IDS_XWALK_GET_CROSSWALK">
         Get Crosswalk
