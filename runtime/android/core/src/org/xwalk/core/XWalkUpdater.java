@@ -21,8 +21,6 @@ import android.util.Log;
 import java.io.File;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
 
 /**
@@ -291,7 +289,7 @@ public class XWalkUpdater {
     private boolean mIsDownloading;
 
     /**
-     * Create XWalkUpdater for single activity
+     * Create XWalkUpdater for single activity.
      *
      * @param listener The {@link XWalkUpdateListener} to use
      * @param activity The activity which initiate the update
@@ -302,8 +300,14 @@ public class XWalkUpdater {
         mDialogManager = new XWalkDialogManager(activity);
     }
 
-    // This constructor is for XWalkActivityDelegate
-    XWalkUpdater(XWalkUpdateListener listener, Activity activity,
+    /**
+     * Create XWalkUpdater for single activity.
+     *
+     * @param listener The {@link XWalkUpdateListener} to use
+     * @param activity The activity which initiate the update
+     * @param dialogManager The {@link XWalkDialogManager} to use
+     */
+    public XWalkUpdater(XWalkUpdateListener listener, Activity activity,
             XWalkDialogManager dialogManager) {
         mUpdateListener = listener;
         mActivity = activity;
@@ -330,7 +334,7 @@ public class XWalkUpdater {
      * <p>Please try to initialize by {@link XWalkInitializer} first and only invoke this method
      * when the initialization failed. This method must be invoked on the UI thread.
      *
-     * @return True if the updater is launched, false if is in updating, or the Crosswalk runtime
+     * @return true if the updater is launched, false if is in updating, or the Crosswalk runtime
      *         doesn't need to be updated, or the Crosswalk runtime has not been initialized yet.
      */
     public boolean updateXWalkRuntime() {
@@ -361,20 +365,9 @@ public class XWalkUpdater {
         } else if (mBackgroundUpdateListener != null) {
             downloadXWalkApkInBackground();
         } else {
-            Assert.fail();
+            throw new IllegalArgumentException("Update listener is null");
         }
 
-        return true;
-    }
-
-    /**
-     * Dismiss the dialog showing and waiting for user's input.
-     *
-     * @return Return false if no dialog is being displayed, true if dismissed the showing dialog.
-     */
-    public boolean dismissDialog() {
-        if (mDialogManager == null || !mDialogManager.isShowingDialog()) return false;
-        mDialogManager.dismissDialog();
         return true;
     }
 
@@ -391,11 +384,17 @@ public class XWalkUpdater {
     /**
      * Cancel the background download
      *
-     * @return Return false if it is not a background updater or is not downloading, true otherwise.
+     * @return false if it is not a background updater or is not downloading, true otherwise.
      */
     public boolean cancelBackgroundDownload() {
         if (mBackgroundUpdateListener == null || !mIsDownloading) return false;
         return XWalkLibraryLoader.cancelHttpDownload();
+    }
+
+    private boolean dismissDialog() {
+        if (mDialogManager == null || !mDialogManager.isShowingDialog()) return false;
+        mDialogManager.dismissDialog();
+        return true;
     }
 
     private void downloadXWalkApk() {
@@ -449,8 +448,7 @@ public class XWalkUpdater {
             Log.d(TAG, "Market opened");
             mDialogManager.dismissDialog();
         } catch (ActivityNotFoundException e) {
-            Log.d(TAG, "Market open failed");
-            mDialogManager.showMarketOpenError(mCancelCommand);
+            throw new RuntimeException("Market open failed");
         }
     }
 
@@ -491,7 +489,7 @@ public class XWalkUpdater {
         @Override
         public void onDownloadFailed(int status, int error) {
             mDialogManager.dismissDialog();
-            mDialogManager.showDownloadError(status, error, mCancelCommand, mDownloadCommand);
+            mDialogManager.showDownloadError(mCancelCommand, mDownloadCommand);
         }
 
         @Override
