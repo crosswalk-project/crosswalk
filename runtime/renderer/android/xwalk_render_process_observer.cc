@@ -37,10 +37,6 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-void XWalkRenderProcessObserver::WebKitInitialized() {
-  webkit_initialized_ = true;
-}
-
 void XWalkRenderProcessObserver::OnSetJsOnlineProperty(bool network_up) {
   if (webkit_initialized_)
     blink::WebNetworkStateNotifier::setOnLine(network_up);

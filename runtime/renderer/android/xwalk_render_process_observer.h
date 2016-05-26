@@ -22,7 +22,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
 
   // content::RenderProcessObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
-  void WebKitInitialized() override;
 
  private:
   void OnSetJsOnlineProperty(bool network_up);
