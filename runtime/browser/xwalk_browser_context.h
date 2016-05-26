@@ -76,8 +76,6 @@ class XWalkBrowserContext
   bool IsOffTheRecord() const override;
   content::DownloadManagerDelegate* GetDownloadManagerDelegate() override;
   net::URLRequestContextGetter* GetRequestContext() override;
-  net::URLRequestContextGetter* GetRequestContextForRenderProcess(
-      int renderer_child_id) override;
   net::URLRequestContextGetter* GetMediaRequestContext() override;
   net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
       int renderer_child_id) override;
@@ -91,17 +89,17 @@ class XWalkBrowserContext
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
   content::BackgroundSyncController* GetBackgroundSyncController() override;
-
-  RuntimeURLRequestContextGetter* GetURLRequestContextGetterById(
-      const std::string& pkg_id);
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors) override;
+
+  RuntimeURLRequestContextGetter* GetURLRequestContextGetterById(
+      const std::string& pkg_id);
   void InitFormDatabaseService();
   XWalkFormDatabaseService* GetFormDatabaseService();
   void CreateUserPrefServiceIfNecessary();

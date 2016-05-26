@@ -176,18 +176,6 @@ net::URLRequestContextGetter* XWalkBrowserContext::GetRequestContext() {
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
 }
 
-net::URLRequestContextGetter*
-    XWalkBrowserContext::GetRequestContextForRenderProcess(
-        int renderer_child_id) {
-#if defined(OS_ANDROID)
-  return GetRequestContext();
-#else
-  content::RenderProcessHost* rph =
-      content::RenderProcessHost::FromID(renderer_child_id);
-  return rph->GetStoragePartition()->GetURLRequestContext();
-#endif
-}
-
 net::URLRequestContextGetter* XWalkBrowserContext::GetMediaRequestContext() {
   return GetRequestContext();
 }
