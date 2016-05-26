@@ -82,7 +82,7 @@ DCHECK_EQ(embedding_origin, embedding_origin.GetOrigin());
 DCHECK(content_setting == CONTENT_SETTING_ALLOW ||
     content_setting == CONTENT_SETTING_BLOCK);
 
-host_content_settings_map_->SetContentSetting(
+host_content_settings_map_->SetContentSettingCustomScope(
     ContentSettingsPattern::FromURLNoWildcard(requesting_origin),
     ContentSettingsPattern::FromURLNoWildcard(embedding_origin),
     type, std::string(), content_setting);
