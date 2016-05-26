@@ -111,9 +111,6 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   thread->AddObserver(visited_link_slave_.get());
 #endif
 
-  // Using WebString requires blink initialization.
-  thread->EnsureWebKitInitialized();
-
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
     extension_controller_.reset(
