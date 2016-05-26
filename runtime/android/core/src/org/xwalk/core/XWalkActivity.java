@@ -57,7 +57,7 @@ import android.os.Bundle;
  * <p>For shared mode and download mode, you might need to edit the Android manifest to set some
  * properties. </p>
  *
- * <h5>Shared Mode</h5>
+ * <h4>Shared Mode</h4>
  *
  * <p>If you want the end-user to download Crosswalk Project runtime from specified URL instead of
  * switching to the application store, add following &lt;meta-data&gt; element inside the
@@ -79,7 +79,7 @@ import android.os.Bundle;
  * &lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
  * </pre>
  *
- * <h5>Download Mode</h5>
+ * <h4>Download Mode</h4>
  *
  * <p>Firstly, you need to add following &lt;meta-data&gt; element to enable download mode:</p>
  *
