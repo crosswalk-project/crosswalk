@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+#include "base/macros.h"
 
 namespace devtools_http_handler {
 class DevToolsHttpHandler;
