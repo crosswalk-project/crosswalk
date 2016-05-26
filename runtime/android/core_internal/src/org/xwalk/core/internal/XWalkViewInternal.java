@@ -73,11 +73,51 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
  * android.view.SurfaceView</a> for rendering web pages by default, it can't be resized,
  * rotated, transformed and animated due to the limitations of SurfaceView.
- * Alternatively, if the preference key {@link XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW}
- * is set to True, XWalkViewInternal can be transformed and animated because
+ * Alternatively, XWalkViewInternal can be transformed and animated by using
  * <a href="http://developer.android.com/reference/android/view/TextureView.html">
- * TextureView</a> is intentionally used to render web pages for animation support.
+ * TextureView</a>, which is intentionally used to render web pages for animation support.
  * Besides, XWalkViewInternal won't be rendered if it's invisible.</p>
+ *
+ * <p>Crosswalk provides two ways to choose TextureView or SurfaceView:</p>
+ * <ol><li>[To Be Deprecated] Set preference key
+ * {@link XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW} to true to use TextureView,
+ * and vice versa. Notice that all XWalkViews share the same preference value.</li>
+ * <li>Application developer can set this attribute for a single XWalkView by XML without
+ * impact on other XWalkViews, notice that in this case the value of
+ * XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW is invaild for this XWalkView.
+ * See below steps for detail:
+ *  <ul type="disc">
+ *   <li> Create an attrs.xml under res/values/ as below, the attrs name must be "animatable":
+ *    <pre>
+ *    &lt;?xml version="1.0" encoding="utf-8"?&gt;
+ *    &lt;resources&gt;
+ *      &lt;declare-styleable name="AnimatableView"&gt;
+ *        &lt;attr name="animatable" format="boolean" /&gt;
+ *      &lt;/declare-styleable&gt;
+ *    &lt;/resources&gt;</pre>
+ *   </li>
+ *   <li>Add xwalk namespace into activity layout file, such as layout/activity_main.xml.
+ *    <pre>
+ *    &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ *        xmlns:xwalk="http://schemas.android.com/apk/res-auto"
+ *        ......</pre>
+ *   </li>
+ *   <li>Set xwalk attribute to true or false in the same xml as above. True for TextureView,
+ *         false for SurfaceView, and SurfaceView is the default.
+ *    <pre>
+ *    &lt;org.xwalk.core.XWalkView
+ *        android:id="@+id/xwalkview"
+ *        android:layout_width="match_parent"
+ *        android:layout_height="match_parent"
+ *        xwalk:animatable="true" &gt;
+ *    &lt;/org.xwalk.core.XWalkView&gt;</pre>
+ *   </li>
+ *   <li>Use XWalkView in MainActivity.java.
+ *    <pre>mXWalkView = (XWalkView) findViewById(R.id.xwalkview);</pre>
+ *   </li></ul></li>
+ *   There is debug message on logcat according to your "animatable" values:
+ *    "XWalkContent: CompositingSurfaceType is TextureView"
+ *   </ol>
  *
  * <p>In embedded mode, the developer can use XWalkViewInternal in <code>onCreate()</code> directly.
  * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
@@ -269,6 +309,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});",
                   "        if (isInEditMode()) return;",
+                  "        mAnimatable = ${param2}.getAttributeValue(",
+                  "                XWALK_ATTRS_NAMESPACE, ANIMATABLE);",
                   "        SurfaceView surfaceView = new SurfaceView(${param1});",
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
@@ -277,7 +319,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
                   "        removeViewAt(0);",
-                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"})
+                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"},
+              postBridgeLines = {
+                  "        String animatable = (String) new ReflectField(wrapper, \"mAnimatable\").get();",
+                  "        initXWalkContent(getContext(), animatable);"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -286,7 +331,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContext = getContext();
 
         init(getContext(), getActivity());
-        initXWalkContent(mContext, attrs);
     }
 
     /**
@@ -365,13 +409,13 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.supplyContentsForPopup(newXWalkView == null ? null : newXWalkView.mContent);
     }
 
-    private void initXWalkContent(Context context, AttributeSet attrs) {
+    protected void initXWalkContent(Context context, String animatable) {
         mActivityStateListener = new XWalkActivityStateListener(this);
         ApplicationStatus.registerStateListenerForActivity(
             mActivityStateListener, getActivity());
 
         mIsHidden = false;
-        mContent = new XWalkContent(context, attrs, this);
+        mContent = new XWalkContent(context, animatable, this);
 
         // If XWalkView was created in onXWalkReady(), and the activity which owns
         // XWalkView was destroyed, pauseTimers() will be invoked. Reentry the activity,
