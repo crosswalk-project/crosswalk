@@ -22,6 +22,129 @@ import android.widget.Button;
 
 import java.util.ArrayList;
 
+/**
+ * <p>By <code>XWalkDialogManager</code>, you can customize what the dialog looks like when
+ * initializing Crosswalk Project runtime. Please note that you can only specify how the dialog to
+ * be displayed but cann't specify how it reacts.
+ *
+ * <p>Here is the sample code when using {@link XWalkActivity}:</p>
+ *
+ * <pre>
+ * import android.app.AlertDialog;
+ * import android.os.Bundle;
+ *
+ * import org.xwalk.core.XWalkActivity;
+ * import org.xwalk.core.XWalkDialogManager;
+ * import org.xwalk.core.XWalkView;
+ *
+ * public class MainActivity extends XWalkActivity {
+ *     private XWalkView mXWalkView;
+ *     private XWalkDialogManager mDialogManager;
+ *
+ *     &#64;Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
+ *
+ *         setContentView(R.layout.activity_main);
+ *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
+ *
+ *         // Get default dialog and modifiy it as needed, or set a completely customized dialog.
+ *
+ *         mDialogManager = new XWalkDialogManager(this);
+ *         AlertDialog dialog = mDialogManager.getAlertDialog(XWalkDialogManager.DIALOG_NOT_FOUND);
+ *         dialog.setTitle("TestTitle");
+ *         dialog.setMessage("TestMessage");
+ *         setDialogManager(mDialogManager);
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkReady() {
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *     }
+ * }
+ * </pre>
+ *
+ * <p>And when using {@link XWalkUpdater}:</p>
+ *
+ * <pre>
+ * import android.app.Activity;
+ * import android.app.AlertDialog;
+ * import android.content.DialogInterface;
+ * import android.content.DialogInterface.OnClickListener;
+ * import android.os.Bundle;
+ *
+ * import org.xwalk.core.XWalkDialogManager;
+ * import org.xwalk.core.XWalkInitializer;
+ * import org.xwalk.core.XWalkUpdater;
+ * import org.xwalk.core.XWalkView;
+ *
+ * public class MainActivity extends Activity implements
+ *        XWalkInitializer.XWalkInitListener,
+ *        XWalkUpdater.XWalkUpdateListener {
+ *
+ *     private XWalkInitializer mXWalkInitializer;
+ *     private XWalkUpdater mXWalkUpdater;
+ *     private XWalkView mXWalkView;
+ *     private XWalkDialogManager mDialogManager;
+ *
+ *     &#64;Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
+ *
+ *         mXWalkInitializer = new XWalkInitializer(this, this);
+ *         mXWalkInitializer.initAsync();
+ *
+ *         setContentView(R.layout.activity_main);
+ *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
+ *     }
+ *
+ *     &#64;Override
+ *     protected void onResume() {
+ *         super.onResume();
+ *         mXWalkInitializer.initAsync();
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitStarted() {
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitCancelled() {
+ *         finish();
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitFailed() {
+ *         if (mXWalkUpdater == null) {
+ *             // Get default dialog and modifiy it as needed, or set a completely customized dialog.
+ *
+ *             AlertDialog dialog = new AlertDialog.Builder(this).create();
+ *             dialog.setIcon(android.R.drawable.ic_dialog_alert);
+ *             dialog.setTitle("TextTitle");
+ *             dialog.setMessage("TextMessage");
+ *             dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Download", (OnClickListener) null);
+ *
+ *             mDialogManager = new XWalkDialogManager(this);
+ *             mDialogManager.setAlertDialog(XWalkDialogManager.DIALOG_NOT_FOUND, dialog);
+ *             mXWalkUpdater = new XWalkUpdater(this, this, mDialogManager);
+ *         }
+ *         mXWalkUpdater.updateXWalkRuntime();
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkInitCompleted() {
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *     }
+ *
+ *     &#64;Override
+ *     public void onXWalkUpdateCancelled() {
+ *         finish();
+ *     }
+ * }
+ * </pre>
+ *
+ */
+
 public class XWalkDialogManager {
     /**
      * <B>Dialog Type</B>: AlertDialog<br>

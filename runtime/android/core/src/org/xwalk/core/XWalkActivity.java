@@ -9,25 +9,27 @@ import android.os.Bundle;
 
 /**
  * <p><code>XWalkActivity</code> helps to execute all procedures to make Crosswalk Project runtime
- * workable and displays dialogs to interact with the user. The activities that hold the
+ * workable and displays dialogs to interact with the user if needed. The activities that hold the
  * {@link XWalkView} objects might want to extend <code>XWalkActivity</code> to obtain this
  * capability. For those activities, there's no need to use {@link XWalkInitializer} and
  * {@link XWalkUpdater}.</p>
  *
- * <p>By <code>XWalkActivity</code>, your application can support all of embedded mode, shared mode
- * and download mode with same code. So this is the preferred interface. </p>
+ * <p><strong>By <code>XWalkActivity</code>, your application can support all running modes
+ * (embedded mode, shared mode, download mode) with same code. So this is the preferred interface.
+ * </strong></p>
  *
- * <h3>Sample Code</h3>
+ * <h3>Edit Activity</h3>
  *
  * <p>Here is the sample code for all running modes:</p>
  *
  * <pre>
  * import android.os.Bundle;
+ *
  * import org.xwalk.core.XWalkActivity;
  * import org.xwalk.core.XWalkView;
  *
  * public class MainActivity extends XWalkActivity {
- *     XWalkView mXWalkView;
+ *     private XWalkView mXWalkView;
  *
  *     &#64;Override
  *     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ import android.os.Bundle;
  *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
  *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
  *         // 5. Call mXWalkView.addJavascriptInterface()
+ *
  *         setContentView(R.layout.activity_main);
  *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
  *     }
@@ -47,15 +50,29 @@ import android.os.Bundle;
  *     &#64;Override
  *     public void onXWalkReady() {
  *         // Do anyting with the embedding API
+ *
  *         mXWalkView.load("https://crosswalk-project.org/", null);
  *     }
  * }
  * </pre>
  *
- * <h3>App Manifest</h3>
+ * <h3>Edit Layout</h3>
+ *
+ * <p>When the application was generated, some default layout resources were added to the project.
+ * Add a single XWalkView resource to a proper place in the main layout resource file,
+ * res/layout/activity_main.xml, like this:</p>
+ *
+ * <pre>
+ *   &lt;org.xwalk.core.XWalkView
+ *       android:id="@+id/xwalkview"
+ *       android:layout_width="match_parent"
+ *       android:layout_height="match_parent" /&gt;
+ * </pre>
+ *
+ * <h3>Edit App Manifest</h3>
  *
  * <p>For shared mode and download mode, you might need to edit the Android manifest to set some
- * properties. </p>
+ * properties. </pn.>
  *
  * <h5>Shared Mode</h5>
  *
