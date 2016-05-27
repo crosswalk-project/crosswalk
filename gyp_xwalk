@@ -351,9 +351,17 @@ if __name__ == '__main__':
     args.append('-Drelease_unwind_tables=0')
     #### Below flags are used for reducing size of Crosswalk Lite. ####
     # Disable ICU by default
-    args.append('-Duse_icu_alternatives_on_android=1')
-    # Disable WebRTC by default
-    args.append('-Denable_webrtc=0')
+    if gyp_vars_dict.get('enable_icu') == '1':
+        args.append('-Duse_icu_alternatives_on_android=0')
+    else:
+        args.append('-Duse_icu_alternatives_on_android=1')
+
+    # Disable WebRTC by default if not enabled in GYP_DEFINES
+    if gyp_vars_dict.get('enable_webrtc') == '1':
+        args.append('-Denable_webrtc=1')
+    else:
+        args.append('-Denable_webrtc=0')
+
     # Disable XSLT by default
     args.append('-Ddisable_xslt=1')
     # Disable WebP by default
@@ -363,19 +371,41 @@ if __name__ == '__main__':
     # Disable QUIC by default
     args.append('-Ddisable_quic_support=1')
     # Disable Sync compositor by default
-    args.append('-Ddisable_sync_compositor=1')
-    # Disable Webaudio by default
-    args.append('-Ddisable_web_audio=1')
-    args.append('-Ddisable_webaudio_hrtf=1')
-    args.append('-Duse_openmax_dl_fft=0')
+    if gyp_vars_dict.get('enable_sync_compositor') == '1':
+        args.append('-Ddisable_sync_compositor=0')
+    else:
+        args.append('-Ddisable_sync_compositor=1')
+
+    # Webaudio is disabled by default if not enabled in GYP_DEFINES
+    if gyp_vars_dict.get('enable_av') == '1':
+        args.append('-Ddisable_web_audio=0')
+        args.append('-Ddisable_webaudio_hrtf=0')
+        args.append('-Duse_openmax_dl_fft=1')
+    else:
+        args.append('-Ddisable_web_audio=1')
+        args.append('-Ddisable_webaudio_hrtf=1')
+        args.append('-Duse_openmax_dl_fft=0')
+
     # Enable use_minimum_resources by default
-    args.append('-Duse_minimum_resources=1')
+    if gyp_vars_dict.get('enable_mini_resource') == '0':
+        args.append('-Duse_minimum_resources=0')
+    else:
+        args.append('-Duse_minimum_resources=1')
+
     # Disable buildin extension by default.
     args.append('-Ddisable_builtin_extensions=1')
-    # Disable Devtools by default
-    args.append('-Ddisable_devtools=0')
-    # Disable Webvideo by default.
-    args.append('-Ddisable_web_video=1')
+    # enable devtools by default
+    if gyp_vars_dict.get('enable_devtools') == '0':
+        args.append('-Ddisable_devtools=1')
+    else:
+        args.append('-Ddisable_devtools=0')
+
+    # Webvideo is disabled by default if not enabled in GYP_DEFINES.
+    if gyp_vars_dict.get('enable_av') == '1':
+        args.append('-Ddisable_web_video=0')
+    else:
+        args.append('-Ddisable_web_video=1')
+
     # Disable Web Speech API by default
     args.append('-Denable_web_speech=0')
     # Enable "Optimize for size, Os" compile option by default
@@ -383,7 +413,11 @@ if __name__ == '__main__':
     # Disable Notifications by default
     args.append('-Ddisable_notifications=1')
     # Disable WebCL by default
-    args.append('-Denable_webcl=0')
+    if gyp_vars_dict.get('enable_webcl') == '1':
+        args.append('-Denable_webcl=1')
+    else:
+        args.append('-Denable_webcl=0')
+
     # Disable IndexedDB by default
     args.append('-Ddisable_indexeddb=1')
     # Disable Accessibility by default
@@ -393,7 +427,11 @@ if __name__ == '__main__':
     # Disable Bluetooth by default
     args.append('-Ddisable_bluetooth=1')
     # Disable Web Database by default
-    args.append('-Ddisable_webdatabase=1')
+    if gyp_vars_dict.get('enable_webdatabase') == '1':
+        args.append('-Ddisable_webdatabase=0')
+    else:
+        args.append('-Ddisable_webdatabase=1')
+
     # Disable Web MIDI API by default
     args.append('-Ddisable_webmidi=1')
     # Disable Plugins by default
