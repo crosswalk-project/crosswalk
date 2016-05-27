@@ -77,7 +77,7 @@ bool XPKPackage::VerifySignature() {
   if (fseek(file_->get(), zip_addr_, SEEK_SET))
     return false;
   crypto::SignatureVerifier verifier;
-  if (!verifier.VerifyInit(crypto::SignatureVerifier::RSA_PKCS1_SHA256,
+  if (!verifier.VerifyInit(crypto::SignatureVerifier::RSA_PKCS1_SHA1,
                            &signature_.front(),
                            base::checked_cast<int>(signature_.size()),
                            &key_.front(),
