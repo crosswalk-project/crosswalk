@@ -21,11 +21,14 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  * match the application, you could use {@link XWalkUpdater} to download suitable Crosswalk Project
  * runtime.</p>
  *
+ * <h3>Edit Activity</h3>
+ *
  * <p>Here is the sample code for embedded mode and shared mode:</p>
  *
  * <pre>
  * import android.app.Activity;
  * import android.os.Bundle;
+ *
  * import org.xwalk.core.XWalkInitializer;
  * import org.xwalk.core.XWalkUpdater;
  * import org.xwalk.core.XWalkView;
@@ -34,9 +37,9 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  *        XWalkInitializer.XWalkInitListener,
  *        XWalkUpdater.XWalkUpdateListener {
  *
- *     XWalkInitializer mXWalkInitializer;
- *     XWalkUpdater mXWalkUpdater;
- *     XWalkView mXWalkView;
+ *     private XWalkInitializer mXWalkInitializer;
+ *     private XWalkUpdater mXWalkUpdater;
+ *     private XWalkView mXWalkView;
  *
  *     &#64;Override
  *     protected void onCreate(Bundle savedInstanceState) {
@@ -45,24 +48,31 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  *         // Must call initAsync() before anything that involves the embedding
  *         // API, including invoking setContentView() with the layout which
  *         // holds the XWalkView object.
+ *
  *         mXWalkInitializer = new XWalkInitializer(this, this);
  *         mXWalkInitializer.initAsync();
  *
- *         // Until onXWalkReady() is invoked, you should do nothing with the
+ *         // Until onXWalkInitCompleted() is invoked, you should do nothing with the
  *         // embedding API except the following:
  *         // 1. Instantiate the XWalkView object
  *         // 2. Call XWalkPreferences.setValue()
  *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
  *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
  *         // 5. Call mXWalkView.addJavascriptInterface()
+ *
  *         setContentView(R.layout.activity_main);
  *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
  *     }
  *
  *     &#64;Override
- *     public void onXWalkInitCompleted() {
- *         // Do anyting with the embedding API
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *     protected void onResume() {
+ *         super.onResume();
+ *
+ *         // Try to initialize again when the user completed updating and
+ *         // returned to current activity. The initAsync() will do nothing if
+ *         // the initialization is proceeding or has already been completed.
+ *
+ *         mXWalkInitializer.initAsync();
  *     }
  *
  *     &#64;Override
@@ -72,6 +82,8 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  *     &#64;Override
  *     public void onXWalkInitCancelled() {
  *         // Perform error handling here
+ *
+ *         finish();
  *     }
  *
  *     &#64;Override
@@ -79,27 +91,36 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  *         if (mXWalkUpdater == null) {
  *             mXWalkUpdater = new XWalkUpdater(this, this);
  *         }
- *
- *         // The updater won't be launched if previous update dialog is
- *         // showing.
  *         mXWalkUpdater.updateXWalkRuntime();
  *     }
  *
  *     &#64;Override
- *     protected void onResume() {
- *         super.onResume();
+ *     public void onXWalkInitCompleted() {
+ *         // Do anyting with the embedding API
  *
- *         // Try to initialize again when the user completed updating and
- *         // returned to current activity. The initAsync() will do nothing if
- *         // the initialization has already been completed successfully.
- *         mXWalkInitializer.initAsync();
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
  *     }
  *
  *     &#64;Override
  *     public void onXWalkUpdateCancelled() {
  *         // Perform error handling here
+ *
+ *         finish();
  *     }
  * }
+ * </pre>
+ *
+ * <h3>Edit Layout</h3>
+ *
+ * <p>When the application was generated, some default layout resources were added to the project.
+ * Add a single XWalkView resource to a proper place in the main layout resource file,
+ * res/layout/activity_main.xml, like this:</p>
+ *
+ * <pre>
+ *   &lt;org.xwalk.core.XWalkView
+ *       android:id="@+id/xwalkview"
+ *       android:layout_width="match_parent"
+ *       android:layout_height="match_parent" /&gt;
  * </pre>
  *
  */

@@ -46,13 +46,14 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  * libraries and resources. It has smaller size but will take a little more time at the first
  * launch.</p>
  *
- * <h3>Sample Code</h3>
+ * <h3>Edit Activity</h3>
  *
  * <p>Here is the sample code for embedded mode and shared mode:</p>
  *
  * <pre>
  * import android.app.Activity;
  * import android.os.Bundle;
+ *
  * import org.xwalk.core.XWalkInitializer;
  * import org.xwalk.core.XWalkUpdater;
  * import org.xwalk.core.XWalkView;
@@ -61,9 +62,9 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *        XWalkInitializer.XWalkInitListener,
  *        XWalkUpdater.XWalkUpdateListener {
  *
- *     XWalkInitializer mXWalkInitializer;
- *     XWalkUpdater mXWalkUpdater;
- *     XWalkView mXWalkView;
+ *     private XWalkView mXWalkView;
+ *     private XWalkInitializer mXWalkInitializer;
+ *     private XWalkUpdater mXWalkUpdater;
  *
  *     &#64;Override
  *     protected void onCreate(Bundle savedInstanceState) {
@@ -72,24 +73,31 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *         // Must call initAsync() before anything that involves the embedding
  *         // API, including invoking setContentView() with the layout which
  *         // holds the XWalkView object.
+ *
  *         mXWalkInitializer = new XWalkInitializer(this, this);
  *         mXWalkInitializer.initAsync();
  *
- *         // Until onXWalkReady() is invoked, you should do nothing with the
+ *         // Until onXWalkInitCompleted() is invoked, you should do nothing with the
  *         // embedding API except the following:
  *         // 1. Instantiate the XWalkView object
  *         // 2. Call XWalkPreferences.setValue()
  *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
  *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
  *         // 5. Call mXWalkView.addJavascriptInterface()
+ *
  *         setContentView(R.layout.activity_main);
  *         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
  *     }
  *
  *     &#64;Override
- *     public void onXWalkInitCompleted() {
- *         // Do anyting with the embedding API
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *     protected void onResume() {
+ *         super.onResume();
+ *
+ *         // Try to initialize again when the user completed updating and
+ *         // returned to current activity. The initAsync() will do nothing if
+ *         // the initialization is proceeding or has already been completed.
+ *
+ *         mXWalkInitializer.initAsync();
  *     }
  *
  *     &#64;Override
@@ -99,6 +107,8 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *     &#64;Override
  *     public void onXWalkInitCancelled() {
  *         // Perform error handling here
+ *
+ *         finish();
  *     }
  *
  *     &#64;Override
@@ -106,31 +116,27 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *         if (mXWalkUpdater == null) {
  *             mXWalkUpdater = new XWalkUpdater(this, this);
  *         }
- *
- *         // The updater won't be launched if previous update dialog is
- *         // showing.
  *         mXWalkUpdater.updateXWalkRuntime();
  *     }
  *
  *     &#64;Override
- *     protected void onResume() {
- *         super.onResume();
+ *     public void onXWalkInitCompleted() {
+ *         // Do anyting with the embedding API
  *
- *         // Try to initialize again when the user completed updating and
- *         // returned to current activity. The initAsync() will do nothing if
- *         // the initialization has already been completed successfully.
- *         mXWalkInitializer.initAsync();
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
  *     }
  *
  *     &#64;Override
  *     public void onXWalkUpdateCancelled() {
  *         // Perform error handling here
+ *
+ *         finish();
  *     }
  * }
  * </pre>
  *
  * <p>For download mode, the code is almost the same except you should use
- * {@link XWalkBackgroundUpdateListener} instead of {link XWalkUpdateListener}. </p>
+ * {@link XWalkBackgroundUpdateListener} instead of {@link XWalkUpdateListener}. </p>
  *
  * <pre>
  * public class MyActivity extends Activity implements
@@ -145,26 +151,33 @@ import org.xwalk.core.XWalkLibraryLoader.DownloadListener;
  *
  *     &#64;Override
  *     public void onXWalkUpdateProgress(int percentage) {
+ *         // Update the progress to UI or do nothing
  *     }
  *
  *     &#64;Override
  *     public void onXWalkUpdateCancelled() {
  *         // Perform error handling here
+ *
+ *         finish();
  *     }
  *
  *     &#64;Override
  *     public void onXWalkUpdateFailed() {
  *         // Perform error handling here
+ *
+ *         finish();
  *     }
  *
  *     &#64;Override
  *     public void onXWalkUpdateCompleted() {
+ *         // Start to initialize again once update finished
+ *
  *         mXWalkInitializer.initAsync();
  *     }
  * }
  * </pre>
  *
- * <h3>App Manifest</h3>
+ * <h3>Edit App Manifest</h3>
  *
  * <p>For shared mode and download mode, you might need to edit the Android manifest to set some
  * properties. </p>
