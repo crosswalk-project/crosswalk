@@ -140,8 +140,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     cookie_config.cookieable_schemes.push_back(application::kApplicationScheme);
     cookie_config.cookieable_schemes.push_back(content::kChromeDevToolsScheme);
 
-    net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
-    storage_->set_cookie_store(cookie_store);
+    auto cookie_store = content::CreateCookieStore(cookie_config);
+    storage_->set_cookie_store(std::move(cookie_store));
 #endif
     storage_->set_channel_id_service(base::WrapUnique(new net::ChannelIDService(
         new net::DefaultChannelIDStore(NULL),
@@ -200,8 +200,6 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         url_request_context_->ssl_config_service();
     network_session_params.http_auth_handler_factory =
         url_request_context_->http_auth_handler_factory();
-    network_session_params.network_delegate =
-        network_delegate_.get();
     network_session_params.http_server_properties =
         url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
