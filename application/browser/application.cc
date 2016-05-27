@@ -214,7 +214,7 @@ bool Application::Launch() {
     return false;
 
   auto site = content::SiteInstance::CreateForURL(browser_context_, url);
-  Runtime* runtime = Runtime::Create(browser_context_, site);
+  Runtime* runtime = Runtime::Create(browser_context_, site.get());
   runtime->set_observer(this);
   runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
