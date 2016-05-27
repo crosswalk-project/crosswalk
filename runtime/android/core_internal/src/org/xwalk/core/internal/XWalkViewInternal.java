@@ -114,10 +114,10 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *   </li>
  *   <li>Use XWalkView in MainActivity.java.
  *    <pre>mXWalkView = (XWalkView) findViewById(R.id.xwalkview);</pre>
- *   </li></ul></li>
+ *   </li></ul>
  *   There is debug message on logcat according to your "animatable" values:
  *    "XWalkContent: CompositingSurfaceType is TextureView"
- *   </ol>
+ *   </li></ol>
  *
  * <p>XWalkViewInternal needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
