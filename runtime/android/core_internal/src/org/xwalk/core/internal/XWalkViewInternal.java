@@ -139,22 +139,25 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * Embedders can also call onHide() and pauseTimers() to explicitly pause XWalkViewInternal.
  * Similarily with onShow(), resumeTimers() and onDestroy().</p>
  *
- * <p>Unlike WebView, you shouldn't use XWalkView directly. It must be accompanied with
- * {@link XWalkActivity} or {@link XWalkInitializer}. For example:</p>
+ * <p><strong>Unlike WebView, you shouldn't use XWalkView directly. It must be accompanied with
+ * {@link XWalkActivity} or {@link XWalkInitializer}. </strong></p>
+ *
+ * <p>For example:</p>
  *
  * <pre>
  * import android.content.Intent;
  * import android.os.Bundle;
  * import android.webkit.ValueCallback;
+ *
  * import org.xwalk.core.XWalkActivity;
- * import org.xwalk.core.XWalkViewInternal;
  * import org.xwalk.core.XWalkResourceClientInternal;
  * import org.xwalk.core.XWalkUIClientInternal;
+ * import org.xwalk.core.XWalkViewInternal;
  * import org.xwalk.core.XWalkWebResourceRequestInternal;
  * import org.xwalk.core.XWalkWebResourceResponseInternal;
  *
  * public class MainActivity extends XWalkActivity {
- *     XWalkViewInternal mXWalkView;
+ *     private XWalkViewInternal mXWalkView;
  *
  *     private class MyResourceClient extends XWalkResourceClientInternal {
  *         public MyResourceClient(XWalkViewInternal view) {
@@ -171,6 +174,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *             // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
  *             // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
  *             //             int statusCode, String reasonPhrase, Map&lt;String, String&gt; responseHeaders)
+ *
  *             return createXWalkWebResourceResponse("text/html", "UTF-8", null);
  *         }
  *     }
@@ -200,6 +204,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
  *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
  *         // 5. Call mXWalkView.addJavascriptInterface()
+ *
  *         setContentView(R.layout.activity_main);
  *         mXWalkView = (XWalkViewInternal) findViewById(R.id.xwalkview);
  *         mXWalkView.setResourceClient(new MyResourceClient(mXWalkView));
@@ -209,6 +214,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *     &#64;Override
  *     public void onXWalkReady() {
  *         // Do anyting with the embedding API
+ *
  *         mXWalkView.load("https://crosswalk-project.org/", null);
  *     }
  *
