@@ -35,10 +35,13 @@ class ReflectField {
         try {
             mField = mClass.getField(mName);
         } catch (NoSuchFieldException e) {
-            try {
-                mField = mClass.getDeclaredField(mName);
-                mField.setAccessible(true);
-            } catch (NoSuchFieldException e2) {
+            for (Class<?> parent = mClass; parent != null; parent = parent.getSuperclass()) {
+                try {
+                    mField = parent.getDeclaredField(mName);
+                    mField.setAccessible(true);
+                    break;
+                } catch (NoSuchFieldException e2) {
+                }
             }
         }
         return mField != null;
