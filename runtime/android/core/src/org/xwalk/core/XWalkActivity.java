@@ -118,31 +118,62 @@ public abstract class XWalkActivity extends Activity {
     private XWalkActivityDelegate mActivityDelegate;
 
     /**
-     * Run on the UI thread to notify Crosswalk Project runtime is ready.
+     * Run on the UI thread to notify Crosswalk Project runtime is ready.<br>
+     * You should load the web page in {@link XWalkView} within this method.
      */
     protected abstract void onXWalkReady();
 
     /**
      * Run on the UI thread to notify the initialization of Crosswalk Project runtime failed or is
-     * cancelled. Then, your won't be able to use {@link XWalkView}. By default, it will call
-     * finish() to close your activity.
+     * cancelled.<br>
+     * Then, your won't be able to use {@link XWalkView}. By default, it will call finish() to
+     * close your activity.
+     *
+     * @since 7.0
      */
     protected void onXWalkFailed() {
         finish();
     }
 
     /**
-     * Return true if Crosswalk Project runtime is ready, false otherwise.
+     * Set up the dialog manager so that you can customize the dialog to be dislplayed when
+     * initializing Crosswalk Project runtime. This method must be called within onCreate(). Once
+     * onResume() is invoked, a default dialog manager will be set up and you won't be able to
+     * change it. The dialog manager is meaningless in download mode because there won't be any UI
+     * interfaction.
+     *
+     * @param dialogManager The {@link XWalkDialogManager} to use
+     * @since 7.0
+     */
+    protected void setDialogManager(XWalkDialogManager dialogManager) {
+        mActivityDelegate.setDialogManager(dialogManager);
+    }
+
+    /**
+     * Return whether Crosswalk Project runtime is ready.
+     *
+     * @return true if Crosswalk Project runtime is ready, false otherwise
      */
     public boolean isXWalkReady() {
         return mActivityDelegate.isXWalkReady();
     }
 
     /**
-     * Return true if running in shared mode, false otherwise.
+     * Return whether running in shared mode.
+     *
+     * @return true if running in shared mode, false otherwise
      */
     public boolean isSharedMode() {
         return mActivityDelegate.isSharedMode();
+    }
+
+    /**
+     * Return whether running in shared mode.
+     *
+     * @return true if running in download mode, false otherwise
+     */
+    public boolean isDownloadMode() {
+        return mActivityDelegate.isDownloadMode();
     }
 
     @Override

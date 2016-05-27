@@ -73,17 +73,51 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
  * android.view.SurfaceView</a> for rendering web pages by default, it can't be resized,
  * rotated, transformed and animated due to the limitations of SurfaceView.
- * Alternatively, if the preference key {@link XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW}
- * is set to True, XWalkViewInternal can be transformed and animated because
+ * Alternatively, XWalkViewInternal can be transformed and animated by using
  * <a href="http://developer.android.com/reference/android/view/TextureView.html">
- * TextureView</a> is intentionally used to render web pages for animation support.
+ * TextureView</a>, which is intentionally used to render web pages for animation support.
  * Besides, XWalkViewInternal won't be rendered if it's invisible.</p>
  *
- * <p>In embedded mode, the developer can use XWalkViewInternal in <code>onCreate()</code> directly.
- * But in shared mode and lite mode, the Crosswalk runtime isn't loaded yet at the moment the
- * activity is created, so the embedding API won't be usable immediately. To make your code
- * compatible with all modes, please refer to the examples in {@link XWalkActivity} or
- * {@link XWalkInitializer}.</p>
+ * <p>Crosswalk provides two ways to choose TextureView or SurfaceView:</p>
+ * <ol><li>[To Be Deprecated] Set preference key
+ * {@link XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW} to true to use TextureView,
+ * and vice versa. Notice that all XWalkViews share the same preference value.</li>
+ * <li>Application developer can set this attribute for a single XWalkView by XML without
+ * impact on other XWalkViews, notice that in this case the value of
+ * XWalkPreferencesInternal#ANIMATABLE_XWALK_VIEW is invaild for this XWalkView.
+ * See below steps for detail:
+ *  <ul type="disc">
+ *   <li> Create an attrs.xml under res/values/ as below, the attrs name must be "animatable":
+ *    <pre>
+ *    &lt;?xml version="1.0" encoding="utf-8"?&gt;
+ *    &lt;resources&gt;
+ *      &lt;declare-styleable name="AnimatableView"&gt;
+ *        &lt;attr name="animatable" format="boolean" /&gt;
+ *      &lt;/declare-styleable&gt;
+ *    &lt;/resources&gt;</pre>
+ *   </li>
+ *   <li>Add xwalk namespace into activity layout file, such as layout/activity_main.xml.
+ *    <pre>
+ *    &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ *        xmlns:xwalk="http://schemas.android.com/apk/res-auto"
+ *        ......</pre>
+ *   </li>
+ *   <li>Set xwalk attribute to true or false in the same xml as above. True for TextureView,
+ *         false for SurfaceView, and SurfaceView is the default.
+ *    <pre>
+ *    &lt;org.xwalk.core.XWalkView
+ *        android:id="@+id/xwalkview"
+ *        android:layout_width="match_parent"
+ *        android:layout_height="match_parent"
+ *        xwalk:animatable="true" &gt;
+ *    &lt;/org.xwalk.core.XWalkView&gt;</pre>
+ *   </li>
+ *   <li>Use XWalkView in MainActivity.java.
+ *    <pre>mXWalkView = (XWalkView) findViewById(R.id.xwalkview);</pre>
+ *   </li></ul></li>
+ *   There is debug message on logcat according to your "animatable" values:
+ *    "XWalkContent: CompositingSurfaceType is TextureView"
+ *   </ol>
  *
  * <p>XWalkViewInternal needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
@@ -103,77 +137,95 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * components like videos when activity paused, resume back them when activity resumed.
  * When activity is about to destroy, XWalkViewInternal will destroy itself as well.
  * Embedders can also call onHide() and pauseTimers() to explicitly pause XWalkViewInternal.
- * Similarily with onShow(), resumeTimers() and onDestroy().
+ * Similarily with onShow(), resumeTimers() and onDestroy().</p>
  *
- * For example:</p>
+ * <p>Unlike WebView, you shouldn't use XWalkView directly. It must be accompanied with
+ * {@link XWalkActivity} or {@link XWalkInitializer}. For example:</p>
  *
  * <pre>
- *   import android.app.Activity;
- *   import android.os.Bundle;
+ * import android.content.Intent;
+ * import android.os.Bundle;
+ * import android.webkit.ValueCallback;
+ * import org.xwalk.core.XWalkActivity;
+ * import org.xwalk.core.XWalkViewInternal;
+ * import org.xwalk.core.XWalkResourceClientInternal;
+ * import org.xwalk.core.XWalkUIClientInternal;
+ * import org.xwalk.core.XWalkWebResourceRequestInternal;
+ * import org.xwalk.core.XWalkWebResourceResponseInternal;
  *
- *   import org.xwalk.core.internal.XWalkResourceClientInternal;
- *   import org.xwalk.core.internal.XWalkUIClientInternal;
- *   import org.xwalk.core.internal.XWalkViewInternal;
- *   import org.xwalk.core.internal.XWalkWebResourceRequestInternal;
- *   import org.xwalk.core.internal.XWalkWebResourceResponseInternal;
+ * public class MainActivity extends XWalkActivity {
+ *     XWalkViewInternal mXWalkView;
  *
- *   public class MyActivity extends Activity {
- *       XWalkViewInternal mXwalkView;
+ *     private class MyResourceClient extends XWalkResourceClientInternal {
+ *         public MyResourceClient(XWalkViewInternal view) {
+ *             super(view);
+ *         }
  *
- *       class MyResourceClient extends XWalkResourceClientInternal {
- *           MyResourceClient(XWalkViewInternal view) {
- *               super(view);
- *           }
+ *         &#64;Override
+ *         public XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
+ *                 XWalkWebResourceRequestInternal request) {
+ *             // Handle it here.
+ *             // Use createXWalkWebResourceResponse instead of "new XWalkWebResourceResponse"
+ *             // to create the response.
+ *             // Similar with before, there are two function to use:
+ *             // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
+ *             // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
+ *             //             int statusCode, String reasonPhrase, Map&lt;String, String&gt; responseHeaders)
+ *             return createXWalkWebResourceResponse("text/html", "UTF-8", null);
+ *         }
+ *     }
  *
- *           &#64;Override
- *           XWalkWebResourceResponseInternal shouldInterceptLoadRequest(XWalkViewInternal view,
- *                   XWalkWebResourceRequestInternal request) {
- *               // Handle it here.
- *               // Use createXWalkWebResourceResponse instead of "new XWalkWebResourceResponse"
- *               // to create the response.
- *               // Similar with before, there are two function to use:
- *               // 1) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data)
- *               // 2) createXWalkWebResourceResponse(String mimeType, String encoding, InputStream data,
- *               //             int statusCode, String reasonPhrase, Map&lt;String, String&gt; responseHeaders)
- *               ...
- *           }
- *       }
+ *     private class MyUIClient extends XWalkUIClientInternal {
+ *         public MyUIClient(XWalkViewInternal view) {
+ *             super(view);
+ *         }
  *
- *       class MyUIClient extends XWalkUIClientInternal {
- *           MyUIClient(XWalkViewInternal view) {
- *               super(view);
- *           }
+ *         &#64;Override
+ *         public boolean onCreateWindowRequested(XWalkView view, InitiateBy initiator,
+ *                 ValueCallback&lt;XWalkViewInternal&gt; callback) {
+ *             XWalkViewInternal newView = new XWalkViewInternal(MainActivity.this);
+ *             callback.onReceiveValue(newView);
+ *             return true;
+ *         }
+ *     }
  *
- *           &#64;Override
- *           void onFullscreenToggled(XWalkViewInternal view, String url) {
- *               // Handle it here.
- *               ...
- *           }
- *       }
+ *     &#64;Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
  *
- *       &#64;Override
- *       protected void onCreate(Bundle savedInstanceState) {
- *           mXwalkView = new XWalkViewInternal(this);
- *           setContentView(mXwalkView);
- *           mXwalkView.setResourceClient(new MyResourceClient(mXwalkView));
- *           mXwalkView.setUIClient(new MyUIClient(mXwalkView));
- *           mXwalkView.load("http://www.crosswalk-project.org", null);
- *       }
+ *         // Until onXWalkReady() is invoked, you should do nothing with the
+ *         // embedding API except the following:
+ *         // 1. Instantiate the XWalkView object
+ *         // 2. Call XWalkPreferences.setValue()
+ *         // 3. Call mXWalkView.setXXClient(), e.g., setUIClient
+ *         // 4. Call mXWalkView.setXXListener(), e.g., setDownloadListener
+ *         // 5. Call mXWalkView.addJavascriptInterface()
+ *         setContentView(R.layout.activity_main);
+ *         mXWalkView = (XWalkViewInternal) findViewById(R.id.xwalkview);
+ *         mXWalkView.setResourceClient(new MyResourceClient(mXWalkView));
+ *         mXWalkView.setUIClient(new MyUIClient(mXWalkView));
+ *     }
  *
- *       &#64;Override
- *       protected void onActivityResult(int requestCode, int resultCode, Intent data) {
- *           if (mXwalkView != null) {
- *               mXwalkView.onActivityResult(requestCode, resultCode, data);
- *           }
- *       }
+ *     &#64;Override
+ *     public void onXWalkReady() {
+ *         // Do anyting with the embedding API
+ *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *     }
  *
- *       &#64;Override
- *       protected void onNewIntent(Intent intent) {
- *           if (mXwalkView != null) {
- *               mXwalkView.onNewIntent(intent);
- *           }
- *       }
- *   }
+ *     &#64;Override
+ *     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+ *         if (mXWalkView != null) {
+ *             mXWalkView.onActivityResult(requestCode, resultCode, data);
+ *         }
+ *     }
+ *
+ *     &#64;Override
+ *     protected void onNewIntent(Intent intent) {
+ *         if (mXWalkView != null) {
+ *             mXWalkView.onNewIntent(intent);
+ *         }
+ *     }
+ * }
  * </pre>
  */
 @XWalkAPI(extendClass = FrameLayout.class, createExternally = true)
@@ -269,6 +321,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});",
                   "        if (isInEditMode()) return;",
+                  "        mAnimatable = ${param2}.getAttributeValue(",
+                  "                XWALK_ATTRS_NAMESPACE, ANIMATABLE);",
                   "        SurfaceView surfaceView = new SurfaceView(${param1});",
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
@@ -277,7 +331,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
                   "        removeViewAt(0);",
-                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"})
+                  "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"},
+              postBridgeLines = {
+                  "        String animatable = (String) new ReflectField(wrapper, \"mAnimatable\").get();",
+                  "        initXWalkContent(getContext(), animatable);"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -286,7 +343,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContext = getContext();
 
         init(getContext(), getActivity());
-        initXWalkContent(mContext, attrs);
     }
 
     /**
@@ -365,13 +421,13 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.supplyContentsForPopup(newXWalkView == null ? null : newXWalkView.mContent);
     }
 
-    private void initXWalkContent(Context context, AttributeSet attrs) {
+    protected void initXWalkContent(Context context, String animatable) {
         mActivityStateListener = new XWalkActivityStateListener(this);
         ApplicationStatus.registerStateListenerForActivity(
             mActivityStateListener, getActivity());
 
         mIsHidden = false;
-        mContent = new XWalkContent(context, attrs, this);
+        mContent = new XWalkContent(context, animatable, this);
 
         // If XWalkView was created in onXWalkReady(), and the activity which owns
         // XWalkView was destroyed, pauseTimers() will be invoked. Reentry the activity,
@@ -832,10 +888,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @return the string of API level.
      * @since 1.0
      */
-    // TODO(yongsheng): make it static?
     @XWalkAPI
     public String getAPIVersion() {
-        return "5.0";
+        return String.valueOf(XWalkCoreVersion.API_VERSION) + ".0";
     }
 
     /**
@@ -843,7 +898,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @return the string of Crosswalk.
      * @since 1.0
      */
-    // TODO(yongsheng): make it static?
     @XWalkAPI
     public String getXWalkVersion() {
         if (mContent == null) return null;

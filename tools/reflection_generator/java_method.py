@@ -125,6 +125,7 @@ class Method(object):
   """Internal representaion of a method."""
   ANNOTATION_PRE_WRAPLINE = 'preWrapperLines'
   ANNOTATION_POST_WRAPLINE = 'postWrapperLines'
+  ANNOTATION_POST_BRIDGELINE = 'postBridgeLines'
 
   def __init__(self, class_name, class_loader,
       is_constructor, is_static, is_abstract,
@@ -268,6 +269,12 @@ class Method(object):
     for match in re.finditer(post_wrapline_re, annotation):
       post_wrapline = self.FormatWrapperLine(match.group('post_wrapline'))
       self._method_annotations[self.ANNOTATION_POST_WRAPLINE] = post_wrapline
+
+    post_bridgeline_re = re.compile('postBridgeLines\s*=\s*\{\s*('
+        '?P<post_bridgeline>(".*")(,\s*".*")*)\s*\}')
+    for match in re.finditer(post_bridgeline_re, annotation):
+      post_bridgeline = self.FormatWrapperLine(match.group('post_bridgeline'))
+      self._method_annotations[self.ANNOTATION_POST_BRIDGELINE] = post_bridgeline
 
   def FormatWrapperLine(self, annotation_value):
     """ annotaion_value is a java string array which each element is an
@@ -482,12 +489,18 @@ class Method(object):
 
         this.wrapper = wrapper;
         reflectionInit();
+${POST_BRIDGE_LINES}
     }
 
     """)
+
+      post_bridge_string = self._method_annotations.get(
+          self.ANNOTATION_POST_BRIDGELINE, '')
+
       value = {'NAME': self._class_java_data.bridge_name,
                'PARAMS': self._bridge_params_declare,
-               'PARAMS_PASSING': self._bridge_params_pass_to_super}
+               'PARAMS_PASSING': self._bridge_params_pass_to_super,
+               'POST_BRIDGE_LINES': post_bridge_string}
       return template.substitute(value)
     else:
       template = Template("""\

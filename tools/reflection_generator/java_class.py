@@ -171,6 +171,7 @@ class InternalJavaFileData(object):
       # Determine whether the import rule should be ignored for generated code.
       # TODO: Currently we only use a blacklist to filter the import rule.
       if imported.startswith('org.xwalk.core.internal') or \
+          imported.startswith('org.xwalk.core') or \
           imported.startswith('org.chromium'):
         continue
       self._imports.append(imported)
@@ -263,7 +264,7 @@ class InternalJavaFileData(object):
     constructor_re = re.compile(
         '(?P<method_doc>(\n\s*/\*\*.*\n(\s+\*(.)*\n)+\s+\*/\s*)?)\n'
         '\s*@XWalkAPI\(?'
-        '(?P<method_annotation>[a-zA-Z0-9\$%,\s\(\)\{\};._"=]*)\)?'
+        '(?P<method_annotation>[a-zA-Z0-9\$%,\s\(\)\{\}\\\\;._"=]*)\)?'
         '\s*public\s(?P<method_name>[a-zA-Z0-9]+)\('
         '(?P<method_params>[a-zA-Z0-9\s,\[\]\>\<]*)\)')
     for match in re.finditer(constructor_re, java_content):

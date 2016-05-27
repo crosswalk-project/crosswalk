@@ -62,6 +62,7 @@ public class SetInitialScaleTest extends XWalkViewTestBase {
     @SmallTest
     @Feature({"setInitialScale"})
     public void testSetInitialScale2() throws Throwable {
+        setQuirksMode(false);
         CallbackHelper onPageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
 
         WindowManager wm = (WindowManager) getInstrumentation().getTargetContext()
@@ -75,12 +76,12 @@ public class SetInitialScaleTest extends XWalkViewTestBase {
                 + "<p style='height:" + height + "px;width:" + width + "px'>"
                 + "testSetInitialScale</p></body></html>";
         final float defaultScaleFactor = 0;
-        final float defaultScale = 0.5f;
-        final float scaleFactor = 0.25f;
+        final float defaultScale = getInstrumentation().getTargetContext(
+                ).getResources().getDisplayMetrics().density;
 
         assertEquals(defaultScaleFactor, getScaleFactor(), .01f);
         loadDataSync(null, page, "text/html", false);
-        assertEquals(scaleFactor, getScaleFactor(), .01f);
+        assertEquals(defaultScale, getPixelScale(), .01f);
 
         int onScaleChangedCallCount = mOnScaleChangedHelper.getCallCount();
         setInitialScale(60);

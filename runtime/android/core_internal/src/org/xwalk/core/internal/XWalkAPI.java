@@ -13,4 +13,5 @@ public @interface XWalkAPI {
     Class<?> extendClass() default Object.class;
     String[] preWrapperLines() default {};
     String[] postWrapperLines() default {};
+    String[] postBridgeLines() default {};
 }

@@ -101,6 +101,12 @@ ${DOC}
       fields_string += "    private ArrayList<Object> constructorTypes;\n"
       fields_string += "    private ArrayList<Object> constructorParams;\n"
       fields_string += "    private ReflectMethod postWrapperMethod;\n"
+    if self._java_data.wrapper_name == "XWalkView":
+      fields_string += "    private String mAnimatable;\n"
+      fields_string += "    \n"
+      fields_string += "    private static final String ANIMATABLE = \"animatable\";\n"
+      fields_string += "    private static final String XWALK_ATTRS_NAMESPACE\
+ = \"http://schemas.android.com/apk/res-auto\";"
 
     return fields_string
 
