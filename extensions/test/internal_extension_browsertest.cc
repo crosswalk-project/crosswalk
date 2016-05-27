@@ -105,14 +105,14 @@ void TestExtensionInstance::OnGetAllPersons(
   }
 
   size_t max_size = std::min<size_t>(database()->size(), params->max_size);
-  std::vector<linked_ptr<Person> > persons;
+  std::vector<Person> persons;
 
   for (size_t i = 0; i < max_size; ++i) {
-    linked_ptr<Person> person(new Person);
-    person->name = database()->at(i).first;
-    person->age = database()->at(i).second;
+    Person person;
+    person.name = database()->at(i).first;
+    person.age = database()->at(i).second;
 
-    persons.push_back(person);
+    persons.push_back(std::move(person));
   }
 
   info->PostResult(
