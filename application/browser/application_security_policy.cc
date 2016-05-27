@@ -177,12 +177,14 @@ void ApplicationSecurityPolicyCSP::InitEntries() {
 
       for (const auto& directive : policies) {
         for (const auto& it : directive.second) {
-          URLPattern allowedUrl(URLPattern::SCHEME_ALL);
-          if (allowedUrl.Parse(it) != URLPattern::PARSE_SUCCESS)
-            continue;
           GURL url(it);
           if (!url.is_valid())
             continue;
+
+          URLPattern allowedUrl(URLPattern::SCHEME_ALL);
+          if (allowedUrl.Parse(url.spec()) != URLPattern::PARSE_SUCCESS)
+            continue;
+
           AddWhitelistEntry(url, allowedUrl.host(), allowedUrl.match_subdomains());
         }
       }
