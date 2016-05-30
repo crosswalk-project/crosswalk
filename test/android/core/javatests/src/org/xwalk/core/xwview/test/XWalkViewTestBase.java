@@ -56,7 +56,7 @@ public class XWalkViewTestBase
     private XWalkView mXWalkView;
     private boolean mAllowSslError = true;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
-    private static final boolean ENABLED = true;		
+    private static final boolean ENABLED = true;
     private static final boolean DISABLED = false;
 
     class TestXWalkUIClientBase extends XWalkUIClient {
@@ -1394,5 +1394,23 @@ public class XWalkViewTestBase
                     + "</head>"
                     + "<body></body></html>";
         }
+    }
+
+    protected boolean hasEnteredFullscreen() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mXWalkView.hasEnteredFullscreen();
+            }
+        });
+    }
+
+    protected void leaveFullscreen() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.leaveFullscreen();
+            }
+        });
     }
 }

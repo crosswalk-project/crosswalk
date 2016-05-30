@@ -90,7 +90,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private ContentBitmapCallback mGetBitmapCallback;
 
     long mNativeContent;
-    long mNativeWebContents;
 
     // TODO(hengzhi.wu): This should be in a global context, not per XWalkView.
     private double mDIPScale;
@@ -194,14 +193,13 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // bind all the native->java relationships.
         mCleanupReference = new CleanupReference(this, new DestroyRunnable(mNativeContent));
 
-        WebContents webContents = nativeGetWebContents(mNativeContent);
+        mWebContents = nativeGetWebContents(mNativeContent);
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(mViewContext);
         mContentView = XWalkContentView.createContentView(
                 mViewContext, mContentViewCore, mXWalkView);
-        mContentViewCore.initialize(mContentView, mContentView, webContents, mWindow);
-        mWebContents = mContentViewCore.getWebContents();
+        mContentViewCore.initialize(mContentView, mContentView, mWebContents, mWindow);
         mNavigationController = mWebContents.getNavigationController();
         mXWalkView.addView(mContentView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -215,7 +213,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
         // won't be changed from false to true at the same time in the constructor of
         // XWalkSettings class.
-        mSettings = new XWalkSettingsInternal(mViewContext, webContents, false);
+        mSettings = new XWalkSettingsInternal(mViewContext, mWebContents, false);
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
@@ -665,7 +663,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     void exitFullscreen() {
         if (hasEnteredFullscreen()) {
-            mContentsClientBridge.exitFullscreen(mNativeWebContents);
+            mWebContents.exitFullscreen();
         }
     }
 
