@@ -310,14 +310,6 @@ void XWalkContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
   pending_js_dialog_callbacks_.Remove(id);
 }
 
-void XWalkContentsClientBridge::ExitFullscreen(
-    JNIEnv*, jobject, jlong j_web_contents) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  WebContents* web_contents = reinterpret_cast<WebContents*>(j_web_contents);
-  if (web_contents)
-    web_contents->ExitFullscreen();
-}
-
 void XWalkContentsClientBridge::NotificationDisplayed(
     JNIEnv*, jobject, jint notification_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
