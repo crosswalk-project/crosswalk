@@ -39,7 +39,6 @@ import java.util.ArrayList;
  *
  * public class MainActivity extends XWalkActivity {
  *     private XWalkView mXWalkView;
- *     private XWalkDialogManager mDialogManager;
  *
  *     &#64;Override
  *     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +49,10 @@ import java.util.ArrayList;
  *
  *         // Get default dialog and modifiy it as needed, or set a completely customized dialog.
  *
- *         mDialogManager = new XWalkDialogManager(this);
- *         AlertDialog dialog = mDialogManager.getAlertDialog(XWalkDialogManager.DIALOG_NOT_FOUND);
+ *         XWalkDialogManager dialogManager = getDialogManager();
+ *         AlertDialog dialog = dialogManager.getAlertDialog(XWalkDialogManager.DIALOG_NOT_FOUND);
  *         dialog.setTitle("TestTitle");
  *         dialog.setMessage("TestMessage");
- *         setDialogManager(mDialogManager);
  *     }
  *
  *     &#64;Override
