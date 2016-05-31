@@ -9,6 +9,8 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/runtime/browser/wifidirect_component_win.h"
+#include "xwalk/runtime/common/xwalk_runtime_features.h"
 
 namespace xwalk {
 
@@ -21,6 +23,12 @@ const auto g_google_default_client_secret = L"GOOGLE_DEFAULT_CLIENT_SECRET";
 }  // namespace
 
 XWalkRunnerWin::XWalkRunnerWin() {
+}
+
+void XWalkRunnerWin::CreateComponents() {
+  XWalkRunner::CreateComponents();
+  if (XWalkRuntimeFeatures::isWiFiDirectAPIEnabled())
+    AddComponent(make_scoped_ptr(new WiFiDirectComponent()));
 }
 
 void XWalkRunnerWin::InitializeEnvironmentVariablesForGoogleAPIs(
