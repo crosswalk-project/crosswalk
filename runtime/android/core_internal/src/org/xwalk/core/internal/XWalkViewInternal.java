@@ -339,7 +339,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        removeViewAt(0);",
                   "        new org.xwalk.core.extension.XWalkExternalExtensionManagerImpl(this);"},
               postBridgeLines = {
-                  "        String animatable = (String) new ReflectField(wrapper, \"mAnimatable\").get();",
+                  "        String animatable = null;",
+                  "        try {",
+                  "            animatable = (String) new ReflectField(wrapper, \"mAnimatable\").get();",
+                  "        } catch (RuntimeException e) {",
+                  "        }",
                   "        initXWalkContent(getContext(), animatable);"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
         super(context, attrs);
