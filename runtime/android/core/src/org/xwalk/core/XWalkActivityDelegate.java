@@ -48,6 +48,8 @@ public class XWalkActivityDelegate
         mIsDownloadMode = enable != null
                 && (enable.equalsIgnoreCase("enable") || enable.equalsIgnoreCase("true"));
 
+        mDialogManager = new XWalkDialogManager(mActivity);
+
         XWalkLibraryLoader.prepareToInit(mActivity);
     }
 
@@ -67,19 +69,12 @@ public class XWalkActivityDelegate
         mXWalkApkUrl = url;
     }
 
-    public void setDialogManager(XWalkDialogManager dialogManager) {
-        if (mDialogManager != null) {
-            throw new RuntimeException("Dialog manager already exists");
-        }
-        mDialogManager = dialogManager;
+    public XWalkDialogManager getDialogManager() {
+        return mDialogManager;
     }
 
     public void onResume() {
         if (mIsInitializing || mIsXWalkReady) return;
-
-        if (mDialogManager == null) {
-            mDialogManager = new XWalkDialogManager(mActivity);
-        }
 
         mIsInitializing = true;
         if (XWalkLibraryLoader.isLibraryReady()) {
