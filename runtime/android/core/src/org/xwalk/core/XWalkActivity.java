@@ -153,16 +153,17 @@ public abstract class XWalkActivity extends Activity {
     }
 
     /**
-     * Get the dialog manager so that you can customize the dialog to be dislplayed when
-     * initializing Crosswalk Project runtime. Please note that you should modify the dialog within
-     * onCreate(). Once onResume() is invoked, some dialog maybe already displayed. The dialog
-     * manager is meaningless in download mode because there won't be any UI interaction.
+     * Set up the dialog manager so that you can customize the dialog to be dislplayed when
+     * initializing Crosswalk Project runtime. This method must be called within onCreate(). Once
+     * onResume() is invoked, a default dialog manager will be set up and you won't be able to
+     * change it. The dialog manager is meaningless in download mode because there won't be any UI
+     * interfaction.
      *
-     * @return the dialogManager which this activity is using
+     * @param dialogManager The {@link XWalkDialogManager} to use
      * @since 7.0
      */
-    protected XWalkDialogManager getDialogManager() {
-        return mActivityDelegate.getDialogManager();
+    protected void setDialogManager(XWalkDialogManager dialogManager) {
+        mActivityDelegate.setDialogManager(dialogManager);
     }
 
     /**
