@@ -85,6 +85,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private NavigationController mNavigationController;
     private WebContents mWebContents;
     private boolean mIsLoaded = false;
+    private boolean mAnimated = false;
     private XWalkAutofillClientAndroid mXWalkAutofillClient;
     private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
     private ContentBitmapCallback mGetBitmapCallback;
@@ -166,15 +167,14 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         assert mNativeContent == 0 && mCleanupReference == null && mContentViewCore == null;
 
         // Initialize ContentViewRenderView
-        boolean animated;
         if(animatable == null)
-            animated = XWalkPreferencesInternal.getValue(
+            mAnimated = XWalkPreferencesInternal.getValue(
                     XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
         else
-            animated = animatable.equalsIgnoreCase("true");
+            mAnimated = animatable.equalsIgnoreCase("true");
         CompositingSurfaceType surfaceType =
-                animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        Log.d(TAG, "CompositingSurfaceType is " + (animated ? "TextureView" : "SurfaceView"));
+                mAnimated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
+        Log.d(TAG, "CompositingSurfaceType is " + (mAnimated ? "TextureView" : "SurfaceView"));
         mContentViewRenderView = new ContentViewRenderView(mViewContext, surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
@@ -1043,6 +1043,11 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     public void clearMatches() {
         if (mNativeContent == 0) return;
         nativeClearMatches(mNativeContent);
+    }
+
+    public String getCompositingSurfaceType() {
+        if (mNativeContent == 0) return null;
+        return mAnimated ? "TextureView" : "SurfaceView";
     }
 
     @CalledByNative

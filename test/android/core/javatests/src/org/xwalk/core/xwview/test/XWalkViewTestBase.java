@@ -699,6 +699,15 @@ public class XWalkViewTestBase
         });
     }
 
+    protected String getCompositingSurfaceTypeOnUiThread() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return mXWalkView.getCompositingSurfaceType();
+            }
+        });
+    }
+
     public void clickOnElementId(final String id, String frameName) throws Exception {
         String str;
         if (frameName != null) {
