@@ -8,7 +8,6 @@
     'files_to_package': [
       '<(PRODUCT_DIR)/VERSION',
       '<(PRODUCT_DIR)/d3dcompiler_47.dll',
-      '<(PRODUCT_DIR)/dbghelp.dll',
       '<(PRODUCT_DIR)/icudtl.dat',
       '<(PRODUCT_DIR)/libEGL.dll',
       '<(PRODUCT_DIR)/libGLESv2.dll',
