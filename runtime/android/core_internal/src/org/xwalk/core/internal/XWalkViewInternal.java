@@ -340,8 +340,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});",
                   "        if (isInEditMode()) return;",
-                  "        mAnimatable = ${param2}.getAttributeValue(",
-                  "                XWALK_ATTRS_NAMESPACE, ANIMATABLE);",
+                  "        if (${param2} != null)",
+                  "            mAnimatable = ${param2}.getAttributeValue(",
+                  "                    XWALK_ATTRS_NAMESPACE, ANIMATABLE);",
                   "        SurfaceView surfaceView = new SurfaceView(${param1});",
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
