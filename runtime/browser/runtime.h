@@ -74,7 +74,7 @@ class Runtime : public content::WebContentsDelegate,
 
   // Create a new Runtime instance with the given browsing context.
   static Runtime* Create(XWalkBrowserContext* context,
-                         content::SiteInstance* site = nullptr);
+                         scoped_refptr<content::SiteInstance> site = nullptr);
 
   void LoadURL(const GURL& url);
   void Show();

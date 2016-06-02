@@ -53,7 +53,7 @@ namespace xwalk {
 
 // static
 Runtime* Runtime::Create(XWalkBrowserContext* browser_context,
-                         content::SiteInstance* site) {
+                         scoped_refptr<content::SiteInstance> site) {
   WebContents::CreateParams params(browser_context, site);
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
