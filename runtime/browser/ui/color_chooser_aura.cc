@@ -57,9 +57,8 @@ ColorChooserAura::ColorChooserAura(content::WebContents* web_contents,
                                    SkColor initial_color)
     : web_contents_(web_contents) {
   view_ = new views::ColorChooserView(this, initial_color);
-  widget_ = views::Widget::CreateWindowWithContext(
-      view_, web_contents->GetNativeView());
-  widget_->SetAlwaysOnTop(true);
+  widget_ = views::Widget::CreateWindowWithParent(
+      view_, web_contents->GetTopLevelNativeWindow());
   widget_->Show();
   if (IsTesting()) {
     content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
