@@ -164,6 +164,10 @@ class Runtime : public content::WebContentsDelegate,
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
   void TitleWasSet(content::NavigationEntry* entry, bool explicit_set) override;
+  void DidNavigateAnyFrame(
+      content::RenderFrameHost* render_frame_host,
+      const content::LoadCommittedDetails& details,
+      const content::FrameNavigateParams& params) override;
 
   // Callback method for WebContents::DownloadImage.
   void DidDownloadFavicon(int id,
@@ -180,6 +184,7 @@ class Runtime : public content::WebContentsDelegate,
 
   // Notification manager.
   content::NotificationRegistrar registrar_;
+  base::ThreadChecker thread_checker_;
 
   scoped_ptr<content::WebContents> web_contents_;
 #if !defined(OS_ANDROID)
