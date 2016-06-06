@@ -118,7 +118,7 @@ void SetCookieWithDetailsAsyncOnCookieThread(
     base::Time last_access_time,
     bool secure,
     bool http_only,
-    bool same_site,
+    net::CookieSameSite same_site,
     bool enforce_strict_secure,
     net::CookiePriority priority,
     const net::CookieStore::SetCookiesCallback& callback) {
@@ -217,7 +217,7 @@ void XWalkCookieStoreWrapper::SetCookieWithDetailsAsync(
     base::Time last_access_time,
     bool secure,
     bool http_only,
-    bool same_site,
+    net::CookieSameSite same_site,
     bool enforce_strict_secure,
     net::CookiePriority priority,
     const SetCookiesCallback& callback) {
@@ -331,6 +331,10 @@ XWalkCookieStoreWrapper::AddCallbackForCookie(
   // TODO(mmenke):  Still worth adding a DCHECK?
   SubscriptionWrapper* subscription = new SubscriptionWrapper();
   return subscription->Subscribe(url, name, callback);
+}
+
+bool XWalkCookieStoreWrapper::IsEphemeral() {
+  return GetCookieStore()->IsEphemeral();
 }
 
 XWalkCookieStoreWrapper::~XWalkCookieStoreWrapper() {}

@@ -54,7 +54,7 @@ class XWalkCookieStoreWrapper : public net::CookieStore {
                                  base::Time last_access_time,
                                  bool secure,
                                  bool http_only,
-                                 bool same_site,
+                                 net::CookieSameSite same_site,
                                  bool enforce_strict_secure,
                                  net::CookiePriority priority,
                                  const SetCookiesCallback& callback) override;
@@ -86,6 +86,7 @@ class XWalkCookieStoreWrapper : public net::CookieStore {
       const GURL& url,
       const std::string& name,
       const CookieChangedCallback& callback) override;
+  bool IsEphemeral() override;
 
  private:
   ~XWalkCookieStoreWrapper() override;
