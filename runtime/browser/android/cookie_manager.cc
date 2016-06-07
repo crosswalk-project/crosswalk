@@ -198,7 +198,7 @@ class CookieManager {
   base::Thread cookie_store_backend_thread_;
 
   scoped_refptr<base::SingleThreadTaskRunner> cookie_store_task_runner_;
-  scoped_refptr<net::CookieStore> cookie_store_;
+  std::unique_ptr<net::CookieStore> cookie_store_;
 
   DISALLOW_COPY_AND_ASSIGN(CookieManager);
 };
