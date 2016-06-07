@@ -125,7 +125,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 #if defined(OS_ANDROID)
-    storage_->set_cookie_store(new XWalkCookieStoreWrapper());
+    storage_->set_cookie_store(make_scoped_ptr(new XWalkCookieStoreWrapper));
 #else
     content::CookieStoreConfig cookie_config(base_path_.Append(
         application::kCookieDatabaseFilename),

@@ -38,7 +38,7 @@ namespace xwalk {
 class XWalkCookieStoreWrapper : public net::CookieStore {
  public:
   XWalkCookieStoreWrapper();
-
+  ~XWalkCookieStoreWrapper() override;
   // CookieStore implementation:
   void SetCookieWithOptionsAsync(const GURL& url,
                                  const std::string& cookie_line,
@@ -89,8 +89,6 @@ class XWalkCookieStoreWrapper : public net::CookieStore {
   bool IsEphemeral() override;
 
  private:
-  ~XWalkCookieStoreWrapper() override;
-
   // Used by CreateWrappedCallback below. Takes an arugment of Type and posts
   // a task to |task_runner| to invoke |callback| with that argument. If
   // |weak_cookie_store| is deleted before the task is run, the task will not
@@ -115,8 +113,8 @@ class XWalkCookieStoreWrapper : public net::CookieStore {
     if (callback.is_null())
       return callback;
     return base::Bind(&XWalkCookieStoreWrapper::RunCallbackOnClientThread<Type>,
-                      client_task_runner_, weak_factory_.GetWeakPtr(),
-                      callback);
+                      base::RetainedRef(client_task_runner_),
+                      weak_factory_.GetWeakPtr(), callback);
   }
 
   // Returns a base::Closure that posts a task to the |client_task_runner_| to

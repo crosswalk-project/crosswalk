@@ -195,6 +195,8 @@ XWalkCookieStoreWrapper::XWalkCookieStoreWrapper()
     : client_task_runner_(base::ThreadTaskRunnerHandle::Get()),
       weak_factory_(this) {}
 
+XWalkCookieStoreWrapper::~XWalkCookieStoreWrapper() {}
+
 void XWalkCookieStoreWrapper::SetCookieWithOptionsAsync(
     const GURL& url,
     const std::string& cookie_line,
@@ -336,8 +338,6 @@ XWalkCookieStoreWrapper::AddCallbackForCookie(
 bool XWalkCookieStoreWrapper::IsEphemeral() {
   return GetCookieStore()->IsEphemeral();
 }
-
-XWalkCookieStoreWrapper::~XWalkCookieStoreWrapper() {}
 
 base::Closure XWalkCookieStoreWrapper::CreateWrappedClosureCallback(
     const base::Closure& callback) {
