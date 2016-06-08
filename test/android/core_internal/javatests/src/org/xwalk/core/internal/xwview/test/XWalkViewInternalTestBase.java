@@ -737,7 +737,7 @@ public class XWalkViewInternalTestBase
     }
 
     protected void poll(final Callable<Boolean> callable) throws Exception {
-        CriteriaHelper.pollForCriteria(new Criteria() {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 try {

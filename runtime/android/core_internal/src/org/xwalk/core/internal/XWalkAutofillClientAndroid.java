@@ -86,7 +86,7 @@ public class XWalkAutofillClientAndroid {
     @CalledByNative
     private static void addToAutofillSuggestionArray(AutofillSuggestion[] array, int index,
             String name, String label, int uniqueId) {
-        array[index] = new AutofillSuggestion(name, label, DropdownItem.NO_ICON, uniqueId, false);
+        array[index] = new AutofillSuggestion(name, label, DropdownItem.NO_ICON, uniqueId, false, false);
     }
 
     private native void nativeSuggestionSelected(long nativeXWalkAutofillClientAndroid,
