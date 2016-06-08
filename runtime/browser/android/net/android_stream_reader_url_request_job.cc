@@ -268,11 +268,9 @@ int AndroidStreamReaderURLRequestJob::ReadRawData(net::IOBuffer* dest,
   }
 
   PostTaskAndReplyWithResult(
-      GetWorkerThreadRunner(),
-      FROM_HERE,
+      GetWorkerThreadRunner(), FROM_HERE,
       base::Bind(&InputStreamReaderWrapper::ReadRawData,
-                 input_stream_reader_wrapper_,
-                 make_scoped_refptr(dest),
+                 input_stream_reader_wrapper_, base::RetainedRef(dest),
                  dest_size),
       base::Bind(&AndroidStreamReaderURLRequestJob::OnReaderReadCompleted,
                  weak_factory_.GetWeakPtr()));
