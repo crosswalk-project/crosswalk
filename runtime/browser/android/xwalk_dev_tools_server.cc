@@ -169,7 +169,7 @@ void XWalkDevToolsServer::Stop() {
 }
 
 bool XWalkDevToolsServer::IsStarted() const {
-  return devtools_http_handler_;
+  return !!devtools_http_handler_;
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {
