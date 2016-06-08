@@ -65,7 +65,6 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
       override;
   void RunBeforeUnloadDialog(
       const GURL& origin_url,
-      const base::string16& message_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       override;
   void ShowNotification(

@@ -23,12 +23,14 @@
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/notification_resources.h"
 #include "content/public/common/platform_notification_data.h"
+#include "grit/components_strings.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkImageInfo.h"
-#include "url/gurl.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/android/java_bitmap.h"
 #include "ui/shell_dialogs/selected_file_info.h"
+#include "url/gurl.h"
 #include "net/android/keystore_openssl.h"
 #include "net/cert/cert_database.h"
 #include "net/cert/x509_certificate.h"
@@ -195,7 +197,6 @@ void XWalkContentsClientBridge::RunJavaScriptDialog(
 
 void XWalkContentsClientBridge::RunBeforeUnloadDialog(
     const GURL& origin_url,
-    const base::string16& message_text,
     const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
@@ -203,6 +204,9 @@ void XWalkContentsClientBridge::RunBeforeUnloadDialog(
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null())
     return;
+
+  const base::string16 message_text =
+      l10n_util::GetStringUTF16(IDS_BEFOREUNLOAD_MESSAGEBOX_MESSAGE);
 
   int callback_id = pending_js_dialog_callbacks_.Add(
       new content::JavaScriptDialogManager::DialogClosedCallback(callback));
@@ -495,7 +499,7 @@ void XWalkContentsClientBridge::ProvideClientCertificateResponse(
       base::Bind(&RecordClientCertificateKey, client_cert,
          base::Passed(&private_key)),
       base::Bind(&content::ClientCertificateDelegate::ContinueWithCertificate,
-      base::Owned(delegate), client_cert));
+      base::Owned(delegate), base::RetainedRef(client_cert)));
 }
 
 // Use to cleanup if there is an error in client certificate response.
