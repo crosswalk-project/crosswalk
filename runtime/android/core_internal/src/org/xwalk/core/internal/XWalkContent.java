@@ -712,10 +712,10 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewRenderView.setCurrentContentViewCore(null);
 
         // Destroy the native resources.
+        mCleanupReference.cleanupNow();
         mContentViewRenderView.destroy();
         mContentViewCore.destroy();
 
-        mCleanupReference.cleanupNow();
         mCleanupReference = null;
         mNativeContent = 0;
     }
