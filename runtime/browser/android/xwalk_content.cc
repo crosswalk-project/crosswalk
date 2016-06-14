@@ -238,7 +238,7 @@ void XWalkContent::ClearCache(
   render_view_host_ext_->ClearCache();
 
   if (include_disk_files)
-    RemoveHttpDiskCache(web_contents_->GetRenderProcessHost());
+    RemoveHttpDiskCache(web_contents_->GetRenderProcessHost(), std::string());
 }
 
 void XWalkContent::ClearCacheForSingleFile(
@@ -249,7 +249,7 @@ void XWalkContent::ClearCacheForSingleFile(
   std::string key = base::android::ConvertJavaStringToUTF8(env, url);
 
   if (!key.empty())
-    RemoveHttpDiskCache(web_contents_->GetRenderProcessHost());
+    RemoveHttpDiskCache(web_contents_->GetRenderProcessHost(), key);
 }
 
 ScopedJavaLocalRef<jstring> XWalkContent::DevToolsAgentId(JNIEnv* env,
