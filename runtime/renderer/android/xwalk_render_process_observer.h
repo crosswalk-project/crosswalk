@@ -28,8 +28,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   void OnClearCache();
   void OnSetOriginAccessWhitelist(std::string base_url,
                                   std::string match_patterns);
-
-  bool webkit_initialized_;
 };
 
 }  // namespace xwalk
