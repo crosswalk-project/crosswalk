@@ -33,11 +33,24 @@ void CallDoomAllEntries(Backend** backend, int rv) {
   (*backend)->DoomAllEntries(base::Bind(&Noop));
 }
 
-void ClearHttpDiskCacheOfContext(URLRequestContextGetter* context_getter) {
+void CallDoomEntry(Backend** backend, const std::string& key, int rv) {
+  DCHECK(rv == net::OK);
+  (*backend)->DoomEntry(key, base::Bind(&Noop));
+}
+
+void ClearHttpDiskCacheOfContext(URLRequestContextGetter* context_getter,
+                                 const std::string& key) {
   typedef Backend* BackendPtr;  // Make line below easier to understand.
   BackendPtr* backend_ptr = new BackendPtr(NULL);
-  CompletionCallback callback(base::Bind(&CallDoomAllEntries,
-                                         base::Owned(backend_ptr)));
+  CompletionCallback callback;
+  if (!key.empty()) {
+    callback = base::Bind(&CallDoomEntry,
+                          base::Owned(backend_ptr),
+                          key);
+  } else {
+    callback = base::Bind(&CallDoomAllEntries,
+                          base::Owned(backend_ptr));
+  }
 
   int rv = context_getter->GetURLRequestContext()->
     http_transaction_factory()->GetCache()->GetBackend(backend_ptr, callback);
@@ -50,23 +63,26 @@ void ClearHttpDiskCacheOfContext(URLRequestContextGetter* context_getter) {
 
 void ClearHttpDiskCacheOnIoThread(
     URLRequestContextGetter* main_context_getter,
-    URLRequestContextGetter* media_context_getter) {
-  ClearHttpDiskCacheOfContext(main_context_getter);
-  ClearHttpDiskCacheOfContext(media_context_getter);
+    URLRequestContextGetter* media_context_getter,
+    const std::string& key) {
+  ClearHttpDiskCacheOfContext(main_context_getter, key);
+  ClearHttpDiskCacheOfContext(media_context_getter, key);
 }
 
 }  // namespace
 
 namespace xwalk {
 
-void RemoveHttpDiskCache(content::RenderProcessHost* render_process_host) {
+void RemoveHttpDiskCache(content::RenderProcessHost* render_process_host,
+                         const std::string& key) {
   BrowserThread::PostTask(
       BrowserThread::IO, FROM_HERE,
       base::Bind(&ClearHttpDiskCacheOnIoThread,
                  base::Unretained(render_process_host->GetStoragePartition()->
                      GetURLRequestContext()),
                  base::Unretained(render_process_host->GetStoragePartition()->
-                     GetMediaURLRequestContext())));
+                     GetMediaURLRequestContext()),
+                 key));
 }
 
 }  // namespace xwalk

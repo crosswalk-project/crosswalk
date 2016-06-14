@@ -17,8 +17,7 @@
 
 namespace xwalk {
 
-XWalkRenderProcessObserver::XWalkRenderProcessObserver()
-  : webkit_initialized_(false) {
+XWalkRenderProcessObserver::XWalkRenderProcessObserver() {
 }
 
 XWalkRenderProcessObserver::~XWalkRenderProcessObserver() {
@@ -38,13 +37,11 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
 }
 
 void XWalkRenderProcessObserver::OnSetJsOnlineProperty(bool network_up) {
-  if (webkit_initialized_)
-    blink::WebNetworkStateNotifier::setOnLine(network_up);
+  blink::WebNetworkStateNotifier::setOnLine(network_up);
 }
 
 void XWalkRenderProcessObserver::OnClearCache() {
-  if (webkit_initialized_)
-    blink::WebCache::clear();
+  blink::WebCache::clear();
 }
 
 void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
