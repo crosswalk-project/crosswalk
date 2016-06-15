@@ -32,6 +32,7 @@ import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
 
+import org.xwalk.core.internal.CustomViewCallbackInternal;
 import org.xwalk.core.internal.XWalkHttpAuthHandlerInternal;
 import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
 import org.xwalk.core.internal.XWalkNavigationItemInternal;
@@ -56,6 +57,13 @@ public class XWalkViewInternalTestBase
 
     class TestXWalkUIClientInternalBase extends XWalkUIClientInternal {
         TestHelperBridge mInnerContentsClient;
+        private CallbackHelper mOnShowCustomViewCallbackHelper = new CallbackHelper();
+        private CallbackHelper mOnHideCustomViewCallbackHelper = new CallbackHelper();
+
+        private Activity mActivity = getActivity();
+        private View mCustomView;
+        private CustomViewCallbackInternal mExitCallback;
+
         public TestXWalkUIClientInternalBase(TestHelperBridge client) {
             super(getXWalkView());
             mInnerContentsClient = client;
@@ -74,6 +82,48 @@ public class XWalkViewInternalTestBase
         @Override
         public void onReceivedTitle(XWalkViewInternal view, String title) {
             mInnerContentsClient.onTitleChanged(title);
+        }
+
+        @Override
+        public void onShowCustomView(View view, CustomViewCallbackInternal callback) {
+            mCustomView = view;
+            mExitCallback = callback;
+            mActivity.getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+            mActivity.getWindow().addContentView(view,
+                    new FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            Gravity.CENTER));
+            mOnShowCustomViewCallbackHelper.notifyCalled();
+        }
+
+        @Override
+        public void onHideCustomView() {
+            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            mOnHideCustomViewCallbackHelper.notifyCalled();
+        }
+
+        public CustomViewCallbackInternal getExitCallback() {
+            return mExitCallback;
+        }
+
+        public View getCustomView() {
+            return mCustomView;
+        }
+
+        public boolean wasCustomViewShownCalled() {
+            return mOnShowCustomViewCallbackHelper.getCallCount() > 0;
+        }
+
+        public void waitForCustomViewShown() throws TimeoutException, InterruptedException {
+            mOnShowCustomViewCallbackHelper.waitForCallback(0, 1, WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        }
+
+        public void waitForCustomViewHidden() throws InterruptedException, TimeoutException {
+            mOnHideCustomViewCallbackHelper.waitForCallback(0, 1, WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         }
     }
 
@@ -114,61 +164,6 @@ public class XWalkViewInternalTestBase
         }
     }
 
-    class TestXWalkWebChromeClientBase extends XWalkWebChromeClient {
-        private CallbackHelper mOnShowCustomViewCallbackHelper = new CallbackHelper();
-        private CallbackHelper mOnHideCustomViewCallbackHelper = new CallbackHelper();
-
-        private Activity mActivity = getActivity();
-        private View mCustomView;
-        private XWalkWebChromeClient.CustomViewCallback mExitCallback;
-
-        public TestXWalkWebChromeClientBase() {
-            super(mXWalkViewInternal);
-        }
-
-        @Override
-        public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
-            mCustomView = view;
-            mExitCallback = callback;
-            mActivity.getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-            mActivity.getWindow().addContentView(view,
-                    new FrameLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            Gravity.CENTER));
-            mOnShowCustomViewCallbackHelper.notifyCalled();
-        }
-
-        @Override
-        public void onHideCustomView() {
-            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            mOnHideCustomViewCallbackHelper.notifyCalled();
-        }
-
-        public XWalkWebChromeClient.CustomViewCallback getExitCallback() {
-            return mExitCallback;
-        }
-
-        public View getCustomView() {
-            return mCustomView;
-        }
-
-        public boolean wasCustomViewShownCalled() {
-            return mOnShowCustomViewCallbackHelper.getCallCount() > 0;
-        }
-
-        public void waitForCustomViewShown() throws TimeoutException, InterruptedException {
-            mOnShowCustomViewCallbackHelper.waitForCallback(0, 1, WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        }
-
-        public void waitForCustomViewHidden() throws InterruptedException, TimeoutException {
-            mOnHideCustomViewCallbackHelper.waitForCallback(0, 1, WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        }
-    }
-
     void setUIClient(final XWalkUIClientInternal client) {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -183,15 +178,6 @@ public class XWalkViewInternalTestBase
             @Override
             public void run() {
                 getXWalkView().setResourceClient(client);
-            }
-        });
-    }
-
-    void setXWalkWebChromeClient(final TestXWalkWebChromeClientBase client) {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mXWalkViewInternal.setXWalkWebChromeClient(client);
             }
         });
     }

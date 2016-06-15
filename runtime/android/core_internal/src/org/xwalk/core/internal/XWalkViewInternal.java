@@ -390,7 +390,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         setXWalkClient(new XWalkClient(this));
         // Set default XWalkWebChromeClient and DownloadListener. The default actions
         // are provided via the following clients if special actions are not needed.
-        setXWalkWebChromeClient(new XWalkWebChromeClient(this));
+        setXWalkWebChromeClient(new XWalkWebChromeClient());
 
         // Set with internal implementation. Could be overwritten by embedders'
         // setting.
