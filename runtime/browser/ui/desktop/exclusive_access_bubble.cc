@@ -9,7 +9,11 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/strings/grit/ui_strings.h"
+#ifndef GN_BUILDING
 #include "xwalk/grit/xwalk_resources.h"
+#else
+#include "xwalk/resources/grit/xwalk_resources.h"
+#endif
 
 namespace xwalk {
 

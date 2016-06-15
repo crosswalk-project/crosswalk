@@ -1,0 +1,85 @@
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_core_internal_shell_apk") {
+  deps = [
+    "//base:base_java",
+    "//third_party/android_tools:android_support_v13_java",
+    "//xwalk/runtime/android:libxwalkcore",
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+    ":xwalk_core_internal_shell_apk_java",
+    ":xwalk_core_internal_shell_apk_assets",
+    ":xwalk_core_internal_shell_apk_pak",
+    ":xwalk_core_internal_shell_apk_resources",
+  ]
+  apk_name = "XWalkCoreInternalShell"
+  android_manifest = "AndroidManifest.xml"
+  native_libs = [
+    "$root_out_dir/libxwalkcore.so",
+    "$root_out_dir/libxwalkdummy.so",
+  ]
+}
+
+android_library("xwalk_core_internal_shell_apk_java") {
+  deps = [
+    "//base:base_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//third_party/android_tools:android_support_v13_java",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+    ":xwalk_core_internal_shell_apk_resources",
+  ]
+  java_files = [
+    "src/org/xwalk/core/internal/xwview/shell/XWalkViewInternalShellActivity.java",
+    "src/org/xwalk/core/internal/xwview/test/TestContentProvider.java",
+    "src/org/xwalk/core/internal/xwview/test/XWalkViewInternalTestRunnerActivity.java",
+  ]
+}
+
+android_assets("xwalk_core_internal_shell_apk_assets") {
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  renaming_sources = [
+    "//xwalk/test/android/data/index.html",
+  ]
+  renaming_destinations = [
+    "www/index.html",
+  ]
+  disable_compression = true
+}
+
+android_assets("xwalk_core_internal_shell_apk_pak") {
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//third_party/icu:icudata",    #use if?
+    "//v8",
+  ]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+
+  if (icu_use_data_file) {
+    deps += [
+      "//third_party/icu:icudata",
+    ]
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+   #   "$root_out_dir/natives_blob.bin",
+   #   "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  disable_compression = true
+}
+
+android_resources("xwalk_core_internal_shell_apk_resources") {
+  resource_dirs = [
+    "res",
+  ]
+  custom_package = "org.xwalk.core.internal.xwview.shell"
+}

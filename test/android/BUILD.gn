@@ -1,0 +1,70 @@
+import("//build/config/android/rules.gni")
+
+declare_args() {
+  src_dir = rebase_path("//", "$root_out_dir")
+}
+
+if (is_android) {
+  shared_library("xwalk_core_unittests") {
+    deps = [
+        "//base/base:test_support_base",
+        "//net/net:net_test_support",
+        "//testing/android/native_test:native_test_native_code",
+        "//testing/gmock:gmock",
+        "//testing/gtest:gtest",
+    ]
+    include_dirs = ["//"]
+    sources = [
+      "//xwalk/runtime/common/android/xwalk_core_tests.cc",
+    ]
+  }
+} else {
+  executable("xwalk_core_unittests") {
+    deps =  [
+        "//base/base:test_support_base",
+        "//net/net:net_test_support",
+        "//testing/android/native_test:native_test_native_code",
+        "//testing/gmock:gmock",
+        "//testing/gtest:gtest",
+    ]
+    include_dirs = [".."]
+    sources = [
+      "runtime/common/android/xwalk_core_tests.cc",
+    ]
+  }
+}
+
+#    {
+#      "target_name": "xwalk_core_unittests_java",
+#      "type": "none",
+#      "dependencies": [
+#      ],
+#      "variables": {
+#        "java_in_dir": "test/android/unittestjava",
+#      },
+      # TODO: supress gyp error: ""find ../cameo_webview/unittestjava  -name "*.java"" returned exit status 1"
+      # "includes": [ "../build/java.gypi" ],
+#    },
+
+#generate_jni("xwalk_core_unittests_jni") {
+#      sources = []
+#      jni_gen_package = "xwalk_core_unittests",
+#}
+
+#android_apk("xwalk_core_unittests_apk") {
+#      "type": "none",
+#      "dependencies": [
+#        "xwalk_core_unittests",
+#        "xwalk_core_unittests_java",
+#        "xwalk_core_unittests_jni",
+#      ],
+#      "variables": {
+#        "test_suite_name": "xwalk_core_unittests",
+#        "input_shlib_path": "<(SHARED_LIB_DIR)/<(SHARED_LIB_PREFIX)xwalk_core_unittests<(SHARED_LIB_SUFFIX)",
+#      },
+#      "includes": [ "../build/apk_test.gypi" ],
+#    },
+
+
+
+

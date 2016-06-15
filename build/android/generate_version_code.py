@@ -21,6 +21,19 @@ ANDROID_ABI_KEYS = {
   'x86_64': 5,
 }
 
+def make_version_code(abi_name, version):
+  shift = ANDROID_ABI_KEYS[abi_name]
+  major, minor, build, patch = map(int, version.split('.'))
+
+  # We derive the version code from Crosswalk's version number plus an
+  # additional key value related to the CPU architecture being targeted.
+  # Crosswalk's major and minor version numbers are always increasing, so we
+  # use their sum in the higher order digits of the version code, followed by
+  # the build version number that increases with each canary, the patch number
+  # increased with each beta and a final value that depends on the CPU
+  # architecture (it is used to differentiate the APKs uploaded to the Play
+  # Store based on the target architecture).
+  return '%d' % ((major+minor)*100000 + build*1000 + patch*10 + shift)
 
 def main():
   parser = argparse.ArgumentParser()
@@ -34,19 +47,7 @@ def main():
 
   args = parser.parse_args()
 
-  shift = ANDROID_ABI_KEYS[args.abi_name]
-  major, minor, build, patch = map(int, args.version.split('.'))
-
-  # We derive the version code from Crosswalk's version number plus an
-  # additional key value related to the CPU architecture being targeted.
-  # Crosswalk's major and minor version numbers are always increasing, so we
-  # use their sum in the higher order digits of the version code, followed by
-  # the build version number that increases with each canary, the patch number
-  # increased with each beta and a final value that depends on the CPU
-  # architecture (it is used to differentiate the APKs uploaded to the Play
-  # Store based on the target architecture).
-  print '%d' % ((major+minor)*100000 + build*1000 + patch*10 + shift)
-
+  print make_version_code(args.abi_name, args.version)
 
 if __name__ == '__main__':
   sys.exit(main())

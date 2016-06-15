@@ -44,8 +44,10 @@ const char kUpdateItemWithBindOp[] =
 const char kRemoveItemWithBindOp[] =
     "DELETE FROM widget_storage WHERE key = ?";
 
+#ifndef GN_BUILDING
 const char kSelectTableLength[] =
     "SELECT count(*) FROM widget_storage ";
+#endif
 
 const char kSelectCountWithBindOp[] =
     "SELECT count(*) FROM widget_storage "

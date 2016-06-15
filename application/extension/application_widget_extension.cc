@@ -17,7 +17,11 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "ipc/ipc_message.h"
+#ifndef GN_BUILDING
 #include "grit/xwalk_application_resources.h"
+#else
+#include "xwalk/application/grit/xwalk_application_resources.h"
+#endif
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_data.h"

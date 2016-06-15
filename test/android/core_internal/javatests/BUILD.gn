@@ -1,0 +1,65 @@
+import("//build/config/android/rules.gni")
+
+instrumentation_test_apk("xwalk_core_internal_test_apk") {
+  deps = [
+    "//tools/android/md5sum:md5sum",
+    "//tools/android/forwarder2:forwarder2",
+    "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk_java",
+    ":xwalk_core_internal_test_java",
+    ":xwalk_core_internal_test_apk_assets",
+  ]
+  data_deps = [
+    "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk",
+  ]
+  apk_under_test = "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk"
+  apk_name = "XWalkCoreInternalTest"
+  android_manifest = "//xwalk/test/android/core_internal/javatests/AndroidManifest.xml"
+}
+
+android_library("xwalk_core_internal_test_java") {
+  testonly = true
+  deps = [
+    "//base:base_java",
+    "//content/public/android:content_java",
+    "//base:base_java_test_support",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//ui/android:ui_java",
+    "//third_party/android_tools:legacy_http_javalib",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk_java",
+  ]
+  DEPRECATED_java_in_dir = "src"
+}
+
+android_assets("xwalk_core_internal_test_apk_assets") {
+  renaming_sources = [
+    "//xwalk/test/android/data/broadcast.html",
+    "//xwalk/test/android/data/echo_binary_java.html",
+    "//xwalk/test/android/data/echo_java.html",
+    "//xwalk/test/android/data/echo_sync_java.html",
+    "//xwalk/test/android/data/framesEcho.html",
+    "//xwalk/test/android/data/full_screen_video_test.html",
+    "//xwalk/test/android/data/geolocation.html",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/navigator.online.html",
+    "//xwalk/test/android/data/notification.html",
+    "//xwalk/test/android/data/renderHung.html",
+  ]
+  renaming_destinations = [
+    "broadcast.html",
+    "echo_binary_java.html",
+    "echo_java.html",
+    "echo_sync_java.html",
+    "framesEcho.html",
+    "full_screen_video_test.html",
+    "geolocation.html",
+    "index.html",
+    "navigator.online.html",
+    "notification.html",
+    "renderHung.html",
+  ]
+  disable_compression = true
+}
+

@@ -1,0 +1,5 @@
+shared_library("libxwalkdummy") {
+  sources = [
+    "dummy_lib.cc",
+  ]
+}

@@ -1,0 +1,17 @@
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_app_runtime_java") {
+  deps = [
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+  java_files = [
+    "//xwalk/gen/version_java/XWalkRuntimeClientVersion.java",
+    "//xwalk/app/android/runtime_activity/src/org/xwalk/app/XWalkRuntimeActivityBase.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/extension/XWalkRuntimeExtensionLoader.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkCoreProviderImpl.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeTestHelper.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeView.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeViewProvider.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeViewProviderFactory.java",
+  ]
+}

@@ -1,0 +1,33 @@
+import("//build/config/android/rules.gni")
+
+# core_internal_empty is used for generating R.class for library_part.jar in resource_map
+android_apk("xwalk_core_internal_empty_embedder_apk") {
+  deps = [
+    "//base:base_java",
+    "//content/public/android:content_java_resources",
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+    "//components/web_contents_delegate_android:web_contents_delegate_android_java_resources",
+    "//ui/android:ui_java_resources",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java_resources",
+  ]
+
+  apk_name = "XWalkCoreInternalEmptyEmbedder"
+  android_manifest = "AndroidManifest.xml"
+  native_libs = [
+    "$root_out_dir/libxwalkdummy.so",
+  ]
+}
+
+
+# core_empty_embedder is used for generating the R.txt
+android_apk("xwalk_core_empty_embedder_apk") {
+  deps = [
+    "//content/public/android:content_java_resources",
+    "//components/web_contents_delegate_android:web_contents_delegate_android_java_resources",
+    "//ui/android:ui_java_resources",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java_resources",
+    "//xwalk/runtime/android/core:xwalk_core_java_resources",
+  ]
+  apk_name = "XWalkCoreEmptyEmbedder"
+  android_manifest = "AndroidManifest.xml"
+}

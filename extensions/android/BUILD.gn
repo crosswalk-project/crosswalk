@@ -1,0 +1,21 @@
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_core_extensions_java") {
+  deps = [
+    "//base:base_java",
+    "//content/public/android:content_java",
+  ]
+  java_files = [
+    "//xwalk/extensions/android/java/src/org/xwalk/core/internal/extensions/XWalkExtensionAndroid.java",
+    "//xwalk/extensions/android/java/src/org/xwalk/core/internal/extensions/XWalkNativeExtensionLoaderAndroid.java",
+  ]
+}
+
+
+generate_jni("xwalk_core_extensions_native_jni") {
+  sources = [
+    "//xwalk/extensions/android/java/src/org/xwalk/core/internal/extensions/XWalkExtensionAndroid.java",
+    "//xwalk/extensions/android/java/src/org/xwalk/core/internal/extensions/XWalkNativeExtensionLoaderAndroid.java",
+  ]
+  jni_package = "xwalk"
+}

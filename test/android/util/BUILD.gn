@@ -1,0 +1,26 @@
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_test_util_java") {
+  deps = [
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support"
+  ]
+  java_files = [
+    "src/org/xwalk/test/util/OnTitleUpdatedHelper.java",
+    "src/org/xwalk/test/util/XWalkTestUtilBase.java",
+    "src/org/xwalk/test/util/XWalkTestUtilCallbacks.java",
+  ]
+  testonly = true
+}
+
+android_library("xwalk_runtime_client_test_utils_java") {
+  deps = [
+    ":xwalk_test_util_java",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+  ]
+  DEPRECATED_java_in_dir = "runtime_client/src"
+  testonly = true
+}

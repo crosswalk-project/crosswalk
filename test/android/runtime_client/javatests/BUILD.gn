@@ -1,0 +1,60 @@
+import("//build/config/android/rules.gni")
+
+instrumentation_test_apk("xwalk_runtime_client_test_apk") {
+  deps = [
+    "//tools/android/md5sum:md5sum",
+    "//tools/android/forwarder2:forwarder2",
+    ":xwalk_runtime_client_test_java",
+    ":xwalk_runtime_client_test_apk_assets",
+  ]
+  data_deps = [
+    "//xwalk/app/android/runtime_client_shell:xwalk_runtime_client_shell_apk",
+  ]
+  apk_under_test = "//xwalk/app/android/runtime_client_shell:xwalk_runtime_client_shell_apk"
+  apk_name = "XWalkRuntimeClientTest"
+  android_manifest = "//xwalk/test/android/runtime_client/javatests/AndroidManifest.xml"
+}
+
+android_library("xwalk_runtime_client_test_java") {
+  deps = [
+    "//base:base_java",
+    "//base:base_java_test_support",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//xwalk/app/android/runtime_client_shell:xwalk_runtime_client_shell_apk_java",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/test/android/util:xwalk_runtime_client_test_utils_java",
+  ]
+  DEPRECATED_java_in_dir = "//xwalk/test/android/runtime_client/javatests/src"
+  testonly = true
+}
+
+android_assets("xwalk_runtime_client_test_apk_assets") {
+  renaming_sources = [
+    "//xwalk/extensions/test/data/echo.html",
+    "//xwalk/test/android/data/contacts.html",
+    "//xwalk/test/android/data/device_capabilities.html",
+    "//xwalk/test/android/data/displayAvailableTest.html",
+    "//xwalk/test/android/data/echo_binary_java.html",
+    "//xwalk/test/android/data/echo_java.html",
+    "//xwalk/test/android/data/echo_sync_java.html",
+    "//xwalk/test/android/data/native_file_system.html",
+    "//xwalk/test/android/data/screen_orientation.html",
+    "//xwalk/test/android/data/sysapps/messaging/messaging_mini.html",
+    "//xwalk/test/android/data/timer.html",
+  ]
+  renaming_destinations = [
+    "echo.html",
+    "contacts.html",
+    "device_capabilities.html",
+    "displayAvailableTest.html",
+    "echo_binary_java.html",
+    "echo_java.html",
+    "echo_sync_java.html",
+    "native_file_system.html",
+    "screen_orientation.html",
+    "messaging_mini.html",
+    "timer.html",
+  ]
+  disable_compression = true
+}

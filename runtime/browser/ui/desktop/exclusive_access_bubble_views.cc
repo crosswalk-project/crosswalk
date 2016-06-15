@@ -29,7 +29,11 @@
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
 #include "url/gurl.h"
+#ifndef GN_BUILDING
 #include "xwalk/grit/xwalk_resources.h"
+#else
+#include "xwalk/resources/grit/xwalk_resources.h"
+#endif
 #include "xwalk/runtime/browser/ui/desktop/exclusive_access_bubble_views_context.h"
 
 #if defined(OS_WIN)
