@@ -8,6 +8,7 @@
 
 #include "base/bind.h"
 #include "base/strings/string_piece.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/renderer/android_content_detection_prefixes.h"
 #include "content/public/renderer/document_state.h"
@@ -27,6 +28,9 @@
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/skia/include/core/SkPicture.h"
+#include "url/url_canon.h"
+#include "url/url_constants.h"
+#include "url/url_util.h"
 #include "xwalk/runtime/common/android/xwalk_hit_test_data.h"
 #include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 
@@ -66,7 +70,11 @@ bool RemovePrefixAndAssignIfMatches(const base::StringPiece& prefix,
   const base::StringPiece spec(url.possibly_invalid_spec());
 
   if (spec.starts_with(prefix)) {
-    dest->assign(spec.begin() + prefix.length(), spec.end());
+    url::RawCanonOutputW<1024> output;
+    url::DecodeURLEscapeSequences(spec.data() + prefix.length(),
+                                  spec.length() - prefix.length(), &output);
+    *dest =
+        base::UTF16ToUTF8(base::StringPiece16(output.data(), output.length()));
     return true;
   }
   return false;
@@ -207,13 +215,15 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
   Send(new XWalkViewHostMsg_UpdateHitTestData(routing_id(), data));
 }
 
-void XWalkRenderViewExt::OnDoHitTest(int view_x, int view_y) {
+void XWalkRenderViewExt::OnDoHitTest(const gfx::PointF& touch_center,
+                                     const gfx::SizeF& touch_area) {
   if (!render_view() || !render_view()->GetWebView())
     return;
 
   const blink::WebHitTestResult result =
-      render_view()->GetWebView()->hitTestResultAt(
-          blink::WebPoint(view_x, view_y));
+      render_view()->GetWebView()->hitTestResultForTap(
+          blink::WebPoint(touch_center.x(), touch_center.y()),
+          blink::WebSize(touch_area.width(), touch_area.height()));
   XWalkHitTestData data;
 
   if (!result.urlElement().isNull()) {
