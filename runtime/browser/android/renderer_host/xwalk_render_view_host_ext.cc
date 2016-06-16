@@ -52,11 +52,13 @@ void XWalkRenderViewHostExt::MarkHitTestDataRead() {
   has_new_hit_test_data_ = false;
 }
 
-void XWalkRenderViewHostExt::RequestNewHitTestDataAt(int view_x, int view_y) {
+void XWalkRenderViewHostExt::RequestNewHitTestDataAt(
+    const gfx::PointF& touch_center,
+    const gfx::SizeF& touch_area) {
   DCHECK(CalledOnValidThread());
   Send(new XWalkViewMsg_DoHitTest(web_contents()->GetRoutingID(),
-                               view_x,
-                               view_y));
+                               touch_center,
+                               touch_area));
 }
 
 const XWalkHitTestData& XWalkRenderViewHostExt::GetLastHitTestData() const {

@@ -8,6 +8,9 @@
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_view_observer.h"
 #include "third_party/skia/include/core/SkColor.h"
+#include "ui/gfx/geometry/point_f.h"
+#include "ui/gfx/geometry/size_f.h"
+
 
 namespace blink {
 
@@ -37,7 +40,8 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
 
   void OnDocumentHasImagesRequest(int id);
 
-  void OnDoHitTest(int view_x, int view_y);
+  void OnDoHitTest(const gfx::PointF& touch_center,
+                   const gfx::SizeF& touch_area);
 
   void OnSetTextZoomLevel(double zoom_level);
 

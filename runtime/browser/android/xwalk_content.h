@@ -53,6 +53,12 @@ class XWalkContent : public FindHelper::Listener {
   void ClearCacheForSingleFile(JNIEnv* env, jobject obj, jstring url);
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
+  void UpdateLastHitTestData(JNIEnv* env, jobject obj);
+  void RequestNewHitTestDataAt(JNIEnv* env,
+                               jobject obj,
+                               jfloat x,
+                               jfloat y,
+                               jfloat touch_major);
   ScopedJavaLocalRef<jstring> GetVersion(JNIEnv* env, jobject obj);
   jint GetRoutingID(JNIEnv* env, jobject obj);
   base::android::ScopedJavaLocalRef<jbyteArray> GetState(JNIEnv* env,
