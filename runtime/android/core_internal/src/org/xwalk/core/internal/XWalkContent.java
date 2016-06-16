@@ -94,8 +94,20 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private XWalkAutofillClientAndroid mXWalkAutofillClient;
     private XWalkGetBitmapCallbackInternal mXWalkGetBitmapCallbackInternal;
     private ContentBitmapCallback mGetBitmapCallback;
+    private final HitTestData mPossiblyStaleHitTestData = new HitTestData();
 
     long mNativeContent;
+
+    public static class HitTestData {
+        // Used in getHitTestResult
+        public int hitTestResultType;
+        public String hitTestResultExtraData;
+
+        // Used in requestFocusNodeHref(all three) and requestImageRef(only imageSrc)
+        public String href;
+        public String anchorText;
+        public String imgSrc;
+    }
 
     // TODO(hengzhi.wu): This should be in a global context, not per XWalkView.
     private double mDIPScale;
@@ -514,6 +526,12 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return null;
     }
 
+    public HitTestData getLastHitTestResult() {
+        if (mNativeContent == 0) return null;
+        nativeUpdateLastHitTestData(mNativeContent);
+        return mPossiblyStaleHitTestData;
+    }
+
     public String getXWalkVersion() {
         if (mNativeContent == 0) return "";
         return nativeGetVersion(mNativeContent);
@@ -724,6 +742,14 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     public boolean onTouchEvent(MotionEvent event) {
+        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            // Note this will trigger IPC back to browser even if nothing is
+            // hit.
+            nativeRequestNewHitTestDataAt(mNativeContent,
+                    event.getX() / (float) mDIPScale,
+                    event.getY() / (float) mDIPScale,
+                    event.getTouchMajor() / (float) mDIPScale);
+        }
         return mContentViewCore.onTouchEvent(event);
     }
 
@@ -864,6 +890,16 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     @CalledByNative
     public void onGeolocationPermissionsHidePrompt() {
         mContentsClientBridge.onGeolocationPermissionsHidePrompt();
+    }
+
+    @CalledByNative
+    private void updateHitTestData(
+            int type, String extra, String href, String anchorText, String imgSrc) {
+        mPossiblyStaleHitTestData.hitTestResultType = type;
+        mPossiblyStaleHitTestData.hitTestResultExtraData = extra;
+        mPossiblyStaleHitTestData.href = href;
+        mPossiblyStaleHitTestData.anchorText = anchorText;
+        mPossiblyStaleHitTestData.imgSrc = imgSrc;
     }
 
     public void enableRemoteDebugging() {
@@ -1194,6 +1230,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private native void nativeSetBackgroundColor(long nativeXWalkContent, int color);
     private native void nativeSetOriginAccessWhitelist(
             long nativeXWalkContent, String url, String patterns);
+    private native void nativeRequestNewHitTestDataAt(long nativeXWalkContent, float x, float y,
+            float touchMajor);
+    private native void nativeUpdateLastHitTestData(long nativeXWalkContent);
     private native byte[] nativeGetCertificate(long nativeXWalkContent);
     private native void nativeFindAllAsync(long nativeXWalkContent, String searchString);
     private native void nativeFindNext(long nativeXWalkContent, boolean forward);

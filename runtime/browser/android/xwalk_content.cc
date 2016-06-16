@@ -32,6 +32,7 @@
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/ssl_status.h"
 #include "content/public/common/url_constants.h"
+#include "ui/gfx/geometry/rect_f.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
@@ -50,6 +51,7 @@
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF8ToJavaString;
+using base::android::ConvertUTF16ToJavaString;
 using base::android::ScopedJavaLocalRef;
 using content::BrowserThread;
 using content::WebContents;
@@ -261,6 +263,50 @@ ScopedJavaLocalRef<jstring> XWalkContent::DevToolsAgentId(JNIEnv* env,
 
 void XWalkContent::Destroy(JNIEnv* env, jobject obj) {
   delete this;
+}
+
+void XWalkContent::RequestNewHitTestDataAt(JNIEnv* env,
+                                           jobject obj,
+                                           jfloat x,
+                                           jfloat y,
+                                           jfloat touch_major) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  gfx::PointF touch_center(x, y);
+  gfx::SizeF touch_area(touch_major, touch_major);
+  render_view_host_ext_->RequestNewHitTestDataAt(touch_center, touch_area);
+}
+
+void XWalkContent::UpdateLastHitTestData(JNIEnv* env, jobject obj) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  if (!render_view_host_ext_->HasNewHitTestData()) return;
+
+  const XWalkHitTestData& data = render_view_host_ext_->GetLastHitTestData();
+  render_view_host_ext_->MarkHitTestDataRead();
+
+  // Make sure to null the java object if data is empty/invalid
+  ScopedJavaLocalRef<jstring> extra_data_for_type;
+  if (data.extra_data_for_type.length())
+    extra_data_for_type = ConvertUTF8ToJavaString(
+      env, data.extra_data_for_type);
+
+  ScopedJavaLocalRef<jstring> href;
+  if (data.href.length())
+    href = ConvertUTF16ToJavaString(env, data.href);
+
+  ScopedJavaLocalRef<jstring> anchor_text;
+  if (data.anchor_text.length())
+    anchor_text = ConvertUTF16ToJavaString(env, data.anchor_text);
+
+  ScopedJavaLocalRef<jstring> img_src;
+  if (data.img_src.is_valid())
+    img_src = ConvertUTF8ToJavaString(env, data.img_src.spec());
+  Java_XWalkContent_updateHitTestData(env,
+                                      obj,
+                                      data.type,
+                                      extra_data_for_type.obj(),
+                                      href.obj(),
+                                      anchor_text.obj(),
+                                      img_src.obj());
 }
 
 ScopedJavaLocalRef<jstring> XWalkContent::GetVersion(JNIEnv* env,

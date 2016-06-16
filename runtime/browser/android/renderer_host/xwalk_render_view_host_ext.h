@@ -11,6 +11,8 @@
 #include "base/callback_forward.h"
 #include "base/threading/non_thread_safe.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "ui/gfx/geometry/point_f.h"
+#include "ui/gfx/geometry/size_f.h"
 #include "xwalk/runtime/common/android/xwalk_hit_test_data.h"
 
 class GURL;
@@ -40,9 +42,10 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   void ClearCache();
 
   // Do a hit test at the view port coordinates and asynchronously update
-  // |last_hit_test_data_|. |view_x| and |view_y| are in density independent
+  // test_data_|. Width and height in |touch_area| are in density independent
   // pixels used by WebKit::WebView.
-  void RequestNewHitTestDataAt(int view_x, int view_y);
+  void RequestNewHitTestDataAt(const gfx::PointF& touch_center,
+                               const gfx::SizeF& touch_area);
 
   // Optimization to avoid unnecessary Java object creation on hit test.
   bool HasNewHitTestData() const;
