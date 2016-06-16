@@ -18,8 +18,8 @@ class TopViewLayoutTest : public testing::Test {
     host_.reset(new View);
   }
 
-  scoped_ptr<View> host_;
-  scoped_ptr<TopViewLayout> layout_;
+  std::unique_ptr<View> host_;
+  std::unique_ptr<TopViewLayout> layout_;
 };
 
 class ViewWithPreferredSize : public View {

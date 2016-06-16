@@ -35,11 +35,11 @@ class DeviceCapabilitiesInstance : public XWalkExtensionInstance {
   DeviceCapabilitiesInstance();
 
   // XWalkExtensionInstance implementation.
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
 
  private:
   void OnDeviceCapabilitiesConstructor(
-      scoped_ptr<XWalkExtensionFunctionInfo> info);
+      std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
   BindingObjectStore store_;

@@ -29,7 +29,7 @@ class CounterExtensionContext : public XWalkExtensionInstance {
   CounterExtensionContext() {
   }
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override {
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {
     base::AutoLock lock(g_count_lock);
     g_count++;
   }

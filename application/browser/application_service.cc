@@ -5,6 +5,7 @@
 #include "xwalk/application/browser/application_service.h"
 
 #include "base/files/file_util.h"
+#include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
@@ -30,9 +31,9 @@ ApplicationService::ApplicationService(XWalkBrowserContext* browser_context)
   : browser_context_(browser_context) {
 }
 
-scoped_ptr<ApplicationService> ApplicationService::Create(
+std::unique_ptr<ApplicationService> ApplicationService::Create(
     XWalkBrowserContext* browser_context) {
-  return make_scoped_ptr(new ApplicationService(browser_context));
+  return base::WrapUnique(new ApplicationService(browser_context));
 }
 
 ApplicationService::~ApplicationService() {
@@ -74,7 +75,7 @@ Application* ApplicationService::Launch(
 Application* ApplicationService::LaunchFromManifestPath(
     const base::FilePath& path, Manifest::Type manifest_type) {
   std::string error;
-  scoped_ptr<Manifest> manifest = LoadManifest(path, manifest_type, &error);
+  std::unique_ptr<Manifest> manifest = LoadManifest(path, manifest_type, &error);
   if (!manifest) {
     LOG(ERROR) << "Failed to load manifest.";
     return NULL;
@@ -104,7 +105,7 @@ Application* ApplicationService::LaunchFromManifestPath(
 
 Application* ApplicationService::LaunchFromPackagePath(
     const base::FilePath& path) {
-  scoped_ptr<Package> package = Package::Create(path);
+  std::unique_ptr<Package> package = Package::Create(path);
   if (!package || !package->IsValid()) {
     LOG(ERROR) << "Failed to obtain valid package from "
                << path.AsUTF8Unsafe();
@@ -157,14 +158,14 @@ Application* ApplicationService::LaunchHostedURL(const GURL& url) {
 
   const std::string& app_id = GenerateId(url_spec);
 
-  scoped_ptr<base::DictionaryValue> settings(new base::DictionaryValue());
+  std::unique_ptr<base::DictionaryValue> settings(new base::DictionaryValue());
   // FIXME: define permissions!
   settings->SetString(application_manifest_keys::kStartURLKey, url_spec);
   // FIXME: Why use URL as name?
   settings->SetString(application_manifest_keys::kNameKey, url_spec);
   settings->SetString(application_manifest_keys::kXWalkVersionKey, "0");
 
-  scoped_ptr<Manifest> manifest(
+  std::unique_ptr<Manifest> manifest(
       new Manifest(std::move(settings), Manifest::TYPE_MANIFEST));
 
   std::string error;
@@ -244,7 +245,7 @@ void ApplicationService::OnApplicationTerminated(
       // further we need to add an appropriate logic to handle it.
       content::BrowserContext::GarbageCollectStoragePartitions(
           browser_context_,
-          make_scoped_ptr(new base::hash_set<base::FilePath>()), // NOLINT
+          base::WrapUnique(new base::hash_set<base::FilePath>()), // NOLINT
           base::Bind(&base::DoNothing));
   }
 

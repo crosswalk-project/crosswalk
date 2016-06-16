@@ -17,7 +17,7 @@ class TestExportObjectExtensionInstance : public XWalkExtensionInstance {
  public:
   TestExportObjectExtensionInstance() {}
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class TestExportObjectExtension : public XWalkExtension {

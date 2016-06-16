@@ -5,6 +5,7 @@
 
 #include "xwalk/runtime/browser/ui/xwalk_javascript_native_dialog_factory.h"
 
+#include "base/memory/ptr_util.h"
 #include "components/app_modal/javascript_dialog_manager.h"
 #include "components/app_modal/javascript_native_dialog_factory.h"
 #include "components/app_modal/views/javascript_app_modal_dialog_views.h"
@@ -76,10 +77,10 @@ class XWalkConstrainedWindowViewsClient
 void InstallXWalkJavaScriptNativeDialogFactory() {
   app_modal::JavaScriptDialogManager::GetInstance()->
       SetNativeDialogFactory(
-          make_scoped_ptr(new XWalkJavaScriptNativeDialogViewsFactory));
+          base::WrapUnique(new XWalkJavaScriptNativeDialogViewsFactory));
 
   constrained_window::SetConstrainedWindowViewsClient(
-      make_scoped_ptr(new XWalkConstrainedWindowViewsClient));
+      base::WrapUnique(new XWalkConstrainedWindowViewsClient));
 }
 
 namespace web_modal {

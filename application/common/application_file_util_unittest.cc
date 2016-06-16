@@ -7,6 +7,7 @@
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/json/json_string_value_serializer.h"
+#include "base/memory/ptr_util.h"
 #include "base/path_service.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
@@ -97,8 +98,8 @@ static scoped_refptr<ApplicationData> LoadApplicationManifest(
     ApplicationData::SourceType location,
     int extra_flags,
     std::string* error) {
-  scoped_ptr<Manifest> manifest = make_scoped_ptr(
-      new Manifest(make_scoped_ptr(values->DeepCopy())));
+  std::unique_ptr<Manifest> manifest = base::WrapUnique(
+      new Manifest(base::WrapUnique(values->DeepCopy())));
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       manifest_dir, GenerateIdForPath(manifest_dir), location,
           std::move(manifest), error);
@@ -112,7 +113,7 @@ static scoped_refptr<ApplicationData> LoadApplicationManifest(
     int extra_flags,
     std::string* error) {
   JSONStringValueDeserializer deserializer(manifest_value);
-  scoped_ptr<base::Value> result(deserializer.Deserialize(NULL, error));
+  std::unique_ptr<base::Value> result(deserializer.Deserialize(NULL, error));
   if (!result.get())
     return NULL;
   CHECK_EQ(base::Value::TYPE_DICTIONARY, result->GetType());

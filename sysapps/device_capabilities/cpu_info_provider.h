@@ -5,9 +5,9 @@
 #ifndef XWALK_SYSAPPS_DEVICE_CAPABILITIES_CPU_INFO_PROVIDER_H_
 #define XWALK_SYSAPPS_DEVICE_CAPABILITIES_CPU_INFO_PROVIDER_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
 
 namespace xwalk {
@@ -20,7 +20,7 @@ class CPUInfoProvider {
   CPUInfoProvider();
   ~CPUInfoProvider();
 
-  scoped_ptr<SystemCPU> cpu_info() const;
+  std::unique_ptr<SystemCPU> cpu_info() const;
 
  private:
   // This is calculated from the average number of tasks in the

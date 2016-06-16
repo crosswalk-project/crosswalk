@@ -5,6 +5,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 
 #include "base/location.h"
+#include "base/memory/ptr_util.h"
 #include "base/thread_task_runner_handle.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
@@ -13,7 +14,7 @@ namespace extensions {
 
 XWalkExtensionFunctionInfo::XWalkExtensionFunctionInfo(
     const std::string& name,
-    scoped_ptr<base::ListValue> arguments,
+    std::unique_ptr<base::ListValue> arguments,
     const PostResultCallback& post_result_cb)
   : name_(name),
     arguments_(std::move(arguments)),
@@ -28,7 +29,7 @@ XWalkExtensionFunctionHandler::XWalkExtensionFunctionHandler(
 
 XWalkExtensionFunctionHandler::~XWalkExtensionFunctionHandler() {}
 
-void XWalkExtensionFunctionHandler::HandleMessage(scoped_ptr<base::Value> msg) {
+void XWalkExtensionFunctionHandler::HandleMessage(std::unique_ptr<base::Value> msg) {
   base::ListValue* args;
   if (!msg->GetAsList(&args) || args->GetSize() < 2) {
     // FIXME(tmpsantos): This warning could be better if the Context had a
@@ -58,10 +59,10 @@ void XWalkExtensionFunctionHandler::HandleMessage(scoped_ptr<base::Value> msg) {
   args->Remove(0, NULL);
   args->Remove(0, NULL);
 
-  scoped_ptr<XWalkExtensionFunctionInfo> info(
+  std::unique_ptr<XWalkExtensionFunctionInfo> info(
       new XWalkExtensionFunctionInfo(
           function_name,
-          make_scoped_ptr(static_cast<base::ListValue*>(msg.release())),
+          base::WrapUnique(static_cast<base::ListValue*>(msg.release())),
           base::Bind(&XWalkExtensionFunctionHandler::DispatchResult,
                      weak_factory_.GetWeakPtr(),
                      base::ThreadTaskRunnerHandle::IsSet()
@@ -76,7 +77,7 @@ void XWalkExtensionFunctionHandler::HandleMessage(scoped_ptr<base::Value> msg) {
 }
 
 bool XWalkExtensionFunctionHandler::HandleFunction(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   FunctionHandlerMap::iterator iter = handlers_.find(info->name());
   if (iter == handlers_.end())
     return false;
@@ -91,7 +92,7 @@ void XWalkExtensionFunctionHandler::DispatchResult(
     const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
     scoped_refptr<base::SingleThreadTaskRunner> client_task_runner,
     const std::string& callback_id,
-    scoped_ptr<base::ListValue> result) {
+    std::unique_ptr<base::ListValue> result) {
   DCHECK(result);
 
   // The client_task_runner.get() call is to support using this class on a
@@ -123,7 +124,7 @@ void XWalkExtensionFunctionHandler::DispatchResult(
 }
 
 void XWalkExtensionFunctionHandler::PostMessageToInstance(
-    scoped_ptr<base::Value> msg) {
+    std::unique_ptr<base::Value> msg) {
   instance_->PostMessageToJS(std::move(msg));
 }
 

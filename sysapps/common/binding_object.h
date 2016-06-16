@@ -25,7 +25,7 @@ class BindingObject {
   BindingObject() : handler_(NULL) {}
   virtual ~BindingObject() {}
 
-  bool HandleFunction(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  bool HandleFunction(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
     return handler_.HandleFunction(std::move(info));
   }
 

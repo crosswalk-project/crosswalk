@@ -4,6 +4,7 @@
 
 #include "xwalk/sysapps/common/event_target.h"
 
+#include "base/memory/ptr_util.h"
 #include "xwalk/sysapps/common/common.h"
 
 using namespace xwalk::jsapi::common; // NOLINT
@@ -21,11 +22,11 @@ EventTarget::EventTarget() {
 EventTarget::~EventTarget() {}
 
 void EventTarget::DispatchEvent(const std::string& type) {
-  DispatchEvent(type, make_scoped_ptr(new base::ListValue));
+  DispatchEvent(type, base::WrapUnique(new base::ListValue));
 }
 
 void EventTarget::DispatchEvent(const std::string& type,
-                                scoped_ptr<base::ListValue> data) {
+                                std::unique_ptr<base::ListValue> data) {
   EventMap::iterator it = events_.find(type);
   if (it == events_.end())
     return;
@@ -38,8 +39,8 @@ bool EventTarget::IsEventActive(const std::string& type) const {
 }
 
 void EventTarget::OnAddEventListener(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<AddEventListener::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<AddEventListener::Params>
       params(AddEventListener::Params::Create(*info->arguments()));
 
   if (!params) {
@@ -59,8 +60,8 @@ void EventTarget::OnAddEventListener(
 }
 
 void EventTarget::OnRemoveEventListener(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<RemoveEventListener::Params>
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<RemoveEventListener::Params>
       params(RemoveEventListener::Params::Create(*info->arguments()));
 
   if (!params) {

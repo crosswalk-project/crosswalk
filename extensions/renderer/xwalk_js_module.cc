@@ -5,18 +5,17 @@
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 
 #include "base/logging.h"
-#include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 namespace xwalk {
 namespace extensions {
 
-scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
+std::unique_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
   std::string js_api(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           resource_id).as_string());
-  scoped_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
+  std::unique_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
   return module;
 }
 
@@ -43,7 +42,8 @@ v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
   v8::Handle<v8::Script> script =
       v8::Local<v8::Script>::New(isolate, compiled_script_);
 
-  blink::WebScopedMicrotaskSuppression suppression;
+  v8::MicrotasksScope microtasks(
+      isolate, v8::MicrotasksScope::kDoNotRunMicrotasks);
   v8::TryCatch try_catch(isolate);
   v8::Local<v8::Value> result = script->Run();
   if (try_catch.HasCaught()) {
@@ -63,7 +63,8 @@ bool XWalkJSModule::Compile(v8::Isolate* isolate, std::string* error) {
   v8::Handle<v8::String> v8_code(
       v8::String::NewFromUtf8(isolate, wrapped_js_code.c_str()));
 
-  blink::WebScopedMicrotaskSuppression suppression;
+  v8::MicrotasksScope microtasks(
+      isolate, v8::MicrotasksScope::kDoNotRunMicrotasks);
   v8::TryCatch try_catch(isolate);
   v8::Handle<v8::Script> script(v8::Script::Compile(v8_code));
   if (try_catch.HasCaught()) {

@@ -42,7 +42,7 @@ namespace application {
 // static
 scoped_refptr<ApplicationData> ApplicationData::Create(
     const base::FilePath& path, const std::string& id,
-    SourceType source_type, scoped_ptr<Manifest> manifest,
+    SourceType source_type, std::unique_ptr<Manifest> manifest,
     std::string* error_message) {
   DCHECK(error_message);
   DCHECK(IsValidApplicationID(id));
@@ -104,7 +104,7 @@ ApplicationData::ApplicationData(
     const base::FilePath& path,
     const std::string& id,
     SourceType source_type,
-    scoped_ptr<Manifest> manifest)
+    std::unique_ptr<Manifest> manifest)
     : manifest_version_(0),
       path_(path),
       application_id_(id),

@@ -6,10 +6,11 @@
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDERER_CONTROLLER_H_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
+
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/synchronization/waitable_event.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
@@ -68,11 +69,11 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // channel and plug the external_extensions_client_ into it.
   void SetupExtensionProcessClient(IPC::SyncChannel* browser_channel);
 
-  scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
-  scoped_ptr<XWalkExtensionClient> external_extensions_client_;
+  std::unique_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
+  std::unique_ptr<XWalkExtensionClient> external_extensions_client_;
 
   base::WaitableEvent shutdown_event_;
-  scoped_ptr<IPC::SyncChannel> extension_process_channel_;
+  std::unique_ptr<IPC::SyncChannel> extension_process_channel_;
   Delegate* delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);

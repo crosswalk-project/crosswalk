@@ -5,8 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_NET_INIT_NATIVE_CALLBACK_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_NET_INIT_NATIVE_CALLBACK_H_
 
+#include <memory>
+
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 
 namespace base {
 class SingleThreadTaskRunner;

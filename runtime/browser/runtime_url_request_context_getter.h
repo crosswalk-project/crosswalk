@@ -5,13 +5,13 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_URL_REQUEST_CONTEXT_GETTER_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_URL_REQUEST_CONTEXT_GETTER_H_
 
+#include <memory>
 #include <string>
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
-#include "content/public/browser/content_browser_client.h"
+#include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "net/url_request/url_request_job_factory.h"
 
@@ -56,10 +56,10 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   base::MessageLoop* io_loop_;
   base::MessageLoop* file_loop_;
 
-  scoped_ptr<net::ProxyConfigService> proxy_config_service_;
-  scoped_ptr<net::NetworkDelegate> network_delegate_;
-  scoped_ptr<net::URLRequestContextStorage> storage_;
-  scoped_ptr<net::URLRequestContext> url_request_context_;
+  std::unique_ptr<net::ProxyConfigService> proxy_config_service_;
+  std::unique_ptr<net::NetworkDelegate> network_delegate_;
+  std::unique_ptr<net::URLRequestContextStorage> storage_;
+  std::unique_ptr<net::URLRequestContext> url_request_context_;
   content::ProtocolHandlerMap protocol_handlers_;
   content::URLRequestInterceptorScopedVector request_interceptors_;
 

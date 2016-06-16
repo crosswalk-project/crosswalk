@@ -117,7 +117,7 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
                devices.empty() ?
                    content::MEDIA_DEVICE_NO_HARDWARE :
                    content::MEDIA_DEVICE_OK,
-               scoped_ptr<content::MediaStreamUI>());
+               std::unique_ptr<content::MediaStreamUI>());
 #endif
 }
 
@@ -134,7 +134,7 @@ void XWalkMediaCaptureDevicesDispatcher::RequestPermissionToUser(
       !net::IsLocalhost(request.security_origin.host()))
     callback.Run(content::MediaStreamDevices(),
                  content::MEDIA_DEVICE_PERMISSION_DENIED,
-                 scoped_ptr<content::MediaStreamUI>());
+                 std::unique_ptr<content::MediaStreamUI>());
 
   XWalkPermissionDialogManager* permission_dialog_manager =
       XWalkPermissionDialogManager::GetPermissionDialogManager(web_contents);
@@ -203,11 +203,11 @@ void XWalkMediaCaptureDevicesDispatcher::OnPermissionRequestFinished(
                    devices.empty() ?
                       content::MEDIA_DEVICE_NO_HARDWARE :
                       content::MEDIA_DEVICE_OK,
-                   scoped_ptr<content::MediaStreamUI>());
+                   std::unique_ptr<content::MediaStreamUI>());
   } else {
     callback.Run(devices,
                  content::MEDIA_DEVICE_PERMISSION_DENIED,
-                 scoped_ptr<content::MediaStreamUI>());
+                 std::unique_ptr<content::MediaStreamUI>());
   }
 }
 #endif

@@ -20,14 +20,14 @@ XWalkBrowserPepperHostFactory::XWalkBrowserPepperHostFactory(
 XWalkBrowserPepperHostFactory::~XWalkBrowserPepperHostFactory() {
 }
 
-scoped_ptr<ResourceHost> XWalkBrowserPepperHostFactory::CreateResourceHost(
+std::unique_ptr<ResourceHost> XWalkBrowserPepperHostFactory::CreateResourceHost(
     ppapi::host::PpapiHost* host,
     PP_Resource resource,
     PP_Instance instance,
     const IPC::Message& message) {
   DCHECK(host == host_->GetPpapiHost());
 
-  return scoped_ptr<ResourceHost>();
+  return std::unique_ptr<ResourceHost>();
 }
 
 }  // namespace xwalk

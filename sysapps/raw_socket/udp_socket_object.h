@@ -25,13 +25,13 @@ class UDPSocketObject : public RawSocketObject {
   void DoRead();
 
   // JavaScript function handlers.
-  void OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnClose(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnSuspend(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnResume(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnJoinMulticast(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnLeaveMulticast(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnSendString(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnInit(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnClose(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnSuspend(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnResume(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnJoinMulticast(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnLeaveMulticast(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnSendString(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   // net::UDPSocket callbacks.
   void OnRead(int status);
@@ -47,12 +47,12 @@ class UDPSocketObject : public RawSocketObject {
 
   scoped_refptr<net::IOBuffer> read_buffer_;
   scoped_refptr<net::IOBuffer> write_buffer_;
-  scoped_ptr<net::UDPSocket> socket_;
+  std::unique_ptr<net::UDPSocket> socket_;
 
   size_t write_buffer_size_;
 
-  scoped_ptr<net::HostResolver> resolver_;
-  scoped_ptr<net::SingleRequestHostResolver> single_resolver_;
+  std::unique_ptr<net::HostResolver> resolver_;
+  std::unique_ptr<net::SingleRequestHostResolver> single_resolver_;
   net::AddressList addresses_;
   net::IPEndPoint from_;
 };

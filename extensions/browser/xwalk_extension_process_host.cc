@@ -65,7 +65,7 @@ class XWalkExtensionProcessHost::RenderProcessMessageFilter
   }
 
   void OnGetExtensionProcessChannel(IPC::Message* reply) {
-    scoped_ptr<IPC::Message> scoped_reply(reply);
+    std::unique_ptr<IPC::Message> scoped_reply(reply);
     if (eph_)
       eph_->OnGetExtensionProcessChannel(std::move(scoped_reply));
   }
@@ -115,7 +115,7 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,
     XWalkExtensionProcessHost::Delegate* delegate,
-    scoped_ptr<base::ValueMap> runtime_variables)
+    std::unique_ptr<base::ValueMap> runtime_variables)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
@@ -180,7 +180,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   if (exe_path.empty())
     return;
 
-  scoped_ptr<base::CommandLine> cmd_line(new base::CommandLine(exe_path));
+  std::unique_ptr<base::CommandLine> cmd_line(new base::CommandLine(exe_path));
   cmd_line->AppendSwitchASCII(switches::kProcessType,
                                 switches::kXWalkExtensionProcess);
   cmd_line->AppendSwitchASCII(switches::kProcessChannelID, channel_id);
@@ -206,7 +206,7 @@ void XWalkExtensionProcessHost::StopProcess() {
 }
 
 void XWalkExtensionProcessHost::OnGetExtensionProcessChannel(
-    scoped_ptr<IPC::Message> reply) {
+    std::unique_ptr<IPC::Message> reply) {
   pending_reply_for_render_process_ = std::move(reply);
   ReplyChannelHandleToRenderProcess();
 }

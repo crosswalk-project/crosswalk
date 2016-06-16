@@ -72,8 +72,8 @@ std::vector<ui::SelectedFileInfo> FilePathListToSelectedFileInfoList(
 struct RuntimeFileSelectHelper::ActiveDirectoryEnumeration {
   ActiveDirectoryEnumeration() : render_view_host_(NULL) {}
 
-  scoped_ptr<DirectoryListerDispatchDelegate> delegate_;
-  scoped_ptr<net::DirectoryLister> lister_;
+  std::unique_ptr<DirectoryListerDispatchDelegate> delegate_;
+  std::unique_ptr<net::DirectoryLister> lister_;
   RenderViewHost* render_view_host_;
   std::vector<base::FilePath> results_;
 };
@@ -184,7 +184,7 @@ void RuntimeFileSelectHelper::StartNewEnumeration(
     const base::FilePath& path,
     int request_id,
     RenderViewHost* render_view_host) {
-  scoped_ptr<ActiveDirectoryEnumeration> entry(new ActiveDirectoryEnumeration);
+  std::unique_ptr<ActiveDirectoryEnumeration> entry(new ActiveDirectoryEnumeration);
   entry->render_view_host_ = render_view_host;
   entry->delegate_.reset(new DirectoryListerDispatchDelegate(this, request_id));
   entry->lister_.reset(new net::DirectoryLister(path,
@@ -217,7 +217,7 @@ void RuntimeFileSelectHelper::OnListFile(
 
 void RuntimeFileSelectHelper::OnListDone(int id, int error) {
   // This entry needs to be cleaned up when this function is done.
-  scoped_ptr<ActiveDirectoryEnumeration> entry(directory_enumerations_[id]);
+  std::unique_ptr<ActiveDirectoryEnumeration> entry(directory_enumerations_[id]);
   directory_enumerations_.erase(id);
   if (!entry->render_view_host_)
     return;
@@ -238,17 +238,17 @@ void RuntimeFileSelectHelper::OnListDone(int id, int error) {
   EnumerateDirectoryEnd();
 }
 
-scoped_ptr<ui::SelectFileDialog::FileTypeInfo>
+std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
 RuntimeFileSelectHelper::GetFileTypesFromAcceptType(
     const std::vector<base::string16>& accept_types) {
-  scoped_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
+  std::unique_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
       new ui::SelectFileDialog::FileTypeInfo());
   base_file_type->allowed_paths = ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
   if (accept_types.empty())
     return base_file_type;
 
   // Create FileTypeInfo and pre-allocate for the first extension list.
-  scoped_ptr<ui::SelectFileDialog::FileTypeInfo> file_type(
+  std::unique_ptr<ui::SelectFileDialog::FileTypeInfo> file_type(
       new ui::SelectFileDialog::FileTypeInfo(*base_file_type));
   file_type->include_all_files = true;
   file_type->extensions.resize(1);

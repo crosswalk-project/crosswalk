@@ -4,7 +4,8 @@
 
 #include "xwalk/sysapps/raw_socket/raw_socket_object.h"
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "base/values.h"
 
 namespace xwalk {
@@ -15,7 +16,7 @@ RawSocketObject::RawSocketObject() {}
 RawSocketObject::~RawSocketObject() {}
 
 void RawSocketObject::setReadyState(ReadyState state) {
-  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  std::unique_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->AppendString(ToString(state));
 
   DispatchEvent("readystate", std::move(eventData));

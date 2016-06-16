@@ -30,25 +30,25 @@ class TestExtensionInstance
   TestExtensionInstance();
   ~TestExtensionInstance() override;
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
 
   Database* database() { return &database_; }
 
  private:
-  void OnClearDatabase(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnAddPerson(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnAddPersonObject(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnGetAllPersons(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnGetPersonAge(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnStartHeartbeat(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnStopHeartbeat(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnClearDatabase(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnAddPerson(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnAddPersonObject(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetAllPersons(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetPersonAge(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnStartHeartbeat(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnStopHeartbeat(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   void DispatchHeartbeat();
 
   std::vector<std::pair<std::string, int> > database_;
 
   int counter_;
-  scoped_ptr<XWalkExtensionFunctionInfo> heartbeat_info_;
+  std::unique_ptr<XWalkExtensionFunctionInfo> heartbeat_info_;
   base::RepeatingTimer timer_;
 
   XWalkExtensionFunctionHandler handler_;

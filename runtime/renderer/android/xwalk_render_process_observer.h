@@ -22,15 +22,12 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
 
   // content::RenderProcessObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
-  void WebKitInitialized() override;
 
  private:
   void OnSetJsOnlineProperty(bool network_up);
   void OnClearCache();
   void OnSetOriginAccessWhitelist(std::string base_url,
                                   std::string match_patterns);
-
-  bool webkit_initialized_;
 };
 
 }  // namespace xwalk

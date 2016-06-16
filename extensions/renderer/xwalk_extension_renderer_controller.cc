@@ -14,7 +14,6 @@
 #include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -62,7 +61,7 @@ void CreateExtensionModules(XWalkExtensionClient* client,
     XWalkExtensionClient::ExtensionCodePoints* codepoint = it->second;
     if (codepoint->api.empty())
       continue;
-    scoped_ptr<XWalkExtensionModule> module(
+    std::unique_ptr<XWalkExtensionModule> module(
         new XWalkExtensionModule(client, module_system,
                                  it->first, codepoint->api));
     module_system->RegisterExtensionModule(std::move(module),
@@ -76,10 +75,10 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
     blink::WebLocalFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
-      scoped_ptr<XWalkModuleSystem>(module_system), context);
+      std::unique_ptr<XWalkModuleSystem>(module_system), context);
 
   module_system->RegisterNativeModule(
-      "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
+      "v8tools", std::unique_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
   module_system->RegisterNativeModule(
       "internal", CreateJSModuleFromResource(
           IDR_XWALK_EXTENSIONS_INTERNAL_API));

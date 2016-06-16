@@ -40,9 +40,9 @@ bool ApplicationSecurityPolicy::WhitelistEntry::operator==(
          other.subdomains == subdomains;
 }
 
-scoped_ptr<ApplicationSecurityPolicy> ApplicationSecurityPolicy::
+std::unique_ptr<ApplicationSecurityPolicy> ApplicationSecurityPolicy::
     Create(scoped_refptr<ApplicationData> app_data) {
-  scoped_ptr<ApplicationSecurityPolicy> security_policy;
+  std::unique_ptr<ApplicationSecurityPolicy> security_policy;
   // CSP policy takes precedence over WARP.
   if (app_data->HasCSPDefined())
     security_policy.reset(new ApplicationSecurityPolicyCSP(app_data));

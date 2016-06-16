@@ -16,7 +16,7 @@ using xwalk::Runtime;
 
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
-  void HandleMessage(scoped_ptr<base::Value> msg) override {}
+  void HandleMessage(std::unique_ptr<base::Value> msg) override {}
 };
 
 class TestV8ToolsExtension : public XWalkExtension {

@@ -6,8 +6,9 @@
 #define XWALK_SYSAPPS_COMMON_BINDING_OBJECT_STORE_H_
 
 #include <map>
+#include <memory>
 #include <string>
-#include "base/memory/scoped_ptr.h"
+
 #include "base/stl_util.h"
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -29,14 +30,14 @@ class BindingObjectStore {
   explicit BindingObjectStore(XWalkExtensionFunctionHandler* handler);
   virtual ~BindingObjectStore();
 
-  void AddBindingObject(const std::string& id, scoped_ptr<BindingObject> obj);
+  void AddBindingObject(const std::string& id, std::unique_ptr<BindingObject> obj);
   bool HasObjectForTesting(const std::string& id) const;
 
  private:
   // This method is invoked every time a JavaScript Binding object is collected
   // by the garbage collector, so we can also destroy the native counterpart.
-  void OnJSObjectCollected(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnPostMessageToObject(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnJSObjectCollected(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnPostMessageToObject(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   typedef std::map<std::string, BindingObject*> BindingObjectMap;
   BindingObjectMap objects_;

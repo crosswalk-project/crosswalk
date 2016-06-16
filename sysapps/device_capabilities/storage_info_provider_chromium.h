@@ -23,7 +23,7 @@ class StorageInfoProviderChromium
   StorageInfoProviderChromium();
   ~StorageInfoProviderChromium() override;
 
-  scoped_ptr<SystemStorage> storage_info() const override;
+  std::unique_ptr<SystemStorage> storage_info() const override;
 
   // RemovableStorageObserver implementation.
   void OnRemovableStorageAttached(

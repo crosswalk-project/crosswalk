@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_RENDERER_HOST_PEPPER_XWALK_BROWSER_PEPPER_HOST_FACTORY_H_
 #define XWALK_RUNTIME_BROWSER_RENDERER_HOST_PEPPER_XWALK_BROWSER_PEPPER_HOST_FACTORY_H_
 
+#include "base/macros.h"
 #include "ppapi/host/host_factory.h"
 
 namespace content {
@@ -19,7 +20,7 @@ class XWalkBrowserPepperHostFactory : public ppapi::host::HostFactory {
   explicit XWalkBrowserPepperHostFactory(content::BrowserPpapiHost* host);
   ~XWalkBrowserPepperHostFactory() override;
 
-  scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
+  std::unique_ptr<ppapi::host::ResourceHost> CreateResourceHost(
       ppapi::host::PpapiHost* host,
       PP_Resource resource,
       PP_Instance instance,

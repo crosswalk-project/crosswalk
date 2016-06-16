@@ -8,6 +8,7 @@
 #include <vector>
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "content/public/browser/render_process_host.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
@@ -90,7 +91,7 @@ void XWalkRunner::PostMainMessageLoopRun() {
 }
 
 void XWalkRunner::CreateComponents() {
-  scoped_ptr<ApplicationComponent> app_component(CreateAppComponent());
+  std::unique_ptr<ApplicationComponent> app_component(CreateAppComponent());
   // Keep a reference as some code still needs to call
   // XWalkRunner::app_system().
   app_component_ = app_component.get();
@@ -111,20 +112,20 @@ void XWalkRunner::DestroyComponents() {
   app_component_ = NULL;
 }
 
-void XWalkRunner::AddComponent(scoped_ptr<XWalkComponent> component) {
+void XWalkRunner::AddComponent(std::unique_ptr<XWalkComponent> component) {
   components_.push_back(component.release());
 }
 
-scoped_ptr<ApplicationComponent> XWalkRunner::CreateAppComponent() {
-  return make_scoped_ptr(new ApplicationComponent(browser_context_.get()));
+std::unique_ptr<ApplicationComponent> XWalkRunner::CreateAppComponent() {
+  return base::WrapUnique(new ApplicationComponent(browser_context_.get()));
 }
 
-scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
-  return make_scoped_ptr(new SysAppsComponent());
+std::unique_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
+  return base::WrapUnique(new SysAppsComponent());
 }
 
-scoped_ptr<StorageComponent> XWalkRunner::CreateStorageComponent() {
-  return make_scoped_ptr(new StorageComponent());
+std::unique_ptr<StorageComponent> XWalkRunner::CreateStorageComponent() {
+  return base::WrapUnique(new StorageComponent());
 }
 
 void XWalkRunner::InitializeRuntimeVariablesForExtensions(
@@ -162,7 +163,7 @@ void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
 
   InitializeEnvironmentVariablesForGoogleAPIs(host);
 
-  scoped_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
+  std::unique_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
   InitializeRuntimeVariablesForExtensions(host, runtime_variables.get());
   extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions,
@@ -196,11 +197,11 @@ void XWalkRunner::DisableRemoteDebugging() {
 }
 
 // static
-scoped_ptr<XWalkRunner> XWalkRunner::Create() {
+std::unique_ptr<XWalkRunner> XWalkRunner::Create() {
 #if defined (OS_WIN)
-  return scoped_ptr<XWalkRunner>(new XWalkRunnerWin);
+  return std::unique_ptr<XWalkRunner>(new XWalkRunnerWin);
 #else
-  return scoped_ptr<XWalkRunner>(new XWalkRunner);
+  return std::unique_ptr<XWalkRunner>(new XWalkRunner);
 #endif
 }
 

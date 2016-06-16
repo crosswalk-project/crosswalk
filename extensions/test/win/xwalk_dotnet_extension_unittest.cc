@@ -25,7 +25,7 @@ class TestExtension : public XWalkExternalExtension {
         XWalkExternalExtension::CreateInstance());
   }
  private:
-  scoped_ptr<base::ValueMap> runtime_variables_;
+  std::unique_ptr<base::ValueMap> runtime_variables_;
 };
 
 TEST(XWalkDotNetExtensionTest, InvalidExtensions) {

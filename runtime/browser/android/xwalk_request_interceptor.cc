@@ -4,8 +4,9 @@
 
 #include "xwalk/runtime/browser/android/xwalk_request_interceptor.h"
 
+#include <memory>
+
 #include "base/android/jni_string.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/resource_request_info.h"
@@ -34,7 +35,7 @@ XWalkRequestInterceptor::XWalkRequestInterceptor() {
 XWalkRequestInterceptor::~XWalkRequestInterceptor() {
 }
 
-scoped_ptr<XWalkWebResourceResponse>
+std::unique_ptr<XWalkWebResourceResponse>
 XWalkRequestInterceptor::QueryForXWalkWebResourceResponse(
     const GURL& location,
     net::URLRequest* request) const {
@@ -42,13 +43,13 @@ XWalkRequestInterceptor::QueryForXWalkWebResourceResponse(
   int render_process_id, render_frame_id;
   if (!ResourceRequestInfo::GetRenderFrameForRequest(
       request, &render_process_id, &render_frame_id))
-    return scoped_ptr<XWalkWebResourceResponse>();
+    return std::unique_ptr<XWalkWebResourceResponse>();
 
-  scoped_ptr<XWalkContentsIoThreadClient> io_thread_client =
+  std::unique_ptr<XWalkContentsIoThreadClient> io_thread_client =
     XWalkContentsIoThreadClient::FromID(render_process_id, render_frame_id);
 
   if (!io_thread_client.get())
-    return scoped_ptr<XWalkWebResourceResponse>();
+    return std::unique_ptr<XWalkWebResourceResponse>();
 
   return io_thread_client->ShouldInterceptRequest(location, request);
 }
@@ -69,7 +70,7 @@ net::URLRequestJob* XWalkRequestInterceptor::MaybeInterceptRequest(
   request->SetUserData(kURLRequestUserDataKey,
                        new base::SupportsUserData::Data());
 
-  scoped_ptr<XWalkWebResourceResponse> xwalk_web_resource_response =
+  std::unique_ptr<XWalkWebResourceResponse> xwalk_web_resource_response =
       QueryForXWalkWebResourceResponse(request->url(), request);
 
   if (!xwalk_web_resource_response)

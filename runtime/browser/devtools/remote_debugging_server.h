@@ -5,9 +5,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_DEVTOOLS_REMOTE_DEBUGGING_SERVER_H_
 #define XWALK_RUNTIME_BROWSER_DEVTOOLS_REMOTE_DEBUGGING_SERVER_H_
 
+#include <memory>
 #include <string>
 
-#include "base/memory/scoped_ptr.h"
+#include "base/macros.h"
 
 namespace devtools_http_handler {
 class DevToolsHttpHandler;
@@ -28,7 +29,7 @@ class RemoteDebuggingServer {
   int port() { return port_; }
 
  private:
-  scoped_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
+  std::unique_ptr<devtools_http_handler::DevToolsHttpHandler> devtools_http_handler_;
   int port_;
   DISALLOW_COPY_AND_ASSIGN(RemoteDebuggingServer);
 };

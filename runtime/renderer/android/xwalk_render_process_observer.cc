@@ -17,8 +17,7 @@
 
 namespace xwalk {
 
-XWalkRenderProcessObserver::XWalkRenderProcessObserver()
-  : webkit_initialized_(false) {
+XWalkRenderProcessObserver::XWalkRenderProcessObserver() {
 }
 
 XWalkRenderProcessObserver::~XWalkRenderProcessObserver() {
@@ -37,18 +36,12 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-void XWalkRenderProcessObserver::WebKitInitialized() {
-  webkit_initialized_ = true;
-}
-
 void XWalkRenderProcessObserver::OnSetJsOnlineProperty(bool network_up) {
-  if (webkit_initialized_)
-    blink::WebNetworkStateNotifier::setOnLine(network_up);
+  blink::WebNetworkStateNotifier::setOnLine(network_up);
 }
 
 void XWalkRenderProcessObserver::OnClearCache() {
-  if (webkit_initialized_)
-    blink::WebCache::clear();
+  blink::WebCache::clear();
 }
 
 void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
@@ -60,7 +53,7 @@ void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
   if (base_url.empty() || match_patterns.empty())
     return;
 
-  scoped_ptr<base::Value> patterns = base::JSONReader::Read(match_patterns);
+  std::unique_ptr<base::Value> patterns = base::JSONReader::Read(match_patterns);
   if (!patterns)
     return;
 

@@ -13,15 +13,15 @@ namespace xwalk {
 
 DisplayInfo::DisplayInfo() {}
 
-scoped_ptr<DisplayInfoManagerService> DisplayInfoManagerService::Create() {
+std::unique_ptr<DisplayInfoManagerService> DisplayInfoManagerService::Create() {
 #if defined(OS_WIN)
-  return scoped_ptr<DisplayInfoManagerService>(
+  return std::unique_ptr<DisplayInfoManagerService>(
       new DisplayInfoManagerServiceWin());
 #elif defined(OS_ANDROID)
-  return scoped_ptr<DisplayInfoManagerService>(
+  return std::unique_ptr<DisplayInfoManagerService>(
       new DisplayInfoManagerServiceAndroid());
 #else
-  return scoped_ptr<DisplayInfoManagerService>(nullptr);
+  return std::unique_ptr<DisplayInfoManagerService>(nullptr);
 #endif
 }
 
@@ -129,13 +129,13 @@ void PresentationSession::NotifyClose() {
                     OnPresentationSessionClosed(session_info_));
 }
 
-scoped_ptr<PresentationFrame> PresentationFrame::Create(
+std::unique_ptr<PresentationFrame> PresentationFrame::Create(
     const RenderFrameHostId& render_frame_host_id) {
 #if defined(OS_ANDROID)
-  return scoped_ptr<PresentationFrame>(
+  return std::unique_ptr<PresentationFrame>(
       new PresentationFrameAndroid(render_frame_host_id));
 #else
-  return scoped_ptr<PresentationFrame>(
+  return std::unique_ptr<PresentationFrame>(
       new PresentationFrame(render_frame_host_id));
 #endif
 }

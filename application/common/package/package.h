@@ -5,12 +5,12 @@
 #ifndef XWALK_APPLICATION_COMMON_PACKAGE_PACKAGE_H_
 #define XWALK_APPLICATION_COMMON_PACKAGE_PACKAGE_H_
 
+#include <memory>
 #include <string>
 
 #include "base/files/file_path.h"
 #include "base/files/scoped_file.h"
 #include "base/files/scoped_temp_dir.h"
-#include "base/memory/scoped_ptr.h"
 #include "xwalk/application/common/manifest.h"
 
 namespace xwalk {
@@ -29,7 +29,7 @@ class Package {
   // Returns the type of the manifest which the package contains.
   Manifest::Type manifest_type() const { return manifest_type_; }
   // Factory method for creating a package
-  static scoped_ptr<Package> Create(const base::FilePath& path);
+  static std::unique_ptr<Package> Create(const base::FilePath& path);
   // The function will unzip the XPK/WGT file and return the target path where
   // to decompress by the parameter |target_path|.
   virtual bool ExtractToTemporaryDir(base::FilePath* result_path);
@@ -40,7 +40,7 @@ class Package {
   Package(const base::FilePath& source_path, Manifest::Type manifest_type);
   // Unzipping of the zipped file happens in a temporary directory
   bool CreateTempDirectory();
-  scoped_ptr<base::ScopedFILE> file_;
+  std::unique_ptr<base::ScopedFILE> file_;
 
   bool is_valid_;
   base::FilePath source_path_;

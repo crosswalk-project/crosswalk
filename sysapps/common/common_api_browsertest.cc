@@ -67,25 +67,25 @@ SysAppsTestExtensionInstance::SysAppsTestExtensionInstance()
                  base::Unretained(this)));
 }
 
-void SysAppsTestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void SysAppsTestExtensionInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   handler_.HandleMessage(std::move(msg));
 }
 
 void SysAppsTestExtensionInstance::OnSysAppsTestObjectContructor(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   std::string object_id;
   ASSERT_TRUE(info->arguments()->GetString(0, &object_id));
 
-  scoped_ptr<BindingObject> obj(new SysAppsTestObject);
+  std::unique_ptr<BindingObject> obj(new SysAppsTestObject);
   store_.AddBindingObject(object_id, std::move(obj));
 }
 
 void SysAppsTestExtensionInstance::OnHasObject(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   std::string object_id;
   ASSERT_TRUE(info->arguments()->GetString(0, &object_id));
 
-  scoped_ptr<base::ListValue> result(new base::ListValue());
+  std::unique_ptr<base::ListValue> result(new base::ListValue());
   result->AppendBoolean(store_.HasObjectForTesting(object_id));
 
   info->PostResult(std::move(result));
@@ -117,26 +117,26 @@ void SysAppsTestObject::StopEvent(const std::string& type) {
 }
 
 void SysAppsTestObject::OnIsTestEventActive(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<base::ListValue> result(new base::ListValue());
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<base::ListValue> result(new base::ListValue());
   result->AppendBoolean(is_test_event_active_);
 
   info->PostResult(std::move(result));
 }
 
 void SysAppsTestObject::OnFireTestEvent(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<base::ListValue> data(new base::ListValue());
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<base::ListValue> data(new base::ListValue());
   data->AppendString("Lorem ipsum");
   DispatchEvent("test", std::move(data));
 
-  scoped_ptr<base::ListValue> result(new base::ListValue());
+  std::unique_ptr<base::ListValue> result(new base::ListValue());
   info->PostResult(std::move(result));
 }
 
 void SysAppsTestObject::OnMakeFulfilledPromise(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<base::ListValue> result(new base::ListValue());
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<base::ListValue> result(new base::ListValue());
   result->AppendString("Lorem ipsum");  // Data.
   result->AppendString("");  // Error, empty == no error.
 
@@ -144,8 +144,8 @@ void SysAppsTestObject::OnMakeFulfilledPromise(
 }
 
 void SysAppsTestObject::OnMakeRejectedPromise(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<base::ListValue> result(new base::ListValue());
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<base::ListValue> result(new base::ListValue());
   result->AppendString("");  // Data.
   result->AppendString("Lorem ipsum");  // Error, !empty == error.
 

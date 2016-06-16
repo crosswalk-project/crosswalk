@@ -65,7 +65,7 @@ void DeviceCapabilitiesObject::StopEvent(const std::string& type) {
 }
 
 void DeviceCapabilitiesObject::OnDisplayConnected(const DisplayUnit& display) {
-  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  std::unique_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(display.ToValue().release());
 
   DispatchEvent("displayconnect", std::move(eventData));
@@ -73,57 +73,57 @@ void DeviceCapabilitiesObject::OnDisplayConnected(const DisplayUnit& display) {
 
 void DeviceCapabilitiesObject::OnDisplayDisconnected(
     const DisplayUnit& display) {
-  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  std::unique_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(display.ToValue().release());
 
   DispatchEvent("displaydisconnect", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnStorageAttached(const StorageUnit& storage) {
-  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  std::unique_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(storage.ToValue().release());
 
   DispatchEvent("storageattach", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnStorageDetached(const StorageUnit& storage) {
-  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  std::unique_ptr<base::ListValue> eventData(new base::ListValue);
   eventData->Append(storage.ToValue().release());
 
   DispatchEvent("storagedetach", std::move(eventData));
 }
 
 void DeviceCapabilitiesObject::OnGetAVCodecs(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<SystemAVCodecs> av_codecs(
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<SystemAVCodecs> av_codecs(
       SysAppsManager::GetAVCodecsProvider()->GetSupportedCodecs());
   info->PostResult(GetAVCodecs::Results::Create(*av_codecs, std::string()));
 }
 
 void DeviceCapabilitiesObject::OnGetCPUInfo(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<SystemCPU> cpu_info(
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<SystemCPU> cpu_info(
       SysAppsManager::GetCPUInfoProvider()->cpu_info());
   info->PostResult(GetCPUInfo::Results::Create(*cpu_info, std::string()));
 }
 
 void DeviceCapabilitiesObject::OnGetDisplayInfo(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   DisplayInfoProvider* provider(SysAppsManager::GetDisplayInfoProvider());
-  scoped_ptr<SystemDisplay> display_info(provider->display_info());
+  std::unique_ptr<SystemDisplay> display_info(provider->display_info());
   info->PostResult(GetDisplayInfo::Results::Create(*display_info,
                                                    std::string()));
 }
 
 void DeviceCapabilitiesObject::OnGetMemoryInfo(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<SystemMemory> memory_info(
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<SystemMemory> memory_info(
       SysAppsManager::GetMemoryInfoProvider()->memory_info());
   info->PostResult(GetMemoryInfo::Results::Create(*memory_info, std::string()));
 }
 
 void DeviceCapabilitiesObject::OnGetStorageInfo(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   StorageInfoProvider* provider(SysAppsManager::GetStorageInfoProvider());
 
   // Queue the message if the backend is not initialized yet.
@@ -135,7 +135,7 @@ void DeviceCapabilitiesObject::OnGetStorageInfo(
     return;
   }
 
-  scoped_ptr<SystemStorage> storage_info(provider->storage_info());
+  std::unique_ptr<SystemStorage> storage_info(provider->storage_info());
   info->PostResult(GetStorageInfo::Results::Create(
       *storage_info, std::string()));
 }

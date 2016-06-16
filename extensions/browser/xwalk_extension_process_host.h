@@ -5,11 +5,11 @@
 #ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 
+#include <memory>
 #include <string>
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
 #include "ipc/ipc_channel_handle.h"
@@ -54,7 +54,7 @@ class XWalkExtensionProcessHost
   XWalkExtensionProcessHost(content::RenderProcessHost* render_process_host,
                             const base::FilePath& external_extensions_path,
                             XWalkExtensionProcessHost::Delegate* delegate,
-                            scoped_ptr<base::ValueMap> runtime_variables);
+                            std::unique_ptr<base::ValueMap> runtime_variables);
   ~XWalkExtensionProcessHost() override;
 
   // IPC::Sender implementation
@@ -68,7 +68,7 @@ class XWalkExtensionProcessHost
 
   // Handler for message from Render Process host, it is a synchronous message,
   // that will be replied only when the extension process channel is created.
-  void OnGetExtensionProcessChannel(scoped_ptr<IPC::Message> reply);
+  void OnGetExtensionProcessChannel(std::unique_ptr<IPC::Message> reply);
 
   // content::BrowserChildProcessHostDelegate implementation.
   bool OnMessageReceived(const IPC::Message& message) override;
@@ -87,10 +87,10 @@ class XWalkExtensionProcessHost
   void OnRegisterPermissions(const std::string& extension_name,
       const std::string& perm_table, bool* result);
 
-  scoped_ptr<content::BrowserChildProcessHost> process_;
+  std::unique_ptr<content::BrowserChildProcessHost> process_;
   IPC::ChannelHandle ep_rp_channel_handle_;
   content::RenderProcessHost* render_process_host_;
-  scoped_ptr<IPC::Message> pending_reply_for_render_process_;
+  std::unique_ptr<IPC::Message> pending_reply_for_render_process_;
 
   // We use this filter to know when RP asked for the extension process channel.
   // We keep the reference to invalidate the filter once we don't need it
@@ -106,10 +106,10 @@ class XWalkExtensionProcessHost
 
   XWalkExtensionProcessHost::Delegate* delegate_;
 
-  scoped_ptr<base::ValueMap> runtime_variables_;
+  std::unique_ptr<base::ValueMap> runtime_variables_;
 
   // IPC channel for launcher to communicate with BP in service mode.
-  scoped_ptr<IPC::Channel> channel_;
+  std::unique_ptr<IPC::Channel> channel_;
 };
 
 }  // namespace extensions

@@ -38,8 +38,8 @@ class XWalkExternalInstance : public XWalkExtensionInstance {
   friend class XWalkExternalAdapter;
 
   // XWalkExtensionInstance implementation.
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
-  void HandleSyncMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
+  void HandleSyncMessage(std::unique_ptr<base::Value> msg) override;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
   void CoreSetInstanceData(void* data);

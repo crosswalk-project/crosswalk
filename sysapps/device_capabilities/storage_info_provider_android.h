@@ -15,7 +15,7 @@ class StorageInfoProviderAndroid : public StorageInfoProvider {
   StorageInfoProviderAndroid();
   ~StorageInfoProviderAndroid() override;
 
-  scoped_ptr<SystemStorage> storage_info() const override;
+  std::unique_ptr<SystemStorage> storage_info() const override;
 
  private:
   // StorageInfoProvider implementation.

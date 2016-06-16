@@ -31,7 +31,7 @@ XPKPackage::XPKPackage(const base::FilePath& path)
       zip_addr_(0) {
   if (!base::PathExists(path))
     return;
-  scoped_ptr<base::ScopedFILE> file(
+  std::unique_ptr<base::ScopedFILE> file(
       new base::ScopedFILE(base::OpenFile(path, "rb")));
   file_ = std::move(file);
   size_t len = fread(&header_, 1, sizeof(header_), file_->get());
@@ -77,8 +77,7 @@ bool XPKPackage::VerifySignature() {
   if (fseek(file_->get(), zip_addr_, SEEK_SET))
     return false;
   crypto::SignatureVerifier verifier;
-  if (!verifier.VerifyInit(kSignatureAlgorithm,
-                           sizeof(kSignatureAlgorithm),
+  if (!verifier.VerifyInit(crypto::SignatureVerifier::RSA_PKCS1_SHA1,
                            &signature_.front(),
                            base::checked_cast<int>(signature_.size()),
                            &key_.front(),

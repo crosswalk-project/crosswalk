@@ -39,7 +39,7 @@ bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
     return false;
   }
 
-  scoped_ptr<PermissionsInfo> permissions_info(new PermissionsInfo);
+  std::unique_ptr<PermissionsInfo> permissions_info(new PermissionsInfo);
   PermissionSet api_permissions;
   for (size_t i = 0; i < permissions->GetSize(); ++i) {
     std::string permission;

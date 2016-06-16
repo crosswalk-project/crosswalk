@@ -4,6 +4,7 @@
 
 #include "xwalk/sysapps/common/event_target.h"
 
+#include "base/memory/ptr_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 
@@ -15,20 +16,20 @@ namespace {
 
 const char kTestString[] = "crosswalk1234567890";
 
-void DummyCallback(scoped_ptr<base::ListValue> result) {}
+void DummyCallback(std::unique_ptr<base::ListValue> result) {}
 
-scoped_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
+std::unique_ptr<XWalkExtensionFunctionInfo> CreateFunctionInfo(
     const std::string& name, const std::string& str_argument) {
-  scoped_ptr<base::ListValue> arguments(new base::ListValue);
+  std::unique_ptr<base::ListValue> arguments(new base::ListValue);
   arguments->AppendString(str_argument);
 
-  return make_scoped_ptr(new XWalkExtensionFunctionInfo(
+  return base::WrapUnique(new XWalkExtensionFunctionInfo(
       name,
       std::move(arguments),
       base::Bind(&DummyCallback)));
 }
 
-void DispatchResult(int* message_count, scoped_ptr<base::ListValue> result) {
+void DispatchResult(int* message_count, std::unique_ptr<base::ListValue> result) {
   std::string test_string;
   result->GetString(0, &test_string);
   EXPECT_EQ(test_string, kTestString);
@@ -43,7 +44,7 @@ class EventTargetTest : public EventTarget {
         event2_count_(0) {}
 
   void InjectEvent(const std::string& type) {
-    scoped_ptr<base::ListValue> data(new base::ListValue());
+    std::unique_ptr<base::ListValue> data(new base::ListValue());
     data->AppendString(kTestString);
 
     DispatchEvent(type, std::move(data));
@@ -89,7 +90,7 @@ class EventTargetTest : public EventTarget {
 }  // namespace
 
 TEST(XWalkSysAppsEventTargetTest, StartStopEvent) {
-  scoped_ptr<EventTargetTest> target(new EventTargetTest());
+  std::unique_ptr<EventTargetTest> target(new EventTargetTest());
 
   // The JS shim should do the listeners management and call "addEventListener"
   // only when the first listener is added and "removeEventListener" only when
@@ -138,7 +139,7 @@ TEST(XWalkSysAppsEventTargetTest, StartStopEvent) {
 }
 
 TEST(XWalkSysAppsEventTargetTest, DispatchEvent) {
-  scoped_ptr<EventTargetTest> target(new EventTargetTest());
+  std::unique_ptr<EventTargetTest> target(new EventTargetTest());
 
   target->InjectEvent("event1");
   target->InjectEvent("event1");
@@ -146,10 +147,10 @@ TEST(XWalkSysAppsEventTargetTest, DispatchEvent) {
 
   int message_count = 0;
 
-  scoped_ptr<base::ListValue> argumentsList(new base::ListValue);
+  std::unique_ptr<base::ListValue> argumentsList(new base::ListValue);
   argumentsList->AppendString("event1");
 
-  scoped_ptr<XWalkExtensionFunctionInfo> eventInfo(
+  std::unique_ptr<XWalkExtensionFunctionInfo> eventInfo(
       new XWalkExtensionFunctionInfo(
           "addEventListener",
           std::move(argumentsList),

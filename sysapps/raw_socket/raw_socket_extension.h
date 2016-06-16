@@ -31,16 +31,16 @@ class RawSocketInstance : public XWalkExtensionInstance {
   RawSocketInstance();
 
   // XWalkExtensionInstance implementation.
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
 
   void AddBindingObject(const std::string& object_id,
-                        scoped_ptr<BindingObject> obj);
+                        std::unique_ptr<BindingObject> obj);
 
  private:
   void OnTCPServerSocketConstructor(
-      scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnTCPSocketConstructor(scoped_ptr<XWalkExtensionFunctionInfo> info);
-  void OnUDPSocketConstructor(scoped_ptr<XWalkExtensionFunctionInfo> info);
+      std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnTCPSocketConstructor(std::unique_ptr<XWalkExtensionFunctionInfo> info);
+  void OnUDPSocketConstructor(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
   BindingObjectStore store_;

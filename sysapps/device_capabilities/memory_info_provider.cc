@@ -15,8 +15,8 @@ MemoryInfoProvider::MemoryInfoProvider()
 
 MemoryInfoProvider::~MemoryInfoProvider() {}
 
-scoped_ptr<SystemMemory> MemoryInfoProvider::memory_info() const {
-  scoped_ptr<SystemMemory> info(new SystemMemory);
+std::unique_ptr<SystemMemory> MemoryInfoProvider::memory_info() const {
+  std::unique_ptr<SystemMemory> info(new SystemMemory);
 
   info->capacity = amount_of_physical_memory_;
   info->avail_capacity = base::SysInfo::AmountOfAvailablePhysicalMemory();

@@ -41,7 +41,7 @@ class AppWidgetStorage {
   bool SaveConfigInfoItem(base::DictionaryValue* dict);
 
   Application* application_;
-  scoped_ptr<sql::Connection> sqlite_db_;
+  std::unique_ptr<sql::Connection> sqlite_db_;
   base::FilePath data_path_;
   bool db_initialized_;
 };

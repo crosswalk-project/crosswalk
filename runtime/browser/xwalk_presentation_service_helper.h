@@ -81,7 +81,7 @@ struct DisplayInfo {
 // Platform-dependent service interface for DisplayInfoManager class
 class DisplayInfoManagerService {
  public:
-  static scoped_ptr<DisplayInfoManagerService> Create();
+  static std::unique_ptr<DisplayInfoManagerService> Create();
   virtual ~DisplayInfoManagerService() {}
   virtual void FindAllAvailableMonitors(
       std::vector<DisplayInfo>* info_list) = 0;
@@ -135,7 +135,7 @@ class DisplayInfoManager {
 
  private:
   base::ObserverList<Observer> observers_;
-  scoped_ptr<DisplayInfoManagerService> service_;
+  std::unique_ptr<DisplayInfoManagerService> service_;
 };
 
 class PresentationSession : public base::RefCounted<PresentationSession> {
@@ -208,7 +208,7 @@ class PresentationSession : public base::RefCounted<PresentationSession> {
 class PresentationFrame : public PresentationSession::Observer,
                           public DisplayInfoManager::Observer {
  public:
-  static scoped_ptr<PresentationFrame> Create(
+  static std::unique_ptr<PresentationFrame> Create(
       const RenderFrameHostId& render_frame_host_id);
   ~PresentationFrame() override;
 

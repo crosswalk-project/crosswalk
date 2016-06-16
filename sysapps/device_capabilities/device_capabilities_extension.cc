@@ -35,15 +35,15 @@ DeviceCapabilitiesInstance::DeviceCapabilitiesInstance()
                  base::Unretained(this)));
 }
 
-void DeviceCapabilitiesInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void DeviceCapabilitiesInstance::HandleMessage(std::unique_ptr<base::Value> msg) {
   handler_.HandleMessage(std::move(msg));
 }
 
 void DeviceCapabilitiesInstance::OnDeviceCapabilitiesConstructor(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  scoped_ptr<Params> params(Params::Create(*info->arguments()));
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
+  std::unique_ptr<Params> params(Params::Create(*info->arguments()));
 
-  scoped_ptr<BindingObject> obj(new DeviceCapabilitiesObject());
+  std::unique_ptr<BindingObject> obj(new DeviceCapabilitiesObject());
   store_.AddBindingObject(params->object_id, std::move(obj));
 }
 

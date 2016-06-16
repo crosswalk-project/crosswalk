@@ -70,14 +70,6 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-void XWalkRenderProcessObserver::WebKitInitialized() {
-  base::AutoLock lock(lock_);
-  is_blink_initialized_ = true;
-  for (const auto& it : access_whitelist_)
-    AddAccessWhiteListEntry(
-        it->source, it->dest, it->dest_host, it->allow_subdomains);
-}
-
 void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
   is_blink_initialized_ = false;
 }

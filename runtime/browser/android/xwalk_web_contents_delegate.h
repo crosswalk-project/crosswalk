@@ -78,7 +78,7 @@ class XWalkWebContentsDelegate
                  bool final_update) override;
 
  private:
-  scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
+  std::unique_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);
 };
 

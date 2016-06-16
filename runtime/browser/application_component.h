@@ -5,7 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_APPLICATION_COMPONENT_H_
 #define XWALK_RUNTIME_BROWSER_APPLICATION_COMPONENT_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "xwalk/runtime/browser/xwalk_component.h"
 
 namespace xwalk {
@@ -35,7 +36,7 @@ class ApplicationComponent : public XWalkComponent {
       content::RenderProcessHost* host,
       extensions::XWalkExtensionVector* extensions) override;
 
-  scoped_ptr<application::ApplicationSystem> app_system_;
+  std::unique_ptr<application::ApplicationSystem> app_system_;
 };
 
 }  // namespace xwalk

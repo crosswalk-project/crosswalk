@@ -5,7 +5,8 @@
 
 #include "xwalk/runtime/browser/xwalk_pref_store.h"
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
 #include "base/values.h"
 
 XWalkPrefStore::XWalkPrefStore() {}
@@ -39,7 +40,7 @@ bool XWalkPrefStore::IsInitializationComplete() const {
 }
 
 void XWalkPrefStore::SetValue(const std::string& key,
-                              scoped_ptr<base::Value> value,
+                              std::unique_ptr<base::Value> value,
                               uint32_t flags) {
   DCHECK(value);
   if (prefs_.SetValue(key, std::move(value)))
@@ -47,7 +48,7 @@ void XWalkPrefStore::SetValue(const std::string& key,
 }
 
 void XWalkPrefStore::SetValueSilently(
-    const std::string& key, scoped_ptr<base::Value> value, uint32_t flags) {
+    const std::string& key, std::unique_ptr<base::Value> value, uint32_t flags) {
   prefs_.SetValue(key, std::move(value));
 }
 

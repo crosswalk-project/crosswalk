@@ -7,11 +7,11 @@
 
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client.h"
 
+#include <memory>
 #include <string>
 
 #include "base/android/scoped_java_ref.h"
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 
 class GURL;
 
@@ -48,7 +48,7 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
   // Implementation of XWalkContentsIoThreadClient.
   bool PendingAssociation() const override;
   CacheMode GetCacheMode() const override;
-  scoped_ptr<XWalkWebResourceResponse> ShouldInterceptRequest(
+  std::unique_ptr<XWalkWebResourceResponse> ShouldInterceptRequest(
       const GURL& location,
       const net::URLRequest* request) override;
   bool ShouldBlockContentUrls() const override;

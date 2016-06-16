@@ -101,7 +101,7 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   // HandleMessage. It is safe to do this because the |msg| won't be used
   // anywhere else when this function returns. Saves a DeepCopy(), which
   // can be costly depending on the size of Value.
-  scoped_ptr<base::Value> value;
+  std::unique_ptr<base::Value> value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
   data.instance->HandleMessage(std::move(value));
 }
@@ -153,7 +153,7 @@ bool ValidateExtensionIdentifier(const std::string& name) {
 }  // namespace
 
 bool XWalkExtensionServer::RegisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
+    std::unique_ptr<XWalkExtension> extension) {
   if (!ValidateExtensionIdentifier(extension->name())) {
     LOG(WARNING) << "Ignoring extension with invalid name: "
                  << extension->name();
@@ -190,11 +190,11 @@ bool XWalkExtensionServer::ContainsExtension(
 }
 
 void XWalkExtensionServer::PostMessageToJSCallback(
-    int64_t instance_id, scoped_ptr<base::Value> msg) {
+    int64_t instance_id, std::unique_ptr<base::Value> msg) {
   base::ListValue wrapped_msg;
   wrapped_msg.Append(msg.release());
 
-  scoped_ptr<IPC::Message> message(
+  std::unique_ptr<IPC::Message> message(
       new XWalkExtensionClientMsg_PostMessageToJS(instance_id, wrapped_msg));
   if (message->size() <= kInlineMessageMaxSize) {
     Send(message.release());
@@ -227,7 +227,7 @@ void XWalkExtensionServer::PostMessageToJSCallback(
 }
 
 void XWalkExtensionServer::SendSyncReplyToJSCallback(
-    int64_t instance_id, scoped_ptr<base::Value> reply) {
+    int64_t instance_id, std::unique_ptr<base::Value> reply) {
 
   InstanceMap::iterator it = instances_.find(instance_id);
   if (it == instances_.end()) {
@@ -312,7 +312,7 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
   // HandleMessage. It is safe to do this because the |msg| won't be used
   // anywhere else when this function returns. Saves a DeepCopy(), which
   // can be costly depending on the size of Value.
-  scoped_ptr<base::Value> value;
+  std::unique_ptr<base::Value> value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
   XWalkExtensionInstance* instance = data.instance;
 
@@ -372,7 +372,7 @@ base::FilePath::StringType GetNativeLibraryPattern() {
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir,
-    scoped_ptr<base::ValueMap> runtime_variables) {
+    std::unique_ptr<base::ValueMap> runtime_variables) {
   CHECK(server);
 
   std::vector<std::string> registered_extensions;
@@ -388,7 +388,7 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
 
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {
-    scoped_ptr<XWalkExternalExtension> extension(
+    std::unique_ptr<XWalkExternalExtension> extension(
         new XWalkExternalExtension(extension_path));
 
     // Let the extension know about its own path, so it can be used

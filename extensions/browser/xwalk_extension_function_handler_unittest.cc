@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 
+#include "base/memory/ptr_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using xwalk::extensions::XWalkExtensionFunctionHandler;
@@ -13,21 +14,21 @@ namespace {
 
 const char kTestString[] = "crosswalk1234567890";
 
-void DispatchResult(std::string* str, scoped_ptr<base::ListValue> result) {
+void DispatchResult(std::string* str, std::unique_ptr<base::ListValue> result) {
   result->GetString(0, str);
 }
 
 void StoreFunctionInfo(XWalkExtensionFunctionInfo** info_ptr,
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+    std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   *info_ptr = info.release();
 }
 
-void EchoData(int* counter, scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void EchoData(int* counter, std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   std::string str;
   info->arguments()->GetString(0, &str);
   EXPECT_EQ(str, kTestString);
 
-  scoped_ptr<base::ListValue> result(new base::ListValue());
+  std::unique_ptr<base::ListValue> result(new base::ListValue());
   result->AppendString(str);
 
   info->PostResult(std::move(result));
@@ -35,7 +36,7 @@ void EchoData(int* counter, scoped_ptr<XWalkExtensionFunctionInfo> info) {
   (*counter)++;
 }
 
-void ResetCounter(int* counter, scoped_ptr<XWalkExtensionFunctionInfo> info) {
+void ResetCounter(int* counter, std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   *counter = 0;
 }
 
@@ -46,10 +47,10 @@ TEST(XWalkExtensionFunctionHandlerTest, PostResult) {
 
   XWalkExtensionFunctionInfo info(
       "test",
-      make_scoped_ptr(new base::ListValue()),
+      base::WrapUnique(new base::ListValue()),
       base::Bind(&DispatchResult, &str));
 
-  scoped_ptr<base::ListValue> data(new base::ListValue());
+  std::unique_ptr<base::ListValue> data(new base::ListValue());
   data->AppendString(kTestString);
 
   info.PostResult(std::move(data));
@@ -65,10 +66,10 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
 
   for (unsigned i = 0; i < 1000; ++i) {
     std::string str1;
-    scoped_ptr<base::ListValue> data1(new base::ListValue());
+    std::unique_ptr<base::ListValue> data1(new base::ListValue());
     data1->AppendString(kTestString);
 
-    scoped_ptr<XWalkExtensionFunctionInfo> info1(new XWalkExtensionFunctionInfo(
+    std::unique_ptr<XWalkExtensionFunctionInfo> info1(new XWalkExtensionFunctionInfo(
         "echoData",
         std::move(data1),
         base::Bind(&DispatchResult, &str1)));
@@ -79,10 +80,10 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
   }
 
   std::string str2;
-  scoped_ptr<base::ListValue> data2(new base::ListValue());
+  std::unique_ptr<base::ListValue> data2(new base::ListValue());
   data2->AppendString(kTestString);
 
-  scoped_ptr<XWalkExtensionFunctionInfo> info2(new XWalkExtensionFunctionInfo(
+  std::unique_ptr<XWalkExtensionFunctionInfo> info2(new XWalkExtensionFunctionInfo(
       "reset",
       std::move(data2),
       base::Bind(&DispatchResult, &str2)));
@@ -92,10 +93,10 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
 
   // Dispatching to a non registered handler should not crash.
   std::string str3;
-  scoped_ptr<base::ListValue> data3(new base::ListValue());
+  std::unique_ptr<base::ListValue> data3(new base::ListValue());
   data3->AppendString(kTestString);
 
-  scoped_ptr<XWalkExtensionFunctionInfo> info3(new XWalkExtensionFunctionInfo(
+  std::unique_ptr<XWalkExtensionFunctionInfo> info3(new XWalkExtensionFunctionInfo(
       "foobar",
       std::move(data3),
       base::Bind(&DispatchResult, &str3)));
@@ -104,13 +105,13 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
 }
 
 TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
-  scoped_ptr<XWalkExtensionFunctionHandler> handler(
+  std::unique_ptr<XWalkExtensionFunctionHandler> handler(
       new XWalkExtensionFunctionHandler(NULL));
 
   XWalkExtensionFunctionInfo* info;
   handler->Register("storeFunctionInfo", base::Bind(&StoreFunctionInfo, &info));
 
-  scoped_ptr<base::ListValue> msg(new base::ListValue);
+  std::unique_ptr<base::ListValue> msg(new base::ListValue);
   msg->AppendString("storeFunctionInfo");  // Function name.
   msg->AppendString("id");  // Callback ID.
 
@@ -120,6 +121,6 @@ TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
   // Posting a result after deleting the handler should not
   // crash because internally, the reference to the handler
   // is weak.
-  info->PostResult(make_scoped_ptr(new base::ListValue));
+  info->PostResult(base::WrapUnique(new base::ListValue));
   delete info;
 }

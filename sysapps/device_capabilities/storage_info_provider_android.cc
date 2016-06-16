@@ -4,6 +4,8 @@
 
 #include "xwalk/sysapps/device_capabilities/storage_info_provider_android.h"
 
+#include "base/memory/ptr_util.h"
+
 namespace xwalk {
 namespace sysapps {
 
@@ -13,9 +15,9 @@ StorageInfoProviderAndroid::StorageInfoProviderAndroid() {
 
 StorageInfoProviderAndroid::~StorageInfoProviderAndroid() {}
 
-scoped_ptr<SystemStorage> StorageInfoProviderAndroid::storage_info() const {
+std::unique_ptr<SystemStorage> StorageInfoProviderAndroid::storage_info() const {
   NOTIMPLEMENTED();
-  return make_scoped_ptr(new SystemStorage);
+  return base::WrapUnique(new SystemStorage);
 }
 
 void StorageInfoProviderAndroid::StartStorageMonitoring() {

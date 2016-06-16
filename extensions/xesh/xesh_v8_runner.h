@@ -64,7 +64,7 @@ class XEShV8Runner {
       const v8::PropertyCallbackInfo<v8::Value>& info);
 
   XWalkExtensionClient client_;
-  scoped_ptr<IPC::SyncChannel> client_channel_;
+  std::unique_ptr<IPC::SyncChannel> client_channel_;
   base::WaitableEvent shutdown_event_;
 
   v8::Persistent<v8::Context> v8_context_;

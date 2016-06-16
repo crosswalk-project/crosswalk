@@ -5,10 +5,10 @@
 
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "components/auto_login_parser/auto_login_parser.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
@@ -122,7 +122,7 @@ bool IoThreadClientThrottle::MaybeDeferRequest(bool* defer) {
 
   // Defer all requests of a pop up that is still not associated with Java
   // client so that the client will get a chance to override requests.
-  scoped_ptr<XWalkContentsIoThreadClient> io_client =
+  std::unique_ptr<XWalkContentsIoThreadClient> io_client =
       XWalkContentsIoThreadClient::FromID(render_process_id_, render_frame_id_);
   if (io_client && io_client->PendingAssociation()) {
     *defer = true;
@@ -150,7 +150,7 @@ bool IoThreadClientThrottle::MaybeBlockRequest() {
 }
 
 bool IoThreadClientThrottle::ShouldBlockRequest() {
-  scoped_ptr<XWalkContentsIoThreadClient> io_client =
+  std::unique_ptr<XWalkContentsIoThreadClient> io_client =
       XWalkContentsIoThreadClient::FromID(render_process_id_, render_frame_id_);
   DCHECK(io_client.get());
 
@@ -218,7 +218,7 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
   // destroyed, so do not do anything to the request. Conversely if the
   // request relates to a not-yet-created popup window, then the client will
   // be non-NULL but PopupPendingAssociation() will be set.
-  scoped_ptr<XWalkContentsIoThreadClient> io_client =
+  std::unique_ptr<XWalkContentsIoThreadClient> io_client =
       XWalkContentsIoThreadClient::FromID(
           request_info->GetChildID(), request_info->GetRenderFrameID());
   if (!io_client)
@@ -259,7 +259,7 @@ void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(
   const content::ResourceRequestInfo* request_info =
       content::ResourceRequestInfo::ForRequest(request);
 
-  scoped_ptr<XWalkContentsIoThreadClient> io_client =
+  std::unique_ptr<XWalkContentsIoThreadClient> io_client =
       XWalkContentsIoThreadClient::FromID(
           child_id, request_info->GetRenderFrameID());
 
@@ -313,7 +313,7 @@ void RuntimeResourceDispatcherHostDelegateAndroid::OnResponseStarted(
     auto_login_parser::HeaderData header_data;
     if (auto_login_parser::ParserHeaderInResponse(
             request, auto_login_parser::ALLOW_ANY_REALM, &header_data)) {
-      scoped_ptr<XWalkContentsIoThreadClient> io_client =
+      std::unique_ptr<XWalkContentsIoThreadClient> io_client =
           XWalkContentsIoThreadClient::FromID(request_info->GetChildID(),
                                               request_info->GetRenderFrameID());
       if (io_client) {

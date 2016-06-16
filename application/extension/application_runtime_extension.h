@@ -34,10 +34,10 @@ class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
  public:
   explicit AppRuntimeExtensionInstance(Application* application);
 
-  void HandleMessage(scoped_ptr<base::Value> msg) override;
+  void HandleMessage(std::unique_ptr<base::Value> msg) override;
 
  private:
-  void OnGetManifest(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetManifest(std::unique_ptr<XWalkExtensionFunctionInfo> info);
 
   Application* application_;
 
