@@ -11,7 +11,7 @@
 
 namespace {
 
-using WiFiDirect = scoped_ptr<xwalk::extensions::XWalkExternalExtension>;
+using WiFiDirect = std::unique_ptr<xwalk::extensions::XWalkExternalExtension>;
 
 WiFiDirect createWiFiDirectExtension() {
   if (base::win::GetVersion() < base::win::VERSION_WIN10)
@@ -24,7 +24,7 @@ WiFiDirect createWiFiDirectExtension() {
   }
   const base::FilePath extensionPath = exe_path.Append(L"wifidirect_extension_bridge.dll");
 
-  scoped_ptr<base::ValueMap> runtime_variables_(new base::ValueMap);
+  std::unique_ptr<base::ValueMap> runtime_variables_(new base::ValueMap);
   (*runtime_variables_)["extension_path"] = new base::StringValue(extensionPath.AsUTF8Unsafe());
   WiFiDirect extension(
     new xwalk::extensions::XWalkExternalExtension(extensionPath));

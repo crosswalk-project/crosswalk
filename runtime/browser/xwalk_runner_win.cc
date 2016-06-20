@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_runner_win.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/win/registry.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
@@ -28,7 +29,7 @@ XWalkRunnerWin::XWalkRunnerWin() {
 void XWalkRunnerWin::CreateComponents() {
   XWalkRunner::CreateComponents();
   if (XWalkRuntimeFeatures::isWiFiDirectAPIEnabled())
-    AddComponent(make_scoped_ptr(new WiFiDirectComponent()));
+    AddComponent(base::WrapUnique(new WiFiDirectComponent()));
 }
 
 void XWalkRunnerWin::InitializeEnvironmentVariablesForGoogleAPIs(
