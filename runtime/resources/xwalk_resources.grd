@@ -14,6 +14,7 @@
       <include file="icons/crosswalk_48x48.png" name="IDR_XWALK_ICON_48" type="BINDATA" />
       <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
       <include name="IDR_XWALK_NATIVE_FILE_SYSTEM_API" file="../../experimental/native_file_system/native_file_system_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_WIFIDIRECT_API" file="../../experimental/wifidirect/wifidirect_api.js" type="BINDATA" />
       <include name="IDR_FILE_PICKER_HTML" file="file_picker/file_picker.html" type="BINDATA" />
       <include name="IDR_FILE_PICKER_JS" file="file_picker/file_picker.js" type="BINDATA" />
       <include name="IDR_FILE_PICKER_CSS" file="file_picker/file_picker.css" type="BINDATA" />

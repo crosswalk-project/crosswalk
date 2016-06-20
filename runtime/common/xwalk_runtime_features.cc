@@ -76,6 +76,8 @@ void XWalkRuntimeFeatures::Initialize(const base::CommandLine* cmd) {
       "JavaScript support for Widget and Manifest APIs", Feature::Stable);
   AddFeature("DialogAPI", "dialog-api",
       "JavaScript support for dialog APIs", Feature::Experimental);
+  AddFeature("WiFiDirectAPI", "wifidirect-api",
+      "JavaScript support for WiFiDirect", Feature::Experimental);
 #endif
 #endif
 }

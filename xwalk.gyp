@@ -255,6 +255,8 @@
         'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
         'runtime/browser/ui/xwalk_views_delegate.cc',
         'runtime/browser/ui/xwalk_views_delegate.h',
+        'runtime/browser/wifidirect_component_win.cc',
+        'runtime/browser/wifidirect_component_win.h',
         'runtime/browser/xwalk_app_extension_bridge.cc',
         'runtime/browser/xwalk_app_extension_bridge.h',
         'runtime/browser/xwalk_application_mac.h',
@@ -792,7 +794,8 @@
           ],
           'dependencies': [
             '../sandbox/sandbox.gyp:sandbox',
-            'dotnet/dotnet_bridge.gyp:dotnet_bridge'
+            'dotnet/dotnet_bridge.gyp:dotnet_bridge',
+            'experimental/wifidirect/wifidirect_extension.gyp:*'
           ],
           'sources': [
             '../content/app/sandbox_helper_win.cc', # Needed by InitializedSandbox
