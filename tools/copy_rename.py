@@ -30,13 +30,8 @@ def CopyAndRename(options):
   dest_dir = os.path.abspath(options.destination_dir)
   src_dir = os.path.abspath(options.source_dir)
   source_file = os.path.join(src_dir, options.input_file)
-  shutil.copy(source_file, dest_dir)
-  
-  dest_file = os.path.join(dest_dir, options.input_file)
   new_dest_file_name = os.path.join(dest_dir, options.output_file)
-  if os.path.isfile(new_dest_file_name):
-    os.remove(new_dest_file_name)
-  os.rename(dest_file, new_dest_file_name)
+  shutil.copy(source_file, new_dest_file_name)
 
 def main():
   option_parser = optparse.OptionParser()
