@@ -17,7 +17,6 @@ class XWalkRunnerWin : public XWalkRunner {
   XWalkRunnerWin();
 
  protected:
-  void CreateComponents() override;
   void InitializeEnvironmentVariablesForGoogleAPIs(
       content::RenderProcessHost* host) override;
 

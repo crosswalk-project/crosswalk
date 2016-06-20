@@ -26,7 +26,6 @@ void ApplicationComponent::CreateUIThreadExtensions(
 
 void ApplicationComponent::CreateExtensionThreadExtensions(
     content::RenderProcessHost* host,
-    extensions::XWalkExtensionVector* extensions) {
-}
+    extensions::XWalkExtensionVector* extensions) {}
 
 }  // namespace xwalk
