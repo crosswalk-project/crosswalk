@@ -11,7 +11,7 @@
 #include "content/public/browser/web_contents.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/screen.h"
 #include "ui/views/controls/webview/webview.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "components/constrained_window/constrained_window_views_client.h"
@@ -373,7 +373,7 @@ NativeAppWindow* NativeAppWindow::Create(
 void NativeAppWindow::Initialize() {
   static std::unique_ptr<views::ViewsDelegate> views_delegate_;
   CHECK(!views::ViewsDelegate::GetInstance());
-  gfx::Screen::SetScreenInstance(views::CreateDesktopScreen());
+  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
   views_delegate_.reset(new XWalkViewsDelegate);
 }
 

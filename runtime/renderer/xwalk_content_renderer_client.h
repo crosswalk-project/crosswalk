@@ -14,13 +14,12 @@
 #include "base/files/file.h"
 #include "base/strings/string16.h"
 #include "content/public/renderer/content_renderer_client.h"
-#include "media/base/key_system_info.h"
 #include "ui/base/page_transition_types.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 #if defined(OS_ANDROID)
-#include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
+#include "xwalk/runtime/renderer/android/xwalk_render_thread_observer.h"
 #else
-#include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
+#include "xwalk/runtime/renderer/xwalk_render_thread_observer_generic.h"
 #endif
 
 namespace visitedlink {
@@ -29,7 +28,7 @@ class VisitedLinkSlave;
 
 namespace xwalk {
 
-class XWalkRenderProcessObserver;
+class XWalkRenderThreadObserver;
 
 // When implementing a derived class, make sure to update
 // `in_process_browser_test.cc` and `xwalk_main_delegate.cc`.
@@ -57,7 +56,9 @@ class XWalkContentRendererClient
                        const GURL& first_party_for_cookies,
                        GURL* new_url) override;
 
-  void AddKeySystems(std::vector<media::KeySystemInfo>* key_systems) override;
+  void AddSupportedKeySystems(
+      std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems)
+      override;
 #if defined(OS_ANDROID)
   bool HandleNavigation(content::RenderFrame* render_frame,
                         bool is_content_initiated,
@@ -70,7 +71,7 @@ class XWalkContentRendererClient
 #endif
 
  protected:
-  std::unique_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+  std::unique_ptr<XWalkRenderThreadObserver> xwalk_render_thread_observer_;
 
  private:
   // XWalkExtensionRendererController::Delegate implementation.

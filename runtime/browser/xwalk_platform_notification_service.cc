@@ -36,51 +36,51 @@ XWalkPlatformNotificationService::XWalkPlatformNotificationService() {}
 
 XWalkPlatformNotificationService::~XWalkPlatformNotificationService() {}
 
-blink::WebNotificationPermission
+blink::mojom::PermissionStatus
 XWalkPlatformNotificationService::CheckPermissionOnUIThread(
     content::BrowserContext* resource_context,
     const GURL& origin,
     int render_process_id) {
 #if defined(OS_ANDROID)
-  return blink::WebNotificationPermissionAllowed;
+  return blink::mojom::PermissionStatus::GRANTED;
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY) || defined(OS_WIN)
-  return blink::WebNotificationPermissionAllowed;
+  return blink::mojom::PermissionStatus::GRANTED;
 #elif defined(OS_WIN)
   ContentSetting setting =
       XWalkContentSettings::GetInstance()->GetPermission(
           CONTENT_SETTINGS_TYPE_NOTIFICATIONS, origin, origin);
   if (setting == CONTENT_SETTING_ALLOW)
-    return blink::WebNotificationPermissionAllowed;
+    return blink::mojom::PermissionStatus::GRANTED;
   if (setting == CONTENT_SETTING_BLOCK)
-    return blink::WebNotificationPermissionDenied;
+    return blink::mojom::PermissionStatus::DENIED;
 
-  return blink::WebNotificationPermissionDefault;
+  return blink::mojom::PermissionStatus::ASK;
 #else
-  return blink::WebNotificationPermissionDenied;
+  return blink::mojom::PermissionStatus::DENIED;
 #endif
 }
 
-blink::WebNotificationPermission
+blink::mojom::PermissionStatus
 XWalkPlatformNotificationService::CheckPermissionOnIOThread(
     content::ResourceContext* resource_context,
     const GURL& origin,
     int render_process_id) {
 #if defined(OS_ANDROID)
-  return blink::WebNotificationPermissionAllowed;
+  return blink::mojom::PermissionStatus::GRANTED;
 #elif defined(OS_LINUX) && defined(USE_LIBNOTIFY)
-  return blink::WebNotificationPermissionAllowed;
+  return blink::mojom::PermissionStatus::GRANTED;
 #elif defined(OS_WIN)
   ContentSetting setting =
       XWalkContentSettings::GetInstance()->GetPermission(
           CONTENT_SETTINGS_TYPE_NOTIFICATIONS, origin, origin);
   if (setting == CONTENT_SETTING_ALLOW)
-    return blink::WebNotificationPermissionAllowed;
+    return blink::mojom::PermissionStatus::GRANTED;
   if (setting == CONTENT_SETTING_BLOCK)
-    return blink::WebNotificationPermissionDenied;
+    return blink::mojom::PermissionStatus::DENIED;
 
-  return blink::WebNotificationPermissionDefault;
+  return blink::mojom::PermissionStatus::ASK;
 #else
-  return blink::WebNotificationPermissionDenied;
+  return blink::mojom::PermissionStatus::DENIED;
 #endif
 }
 

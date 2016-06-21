@@ -429,7 +429,7 @@ XWalkContentBrowserClient::CreateThrottlesForNavigation(
         navigation_interception::InterceptNavigationDelegate::CreateThrottleFor(
             navigation_handle));
   }
-  return std::move(throttles);
+  return throttles;
 }
 #endif
 

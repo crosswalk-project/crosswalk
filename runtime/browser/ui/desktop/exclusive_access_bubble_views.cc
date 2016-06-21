@@ -15,10 +15,10 @@
 #include "content/public/browser/notification_service.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/display/screen.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "ui/gfx/animation/slide_animation.h"
 #include "ui/gfx/canvas.h"
-#include "ui/gfx/screen.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/strings/grit/ui_strings.h"
 #include "ui/views/bubble/bubble_border.h"
@@ -102,7 +102,6 @@ ExclusiveAccessBubbleViews::ExclusiveAccessView::ExclusiveAccessView(
       views::BubbleBorder::NONE, shadow_type, background_color));
   set_background(new views::BubbleBackground(bubble_border.get()));
   SetBorder(std::move(bubble_border));
-  SetFocusable(false);
 
   ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
   const gfx::FontList& medium_font_list =
@@ -113,7 +112,7 @@ ExclusiveAccessBubbleViews::ExclusiveAccessView::ExclusiveAccessView(
   message_label_->SetBackgroundColor(background_color);
 
   link_ = new views::Link();
-  link_->SetFocusable(false);
+  link_->SetFocusBehavior(FocusBehavior::NEVER);
   link_->set_listener(this);
   link_->SetFontList(medium_font_list);
   link_->SetPressedColor(foreground_color);
@@ -348,14 +347,11 @@ gfx::Rect ExclusiveAccessBubbleViews::GetPopupRect(
   gfx::Size size(view_->GetPreferredSize());
   // NOTE: don't use the bounds of the root_view_. On linux GTK changing window
   // size is async. Instead we use the size of the screen.
-  gfx::Screen* screen = gfx::Screen::GetScreen();
-  gfx::Rect screen_bounds =
-      screen->GetDisplayNearestWindow(
-                  bubble_view_context_->GetBubbleAssociatedWidget()
-                      ->GetNativeView()).bounds();
-  int x = screen_bounds.x() + (screen_bounds.width() - size.width()) / 2;
+  gfx::Rect widget_bounds = bubble_view_context_->GetBubbleAssociatedWidget()
+                                ->GetClientAreaBoundsInScreen();
+  int x = widget_bounds.x() + (widget_bounds.width() - size.width()) / 2;
 
-  int top_container_bottom = screen_bounds.y();
+  int top_container_bottom = widget_bounds.y();
   if (bubble_view_context_->IsImmersiveModeEnabled()) {
     // Skip querying the top container height in non-immersive fullscreen
     // because:
@@ -386,7 +382,7 @@ gfx::Rect ExclusiveAccessBubbleViews::GetPopupRect(
 
 gfx::Point ExclusiveAccessBubbleViews::GetCursorScreenPoint() {
   gfx::Point cursor_pos =
-      gfx::Screen::GetScreen()->GetCursorScreenPoint();
+      display::Screen::GetScreen()->GetCursorScreenPoint();
   views::View::ConvertPointFromScreen(GetBrowserRootView(), &cursor_pos);
   return cursor_pos;
 }

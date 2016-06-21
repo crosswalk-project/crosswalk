@@ -37,7 +37,7 @@
 #include "xwalk/runtime/browser/android/net/url_constants.h"
 #include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
-#include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
+#include "xwalk/runtime/renderer/android/xwalk_render_thread_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #else
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
@@ -104,8 +104,8 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 
 void XWalkContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
-  xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
-  thread->AddObserver(xwalk_render_process_observer_.get());
+  xwalk_render_thread_observer_.reset(new XWalkRenderThreadObserver);
+  thread->AddObserver(xwalk_render_thread_observer_.get());
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
   thread->AddObserver(visited_link_slave_.get());
 
@@ -265,16 +265,16 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 #if defined(OS_ANDROID)
   return false;
 #else
-  if (!xwalk_render_process_observer_->IsWarpMode() &&
-      !xwalk_render_process_observer_->IsCSPMode())
+  if (!xwalk_render_thread_observer_->IsWarpMode() &&
+      !xwalk_render_thread_observer_->IsCSPMode())
     return false;
 
   GURL origin_url(frame->document().url());
-  GURL app_url(xwalk_render_process_observer_->app_url());
+  GURL app_url(xwalk_render_thread_observer_->app_url());
   // if under CSP mode.
-  if (xwalk_render_process_observer_->IsCSPMode()) {
+  if (xwalk_render_thread_observer_->IsCSPMode()) {
     if (!origin_url.is_empty() && origin_url != first_party_for_cookies &&
-        !xwalk_render_process_observer_->CanRequest(app_url, url)) {
+        !xwalk_render_thread_observer_->CanRequest(app_url, url)) {
       LOG(INFO) << "[BLOCK] allow-navigation: " << url.spec();
       content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
       *new_url = GURL();
@@ -285,7 +285,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 
   // if under WARP mode.
   if (url.GetOrigin() == app_url.GetOrigin() ||
-      xwalk_render_process_observer_->CanRequest(app_url, url)) {
+      xwalk_render_thread_observer_->CanRequest(app_url, url)) {
     DLOG(INFO) << "[PASS] " << origin_url.spec() << " request " << url.spec();
     return false;
   }
@@ -312,8 +312,8 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
   }
 }
 
-void XWalkContentRendererClient::AddKeySystems(
-    std::vector<media::KeySystemInfo>* key_systems) {
+void XWalkContentRendererClient::AddSupportedKeySystems(
+    std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems) {
 #if defined(OS_ANDROID)
   cdm::AddAndroidWidevine(key_systems);
 #endif  // defined(OS_ANDROID)

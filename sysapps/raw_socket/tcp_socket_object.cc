@@ -210,7 +210,8 @@ void TCPSocketObject::OnResolved(int status) {
   }
 
   socket_.reset(new net::TCPClientSocket(addresses_,
-                                         NULL,
+                                         nullptr,
+                                         nullptr,
                                          net::NetLog::Source()));
 
   socket_->Connect(base::Bind(&TCPSocketObject::OnConnect,

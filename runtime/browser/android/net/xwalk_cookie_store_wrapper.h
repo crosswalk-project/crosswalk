@@ -74,10 +74,10 @@ class XWalkCookieStoreWrapper : public net::CookieStore {
   void DeleteAllCreatedBetweenAsync(const base::Time& delete_begin,
                                     const base::Time& delete_end,
                                     const DeleteCallback& callback) override;
-  void DeleteAllCreatedBetweenForHostAsync(
-      const base::Time delete_begin,
-      const base::Time delete_end,
-      const GURL& url,
+  void DeleteAllCreatedBetweenWithPredicateAsync(
+      const base::Time& delete_begin,
+      const base::Time& delete_end,
+      const net::CookieStore::CookiePredicate& predicate,
       const DeleteCallback& callback) override;
   void DeleteSessionCookiesAsync(const DeleteCallback& callback) override;
   void FlushStore(const base::Closure& callback) override;

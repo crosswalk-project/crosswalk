@@ -7,7 +7,7 @@
 #include <string>
 
 #include "base/memory/ref_counted_delete_on_message_loop.h"
-#include "base/thread_task_runner_handle.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "url/gurl.h"
 #include "xwalk/runtime/browser/android/net/init_native_callback.h"
 
@@ -167,13 +167,13 @@ void DeleteAllCreatedBetweenAsyncOnCookieThread(
                                                  callback);
 }
 
-void DeleteAllCreatedBetweenForHostAsyncOnCookieThread(
-    const base::Time delete_begin,
-    const base::Time delete_end,
-    const GURL& url,
+void DeleteAllCreatedBetweenWithPredicateAsyncOnCookieThread(
+    const base::Time& delete_begin,
+    const base::Time& delete_end,
+    const net::CookieStore::CookiePredicate& predicate,
     const net::CookieStore::DeleteCallback& callback) {
-  GetCookieStore()->DeleteAllCreatedBetweenForHostAsync(
-      delete_begin, delete_end, url, callback);
+  GetCookieStore()->DeleteAllCreatedBetweenWithPredicateAsync(
+      delete_begin, delete_end, predicate, callback);
 }
 
 void DeleteSessionCookiesAsyncOnCookieThread(
@@ -287,15 +287,18 @@ void XWalkCookieStoreWrapper::DeleteAllCreatedBetweenAsync(
                  delete_end, CreateWrappedCallback<int>(callback)));
 }
 
-void XWalkCookieStoreWrapper::DeleteAllCreatedBetweenForHostAsync(
-    const base::Time delete_begin,
-    const base::Time delete_end,
-    const GURL& url,
+void XWalkCookieStoreWrapper::DeleteAllCreatedBetweenWithPredicateAsync(
+    const base::Time& delete_begin,
+    const base::Time& delete_end,
+    const net::CookieStore::CookiePredicate& predicate,
     const DeleteCallback& callback) {
   DCHECK(client_task_runner_->RunsTasksOnCurrentThread());
   PostTaskToCookieStoreTaskRunner(base::Bind(
-      &DeleteAllCreatedBetweenForHostAsyncOnCookieThread, delete_begin,
-      delete_end, url, CreateWrappedCallback<int>(callback)));
+      &DeleteAllCreatedBetweenWithPredicateAsyncOnCookieThread,
+      delete_begin,
+      delete_end,
+      predicate,
+      CreateWrappedCallback<int>(callback)));
 }
 
 void XWalkCookieStoreWrapper::DeleteSessionCookiesAsync(

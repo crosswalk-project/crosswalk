@@ -6,7 +6,7 @@
 
 #include "base/location.h"
 #include "base/memory/ptr_util.h"
-#include "base/thread_task_runner_handle.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
 namespace xwalk {

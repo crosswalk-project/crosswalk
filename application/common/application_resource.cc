@@ -29,6 +29,9 @@ ApplicationResource::ApplicationResource(const std::string& application_id,
       follow_symlinks_anywhere_(false) {
 }
 
+ApplicationResource::ApplicationResource(
+    const ApplicationResource& other) = default;
+
 ApplicationResource::~ApplicationResource() {}
 
 void ApplicationResource::set_follow_symlinks_anywhere() {

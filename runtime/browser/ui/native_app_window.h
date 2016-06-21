@@ -41,6 +41,7 @@ class NativeAppWindow {
  public:
   struct CreateParams {
     CreateParams();
+    CreateParams(const CreateParams& other);
     ~CreateParams();
     // Delegate for this window.
     NativeAppWindowDelegate* delegate;

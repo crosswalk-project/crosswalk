@@ -202,40 +202,6 @@ XWalkBrowserContext::GetDownloadManagerDelegate() {
   return download_manager_delegate_.get();
 }
 
-net::URLRequestContextGetter* XWalkBrowserContext::GetRequestContext() {
-  return GetDefaultStoragePartition(this)->GetURLRequestContext();
-}
-
-net::URLRequestContextGetter* XWalkBrowserContext::GetMediaRequestContext() {
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-    XWalkBrowserContext::GetMediaRequestContextForRenderProcess(
-        int renderer_child_id) {
-#if defined(OS_ANDROID)
-  return GetRequestContext();
-#else
-  content::RenderProcessHost* rph =
-      content::RenderProcessHost::FromID(renderer_child_id);
-  return rph->GetStoragePartition()->GetURLRequestContext();
-#endif
-}
-
-net::URLRequestContextGetter*
-    XWalkBrowserContext::GetMediaRequestContextForStoragePartition(
-        const base::FilePath& partition_path,
-        bool in_memory) {
-#if defined(OS_ANDROID)
-  return GetRequestContext();
-#else
-  PartitionPathContextGetterMap::iterator iter =
-      context_getters_.find(partition_path.value());
-  CHECK(iter != context_getters_.end());
-  return iter->second.get();
-#endif
-}
-
 content::ResourceContext* XWalkBrowserContext::GetResourceContext()  {
   return resource_context_.get();
 }
@@ -346,6 +312,24 @@ net::URLRequestContextGetter*
     CreateRequestContext(protocol_handlers, std::move(request_interceptors));
 
   return context_getter.get();
+#endif
+}
+
+net::URLRequestContextGetter* XWalkBrowserContext::CreateMediaRequestContext() {
+  return url_request_getter_.get();
+}
+
+net::URLRequestContextGetter*
+XWalkBrowserContext::CreateMediaRequestContextForStoragePartition(
+    const base::FilePath& partition_path,
+    bool in_memory) {
+#if defined(OS_ANDROID)
+  return url_request_getter_.get();
+#else
+  PartitionPathContextGetterMap::iterator iter =
+      context_getters_.find(partition_path.value());
+  CHECK(iter != context_getters_.end());
+  return iter->second.get();
 #endif
 }
 

@@ -14,8 +14,8 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
  * Test suite for Native File System API.
  */
 public class NativeFileSystemTest extends XWalkRuntimeClientTestBase {
-    // @SmallTest
-    // @Feature({"NativeFileSystem"})
+    @SmallTest
+    @Feature({"NativeFileSystem"})
     public void testNativeFileSystem() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(

@@ -145,16 +145,13 @@ void XWalkAutofillClient::SuggestionSelected(int position) {
   }
 }
 
-void XWalkAutofillClient::HideRequestAutocompleteDialog() {
-  NOTIMPLEMENTED();
-}
-
 void XWalkAutofillClient::ShowAutofillSettings() {
   NOTIMPLEMENTED();
 }
 
 void XWalkAutofillClient::ShowUnmaskPrompt(
     const autofill::CreditCard& card,
+    UnmaskCardReason reason,
     base::WeakPtr<autofill::CardUnmaskDelegate> delegate) {
   NOTIMPLEMENTED();
 }
@@ -187,13 +184,6 @@ bool XWalkAutofillClient::HasCreditCardScanFeature() {
 
 void XWalkAutofillClient::ScanCreditCard(
     const CreditCardScanCallback& callback) {
-  NOTIMPLEMENTED();
-}
-
-void XWalkAutofillClient::ShowRequestAutocompleteDialog(
-    const autofill::FormData& form,
-    content::RenderFrameHost* rfh,
-    const ResultCallback& callback) {
   NOTIMPLEMENTED();
 }
 
