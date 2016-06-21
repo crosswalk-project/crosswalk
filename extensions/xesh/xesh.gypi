@@ -13,7 +13,7 @@
         '../ipc/ipc.gyp:ipc',
         '../third_party/WebKit/public/blink.gyp:blink',
         '../url/url.gyp:url_lib',
-        '../v8/tools/gyp/v8.gyp:v8',
+        '../v8/src/v8.gyp:v8',
         'extensions/extensions.gyp:xwalk_extensions',
       ],
       'include_dirs': [
