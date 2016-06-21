@@ -10,7 +10,7 @@
         '../../base/base.gyp:base',
         '../../ipc/ipc.gyp:ipc',
         '../../url/url.gyp:url_lib',
-        '../../v8/tools/gyp/v8.gyp:v8',
+        '../../v8/src/v8.gyp:v8',
         '../../third_party/WebKit/public/blink_headers.gyp:blink_headers',
         'extensions_resources.gyp:xwalk_extensions_resources',
       ],

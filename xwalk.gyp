@@ -58,7 +58,7 @@
         '../ui/shell_dialogs/shell_dialogs.gyp:shell_dialogs',
         '../ui/snapshot/snapshot.gyp:snapshot',
         '../url/url.gyp:url_lib',
-        '../v8/tools/gyp/v8.gyp:v8',
+        '../v8/src/v8.gyp:v8',
         'generate_upstream_blink_version',
         'xwalk_application_lib',
         'xwalk_pak',
