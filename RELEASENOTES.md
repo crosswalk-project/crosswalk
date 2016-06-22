@@ -2,10 +2,10 @@
 
 Note: dates indicate the day when the release was promoted to the Stable channel.
 
-## Crosswalk 19
+## Crosswalk 19 (Jun 22, 2016)
 
 * Rebase to Chromium 49
-* First Beta release for Windows
+* First stable release for Windows
 * Native File System extension (xwalk.experimental.native_file_system) changes:
    * The getDirectoryList() function has been removed. The existing implementation never worked (it always returned an empty string).
    * The requestNativeFileSystem() function no longer passes a JSON string to the optional error callback it accepts. Instead, a regular Error object is passed instead.
@@ -26,7 +26,7 @@ Note: dates indicate the day when the release was promoted to the Stable channel
    * computeVerticalScrollExtent()
    * computeScroll()
 * load(String url, String content, HashMap<String, String> headers)
-* clearClientCertPreferences() 
+* clearClientCertPreferences()
 * Add isFirstAttempt as part of public XWalkHttpAuthHandler API
 * getPrincipals and getKeyTypes for ClientCertRequest
 
@@ -56,7 +56,7 @@ Note: dates indicate the day when the release was promoted to the Stable channel
 * getFavicon()
 * webview.clearSslPreferences()
 
-### Notable bug fixes 
+### Notable bug fixes
 
 * [XWALK-4401] - Crosswalk crashes when running benchmark JS/DROMAEO-DOM after re-basing to M44
 * [XWALK-6141] - Crosswalk 16+ stable crashes in Genymotion
@@ -117,7 +117,7 @@ Note: dates indicate the day when the release was promoted to the Stable channel
 * XWalkView now uses [`SurfaceView`](http://developer.android.com/reference/android/view/SurfaceView.html) as the default rendering backend. This solves several visual glitches, for example when opening/closing the virtual keyboard, and gives better performance, however it doesn’t support animating the view. If you need to animate the XWalkView, select [`TextureView`](http://developer.android.com/reference/android/view/TextureView.html) as the rendering backend. To change the view type to TextureView, use `XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true)`
 * New methods to programmatically zoom the view: [`XWalkView.zoomOut`](https://crosswalk-project.org/jira/browse/XWALK-4171),[`XWalkView.zoomIn`](https://crosswalk-project.org/jira/browse/XWALK-4170), [`XWalkView.zoomBy`](https://crosswalk-project.org/jira/browse/XWALK-4169)
 * Override the default DownloadListener with [`XWalkView.setDownloadListener`](https://crosswalk-project.org/jira/browse/XWALK-3958)
-* New helper class [`XWalkInitializer`](https://crosswalk-project.org/jira/browse/XWALK-3971) to initialize XWalkView asynchronously 
+* New helper class [`XWalkInitializer`](https://crosswalk-project.org/jira/browse/XWALK-3971) to initialize XWalkView asynchronously
 
 ### Extension framework
 
@@ -219,7 +219,7 @@ The [SIMD.js API](https://github.com/johnmccutchan/ecmascript_simd/) now impleme
 
 1. load/store SIMD data from/to non 16 bytes aligned memory.
 1. load/store 1, 2 or 3 float32/int32 packed data structure from/to memory to/from SIMD types.
-1. enable Emscripten (https://github.com/kripken/emscripten) generated SIMD.js code. 
+1. enable Emscripten (https://github.com/kripken/emscripten) generated SIMD.js code.
 
 APIs include:
 
@@ -307,13 +307,13 @@ APIs include:
    * Subpixels font scaling
    * [Web Crypto API] (http://www.w3.org/TR/WebCryptoAPI/)
 
-* Initial support of http://w3c.github.io/manifest/ 
+* Initial support of http://w3c.github.io/manifest/
 
 ### Android
 
 * Support for Copy/Paste
 * [W3C Gamepad API] (http://www.w3.org/TR/gamepad/) (on devices that support it in the [MotionEvent API](http://developer.android.com/reference/android/view/MotionEvent.html) - so far tested on Nexus 7 and Nexus 5 with Android 4.4.2)
-* Pluggable extensions for embedded Crosswalk 
+* Pluggable extensions for embedded Crosswalk
 * [Embedding API v2.1] (https://crosswalk-project.org/apis/embeddingapidocs_v2/reference/org/xwalk/core/package-summary.html)
 * ~30% performance improvement when transferring large blocks of data with extensions
 
@@ -347,7 +347,7 @@ APIs include:
 ### Android
 
 * Support for Cordova 3.5.0
-* [API for In-App Purchases](https://github.com/crosswalk-project/crosswalk-android-extensions/wiki/A-Possible-IAP-Web-IDL) 
+* [API for In-App Purchases](https://github.com/crosswalk-project/crosswalk-android-extensions/wiki/A-Possible-IAP-Web-IDL)
 * Ability to open a file with third party app based on the MIME type
 * Only letters, digits, " " and "_" are allowed for the application's name in the manifest
 * Use TextureView and SurfaceView for embedding API
@@ -417,9 +417,9 @@ APIs include:
 Based on Chromium 34
 
 * Use SIMD (Single Instruction, Multiple Data) in JavaScript with the [SIMD4JS API] (https://github.com/johnmccutchan/ecmascript_simd) (_Note: SIMD operations are only accelerated on x86 architecture at present_)
-* Support for declaring a default [Content Security Policy] (https://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-specification.dev.html) in the manifest file 
+* Support for declaring a default [Content Security Policy] (https://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-specification.dev.html) in the manifest file
 * New download folder and package structure to support multiple architectures in one packaging tool
-* New --compressor option in make_apk to minify web app resources (JS, CSS) during packaging 
+* New --compressor option in make_apk to minify web app resources (JS, CSS) during packaging
 * Rebased to Chromium 34, which brings:
    * Unprefixed Web Audio support
    * Responsive images
@@ -448,8 +448,8 @@ Based on Chromium 34
 
 ##Known issues
 
-* Music does not seamlessly loop [XWALK-1125] 
-* Setting gain to 0 does not mute [XWALK-1126] 
+* Music does not seamlessly loop [XWALK-1125]
+* Setting gain to 0 does not mute [XWALK-1126]
 * Web app cannot detect the right motion when device orientation change [XWALK-1264]
 * Full screen immersive mode doesn't work by swiping up from bottom [XWALK-1200]
 * Fail to get correct value of CSS3 multicolumn column-rule-width [XWALK-1093]
@@ -490,7 +490,7 @@ Based on Chromium 32
 * Cross-Origin Resource Sharing
 * iframe
 * Server-Sent Events
-* Navigation Timing 
+* Navigation Timing
 * Resource Timing
 * User Timing
 * High Resolution Time
@@ -505,7 +505,7 @@ Based on Chromium 32
 
 Based on Chromium 32
 
-### Runtime 
+### Runtime
 
 #### Common
 
@@ -516,7 +516,7 @@ Based on Chromium 32
 #### Android Runtime
 
 * Embedded mode enabled by default
-* Support for 'mailto:' scheme 
+* Support for 'mailto:' scheme
 * Support for 'geo:0,0?q=' scheme
 * Support for 'content://' scheme
 * Cookie support
@@ -578,7 +578,7 @@ Based on Chromium 32
 
 Based on Chromium 31
 
-### Runtime 
+### Runtime
 
 * Initial Digital Signature in XPK Package Header
 * Web Manifest
@@ -586,7 +586,7 @@ Based on Chromium 31
 
 ### Android
 
-* WebRTC support 
+* WebRTC support
 * Support version, description, permissions in packaging and manifest parsing tools
 * Support the properties in manifest.json
 * Media Capture and Streams
