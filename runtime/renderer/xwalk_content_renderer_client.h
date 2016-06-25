@@ -18,9 +18,9 @@
 #include "ui/base/page_transition_types.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 #if defined(OS_ANDROID)
-#include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
+#include "xwalk/runtime/renderer/android/xwalk_render_thread_observer.h"
 #else
-#include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
+#include "xwalk/runtime/renderer/xwalk_render_thread_observer_generic.h"
 #endif
 
 namespace visitedlink {
@@ -29,7 +29,7 @@ class VisitedLinkSlave;
 
 namespace xwalk {
 
-class XWalkRenderProcessObserver;
+class XWalkRenderThreadObserver;
 
 // When implementing a derived class, make sure to update
 // `in_process_browser_test.cc` and `xwalk_main_delegate.cc`.
@@ -70,7 +70,7 @@ class XWalkContentRendererClient
 #endif
 
  protected:
-  std::unique_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+  std::unique_ptr<XWalkRenderThreadObserver> xwalk_render_thread_observer_;
 
  private:
   // XWalkExtensionRendererController::Delegate implementation.
