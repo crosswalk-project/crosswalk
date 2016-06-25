@@ -2,25 +2,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_PROCESS_OBSERVER_H_
-#define XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_PROCESS_OBSERVER_H_
+#ifndef XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_THREAD_OBSERVER_H_
+#define XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_THREAD_OBSERVER_H_
 
 #include <string>
 
-#include "content/public/renderer/render_process_observer.h"
+#include "content/public/renderer/render_thread_observer.h"
 
 #include "base/compiler_specific.h"
 
 namespace xwalk {
 
-// A RenderProcessObserver implementation used for handling XWalkView
+// A RenderThreadObserver implementation used for handling XWalkView
 // specific render-process wide IPC messages.
-class XWalkRenderProcessObserver : public content::RenderProcessObserver {
+class XWalkRenderThreadObserver : public content::RenderThreadObserver {
  public:
-  XWalkRenderProcessObserver();
-  ~XWalkRenderProcessObserver() override;
+  XWalkRenderThreadObserver();
+  ~XWalkRenderThreadObserver() override;
 
-  // content::RenderProcessObserver implementation.
+  // content::RenderThreadObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
 
  private:
@@ -32,4 +32,4 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_PROCESS_OBSERVER_H_
+#endif  // XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_THREAD_OBSERVER_H_

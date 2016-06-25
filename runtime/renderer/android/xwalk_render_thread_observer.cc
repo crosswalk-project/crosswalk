@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
+#include "xwalk/runtime/renderer/android/xwalk_render_thread_observer.h"
 
 #include "base/json/json_reader.h"
 #include "base/values.h"
@@ -17,16 +17,16 @@
 
 namespace xwalk {
 
-XWalkRenderProcessObserver::XWalkRenderProcessObserver() {
+XWalkRenderThreadObserver::XWalkRenderThreadObserver() {
 }
 
-XWalkRenderProcessObserver::~XWalkRenderProcessObserver() {
+XWalkRenderThreadObserver::~XWalkRenderThreadObserver() {
 }
 
-bool XWalkRenderProcessObserver::OnControlMessageReceived(
+bool XWalkRenderThreadObserver::OnControlMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(XWalkRenderThreadObserver, message)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_SetJsOnlineProperty, OnSetJsOnlineProperty)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_ClearCache, OnClearCache);
     IPC_MESSAGE_HANDLER(XWalkViewMsg_SetOriginAccessWhitelist,
@@ -36,15 +36,15 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-void XWalkRenderProcessObserver::OnSetJsOnlineProperty(bool network_up) {
+void XWalkRenderThreadObserver::OnSetJsOnlineProperty(bool network_up) {
   blink::WebNetworkStateNotifier::setOnLine(network_up);
 }
 
-void XWalkRenderProcessObserver::OnClearCache() {
+void XWalkRenderThreadObserver::OnClearCache() {
   blink::WebCache::clear();
 }
 
-void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
+void XWalkRenderThreadObserver::OnSetOriginAccessWhitelist(
     std::string base_url,
     std::string match_patterns) {
   blink::WebSecurityPolicy::resetOriginAccessWhitelists();
