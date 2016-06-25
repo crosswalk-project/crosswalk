@@ -7,7 +7,7 @@
 #include <string>
 
 #include "base/memory/ref_counted_delete_on_message_loop.h"
-#include "base/thread_task_runner_handle.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "url/gurl.h"
 #include "xwalk/runtime/browser/android/net/init_native_callback.h"
 

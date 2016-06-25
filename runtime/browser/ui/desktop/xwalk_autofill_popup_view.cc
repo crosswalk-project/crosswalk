@@ -4,7 +4,7 @@
 
 #include "xwalk/runtime/browser/ui/desktop/xwalk_autofill_popup_view.h"
 
-#include "base/thread_task_runner_handle.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "components/autofill/core/browser/popup_item_ids.h"
 #include "components/autofill/core/browser/suggestion.h"
 #include "ui/base/resource/resource_bundle.h"
