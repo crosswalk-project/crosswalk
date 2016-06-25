@@ -440,6 +440,9 @@ XWalkModuleSystem::ExtensionModuleEntry::ExtensionModuleEntry(
     entry_points(entry_points) {
 }
 
+XWalkModuleSystem::ExtensionModuleEntry::ExtensionModuleEntry(
+    const ExtensionModuleEntry& other) = default;
+
 XWalkModuleSystem::ExtensionModuleEntry::~ExtensionModuleEntry() {
 }
 
