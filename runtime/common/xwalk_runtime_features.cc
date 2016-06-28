@@ -70,8 +70,6 @@ void XWalkRuntimeFeatures::Initialize(const base::CommandLine* cmd) {
       "Master switch for the SysApps category of APIs", Feature::Stable);
   AddFeature("RawSocketsAPI", "raw-sockets",
       "JavaScript support for using TCP and UDP sockets", Feature::Stable);
-  AddFeature("DeviceCapabilitiesAPI", "device-capabilities",
-      "JavaScript support for peeking at device capabilities", Feature::Stable);
   AddFeature("StorageAPI", "storage",
       "JavaScript support to file system beyond W3C spec", Feature::Stable);
   AddFeature("ApplicationAPI", "application-api",

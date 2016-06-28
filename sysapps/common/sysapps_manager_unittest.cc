@@ -16,11 +16,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
-#include "xwalk/sysapps/device_capabilities/av_codecs_provider.h"
-#include "xwalk/sysapps/device_capabilities/cpu_info_provider.h"
 
-using xwalk::sysapps::AVCodecsProvider;
-using xwalk::sysapps::CPUInfoProvider;
 using xwalk::sysapps::SysAppsManager;
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
@@ -64,14 +60,6 @@ size_t CountExtensions(SysAppsManager* manager) {
 
 }  // namespace
 
-TEST_F(XWalkSysAppsManagerTest, DisableDeviceCapabilities) {
-  SysAppsManager manager;
-  size_t count_before_disable = CountExtensions(&manager);
-  manager.DisableDeviceCapabilities();
-  size_t count_after_disable = CountExtensions(&manager);
-  EXPECT_EQ(count_before_disable, count_after_disable + 1);
-}
-
 TEST_F(XWalkSysAppsManagerTest, DisableRawSockets) {
   SysAppsManager manager;
   size_t count_before_disable = CountExtensions(&manager);
@@ -96,28 +84,4 @@ TEST_F(XWalkSysAppsManagerTest, DoesNotReplaceExtensions) {
   EXPECT_EQ(extensions[0], extension_ptr);
 
   STLDeleteElements(&extensions);
-}
-
-TEST_F(XWalkSysAppsManagerTest, GetAVCodecsProvider) {
-  SysAppsManager manager;
-
-  AVCodecsProvider* provider(manager.GetAVCodecsProvider());
-  EXPECT_TRUE(provider != NULL);
-
-  // AVCodecsProvider is shared among different extensions
-  // instances. GetAVCodecsProvider() should always return
-  // the same provider.
-  EXPECT_EQ(provider, manager.GetAVCodecsProvider());
-}
-
-TEST_F(XWalkSysAppsManagerTest, GetCPUProvider) {
-  SysAppsManager manager;
-
-  CPUInfoProvider* provider(manager.GetCPUInfoProvider());
-  EXPECT_TRUE(provider != NULL);
-
-  // CPUInfoProvider is shared among different extensions
-  // instances. GetCPUInfoProvider() should always return
-  // the same provider.
-  EXPECT_EQ(provider, manager.GetCPUInfoProvider());
 }

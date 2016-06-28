@@ -11,7 +11,6 @@ TEST(XWalkRuntimeFeaturesTest, ValidateStableFeatures) {
   base::CommandLine cmd(base::CommandLine::NO_PROGRAM);
   xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd);
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
-  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
 }
 
 TEST(XWalkRuntimeFeaturesTest, ValidateExperimentalFeatures) {
@@ -37,7 +36,6 @@ TEST(XWalkRuntimeFeaturesTest, CommandLineEnableExperimentalFeatures) {
   cmd.AppendSwitch("--enable-xwalk-experimental-features");
   xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd);
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
-  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDialogAPIEnabled());
 
   base::CommandLine cmd2 = base::CommandLine(base::CommandLine::NO_PROGRAM);
@@ -45,6 +43,5 @@ TEST(XWalkRuntimeFeaturesTest, CommandLineEnableExperimentalFeatures) {
   cmd2.AppendSwitch("--enable-xwalk-experimental-features");
   xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd2);
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
-  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDialogAPIEnabled());
 }

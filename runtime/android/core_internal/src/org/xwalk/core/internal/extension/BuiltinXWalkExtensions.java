@@ -10,10 +10,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import org.xwalk.core.internal.XWalkExtensionInternal;
-import org.xwalk.core.internal.extension.api.contacts.Contacts;
-import org.xwalk.core.internal.extension.api.device_capabilities.DeviceCapabilities;
 import org.xwalk.core.internal.extension.api.launchscreen.LaunchScreenExtension;
-import org.xwalk.core.internal.extension.api.messaging.Messaging;
 import org.xwalk.core.internal.extension.api.wifidirect.WifiDirect;
 
 import android.app.Activity;
@@ -40,42 +37,6 @@ public class BuiltinXWalkExtensions {
                         new LaunchScreenExtension(jsApiContent, activity));
             } catch (IOException e) {
                 Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
-            }
-        }
-
-        {
-            String jsApiContent = "";
-            try {
-                jsApiContent = getExtensionJSFileContent(
-                        context, Contacts.JS_API_PATH, true);
-                sBuiltinExtensions.put(Contacts.JS_API_PATH,
-                        new Contacts(jsApiContent, activity));
-            } catch(IOException e) {
-                Log.w(TAG, "Failed to read JS API file: " + Contacts.JS_API_PATH);
-            }
-        }
-
-        {
-            String jsApiContent = "";
-            try {
-                jsApiContent = getExtensionJSFileContent(
-                        context, DeviceCapabilities.JS_API_PATH, true);
-                sBuiltinExtensions.put(DeviceCapabilities.JS_API_PATH,
-                        new DeviceCapabilities(jsApiContent, activity));
-            } catch(IOException e) {
-                Log.w(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
-            }
-        }
-
-        {
-            String jsApiContent = "";
-            try {
-                jsApiContent = getExtensionJSFileContent(
-                        context, Messaging.JS_API_PATH, true);
-                sBuiltinExtensions.put(Messaging.JS_API_PATH,
-                        new Messaging(jsApiContent, activity));
-            } catch(IOException e) {
-                Log.w(TAG, "Failed to read JS API file: " + Messaging.JS_API_PATH);
             }
         }
 
