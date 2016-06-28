@@ -9,6 +9,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/message_loop/message_loop.h"
+#include "ipc/attachment_broker_privileged.h"
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"
@@ -80,6 +81,9 @@ void XWalkExtensionProcess::OnRegisterExtensions(
 
 void XWalkExtensionProcess::CreateBrowserProcessChannel(
     const IPC::ChannelHandle& channel_handle) {
+#if USE_ATTACHMENT_BROKER
+  IPC::AttachmentBrokerPrivileged::CreateBrokerIfNeeded();
+#endif  // USE_ATTACHMENT_BROKER
   if (channel_handle.name.empty()) {
     std::string channel_id =
         base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
