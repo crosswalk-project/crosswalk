@@ -115,6 +115,11 @@ class XWalkBrowserContext
   void SetCSPString(const std::string& csp);
   std::string GetCSPString() const;
 #endif
+  void UpdateProxyConfig(
+      const std::string& host,
+      int port,
+      const std::string& pac_url,
+      const std::vector<std::string>& exclusion_list);
   // These methods map to Add methods in visitedlink::VisitedLinkMaster.
   void AddVisitedURLs(const std::vector<GURL>& urls);
   // visitedlink::VisitedLinkDelegate implementation.

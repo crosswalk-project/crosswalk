@@ -425,6 +425,30 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   return true;
 }
 
+void XWalkContent::UpdateProxyConfig(
+    JNIEnv* env, jobject obj,
+    jstring jhost,
+    jint jport,
+    jstring jpac_url,
+    jobjectArray jexclusion_list) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+
+  std::string host = base::android::ConvertJavaStringToUTF8(env, jhost);
+
+  std::string pac_url;
+  if (jpac_url)
+    pac_url = base::android::ConvertJavaStringToUTF8(env, jpac_url);
+
+  std::vector<std::string> exclusion_list;
+      base::android::AppendJavaStringArrayToStringVector(
+          env, jexclusion_list, &exclusion_list);
+
+  XWalkBrowserContext* browser_context =
+      XWalkRunner::GetInstance()->browser_context();
+  CHECK(browser_context);
+  browser_context->UpdateProxyConfig(host, jport, pac_url, exclusion_list);
+}
+
 jint XWalkContent::GetRoutingID(JNIEnv* env, jobject obj) {
   DCHECK(web_contents_.get());
   return web_contents_->GetRoutingID();

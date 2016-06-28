@@ -77,6 +77,13 @@ class XWalkContent : public FindHelper::Listener {
                                 jstring url,
                                 jstring match_patterns);
 
+  void UpdateProxyConfig(
+      JNIEnv* env, jobject obj,
+      jstring jhost,
+      jint jport,
+      jstring jpac_url,
+      jobjectArray jexclusion_list);
+
   // Geolocation API support
   void ShowGeolocationPrompt(const GURL& origin,
                              const base::Callback<void(bool)>& callback); // NOLINT
