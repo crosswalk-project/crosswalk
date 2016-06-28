@@ -16,8 +16,6 @@ class SysAppsComponent : public XWalkComponent {
   SysAppsComponent();
   ~SysAppsComponent() override;
 
-  void DisableDeviceCapabilities() { manager_.DisableDeviceCapabilities(); }
-
  private:
   // XWalkComponent implementation.
   void CreateUIThreadExtensions(

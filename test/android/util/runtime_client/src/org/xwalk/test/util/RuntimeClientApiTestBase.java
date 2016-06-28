@@ -276,18 +276,6 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         }
     }
 
-    // For internal extension implementation of Contacts.
-    public void testContacts() throws Throwable {
-        String title = mTestUtil.loadAssetFileAndWaitForTitle("contacts.html");
-        mTestCase.assertEquals("Pass", title);
-    }
-
-    // For internal extension implementation of DeviceCapabilities.
-    public void testDeviceCapabilities() throws Throwable {
-        String title = mTestUtil.loadAssetFileAndWaitForTitle("device_capabilities.html");
-        mTestCase.assertEquals("Pass", title);
-    }
-
     // For internal extension implementation of ScreenOrientation.
     public void testScreenOrientation() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("screen_orientation.html");
@@ -331,12 +319,6 @@ public class RuntimeClientApiTestBase<T extends Activity> {
     // For external extension mechanism: binary mode.
     public void testExternalExtensionBinary() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("echo_binary_java.html");
-        mTestCase.assertEquals("Pass", title);
-    }
-
-    // For internal extension implementation of Messaging.
-    public void testMessaging() throws Throwable {
-        String title = mTestUtil.loadAssetFileAndWaitForTitle("messaging_mini.html");
         mTestCase.assertEquals("Pass", title);
     }
 

@@ -15,11 +15,6 @@
         'common/binding_object_store_unittest.cc',
         'common/event_target_unittest.cc',
         'common/sysapps_manager_unittest.cc',
-        'device_capabilities/av_codecs_provider_unittest.cc',
-        'device_capabilities/cpu_info_provider_unittest.cc',
-        'device_capabilities/display_info_provider_unittest.cc',
-        'device_capabilities/memory_info_provider_unittest.cc',
-        'device_capabilities/storage_info_provider_unittest.cc',
       ],
       'conditions': [
         ['use_aura==1', {
@@ -49,7 +44,6 @@
       'sources': [
         'common/common_api_browsertest.cc',
         'common/common_api_browsertest.h',
-        'device_capabilities/device_capabilities_api_browsertest.cc',
         'raw_socket/raw_socket_api_browsertest.cc'
       ],
     },

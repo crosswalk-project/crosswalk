@@ -9,8 +9,6 @@
 namespace xwalk {
 
 SysAppsComponent::SysAppsComponent() {
-  if (!XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled())
-    manager_.DisableDeviceCapabilities();
   if (!XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
     manager_.DisableRawSockets();
 }
