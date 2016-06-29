@@ -21,11 +21,13 @@ import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.chromium.base.BaseSwitches;
 import org.chromium.base.CommandLine;
+import org.chromium.content.browser.ContentViewRenderView;
 import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
 import org.xwalk.core.internal.XWalkPreferencesInternal;
 import org.xwalk.core.internal.XWalkResourceClientInternal;
@@ -70,7 +72,22 @@ public class XWalkViewInternalShellActivity extends Activity {
         waitForDebuggerIfNeeded();
 
         setContentView(R.layout.testshell_activity);
-        mView = (XWalkViewInternal) findViewById(R.id.xwalkview);
+        FrameLayout viewContainer = (FrameLayout) findViewById(R.id.view_container);
+        // For XWalkViewInternal shell, currently we can not put XWalkViewInternal in
+        // testshell_activity.xml directly, since the constructor
+        // 'XWalkViewInternal(Context context, AttributeSet attrs)' will be invoked,
+        // 'initXWalkContent(getContext(), animatable);' was moved out of this constructor,
+        // this will lead to XWalkContent could not be initialized.
+        mView = new XWalkViewInternal(this, this);
+        ContentViewRenderView renderView = mView.getContentViewRenderView();
+        if (renderView != null) {
+            viewContainer.addView((FrameLayout)renderView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+        }
+        viewContainer.addView((FrameLayout)mView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
 
         XWalkPreferencesInternal.setValue(XWalkPreferencesInternal.REMOTE_DEBUGGING, true);
 

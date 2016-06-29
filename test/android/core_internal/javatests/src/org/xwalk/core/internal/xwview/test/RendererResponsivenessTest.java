@@ -5,9 +5,7 @@
 
 package org.xwalk.core.internal.xwview.test;
 
-import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 import android.test.TouchUtils;
 import android.test.InstrumentationTestCase;
 
@@ -16,8 +14,6 @@ import java.util.concurrent.TimeUnit;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
-import org.chromium.content.browser.ContentView;
-import org.chromium.content.browser.ContentViewCore;
 
 import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkViewInternal;

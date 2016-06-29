@@ -19,27 +19,33 @@
 
 package org.xwalk.core.internal;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.Manifest;
 import android.net.http.SslCertificate;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.ViewStructure;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -63,7 +69,10 @@ import org.chromium.base.ApplicationStatus;
 import org.chromium.base.ApplicationStatus.ActivityStateListener;
 import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
+import org.chromium.content.browser.ContentViewClient;
 import org.chromium.content.browser.ContentViewCore;
+import org.chromium.content.browser.ContentViewRenderView;
+import org.chromium.content.browser.SmartClipProvider;
 
 import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
 
@@ -235,7 +244,8 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  * </pre>
  */
 @XWalkAPI(extendClass = FrameLayout.class, createExternally = true)
-public class XWalkViewInternal extends android.widget.FrameLayout {
+public class XWalkViewInternal extends android.widget.FrameLayout
+        implements ContentViewCore.InternalAccessDelegate, SmartClipProvider {
 
     private class XWalkActivityStateListener implements ActivityStateListener {
         WeakReference<XWalkViewInternal> mXWalkViewRef;
@@ -313,6 +323,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
               postWrapperLines = {
+                  "        ReflectMethod getContentViewRenderViewMethod = new ReflectMethod(null, \"getContentViewRenderView\");",
+                  "        getContentViewRenderViewMethod.init(bridge, null, \"getContentViewRenderView\");",
+                  "        addView((FrameLayout)getContentViewRenderViewMethod.invoke(), new FrameLayout.LayoutParams(",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT,",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
@@ -324,6 +339,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         checkThreadSafety();
         mActivity = (Activity) context;
         mContext = getContext();
+
+        if (getScrollBarStyle() == View.SCROLLBARS_INSIDE_OVERLAY) {
+            setHorizontalScrollBarEnabled(false);
+            setVerticalScrollBarEnabled(false);
+        }
+
+        setFocusable(true);
+        setFocusableInTouchMode(true);
 
         init(getContext(), getActivity());
         initXWalkContent(mContext, null);
@@ -347,6 +370,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
               postWrapperLines = {
+                  "        ReflectMethod getContentViewRenderViewMethod = new ReflectMethod(null, \"getContentViewRenderView\");",
+                  "        getContentViewRenderViewMethod.init(bridge, null, \"getContentViewRenderView\");",
+                  "        addView((FrameLayout)getContentViewRenderViewMethod.invoke(), new FrameLayout.LayoutParams(",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT,",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
@@ -366,6 +394,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mActivity = (Activity) context;
         mContext = getContext();
 
+        if (getScrollBarStyle() == View.SCROLLBARS_INSIDE_OVERLAY) {
+            setHorizontalScrollBarEnabled(false);
+            setVerticalScrollBarEnabled(false);
+        }
+
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+
         init(getContext(), getActivity());
     }
 
@@ -382,6 +418,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                   "        surfaceView.setLayoutParams(new ViewGroup.LayoutParams(0, 0));",
                   "        addView(surfaceView);"},
               postWrapperLines = {
+                  "        ReflectMethod getContentViewRenderViewMethod = new ReflectMethod(null, \"getContentViewRenderView\");",
+                  "        getContentViewRenderViewMethod.init(bridge, null, \"getContentViewRenderView\");",
+                  "        addView((FrameLayout)getContentViewRenderViewMethod.invoke(), new FrameLayout.LayoutParams(",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT,",
+                  "                FrameLayout.LayoutParams.MATCH_PARENT));",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));",
@@ -394,6 +435,14 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // Make sure mActivity is initialized before calling 'init' method.
         mActivity = activity;
         mContext = getContext();
+
+        if (getScrollBarStyle() == View.SCROLLBARS_INSIDE_OVERLAY) {
+            setHorizontalScrollBarEnabled(false);
+            setVerticalScrollBarEnabled(false);
+        }
+
+        setFocusable(true);
+        setFocusableInTouchMode(true);
 
         init(getContext(), getActivity());
         initXWalkContent(mContext, null);
@@ -1398,6 +1447,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                 return true;
             }
         }
+        if (isFocused() && mContent != null) {
+            return mContent.dispatchKeyEvent(event);
+        }
         return super.dispatchKeyEvent(event);
     }
 
@@ -1557,6 +1609,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     // For instrumentation test.
     public ContentViewCore getXWalkContentForTest() {
+        if (mContent == null) return null;
         return mContent.getContentViewCoreForTest();
     }
 
@@ -1565,21 +1618,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     // action bar.
     @XWalkAPI(delegate = true,
               preWrapperLines = {"return performLongClick();"})
-    public boolean performLongClickDelegate(){
+    public boolean performLongClickDelegate() {
         return false;
     }
 
-    @XWalkAPI(delegate = true,
-              preWrapperLines = {"return onTouchEvent(event);"})
-    public boolean onTouchEventDelegate(MotionEvent event){
-        return false;
-    }
-
-    // Usually super.onTouchEvent is called within XWalkView.onTouchEvent override
-    // This is used as our default touch event handler.
     @Override
     @XWalkAPI
     public boolean onTouchEvent(MotionEvent event) {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
         return mContent.onTouchEvent(event);
     }
 
@@ -1599,23 +1647,27 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     public void onOverScrolledDelegate(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
     }
 
-    // Override XWalkView.setOnTouchListener to install the listener to ContentView
-    // therefore touch event intercept through onTouchListener is available on XWalkView.
     @Override
     @XWalkAPI
     public void setOnTouchListener(OnTouchListener l) {
-        mContent.setOnTouchListener(l);
+        if (mContent == null) return;
+        checkThreadSafety();
+        this.setOnTouchListener(l);
     }
 
     @Override
     @XWalkAPI
     public void scrollTo(int x, int y) {
+        if (mContent == null) return;
+        checkThreadSafety();
         mContent.scrollTo(x, y);
     }
 
     @Override
     @XWalkAPI
     public void scrollBy(int x, int y) {
+        if (mContent == null) return;
+        checkThreadSafety();
         mContent.scrollBy(x, y);
     }
 
@@ -1696,6 +1748,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public int computeHorizontalScrollRange() {
+        if (mContent == null) return 0;
+        checkThreadSafety();
         return mContent.computeHorizontalScrollRange();
     }
 
@@ -1707,6 +1761,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public int computeHorizontalScrollOffset() {
+        if (mContent == null) return 0;
+        checkThreadSafety();
         return mContent.computeHorizontalScrollOffset();
     }
 
@@ -1717,6 +1773,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public int computeVerticalScrollRange() {
+        if (mContent == null) return 0;
+        checkThreadSafety();
         return mContent.computeVerticalScrollRange();
     }
 
@@ -1728,6 +1786,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public int computeVerticalScrollOffset() {
+        if (mContent == null) return 0;
+        checkThreadSafety();
         return mContent.computeVerticalScrollOffset();
     }
 
@@ -1739,6 +1799,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     @XWalkAPI
     public int computeVerticalScrollExtent() {
+        if (mContent == null) return 0;
+        checkThreadSafety();
         return mContent.computeVerticalScrollExtent();
     }
 
@@ -1868,5 +1930,302 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         checkThreadSafety();
         if (mContent == null) return null;
         return mContent.getCompositingSurfaceType();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onAttachedToWindow();
+        mContent.onAttachedToWindow();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onDetachedFromWindow();
+        mContent.onDetachedFromWindow();
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onVisibilityChanged(changedView, visibility);
+        mContent.onVisibilityChanged(changedView, visibility);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        ContentViewClient client = mContent.getContentViewClient();
+
+        // Allow the ContentViewClient to override the ContentView's width.
+        int desiredWidthMeasureSpec = client.getDesiredWidthMeasureSpec();
+        if (MeasureSpec.getMode(desiredWidthMeasureSpec) != MeasureSpec.UNSPECIFIED) {
+            widthMeasureSpec = desiredWidthMeasureSpec;
+        }
+
+        // Allow the ContentViewClient to override the ContentView's height.
+        int desiredHeightMeasureSpec = client.getDesiredHeightMeasureSpec();
+        if (MeasureSpec.getMode(desiredHeightMeasureSpec) != MeasureSpec.UNSPECIFIED) {
+            heightMeasureSpec = desiredHeightMeasureSpec;
+        }
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onSizeChanged(w, h, ow, oh);
+        mContent.onSizeChanged(w, h, ow, oh);
+    }
+
+    @Override
+    public void onScrollChanged(int l, int t, int oldl, int oldt) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onScrollChanged(l, t, oldl, oldt);
+        onScrollChangedDelegate(l, t, oldl, oldt);
+
+        // To keep the same behaviour with WebView onOverScrolled API,
+        // call onOverScrolledDelegate here.
+        onOverScrolledDelegate(l, t, false, false);
+    }
+
+    @Override
+    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        onFocusChangedDelegate(gainFocus, direction, previouslyFocusedRect);
+        mContent.onFocusChanged(gainFocus);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        super.onWindowFocusChanged(hasWindowFocus);
+        mContent.onWindowFocusChanged(hasWindowFocus);
+    }
+
+    @Override
+    public boolean performLongClick() {
+        checkThreadSafety();
+
+        return performLongClickDelegate();
+    }
+
+    @Override
+    public boolean onCheckIsTextEditor() {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        return mContent.onCheckIsTextEditor();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        return mContent.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean dispatchKeyEventPreIme(KeyEvent event) {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        return mContent.dispatchKeyEventPreIme(event);
+    }
+
+    /**
+     * Mouse move events are sent on hover enter, hover move and hover exit.
+     * They are sent on hover exit because sometimes it acts as both a hover
+     * move and hover exit.
+     */
+    @Override
+    public boolean onHoverEvent(MotionEvent event) {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        boolean consumed = mContent.onHoverEvent(event);
+        if (!mContent.isTouchExplorationEnabled()) super.onHoverEvent(event);
+        return consumed;
+    }
+
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        return mContent.onGenericMotionEvent(event);
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        mContent.onConfigurationChanged(newConfig);
+    }
+
+    /**
+     * Compute the horizontal extent of the horizontal scrollbar's thumb within the horizontal
+     * range. This value is used to compute the length of the thumb within the scrollbar's track.
+     * @return the horizontal extent of the scrollbar's thumb.
+     * @since 7.0
+     */
+    @Override
+    @XWalkAPI
+    public int computeHorizontalScrollExtent() {
+        if (mContent == null) return 0;
+        checkThreadSafety();
+
+        return mContent.computeHorizontalScrollExtent();
+    }
+
+    @Override
+    public boolean awakenScrollBars(int startDelay, boolean invalidate) {
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        return mContent.awakenScrollBars(startDelay, invalidate);
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public boolean performAccessibilityAction(int action, Bundle arguments) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return false;
+        }
+        if (mContent == null) return false;
+        checkThreadSafety();
+
+        if (mContent.supportsAccessibilityAction(action)) {
+            return mContent.performAccessibilityAction(action, arguments);
+        }
+
+        return super.performAccessibilityAction(action, arguments);
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public AccessibilityNodeProvider getAccessibilityNodeProvider() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return null;
+        }
+        if (mContent == null) return null;
+        checkThreadSafety();
+
+        AccessibilityNodeProvider provider = mContent.getAccessibilityNodeProvider();
+        if (provider != null) {
+            return provider;
+        } else {
+            return super.getAccessibilityNodeProvider();
+        }
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.M)
+    public void onProvideVirtualStructure(final ViewStructure structure) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return;
+        }
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        mContent.onProvideVirtualStructure(structure);
+    }
+
+    // Start: Needed by ContentViewCore.InternalAccessDelegate.
+    @Override
+    public boolean super_onKeyUp(int keyCode, KeyEvent event) {
+        checkThreadSafety();
+
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean super_dispatchKeyEventPreIme(KeyEvent event) {
+        checkThreadSafety();
+
+        return super.dispatchKeyEventPreIme(event);
+    }
+
+    @Override
+    public boolean super_dispatchKeyEvent(KeyEvent event) {
+        checkThreadSafety();
+
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean super_onGenericMotionEvent(MotionEvent event) {
+        checkThreadSafety();
+
+        return super.onGenericMotionEvent(event);
+    }
+
+    @Override
+    public void super_onConfigurationChanged(Configuration newConfig) {
+        checkThreadSafety();
+
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean awakenScrollBars() {
+        checkThreadSafety();
+
+        return super.awakenScrollBars();
+    }
+
+    @Override
+    public boolean super_awakenScrollBars(int startDelay, boolean invalidate) {
+        checkThreadSafety();
+
+        return super.awakenScrollBars(startDelay, invalidate);
+    }
+    // End: Needed by ContentViewCore.InternalAccessDelegate.
+
+    // Start: Needed by SmartClipProvider.
+    @Override
+    public void extractSmartClipData(int x, int y, int width, int height) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        mContent.extractSmartClipData(x, y, width, height);
+    }
+
+    @Override
+    public void setSmartClipResultHandler(final Handler resultHandler) {
+        if (mContent == null) return;
+        checkThreadSafety();
+
+        mContent.setSmartClipResultHandler(resultHandler);
+    }
+    // End: Needed by SmartClipProvider.
+
+    public ContentViewRenderView getContentViewRenderView() {
+        if (mContent == null) return null;
+        checkThreadSafety();
+
+        return mContent.getContentViewRenderView();
     }
 }

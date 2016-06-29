@@ -30,7 +30,7 @@ import org.chromium.content_public.browser.WebContentsObserver;
 import org.chromium.net.NetError;
 
 /**
- * Base-class that a XWalkViewContents embedder derives from to receive callbacks.
+ * Base-class that a XWalkContent embedder derives from to receive callbacks.
  * This extends ContentViewClient, as in many cases we want to pass-thru ContentViewCore
  * callbacks right to our embedder, and this setup facilities that.
  * For any other callbacks we need to make transformations of (e.g. adapt parameters
@@ -174,7 +174,7 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onReceivedSslError(ValueCallback<Boolean> callback, SslError error);
 
-    public abstract void onReceivedClientCertRequest(ClientCertRequestInternal handler);    
+    public abstract void onReceivedClientCertRequest(ClientCertRequestInternal handler);
 
     public abstract void onReceivedResponseHeaders(WebResourceRequestInner request,
             XWalkWebResourceResponseInternal response);

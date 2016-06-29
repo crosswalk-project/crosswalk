@@ -241,7 +241,30 @@ public class XWalkViewInternalTestBase
             @Override
             public void run() {
                 mXWalkViewInternal = new XWalkViewInternal(activity, activity);
-                getActivity().addView(mXWalkViewInternal);
+                // Create new FrameLayout as a container to add XWalkViewInternal and
+                // ContentViewRenderView, it is just for test case
+                // "OnShowOnHideCustomViewTest.testOnShowCustomViewAndPlayWithHtmlControl".
+                // The play button should be rendered above the video right in
+                // the middle of the custom view, if not, test case will be failed.
+                // But it still has the failure rate, maybe we need to disbale this test case.
+                FrameLayout layout = new FrameLayout(getActivity());
+                FrameLayout.LayoutParams layoutparams = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
+                layout.setLayoutParams(layoutparams);
+                layout.addView((FrameLayout)mXWalkViewInternal.getContentViewRenderView(),
+                        new FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL));
+                layout.addView((FrameLayout)mXWalkViewInternal, new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL));
+                getActivity().addView(layout);
+                // getActivity().addView(mXWalkViewInternal.getContentViewRenderView());
+                // getActivity().addView(mXWalkViewInternal);
                 mXWalkViewInternal.setUIClient(new TestXWalkUIClientInternal());
                 mXWalkViewInternal.setResourceClient(new TestXWalkResourceClient());
             }
@@ -386,6 +409,7 @@ public class XWalkViewInternalTestBase
             @Override
             public void run() {
                 xWalkViewContainer.set(new XWalkViewInternal(context, getActivity()));
+                getActivity().addView(xWalkViewContainer.get().getContentViewRenderView());
                 getActivity().addView(xWalkViewContainer.get());
                 xWalkViewContainer.get().setUIClient(uiClient);
                 xWalkViewContainer.get().setResourceClient(resourceClient);
