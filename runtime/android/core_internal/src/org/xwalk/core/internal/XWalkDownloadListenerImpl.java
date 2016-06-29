@@ -8,6 +8,7 @@ import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.content.pm.PackageManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -59,7 +60,9 @@ class XWalkDownloadListenerImpl extends XWalkDownloadListenerInternal {
             getDownloadManager().enqueue(request);
             popupMessages(mContext.getString(R.string.download_start_toast) + fileName);
         } else {
-            new FileTransfer(url, fileName).execute();
+            //new FileTransfer(url, fileName).execute();
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            mContext.startActivity(intent);
         }
     }
 
