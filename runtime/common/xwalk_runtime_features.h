@@ -25,6 +25,7 @@ class XWalkRuntimeFeatures {
   DECLARE_RUNTIME_FEATURE(StorageAPI);
   DECLARE_RUNTIME_FEATURE(DialogAPI);
   DECLARE_RUNTIME_FEATURE(ApplicationAPI);
+  DECLARE_RUNTIME_FEATURE(WiFiDirectAPI);
 
   void Initialize(const base::CommandLine* cmd);
   void DumpFeaturesFlags();
