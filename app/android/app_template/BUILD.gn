@@ -1,0 +1,67 @@
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_app_template_apk") {
+  deps = [
+    ":xwalk_app_template_apk_assets",
+    ":xwalk_app_template_apk_resources",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+  ]
+  apk_name = "XWalkAppTemplate"
+  android_manifest = "//xwalk/app/android/app_template/AndroidManifest.xml"
+  java_files = [ "//xwalk/app/android/app_template/src/org/xwalk/app/template/AppTemplateActivity.java" ]
+}
+
+android_assets("xwalk_app_template_apk_assets") {
+  sources = []
+  renaming_sources = [
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/sampapp-icon-helloworld.png",
+  ]
+  renaming_destinations = [
+    "www/index.html",
+    "www/sampapp-icon-helloworld.png",
+  ]
+  disable_compression = true
+}
+
+android_resources("xwalk_app_template_apk_resources") {
+  resource_dirs = [ "//xwalk/app/android/app_template/res" ]
+  custom_package = "org.xwalk.app.template"
+}
+
+action("prepare_xwalk_app_template") {
+  deps = [
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/runtime/android:xwalk_core_library",
+  ]
+  script = "//xwalk/build/android/gn/generate_app_packaging_tool.py"
+  inputs = [
+    "//xwalk/build/android/gn/common_function.py",
+    "//xwalk/build/android/gn/generate_app_packaging_tool.py",
+  ]
+  outputs = [
+    "$root_out_dir/xwalk_app_template",
+  ]
+  src_dir = rebase_path("//", "$root_out_dir")
+  args = [
+    "--build-dir=./",
+    "--build-mode=$android_configuration_name",
+    "--output-dir=./xwalk_app_template",
+    "--source-dir=$src_dir/xwalk",
+  ]
+}
+
+action("xwalk_app_template") {
+  deps = [
+    ":prepare_xwalk_app_template",
+  ]
+  script = "//xwalk/tools/tar.py"
+  inputs = [
+    "//xwalk/app/android/app_template/AndroidManifest.xml",
+    "//xwalk/tools/tar.py",
+  ]
+  outputs = [
+    "$root_out_dir/xwalk_app_template.tar.gz",
+  ]
+  args = [ "./xwalk_app_template" ]
+}

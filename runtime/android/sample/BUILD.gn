@@ -1,0 +1,72 @@
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_core_sample_apk") {
+  deps = [
+    ":xwalk_core_sample_apk_assets",
+    ":xwalk_core_sample_apk_resources",
+    "//base:base_java",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+    "//xwalk/runtime/android:libxwalkcore",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_pak",
+  ]
+  apk_name = "CrosswalkSample"
+  android_manifest = "//xwalk/runtime/android/sample/AndroidManifest.xml"
+  java_files = [
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/AnimatableXWalkViewActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/ExtensionActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/ExtensionEcho.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/LoadAppFromManifestActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/MultiXWalkViewActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/MultiXWalkViewOverlayActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/OnCreateWindowRequestedActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/OnHideOnShowActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/OnReceivedIconActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/PauseTimersActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/ResourceAndUIClientsActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/SupportZoomActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/XWalkBaseActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/XWalkEmbeddingAPISample.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/XWalkNavigationActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/XWalkPreferencesActivity.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/XWalkVersionAndAPIVersion.java",
+    "//xwalk/runtime/android/sample/src/org/xwalk/core/sample/XWalkViewWithLayoutActivity.java",
+  ]
+  native_libs = [ "$root_out_dir/libxwalkcore.so" ]
+}
+
+android_resources("xwalk_core_sample_apk_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core.sample"
+}
+
+android_assets("xwalk_core_sample_apk_assets") {
+  renaming_sources = [
+    "//xwalk/runtime/android/sample/assets/builtinzoom.html",
+    "//xwalk/runtime/android/sample/assets/create_window_1.html",
+    "//xwalk/runtime/android/sample/assets/create_window_2.html",
+    "//xwalk/runtime/android/sample/assets/doubletapzoom.html",
+    "//xwalk/runtime/android/sample/assets/favicon.html",
+    "//xwalk/runtime/android/sample/assets/icon.png",
+    "//xwalk/runtime/android/sample/assets/index.html",
+    "//xwalk/runtime/android/sample/assets/manifest.json",
+    "//xwalk/runtime/android/sample/assets/new_window.html",
+    "//xwalk/runtime/android/sample/assets/pause_timers.html",
+    "//xwalk/test/android/data/echo_java.html",
+  ]
+  renaming_destinations = [
+    "builtinzoom.html",
+    "create_window_1.html",
+    "create_window_2.html",
+    "doubletapzoom.html",
+    "favicon.html",
+    "icon.png",
+    "index.html",
+    "manifest.json",
+    "new_window.html",
+    "pause_timers.html",
+    "echo_java.html",
+  ]
+  disable_compression = true
+}

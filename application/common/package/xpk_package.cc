@@ -15,10 +15,12 @@
 namespace xwalk {
 namespace application {
 
+#if defined(OS_ANDROID)
 const uint8_t kSignatureAlgorithm[15] = {
   0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
   0xf7, 0x0d, 0x01, 0x01, 0x05, 0x05, 0x00
 };
+#endif
 
 const char XPKPackage::kXPKPackageHeaderMagic[] = "CrWk";
 

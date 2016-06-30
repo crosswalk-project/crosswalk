@@ -130,6 +130,7 @@ void XWalkMainDelegate::InitializeResourceBundle() {
   ResourceBundle::GetSharedInstance().AddDataPackFromPath(
       pak_file, ui::SCALE_FACTOR_NONE);
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_100_percent.pak"));
+#if !defined(OS_LINUX)
   ResourceBundle::GetSharedInstance().AddDataPackFromPath(
       pak_file, ui::SCALE_FACTOR_100P);
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_200_percent.pak"));
@@ -138,6 +139,7 @@ void XWalkMainDelegate::InitializeResourceBundle() {
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk_300_percent.pak"));
   ResourceBundle::GetSharedInstance().AddDataPackFromPath(
       pak_file, ui::SCALE_FACTOR_300P);
+#endif
 #endif
 }
 

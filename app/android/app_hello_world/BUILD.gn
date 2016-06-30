@@ -1,0 +1,30 @@
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_app_hello_world_apk") {
+  deps = [
+    ":xwalk_app_hello_world_apk_assets",
+    ":xwalk_app_hello_world_apk_resources",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+  ]
+  apk_name = "XWalkAppHelloWorld"
+  android_manifest = "//xwalk/app/android/app_hello_world/AndroidManifest.xml"
+  java_files = [ "//xwalk/app/android/app_hello_world/src/org/xwalk/app/hello/world/HelloWorldActivity.java" ]
+}
+
+android_resources("xwalk_app_hello_world_apk_resources") {
+  resource_dirs = [ "//xwalk/app/android/app_hello_world/res" ]
+  custom_package = "org.xwalk.app.hello.world"
+}
+
+android_assets("xwalk_app_hello_world_apk_assets") {
+  sources = []
+  renaming_sources = [
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/sampapp-icon-helloworld.png",
+  ]
+  renaming_destinations = [
+    "www/index.html",
+    "www/sampapp-icon-helloworld.png",
+  ]
+  disable_compression = true
+}

@@ -1,0 +1,146 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2012 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import gc
+import os
+import optparse
+import subprocess
+import sys
+
+xwalk_dir = os.path.dirname(os.path.realpath(__file__))
+chrome_src = os.path.abspath(os.path.join(xwalk_dir, os.pardir))
+
+# Assume this file is in a one-level-deep subdirectory of the source root.
+SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(1, os.path.join(chrome_src, 'build', 'util'))
+sys.path.insert(1, os.path.join(xwalk_dir, 'build', 'android'))
+sys.path.insert(1, os.path.join(xwalk_dir, 'tools', 'reflection_generator'))
+
+def make_version_string(f, template):
+  import version
+  values = version.fetch_values(f)
+  return version.subst_template(template, values)
+
+def generate_version_strings():
+  xwalk_version = make_version_string(
+                      {"xwalk/VERSION"},
+                      "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")
+
+  chrome_version = make_version_string(
+                       {'chrome/VERSION'},
+                       '@MAJOR@.@MINOR@.@BUILD@.@PATCH@')
+
+  return (xwalk_version, chrome_version)
+
+def make_version_code(abi_name, version):
+# Refer build/android/generate_version_code.py
+  ANDROID_ABI_KEYS = {
+   'armeabi': 1,
+   'armeabi-v7a': 2,
+   'arm64-v8a': 3,
+   'x86': 4,
+   'x86_64': 5,
+  }
+  shift = ANDROID_ABI_KEYS[abi_name]
+  major, minor, build, patch = map(int, version.split('.'))
+
+  return '%d' % ((major+minor)*100000 + build*1000 + patch*10 + shift)
+
+def generate_android_version_strings():
+  api_version = make_version_string({'xwalk/API_VERSION'}, '@API@')
+  min_api_version = make_version_string({'xwalk/API_VERSION'}, '@MIN_API@')
+
+  return (api_version, min_api_version)
+
+def cpu_to_abi(cpu):
+  if (cpu == "x86"):
+    abi = "x86"
+  elif (cpu == "arm"):
+    abi = "armeabi-v7a"
+  elif (cpu == "x64"):
+    abi = "x86_64"
+  elif (cpu == "arm64"):
+    abi = "arm64-v8a"
+  else:
+    raise ("Unknown Android ABI: " + cpu)
+  return abi
+
+def main():
+  # Disabling garbage collection saves about 1 second out of 16 on a Linux
+  # z620 workstation. Since this is a short-lived process it's not a problem to
+  # leak a few cyclyc references in order to spare the CPU cycles for
+  # scanning the heap.
+  gc.disable()
+
+  parser = optparse.OptionParser()
+
+  parser.add_option('--output-dir', default='out/Default')
+  parser.add_option('--target-os', choices=['android', 'linux'], default='android')
+  parser.add_option('--target-cpu', choices=['arm', 'arm64', 'x86', 'x86_64'], default='x86')
+  parser.add_option('--is-debug', choices=['true', 'false'], default='false')
+  parser.add_option('--verify-xwalk-apk', choices=['0', '1'], default='0')
+  parser.add_option('--toolkit-views', choices=['true', 'false'], default='false')
+  parser.add_option('--use-aura', choices=['true', 'false'], default='false')
+  parser.add_option('--use-webui-file-picker', choices=['true', 'false'], default='false')
+  parser.add_option('--use-ozone', choices=['true', 'false'], default='false')
+  parser.add_option('--enable-nacl', choices=['true', 'false'], default='false')
+  parser.add_option('--enable-plugins', choices=['true', 'false'], default='false')
+  parser.add_option('--disable-bundled-extensions', choices=['true', 'false'], default='true')
+  parser.add_option('--v8-use-snapshot', choices=['true', 'false'], default='false')
+  parser.add_option('--v8-use-external-startup-data', choices=['true', 'false'], default='false')
+  parser.add_option('--icu-use-data-file', choices=['true', 'false'], default='true')
+  (options, _) = parser.parse_args()
+
+  (xwalk_version, chrome_version) = generate_version_strings()
+  (api_version, min_api_version) = generate_android_version_strings()
+
+  # Generate version code for Android
+  xwalk_version_code = make_version_code(cpu_to_abi(options.target_cpu), xwalk_version)
+
+  #Synthesize command line for gn
+  command_line = "gn gen "
+  command_line += options.output_dir
+  command_line += " --args=\'"
+  args = 'target_os=\"%s\" ' % options.target_os
+  if (options.target_os == 'android'):
+    args += ' is_android=true'
+  else:
+    args += ' is_android=false'
+  args += ' target_cpu=\"%s\"' % options.target_cpu
+  #Debug or Release
+  args += ' is_debug=' + options.is_debug
+  #The Crosswalk-special flags must be provided
+  args += ' xwalk_version=\"%s\" ' % xwalk_version
+  args += ' chrome_version=\"%s\" ' % chrome_version
+  args += ' xwalk_version_code=\"%s\" ' % xwalk_version_code
+  args += ' api_version=\"%s\" ' % api_version
+  args += ' min_api_version=\"%s\" ' % min_api_version
+  args += ' verify_xwalk_apk=' + options.verify_xwalk_apk
+  #Give user a chance to customize chromium building flags
+  if (options.target_os == 'linux'):
+    args += ' toolkit_views=true'
+    args += ' use_aura=true'
+  else:
+    args += ' toolkit_views=' + options.toolkit_views
+    args += ' use_aura=' + options.use_aura
+  args += ' use_webui_file_picker=' + options.use_webui_file_picker
+  args += ' use_ozone=' + options.use_ozone
+  args += ' enable_nacl=' + options.enable_nacl
+  args += ' enable_plugins=' + options.enable_plugins
+  args += ' disable_bundled_extensions=' + options.disable_bundled_extensions
+  args += ' v8_use_snapshot=' + options.v8_use_snapshot
+  args += ' v8_use_external_startup_data=' + options.v8_use_external_startup_data
+  args += ' icu_use_data_file=' + options.icu_use_data_file
+  args += ' xwalk_core_library_artifact_id="xwalk_core_library_canary"'
+  args += ' xwalk_shared_library_artifact_id="xwalk_shared_library_canary"'
+  command_line += args
+  command_line += '\''
+
+  subprocess.check_output(command_line, stderr=subprocess.STDOUT, shell=True)
+
+if __name__ == '__main__':
+  sys.exit(main())

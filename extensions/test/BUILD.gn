@@ -1,0 +1,55 @@
+shared_library("echo_extension") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "echo_extension.c",
+  ]
+}
+
+shared_library("echo_extension_messaging_2") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "echo_extension_messaging_2.c",
+  ]
+}
+
+shared_library("bad_extension") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "bad_extension.c",
+  ]
+}
+
+shared_library("get_runtime_variable") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "get_runtime_variable.c",
+  ]
+}
+
+shared_library("multiple_entry_points_extension") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "multiple_entry_points_extension.c",
+  ]
+}
+
+shared_library("crash_extension") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "crash_extension.c",
+  ]
+}
+
+shared_library("bulk_data_transmission") {
+  include_dirs = [ "../.." ]
+
+  sources = [
+    "bulk_data_transmission.c",
+  ]
+}

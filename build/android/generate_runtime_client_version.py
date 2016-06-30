@@ -6,6 +6,8 @@
 
 import optparse
 import sys
+import os
+import zipfile
 
 def ReplaceVersion(template_file, output_file, xwalk_version):
   output_handle = open(output_file, 'w+')
@@ -16,6 +18,19 @@ def ReplaceVersion(template_file, output_file, xwalk_version):
       line = line.replace(origin_string, xwalk_version)
     output_handle.write(line)
   output_handle.close()
+  # Generate srcjar for generated java file.
+  # For example: output is ".../version_java/XWalkRuntimeClientVersion.java",
+  # then generate srcjar as ".../XWalkRuntimeClientVersion.java.srcjar".
+  output_file_dir = os.path.split(os.path.abspath(output_file))[0]
+  output_file_name = os.path.split(os.path.abspath(output_file))[1]
+  srcjar_file_dir = os.path.split(os.path.abspath(output_file_dir))[0]
+  with zipfile.ZipFile(
+    os.path.join(srcjar_file_dir, output_file_name + ".srcjar"), 
+    'w', zipfile.ZIP_DEFLATED) as srcjar_file:
+    for root, _, files in os.walk(output_file_dir):
+      for f in files:
+        file_path = os.path.join(root, f)
+        srcjar_file.write(file_path, f)
 
 
 def main(argv):
