@@ -1,0 +1,6 @@
+declare_args() {
+  if(disable_nacl) {
+    defines += ["DISABLE_NACL"]
+  }
+
+}

@@ -273,7 +273,11 @@ void UDPSocketObject::OnSend(int status) {
 
   if (ret == net::ERR_IO_PENDING) {
     has_write_pending_ = true;
+#ifndef GN_BUILDING
   } else if (ret == write_buffer_size_) {
+#else
+  } else if ((unsigned)ret == write_buffer_size_) {
+#endif
     has_write_pending_ = false;
   } else {
     socket_->Close();

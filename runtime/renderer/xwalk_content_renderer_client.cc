@@ -16,7 +16,11 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "grit/xwalk_application_resources.h"
+#ifndef GN_BUILDING
 #include "grit/xwalk_sysapps_resources.h"
+#else
+#include "xwalk/sysapps/grit/xwalk_sysapps_resources.h"
+#endif
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"

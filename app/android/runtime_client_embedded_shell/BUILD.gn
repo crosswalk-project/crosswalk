@@ -1,0 +1,126 @@
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_runtime_client_embedded_shell_apk") {
+  deps = [
+    "//base:base_java",
+    "//xwalk/extensions/test:echo_extension",
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+    "//xwalk/runtime/android:libxwalkcore",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    ":xwalk_runtime_client_embedded_shell_apk_java",
+    ":xwalk_runtime_client_embedded_shell_apk_pak",
+    ":xwalk_runtime_client_embedded_shell_apk_assets",
+    ":xwalk_runtime_client_embedded_shell_apk_resources",
+  ]
+  apk_name = "XWalkRuntimeClientEmbeddedShell"
+  android_manifest = "//xwalk/app/android/runtime_client_embedded_shell/AndroidManifest.xml"
+
+  native_libs = [
+    "$root_out_dir/libxwalkdummy.so",
+    "$root_out_dir/libxwalkcore.so",
+    "$root_out_dir/extensions/tests/echo_extension/libecho_extension.so",
+  ]
+  testonly = true
+}
+
+android_library("xwalk_runtime_client_embedded_shell_apk_java") {
+  deps = [
+    "//base:base_java",
+    "//content/public/android:content_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    ":xwalk_runtime_client_embedded_shell_apk_resources",
+  ]
+  DEPRECATED_java_in_dir = "//xwalk/app/android/runtime_client_embedded_shell/src"
+  testonly = true
+}
+
+android_assets("xwalk_runtime_client_embedded_shell_apk_pak") {
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//third_party/icu:icudata",    #use if?
+    "//v8",
+  ]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+  if (icu_use_data_file) {
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+   #   "$root_out_dir/natives_blob.bin",
+   #   "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  disable_compression = true
+}
+
+android_assets("xwalk_runtime_client_embedded_shell_apk_assets") {
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//third_party/icu:icudata",  # if??
+  ]
+  sources = []
+  if (icu_use_data_file) {
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  renaming_sources = [
+    "//xwalk/test/android/data/manifest.json",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/sampapp-icon-helloworld.png",
+
+    "//xwalk/test/android/data/myextension/myextension.js",
+    "//xwalk/test/android/data/myextension/myextension.json",
+
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+    "//xwalk/runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js",
+    "//xwalk/runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js",
+    "//xwalk/runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js",
+
+    "//xwalk/test/android/data/www/manifest_self.json",
+    "//xwalk/test/android/data/www/manifest_inline_script.json",
+    "//xwalk/test/android/data/www/cross_origin.html",
+    "//xwalk/test/android/data/www/csp.html",
+    "//xwalk/test/android/data/www/manifest_without_xwalk_hosts.json",
+    "//xwalk/test/android/data/www/manifest_xwalk_hosts.json",
+  ]
+  renaming_destinations = [
+    "manifest.json",
+    "index.html",
+    "sampapp-icon-helloworld.png",
+
+    "xwalk-extensions/myextension/myextension.js",
+    "xwalk-extensions/myextension/myextension.json",
+
+    "jsapi/launch_screen_api.js",
+    "jsapi/wifidirect_api.js",
+    "jsapi/contacts_api.js",
+    "jsapi/device_capabilities_api.js",
+    "jsapi/messaging_api.js",
+
+    "www/manifest_self.json",
+    "www/manifest_inline_script.json",
+    "www/cross_origin.html",
+    "www/csp.html",
+    "www/manifest_without_xwalk_hosts.json",
+    "www/manifest_xwalk_hosts.json",
+  ]
+  disable_compression = true
+}
+
+android_resources("xwalk_runtime_client_embedded_shell_apk_resources") {
+  resource_dirs = [
+    "//xwalk/app/android/runtime_client_embedded_shell/res",
+  ]
+  custom_package = "org.xwalk.runtime.client.embedded.shell"
+}
+

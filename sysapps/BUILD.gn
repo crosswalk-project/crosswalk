@@ -1,0 +1,237 @@
+static_library("sysapps") {
+  deps = [
+    "//base:base",
+    "//net:net",
+    "//ui/base",
+    "//ui/gfx:gfx",
+    "//ui/gfx/geometry:geometry",
+    "//xwalk/extensions:xwalk_extensions",
+    ":xwalk_sysapps_resources",
+    ":generate_jsapi_raw_socket",
+    ":generate_jsapi_common",
+    ":generate_jsapi_device_capabilities",
+  ]
+
+  defines = [
+    "GN_BUILDING",
+  ]
+
+  sources = [
+    "common/binding_object.h",
+    "common/binding_object_store.cc",
+    "common/binding_object_store.h",
+    "common/common.idl",
+    "common/event_target.cc",
+    "common/event_target.h",
+    "common/sysapps_manager.cc",
+    "common/sysapps_manager.h",
+    "common/sysapps_manager_android.cc",
+    "common/sysapps_manager_linux.cc",
+    "common/sysapps_manager_mac.cc",
+    "common/sysapps_manager_win.cc",
+    "device_capabilities/av_codecs_provider.h",
+    "device_capabilities/av_codecs_provider_android.cc",
+    "device_capabilities/av_codecs_provider_android.h",
+    "device_capabilities/cpu_info_provider.cc",
+    "device_capabilities/cpu_info_provider.h",
+    "device_capabilities/cpu_info_provider_android.cc",
+    "device_capabilities/cpu_info_provider_linux.cc",
+    "device_capabilities/cpu_info_provider_mac.cc",
+    "device_capabilities/cpu_info_provider_win.cc",
+    "device_capabilities/device_capabilities.idl",
+    "device_capabilities/device_capabilities_extension.cc",
+    "device_capabilities/device_capabilities_extension.h",
+    "device_capabilities/device_capabilities_object.cc",
+    "device_capabilities/device_capabilities_object.h",
+    "device_capabilities/display_info_provider.cc",
+    "device_capabilities/display_info_provider.h",
+    "device_capabilities/memory_info_provider.cc",
+    "device_capabilities/memory_info_provider.h",
+    "device_capabilities/storage_info_provider.cc",
+    "device_capabilities/storage_info_provider.h",
+    "device_capabilities/storage_info_provider_android.cc",
+    "device_capabilities/storage_info_provider_android.h",
+    "raw_socket/raw_socket.idl",
+    "raw_socket/raw_socket_extension.cc",
+    "raw_socket/raw_socket_extension.h",
+    "raw_socket/raw_socket_object.cc",
+    "raw_socket/raw_socket_object.h",
+    "raw_socket/tcp_server_socket.idl",
+    "raw_socket/tcp_server_socket_object.cc",
+    "raw_socket/tcp_server_socket_object.h",
+    "raw_socket/tcp_socket.idl",
+    "raw_socket/tcp_socket_object.cc",
+    "raw_socket/tcp_socket_object.h",
+    "raw_socket/udp_socket.idl",
+    "raw_socket/udp_socket_object.cc",
+    "raw_socket/udp_socket_object.h",
+
+    "$root_gen_dir/xwalk/sysapps/raw_socket/raw_socket.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/raw_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_server_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_server_socket.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_socket.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/udp_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/udp_socket.h",
+
+    "$root_gen_dir/xwalk/sysapps/common/common.cc",
+    "$root_gen_dir/xwalk/sysapps/common/common.h",
+
+    "$root_gen_dir/xwalk/sysapps/device_capabilities/device_capabilities.cc",
+    "$root_gen_dir/xwalk/sysapps/device_capabilities/device_capabilities.h",
+  ]
+
+  if (!is_android) {
+    deps += [
+      "//components/storage_monitor:storage_monitor",
+      "//media:media",
+      "//third_party/ffmpeg:ffmpeg",
+    ]
+
+    sources += [
+      "device_capabilities/av_codecs_provider_ffmpeg.cc",
+      "device_capabilities/av_codecs_provider_ffmpeg.h",
+      "device_capabilities/storage_info_provider_chromium.cc",
+      "device_capabilities/storage_info_provider_chromium.h",
+    ]
+  }
+
+  include_dirs = [
+    "$root_gen_dir",
+    "$root_gen_dir/xwalk/sysapps/",
+  ]
+}
+
+action_foreach("generate_jsapi_device_capabilities") {
+  script = "//tools/json_schema_compiler/compiler.py"
+  sources = [
+    "//xwalk/sysapps/device_capabilities/device_capabilities.idl"
+  ]
+
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/device_capabilities/{{source_name_part}}.h",
+    "$root_gen_dir/xwalk/sysapps/device_capabilities/{{source_name_part}}.cc"
+  ]
+
+  idl_path = rebase_path("//xwalk/sysapps", "$root_out_dir")
+  args = [
+        "$idl_path/device_capabilities/{{source_name_part}}.idl",
+        "--root=$idl_path",
+        "--destdir=./gen/xwalk/sysapps",
+        "--namespace=xwalk::jsapi::{{source_name_part}}",
+        "--generator=cpp"
+  ]
+}
+
+action_foreach("generate_jsapi_raw_socket") {
+  script = "//tools/json_schema_compiler/compiler.py"
+  sources = [
+    "//xwalk/sysapps/raw_socket/raw_socket.idl",
+    "//xwalk/sysapps/raw_socket/tcp_server_socket.idl",
+    "//xwalk/sysapps/raw_socket/tcp_socket.idl",
+    "//xwalk/sysapps/raw_socket/udp_socket.idl"
+  ]
+
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/raw_socket/{{source_name_part}}.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/{{source_name_part}}.cc"
+  ]
+
+  idl_path = rebase_path("//xwalk/sysapps", "$root_out_dir")
+  args = [
+        "$idl_path/raw_socket/{{source_name_part}}.idl",
+        "--root=$idl_path",
+        "--destdir=./gen/xwalk/sysapps",
+        "--namespace=xwalk::jsapi::{{source_name_part}}",
+        "--generator=cpp"
+  ]
+}
+
+action_foreach("generate_jsapi_common") {
+  script = "//tools/json_schema_compiler/compiler.py"
+  sources = [
+    "//xwalk/sysapps/common/common.idl",
+  ]
+
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/common/{{source_name_part}}.h",
+    "$root_gen_dir/xwalk/sysapps/common/{{source_name_part}}.cc"
+
+#    "$root_gen_dir/xwalk/sysapps/common/common.cc",
+#    "$root_gen_dir/xwalk/sysapps/common/common.h",
+  ]
+
+  idl_path = rebase_path("//xwalk/sysapps", "$root_out_dir")
+  args = [
+    "$idl_path/common/{{source_name_part}}.idl",
+    "--root=$idl_path",
+    "--destdir=./gen/xwalk/sysapps",
+    "--namespace=xwalk::jsapi::{{source_name_part}}",
+    "--generator=cpp"
+  ]
+}
+
+import("//tools/grit/grit_rule.gni")
+grit("generate_xwalk_sysapps_resources") {
+  source = "//xwalk/sysapps/sysapps_resources.grd"
+  resource_ids = "//xwalk/resources/resource_ids"
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/grit/xwalk_sysapps_resources.h",
+    "$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.rc",
+    "$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.pak",
+  ]
+}
+
+copy("xwalk_sysapps_resources") {
+  public_deps = [
+    ":generate_xwalk_sysapps_resources_grit"
+  ]
+  sources = ["$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.pak"]
+  outputs = ["$root_out_dir/{{source_file_part}}"]
+}

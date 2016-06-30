@@ -1,0 +1,724 @@
+android_library("xwalk_test_util_java") {
+  deps = [
+           "//content/public/test/android:content_java_test_support",
+           "//net/android:net_java_test_support"
+  ]
+
+  java_files = [
+    "test/android/util/src/org/xwalk/test/util/OnTitleUpdatedHelper.java",
+    "test/android/util/src/org/xwalk/test/util/XWalkTestUtilBase.java",
+    "test/android/util/src/org/xwalk/test/util/XWalkTestUtilCallbacks.java",
+  ]
+}
+
+android_library("xwalk_runtime_client_test_utils_java") {
+  deps = [
+        ":xwalk_test_util_java",
+        ":xwalk_app_runtime_java",
+  ]
+  DEPRECATED_java_in_dir = "test/android/util/runtime_client",
+}
+
+copy("xwalk_core_shell_apk_assets_copy") {
+  sources = [
+    "test/android/data/index.html",
+    "test/android/data/request_focus_left_frame.html",
+    "test/android/data/request_focus_main.html",
+    "test/android/data/request_focus_right_frame.html",
+    "test/android/data/request_focus_right_frame1.html",
+  ]
+  outputs = [
+    "$root_out_dir/xwalk_xwview/assets/www/{{source_file_part}}"
+  ]
+}
+
+copy("xwalk_core_shell_apk_jsapi_copy") {
+  sources = [
+    "experimental/launch_screen/launch_screen_api.js",
+    "runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js",
+    "runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js",
+    "runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js",
+    "experimental/wifidirect/wifidirect_api.js",
+  ]
+  outputs = [
+    "xwalk_xwview/assets/jsapi/{{source_file_part}}"
+  ]
+}
+
+android_apk("xwalk_core_shell_apk") {
+  deps = [
+    ":xwalk_core_shell_apk_assets_copy",
+    ":xwalk_core_shell_apk_jsapi_copy",
+    "//third_party/android_tools:android_support_v13_java",
+    "xwalk_core_extensions_java",
+    "xwalk_core_internal_java",
+    "xwalk_core_java",
+    "xwalk_core_shell_apk_pak",
+    "libxwalkdummy",
+  ]
+
+  apk_name = "XWalkCoreShell"
+  DEPRECATED_java_in_dir = "runtime/android/core_shell"
+  resource_dir = "runtime/android/core_shell/res"
+  native_libs = "libxwalkdummy"
+#        "additional_bundled_libs": [
+#          "$root_out_dir/lib/libxwalkcore.>(android_product_extension)",
+#        ],
+
+  data_deps = [
+    "$root_out_dir/xwalk_xwview/assets/www/index.html",
+    "$root_out_dir/xwalk_xwview/assets/www/request_focus_left_frame.html",
+    "$root_out_dir/xwalk_xwview/assets/www/request_focus_main.html",
+    "$root_out_dir/xwalk_xwview/assets/www/request_focus_right_frame.html",
+    "$root_out_dir/xwalk_xwview/assets/www/request_focus_right_frame1.html",
+    "$root_out_dir/xwalk_xwview/assets/xwalk.pak",
+    "$root_out_dir/xwalk_xwview/assets/jsapi/contacts_api.js",
+    "$root_out_dir/xwalk_xwview/assets/jsapi/device_capabilities_api.js",
+    "$root_out_dir/xwalk_xwview/assets/jsapi/launch_screen_api.js",
+    "$root_out_dir/xwalk_xwview/assets/jsapi/messaging_api.js",
+    "$root_out_dir/xwalk_xwview/assets/jsapi/wifidirect_api.js",
+  ]
+  if (icu_use_data_file_flag) {
+    data_deps += [
+      "$root_out_dir/xwalk_xwview/assets/icudtl.dat",
+    ]
+  }
+
+  asset_location = "$root_out_dir/xwalk_xwview/assets"
+}
+
+copy("xwalk_core_shell_apk_pak") {
+  deps = ["xwalk_pak"]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+  ]
+  if (icu_use_data_file_flag) {
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  outputs = "$root_out_dir/xwalk_xwview/assets/{{source_file_part}}"
+}
+
+    {
+      "target_name": "xwalk_core_shell_apk_java",
+      "type": "none",
+      "dependencies": [
+        "xwalk_core_shell_apk",
+      ],
+      "includes": [ "../build/apk_fake_jar.gypi" ],
+    },
+
+copy("xwalk_core_test_apk_assets") {
+  sources = [
+    "test/android/data/add_js_interface.html",
+    "test/android/data/create_window_1.html",
+    "test/android/data/create_window_2.html",
+    "test/android/data/console_message.html",
+    "test/android/data/echo_binary_java.html",
+    "test/android/data/echo_java.html",
+    "test/android/data/echo_sync_java.html",
+    "test/android/data/favicon.html",
+    "test/android/data/file_chooser.html",
+    "test/android/data/framesEcho.html",
+    "test/android/data/fullscreen_enter_exit.html",
+    "test/android/data/fullscreen_togged.html",
+    "test/android/data/icon.png",
+    "test/android/data/index.html",
+    "test/android/data/js_modal_dialog.html",
+    "test/android/data/new_window.html",
+    "test/android/data/profile.html",
+    "test/android/data/read_video_data.html",
+    "test/android/data/save_video_data.html",
+    "test/android/data/scale_changed.html",
+    "test/android/data/window.close.html",
+  ]
+  outputs = [
+    "$root_out_dir/xwalk_xwview_test/assets/{{source_file_part}}"
+  ]
+}
+
+android_apk("xwalk_core_test_apk") {
+  deps = [
+    ":xwalk_core_test_apk_assets",
+    "//base/base:base_java_test_support",
+    "//content/content_shell_and_tests:content_java_test_support",
+    "//net/net:net_java_test_support",
+    ":xwalk_core_shell_apk_java",
+    "../tools/android/md5sum/md5sum:md5sum",
+    "../tools/android/forwarder2/forwarder:forwarder2",
+  ]
+
+  apk_name = "XWalkCoreTest"
+  DEPRECATED_java_in_dir" = "test/android/core/javatests"
+  data_deps = [
+    "$root_out_dir/xwalk_xwview_test/assets/add_js_interface.html",
+    "$root_out_dir/xwalk_xwview_test/assets/create_window_1.html",
+    "$root_out_dir/xwalk_xwview_test/assets/create_window_2.html",
+    "$root_out_dir/xwalk_xwview_test/assets/console_message.html",
+    "$root_out_dir/xwalk_xwview_test/assets/echo_binary_java.html",
+    "$root_out_dir/xwalk_xwview_test/assets/echo_java.html",
+    "$root_out_dir/xwalk_xwview_test/assets/echo_sync_java.html",
+    "$root_out_dir/xwalk_xwview_test/assets/favicon.html",
+    "$root_out_dir/xwalk_xwview_test/assets/file_chooser.html",
+    "$root_out_dir/xwalk_xwview_test/assets/framesEcho.html",
+    "$root_out_dir/xwalk_xwview_test/assets/fullscreen_enter_exit.html",
+    "$root_out_dir/xwalk_xwview_test/assets/fullscreen_togged.html",
+    "$root_out_dir/xwalk_xwview_test/assets/icon.png",
+    "$root_out_dir/xwalk_xwview_test/assets/index.html",
+    "$root_out_dir/xwalk_xwview_test/assets/js_modal_dialog.html",
+    "$root_out_dir/xwalk_xwview_test/assets/new_window.html",
+    "$root_out_dir/xwalk_xwview_test/assets/profile.html",
+    "$root_out_dir/xwalk_xwview_test/assets/read_video_data.html",
+    "$root_out_dir/xwalk_xwview_test/assets/save_video_data.html",
+    "$root_out_dir/xwalk_xwview_test/assets/scale_changed.html",
+    "$root_out_dir/xwalk_xwview_test/assets/window.close.html",
+  ]
+  asset_location = "$root_out_dir/xwalk_xwview_test/assets"
+}
+
+if (is_android) {
+  shared_library("xwalk_core_unittests") {
+    deps =  [
+        "//base/base:test_support_base",
+        "//net/net:net_test_support",
+        "//testing/android/native_test:native_test_native_code",
+        "//testing/gmock:gmock",
+        "//testing/gtest:gtest",
+    ]
+    include_dirs = [".."]
+    sources = [
+      "runtime/common/android/xwalk_core_tests.cc",
+    ]
+  }
+} else {
+  executable("xwalk_core_unittests") {
+    deps =  [
+        "//base/base:test_support_base",
+        "//net/net:net_test_support",
+        "//testing/android/native_test:native_test_native_code",
+        "//testing/gmock:gmock",
+        "//testing/gtest:gtest",
+    ]
+    include_dirs = [".."]
+    sources = [
+      "runtime/common/android/xwalk_core_tests.cc",
+    ]
+  }
+}
+
+#    {
+#      "target_name": "xwalk_core_unittests_java",
+#      "type": "none",
+#      "dependencies": [
+#      ],
+#      "variables": {
+#        "java_in_dir": "test/android/unittestjava",
+#      },
+      # TODO: supress gyp error: ""find ../cameo_webview/unittestjava  -name "*.java"" returned exit status 1"
+      # "includes": [ "../build/java.gypi" ],
+#    },
+
+#android_jni("xwalk_core_unittests_jni") {
+#      "type": "none",
+#      "sources": [
+#      ],
+#      "variables": {
+#        "jni_gen_package": "xwalk_core_unittests",
+#      },
+#      "includes": [ "../build/jni_generator.gypi" ],
+#}
+
+#android_apk("xwalk_core_unittests_apk") {
+#      "type": "none",
+#      "dependencies": [
+#        "xwalk_core_unittests",
+#        "xwalk_core_unittests_java",
+#        "xwalk_core_unittests_jni",
+#      ],
+#      "variables": {
+#        "test_suite_name": "xwalk_core_unittests",
+#        "input_shlib_path": "<(SHARED_LIB_DIR)/<(SHARED_LIB_PREFIX)xwalk_core_unittests<(SHARED_LIB_SUFFIX)",
+#      },
+#      "includes": [ "../build/apk_test.gypi" ],
+#    },
+
+copy("xwalk_runtime_client_shell_apk_copy") {
+  sources = [
+    "test/android/data/manifest.json",
+    "test/android/data/index.html",
+    "test/android/data/sampapp-icon-helloworld.png",
+  ]
+  outputs = [
+    "$root_out_dir/runtime_client_shell/assets/{{source_file_part}}"
+  ]
+}
+
+copy("xwalk_runtime_client_shell_assets_copy") {
+  sources = [
+    "test/android/data/www/manifest_self.json",
+    "test/android/data/www/manifest_inline_script.json",
+    "test/android/data/www/cross_origin.html",
+    "test/android/data/www/csp.html",
+    "test/android/data/www/manifest_without_xwalk_hosts.json",
+    "test/android/data/www/manifest_xwalk_hosts.json",
+  ]
+  outputs = "$root_out_dir/runtime_client_shell/assets/www/{{source_file_part}}"
+}
+
+android_apk("xwalk_runtime_client_shell_apk") {
+  deps = [
+#    "extensions/external_extension_sample.gyp:echo_extension",
+    "xwalk_app_runtime_java",
+    "xwalk_runtime_client_test_utils_java",
+    ":xwalk_runtime_client_shell_apk_copy",
+    ":xwalk_runtime_client_shell_assets_copy",
+  ]
+
+  apk_name = "XWalkRuntimeClientShell"
+  DEPRECATED_java_in_dir = "app/android/runtime_client_shell"
+  resource_dir = "app/android/runtime_client_shell/res"
+  native_libs = "libxwalkdummy"
+#        "additional_bundled_libs": [
+#          "$root_out_dir/lib/libecho_extension.>(android_product_extension)",
+#        ],
+  data_deps = [
+    "$root_out_dir/runtime_client_shell/assets/index.html",
+    "$root_out_dir/runtime_client_shell/assets/manifest.json",
+    "$root_out_dir/runtime_client_shell/assets/xwalk-extensions/myextension/myextension.js",
+    "$root_out_dir/runtime_client_shell/assets/xwalk-extensions/myextension/myextension.json",
+    "$root_out_dir/runtime_client_shell/assets/sampapp-icon-helloworld.png",
+    "$root_out_dir/runtime_client_shell/assets/www/manifest_self.json",
+    "$root_out_dir/runtime_client_shell/assets/www/manifest_inline_script.json",
+    "$root_out_dir/runtime_client_shell/assets/www/cross_origin.html",
+    "$root_out_dir/runtime_client_shell/assets/www/csp.html",
+    "$root_out_dir/runtime_client_shell/assets/www/manifest_without_xwalk_hosts.json",
+    "$root_out_dir/runtime_client_shell/assets/www/manifest_xwalk_hosts.json",
+  ]
+  asset_location = "$root_out_dir/runtime_client_shell/assets"
+
+#      "copies": [
+#        {
+#          "destination": "$root_out_dir/runtime_client_shell/assets/xwalk-extensions/myextension",
+#          "files": [
+#            "test/android/data/myextension/myextension.js",
+#            "test/android/data/myextension/myextension.json",
+#          ],
+#        },
+#      ],
+}
+
+#    {
+#      "target_name": "xwalk_runtime_client_shell_apk_java",
+#      "type": "none",
+#      "dependencies": [
+#        "xwalk_runtime_client_shell_apk",
+#      ],
+#      "includes": [ "../build/apk_fake_jar.gypi" ],
+#    },
+
+copy("runtime_client_embedded_shell_assets_copy") {
+  sources =  [
+    "test/android/data/manifest.json",
+    "test/android/data/index.html",
+    "test/android/data/sampapp-icon-helloworld.png",
+  ]
+  outputs = [
+    "$root_out_dir/runtime_client_embedded_shell/assets/{{source_file_part}}"
+  ]
+}
+
+copy("runtime_client_embedded_shell_jsapi_copy") {
+  sources =  [
+    "experimental/launch_screen/launch_screen_api.js",
+    "experimental/wifidirect/wifidirect_api.js",
+    "runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js",
+    "runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js",
+    "runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js",
+  ]
+  outputs = [
+    "$root_out_dir/runtime_client_embedded_shell/assets/jsapi/{{source_file_part}}"
+  ]
+}
+
+copy("runtime_client_embedded_shell_www_copy") {
+  sources =  [
+    "test/android/data/www/manifest_self.json",
+    "test/android/data/www/manifest_inline_script.json",
+    "test/android/data/www/cross_origin.html",
+    "test/android/data/www/csp.html",
+    "test/android/data/www/manifest_without_xwalk_hosts.json",
+    "test/android/data/www/manifest_xwalk_hosts.json",
+  ]
+  outputs = [
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/{{source_file_part}}"
+  ]
+}
+
+copy("xwalk_runtime_client_embedded_shell_apk_pak") {
+  deps = [ "xwalk.pak" ]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+  ]
+  if (icu_use_data_file_flag) {
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  outputs = [
+    "$root_out_dir/runtime_client_embedded_shell/assets/{{source_file_part}}"
+  ]
+}
+
+android_apk("xwalk_runtime_client_embedded_shell_apk") {
+  deps = [
+#    "extensions/external_extension_sample.gyp:echo_extension",
+    "libxwalkdummy",
+    "xwalk_app_runtime_java",
+    "xwalk_core_internal_java",
+    "xwalk_runtime_client_embedded_shell_apk_pak",
+    "xwalk_runtime_client_test_utils_java",
+    ":runtime_client_embedded_shell_assets_copy",
+    ":runtime_client_embedded_shell_jsapi_copy",
+    ":runtime_client_embedded_shell_www_copy",
+  ]
+
+  apk_name = "XWalkRuntimeClientEmbeddedShell"
+  DEPRECATED_java_in_dir = "app/android/runtime_client_embedded_shell"
+  resource_dir = "app/android/runtime_client_embedded_shell/res"
+  native_libs = "libxwalkdummy"
+#        "additional_bundled_libs": [
+#          "$root_out_dir/lib/libecho_extension.>(android_product_extension)",
+#          "$root_out_dir/lib/libxwalkcore.>(android_product_extension)",
+#        ],
+  data_deps = [
+    "$root_out_dir/runtime_client_embedded_shell/assets/index.html",
+    "$root_out_dir/runtime_client_embedded_shell/assets/jsapi/contacts_api.js",
+    "$root_out_dir/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js",
+    "$root_out_dir/runtime_client_embedded_shell/assets/jsapi/launch_screen_api.js",
+    "$root_out_dir/runtime_client_embedded_shell/assets/jsapi/messaging_api.js",
+    "$root_out_dir/runtime_client_embedded_shell/assets/jsapi/wifidirect_api.js",
+    "$root_out_dir/runtime_client_embedded_shell/assets/manifest.json",
+    "$root_out_dir/runtime_client_embedded_shell/assets/xwalk-extensions/myextension/myextension.js",
+    "$root_out_dir/runtime_client_embedded_shell/assets/xwalk-extensions/myextension/myextension.json",
+    "$root_out_dir/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png",
+    "$root_out_dir/runtime_client_embedded_shell/assets/xwalk.pak",
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/manifest_self.json",
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/manifest_inline_script.json",
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/cross_origin.html",
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/csp.html",
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/manifest_without_xwalk_hosts.json",
+    "$root_out_dir/runtime_client_embedded_shell/assets/www/manifest_xwalk_hosts.json",
+  ]
+
+  if (icu_use_data_file_flag) {
+    data_deps += [
+      "$root_out_dir/runtime_client_embedded_shell/assets/icudtl.dat",
+    ]
+  }
+  asset_location = "$root_out_dir/runtime_client_embedded_shell/assets"
+}
+#      "copies": [
+#        {
+#          "destination": "$root_out_dir/lib",
+#          "files": ["$root_out_dir/tests/extension/echo_extension/libecho_extension.>(android_product_extension)"],
+#        },
+#        {
+#          "destination": "$root_out_dir/runtime_client_embedded_shell/assets/xwalk-extensions/myextension",
+#          "files": [
+#            "test/android/data/myextension/myextension.js",
+#            "test/android/data/myextension/myextension.json",
+#          ],
+#        },
+}
+
+copy("xwalk_runtime_client_test_apk_copy") {
+  sources = [
+    "extensions/test/data/echo.html",
+    "test/android/data/contacts.html",
+    "test/android/data/device_capabilities.html",
+    "test/android/data/displayAvailableTest.html",
+    "test/android/data/echo_binary_java.html",
+    "test/android/data/echo_java.html",
+    "test/android/data/echo_sync_java.html",
+    "test/android/data/native_file_system.html",
+    "test/android/data/screen_orientation.html",
+    "test/android/data/sysapps/messaging/messaging_mini.html",
+    "test/android/data/timer.html",
+  ]
+  outputs = [
+    "$root_out_dir/runtime_client_test/assets/{{source_file_part}}"
+  ]
+}
+
+android_apk("xwalk_runtime_client_test_apk") {
+  deps = [
+    "//base/base:base_java_test_support",
+    "//content/content_shell_and_tests:content_java_test_support",
+    "//net/net:net_java_test_support",
+    "//tools/android/forwarder2/forwarder:forwarder2",
+    "//tools/android/md5sum/md5sum:md5sum",
+    ":xwalk_runtime_client_shell_apk_java",
+    ":xwalk_test_util_java",
+    ":xwalk_runtime_client_test_apk_copy",
+  ]
+
+  apk_name = "XWalkRuntimeClientTest"
+  DEPRECATED_java_in_dir = "test/android/runtime_client/javatests"
+  data_deps = [
+    "$root_out_dir/runtime_client_test/assets/contacts.html",
+    "$root_out_dir/runtime_client_test/assets/device_capabilities.html",
+    "$root_out_dir/runtime_client_test/assets/displayAvailableTest.html",
+    "$root_out_dir/runtime_client_test/assets/echo.html",
+    "$root_out_dir/runtime_client_test/assets/echo_binary_java.html",
+    "$root_out_dir/runtime_client_test/assets/echo_java.html",
+    "$root_out_dir/runtime_client_test/assets/echo_sync_java.html",
+    "$root_out_dir/runtime_client_test/assets/messaging_mini.html",
+    "$root_out_dir/runtime_client_test/assets/native_file_system.html",
+    "$root_out_dir/runtime_client_test/assets/screen_orientation.html",
+    "$root_out_dir/runtime_client_test/assets/timer.html",
+  ]
+  asset_location = "$root_out_dir/runtime_client_test/assets"
+}
+
+
+#    {
+#      "target_name": "xwalk_runtime_client_embedded_shell_apk_java",
+#      "type": "none",
+#      "dependencies": [
+#        "xwalk_runtime_client_embedded_shell_apk",
+#      ],
+#      "includes": [ "../build/apk_fake_jar.gypi" ],
+#    },
+android_apk("xwalk_runtime_client_embedded_test_apk") {
+  deps = [
+    "//base/base:base_java_test_support",
+    "//content/content_shell_and_tests:content_java_test_support",
+    "//net/net:net_java_test_support",
+    "//tools/android/forwarder2/forwarder:forwarder2",
+    "//tools/android/md5sum/md5sum:md5sum",
+    ":xwalk_runtime_client_embedded_shell_apk_java",
+    ":xwalk_test_util_java",
+    ":xwalk_runtime_client_embedded_test_apk_copy",
+  ]
+  apk_name = "XWalkRuntimeClientEmbeddedTest"
+  DEPRECATED_java_in_dir = "test/android/runtime_client_embedded/javatests"
+  data_deps = [
+    "$root_out_dir/runtime_client_embedded_test/assets/contacts.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/device_capabilities.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/displayAvailableTest.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/echo.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/echo_binary_java.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/echo_java.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/echo_sync_java.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/messaging_mini.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/native_file_system.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/screen_orientation.html",
+    "$root_out_dir/runtime_client_embedded_test/assets/timer.html",
+  ]
+  asset_location = "$root_out_dir/runtime_client_embedded_test/assets"
+}
+
+copy("xwalk_runtime_client_embedded_test_apk_copy") {
+  sources = [
+    "extensions/test/data/echo.html",
+    "test/android/data/contacts.html",
+    "test/android/data/device_capabilities.html",
+    "test/android/data/displayAvailableTest.html",
+    "test/android/data/echo_binary_java.html",
+    "test/android/data/echo_java.html",
+    "test/android/data/echo_sync_java.html",
+    "test/android/data/native_file_system.html",
+    "test/android/data/screen_orientation.html",
+    "test/android/data/sysapps/messaging/messaging_mini.html",
+    "test/android/data/timer.html",
+  ]
+  outputs = "$root_out_dir/runtime_client_embedded_test/assets/{{source_file_part}}"
+}
+
+android_apk("xwalk_core_sample_apk") {
+  deps = [
+    "libxwalkcore",
+    "xwalk_core_extensions_java",
+    "xwalk_core_internal_java",
+    "xwalk_core_java",
+    "xwalk_core_shell_apk_pak",
+    ":xwalk_core_sample_apk_copy",
+  ]
+  apk_name = "CrosswalkSample"
+  DEPRECATED_java_in_dir = "runtime/android/sample"
+  resource_dir = "runtime/android/sample/res"
+  native_libs = "libxwalkcore"
+  data_deps = [
+    "$root_out_dir/sample/assets/builtinzoom.html",
+    "$root_out_dir/sample/assets/create_window_1.html",
+    "$root_out_dir/sample/assets/create_window_2.html",
+    "$root_out_dir/sample/assets/doubletapzoom.html",
+    "$root_out_dir/sample/assets/echo_java.html",
+    "$root_out_dir/sample/assets/favicon.html",
+    "$root_out_dir/sample/assets/icon.png",
+    "$root_out_dir/sample/assets/index.html",
+    "$root_out_dir/sample/assets/manifest.json",
+    "$root_out_dir/sample/assets/new_window.html",
+    "$root_out_dir/sample/assets/pause_timers.html",
+    "$root_out_dir/sample/assets/xwalk.pak",
+  ]
+  if (icu_use_data_file_flag) {
+    data_deps += [
+      "$root_out_dir/sample/assets/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    data_deps += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  asset_location = "$root_out_dir/sample/assets"
+}
+
+copy("xwalk_core_sample_apk_copy") {
+  outputs = "$root_out_dir/sample/assets/{{source_file_part}}"
+  sources =  [
+    "runtime/android/sample/assets/builtinzoom.html",
+    "runtime/android/sample/assets/create_window_1.html",
+    "runtime/android/sample/assets/create_window_2.html",
+    "runtime/android/sample/assets/doubletapzoom.html",
+    "runtime/android/sample/assets/favicon.html",
+    "runtime/android/sample/assets/icon.png",
+    "runtime/android/sample/assets/index.html",
+    "runtime/android/sample/assets/manifest.json",
+    "runtime/android/sample/assets/new_window.html",
+    "runtime/android/sample/assets/pause_timers.html",
+    "test/android/data/echo_java.html",
+    "$root_out_dir/xwalk.pak",
+  ]
+  if (icu_use_data_file_flag) {
+    sources += [
+      "$root_out_dir/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+}
+
+android_apk("xwalk_core_internal_shell_apk") {
+  deps = [
+    "//third_party/android_tools:android_support_v13_java",
+    "libxwalkcore",
+    "xwalk_core_extensions_java",
+    "xwalk_core_internal_java",
+    "xwalk_core_internal_shell_apk_pak",
+    ":xwalk_core_internal_shell_apk_www_copy",
+    ":xwalk_core_internal_shell_apk_assets_pak",
+  ]
+
+  apk_name = "XWalkCoreInternalShell"
+  DEPRECATED_java_in_dir = "runtime/android/core_internal_shell"
+  resource_dir = "runtime/android/core_internal_shell/res"
+  native_libs = "libxwalkcore"
+  data_deps = [
+    "$root_out_dir/xwalk_internal_xwview/assets/www/index.html",
+    "$root_out_dir/xwalk_internal_xwview/assets/xwalk.pak",
+  ]
+  if (icu_use_data_file_flag) {
+    data_deps += [
+      "$root_out_dir/xwalk_internal_xwview/assets/icudtl.dat",
+    ]
+  }
+  if (v8_use_external_startup_data) {
+    data_deps += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  asset_location = "$root_out_dir/xwalk_internal_xwview/assets"
+}
+
+copy("xwalk_core_internal_shell_apk_www_copy") {
+  outputs = "$root_out_dir/xwalk_internal_xwview/assets/www/{{source_file_part}}",
+  sources = [
+    "test/android/data/index.html",
+  ]
+}
+
+copy("xwalk_core_internal_shell_apk_assets_pak") {
+  deps = ["xwalk_pak"]
+  outputs = "$root_out_dir/xwalk_internal_xwview/assets/{{source_file_part}}"
+  sources = ["$root_out_dir/xwalk.pak"]
+  if (icu_use_data_file_flag) {
+    sources += ["$root_out_dir/icudtl.dat"]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+}
+
+android_apk("xwalk_core_internal_test_apk") {
+  deps = [
+           "//base/base:base_java_test_support",
+           "//content/content_shell_and_tests:content_java_test_support",
+           "//net/net:net_java_test_support",
+           "//tools/android/md5sum/md5sum:md5sum",
+           "//tools/android/forwarder2/forwarder:forwarder2",
+           "xwalk_core_internal_shell_apk_java",
+  ]
+  apk_name = "XWalkCoreInternalTest"
+  DEPERECATED_java_in_dir": "test/android/core_internal/javatests",
+  data_deps = [
+    "$root_out_dir/xwalk_internal_xwview_test/assets/broadcast.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/echo_binary_java.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/echo_java.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/echo_sync_java.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/framesEcho.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/full_screen_video_test.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/geolocation.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/index.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/navigator.online.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/notification.html",
+    "$root_out_dir/xwalk_internal_xwview_test/assets/renderHung.html",
+  ]
+  asset_location = "$root_out_dir/xwalk_internal_xwview_test/assets"
+}
+
+copy("xwalk_core_internal_test_apk_copy") {
+  outputs = "$root_out_dir/xwalk_internal_xwview_test/assets/{{source_file_part}}"
+  sources = [
+    "test/android/data/broadcast.html",
+    "test/android/data/echo_binary_java.html",
+    "test/android/data/echo_java.html",
+    "test/android/data/echo_sync_java.html",
+    "test/android/data/framesEcho.html",
+    "test/android/data/full_screen_video_test.html",
+    "test/android/data/geolocation.html",
+    "test/android/data/index.html",
+    "test/android/data/navigator.online.html",
+    "test/android/data/notification.html",
+    "test/android/data/renderHung.html",
+  ]
+}
+
+shared_library("libxwalkdummy") {
+  sources = [
+        "runtime/android/dummy_lib/dummy_lib.cc",
+  ]
+}

@@ -1,0 +1,85 @@
+import("//build/config/android/rules.gni")
+
+instrumentation_test_apk("xwalk_core_test_apk") {
+  deps = [
+    "//tools/android/md5sum:md5sum",
+    "//tools/android/forwarder2:forwarder2",
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_java",
+    ":xwalk_core_test_java",
+    ":xwalk_core_test_apk_assets",
+  ]
+  data_deps = [
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk",
+  ]
+  apk_under_test = "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk"
+  apk_name = "XWalkCoreTest"
+  android_manifest = "//xwalk/test/android/core/javatests/AndroidManifest.xml"
+}
+
+android_library("xwalk_core_test_java") {
+  testonly = true
+  deps = [
+    "//base:base_java",
+    "//content/public/android:content_java",
+    "//base:base_java_test_support",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//ui/android:ui_java",
+    "//third_party/android_tools:legacy_http_javalib",
+    #"//xwalk/extensions/android:xwalk_core_extensions_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_java",
+  ]
+  DEPRECATED_java_in_dir = "src"
+}
+
+android_assets("xwalk_core_test_apk_assets") {
+  renaming_sources = [
+    "//xwalk/test/android/data/add_js_interface.html",
+    "//xwalk/test/android/data/create_window_1.html",
+    "//xwalk/test/android/data/create_window_2.html",
+    "//xwalk/test/android/data/console_message.html",
+    "//xwalk/test/android/data/echo_binary_java.html",
+    "//xwalk/test/android/data/echo_java.html",
+    "//xwalk/test/android/data/echo_sync_java.html",
+    "//xwalk/test/android/data/favicon.html",
+    "//xwalk/test/android/data/file_chooser.html",
+    "//xwalk/test/android/data/framesEcho.html",
+    "//xwalk/test/android/data/fullscreen_enter_exit.html",
+    "//xwalk/test/android/data/fullscreen_togged.html",
+    "//xwalk/test/android/data/icon.png",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/js_modal_dialog.html",
+    "//xwalk/test/android/data/new_window.html",
+    "//xwalk/test/android/data/profile.html",
+    "//xwalk/test/android/data/read_video_data.html",
+    "//xwalk/test/android/data/save_video_data.html",
+    "//xwalk/test/android/data/scale_changed.html",
+    "//xwalk/test/android/data/window.close.html",
+  ]
+  renaming_destinations = [
+    "add_js_interface.html",
+    "create_window_1.html",
+    "create_window_2.html",
+    "console_message.html",
+    "echo_binary_java.html",
+    "echo_java.html",
+    "echo_sync_java.html",
+    "favicon.html",
+    "file_chooser.html",
+    "framesEcho.html",
+    "fullscreen_enter_exit.html",
+    "fullscreen_togged.html",
+    "icon.png",
+    "index.html",
+    "js_modal_dialog.html",
+    "new_window.html",
+    "profile.html",
+    "read_video_data.html",
+    "save_video_data.html",
+    "scale_changed.html",
+    "window.close.html",
+  ]
+  disable_compression = true
+}

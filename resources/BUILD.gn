@@ -1,0 +1,167 @@
+import("//tools/grit/grit_rule.gni")
+import("//tools/grit/repack.gni")
+
+# GYP version: xwalk.gyp:xwalk_pak
+repack("xwalk_pak") {
+  deps = [
+    "//components/resources",
+    "//content:resources",
+    "//ui/resources:resources",
+    "//ui/strings:strings",
+    "//ui/app_list/resources",
+
+    "//content/app/resources:resources_grit",
+    "//content/app/strings:strings_grit",
+    "//third_party/WebKit/public:image_resources_grit",
+    "//third_party/WebKit/public:resources_grit",
+    "//net:net_resources_grit",
+
+    "//xwalk/application:xwalk_application_resources",
+    "//xwalk/extensions:xwalk_extensions_resources",
+    "//xwalk/sysapps:xwalk_sysapps_resources",
+    ":generate_xwalk_resources_grit",
+  ]
+
+  if (!is_android) {
+    deps += [
+      "//components/strings:components_strings",
+      "//content/browser/devtools:devtools_resources",
+    ]
+  }
+
+  sources = [
+    "$root_gen_dir/xwalk/resources/xwalk_resources.pak",
+    "$root_gen_dir/xwalk/application/xwalk_application_resources.pak",
+    "$root_gen_dir/xwalk/extensions/xwalk_extensions_resources.pak",
+    "$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.pak",
+    "$root_gen_dir/net/net_resources.pak",
+    "$root_gen_dir/ui/strings/app_locale_settings_en-US.pak",
+    "$root_gen_dir/ui/strings/ui_strings_en-US.pak",
+    "$root_gen_dir/components/components_resources.pak",
+    "$root_gen_dir/content/content_resources.pak",
+    "$root_gen_dir/blink/public/resources/blink_resources.pak",
+    "$root_gen_dir/content/app/strings/content_strings_en-US.pak",
+  ]
+
+  if (!is_android) {
+    sources += [
+      "$root_gen_dir/blink/devtools_resources.pak",
+      "$root_gen_dir/components/strings/components_strings_en-US.pak",
+    ]
+  }
+
+  output = "$root_out_dir/xwalk.pak"
+}
+
+# GYP version: xwalk.gyp:xwalk_resources_100_percent_pak
+repack("xwalk_resources_100_percent_pak") {
+  deps = [
+    "//components/resources",
+    "//content/app/resources:resources_grit",
+    "//ui/resources:resources",
+    "//third_party/WebKit/public:image_resources_grit",
+  ]
+  sources = [
+    "$root_gen_dir/content/app/resources/content_resources_100_percent.pak",
+    "$root_gen_dir/ui/resources/ui_resources_100_percent.pak",
+    "$root_gen_dir/components/components_resources_100_percent.pak",
+    "$root_gen_dir/blink/public/resources/blink_image_resources_100_percent.pak",
+  ]
+  output = "$root_out_dir/xwalk_100_percent.pak"
+
+  if (toolkit_views) {
+    deps += [
+      "//ui/views/resources:resources_grd_grit",
+    ]
+    sources += [
+      "$root_gen_dir/ui/views/resources/views_resources_100_percent.pak",
+    ]
+  }
+}
+
+# GYP version: xwalk.gyp:xwalk_resources_200_percent_pak
+repack("xwalk_resources_200_percent_pak") {
+  deps = [
+    "//components/resources",
+    "//content/app/resources:resources_grit",
+    "//ui/resources:resources",
+    "//third_party/WebKit/public:image_resources_grit",
+  ]
+  sources = [
+    "$root_gen_dir/content/app/resources/content_resources_200_percent.pak",
+    "$root_gen_dir/ui/resources/ui_resources_200_percent.pak",
+    "$root_gen_dir/components/components_resources_200_percent.pak",
+    "$root_gen_dir/blink/public/resources/blink_image_resources_200_percent.pak",
+  ]
+  output = "$root_out_dir/xwalk_200_percent.pak"
+
+  if (toolkit_views) {
+    deps += [
+      "//ui/views/resources:resources_grd_grit",
+    ]
+    sources += [
+      "$root_gen_dir/ui/views/resources/views_resources_200_percent.pak",
+    ]
+  }
+}
+
+# GYP version: xwalk.gyp:xwalk_resources_300_percent_pak
+repack("xwalk_resources_300_percent_pak") {
+  deps = [
+    "//components/resources",
+    "//ui/resources:resources",
+  ]
+  sources = [
+    "$root_gen_dir/ui/resources/ui_resources_300_percent.pak",
+    "$root_gen_dir/components/components_resources_300_percent.pak",
+  ]
+  output = "$root_out_dir/xwalk_300_percent.pak"
+
+  if (toolkit_views) {
+    deps += [
+      "//ui/views/resources:resources_grd_grit",
+    ]
+    sources += [
+      "$root_gen_dir/ui/views/resources/views_resources_300_percent.pak",
+    ]
+  }
+}
+
+# GYP version: xwalk.gyp:generate_xwalk_resources
+grit("generate_xwalk_resources") {
+  source = "//xwalk/runtime/resources/xwalk_resources.grd"
+  resource_ids = "//xwalk/resources/resource_ids"
+  outputs = [
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources.h",
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources_map.cc",
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources_map.h",
+    "$root_gen_dir/xwalk/resources/xwalk_resources.pak",
+    "$root_gen_dir/xwalk/resources/xwalk_resources.rc",
+  ]
+}
+
+grit("generate_xwalk_strings") {
+  source = "//xwalk/runtime/resources/xwalk_strings.grd"
+  resource_ids = "//xwalk/resources/resource_ids"
+  output_dir = "$root_gen_dir/xwalk/locales"
+  outputs = [
+    "$root_gen_dir/xwalk/grit/xwalk_strings.h",
+    "$root_gen_dir/xwalk/locales/en-US.pak",
+    "$root_gen_dir/xwalk/locales/zh-CN.pak",
+  ]
+}
+
+copy("xwalk_strings") {
+  deps = [
+    ":generate_xwalk_strings_grit"
+  ]
+  sources = [
+    "$root_gen_dir/xwalk/grit/xwalk_strings.h",
+    "$root_gen_dir/xwalk/locales/en-US.pak",
+    "$root_gen_dir/xwalk/locales/zh-CN.pak",
+  ]
+  outputs = [
+    "$root_out_dir/{{source_file_part}}"
+  ]
+}
+
