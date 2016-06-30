@@ -63,8 +63,9 @@ void TCPServerSocketObject::OnInit(
     return;
   }
 
-  net::IPAddressNumber ip_number;
-  if (!net::ParseIPLiteralToNumber(params->options.local_address, &ip_number)) {
+  net::IPAddress ip_number;
+  if (!net::ParseURLHostnameToAddress(params->options.local_address,
+                                      &ip_number)) {
     LOG(WARNING) << "Invalid IP address " << params->options.local_address;
     setReadyState(READY_STATE_CLOSED);
     DispatchEvent("error");
