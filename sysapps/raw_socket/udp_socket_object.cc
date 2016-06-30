@@ -87,8 +87,8 @@ void UDPSocketObject::OnInit(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   }
 
   if (!params->options->local_address.empty()) {
-    net::IPAddressNumber ip_number;
-    if (!net::ParseIPLiteralToNumber(params->options->local_address,
+    net::IPAddress ip_number;
+    if (!net::ParseURLHostnameToAddress(params->options->local_address,
                                      &ip_number)) {
       LOG(WARNING) << "Invalid IP address " << params->options->local_address;
       setReadyState(READY_STATE_CLOSED);
