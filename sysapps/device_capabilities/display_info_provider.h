@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "base/observer_list.h"
-#include "ui/gfx/display_observer.h"
+#include "ui/display/display_observer.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
 
 namespace xwalk {
@@ -18,7 +18,7 @@ namespace sysapps {
 using jsapi::device_capabilities::DisplayUnit;
 using jsapi::device_capabilities::SystemDisplay;
 
-class DisplayInfoProvider : public gfx::DisplayObserver {
+class DisplayInfoProvider : public display::DisplayObserver {
  public:
   DisplayInfoProvider();
   ~DisplayInfoProvider() override;
@@ -42,11 +42,11 @@ class DisplayInfoProvider : public gfx::DisplayObserver {
   void StartDisplayMonitoring();
   void StopDisplayMonitoring();
 
-  // gfx::DisplayObserver implementation.
-  void OnDisplayMetricsChanged(const gfx::Display& display,
+  // display::DisplayObserver implementation.
+  void OnDisplayMetricsChanged(const display::Display& display,
                                        uint32_t metrics) override {}
-  void OnDisplayAdded(const gfx::Display& display) override;
-  void OnDisplayRemoved(const gfx::Display& display) override;
+  void OnDisplayAdded(const display::Display& display) override;
+  void OnDisplayRemoved(const display::Display& display) override;
 
   base::ObserverList<Observer> observer_list_;
 

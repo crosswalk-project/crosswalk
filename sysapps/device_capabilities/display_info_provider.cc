@@ -9,8 +9,8 @@
 
 #include "base/strings/string_number_conversions.h"
 #include "base/sys_info.h"
-#include "ui/gfx/display.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 
 using xwalk::jsapi::device_capabilities::DisplayUnit;
 
@@ -20,8 +20,8 @@ namespace {
 // ChromiumOS. See display_info_provider_chromeos.cc.
 const float kDpi96 = 96;
 
-std::unique_ptr<DisplayUnit> makeDisplayUnit(const gfx::Display& display) {
-  gfx::Screen* screen = gfx::Screen::GetScreen();
+std::unique_ptr<DisplayUnit> makeDisplayUnit(const display::Display& display) {
+  display::Screen* screen = display::Screen::GetScreen();
   const int64_t primary_display_id = screen->GetPrimaryDisplay().id();
 
   std::unique_ptr<DisplayUnit> display_unit(new DisplayUnit);
@@ -63,10 +63,10 @@ DisplayInfoProvider::~DisplayInfoProvider() {}
 std::unique_ptr<SystemDisplay> DisplayInfoProvider::display_info() {
   std::unique_ptr<SystemDisplay> info(new SystemDisplay);
 
-  gfx::Screen* screen = gfx::Screen::GetScreen();
-  std::vector<gfx::Display> displays = screen->GetAllDisplays();
+  display::Screen* screen = display::Screen::GetScreen();
+  std::vector<display::Display> displays = screen->GetAllDisplays();
 
-  for (std::vector<gfx::Display>::const_iterator it = displays.begin();
+  for (std::vector<display::Display>::const_iterator it = displays.begin();
       it != displays.end(); ++it) {
     auto display_unit = makeDisplayUnit(*it);
     info->displays.push_back(std::move(*display_unit));
@@ -98,22 +98,22 @@ bool DisplayInfoProvider::HasObserver(Observer* observer) const {
 }
 
 void DisplayInfoProvider::StartDisplayMonitoring() {
-  gfx::Screen* screen = gfx::Screen::GetScreen();
+  display::Screen* screen = display::Screen::GetScreen();
   screen->AddObserver(this);
 }
 
 void DisplayInfoProvider::StopDisplayMonitoring() {
-  gfx::Screen* screen = gfx::Screen::GetScreen();
+  display::Screen* screen = display::Screen::GetScreen();
   screen->RemoveObserver(this);
 }
 
-void DisplayInfoProvider::OnDisplayAdded(const gfx::Display& display) {
+void DisplayInfoProvider::OnDisplayAdded(const display::Display& display) {
   FOR_EACH_OBSERVER(Observer,
                     observer_list_,
                     OnDisplayConnected(*makeDisplayUnit(display)));
 }
 
-void DisplayInfoProvider::OnDisplayRemoved(const gfx::Display& display) {
+void DisplayInfoProvider::OnDisplayRemoved(const display::Display& display) {
   FOR_EACH_OBSERVER(Observer,
                     observer_list_,
                     OnDisplayDisconnected(*makeDisplayUnit(display)));

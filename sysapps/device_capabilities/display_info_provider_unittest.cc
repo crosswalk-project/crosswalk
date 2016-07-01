@@ -10,7 +10,7 @@
 #include "base/message_loop/message_loop.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/layout.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/screen.h"
 #include "xwalk/sysapps/common/sysapps_manager.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities.h"
 
