@@ -766,8 +766,10 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setSaveFormData}.
+     * Sets whether the XWalkView should save form data. The default is true.
+     * @since 7.0
      */
+    @XWalkAPI
     public void setSaveFormData(final boolean enable) {
         synchronized (mXWalkSettingsLock) {
             if (mAutoCompleteEnabled == enable) return;
@@ -784,8 +786,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getSaveFormData}.
+     * Gets whether the XWalkView saves form data.
+     * @return whether the WebView saves form data
+     * @see #setSaveFormData
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getSaveFormData() {
         synchronized (mXWalkSettingsLock) {
             return getSaveFormDataLocked();

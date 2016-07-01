@@ -5,6 +5,7 @@
 package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkSettings;
@@ -60,6 +61,23 @@ public class SettingsTest extends XWalkViewTestBase {
                 assertEquals(LANGUAGE, settings.getAcceptLanguages());
                 settings.setAcceptLanguages(defaultLanguages);
                 assertEquals(defaultLanguages, settings.getAcceptLanguages());
+            }
+        });
+    }
+
+    @SmallTest
+    @Feature({"Settings"})
+    public void testSaveFormData() throws Throwable {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                XWalkSettings settings = getXWalkView().getSettings();
+                boolean defaultvalue = settings.getSaveFormData();
+
+                settings.setSaveFormData(false);
+                assertEquals(false, settings.getSaveFormData());
+                settings.setSaveFormData(defaultvalue);
+                assertEquals(defaultvalue, settings.getSaveFormData());
             }
         });
     }
