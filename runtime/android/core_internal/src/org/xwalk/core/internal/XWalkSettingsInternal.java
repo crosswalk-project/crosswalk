@@ -36,6 +36,41 @@ public class XWalkSettingsInternal {
         TEXT_AUTOSIZING
     }
 
+    /**
+     * Default cache usage mode. If the navigation type doesn't impose any
+     * specific behavior, use cached resources when they are available
+     * and not expired, otherwise load resources from the network.
+     * Use with {@link #setCacheMode}.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public static final int LOAD_DEFAULT = -1;
+
+    /**
+     * Use cached resources when they are available, even if they have expired.
+     * Otherwise load resources from the network.
+     * Use with {@link #setCacheMode}.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public static final int LOAD_CACHE_ELSE_NETWORK = 1;
+
+    /**
+     * Don't use the cache, load from the network.
+     * Use with {@link #setCacheMode}.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public static final int LOAD_NO_CACHE = 2;
+
+    /**
+     * Don't use the network, load from the cache.
+     * Use with {@link #setCacheMode}.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public static final int LOAD_CACHE_ONLY = 3;
+
     private static final String TAG = "XWalkSettings";
 
     // This class must be created on the UI thread. Afterwards, it can be
@@ -250,8 +285,19 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setCacheMode}.
+     * Overrides the way the cache is used. The way the cache is used is based
+     * on the navigation type. For a normal page load, the cache is checked
+     * and content is re-validated as needed. When navigating back, content is
+     * not revalidated, instead the content is just retrieved from the cache.
+     * This method allows the client to override this behavior by specifying
+     * one of {@link #LOAD_DEFAULT},
+     * {@link #LOAD_CACHE_ELSE_NETWORK}, {@link #LOAD_NO_CACHE} or
+     * {@link #LOAD_CACHE_ONLY}. The default value is {@link #LOAD_DEFAULT}.
+     *
+     * @param mode the mode to use
+     * @since 7.0
      */
+    @XWalkAPI
     public void setCacheMode(int mode) {
         synchronized (mXWalkSettingsLock) {
             if (mCacheMode != mode) {
@@ -261,8 +307,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getCacheMode}.
+     * Gets the current setting for overriding the cache mode.
+     *
+     * @return the current setting for overriding the cache mode
+     * @see #setCacheMode
+     * @since 7.0
      */
+    @XWalkAPI
     public int getCacheMode() {
         synchronized (mXWalkSettingsLock) {
             return mCacheMode;
@@ -270,8 +321,24 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setBlockNetworkLoads}.
+     * Sets whether the WebView should not load resources from the network.
+     * Note that if the value of this setting is
+     * changed from true to false, network resources referenced by content
+     * currently displayed by the XWalkView are not fetched until
+     * {@link org.xwalk.core.XWalkView#reload} is called.
+     * If the application does not have the
+     * {@link android.Manifest.permission#INTERNET} permission, attempts to set
+     * a value of false will cause a {@link java.lang.SecurityException}
+     * to be thrown. The default value is false if the application has the
+     * {@link android.Manifest.permission#INTERNET} permission, otherwise it is
+     * true.
+     *
+     * @param flag whether the XWalkView should not load any resources from the
+     *             network
+     * @see org.xwalk.core.XWalkView#reload
+     * @since 7.0
      */
+    @XWalkAPI
     public void setBlockNetworkLoads(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (!flag && mContext.checkPermission(
@@ -286,8 +353,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getBlockNetworkLoads}.
+     * Gets whether the XWalkView does not load any resources from the network.
+     *
+     * @return true if the XWalkView does not load any resources from the network
+     * @see #setBlockNetworkLoads
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getBlockNetworkLoads() {
         synchronized (mXWalkSettingsLock) {
             return mBlockNetworkLoads;
