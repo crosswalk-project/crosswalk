@@ -31,6 +31,7 @@ solutions = [
   { 'name': 'src',
     'url': crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
     'deps_file': '.DEPS.git',
+    'managed': True,
     'custom_deps': {
       'src':
         crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
