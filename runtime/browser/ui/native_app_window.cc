@@ -15,6 +15,9 @@ NativeAppWindow::CreateParams::CreateParams()
     display_mode(blink::WebDisplayModeUndefined) {
 }
 
+NativeAppWindow::CreateParams::CreateParams(
+    const CreateParams& other) = default;
+
 NativeAppWindow::CreateParams::~CreateParams() {
 }
 
