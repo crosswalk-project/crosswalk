@@ -102,7 +102,7 @@ ExclusiveAccessBubbleViews::ExclusiveAccessView::ExclusiveAccessView(
       views::BubbleBorder::NONE, shadow_type, background_color));
   set_background(new views::BubbleBackground(bubble_border.get()));
   SetBorder(std::move(bubble_border));
-  SetFocusable(false);
+  SetFocusBehavior(FocusBehavior::NEVER);
 
   ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
   const gfx::FontList& medium_font_list =
@@ -113,7 +113,7 @@ ExclusiveAccessBubbleViews::ExclusiveAccessView::ExclusiveAccessView(
   message_label_->SetBackgroundColor(background_color);
 
   link_ = new views::Link();
-  link_->SetFocusable(false);
+  link_->SetFocusBehavior(FocusBehavior::NEVER);
   link_->set_listener(this);
   link_->SetFontList(medium_font_list);
   link_->SetPressedColor(foreground_color);
