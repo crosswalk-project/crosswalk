@@ -312,11 +312,4 @@ void XWalkContentRendererClient::GetNavigationErrorStrings(
   }
 }
 
-void XWalkContentRendererClient::AddKeySystems(
-    std::vector<media::KeySystemInfo>* key_systems) {
-#if defined(OS_ANDROID)
-  cdm::AddAndroidWidevine(key_systems);
-#endif  // defined(OS_ANDROID)
-}
-
 }  // namespace xwalk
