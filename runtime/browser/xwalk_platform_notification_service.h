@@ -11,6 +11,7 @@
 
 #include "base/memory/singleton.h"
 #include "content/public/browser/platform_notification_service.h"
+#include "third_party/WebKit/public/platform/modules/permissions/permission_status.mojom.h"
 
 namespace xwalk {
 #if defined(OS_LINUX) && defined(USE_LIBNOTIFY) || defined(OS_WIN)
@@ -28,12 +29,12 @@ class XWalkPlatformNotificationService
   static XWalkPlatformNotificationService* GetInstance();
 
   // content::PlatformNotificationService implementation.
-  blink::WebNotificationPermission CheckPermissionOnUIThread(
+  blink::mojom::PermissionStatus CheckPermissionOnUIThread(
       content::BrowserContext* browser_context,
       const GURL& origin,
       int render_process_id) override;
   // content::PlatformNotificationService implementation.
-  blink::WebNotificationPermission CheckPermissionOnIOThread(
+  blink::mojom::PermissionStatus CheckPermissionOnIOThread(
       content::ResourceContext* resource_context,
       const GURL& origin,
       int render_process_id) override;
