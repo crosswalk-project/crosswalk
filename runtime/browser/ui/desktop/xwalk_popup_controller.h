@@ -19,7 +19,7 @@ class RenderViewHost;
 class WebContents;
 }
 
-namespace gfx {
+namespace display {
 class Display;
 }
 
@@ -67,19 +67,19 @@ class XWalkPopupController {
  protected:
   // A helper function to get the display closest to the given point (virtual
   // for testing).
-  virtual gfx::Display GetDisplayNearestPoint(const gfx::Point& point) const;
+  virtual display::Display GetDisplayNearestPoint(const gfx::Point& point) const;
 
  private:
   std::pair<int, int> CalculatePopupXAndWidth(
-      const gfx::Display& left_display,
-      const gfx::Display& right_display,
+      const display::Display& left_display,
+      const display::Display& right_display,
       int popup_required_width) const;
 
   // Calculates the height of the popup and the y position of it. These values
   // will stay on the screen.
   std::pair<int, int> CalculatePopupYAndHeight(
-      const gfx::Display& top_display,
-      const gfx::Display& bottom_display,
+      const display::Display& top_display,
+      const display::Display& bottom_display,
       int popup_required_height) const;
 
   // The bounds of the text element that is the focus of the popup.
