@@ -373,7 +373,7 @@ NativeAppWindow* NativeAppWindow::Create(
 void NativeAppWindow::Initialize() {
   static std::unique_ptr<views::ViewsDelegate> views_delegate_;
   CHECK(!views::ViewsDelegate::GetInstance());
-  gfx::Screen::SetScreenInstance(views::CreateDesktopScreen());
+  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
   views_delegate_.reset(new XWalkViewsDelegate);
 }
 

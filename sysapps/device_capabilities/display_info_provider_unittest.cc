@@ -44,7 +44,7 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, DisplayInfoProvider) {
   supported_scale_factors.push_back(ui::SCALE_FACTOR_200P);
   ui::SetSupportedScaleFactors(supported_scale_factors);
 
-  gfx::Screen::SetScreenInstance(views::CreateDesktopScreen());
+  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
 #endif
 
   DisplayInfoProvider* provider(SysAppsManager::GetDisplayInfoProvider());
