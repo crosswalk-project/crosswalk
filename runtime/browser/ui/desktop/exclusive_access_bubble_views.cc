@@ -348,7 +348,7 @@ gfx::Rect ExclusiveAccessBubbleViews::GetPopupRect(
   gfx::Size size(view_->GetPreferredSize());
   // NOTE: don't use the bounds of the root_view_. On linux GTK changing window
   // size is async. Instead we use the size of the screen.
-  gfx::Screen* screen = gfx::Screen::GetScreen();
+  display::Screen* screen = display::Screen::GetScreen();
   gfx::Rect screen_bounds =
       screen->GetDisplayNearestWindow(
                   bubble_view_context_->GetBubbleAssociatedWidget()
@@ -386,7 +386,7 @@ gfx::Rect ExclusiveAccessBubbleViews::GetPopupRect(
 
 gfx::Point ExclusiveAccessBubbleViews::GetCursorScreenPoint() {
   gfx::Point cursor_pos =
-      gfx::Screen::GetScreen()->GetCursorScreenPoint();
+      display::Screen::GetScreen()->GetCursorScreenPoint();
   views::View::ConvertPointFromScreen(GetBrowserRootView(), &cursor_pos);
   return cursor_pos;
 }
