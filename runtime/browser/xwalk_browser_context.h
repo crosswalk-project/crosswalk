@@ -69,13 +69,6 @@ class XWalkBrowserContext
   base::FilePath GetPath() const override;
   bool IsOffTheRecord() const override;
   content::DownloadManagerDelegate* GetDownloadManagerDelegate() override;
-  net::URLRequestContextGetter* GetRequestContext() override;
-  net::URLRequestContextGetter* GetMediaRequestContext() override;
-  net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
-      int renderer_child_id) override;
-  net::URLRequestContextGetter* GetMediaRequestContextForStoragePartition(
-          const base::FilePath& partition_path,
-          bool in_memory) override;
   content::ResourceContext* GetResourceContext() override;
   content::BrowserPluginGuestManager* GetGuestManager() override;
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
@@ -91,6 +84,10 @@ class XWalkBrowserContext
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) override;
+  net::URLRequestContextGetter* CreateMediaRequestContext() override;
+  net::URLRequestContextGetter* CreateMediaRequestContextForStoragePartition(
+          const base::FilePath& partition_path,
+          bool in_memory) override;
 
   RuntimeURLRequestContextGetter* GetURLRequestContextGetterById(
       const std::string& pkg_id);
