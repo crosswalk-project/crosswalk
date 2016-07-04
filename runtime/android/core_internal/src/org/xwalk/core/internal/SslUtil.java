@@ -24,17 +24,7 @@ class SslUtil {
      */
     public static SslError sslErrorFromNetErrorCode(int error, SslCertificate cert, String url) {
         assert (error >= NetError.ERR_CERT_END && error <= NetError.ERR_CERT_COMMON_NAME_INVALID);
-        switch(error) {
-            case NetError.ERR_CERT_COMMON_NAME_INVALID:
-                return new SslError(SslError.SSL_IDMISMATCH, cert, url);
-            case NetError.ERR_CERT_DATE_INVALID:
-                return new SslError(SslError.SSL_DATE_INVALID, cert, url);
-            case NetError.ERR_CERT_AUTHORITY_INVALID:
-                return new SslError(SslError.SSL_UNTRUSTED, cert, url);
-            default:
-                break;
-        }
-        // Map all other codes to SSL_INVALID.
+
         return new SslError(SslError.SSL_INVALID, cert, url);
     }
 
@@ -58,5 +48,32 @@ class SslUtil {
             Log.w(TAG, "Could not read certificate: " + e);
         }
         return null;
+    }
+
+    public static boolean shouldDenyRequest(int error) {
+        assert (error >= NetError.ERR_CERT_END && error <= NetError.ERR_CERT_COMMON_NAME_INVALID);
+        // Why deny the request for these errors, please refer to the comment in
+        // https://github.com/crosswalk-project/chromium-crosswalk/blob/master/content/browser/ssl/ssl_policy.cc#L61
+        // and https://github.com/crosswalk-project/chromium-crosswalk/blob/master/content/browser/ssl/ssl_policy.cc#L89
+        // In Chrome, please refer to https://github.com/crosswalk-project/chromium-crosswalk/blob/master/chrome/browser/chrome_content_browser_client.cc#L2019,
+        // the errors were passed to AllowCertificateError(), then display an SSL blocking page.
+        switch(error) {
+            case NetError.ERR_CERT_COMMON_NAME_INVALID:
+            case NetError.ERR_CERT_DATE_INVALID:
+            case NetError.ERR_CERT_AUTHORITY_INVALID:
+            case NetError.ERR_CERT_WEAK_SIGNATURE_ALGORITHM:
+            case NetError.ERR_CERT_WEAK_KEY:
+            case NetError.ERR_CERT_NAME_CONSTRAINT_VIOLATION:
+            case NetError.ERR_CERT_VALIDITY_TOO_LONG:
+            case NetError.ERR_CERT_CONTAINS_ERRORS:
+            case NetError.ERR_CERT_REVOKED:
+            case NetError.ERR_CERT_INVALID:
+            case NetError.ERR_SSL_WEAK_SERVER_EPHEMERAL_DH_KEY:
+            case NetError.ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN:
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 }
