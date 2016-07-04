@@ -23,6 +23,7 @@ import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
+import android.widget.Toast;
 
 import java.security.cert.X509Certificate;
 import java.security.KeyStore.PrivateKeyEntry;
@@ -682,12 +683,18 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     // If returns false, the request is immediately canceled, and any call to proceedSslError
     // has no effect. If returns true, the request should be canceled or proceeded using
     // proceedSslError().
-    // Unlike the webview classic, we do not keep keep a database of certificates that
+    // Unlike the webview classic, we do not keep a database of certificates that
     // are allowed by the user, because this functionality is already handled via
     // ssl_policy in native layers.
     @CalledByNative
     private boolean allowCertificateError(int certError, byte[] derBytes, final String url,
             final int id) {
+        boolean shouldDeny = SslUtil.shouldDenyRequest(certError);
+        if (shouldDeny) {
+            Toast.makeText(mXWalkView.getContext(), R.string.ssl_error_deny_request,
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
         final SslCertificate cert = SslUtil.getCertificateFromDerBytes(derBytes);
         if (cert == null) {
             // if the certificate or the client is null, cancel the request
