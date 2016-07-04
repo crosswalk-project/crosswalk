@@ -41,6 +41,9 @@
       <message desc="Prompt for the http authentication login [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_LOG_IN">
         Log In
       </message>
+      <message desc="Prompt for denying request when SSL error occurred [CHAR-LIMIT=32]" name="IDS_SSL_ERROR_DENY_REQUEST">
+        Request was denied for security.
+      </message>
     </messages>
   </release>
 
