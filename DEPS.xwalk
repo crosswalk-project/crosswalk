@@ -20,6 +20,14 @@
 chromium_crosswalk_rev = 'a198c470a760f45a855cbd698071b0fc6c08a851'
 v8_crosswalk_rev = 'ef916fcaccd4df07b38abecbbcc023817b4a50e5'
 
+# We need our own copy of src/buildtools in order to have the gn and
+# clang-format binaries in a location that can be found automatically both by
+# our bots as well as locally for our developers. Its hash does not necessarily
+# need to be rolled together with |chromium_crosswalk_rev|, but it is good
+# practice to not have it lag behind too much.
+buildtools_rev = 'a2082cafead67b75c9c8edbdca47a2def6dbab21'
+
+chromium_git = 'https://chromium.googlesource.com'
 crosswalk_git = 'https://github.com/crosswalk-project'
 
 # ------------------------------------------------------
@@ -79,7 +87,10 @@ solutions = [
       },
     ],
   },
-
+  { 'name': 'src/xwalk/buildtools',
+    'url': chromium_git + '/chromium/buildtools.git@' + buildtools_rev,
+    'managed': True,
+  },
 ]
 
 hooks = [
@@ -95,6 +106,106 @@ hooks = [
     ],
     'pattern': '.',
     'name': 'upstream_revision'
+  },
+
+  # Pull clang-format and gn binaries like Chromium itself does.
+  # We need our own copy for them to be found correctly when working in
+  # src/xwalk.
+  {
+    'action': [
+      'download_from_google_storage',
+      '--no_resume',
+      '--platform=win32',
+      '--no_auth',
+      '--bucket',
+      'chromium-gn',
+      '-s',
+      'src/xwalk/buildtools/win/gn.exe.sha1'
+    ],
+    'pattern':
+      '.',
+    'name':
+      'gn_win'
+  },
+  {
+    'action': [
+      'download_from_google_storage',
+      '--no_resume',
+      '--platform=darwin',
+      '--no_auth',
+      '--bucket',
+      'chromium-gn',
+      '-s',
+      'src/xwalk/buildtools/mac/gn.sha1'
+    ],
+    'pattern':
+      '.',
+    'name':
+      'gn_mac'
+  },
+  {
+    'action': [
+      'download_from_google_storage',
+      '--no_resume',
+      '--platform=linux*',
+      '--no_auth',
+      '--bucket',
+      'chromium-gn',
+      '-s',
+      'src/xwalk/buildtools/linux64/gn.sha1'
+    ],
+    'pattern':
+      '.',
+    'name':
+      'gn_linux64'
+  },
+  {
+    'action': [
+      'download_from_google_storage',
+      '--no_resume',
+      '--platform=win32',
+      '--no_auth',
+      '--bucket',
+      'chromium-clang-format',
+      '-s',
+      'src/xwalk/buildtools/win/clang-format.exe.sha1'
+    ],
+    'pattern':
+      '.',
+    'name':
+      'clang_format_win'
+  },
+  {
+    'action': [
+      'download_from_google_storage',
+      '--no_resume',
+      '--platform=darwin',
+      '--no_auth',
+      '--bucket',
+      'chromium-clang-format',
+      '-s',
+      'src/xwalk/buildtools/mac/clang-format.sha1'
+    ],
+    'pattern':
+      '.',
+    'name':
+      'clang_format_mac'
+  },
+  {
+    'action': [
+      'download_from_google_storage',
+      '--no_resume',
+      '--platform=linux*',
+      '--no_auth',
+      '--bucket',
+      'chromium-clang-format',
+      '-s',
+      'src/xwalk/buildtools/linux64/clang-format.sha1'
+    ],
+    'pattern':
+      '.',
+    'name':
+      'clang_format_linux'
   },
 ]
 
