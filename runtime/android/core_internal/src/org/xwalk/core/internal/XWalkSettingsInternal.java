@@ -92,7 +92,7 @@ public class XWalkSettingsInternal {
     private int mCacheMode = WebSettings.LOAD_DEFAULT;
     private boolean mSupportMultipleWindows = false;
     private boolean mAppCacheEnabled = true;
-    private boolean mDomStorageEnabled = true;
+    private boolean mDomStorageEnabled = false;
     private boolean mDatabaseEnabled = true;
     private boolean mUseWideViewport = false;
     private boolean mLoadWithOverviewMode = false;
@@ -654,8 +654,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setDomStorageEnabled}.
+     * Sets whether the DOM storage API is enabled. The default value is false.
+     *
+     * @param flag true if the XWalkView should use the DOM storage API
+     * @since 7.0
      */
+    @XWalkAPI
     public void setDomStorageEnabled(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mDomStorageEnabled != flag) {
@@ -666,8 +670,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getDomStorageEnabled}.
+     * Gets whether the DOM Storage APIs are enabled.
+     *
+     * @return true if the DOM Storage APIs are enabled
+     * @see #setDomStorageEnabled
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getDomStorageEnabled() {
        synchronized (mXWalkSettingsLock) {
            return mDomStorageEnabled;

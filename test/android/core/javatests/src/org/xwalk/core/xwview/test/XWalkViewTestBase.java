@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
+import org.chromium.base.test.util.UrlUtils;
 import org.chromium.content_public.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
@@ -1461,5 +1462,78 @@ public class XWalkViewTestBase
                 mXWalkView.leaveFullscreen();
             }
         });
+    }
+
+    protected void setDomStorageEnabledOnUiThreadByXWalkView(
+            final boolean value, final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setDomStorageEnabled(value);
+            }
+        });
+    }
+
+    protected boolean getDomStorageEnabledOnUiThreadByXWalkView(
+            final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return view.getSettings().getDomStorageEnabled();
+            }
+        });
+    }
+
+    class XWalkSettingsDomStorageEnabledTestHelper extends XWalkSettingsTestHelper<Boolean> {
+        private static final String NO_LOCAL_STORAGE = "No localStorage";
+        private static final String HAS_LOCAL_STORAGE = "Has localStorage";
+        XWalkView mView;
+        TestHelperBridge mHelperBridge;
+
+        XWalkSettingsDomStorageEnabledTestHelper(
+                XWalkView xWalkContent,
+                final TestHelperBridge helperBridge) throws Throwable {
+            super(xWalkContent);
+            mView = xWalkContent;
+            mHelperBridge = helperBridge;
+        }
+
+        @Override
+        protected Boolean getAlteredValue() {
+            return ENABLED;
+        }
+
+        @Override
+        protected Boolean getInitialValue() {
+            return DISABLED;
+        }
+
+        @Override
+        protected Boolean getCurrentValue() {
+            try {
+                return getDomStorageEnabledOnUiThreadByXWalkView(mView);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @Override
+        protected void setCurrentValue(Boolean value) {
+            try {
+                setDomStorageEnabledOnUiThreadByXWalkView(value, mView);
+            } catch (Exception e) {
+            }
+        }
+
+        @Override
+        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
+            // It is not permitted to access localStorage from data URLs in WebKit,
+            // that is why a standalone page must be used.
+            loadUrlSyncByContent(mView, mHelperBridge,
+                    UrlUtils.getTestFileUrl("xwalkview/localStorage.html"));
+            assertEquals(
+                value == ENABLED ? HAS_LOCAL_STORAGE : NO_LOCAL_STORAGE,
+                        getTitleOnUiThreadByContent(mView));
+        }
     }
 }
