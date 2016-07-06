@@ -9,6 +9,19 @@
 # called. This file is always included immediately after src/build/common.gypi
 # itself so that variables originally set there can have their values
 # overridden here.
+#
+# The assignments below can look daunting. It is due to the way gyp merges this
+# file, src/build/common.gypi and the other build system files and how
+# variables and conditions are evaluated.
+# Important things to keep in mind:
+# - We try to change variables coming from a different file at the same scope
+#   level they are originally defined so that the value we set propagate
+#   through all scope levels all the way to the outermost "variables" block.
+# - It is not possible to define a variable in a "variables" block and use it
+#   in a check in a "conditions" block at the same scope level does not work.
+# - "conditions" blocks inside a "variables" block are evaluated _after_ the
+#    variable assignments outside the "conditions" block. This can lead to
+#    unexpected results.
 
 {
   # Organization of the variables below:
@@ -85,6 +98,40 @@
       'use_rssdk%': 0,
 
       'conditions': [
+        # This condition check looks confusing, but it effectively acts like an
+        # unconditional assignment such as the ones directly above. We cannot
+        # use an unconditional assignment because the files would look like
+        # this:
+        #
+        # (src/build/common.gypi)
+        #   'variables': {
+        #     'variables': {
+        #       'proprietary_codecs%': 0,
+        #     },
+        #     'conditions': [
+        #       ['OS=="android"', {
+        #         'proprietary_codecs%': '<(proprietary_codecs)',
+        #       }],
+        #     ],
+        #   },
+        # (src/xwalk/build/common.gypi)
+        #   'variables': {
+        #     'proprietary_codecs%': 1,
+        #   },
+        #
+        # When gyp merges both files, the `conditions' block is evaluated after
+        # the variable assignments, so |proprietary_codecs| ends up with the
+        # value "<(proprietary_codecs)", which evaluates to 0 since it's the
+        # value coming from the inner scope.
+        # The safest approach is to just turn the assignment into a conditional
+        # so that it is evaluated at the same stage as the one from Chromium's
+        # common.gypi and overrides its value.
+        ['1==1', {
+          # From src/build/common.gypi.
+          # Whether to include support for proprietary codecs.
+          'proprietary_codecs%': 1,
+        }],
+
         ['mediacodecs_EULA==1', {
           'ffmpeg_branding%': 'Chrome',
         }],
@@ -113,12 +160,6 @@
 
         ['OS=="win"', {
           'use_rssdk%': 1,
-        }],
-
-        ['OS=="android" or OS=="linux" or OS=="win" or OS=="mac"', {
-          # From src/build/common.gypi.
-          # Whether to include support for proprietary codecs..
-          'proprietary_codecs%': 1,
         }],
       ],
     },
