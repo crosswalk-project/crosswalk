@@ -153,4 +153,15 @@ public class SettingsTest extends XWalkViewTestBase {
             }
         });
     }
+
+    @SmallTest
+    @Feature({"Settings"})
+    public void testDomStorageEnabledWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+            new XWalkSettingsDomStorageEnabledTestHelper(
+                    views.getView0(), views.getBridge0()),
+            new XWalkSettingsDomStorageEnabledTestHelper(
+                    views.getView1(), views.getBridge1()));
+    }
 }
