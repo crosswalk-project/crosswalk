@@ -7,6 +7,7 @@ package org.xwalk.core.xwview.test;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import org.chromium.base.test.util.UrlUtils;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
 
@@ -34,7 +35,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"Settings"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testCacheMode() throws Throwable {
         final String htmlPath = "/testCacheMode.html";
         final String url = mWebServer.setResponse(htmlPath, "response", null);
@@ -67,7 +68,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"Settings"})
+    @Feature({"XWalkSettings", "Preferences", "Navigation"})
     // As our implementation of network loads blocking uses the same net::URLRequest settings, make
     // sure that setting cache mode doesn't accidentally enable network loads. The reference
     // behaviour is that when network loads are blocked, setting cache mode has no effect.
@@ -96,7 +97,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"Settings"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testUserAgentString() throws Throwable {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -120,7 +121,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"Settings"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testAcceptLanguages() throws Throwable {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -138,7 +139,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"Settings"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testSaveFormData() throws Throwable {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -155,7 +156,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"Settings"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testDomStorageEnabledWithTwoViews() throws Throwable {
         ViewPair views = createViews();
         runPerViewSettingsTest(
@@ -163,5 +164,133 @@ public class SettingsTest extends XWalkViewTestBase {
                     views.getView0(), views.getBridge0()),
             new XWalkSettingsDomStorageEnabledTestHelper(
                     views.getView1(), views.getBridge1()));
+    }
+
+    // Test an assert URL (file:///android_asset/)
+    @SmallTest
+    @Feature({"XWalkSettings", "Navigation"})
+    public void testAssetUrl() throws Throwable {
+        // Note: this text needs to be kept in sync with the contents of the html file referenced
+        // below.
+        final String expectedTitle = "Asset File";
+        loadUrlSync("file:///android_asset/www/asset_file.html");
+        assertEquals(expectedTitle, getTitleOnUiThread());
+    }
+
+    // Test a resource URL (file:///android_res/).
+    @SmallTest
+    @Feature({"XWalkSettings", "Navigation"})
+    public void testResourceUrl() throws Throwable {
+        // Note: this text needs to be kept in sync with the contents of the html file referenced
+        // below.
+        final String expectedTitle = "Resource File";
+        loadUrlSync("file:///android_res/raw/resource_file.html");
+        assertEquals(expectedTitle, getTitleOnUiThread());
+    }
+
+    // Test that the file URL access toggle does not affect asset URLs.
+    @SmallTest
+    @Feature({"XWalkSettings", "Navigation"})
+    public void testFileUrlAccessToggleDoesNotBlockAssetUrls() throws Throwable {
+        // Note: this text needs to be kept in sync with the contents of the html file referenced
+        // below.
+        final String expectedTitle = "Asset File";
+        setAllowFileAccess(false);
+        loadUrlSync("file:///android_asset/www/asset_file.html");
+        assertEquals(expectedTitle, getTitleOnUiThread());
+    }
+
+    // Test that the file URL access toggle does not affect resource URLs.
+    @SmallTest
+    @Feature({"XWalkSettings", "Navigation"})
+    public void testFileUrlAccessToggleDoesNotBlockResourceUrls() throws Throwable {
+        // Note: this text needs to be kept in sync with the contents of the html file referenced
+        // below.
+        final String expectedTitle = "Resource File";
+        setAllowFileAccess(false);
+        loadUrlSync("file:///android_res/raw/resource_file.html");
+        assertEquals(expectedTitle, getTitleOnUiThread());
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testFileUrlAccessWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsFileUrlAccessTestHelper(
+                        views.getView0(), views.getBridge0(), 0),
+                new XWalkSettingsFileUrlAccessTestHelper(
+                        views.getView1(), views.getBridge1(), 1));
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testContentUrlAccessWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsContentUrlAccessTestHelper(
+                        views.getView0(), views.getBridge0(), 0),
+                new XWalkSettingsContentUrlAccessTestHelper(
+                        views.getView1(), views.getBridge1(), 1));
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences", "Navigation"})
+    public void testContentUrlFromFileWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsContentUrlAccessFromFileTestHelper(
+                        views.getView0(), views.getBridge0(), 0),
+                new XWalkSettingsContentUrlAccessFromFileTestHelper(
+                        views.getView1(), views.getBridge1(), 1));
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testUniversalAccessFromFilesWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsUniversalAccessFromFilesTestHelper(
+                        views.getView0(), views.getBridge0()),
+                new XWalkSettingsUniversalAccessFromFilesTestHelper(
+                        views.getView1(), views.getBridge1()));
+    }
+
+    // This test verifies that local image resources can be loaded from file:
+    // URLs regardless of file access state.
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testFileAccessFromFilesImage() throws Throwable {
+        final String testFile = "xwalkview/image_access.html";
+        assertFileIsReadable(UrlUtils.getTestFilePath(testFile));
+        final String imageContainerUrl = UrlUtils.getTestFileUrl(testFile);
+        final String imageHeight = "145";
+
+        setAllowUniversalAccessFromFileURLs(false);
+        setAllowFileAccessFromFileURLs(false);
+        loadUrlSync(imageContainerUrl);
+        assertEquals(imageHeight, getTitleOnUiThread());
+    }
+
+    @SmallTest
+    @Feature({"AndroidWebView", "Preferences"})
+    public void testFileAccessFromFilesIframeWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsFileAccessFromFilesIframeTestHelper(
+                        views.getView0(), views.getBridge0()),
+                new XWalkSettingsFileAccessFromFilesIframeTestHelper(
+                        views.getView1(), views.getBridge1()));
+    }
+
+    @SmallTest
+    @Feature({"AndroidWebView", "Preferences"})
+    public void testFileAccessFromFilesXhrWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsFileAccessFromFilesXhrTestHelper(
+                        views.getView0(), views.getBridge0()),
+                new XWalkSettingsFileAccessFromFilesXhrTestHelper(
+                        views.getView1(), views.getBridge1()));
     }
 }

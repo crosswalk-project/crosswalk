@@ -367,8 +367,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setAllowFileAccess}.
+     * Enables or disables file access within XWalkView. File access is enabled by
+     * default.  Note that this enables or disables file system access only.
+     * Assets and resources are still accessible using file:///android_asset and
+     * file:///android_res.
+     * @since 7.0
      */
+    @XWalkAPI
     public void setAllowFileAccess(boolean allow) {
         synchronized (mXWalkSettingsLock) {
             if (mAllowFileUrlAccess != allow) {
@@ -378,8 +383,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getAllowFileAccess}.
+     * Gets whether this XWalkView supports file access.
+     *
+     * @see #setAllowFileAccess
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getAllowFileAccess() {
         synchronized (mXWalkSettingsLock) {
             return mAllowFileUrlAccess;
@@ -387,8 +396,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setAllowContentAccess}.
+     * Enables or disables content URL access within XWalkView.  Content URL
+     * access allows XWalkView to load content from a content provider installed
+     * in the system. The default is enabled.
+     * @since 7.0
      */
+    @XWalkAPI
     public void setAllowContentAccess(boolean allow) {
         synchronized (mXWalkSettingsLock) {
             if (mAllowContentUrlAccess != allow) {
@@ -398,8 +411,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getAllowContentAccess}.
+     * Gets whether this XWalkView supports content URL access.
+     *
+     * @see #setAllowContentAccess
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getAllowContentAccess() {
         synchronized (mXWalkSettingsLock) {
             return mAllowContentUrlAccess;
@@ -439,8 +456,21 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setAllowUniversalAccessFromFileURLs}.
+     * Sets whether JavaScript running in the context of a file scheme URL
+     * should be allowed to access content from any origin. This includes
+     * access to content from other file scheme URLs. See
+     * {@link #setAllowFileAccessFromFileURLs}. To enable the most restrictive,
+     * and therefore secure policy, this setting should be disabled.
+     * Note that this setting affects only JavaScript access to file scheme
+     * resources. Other access to such resources, for example, from image HTML
+     * elements, is unaffected. The default value is true.
+     * <p>
+     *
+     * @param flag whether JavaScript running in the context of a file scheme
+     *             URL should be allowed to access content from any origin
+     * @since 7.0
      */
+    @XWalkAPI
     public void setAllowUniversalAccessFromFileURLs(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mAllowUniversalAccessFromFileURLs != flag) {
@@ -451,8 +481,22 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setAllowFileAccessFromFileURLs}.
+     * Sets whether JavaScript running in the context of a file scheme URL
+     * should be allowed to access content from other file scheme URLs. To
+     * enable the most restrictive, and therefore secure policy, this setting
+     * should be disabled. Note that the value of this setting is ignored if
+     * the value of {@link #getAllowUniversalAccessFromFileURLs} is true.
+     * Note too, that this setting affects only JavaScript access to file scheme
+     * resources. Other access to such resources, for example, from image HTML
+     * elements, is unaffected. The default value is true.
+     * <p>
+     *
+     * @param flag whether JavaScript running in the context of a file scheme
+     *             URL should be allowed to access content from other file
+     *             scheme URLs
+     * @since 7.0
      */
+    @XWalkAPI
     public void setAllowFileAccessFromFileURLs(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mAllowFileAccessFromFileURLs != flag) {
@@ -505,7 +549,7 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getJavaScriptEnabled}.
+     * See {@link android.webkit.WebSettings#setJavaScriptEnabled}.
      */
     public boolean getJavaScriptEnabled() {
         synchronized (mXWalkSettingsLock) {
@@ -514,8 +558,16 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getAllowUniversalAccessFromFileURLs}.
+     * Gets whether JavaScript running in the context of a file scheme URL can
+     * access content from any origin. This includes access to content from
+     * other file scheme URLs.
+     *
+     * @return whether JavaScript running in the context of a file scheme URL
+     *         can access content from any origin
+     * @see #setAllowUniversalAccessFromFileURLs
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getAllowUniversalAccessFromFileURLs() {
         synchronized (mXWalkSettingsLock) {
             return mAllowUniversalAccessFromFileURLs;
@@ -523,8 +575,15 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getAllowFileAccessFromFileURLs}.
+     * Gets whether JavaScript running in the context of a file scheme URL can
+     * access content from other file scheme URLs.
+     *
+     * @return whether JavaScript running in the context of a file scheme URL
+     *         can access content from other file scheme URLs
+     * @see #setAllowFileAccessFromFileURLs
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getAllowFileAccessFromFileURLs() {
         synchronized (mXWalkSettingsLock) {
             return mAllowFileAccessFromFileURLs;
@@ -631,9 +690,9 @@ public class XWalkSettingsInternal {
                 needToSync = true;
             }
         }
-        // The obvious problem here is that other WebViews will not be updated,
+        // The obvious problem here is that other XWalkViews will not be updated,
         // until they execute synchronization from Java to the native side.
-        // But this is the same behaviour as it was in the legacy WebView.
+        // But this is the same behaviour as it was in the legacy XWalkView.
         if (needToSync) {
             synchronized (mXWalkSettingsLock) {
                 mEventHandler.updateWebkitPreferencesLocked();
@@ -774,10 +833,10 @@ public class XWalkSettingsInternal {
     }
 
     /**
-      * Get the user agent of web page/app.
-      * @return the XWalkView's user-agent string.
-      * @since 6.0
-      */
+     * Get the user agent of web page/app.
+     * @return the XWalkView's user-agent string.
+     * @since 6.0
+     */
     @XWalkAPI
     public String getUserAgentString() {
         synchronized (mXWalkSettingsLock) {
@@ -868,7 +927,7 @@ public class XWalkSettingsInternal {
 
     /**
      * Gets whether the XWalkView saves form data.
-     * @return whether the WebView saves form data
+     * @return whether the XWalkView saves form data
      * @see #setSaveFormData
      * @since 7.0
      */
@@ -1187,7 +1246,7 @@ public class XWalkSettingsInternal {
 
     /**
      * Sets the underlying layout algorithm.
-     * This will cause a relayout of the WebView. The default is NARROW_COLUMNS.
+     * This will cause a relayout of the XWalkView. The default is NARROW_COLUMNS.
      * @param la the layout algorithm to use.
      * @since 6.0
      */
