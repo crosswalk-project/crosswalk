@@ -52,10 +52,8 @@ class ApplicationService;
 }
 
 class XWalkBrowserContext
-    : public content::BrowserContext
-#if defined(OS_ANDROID)
-      , public visitedlink::VisitedLinkDelegate
-#endif
+    : public content::BrowserContext,
+      public visitedlink::VisitedLinkDelegate
 {
  public:
   XWalkBrowserContext();
@@ -118,12 +116,12 @@ class XWalkBrowserContext
 #if defined(OS_ANDROID)
   void SetCSPString(const std::string& csp);
   std::string GetCSPString() const;
+#endif
   // These methods map to Add methods in visitedlink::VisitedLinkMaster.
   void AddVisitedURLs(const std::vector<GURL>& urls);
   // visitedlink::VisitedLinkDelegate implementation.
   void RebuildTable(
       const scoped_refptr<URLEnumerator>& enumerator) override;
-#endif
 
  private:
   class RuntimeResourceContext;
@@ -132,10 +130,8 @@ class XWalkBrowserContext
   // allowed on the current thread.
   void InitWhileIOAllowed();
 
-#if defined(OS_ANDROID)
   // Reset visitedlink master and initialize it.
   void InitVisitedLinkMaster();
-#endif
 
   application::ApplicationService* application_service_;
   scoped_ptr<RuntimeResourceContext> resource_context_;
@@ -146,8 +142,8 @@ class XWalkBrowserContext
   bool save_form_data_;
 #if defined(OS_ANDROID)
   std::string csp_;
-  scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 #endif
+  scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 
   typedef std::map<base::FilePath::StringType,
       scoped_refptr<RuntimeURLRequestContextGetter> >

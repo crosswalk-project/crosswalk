@@ -47,11 +47,9 @@ class XWalkContentRendererClient
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
   bool IsExternalPepperPlugin(const std::string& module_name) override;
-#if defined(OS_ANDROID)
-  unsigned long long VisitedLinkHash(const char* canonical_url, // NOLINT
-                                             size_t length) override;
-  bool IsLinkVisited(unsigned long long link_hash) override; // NOLINT
-#endif
+  unsigned long long VisitedLinkHash(const char* canonical_url,
+                                     size_t length) override;
+  bool IsLinkVisited(unsigned long long link_hash) override;
 
   bool WillSendRequest(blink::WebFrame* frame,
                        ui::PageTransition transition_type,
@@ -82,9 +80,7 @@ class XWalkContentRendererClient
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
-#if defined(OS_ANDROID)
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
-#endif
 
   void GetNavigationErrorStrings(
       content::RenderFrame* render_frame,
