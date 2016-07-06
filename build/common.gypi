@@ -114,6 +114,12 @@
         ['OS=="win"', {
           'use_rssdk%': 1,
         }],
+
+        ['OS=="android" or OS=="linux" or OS=="win" or OS=="mac"', {
+          # From src/build/common.gypi.
+          # Whether to include support for proprietary codecs..
+          'proprietary_codecs%': 1,
+        }],
       ],
     },
     # Copy conditionally-set variables out one scope.
@@ -136,10 +142,6 @@
     # Disable WebVR support. The code is still experimental and and ends up
     # pulling additional dependencies into our JARs (XWALK-6597).
     'enable_webvr%': 0,
-
-    # From src/build/common.gypi.
-    # Whether to include support for proprietary codecs..
-    'proprietary_codecs%': 1,
 
     # Whether to use a WebUI-based file picker.
     'use_webui_file_picker%': 0,
