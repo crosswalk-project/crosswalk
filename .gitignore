@@ -40,4 +40,5 @@ Thumbs.db
 cscope.*
 Session.vim
 UPSTREAM.blink
+/buildtools
 raw/
