@@ -20,16 +20,13 @@
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
+#include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/browser/xwalk_form_database_service.h"
 #include "xwalk/runtime/browser/xwalk_ssl_host_state_delegate.h"
 
 #if defined(OS_ANDROID)
 #include "base/strings/string_split.h"
 #endif
-
-namespace net {
-class URLRequestContextGetter;
-}
 
 namespace content {
 class DownloadManagerDelegate;
@@ -45,7 +42,6 @@ class PrefService;
 namespace xwalk {
 
 class RuntimeDownloadManagerDelegate;
-class RuntimeURLRequestContextGetter;
 
 namespace application {
 class ApplicationService;
@@ -110,6 +106,10 @@ class XWalkBrowserContext
   void set_application_service(
       application::ApplicationService* application_service) {
     application_service_ = application_service;
+  }
+
+  net::URLRequestContextGetter* url_request_getter() const {
+      return url_request_getter_.get();
   }
 #if defined(OS_ANDROID)
   void SetCSPString(const std::string& csp);
