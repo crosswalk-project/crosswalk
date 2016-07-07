@@ -843,11 +843,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         nativeCancelJsResult(mNativeContentsClientBridge, id);
     }
 
-    void exitFullscreen(long nativeWebContents) {
-        if (mNativeContentsClientBridge == 0) return;
-        nativeExitFullscreen(mNativeContentsClientBridge, nativeWebContents);
-    }
-
     public void notificationDisplayed(int id) {
         if (mNativeContentsClientBridge == 0) return;
         nativeNotificationDisplayed(mNativeContentsClientBridge, id);
@@ -918,7 +913,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private native void nativeConfirmJsResult(long nativeXWalkContentsClientBridge, int id,
             String prompt);
     private native void nativeCancelJsResult(long nativeXWalkContentsClientBridge, int id);
-    private native void nativeExitFullscreen(long nativeXWalkContentsClientBridge, long nativeWebContents);
     private native void nativeNotificationDisplayed(long nativeXWalkContentsClientBridge, int id);
     private native void nativeNotificationClicked(long nativeXWalkContentsClientBridge, int id);
     private native void nativeNotificationClosed(long nativeXWalkContentsClientBridge, int id, boolean byUser);

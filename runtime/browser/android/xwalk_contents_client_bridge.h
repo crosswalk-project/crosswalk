@@ -90,7 +90,6 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   void ProceedSslError(JNIEnv* env, jobject obj, jboolean proceed, jint id);
   void ConfirmJsResult(JNIEnv*, jobject, int id, jstring prompt);
   void CancelJsResult(JNIEnv*, jobject, int id);
-  void ExitFullscreen(JNIEnv*, jobject, jlong web_contents);
   void NotificationDisplayed(JNIEnv*, jobject, jint id);
   void NotificationClicked(JNIEnv*, jobject, jint id);
   void NotificationClosed(JNIEnv*, jobject, jint id, bool by_user);

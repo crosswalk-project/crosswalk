@@ -329,16 +329,6 @@ void XWalkContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
   pending_js_dialog_callbacks_.Remove(id);
 }
 
-void XWalkContentsClientBridge::ExitFullscreen(
-    JNIEnv*, jobject, jlong j_web_contents) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  WebContents* web_contents = reinterpret_cast<WebContents*>(j_web_contents);
-  if (web_contents)
-    // TODO(mrunal): Instead of hardcoding the value below we can accept this
-    // as a parameter
-    web_contents->ExitFullscreen(/*will_cause_resize=*/false);
-}
-
 void XWalkContentsClientBridge::NotificationDisplayed(
     JNIEnv*, jobject, jint notification_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
