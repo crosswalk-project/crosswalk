@@ -48,7 +48,7 @@ import org.chromium.content.browser.DownloadInfo;
 
 import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 
-// Help bridge callback in XWalkContentsClient to XWalkViewClient and
+// Help bridge callback in XWalkContentsClient to XWalkResourceClient, XWalkUIClient and
 // XWalkWebChromeClient; Also handle the JNI conmmunication logic.
 @JNINamespace("xwalk")
 class XWalkContentsClientBridge extends XWalkContentsClient
