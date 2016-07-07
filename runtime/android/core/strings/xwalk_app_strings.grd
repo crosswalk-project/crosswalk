@@ -44,6 +44,15 @@
       <message desc="Download Progress Message [CHAR-LIMIT=100]" name="IDS_DOWNLOAD_PROGRESS_MESSAGE">
         Downloading the Crosswalk Project Service from remote host...
       </message>
+      <message desc="Select Store Message [CHAR-LIMIT=100]" name="IDS_SELECT_STORE_MESSAGE">
+        Please select STORE_NAME to download the Crosswalk Project Service.
+      </message>
+      <message desc="Unsupported Store Message [CHAR-LIMIT=100]" name="IDS_UNSUPPORTED_STORE_MESSAGE">
+        The application stores on your device don't support Crosswalk Project Service. Please download Crosswalk Project Service manually from the official website (https://crosswalk-project.org/).
+      </message>
+      <message desc="Label of Google Play Store [CHAR-LIMIT=100]" name="IDS_GOOGLE_PLAY_STORE">
+        Google Play Store
+      </message>
       <message desc="Label of Get Crosswalk [CHAR-LIMIT=100]" name="IDS_XWALK_GET_CROSSWALK">
         Get Crosswalk
       </message>

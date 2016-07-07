@@ -198,6 +198,21 @@ public class XWalkDialogManager {
     public static final int DIALOG_DOWNLOAD_ERROR = 6;
 
     /**
+     * <B>Dialog Type</B>: AlertDialog<br>
+     * <B>Dialog Information</B>: Select stores that support Crosswalk Project runtime.<br>
+     * <B>Positive Button</B>(<I>Mandatory</I>): go to the store's page<br>
+     */
+    public static final int DIALOG_SELECT_STORE = 7;
+
+    /**
+     * <B>Dialog Type</B>: AlertDialog<br>
+     * <B>Dialog Information</B>: The stores on the device don't support Crosswalk Project. <br>
+     * <B>Negative Button</B>(<I>Mandatory</I>): invoke {@link XWalkActivity#onXWalkFailed()} /
+     * {@link XWalkUpdater.XWalkUpdateListener#onXWalkUpdateCancelled()}
+     */
+    public static final int DIALOG_UNSUPPORTED_STORE = 8;
+
+    /**
      * <B>Dialog Type</B>: ProgressDialog<br>
      * <B>Dialog Information</B>: Decompressing Crosswalk Project runtime.<br>
      * <B>Negative Button</B>(<I>Optional</I>): invoke {@link XWalkActivity#onXWalkFailed()}
@@ -225,6 +240,8 @@ public class XWalkDialogManager {
     private AlertDialog mArchitectureMismatchDialog;
     private AlertDialog mSignatureCheckErrorDialog;
     private AlertDialog mDownloadErrorDialog;
+    private AlertDialog mSelectStoreDialog;
+    private AlertDialog mUnsupportedStoreDialog;
     private ProgressDialog mDecompressingDialog;
     private ProgressDialog mDownloadingDialog;
 
@@ -280,6 +297,10 @@ public class XWalkDialogManager {
             mSignatureCheckErrorDialog = dialog;
         } else if (id == DIALOG_DOWNLOAD_ERROR) {
             mDownloadErrorDialog = dialog;
+        } else if (id == DIALOG_SELECT_STORE) {
+            mSelectStoreDialog = dialog;
+        } else if (id == DIALOG_UNSUPPORTED_STORE) {
+            mUnsupportedStoreDialog = dialog;
         } else {
             throw new IllegalArgumentException("Invalid dialog id " + id);
         }
@@ -369,6 +390,21 @@ public class XWalkDialogManager {
                 setNegativeButton(mDownloadErrorDialog, R.string.xwalk_cancel);
             }
             return mDownloadErrorDialog;
+        } else if (id == DIALOG_SELECT_STORE) {
+            if (mSelectStoreDialog == null) {
+                mSelectStoreDialog = buildAlertDialog();
+                setTitle(mSelectStoreDialog, R.string.crosswalk_install_title);
+                setPositiveButton(mSelectStoreDialog, R.string.xwalk_continue);
+            }
+            return mSelectStoreDialog;
+        } else if (id == DIALOG_UNSUPPORTED_STORE) {
+            if (mUnsupportedStoreDialog == null) {
+                mUnsupportedStoreDialog = buildAlertDialog();
+                setTitle(mUnsupportedStoreDialog, R.string.crosswalk_install_title);
+                setMessage(mUnsupportedStoreDialog, R.string.unsupported_store_message);
+                setNegativeButton(mUnsupportedStoreDialog, R.string.xwalk_close);
+            }
+            return mUnsupportedStoreDialog;
         } else {
             throw new IllegalArgumentException("Invalid dialog id " + id);
         }
@@ -441,6 +477,23 @@ public class XWalkDialogManager {
         showDialog(dialog, actions);
     }
 
+    void showSelectStore(Runnable downloadCommand, String storeName) {
+        AlertDialog dialog = getAlertDialog(DIALOG_SELECT_STORE);
+        String message = mContext.getString(R.string.select_store_message);
+        setMessage(dialog, message.replace("STORE_NAME", storeName));
+
+        ArrayList<ButtonAction> actions = new ArrayList<ButtonAction>();
+        actions.add(new ButtonAction(DialogInterface.BUTTON_POSITIVE, downloadCommand, true));
+        showDialog(dialog, actions);
+    }
+
+    void showUnsupportedStore(Runnable cancelCommand) {
+        AlertDialog dialog = getAlertDialog(DIALOG_UNSUPPORTED_STORE);
+        ArrayList<ButtonAction> actions = new ArrayList<ButtonAction>();
+        actions.add(new ButtonAction(DialogInterface.BUTTON_NEGATIVE, cancelCommand, true));
+        showDialog(dialog, actions);
+    }
+
     void showDecompressProgress(Runnable cancelCommand) {
         ProgressDialog dialog = getProgressDialog(DIALOG_DECOMPRESSING);
         ArrayList<ButtonAction> actions = new ArrayList<ButtonAction>();
@@ -492,7 +545,11 @@ public class XWalkDialogManager {
     }
 
     private void setMessage(AlertDialog dialog, int resourceId) {
-        dialog.setMessage(replaceApplicationName(mContext.getString(resourceId)));
+        setMessage(dialog, mContext.getString(resourceId));
+    }
+
+    private void setMessage(AlertDialog dialog, String text) {
+        dialog.setMessage(replaceApplicationName(text));
     }
 
     private void setPositiveButton(AlertDialog dialog, int resourceId) {
@@ -524,6 +581,7 @@ public class XWalkDialogManager {
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                dismissDialog();
                                 command.run();
                             }
                         });
