@@ -7,6 +7,7 @@ package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
+import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.net.test.util.TestWebServer;
@@ -28,11 +29,16 @@ public class ClearSslPreferenceTest extends XWalkViewTestBase {
         super.tearDown();
     }
 
-    @Feature({"ClearSslPreference"})
-    @SmallTest
+    // @Feature({"ClearSslPreference"})
+    // @SmallTest
     // If the user allows the ssl error, the same ssl error will not trigger
     // the onReceivedSslError callback; If the user denies it, the same ssl
     // error will still trigger the onReceivedSslError callback.
+    // For SSL error, if user allows it, the related host and error will be recorded.
+    // All future communications with same host and error, will accept any SSL certificate
+    // even if not valid. We deny invalid requests with some serious ssl errors that
+    // this case will be failed, so disbaled it.
+    @DisabledTest
     public void testSslPreferences() throws Throwable {
         final String pagePath = "/hello.html";
         final String pageUrl =
@@ -74,5 +80,22 @@ public class ClearSslPreferenceTest extends XWalkViewTestBase {
         loadUrlSync(pageUrl);
         assertNotNull(getCertificateOnUiThread());
         assertEquals(onSslErrorCallCount + 1, onReceivedSslErrorHelper.getCallCount());
+    }
+
+    @Feature({"SslError"})
+    @SmallTest
+    public void testDeniedRequestForSslError() throws Throwable {
+        final String pagePath = "/hello.html";
+        final String pageUrl =
+                mWebServer.setResponse(pagePath, "<html><body>hello world</body></html>", null);
+        final CallbackHelper onReceivedSslErrorHelper =
+                mTestHelperBridge.getOnReceivedSslErrorHelper();
+        int onSslErrorCallCount = onReceivedSslErrorHelper.getCallCount();
+
+        assertNull(getCertificateOnUiThread());
+        loadUrlSync(pageUrl);
+        // Request was denied for ERR_CERT_COMMON_NAME_INVALID, certificate was
+        // also NULL.
+        assertNull(getCertificateOnUiThread());
     }
 }
