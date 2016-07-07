@@ -199,12 +199,12 @@ class XWalkCoreWrapper {
             return sProvisionalInstance.mCoreStatus;
         }
 
-        String cpuAbi = getPrimaryCpuAbi();
-        if (cpuAbi.equalsIgnoreCase("arm64-v8a")) {
+        String deviceAbi = getDeviceAbi();
+        if (deviceAbi.equals("arm64-v8a")) {
             sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_PACKAGE);
-        } else if (cpuAbi.equalsIgnoreCase("x86")) {
+        } else if (deviceAbi.equals("x86")) {
             sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE);
-        } else if (cpuAbi.equalsIgnoreCase("x86_64")) {
+        } else if (deviceAbi.equals("x86_64")) {
             if (!sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_PACKAGE)) {
                 sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE);
             }
@@ -530,13 +530,28 @@ class XWalkCoreWrapper {
         return null;
     }
 
-    public static String getApplicationAbi() {
-        return Build.CPU_ABI;
+    public static String getRuntimeAbi() {
+        String runtimeAbi = System.getProperty("os.arch");
+
+        if (runtimeAbi.equalsIgnoreCase("i686")) {
+            runtimeAbi = "x86";
+        } else if (runtimeAbi.equalsIgnoreCase("x86_64")) {
+            runtimeAbi = "x86_64";
+        } else if (runtimeAbi.equalsIgnoreCase("armv7l")) {
+            runtimeAbi = "armeabi-v7a";
+        } else if (runtimeAbi.equalsIgnoreCase("armv8l")
+                || runtimeAbi.equalsIgnoreCase("aarch64")) {
+            runtimeAbi = "arm64-v8a";
+        } else {
+            throw new RuntimeException("Unexpected ABI: " + runtimeAbi);
+        }
+
+        return runtimeAbi;
     }
 
-    public static String getPrimaryCpuAbi() {
+    public static String getDeviceAbi() {
         try {
-            return Build.SUPPORTED_ABIS[0];
+            return Build.SUPPORTED_ABIS[0].toLowerCase();
         } catch (NoSuchFieldError e) {
             try {
                 Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
@@ -545,11 +560,11 @@ class XWalkCoreWrapper {
                 String abi = input.readLine();
                 input.close();
                 ir.close();
-                return abi;
+                return abi.toLowerCase();
             } catch (IOException ex) {
             }
         }
         // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
-        return Build.CPU_ABI;
+        return Build.CPU_ABI.toLowerCase();
     }
 }

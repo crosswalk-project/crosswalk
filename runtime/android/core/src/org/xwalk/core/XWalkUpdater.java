@@ -404,12 +404,6 @@ public class XWalkUpdater {
         return XWalkLibraryLoader.cancelHttpDownload();
     }
 
-    private boolean dismissDialog() {
-        if (mDialogManager == null || !mDialogManager.isShowingDialog()) return false;
-        mDialogManager.dismissDialog();
-        return true;
-    }
-
     private void downloadXWalkApk() {
         // The download url is defined by the meta-data element with the name "xwalk_apk_url"
         // inside the application tag in the Android manifest.
@@ -424,45 +418,69 @@ public class XWalkUpdater {
             return;
         }
 
-        try {
-            String packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
-            List<ResolveInfo> infos = mActivity.getPackageManager().queryIntentActivities(
-                    intent, PackageManager.MATCH_ALL);
-            boolean primaryStoreIsGooglePlay =
-                    infos.get(0).activityInfo.packageName.equals(GOOGLE_PLAY_PACKAGE);
+        String packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
+        List<ResolveInfo> infos = mActivity.getPackageManager().queryIntentActivities(
+                intent, PackageManager.MATCH_ALL);
 
-            String primaryCpuAbi = XWalkCoreWrapper.getPrimaryCpuAbi();
-            boolean isArmDevice = primaryCpuAbi.equalsIgnoreCase("armeabi-v7a")
-                    || primaryCpuAbi.equalsIgnoreCase("arm64-v8a");
+        StringBuilder supportedStores = new StringBuilder();
+        boolean hasGooglePlay = false;
 
-            String appAbi = XWalkCoreWrapper.getApplicationAbi();
-            boolean is32BitApp = appAbi.equalsIgnoreCase("x86")
-                    || appAbi.equalsIgnoreCase("armeabi-v7a");
+        Log.d(TAG, "Available Stores:");
+        for (ResolveInfo info : infos) {
+            Log.d(TAG, info.activityInfo.packageName);
+            hasGooglePlay |= info.activityInfo.packageName.equals(GOOGLE_PLAY_PACKAGE);
 
-            if (is32BitApp) {
-                if (primaryStoreIsGooglePlay || isArmDevice) {
-                    packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
-                } else {
-                    packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
+            String storeName = getStoreName(info.activityInfo.packageName);
+            if (storeName != null) {
+                if (supportedStores.length() > 0) {
+                    supportedStores.append("/");
                 }
-            } else {
-                if (primaryStoreIsGooglePlay || isArmDevice) {
-                    packageName = XWalkLibraryInterface.XWALK_CORE64_PACKAGE;
-                } else {
-                    packageName = XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE;
-                }
+                supportedStores.append(storeName);
             }
-
-            intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
-            mActivity.startActivity(intent);
-
-            Log.d(TAG, "Market opened");
-            mDialogManager.dismissDialog();
-        } catch (ActivityNotFoundException e) {
-            throw new RuntimeException("Market open failed");
         }
+
+        if (supportedStores.length() == 0) {
+            mDialogManager.showUnsupportedStore(mCancelCommand);
+            return;
+        }
+
+        String deviceAbi = XWalkCoreWrapper.getDeviceAbi();
+        String runtimeAbi = XWalkCoreWrapper.getRuntimeAbi();
+        boolean isArmDevice = deviceAbi.equals("armeabi-v7a") || deviceAbi.equals("arm64-v8a");
+        boolean is32BitApp = runtimeAbi.equals("armeabi-v7a") || runtimeAbi.equals("x86");
+        Log.d(TAG, "Device ABI: " + deviceAbi);
+        Log.d(TAG, "Runtime ABI: " + runtimeAbi);
+
+        if (hasGooglePlay || isArmDevice) {
+            if (is32BitApp) {
+                packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
+            } else {
+                packageName = XWalkLibraryInterface.XWALK_CORE64_PACKAGE;
+            }
+        } else {
+            if (is32BitApp) {
+                packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
+            } else {
+                packageName = XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE;
+            }
+        }
+
+        Log.d(TAG, "Package name of Crosswalk to download: " + packageName);
+        intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
+        final Intent storeIntent = intent;
+
+        String storeName = hasGooglePlay ?
+                getStoreName(GOOGLE_PLAY_PACKAGE) : supportedStores.toString();
+        Log.d(TAG, "Supported Stores: " + storeName);
+
+        mDialogManager.showSelectStore(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.startActivity(storeIntent);
+            }
+        }, storeName);
     }
 
     private void downloadXWalkApkInBackground() {
@@ -474,8 +492,22 @@ public class XWalkUpdater {
     }
 
     private String getXWalkApkUrl() {
+        String deviceAbi = XWalkCoreWrapper.getDeviceAbi();
+        boolean isX86Device = deviceAbi.equals("x86") || deviceAbi.equals("x86_64");
+
+        String runtimeAbi = XWalkCoreWrapper.getRuntimeAbi();
+        if (runtimeAbi.equals("armeabi-v7a")) {
+            if (isX86Device) {
+                runtimeAbi = "x86";
+            }
+        } else if (runtimeAbi.equals("arm64-v8a")) {
+            if (isX86Device) {
+                runtimeAbi = "x86_64";
+            }
+        }
+
         String url = getAppMetaData(META_XWALK_APK_URL);
-        return url == null ? "" : url + ARCH_QUERY_STRING + Build.CPU_ABI;
+        return url == null ? "" : url + ARCH_QUERY_STRING + runtimeAbi;
     }
 
     private class ForegroundListener implements DownloadListener {
@@ -631,6 +663,13 @@ public class XWalkUpdater {
                     mActivity.getPackageName(), PackageManager.GET_META_DATA);
             return appInfo.metaData.getString(name);
         } catch (NameNotFoundException | NullPointerException e) {
+        }
+        return null;
+    }
+
+    private String getStoreName(String storePackage) {
+        if (storePackage.equals(GOOGLE_PLAY_PACKAGE)) {
+            return mActivity.getString(R.string.google_play_store);
         }
         return null;
     }
