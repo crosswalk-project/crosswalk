@@ -33,9 +33,6 @@ class DisplayInfoManagerServiceAndroid : public DisplayInfoManagerService {
   void StopListenMonitorsUpdate() override;
 
   static void DisplayChangeCallback(int display_id);
-
- private:
-  std::vector<DisplayInfo>* info_list_;
 };
 
 class PresentationFrameAndroid : public PresentationFrame,
