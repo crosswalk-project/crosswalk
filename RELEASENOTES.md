@@ -2,6 +2,24 @@
 
 Note: dates indicate the day when the release was promoted to the Stable channel.
 
+## Crosswalk 21
+
+* Rebase to Chromium 51
+
+### Embedding API changes
+
+* Get the rendering backend type of XWalkView (XWalkView.getBackendType)
+* Expose setSaveFormData/getSaveFormData in XWalkSettings
+* Expose setDomStorageEnabled in XWalkSettings
+* Expose setCacheMode API in XWalkSettings
+* Expose accessing file and content schemes related APIs
+* Expose set/getJavaScriptEnabled
+* Expose set/getJavaScriptCanOpenWindowsAutomatically
+
+### Notable bug fixes
+
+* [XWALK-3889] Fail to exit fullscreen when invoking the 'leaveFullScreen' method of embeddingAPI on Android
+
 ## Crosswalk 20
 
 * Rebase to Chromium 50
