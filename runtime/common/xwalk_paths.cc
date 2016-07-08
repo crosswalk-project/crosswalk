@@ -163,7 +163,7 @@ bool GetDownloadPath(base::FilePath* result) {
 #else
   if (!PathService::Get(DIR_DATA_PATH, result))
     return false;
-  result->Append(FILE_PATH_LITERAL("Downloads"));
+  ignore_result(result->Append(FILE_PATH_LITERAL("Downloads")));
   return true;
 #endif
 }
