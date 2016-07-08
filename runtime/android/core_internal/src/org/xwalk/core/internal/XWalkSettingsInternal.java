@@ -368,7 +368,7 @@ public class XWalkSettingsInternal {
 
     /**
      * Enables or disables file access within XWalkView. File access is enabled by
-     * default.  Note that this enables or disables file system access only.
+     * default. Note that this enables or disables file system access only.
      * Assets and resources are still accessible using file:///android_asset and
      * file:///android_res.
      * @since 7.0
@@ -396,7 +396,7 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * Enables or disables content URL access within XWalkView.  Content URL
+     * Enables or disables content URL access within XWalkView. Content URL
      * access allows XWalkView to load content from a content provider installed
      * in the system. The default is enabled.
      * @since 7.0
@@ -444,8 +444,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setJavaScriptEnabled}.
+     * Tells the XWalkView to enable JavaScript execution.
+     * <b>The default is true.</b>
+     *
+     * @param flag true if the XWalkView should execute JavaScript
+     * @since 7.0
      */
+    @XWalkAPI
     public void setJavaScriptEnabled(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mJavaScriptEnabled != flag) {
@@ -464,7 +469,6 @@ public class XWalkSettingsInternal {
      * Note that this setting affects only JavaScript access to file scheme
      * resources. Other access to such resources, for example, from image HTML
      * elements, is unaffected. The default value is true.
-     * <p>
      *
      * @param flag whether JavaScript running in the context of a file scheme
      *             URL should be allowed to access content from any origin
@@ -489,7 +493,6 @@ public class XWalkSettingsInternal {
      * Note too, that this setting affects only JavaScript access to file scheme
      * resources. Other access to such resources, for example, from image HTML
      * elements, is unaffected. The default value is true.
-     * <p>
      *
      * @param flag whether JavaScript running in the context of a file scheme
      *             URL should be allowed to access content from other file
@@ -549,8 +552,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setJavaScriptEnabled}.
+     * Gets whether JavaScript is enabled.
+     *
+     * @return true if JavaScript is enabled
+     * @see #setJavaScriptEnabled
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getJavaScriptEnabled() {
         synchronized (mXWalkSettingsLock) {
             return mJavaScriptEnabled;
@@ -591,8 +599,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setJavaScriptCanOpenWindowsAutomatically}.
+     * Tells JavaScript to open windows automatically. This applies to the
+     * JavaScript function window.open(). The default is true.
+     *
+     * @param flag true if JavaScript can open windows automatically
+     * @since 7.0
      */
+    @XWalkAPI
     public void setJavaScriptCanOpenWindowsAutomatically(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mJavaScriptCanOpenWindowsAutomatically != flag) {
@@ -602,9 +615,16 @@ public class XWalkSettingsInternal {
         }
     }
 
+
     /**
-     * See {@link android.webkit.WebSettings#getJavaScriptCanOpenWindowsAutomatically}.
+     * Gets whether JavaScript can open windows automatically.
+     *
+     * @return true if JavaScript can open windows automatically during
+     *         window.open()
+     * @see #setJavaScriptCanOpenWindowsAutomatically
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getJavaScriptCanOpenWindowsAutomatically() {
         synchronized (mXWalkSettingsLock) {
             return mJavaScriptCanOpenWindowsAutomatically;

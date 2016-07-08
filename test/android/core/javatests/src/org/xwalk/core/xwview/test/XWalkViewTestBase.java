@@ -685,6 +685,25 @@ public class XWalkViewTestBase
         return helper.getJsonResultAndClear();
     }
 
+    /**
+     * Wrapper around CriteriaHelper.pollInstrumentationThread. This uses XWalkViewTestBase-specifc
+     * timeouts and treats timeouts and exceptions as test failures automatically.
+     */
+    protected static void pollInstrumentationThread(final Callable<Boolean> callable)
+            throws Exception {
+        CriteriaHelper.pollInstrumentationThread(new Criteria() {
+            @Override
+            public boolean isSatisfied() {
+                try {
+                    return callable.call();
+                } catch (Throwable e) {
+                    Log.e(TAG, "Exception while polling.", e);
+                    return false;
+                }
+            }
+        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL);
+    }
+
     protected String getUrlOnUiThread() throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
@@ -1108,6 +1127,24 @@ public class XWalkViewTestBase
         return helper.getJsonResultAndClear();
     }
 
+    protected void setJavaScriptEnabled(final boolean value) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.getSettings().setJavaScriptEnabled(value);
+            }
+        });
+    }
+
+    protected boolean getJavaScriptEnabled() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception{
+                return mXWalkView.getSettings().getJavaScriptEnabled();
+            }
+        });
+    }
+
     protected void setAllowSslError(boolean allow) {
         mAllowSslError = allow;
     }
@@ -1192,6 +1229,198 @@ public class XWalkViewTestBase
                 mXWalkView.getSettings().setAllowFileAccessFromFileURLs(value);
             }
         });
+    }
+
+    protected void setJavaScriptEnabledOnUiThreadByXWalkView(
+            final boolean value, final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setJavaScriptEnabled(value);
+            }
+        });
+    }
+
+    protected boolean getJavaScriptEnabledOnUiThreadByXWalkView(
+            final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return view.getSettings().getJavaScriptEnabled();
+            }
+        });
+    }
+
+    class XWalkSettingsJavaScriptTestHelper extends XWalkSettingsTestHelper<Boolean> {
+        private static final String JS_ENABLED_STRING = "JS Enabled";
+        private static final String JS_DISABLED_STRING = "JS Disabled";
+
+        XWalkSettingsJavaScriptTestHelper(
+                XWalkView xWalkContent,
+                final TestHelperBridge helperBridge) throws Throwable {
+            super(xWalkContent);
+            mView = xWalkContent;
+            mHelperBridge = helperBridge;
+        }
+
+        @Override
+        protected Boolean getAlteredValue() {
+            return DISABLED;
+        }
+
+        @Override
+        protected Boolean getInitialValue() {
+            return ENABLED;
+        }
+
+        @Override
+        protected Boolean getCurrentValue() {
+            try {
+                return getJavaScriptEnabledOnUiThreadByXWalkView(mView);
+            } catch (Exception e) {
+                return true;
+            }
+        }
+
+        @Override
+        protected void setCurrentValue(Boolean value) {
+            try {
+                setJavaScriptEnabledOnUiThreadByXWalkView(value, mView);
+            } catch(Exception e) {
+            }
+        }
+
+        @Override
+        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
+            loadDataSyncWithXWalkView(getData(), mView, mHelperBridge);
+            assertEquals(
+                    value == ENABLED ? JS_ENABLED_STRING : JS_DISABLED_STRING,
+                    getTitleOnUiThreadByContent(mView));
+        }
+
+        private String getData() {
+            return "<html><head><title>" + JS_DISABLED_STRING + "</title>"
+                    + "</head><body onload=\"document.title='" + JS_ENABLED_STRING
+                    + "';\"></body></html>";
+        }
+
+        protected XWalkView mView;
+        protected TestHelperBridge mHelperBridge;
+    }
+
+    // In contrast to XWalkSettingsJavaScriptTestHelper, doesn't reload the page when testing
+    // JavaScript state.
+    class XWalkSettingsJavaScriptDynamicTestHelper extends XWalkSettingsJavaScriptTestHelper {
+        XWalkSettingsJavaScriptDynamicTestHelper(
+                XWalkView xWalkContent,
+                final TestHelperBridge helperBridge) throws Throwable {
+            super(xWalkContent, helperBridge);
+            // Load the page.
+            super.doEnsureSettingHasValue(getInitialValue());
+        }
+
+        @Override
+        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
+            String oldTitle = getTitleOnUiThreadByContent(mView);
+            String newTitle = oldTitle + "_modified";
+            executeJavaScriptAndWaitForResultByXWalkView(getScript(newTitle), mView, mHelperBridge);
+            assertEquals(value == ENABLED ? newTitle : oldTitle, getTitleOnUiThreadByContent(mView));
+        }
+
+        private String getScript(String title) {
+            return "document.title='" + title + "';";
+        }
+    }
+
+    protected void setJavaScriptCanOpenWindowsAutomaticallyOnUiThreadByXWalkView(
+            final boolean value, final XWalkView view) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                view.getSettings().setJavaScriptCanOpenWindowsAutomatically(value);
+            }
+        });
+    }
+
+    protected boolean getJavaScriptCanOpenWindowsAutomaticallyOnUiThreadByXWalkView(
+            final XWalkView view) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return view.getSettings().getJavaScriptCanOpenWindowsAutomatically();
+            }
+        });
+    }
+
+    class XWalkSettingsJavaScriptPopupsTestHelper extends XWalkSettingsTestHelper<Boolean> {
+        private static final String POPUP_ENABLED = "Popup enabled";
+        private static final String POPUP_BLOCKED = "Popup blocked";
+
+        XWalkSettingsJavaScriptPopupsTestHelper(
+                XWalkView xWalkContent,
+                final TestHelperBridge helperBridge) throws Throwable {
+            super(xWalkContent);
+            mView = xWalkContent;
+            mHelperBridge = helperBridge;
+        }
+
+        @Override
+        protected Boolean getAlteredValue() {
+            return DISABLED;
+        }
+
+        @Override
+        protected Boolean getInitialValue() {
+            return ENABLED;
+        }
+
+        @Override
+        protected Boolean getCurrentValue() {
+            try {
+                return getJavaScriptCanOpenWindowsAutomaticallyOnUiThreadByXWalkView(mView);
+            } catch (Exception e) {
+                return true;
+            }
+        }
+
+        @Override
+        protected void setCurrentValue(Boolean value) {
+            try {
+                setJavaScriptCanOpenWindowsAutomaticallyOnUiThreadByXWalkView(value, mView);
+            } catch(Exception e) {
+            }
+        }
+
+        @Override
+        protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
+            loadDataSyncWithXWalkView(getData(), mView, mHelperBridge);
+            final boolean expectPopupEnabled = value;
+            pollInstrumentationThread(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    String title = getTitleOnUiThreadByContent(mView);
+                    return expectPopupEnabled ? POPUP_ENABLED.equals(title) :
+                            POPUP_BLOCKED.equals(title);
+                }
+            });
+            assertEquals(value ? POPUP_ENABLED : POPUP_BLOCKED, getTitleOnUiThreadByContent(mView));
+        }
+
+        private String getData() {
+            return "<html><head>"
+                    + "<script>"
+                    + "    function tryOpenWindow() {"
+                    + "        var newWindow = window.open("
+                    + "           'data:text/html;charset=utf-8,"
+                    + "           <html><head><title>" + POPUP_ENABLED + "</title></head></html>');"
+                    + "        if (!newWindow) document.title = '" + POPUP_BLOCKED + "';"
+                    + "    }"
+                    + "</script></head>"
+                    + "<body onload='tryOpenWindow()'></body></html>";
+        }
+
+        private XWalkView mView;
+        private TestHelperBridge mHelperBridge;
     }
 
     // This class provides helper methods for testing of settings related to
@@ -1746,7 +1975,8 @@ public class XWalkViewTestBase
                         title.contains(mTarget));
                 XWalkViewTestBase.this.ensureResourceRequestCountInContentProvider(mTarget, 1);
             } else {
-                loadUrlSyncByContentAndExpectError(mView, mHelperBridge, XWalkViewTestBase.this.createContentUrl(mTarget));
+                loadUrlSyncByContentAndExpectError(mView, mHelperBridge,
+                        XWalkViewTestBase.this.createContentUrl(mTarget));
                 XWalkViewTestBase.this.ensureResourceRequestCountInContentProvider(mTarget, 0);
             }
         }
