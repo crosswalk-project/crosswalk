@@ -68,7 +68,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"XWalkSettings", "Preferences", "Navigation"})
+    @Feature({"XWalkSettings", "Preferences"})
     // As our implementation of network loads blocking uses the same net::URLRequest settings, make
     // sure that setting cache mode doesn't accidentally enable network loads. The reference
     // behaviour is that when network loads are blocked, setting cache mode has no effect.
@@ -153,6 +153,55 @@ public class SettingsTest extends XWalkViewTestBase {
                 assertEquals(defaultvalue, settings.getSaveFormData());
             }
         });
+    }
+
+    // The test verifies that JavaScript is enabled upon XWalkView
+    // creation without accessing XWalkSettings. If the test passes,
+    // it means that XWalkView-specific web preferences configuration
+    // is applied on XWalkView creation.
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testJavaScriptEnabledByDefault() throws Throwable {
+        final String jsEnabledString = "JS has run";
+        final String jsDisabledString = "JS has not run";
+        final String testPageHtml =
+                "<html><head><title>" + jsDisabledString + "</title>"
+                + "</head><body onload=\"document.title='" + jsEnabledString
+                + "';\"></body></html>";
+
+        loadDataSync(null, testPageHtml, "text/html", false);
+        assertEquals(jsEnabledString, getTitleOnUiThread());
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testJavaScriptEnabledWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsJavaScriptTestHelper(views.getView0(), views.getBridge0()),
+                new XWalkSettingsJavaScriptTestHelper(views.getView1(), views.getBridge1()));
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testJavaScriptEnabledDynamicWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsJavaScriptDynamicTestHelper(
+                        views.getView0(), views.getBridge0()),
+                new XWalkSettingsJavaScriptDynamicTestHelper(
+                        views.getView1(), views.getBridge1()));
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testJavaScriptPopupsWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsJavaScriptPopupsTestHelper(
+                        views.getView0(), views.getBridge0()),
+                new XWalkSettingsJavaScriptPopupsTestHelper(
+                        views.getView1(), views.getBridge1()));
     }
 
     @SmallTest
