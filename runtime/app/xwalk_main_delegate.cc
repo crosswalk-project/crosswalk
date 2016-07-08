@@ -10,6 +10,7 @@
 #include "base/path_service.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/common/content_switches.h"
+#include "ui/base/material_design/material_design_controller.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -75,6 +76,10 @@ void XWalkMainDelegate::PreSandboxStartup() {
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
   InitLogging(process_type);
+#endif
+
+#if !defined(OS_ANDROID)
+  ui::MaterialDesignController::Initialize();
 #endif
 }
 
