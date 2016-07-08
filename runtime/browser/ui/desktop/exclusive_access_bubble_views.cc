@@ -102,7 +102,6 @@ ExclusiveAccessBubbleViews::ExclusiveAccessView::ExclusiveAccessView(
       views::BubbleBorder::NONE, shadow_type, background_color));
   set_background(new views::BubbleBackground(bubble_border.get()));
   SetBorder(std::move(bubble_border));
-  SetFocusBehavior(FocusBehavior::NEVER);
 
   ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
   const gfx::FontList& medium_font_list =
