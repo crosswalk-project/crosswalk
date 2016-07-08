@@ -101,13 +101,11 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
 
 XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
     : xwalk_runner_(xwalk_runner),
-      url_request_context_getter_(nullptr),
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
       v8_natives_fd_(-1),
       v8_snapshot_fd_(-1),
 #endif  // OS_POSIX && !OS_MACOSX
-      main_parts_(nullptr),
-      browser_context_(xwalk_runner->browser_context()) {
+      main_parts_(nullptr) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
@@ -154,7 +152,8 @@ XWalkContentBrowserClient::CreateQuotaPermissionContext() {
 }
 
 content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
-  return new XWalkAccessTokenStore(url_request_context_getter_);
+  return new XWalkAccessTokenStore(
+      xwalk_runner_->browser_context()->url_request_getter());
 }
 
 content::WebContentsViewDelegate*

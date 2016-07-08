@@ -165,7 +165,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
  private:
   XWalkRunner* xwalk_runner_;
-  net::URLRequestContextGetter* url_request_context_getter_;
   std::unique_ptr<content::ClientCertificateDelegate> delegate_;
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
   base::ScopedFD v8_natives_fd_;
@@ -173,7 +172,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 #endif
 
   XWalkBrowserMainParts* main_parts_;
-  XWalkBrowserContext* browser_context_;
 
   std::unique_ptr<RuntimeResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
