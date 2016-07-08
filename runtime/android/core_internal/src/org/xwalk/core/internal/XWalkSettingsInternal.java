@@ -92,7 +92,7 @@ public class XWalkSettingsInternal {
     private int mCacheMode = WebSettings.LOAD_DEFAULT;
     private boolean mSupportMultipleWindows = false;
     private boolean mAppCacheEnabled = true;
-    private boolean mDomStorageEnabled = false;
+    private boolean mDomStorageEnabled = true;
     private boolean mDatabaseEnabled = true;
     private boolean mUseWideViewport = false;
     private boolean mLoadWithOverviewMode = false;
@@ -446,6 +446,7 @@ public class XWalkSettingsInternal {
     /**
      * Tells the XWalkView to enable JavaScript execution.
      * <b>The default is true.</b>
+     * Note that the default value of this setting is different with WebView.
      *
      * @param flag true if the XWalkView should execute JavaScript
      * @since 7.0
@@ -733,7 +734,8 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * Sets whether the DOM storage API is enabled. The default value is false.
+     * Sets whether the DOM storage API is enabled. The default value is true.
+     * Note that the default value of this setting is different with WebView.
      *
      * @param flag true if the XWalkView should use the DOM storage API
      * @since 7.0
