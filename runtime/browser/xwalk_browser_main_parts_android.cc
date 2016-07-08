@@ -38,9 +38,6 @@
 
 namespace {
 
-const char kPreKitkatDataDirectory[] = "app_database";
-const char kKitkatDataDirectory[] = "app_webview";
-
 base::StringPiece PlatformResourceProvider(int key) {
   if (key == IDR_DIR_HEADER_HTML) {
     base::StringPiece html_data =
