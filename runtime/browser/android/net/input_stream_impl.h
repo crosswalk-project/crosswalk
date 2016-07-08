@@ -29,7 +29,7 @@ class InputStreamImpl : public InputStream {
   ~InputStreamImpl() override;
 
   // Gets the underlying Java object. Guaranteed non-NULL.
-  const jobject jobj() const { return jobject_.obj(); }
+  jobject jobj() const { return jobject_.obj(); }
 
   // InputStream implementation.
   bool BytesAvailable(int* bytes_available) const override;
