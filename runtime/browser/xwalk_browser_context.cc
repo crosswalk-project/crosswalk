@@ -323,8 +323,7 @@ net::URLRequestContextGetter*
 XWalkBrowserContext::CreateMediaRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory) {
-  NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 XWalkFormDatabaseService* XWalkBrowserContext::GetFormDatabaseService() {
