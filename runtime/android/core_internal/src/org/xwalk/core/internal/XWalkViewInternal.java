@@ -1027,6 +1027,21 @@ public class XWalkViewInternal extends android.widget.FrameLayout
         mContent.setOriginAccessWhitelist(url, patterns);
     }
 
+    /**
+     * Update proxy config to set proxy for images/text resources.
+     * @param host the proxy host.
+     * @param host the proxy port.
+     * @param pacUrl the pac url.
+     * @param exclusionList the exclusion list.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void updateProxyConfig(String host, int port, String pacUrl, String[] exclusionList) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.updateProxyConfig(host, port, pacUrl, exclusionList);
+    }
+
     // We can't let XWalkView's setLayerType call to this via reflection as this method
     // may be called in XWalkView constructor but the XWalkView is not ready yet and then
     // UnsupportedOperationException is thrown, see XWALK-5021/XWALK-5047.

@@ -45,6 +45,12 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_refptr<base::SingleThreadTaskRunner>
       GetNetworkTaskRunner() const override;
 
+  void UpdateProxyConfig(
+      const std::string& host,
+      int port,
+      const std::string& pac_url,
+      const std::vector<std::string>& exclusion_list);
+
   net::HostResolver* host_resolver();
   void UpdateAcceptLanguages(const std::string& accept_languages);
 

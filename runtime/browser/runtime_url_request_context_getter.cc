@@ -306,6 +306,22 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
   return url_request_context_.get();
 }
 
+void RuntimeURLRequestContextGetter::UpdateProxyConfig(
+    const std::string& host,
+    int port,
+    const std::string& pac_url,
+    const std::vector<std::string>& exclusion_list) {
+  net::ProxyConfigServiceAndroid* android_config_service =
+      static_cast<net::ProxyConfigServiceAndroid*>(
+          url_request_context_->proxy_service()->GetProxyConfigService());
+  if (host.empty()) {
+    android_config_service->ProxySettingsChanged();
+  } else {
+    android_config_service->ProxySettingsChangedTo(
+        host, port, pac_url, exclusion_list);
+  }
+}
+
 scoped_refptr<base::SingleThreadTaskRunner>
     RuntimeURLRequestContextGetter::GetNetworkTaskRunner() const {
   return BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);

@@ -547,6 +547,11 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         nativeSetBackgroundColor(mNativeContent, color);
     }
 
+    public void updateProxyConfig(String host, int port, String pacUrl, String[] exclusionList) {
+        if (mNativeContent == 0) return;
+        nativeUpdateProxyConfig(mNativeContent, host, port, pacUrl, exclusionList);
+    }
+
     public void setNetworkAvailable(boolean networkUp) {
         if (mNativeContent == 0) return;
         nativeSetJsOnlineProperty(mNativeContent, networkUp);
@@ -1194,6 +1199,12 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private native void nativeSetBackgroundColor(long nativeXWalkContent, int color);
     private native void nativeSetOriginAccessWhitelist(
             long nativeXWalkContent, String url, String patterns);
+    private native void nativeUpdateProxyConfig(
+            long nativeXWalkContent,
+            String host,
+            int port,
+            String pacUrl,
+            String[] exclusionList);
     private native byte[] nativeGetCertificate(long nativeXWalkContent);
     private native void nativeFindAllAsync(long nativeXWalkContent, String searchString);
     private native void nativeFindNext(long nativeXWalkContent, boolean forward);

@@ -421,6 +421,18 @@ void XWalkBrowserContext::AddVisitedURLs(const std::vector<GURL>& urls) {
   visitedlink_master_->AddURLs(urls);
 }
 
+void XWalkBrowserContext::UpdateProxyConfig(
+    const std::string& host,
+    int port,
+    const std::string& pac_url,
+    const std::vector<std::string>& exclusion_list) {
+  RuntimeURLRequestContextGetter* url_request_context_getter =
+      url_request_getter_.get();
+  if (!url_request_context_getter)
+    return;
+  url_request_context_getter->UpdateProxyConfig(host, port, pac_url, exclusion_list);
+}
+
 void XWalkBrowserContext::RebuildTable(
     const scoped_refptr<URLEnumerator>& enumerator) {
   // XWalkView rebuilds from XWalkWebChromeClient.getVisitedHistory. The client
