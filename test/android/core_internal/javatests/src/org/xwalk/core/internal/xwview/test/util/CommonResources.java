@@ -53,6 +53,9 @@ public class CommonResources {
     // Default name for the favicon image.
     public static final String FAVICON_FILENAME = "favicon.png";
 
+    // Default name for the test image.
+    public static final String TEST_IMAGE_FILENAME = "testimage.png";
+
     // HTML code of a static simple page with a favicon.
     public static final String FAVICON_STATIC_HTML =
         "<html><head><link rel=\"icon\" type=\"image/png\" href=\"" + FAVICON_FILENAME + "\">" +
