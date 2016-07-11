@@ -322,7 +322,8 @@ public class XWalkSettingsInternal {
 
     /**
      * Sets whether the XWalkView should not load resources from the network.
-     * Note that if the value of this setting is
+     * Use {@link #setBlockNetworkImage} to only avoid loading
+     * image resources. Note that if the value of this setting is
      * changed from true to false, network resources referenced by content
      * currently displayed by the XWalkView are not fetched until
      * {@link org.xwalk.core.XWalkView#reload} is called.
@@ -511,8 +512,18 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setLoadsImagesAutomatically}.
+     * Sets whether the XWalkView should load image resources. Note that this method
+     * controls loading of all images, including those embedded using the data
+     * URI scheme. Use {@link #setBlockNetworkImage} to control loading only
+     * of images specified using network URI schemes. Note that if the value of this
+     * setting is changed from false to true, all images resources referenced
+     * by content currently displayed by the XWalkView are loaded automatically.
+     * The default is true.
+     *
+     * @param flag whether the XWalkView should load image resources
+     * @since 7.0
      */
+    @XWalkAPI
     public void setLoadsImagesAutomatically(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mLoadsImagesAutomatically != flag) {
@@ -523,8 +534,14 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getLoadsImagesAutomatically}.
+     * Gets whether the XWalkView loads image resources. This includes
+     * images embedded using the data URI scheme.
+     *
+     * @return true if the XWalkView loads image resources
+     * @see #setLoadsImagesAutomatically
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getLoadsImagesAutomatically() {
         synchronized (mXWalkSettingsLock) {
             return mLoadsImagesAutomatically;
@@ -532,23 +549,42 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setImagesEnabled}.
+     * Sets whether the XWalkView should not load image resources from the
+     * network (resources accessed via http and https URI schemes).  Note
+     * that this method has no effect unless
+     * {@link #getLoadsImagesAutomatically} returns true. Also note that
+     * disabling all network loads using {@link #setBlockNetworkLoads}
+     * will also prevent network images from loading, even if this flag is set
+     * to false. When the value of this setting is changed from true to false,
+     * network images resources referenced by content currently displayed by
+     * the XWalkView are fetched automatically. The default is false.
+     *
+     * @param flag whether the XWalkView should not load image resources from the
+     *             network
+     * @see #setBlockNetworkLoads
+     * @since 7.0
      */
-    public void setImagesEnabled(boolean flag) {
+    @XWalkAPI
+    public void setBlockNetworkImage(boolean flag) {
         synchronized (mXWalkSettingsLock) {
-            if (mImagesEnabled != flag) {
-                mImagesEnabled = flag;
+            if (mImagesEnabled == flag) {
+                mImagesEnabled = !flag;
                 mEventHandler.updateWebkitPreferencesLocked();
             }
         }
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getImagesEnabled}.
+     * Gets whether the XWalkView does not load image resources from the network.
+     *
+     * @return true if the XWalkView does not load image resources from the network
+     * @see #setBlockNetworkImage
+     * @since 7.0
      */
-    public boolean getImagesEnabled() {
+    @XWalkAPI
+    public boolean getBlockNetworkImage() {
         synchronized (mXWalkSettingsLock) {
-            return mImagesEnabled;
+            return !mImagesEnabled;
         }
     }
 
@@ -633,8 +669,14 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setSupportMultipleWindows}.
+     * Sets whether the XWalkView supports multiple windows. If set to
+     * true, {@link XWalkUIClient#onCreateWindowRequested} must be implemented
+     * by the host application. The default is false.
+     *
+     * @param support whether to suport multiple windows
+     * @since 7.0
      */
+    @XWalkAPI
     public void setSupportMultipleWindows(boolean support) {
         synchronized (mXWalkSettingsLock) {
             if (mSupportMultipleWindows != support) {
@@ -645,8 +687,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#supportMultipleWindows}.
+     * Gets whether the XWalkView supports multiple windows.
+     *
+     * @return true if the XWalkView supports multiple windows
+     * @see #setSupportMultipleWindows
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean supportMultipleWindows() {
         synchronized (mXWalkSettingsLock) {
             return mSupportMultipleWindows;
@@ -765,8 +812,18 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setDatabaseEnabled}.
+     * Sets whether the database storage API is enabled. The default value is
+     * true, which is different with WebView.
+     *
+     * This setting is global in effect, across all XWalkView instances in a process.
+     * Note you should only modify this setting prior to making <b>any</b> XWalkView
+     * page load within a given process, as the XWalkView implementation may ignore
+     * changes to this setting after that point.
+     *
+     * @param flag true if the XWalkView should use the database storage API
+     * @since 7.0
      */
+    @XWalkAPI
     public void setDatabaseEnabled(boolean flag) {
         synchronized (mXWalkSettingsLock) {
             if (mDatabaseEnabled != flag) {
@@ -777,8 +834,12 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getDatabaseEnabled}.
+     * Gets whether the database storage API is enabled.
+     *
+     * @return true if the database storage API is enabled
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getDatabaseEnabled() {
        synchronized (mXWalkSettingsLock) {
            return mDatabaseEnabled;
@@ -786,8 +847,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#setMediaPlaybackRequiresUserGesture}.
+     * Sets whether the XWalkView requires a user gesture to play media.
+     * The default is false, which is different with WebView.
+     *
+     * @param require whether the XWalkView requires a user gesture to play media
+     * @since 7.0
      */
+    @XWalkAPI
     public void setMediaPlaybackRequiresUserGesture(boolean require) {
         synchronized (mXWalkSettingsLock) {
             if (mMediaPlaybackRequiresUserGesture != require) {
@@ -798,8 +864,13 @@ public class XWalkSettingsInternal {
     }
 
     /**
-     * See {@link android.webkit.WebSettings#getMediaPlaybackRequiresUserGesture}.
+     * Gets whether the XWalkView requires a user gesture to play media.
+     *
+     * @return true if the XWalkView requires a user gesture to play media
+     * @see #setMediaPlaybackRequiresUserGesture
+     * @since 7.0
      */
+    @XWalkAPI
     public boolean getMediaPlaybackRequiresUserGesture() {
         synchronized (mXWalkSettingsLock) {
             return mMediaPlaybackRequiresUserGesture;

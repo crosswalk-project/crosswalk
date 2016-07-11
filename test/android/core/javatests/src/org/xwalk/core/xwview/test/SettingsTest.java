@@ -7,9 +7,13 @@ package org.xwalk.core.xwview.test;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import java.util.concurrent.Callable;
+
 import org.chromium.base.test.util.UrlUtils;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
+
+import org.xwalk.core.xwview.test.util.ImagePageGenerator;
 
 import org.xwalk.core.XWalkSettings;
 
@@ -215,6 +219,41 @@ public class SettingsTest extends XWalkViewTestBase {
                     views.getView1(), views.getBridge1()));
     }
 
+    // This setting is global in effect, across all XWalkView instances in a process.
+    // So, we cannot combine these three tests into one, or using
+    // runPerViewSettingsTest.
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testDatabaseInitialValue() throws Throwable {
+        ViewPair views = createViews();
+        XWalkSettingsDatabaseTestHelper helper =
+                new XWalkSettingsDatabaseTestHelper(
+                        views.getView0(), views.getBridge0());
+        helper.ensureSettingHasInitialValue();
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testDatabaseEnabled() throws Throwable {
+        ViewPair views = createViews();
+        XWalkSettingsDatabaseTestHelper helper =
+                new XWalkSettingsDatabaseTestHelper(
+                        views.getView0(), views.getBridge0());
+        helper.setAlteredSettingValue();
+        helper.ensureSettingHasAlteredValue();
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testDatabaseDisabled() throws Throwable {
+        ViewPair views = createViews();
+        XWalkSettingsDatabaseTestHelper helper =
+                new XWalkSettingsDatabaseTestHelper(
+                        views.getView0(), views.getBridge0());
+        helper.setInitialSettingValue();
+        helper.ensureSettingHasInitialValue();
+    }
+
     // Test an assert URL (file:///android_asset/)
     @SmallTest
     @Feature({"XWalkSettings", "Navigation"})
@@ -322,7 +361,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"AndroidWebView", "Preferences"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testFileAccessFromFilesIframeWithTwoViews() throws Throwable {
         ViewPair views = createViews();
         runPerViewSettingsTest(
@@ -333,7 +372,7 @@ public class SettingsTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"AndroidWebView", "Preferences"})
+    @Feature({"XWalkSettings", "Preferences"})
     public void testFileAccessFromFilesXhrWithTwoViews() throws Throwable {
         ViewPair views = createViews();
         runPerViewSettingsTest(
@@ -341,5 +380,55 @@ public class SettingsTest extends XWalkViewTestBase {
                         views.getView0(), views.getBridge0()),
                 new XWalkSettingsFileAccessFromFilesXhrTestHelper(
                         views.getView1(), views.getBridge1()));
+    }
+
+    // The test verifies that after changing the LoadsImagesAutomatically
+    // setting value from false to true previously skipped images are
+    // automatically loaded.
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testLoadsImagesAutomaticallyNoPageReload() throws Throwable {
+        ImagePageGenerator generator = new ImagePageGenerator(0, false);
+        setLoadsImagesAutomatically(false);
+        loadDataSync(null, generator.getPageSource(), "text/html", false);
+        assertEquals(ImagePageGenerator.IMAGE_NOT_LOADED_STRING,
+                getTitleOnUiThread());
+        setLoadsImagesAutomatically(true);
+        pollInstrumentationThread(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return !ImagePageGenerator.IMAGE_NOT_LOADED_STRING.equals(
+                        getTitleOnUiThread());
+            }
+        });
+        assertEquals(ImagePageGenerator.IMAGE_LOADED_STRING, getTitleOnUiThread());
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testLoadsImagesAutomaticallyWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsLoadImagesAutomaticallyTestHelper(
+                    views.getView0(), views.getBridge0(), new ImagePageGenerator(0, true)),
+                new XWalkSettingsLoadImagesAutomaticallyTestHelper(
+                    views.getView1(), views.getBridge1(), new ImagePageGenerator(1, true)));
+    }
+
+    @SmallTest
+    @Feature({"XWalkSettings", "Preferences"})
+    public void testBlockNetworkImagesWithTwoViews() throws Throwable {
+        ViewPair views = createViews();
+        runPerViewSettingsTest(
+                new XWalkSettingsBlockNetworkImageHelper(
+                        views.getView0(),
+                        views.getBridge0(),
+                        mWebServer,
+                        new ImagePageGenerator(0, true)),
+                new XWalkSettingsBlockNetworkImageHelper(
+                        views.getView1(),
+                        views.getBridge1(),
+                        mWebServer,
+                        new ImagePageGenerator(1, true)));
     }
 }

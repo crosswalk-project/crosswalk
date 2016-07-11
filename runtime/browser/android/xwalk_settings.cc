@@ -186,10 +186,12 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.allow_scripts_to_close_windows =
       env->GetBooleanField(obj, field_ids_->allow_scripts_to_close_windows);
 
-  prefs.loads_images_automatically =
-      env->GetBooleanField(obj, field_ids_->load_images_automatically);
-
+  // Blink's LoadsImagesAutomatically and ImagesEnabled must be
+  // set cris-cross to Android's. See
+  // https://code.google.com/p/chromium/issues/detail?id=224317#c26
   prefs.images_enabled =
+      env->GetBooleanField(obj, field_ids_->load_images_automatically);
+  prefs.loads_images_automatically =
       env->GetBooleanField(obj, field_ids_->images_enabled);
 
   prefs.javascript_enabled =
