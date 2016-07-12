@@ -531,40 +531,59 @@ class XWalkCoreWrapper {
     }
 
     public static String getRuntimeAbi() {
-        String runtimeAbi = System.getProperty("os.arch");
-
-        if (runtimeAbi.equalsIgnoreCase("i686")) {
-            runtimeAbi = "x86";
-        } else if (runtimeAbi.equalsIgnoreCase("x86_64")) {
-            runtimeAbi = "x86_64";
-        } else if (runtimeAbi.equalsIgnoreCase("armv7l")) {
-            runtimeAbi = "armeabi-v7a";
-        } else if (runtimeAbi.equalsIgnoreCase("armv8l")
-                || runtimeAbi.equalsIgnoreCase("aarch64")) {
-            runtimeAbi = "arm64-v8a";
-        } else {
-            throw new RuntimeException("Unexpected ABI: " + runtimeAbi);
+        String runtimeAbi = System.getProperty("os.arch").toLowerCase();
+        switch (runtimeAbi) {
+            case "x86":
+            case "i686":
+            case "i386":
+            case "ia32":
+                return "x86";
+            case "x64":
+            case "x86_64":
+                return "x86_64";
+            case "armv7l":
+            case "armeabi":
+            case "armeabi-v7a":
+                return "armeabi-v7a";
+            case "aarch64":
+            case "armv8":
+            case "arm64":
+                return "arm64-v8a";
+            default:
+                throw new RuntimeException("Unexpected runtime ABI: " + runtimeAbi);
         }
-
-        return runtimeAbi;
     }
 
     public static String getDeviceAbi() {
+        String deviceAbi = "";
         try {
-            return Build.SUPPORTED_ABIS[0].toLowerCase();
+            deviceAbi = Build.SUPPORTED_ABIS[0].toLowerCase();
         } catch (NoSuchFieldError e) {
             try {
                 Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
                 InputStreamReader ir = new InputStreamReader(process.getInputStream());
                 BufferedReader input = new BufferedReader(ir);
-                String abi = input.readLine();
+                deviceAbi = input.readLine().toLowerCase();
                 input.close();
                 ir.close();
-                return abi.toLowerCase();
             } catch (IOException ex) {
+                // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
+                deviceAbi = Build.CPU_ABI.toLowerCase();
             }
         }
-        // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
-        return Build.CPU_ABI.toLowerCase();
+
+        switch (deviceAbi) {
+            case "x86":
+                return "x86";
+            case "x86_64":
+                return "x86_64";
+            case "armeabi":
+            case "armeabi-v7a":
+                return "armeabi-v7a";
+            case "arm64-v8a":
+                return "arm64-v8a";
+            default:
+                throw new RuntimeException("Unexpected device ABI: " + deviceAbi);
+        }
     }
 }
