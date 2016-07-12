@@ -469,7 +469,7 @@ public class XWalkSettingsInternal {
      * and therefore secure policy, this setting should be disabled.
      * Note that this setting affects only JavaScript access to file scheme
      * resources. Other access to such resources, for example, from image HTML
-     * elements, is unaffected. The default value is true.
+     * elements, is unaffected. The default value is false.
      *
      * @param flag whether JavaScript running in the context of a file scheme
      *             URL should be allowed to access content from any origin
@@ -493,7 +493,7 @@ public class XWalkSettingsInternal {
      * the value of {@link #getAllowUniversalAccessFromFileURLs} is true.
      * Note too, that this setting affects only JavaScript access to file scheme
      * resources. Other access to such resources, for example, from image HTML
-     * elements, is unaffected. The default value is true.
+     * elements, is unaffected. The default value is false.
      *
      * @param flag whether JavaScript running in the context of a file scheme
      *             URL should be allowed to access content from other file
