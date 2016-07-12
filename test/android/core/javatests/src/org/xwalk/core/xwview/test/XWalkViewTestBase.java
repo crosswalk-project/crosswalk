@@ -1784,12 +1784,12 @@ public class XWalkViewTestBase
 
         @Override
         protected Boolean getAlteredValue() {
-            return ENABLED;
+            return DISABLED;
         }
 
         @Override
         protected Boolean getInitialValue() {
-            return DISABLED;
+            return ENABLED;
         }
 
         @Override
@@ -1797,7 +1797,7 @@ public class XWalkViewTestBase
             try {
                 return getDomStorageEnabledOnUiThreadByXWalkView(mView);
             } catch (Exception e) {
-                return false;
+                return true;
             }
         }
 
