@@ -13,7 +13,9 @@
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/message_loop/message_loop.h"
+#include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "cc/base/switches.h"
 #include "components/devtools_http_handler/devtools_http_handler.h"
 #include "content/public/browser/browser_thread.h"
@@ -208,6 +210,21 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 #endif
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+#if defined (OS_WIN)
+  // The manifest or startup URL was not specified, try to automatically load
+  // the manifest.json.
+  if (startup_url_.is_empty()) {
+    base::FilePath app_dir;
+    PathService::Get(base::DIR_MODULE, &app_dir);
+    DCHECK(!app_dir.empty());
+    base::FilePath path(base::UTF8ToUTF16("approot/manifest.json"));
+    if (!path.IsAbsolute()) {
+      // MakeAbsoluteFilePath is confused in Centennial.
+      path = app_dir.Append(path);
+    }
+    startup_url_ = GURL(net::FilePathToFileURL(path));
+  }
+#endif
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
     std::string port_str =
         command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
