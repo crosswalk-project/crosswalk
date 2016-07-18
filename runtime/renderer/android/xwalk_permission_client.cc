@@ -20,18 +20,4 @@ XWalkPermissionClient::XWalkPermissionClient(content::RenderFrame* render_frame)
 XWalkPermissionClient::~XWalkPermissionClient() {
 }
 
-bool XWalkPermissionClient::allowImage(bool enabled_per_settings,
-                                       const blink::WebURL& image_url) {
-  // Implementing setBlockNetworkImages, so allow local scheme images to be
-  // loaded.
-  if (enabled_per_settings)
-    return true;
-
-  // For compatibility, only blacklist network schemes instead of whitelisting.
-  const GURL url(image_url);
-  return !(url.SchemeIs(url::kHttpScheme) ||
-           url.SchemeIs(url::kHttpsScheme) ||
-           url.SchemeIs(url::kFtpScheme));
-}
-
 }  // namespace xwalk

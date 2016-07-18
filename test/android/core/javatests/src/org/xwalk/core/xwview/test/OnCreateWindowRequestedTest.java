@@ -42,10 +42,32 @@ public class OnCreateWindowRequestedTest extends XWalkViewTestBase {
         });
     }
 
-    public void testOnCreateWindowRequested() throws Throwable {
+    @SmallTest
+    @Feature({"OnCreateWindowRequested"})
+    public void testOnCreateWindowRequestedByPreference() throws Throwable {
         String fileContent = getFileContent("create_window_1.html");
         int count = mOnCreateWindowRequestedHelper.getCallCount();
 
+        loadDataAsync(null, fileContent, "text/html", false);
+        clickOnElementId("new_window", null);
+        mOnCreateWindowRequestedHelper.waitForCallback(count);
+        assertNotNull(mOnCreateWindowRequestedHelper.getXWalkView());
+    }
+
+    @SmallTest
+    @Feature({"OnCreateWindowRequested"})
+    public void testOnCreateWindowRequestedByAPI() throws Throwable {
+        String fileContent = getFileContent("create_window_1.html");
+        int count = mOnCreateWindowRequestedHelper.getCallCount();
+
+        setSupportMultipleWindows(false);
+        setJavaScriptCanOpenWindowsAutomatically(false);
+        loadDataAsync(null, fileContent, "text/html", false);
+        clickOnElementId("new_window", null);
+        assertNull(mOnCreateWindowRequestedHelper.getXWalkView());
+
+        setSupportMultipleWindows(true);
+        setJavaScriptCanOpenWindowsAutomatically(true);
         loadDataAsync(null, fileContent, "text/html", false);
         clickOnElementId("new_window", null);
         mOnCreateWindowRequestedHelper.waitForCallback(count);
