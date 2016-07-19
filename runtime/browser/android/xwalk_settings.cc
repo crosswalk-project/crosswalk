@@ -275,6 +275,7 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   prefs.clobber_user_agent_initial_scale_quirk = support_quirks;
 
   prefs.wide_viewport_quirk = true;
+  prefs.viewport_meta_enabled = true;
 
   render_view_host->UpdateWebkitPreferences(prefs);
 }
