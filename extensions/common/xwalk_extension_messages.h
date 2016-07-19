@@ -78,7 +78,7 @@ IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_PostMessageToJS,  // NOLINT(*)
 
 IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_PostOutOfLineMessageToJS,  // NOLINT(*)
                      base::SharedMemoryHandle /* message buffer */,
-                     size_t /* buffer size */)
+                     uint64_t /* buffer size */)
 
 IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionServerMsg_SendSyncMessageToNative,  // NOLINT(*)
                             int64_t /* instance id */,
