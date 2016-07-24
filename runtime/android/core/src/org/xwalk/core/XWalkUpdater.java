@@ -8,14 +8,12 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
@@ -286,10 +284,6 @@ public class XWalkUpdater {
     private static final String ANDROID_MARKET_DETAILS = "market://details?id=";
     private static final String GOOGLE_PLAY_PACKAGE = "com.android.vending";
 
-    private static final String META_XWALK_APK_URL = "xwalk_apk_url";
-    private static final String META_XWALK_VERIFY = "xwalk_verify";
-    private static final String ARCH_QUERY_STRING = "?arch=";
-
     private static final String TAG = "XWalkLib";
 
     private XWalkUpdateListener mUpdateListener;
@@ -298,7 +292,6 @@ public class XWalkUpdater {
     private XWalkDialogManager mDialogManager;
     private Runnable mDownloadCommand;
     private Runnable mCancelCommand;
-    private String mXWalkApkUrl;
     private boolean mIsDownloading;
 
     /**
@@ -376,7 +369,8 @@ public class XWalkUpdater {
 
             mDialogManager.showInitializationError(status, mCancelCommand, mDownloadCommand);
         } else if (mBackgroundUpdateListener != null) {
-            downloadXWalkApkInBackground();
+            String url = XWalkEnvironment.getXWalkApkUrl();
+            XWalkLibraryLoader.startHttpDownload(new BackgroundListener(), mActivity, url);
         } else {
             throw new IllegalArgumentException("Update listener is null");
         }
@@ -391,7 +385,7 @@ public class XWalkUpdater {
      * @param url The download URL.
      */
     public void setXWalkApkUrl(String url) {
-        mXWalkApkUrl = url;
+        XWalkEnvironment.setXWalkApkUrl(url);
     }
 
     /**
@@ -405,16 +399,9 @@ public class XWalkUpdater {
     }
 
     private void downloadXWalkApk() {
-        // The download url is defined by the meta-data element with the name "xwalk_apk_url"
-        // inside the application tag in the Android manifest.
-        if (mXWalkApkUrl == null) {
-            mXWalkApkUrl = getXWalkApkUrl();
-            Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
-        }
-
-        if (!mXWalkApkUrl.isEmpty()) {
-            XWalkLibraryLoader.startDownloadManager(new ForegroundListener(), mActivity,
-                    mXWalkApkUrl);
+        String url = XWalkEnvironment.getXWalkApkUrl();
+        if (!url.isEmpty()) {
+            XWalkLibraryLoader.startDownloadManager(new ForegroundListener(), mActivity, url);
             return;
         }
 
@@ -446,24 +433,17 @@ public class XWalkUpdater {
             return;
         }
 
-        String deviceAbi = XWalkCoreWrapper.getDeviceAbi();
-        String runtimeAbi = XWalkCoreWrapper.getRuntimeAbi();
-        boolean isArmDevice = deviceAbi.equals("armeabi-v7a") || deviceAbi.equals("arm64-v8a");
-        boolean is32BitApp = runtimeAbi.equals("armeabi-v7a") || runtimeAbi.equals("x86");
-        Log.d(TAG, "Device ABI: " + deviceAbi);
-        Log.d(TAG, "Runtime ABI: " + runtimeAbi);
-
-        if (hasGooglePlay || isArmDevice) {
-            if (is32BitApp) {
-                packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
-            } else {
+        if (hasGooglePlay || !XWalkEnvironment.isIaDevice()) {
+            if (XWalkEnvironment.is64bitApp()) {
                 packageName = XWalkLibraryInterface.XWALK_CORE64_PACKAGE;
+            } else {
+                packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
             }
         } else {
-            if (is32BitApp) {
-                packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
-            } else {
+            if (XWalkEnvironment.is64bitApp()) {
                 packageName = XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE;
+            } else {
+                packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
             }
         }
 
@@ -481,33 +461,6 @@ public class XWalkUpdater {
                 mActivity.startActivity(storeIntent);
             }
         }, storeName);
-    }
-
-    private void downloadXWalkApkInBackground() {
-        if (mXWalkApkUrl == null) {
-            mXWalkApkUrl = getXWalkApkUrl();
-            Log.d(TAG, "Crosswalk APK download URL: " + mXWalkApkUrl);
-        }
-        XWalkLibraryLoader.startHttpDownload(new BackgroundListener(), mActivity, mXWalkApkUrl);
-    }
-
-    private String getXWalkApkUrl() {
-        String deviceAbi = XWalkCoreWrapper.getDeviceAbi();
-        boolean isX86Device = deviceAbi.equals("x86") || deviceAbi.equals("x86_64");
-
-        String runtimeAbi = XWalkCoreWrapper.getRuntimeAbi();
-        if (runtimeAbi.equals("armeabi-v7a")) {
-            if (isX86Device) {
-                runtimeAbi = "x86";
-            }
-        } else if (runtimeAbi.equals("arm64-v8a")) {
-            if (isX86Device) {
-                runtimeAbi = "x86_64";
-            }
-        }
-
-        String url = getAppMetaData(META_XWALK_APK_URL);
-        return url == null ? "" : url + ARCH_QUERY_STRING + runtimeAbi;
     }
 
     private class ForegroundListener implements DownloadListener {
@@ -542,9 +495,10 @@ public class XWalkUpdater {
             mDialogManager.dismissDialog();
 
             Log.d(TAG, "Install the Crosswalk runtime: " + uri.toString());
-            Intent install = new Intent(Intent.ACTION_VIEW);
-            install.setDataAndType(uri, "application/vnd.android.package-archive");
-            mActivity.startActivity(install);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            mActivity.startActivity(intent);
         }
     }
 
@@ -583,9 +537,7 @@ public class XWalkUpdater {
             new AsyncTask<Void, Void, Boolean>() {
                 @Override
                 protected Boolean doInBackground(Void... params) {
-                    String xwalkVerify = getAppMetaData(META_XWALK_VERIFY);
-                    if (xwalkVerify == null || (!xwalkVerify.equalsIgnoreCase("disable")
-                            && !xwalkVerify.equalsIgnoreCase("false"))) {
+                    if (XWalkEnvironment.isXWalkVerify()) {
                         if (!verifyDownloadedXWalkRuntime(libFile)) {
                             return false;
                         }
@@ -654,17 +606,6 @@ public class XWalkUpdater {
         }
         Log.d(TAG, "Signature check passed");
         return true;
-    }
-
-    private String getAppMetaData(String name) {
-        try {
-            PackageManager packageManager = mActivity.getPackageManager();
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(
-                    mActivity.getPackageName(), PackageManager.GET_META_DATA);
-            return appInfo.metaData.getString(name);
-        } catch (NameNotFoundException | NullPointerException e) {
-        }
-        return null;
     }
 
     private String getStoreName(String storePackage) {
