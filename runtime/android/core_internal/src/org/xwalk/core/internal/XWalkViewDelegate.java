@@ -43,7 +43,7 @@ class XWalkViewDelegate {
     private static boolean sInitialized = false;
     private static boolean sLibraryLoaded = false;
     private static boolean sLoadedByHoudini = false;
-    private static String sDeviceAbi = "";
+    private static String sDeviceAbi;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
@@ -147,7 +147,8 @@ class XWalkViewDelegate {
             Log.d(TAG, "Native library is built for IA");
         } else {
             Log.d(TAG, "Native library is built for ARM");
-            if (sDeviceAbi.equals("x86") || sDeviceAbi.equals("x86_64")) {
+            if (isIaDevice()) {
+                Log.d(TAG, "Crosswalk's native library does not support Houdini");
                 sLoadedByHoudini = true;
                 return false;
             }
@@ -312,30 +313,44 @@ class XWalkViewDelegate {
             PackageManager packageManager = context.getPackageManager();
             ApplicationInfo appInfo = packageManager.getApplicationInfo(
                     context.getPackageName(), PackageManager.GET_META_DATA);
-            return appInfo.metaData.getString(name);
+            String value = appInfo.metaData.getString(name);
+            if (value == null) {
+                Boolean boolValue = appInfo.metaData.getBoolean(name);
+                if (boolValue != null) {
+                    value = boolValue ? "true" : "false";
+                }
+            }
+            return value;
         } catch (NameNotFoundException | NullPointerException e) {
+            return null;
         }
-        return null;
+    }
+
+    private static boolean isIaDevice() {
+        String abi = getDeviceAbi();
+        return abi.equals("x86") || abi.equals("x86_64");
+    }
+
+    private static String getDeviceAbi() {
+        if (sDeviceAbi == null) {
+            try {
+                sDeviceAbi = Build.SUPPORTED_ABIS[0].toLowerCase();
+            } catch (NoSuchFieldError e) {
+                try {
+                    Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
+                    InputStreamReader ir = new InputStreamReader(process.getInputStream());
+                    BufferedReader input = new BufferedReader(ir);
+                    sDeviceAbi = input.readLine().toLowerCase();
+                    input.close();
+                    ir.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException("Can not detect device's ABI");
+                }
+            }
+            Log.d(TAG, "Device ABI: " + sDeviceAbi);
+        }
+        return sDeviceAbi;
     }
 
     private static native boolean nativeIsLibraryBuiltForIA();
-
-    static {
-        try {
-            sDeviceAbi = Build.SUPPORTED_ABIS[0].toLowerCase();
-        } catch (NoSuchFieldError e) {
-            try {
-                Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
-                InputStreamReader ir = new InputStreamReader(process.getInputStream());
-                BufferedReader input = new BufferedReader(ir);
-                sDeviceAbi = input.readLine().toLowerCase();
-                input.close();
-                ir.close();
-            } catch (IOException ex) {
-                // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
-                sDeviceAbi = Build.CPU_ABI.toLowerCase();
-            }
-        }
-        Log.d(TAG, "Device ABI: " + sDeviceAbi);
-    }
 }

@@ -163,6 +163,7 @@ class XWalkLibraryLoader {
      * <p>This method must be invoked on the UI thread.
      */
     public static void prepareToInit(Activity activity) {
+        XWalkEnvironment.init(activity);
         XWalkCoreWrapper.handlePreInit(activity.getClass().getName());
     }
 
@@ -175,6 +176,9 @@ class XWalkLibraryLoader {
      * @param context The context of the package that holds the compressed Crosswalk runtime
      */
     public static void startDecompress(DecompressListener listener, Context context) {
+        if (context != XWalkEnvironment.getInitializationContext()) {
+            throw new RuntimeException("The context of initialization is not consistent");
+        }
         new DecompressTask(listener, context).execute();
     }
 
@@ -196,6 +200,9 @@ class XWalkLibraryLoader {
      * @param listener The {@link ActivateListener} to use
      */
     public static void startActivate(ActivateListener listener, Activity activity) {
+        if (activity != XWalkEnvironment.getInitializationContext()) {
+            throw new RuntimeException("The context of initialization is not consistent");
+        }
         new ActivateTask(listener, activity).execute();
     }
 
@@ -210,6 +217,9 @@ class XWalkLibraryLoader {
      */
     public static void startDownloadManager(DownloadListener listener, Context context,
             String url) {
+        if (context != XWalkEnvironment.getInitializationContext()) {
+            throw new RuntimeException("The context of initialization is not consistent");
+        }
         new DownloadManagerTask(listener, context, url).execute();
     }
 
@@ -232,6 +242,9 @@ class XWalkLibraryLoader {
      * @param url The URL of the Crosswalk runtime
      */
     public static void startHttpDownload(DownloadListener listener, Context context, String url) {
+        if (context != XWalkEnvironment.getInitializationContext()) {
+            throw new RuntimeException("The context of initialization is not consistent");
+        }
         new HttpDownloadTask(listener, context, url).execute();
     }
 
@@ -331,6 +344,7 @@ class XWalkLibraryLoader {
             }
             if (XWalkCoreWrapper.getInstance() != null) {
                 XWalkCoreWrapper.handlePostInit(mActivity.getClass().getName());
+                XWalkEnvironment.finishInit(mActivity);
             }
 
             Log.d(TAG, "ActivateTask finished, " + result);
@@ -452,6 +466,17 @@ class XWalkLibraryLoader {
 
             if (result == DownloadManager.STATUS_SUCCESSFUL) {
                 Uri uri = mDownloadManager.getUriForDownloadedFile(mDownloadId);
+                Log.d(TAG, "Uri for downloaded file:" + uri.toString());
+
+                if (uri.getScheme().equals("content")) {
+                    Query query = new Query().setFilterById(mDownloadId);
+                    Cursor cursor = mDownloadManager.query(query);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int index = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+                        uri = Uri.parse("file://" + cursor.getString(index));
+                    }
+                }
+
                 mListener.onDownloadCompleted(uri);
             } else {
                 int error = DownloadManager.ERROR_UNKNOWN;

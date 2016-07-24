@@ -6,13 +6,11 @@ package org.xwalk.core;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -27,7 +25,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import SevenZip.Compression.LZMA.Decoder;
@@ -120,24 +117,32 @@ class XWalkDecompressor {
             zipFile = new ZipFile(libFile);
 
             for (String resource : MANDATORY_RESOURCES) {
-                String entryDir = "";
+                ZipEntry entry = null;
                 if (isNativeLibrary(resource)) {
-                    if(Build.CPU_ABI.equalsIgnoreCase("armeabi")) {
-                        // We build armeabi-v7a native lib for both armeabi & armeabi-v7a
-                        entryDir = "lib" + File.separator + "armeabi-v7a" + File.separator;
-                    } else {
-                        entryDir = "lib" + File.separator + Build.CPU_ABI + File.separator;
+                    String abi = XWalkEnvironment.getDeviceAbi();
+                    String path = "lib" + File.separator + abi + File.separator + resource;
+                    entry = zipFile.getEntry(path);
+                    if (entry == null && XWalkEnvironment.is64bitDevice()) {
+                        if (abi.equals("arm64-v8a")) {
+                            abi = "armeabi-v7a";
+                        } else if (abi.equals("x86_64")) {
+                            abi = "x86";
+                        }
+                        path = "lib" + File.separator + abi + File.separator + resource;
+                        entry = zipFile.getEntry(path);
                     }
                 } else if (isAsset(resource)) {
-                    entryDir = "assets" + File.separator;
+                    String path = "assets" + File.separator + resource;
+                    entry = zipFile.getEntry(path);
+                } else {
+                    entry = zipFile.getEntry(resource);
                 }
-                Log.d(TAG, "Extracting " + entryDir + resource);
 
-                ZipEntry entry = zipFile.getEntry(entryDir + resource);
                 if (entry == null) {
                     Log.e(TAG, resource + " not found");
                     return false;
                 }
+                Log.d(TAG, "Extracting " + resource);
                 extractStreamToFile(zipFile.getInputStream(entry), new File(destDir, resource));
             }
         } catch (IOException e) {
