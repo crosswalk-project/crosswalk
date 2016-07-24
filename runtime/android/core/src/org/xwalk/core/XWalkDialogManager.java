@@ -7,15 +7,12 @@ package org.xwalk.core;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnShowListener;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -228,11 +225,9 @@ public class XWalkDialogManager {
     public static final int DIALOG_DOWNLOADING = 12;
 
     private static final String TAG = "XWalkLib";
-    private static final String PACKAGE_RE = "[a-z]+\\.[a-z0-9]+\\.[a-z0-9]+.*";
 
     private Context mContext;
     private Dialog mActiveDialog;
-    private String mApplicationName;
 
     private AlertDialog mNotFoundDialog;
     private AlertDialog mOlderVersionDialog;
@@ -549,7 +544,11 @@ public class XWalkDialogManager {
     }
 
     private void setMessage(AlertDialog dialog, String text) {
-        dialog.setMessage(replaceApplicationName(text));
+        text = text.replaceAll("APP_NAME", XWalkEnvironment.getApplicationName());
+        if (text.startsWith("this")) {
+            text = text.replaceFirst("this", "This");
+        }
+        dialog.setMessage(text);
     }
 
     private void setPositiveButton(AlertDialog dialog, int resourceId) {
@@ -592,28 +591,5 @@ public class XWalkDialogManager {
 
         mActiveDialog = dialog;
         mActiveDialog.show();
-    }
-
-    private String replaceApplicationName(String text) {
-        if (mApplicationName == null) {
-            try {
-                PackageManager packageManager = mContext.getPackageManager();
-                ApplicationInfo appInfo = packageManager.getApplicationInfo(
-                        mContext.getPackageName(), 0);
-                mApplicationName = (String) packageManager.getApplicationLabel(appInfo);
-            } catch (PackageManager.NameNotFoundException e) {
-            }
-
-            if (mApplicationName == null || mApplicationName.matches(PACKAGE_RE)) {
-                mApplicationName = "this application";
-            }
-            Log.d(TAG, "Crosswalk application name: " + mApplicationName);
-        }
-
-        text = text.replaceAll("APP_NAME", mApplicationName);
-        if (text.startsWith("this")) {
-            text = text.replaceFirst("this", "This");
-        }
-        return text;
     }
 }
