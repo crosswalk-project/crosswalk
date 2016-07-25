@@ -1,0 +1,97 @@
+if (is_android) {
+  import("//build/config/android/rules.gni")
+}
+
+static_library("xwalk_extensions") {
+  deps = [
+    ":xwalk_extensions_resources",
+    "//base:base",
+    "//ipc:ipc",
+    "//third_party/WebKit/public:blink_headers",
+    "//url:url",
+  ]
+
+  include_dirs = [ "$root_gen_dir/xwalk/extensions" ]
+
+  if (is_android) {
+    deps += [ "android:xwalk_core_extensions_native_jni" ]
+    include_dirs += [ "$root_gen_dir/xwalk/extensions/xwalk_core_extensions_native_jni/xwalk" ]
+  }
+
+  sources = [
+    "browser/xwalk_extension_data.cc",
+    "browser/xwalk_extension_data.h",
+    "browser/xwalk_extension_function_handler.cc",
+    "browser/xwalk_extension_function_handler.h",
+    "browser/xwalk_extension_process_host.cc",
+    "browser/xwalk_extension_process_host.h",
+    "browser/xwalk_extension_service.cc",
+    "browser/xwalk_extension_service.h",
+    "common/android/xwalk_extension_android.cc",
+    "common/android/xwalk_extension_android.h",
+    "common/android/xwalk_native_extension_loader_android.cc",
+    "common/android/xwalk_native_extension_loader_android.h",
+    "common/xwalk_extension.cc",
+    "common/xwalk_extension.h",
+    "common/xwalk_extension_messages.cc",
+    "common/xwalk_extension_messages.h",
+    "common/xwalk_extension_permission_types.h",
+    "common/xwalk_extension_server.cc",
+    "common/xwalk_extension_server.h",
+    "common/xwalk_extension_switches.cc",
+    "common/xwalk_extension_switches.h",
+    "common/xwalk_extension_vector.h",
+    "common/xwalk_external_adapter.cc",
+    "common/xwalk_external_adapter.h",
+    "common/xwalk_external_extension.cc",
+    "common/xwalk_external_extension.h",
+    "common/xwalk_external_instance.cc",
+    "common/xwalk_external_instance.h",
+    "extension_process/xwalk_extension_process.cc",
+    "extension_process/xwalk_extension_process.h",
+    "extension_process/xwalk_extension_process_main.cc",
+    "extension_process/xwalk_extension_process_main.h",
+    "public/XW_Extension.h",
+    "public/XW_Extension_Message_2.h",
+    "public/XW_Extension_Permissions.h",
+    "public/XW_Extension_SyncMessage.h",
+    "renderer/xwalk_extension_client.cc",
+    "renderer/xwalk_extension_client.h",
+    "renderer/xwalk_extension_module.cc",
+    "renderer/xwalk_extension_module.h",
+    "renderer/xwalk_extension_renderer_controller.cc",
+    "renderer/xwalk_extension_renderer_controller.h",
+    "renderer/xwalk_internal_api.js",
+    "renderer/xwalk_js_module.cc",
+    "renderer/xwalk_js_module.h",
+    "renderer/xwalk_module_system.cc",
+    "renderer/xwalk_module_system.h",
+    "renderer/xwalk_v8_utils.cc",
+    "renderer/xwalk_v8_utils.h",
+    "renderer/xwalk_v8tools_module.cc",
+    "renderer/xwalk_v8tools_module.h",
+  ]
+}
+
+import("//tools/grit/grit_rule.gni")
+grit("generate_xwalk_extensions_resources") {
+  source = "extensions_resources.grd"
+  resource_ids = "//xwalk/resources/resource_ids"
+  outputs = [
+    "$root_gen_dir/xwalk/extensions/grit/xwalk_extensions_resources.h",
+    "$root_gen_dir/xwalk/extensions/xwalk_extensions_resources.rc",
+    "$root_gen_dir/xwalk/extensions/xwalk_extensions_resources.pak",
+  ]
+}
+
+copy("xwalk_extensions_resources") {
+  public_deps = [
+    ":generate_xwalk_extensions_resources_grit",
+  ]
+  sources = [
+    "$root_gen_dir/xwalk/extensions/xwalk_extensions_resources.pak",
+  ]
+  outputs = [
+    "$root_out_dir/{{source_file_part}}",
+  ]
+}

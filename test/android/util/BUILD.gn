@@ -1,0 +1,32 @@
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_test_util_java") {
+  deps = [
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+  ]
+  java_files = [
+    "src/org/xwalk/test/util/OnTitleUpdatedHelper.java",
+    "src/org/xwalk/test/util/XWalkTestUtilBase.java",
+    "src/org/xwalk/test/util/XWalkTestUtilCallbacks.java",
+  ]
+  testonly = true
+}
+
+android_library("xwalk_runtime_client_test_utils_java") {
+  deps = [
+    ":xwalk_test_util_java",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+  java_files = [
+    "//xwalk/test/android/util/runtime_client/src/com/example/extension/MyExtension.java",
+    "//xwalk/test/android/util/runtime_client/src/org/xwalk/test/util/ActivityToCausePause.java",
+    "//xwalk/test/android/util/runtime_client/src/org/xwalk/test/util/RuntimeClientApiTestBase.java",
+    "//xwalk/test/android/util/runtime_client/src/org/xwalk/test/util/XWalkRuntimeClientTestGeneric.java",
+    "//xwalk/test/android/util/runtime_client/src/org/xwalk/test/util/XWalkRuntimeClientTestUtilBase.java",
+  ]
+  testonly = true
+}

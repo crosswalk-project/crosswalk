@@ -1,0 +1,36 @@
+import("//build/config/android/rules.gni")
+
+declare_args() {
+  src_dir = rebase_path("//", "$root_out_dir")
+}
+
+if (is_android) {
+  shared_library("xwalk_core_unittests") {
+    deps = [
+      "//base/base:test_support_base",
+      "//net/net:net_test_support",
+      "//testing/android/native_test:native_test_native_code",
+      "//testing/gmock:gmock",
+      "//testing/gtest:gtest",
+    ]
+    include_dirs = [ "//" ]
+    sources = [
+      "//xwalk/runtime/common/android/xwalk_core_tests.cc",
+    ]
+  }
+} else {
+  executable("xwalk_core_unittests") {
+    deps = [
+      "//base/base:test_support_base",
+      "//net/net:net_test_support",
+      "//testing/android/native_test:native_test_native_code",
+      "//testing/gmock:gmock",
+      "//testing/gtest:gtest",
+    ]
+    include_dirs = [ ".." ]
+    sources = [
+      "runtime/common/android/xwalk_core_tests.cc",
+    ]
+  }
+}
+# TODO: implement xwalk_core_unittests.

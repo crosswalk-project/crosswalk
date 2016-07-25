@@ -8,6 +8,7 @@ import optparse
 import os
 import shutil
 import sys
+import zipfile
 
 from bridge_generator import BridgeGenerator
 from interface_generator import InterfaceGenerator
@@ -182,6 +183,26 @@ This script can generate bridge and wrap source files for given directory.
 
   if options.stamp:
     build_utils.Touch(options.stamp)
+
+  # Generate bridge.srcjar and wrapper.srcjar
+  if options.input_dir or options.template_dir:
+    bridge_parent_path = os.path.split(os.path.abspath(bridge_path))[0]
+    with zipfile.ZipFile(
+      os.path.join(bridge_parent_path, 'bridge.srcjar'),
+      'w', zipfile.ZIP_DEFLATED) as bridge_srcjar:
+      for root, _, files in os.walk(bridge_path):
+        for f in files:
+          file_path = os.path.join(root, f)
+          bridge_srcjar.write(file_path, f)
+
+    wrapper_parent_path = os.path.split(os.path.abspath(wrapper_path))[0]
+    with zipfile.ZipFile(
+      os.path.join(wrapper_parent_path, 'wrapper.srcjar'),
+      'w', zipfile.ZIP_DEFLATED) as wrapper_srcjar:
+      for root, _, files in os.walk(wrapper_path):
+        for f in files:
+          file_path = os.path.join(root, f)
+          wrapper_srcjar.write(file_path, f)
 
 
 if __name__ == '__main__':

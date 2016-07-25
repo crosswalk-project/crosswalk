@@ -1,0 +1,69 @@
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_core_java") {
+  deps = [
+    ":xwalk_core_java_resources",
+    "//xwalk/third_party/lzma_sdk:lzma_sdk_java",
+  ]
+  srcjar_deps = [ ":wrapper" ]
+  java_files = [
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/BindingObject.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/BindingObjectAutoJS.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/BindingObjectStore.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/EventTarget.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/ExtensionInstanceHelper.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/JsApi.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/JsConstructor.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/JsContextInfo.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/JsStubGenerator.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/MessageHandler.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/MessageInfo.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/ReflectionHelper.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkCoreExtensionBridge.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExtensionContextClient.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExternalExtension.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExternalExtensionBridge.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExternalExtensionBridgeFactory.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExternalExtensionManagerImpl.java",
+
+    "//xwalk/runtime/android/core/src/org/xwalk/core/JavascriptInterface.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivityDelegate.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkApplication.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkCoreWrapper.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkDialogManager.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkDecompressor.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkLibraryInterface.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkLibraryLoader.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkMixedResources.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java",
+  ]
+}
+
+copy("wrapper") {
+  deps = [
+    "//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_java_gen",
+  ]
+  sources = [
+    "$root_gen_dir/xwalk_core_reflection_layer/wrapper/org/xwalk/wrapper.srcjar",
+  ]
+  outputs = [
+    "$root_gen_dir/xwalk/runtime/android/core/wrapper.srcjar",
+  ]
+}
+
+android_resources("xwalk_core_java_resources") {
+  deps = [
+    ":xwalk_app_strings",
+  ]
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core"
+}
+
+java_strings_grd("xwalk_app_strings") {
+  grd_file = "strings/xwalk_app_strings.grd"
+  outputs = [
+    "values/xwalk_app_strings.xml",
+  ]
+}

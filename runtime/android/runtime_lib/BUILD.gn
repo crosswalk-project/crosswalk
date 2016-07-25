@@ -1,0 +1,52 @@
+if (is_android) {
+  import("//build/config/android/rules.gni")
+}
+
+android_apk("xwalk_runtime_lib_apk") {
+  apk_name = "XWalkRuntimeLib"
+  java_files = []
+  android_manifest = "AndroidManifest.xml"
+  native_libs = [ "$root_out_dir/libxwalkcore.so" ]
+  deps = [
+    ":xwalk_runtime_lib_apk_assets",
+    ":xwalk_runtime_lib_apk_resources",
+    "//base:base_java",
+    "//components/web_contents_delegate_android:web_contents_delegate_android_java_resources",
+    "//ui/android:ui_java_resources",
+    "//xwalk/runtime/android:libxwalkcore",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java_resources",
+  ]
+  version_name = xwalk_version
+  version_code = xwalk_version_code
+}
+
+android_resources("xwalk_runtime_lib_apk_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core"
+}
+
+android_assets("xwalk_runtime_lib_apk_assets") {
+  deps = [
+    "//v8",
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+  if (icu_use_data_file) {
+    deps += [ "//third_party/icu:icudata" ]
+    sources += [ "$root_out_dir/icudtl.dat" ]
+  }
+  renaming_sources = [
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+  renaming_destinations = [
+    "jsapi/launch_screen_api.js",
+    "jsapi/wifidirect_api.js",
+  ]
+  disable_compression = true
+}

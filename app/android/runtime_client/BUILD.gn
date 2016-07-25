@@ -1,0 +1,52 @@
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_app_runtime_java") {
+  deps = [
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+  srcjar_deps = [ ":xwalk_runtime_client_version" ]
+  java_files = [
+    "//xwalk/app/android/runtime_activity/src/org/xwalk/app/XWalkRuntimeActivityBase.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/extension/XWalkRuntimeExtensionLoader.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkCoreProviderImpl.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeTestHelper.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeView.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeViewProvider.java",
+    "//xwalk/app/android/runtime_client/src/org/xwalk/app/runtime/XWalkRuntimeViewProviderFactory.java",
+  ]
+}
+
+copy("xwalk_runtime_client_version") {
+  deps = [
+    ":generate_runtime_client_version",
+  ]
+  sources = [
+    "$root_gen_dir/XWalkRuntimeClientVersion.java.srcjar",
+  ]
+  outputs = [
+    "$root_gen_dir/xwalk/app/android/runtime_client/xwalk_runtime_client_version.srcjar",
+  ]
+}
+
+action("generate_runtime_client_version") {
+  template_file = "//xwalk/app/android/runtime_client/src/templates/XWalkRuntimeClientVersion.template"
+  output_file = "$root_gen_dir/version_java/XWalkRuntimeClientVersion.java"
+  inputs = [
+    "//xwalk/VERSION",
+    "$template_file",
+    "//xwalk/build/android/generate_runtime_client_version.py",
+  ]
+
+  template_file_path = rebase_path(template_file, root_out_dir)
+  output_file_path = rebase_path(output_file, root_out_dir)
+  script = "//xwalk/build/android/generate_runtime_client_version.py"
+  args = [
+    "--template=$template_file_path",
+    "--output=$output_file_path",
+    "--xwalk-version=$xwalk_version",
+  ]
+  outputs = [
+    output_file,
+    "$root_gen_dir/XWalkRuntimeClientVersion.java.srcjar",
+  ]
+}
