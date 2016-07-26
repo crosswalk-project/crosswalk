@@ -1652,7 +1652,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout
     public void setOnTouchListener(OnTouchListener l) {
         if (mContent == null) return;
         checkThreadSafety();
-        this.setOnTouchListener(l);
+        super.setOnTouchListener(l);
     }
 
     @Override
