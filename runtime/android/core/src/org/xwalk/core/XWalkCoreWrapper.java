@@ -4,7 +4,6 @@
 
 package org.xwalk.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -32,7 +31,6 @@ class XWalkCoreWrapper {
     private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
     private static final String TAG = "XWalkLib";
     private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
-    private static final String OPTIMIZED_DEX_DIR = "dex";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -115,60 +113,50 @@ class XWalkCoreWrapper {
         sReservedActions.get(tag).add(new ReservedAction(method));
     }
 
-    public static void handleRuntimeError(RuntimeException e) {
-        e.printStackTrace();
-        sInstance.mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
-        final Activity activity = (Activity) sInstance.mWrapperContext;
-        XWalkUpdater xwalkUpdater = new XWalkUpdater(
-            new XWalkUpdater.XWalkUpdateListener() {
-                @Override
-                public void onXWalkUpdateCancelled() {
-                    activity.finish();
-                }
-            },
-            activity);
-        xwalkUpdater.updateXWalkRuntime();
-    }
-
     /**
      * This method must be invoked on the UI thread.
      */
-    public static void handlePostInit(String tag) {
-        if (!sReservedActions.containsKey(tag)) return;
-        Log.d(TAG, "Post init xwalk core in " + tag);
+    public static void handlePostInit() {
+        Log.d(TAG, "Post init xwalk core");
 
-        LinkedList<ReservedAction> reservedActions = sReservedActions.get(tag);
-        for (ReservedAction action : reservedActions) {
-            if (action.mObject != null) {
-                Log.d(TAG, "Init reserved object: " + action.mObject.getClass());
-                new ReflectMethod(action.mObject, "reflectionInit").invoke();
-            } else if (action.mClass != null) {
-                Log.d(TAG, "Init reserved class: " + action.mClass.toString());
-                new ReflectMethod(action.mClass, "reflectionInit").invoke();
-            } else {
-                Log.d(TAG, "Call reserved method: " + action.mMethod.toString());
-                Object[] args = action.mArguments;
-                if (args != null) {
-                    for (int i = 0; i < args.length; ++i) {
-                        if (args[i] instanceof ReflectMethod) {
-                            args[i] = ((ReflectMethod) args[i]).invokeWithArguments();
+        for (String tag : sReservedActivities) {
+            LinkedList<ReservedAction> reservedActions = sReservedActions.get(tag);
+            for (ReservedAction action : reservedActions) {
+                if (action.mObject != null) {
+                    Log.d(TAG, "Init reserved object: " + action.mObject.getClass() + " for " + tag);
+                    new ReflectMethod(action.mObject, "reflectionInit").invoke();
+                } else if (action.mClass != null) {
+                    Log.d(TAG, "Init reserved class: " + action.mClass.toString() + " for " + tag);
+                    new ReflectMethod(action.mClass, "reflectionInit").invoke();
+                } else {
+                    Log.d(TAG, "Call reserved method: " + action.mMethod.toString() + " for " + tag);
+                    Object[] args = action.mArguments;
+                    if (args != null) {
+                        for (int i = 0; i < args.length; ++i) {
+                            if (args[i] instanceof ReflectMethod) {
+                                args[i] = ((ReflectMethod) args[i]).invokeWithArguments();
+                            }
                         }
                     }
+                    action.mMethod.invoke(args);
                 }
-                action.mMethod.invoke(args);
             }
         }
 
-        sReservedActivities.remove(tag);
-        sReservedActions.remove(tag);
+        sReservedActivities.clear();
+        sReservedActions.clear();
     }
 
-    public static int attachXWalkCore(Context context) {
+    public static void handleRuntimeError(RuntimeException e) {
+        throw new RuntimeException("The API is incompatible with the Crosswalk runtime library", e);
+    }
+
+    public static int attachXWalkCore() {
         Assert.assertFalse(sReservedActivities.isEmpty());
         Assert.assertNull(sInstance);
 
         Log.d(TAG, "Attach xwalk core");
-        sProvisionalInstance = new XWalkCoreWrapper(context, 1);
+        sProvisionalInstance = new XWalkCoreWrapper(XWalkEnvironment.getApplicationContext(), 1);
         if (sProvisionalInstance.findEmbeddedCore()) {
             return sProvisionalInstance.mCoreStatus;
         }
@@ -281,11 +269,9 @@ class XWalkCoreWrapper {
     }
 
     private boolean findDownloadedCore() {
-        String libDir = mWrapperContext.getDir(XWalkLibraryInterface.XWALK_CORE_EXTRACTED_DIR,
-                Context.MODE_PRIVATE).getAbsolutePath();
+        String libDir = XWalkEnvironment.getExtractedCoreDir();
         String dexPath = libDir + File.separator + XWALK_CORE_CLASSES_DEX;
-        String dexOutputPath = mWrapperContext.getDir(OPTIMIZED_DEX_DIR, Context.MODE_PRIVATE).
-                getAbsolutePath();
+        String dexOutputPath = XWalkEnvironment.getOptimizedDexDir();
         ClassLoader localClassLoader = ClassLoader.getSystemClassLoader();
         mBridgeLoader = new DexClassLoader(dexPath, dexOutputPath, libDir, localClassLoader);
 
@@ -363,9 +349,7 @@ class XWalkCoreWrapper {
                 }
 
                 if (!architectureMatched && mWrapperContext != null) {
-                    libDir = mWrapperContext.getDir(
-                            XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
-                            Context.MODE_PRIVATE).toString();
+                    libDir = XWalkEnvironment.getPrivateDataDir();
                     architectureMatched = (boolean) method.invoke(mBridgeContext, libDir);
                 }
             }
