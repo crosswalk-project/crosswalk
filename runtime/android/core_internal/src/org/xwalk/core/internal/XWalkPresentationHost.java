@@ -8,24 +8,22 @@ import java.util.HashMap;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Presentation;
+import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.content.Context;
-import android.app.Activity;
-import android.app.Presentation;
-import android.hardware.display.DisplayManager;
 import android.view.Display;
 
-import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.annotations.CalledByNative;
+import org.chromium.base.annotations.JNINamespace;
 
 import org.xwalk.core.internal.extension.api.XWalkDisplayManager;
 
 @JNINamespace("xwalk")
 class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
     private static String TAG = "XWalkPresentationHost";
-    private static Activity sEnduringActivity = null;
     private static XWalkPresentationHost sInstance;
 
     public static class RenderFrameHostId {
@@ -61,10 +59,8 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
     };
 
     private final class PresentationSession {
-        public PresentationSession(Context context, Activity activity,
-                int renderProcessID, int renderFrameID) {
+        public PresentationSession(Context context, int renderProcessID, int renderFrameID) {
             this.context = context;
-            this.activity = activity;
             this.renderProcessID = renderProcessID;
             this.renderFrameID = renderFrameID;
             this.presentationScreen = null;
@@ -72,19 +68,18 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
 
         public PresentationScreen presentationScreen;
         public Context context;
-        public Activity activity;
         public int renderProcessID;
         public int renderFrameID;
     };
 
+    private Context mApplicationContext;
     private HashMap<RenderFrameHostId, PresentationSession> mExistingSessions;
     private long mNativePresentationHost;
     private XWalkDisplayManager mDisplayManager;
 
-    public static XWalkPresentationHost createInstanceOnce(Activity activity, Context context) {
+    public static XWalkPresentationHost createInstanceOnce(Context context) {
         if (sInstance == null) {
             sInstance = new XWalkPresentationHost(context);
-            sInstance.saveActivityOnce(activity);
         }
         return sInstance;
     }
@@ -93,15 +88,9 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
         return sInstance;
     }
 
-    private void saveActivityOnce(Activity activity) {
-        if (sEnduringActivity == null) {
-            sEnduringActivity = activity;
-        }
-    }
-
     private PresentationSession createNewSession(RenderFrameHostId id) {
-        PresentationSession session = new PresentationSession(sEnduringActivity,
-                sEnduringActivity, id.renderProcessID, id.renderFrameID);
+        PresentationSession session = new PresentationSession(mApplicationContext,
+                id.renderProcessID, id.renderFrameID);
         assert mExistingSessions.get(id) == null;
         mExistingSessions.put(id, session);
         return session;
@@ -128,7 +117,7 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
                     }
                 }
 
-                if (display != null && Build.VERSION.SDK_INT >= 
+                if (display != null && Build.VERSION.SDK_INT >=
                         Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     session.presentationScreen = new PresentationScreen(session, display);
                     session.presentationScreen.show();
@@ -159,9 +148,10 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
         }
     }
 
-    private XWalkPresentationHost (Context context) {
+    private XWalkPresentationHost(Context context) {
+        mApplicationContext = context.getApplicationContext();
         mExistingSessions = new HashMap<RenderFrameHostId, PresentationSession>();
-        mDisplayManager = XWalkDisplayManager.getInstance(context);
+        mDisplayManager = XWalkDisplayManager.getInstance(mApplicationContext);
         setNativeObject(nativeInit());
         listenToSystemDisplayChange();
     }
@@ -236,17 +226,13 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
     private final class PresentationScreen extends Presentation {
         private XWalkViewInternal mContentView;
         private PresentationSession mSession;
-        private Context mContext;
         private Display mDisplay;
-        private Activity mActivity;
 
         public PresentationScreen(PresentationSession session, Display display) {
             super(session.context, display);
 
             mSession = session;
-            mContext = session.context;
             mDisplay = display;
-            mActivity = session.activity;
         }
 
         @Override
@@ -254,7 +240,7 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
             super.onCreate(savedInstanceState);
 
             if (mContentView == null) {
-                mContentView = new XWalkViewInternal(getContext(), mActivity);
+                mContentView = new XWalkViewInternal(getContext());
                 mContentView.setUIClient(new XWalkUIClientInternal(mContentView));
             }
             setContentView(mContentView);

@@ -93,14 +93,4 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             if (xwalkView != null) xwalkView.onDestroy();
         }
     }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        for (int i=0; i<mFragmentList.size(); i++) {
-            XWalkViewSectionFragment fragment = (XWalkViewSectionFragment)mFragmentList.get(i);
-            XWalkView xwalkView = fragment.getXWalkView();
-            if (xwalkView != null) {
-                xwalkView.onActivityResult(requestCode, resultCode, data);
-            }
-        }
-    }
 }
