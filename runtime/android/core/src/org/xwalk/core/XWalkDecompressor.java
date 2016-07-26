@@ -48,10 +48,10 @@ class XWalkDecompressor {
     private static final int LZMA_PROP_SIZE = 5;
     private static final int LZMA_OUTSIZE = 8;
 
-    public static boolean isLibraryCompressed(Context context) {
+    public static boolean isLibraryCompressed() {
         for (String library : MANDATORY_LIBRARIES) {
             try {
-                InputStream input = openRawResource(context, library);
+                InputStream input = openRawResource(library);
                 try {
                     input.close();
                 } catch (IOException e) {
@@ -63,9 +63,8 @@ class XWalkDecompressor {
         return true;
     }
 
-    public static boolean decompressLibrary(Context context) {
-        String libDir = context.getDir(XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
-                Context.MODE_PRIVATE).toString();
+    public static boolean decompressLibrary() {
+        String libDir = XWalkEnvironment.getPrivateDataDir();
         File f = new File(libDir);
         if (f.exists() && f.isFile()) f.delete();
         if (!f.exists() && !f.mkdirs()) return false;
@@ -74,7 +73,7 @@ class XWalkDecompressor {
         for (String library : MANDATORY_LIBRARIES) {
             try {
                 Log.d(TAG, "Decompressing " + library);
-                InputStream input = openRawResource(context, library);
+                InputStream input = openRawResource(library);
                 extractLzmaToFile(input, new File(libDir, library));
             } catch (Resources.NotFoundException e) {
                 Log.d(TAG, library + " not found");
@@ -238,8 +237,9 @@ class XWalkDecompressor {
         return resource.endsWith(".dat") || resource.endsWith(".pak");
     }
 
-    private static InputStream openRawResource(Context context, String library)
+    private static InputStream openRawResource(String library)
             throws Resources.NotFoundException {
+        Context context = XWalkEnvironment.getApplicationContext();
         Resources res = context.getResources();
         String libraryName = library.split("\\.")[0];
         int id = res.getIdentifier(libraryName, "raw", context.getPackageName());

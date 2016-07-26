@@ -38,6 +38,8 @@ import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
 
+import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
+
 @JNINamespace("xwalk")
 class XWalkViewDelegate {
     private static boolean sInitialized = false;
@@ -181,6 +183,7 @@ class XWalkViewDelegate {
         ResourceExtractor.get(context);
 
         startBrowserProcess(context);
+
         sInitialized = true;
     }
 
@@ -209,6 +212,15 @@ class XWalkViewDelegate {
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
+
+                if (!CommandLine.getInstance().hasSwitch("disable-xwalk-extensions")) {
+                    BuiltinXWalkExtensions.load(context);
+                } else {
+                    XWalkPreferencesInternal.setValue(
+                            XWalkPreferencesInternal.ENABLE_EXTENSIONS, false);
+                }
+
+                XWalkPresentationHost.createInstanceOnce(context);
             }
         });
     }

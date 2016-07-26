@@ -114,10 +114,4 @@ interface XWalkExternalExtensionBridge {
      * without creating a new activity instance.
      */
     public void onNewIntent(Intent intent);
-
-    /**
-     * Called when the extension exists if activity launched exists.
-     * TODO(hmin): Figure out if it is necessary and how to use it.
-     */
-    public void onActivityResult(int requestCode, int resultCode, Intent data);
 }
