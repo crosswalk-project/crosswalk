@@ -261,14 +261,7 @@ class XWalkEnvironment {
             PackageManager packageManager = sApplicationContext.getPackageManager();
             ApplicationInfo appInfo = packageManager.getApplicationInfo(
                     sApplicationContext.getPackageName(), PackageManager.GET_META_DATA);
-            String value = appInfo.metaData.getString(name);
-            if (value == null) {
-                Boolean boolValue = appInfo.metaData.getBoolean(name);
-                if (boolValue != null) {
-                    value = boolValue ? "true" : "false";
-                }
-            }
-            return value;
+            return appInfo.metaData.get(name).toString();
         } catch (NameNotFoundException | NullPointerException e) {
             return null;
         }
