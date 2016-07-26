@@ -60,20 +60,4 @@ public interface XWalkExtensionContextClient {
      * @return the current Android Context.
      */
     public Context getContext();
-
-    /**
-     * Get the current Android Activity.
-     * @return the current Android Activity.
-     */
-    public Activity getActivity();
-
-    /**
-     * Start another activity to get some data back.
-     * External extensions should call this function to ensure
-     * they can get their onActivityResultCallback() be called correctly.
-     * @param requestCode the request code.
-     * @param resultCode the result code.
-     * @param data the Intent data received.
-     */
-    public void startActivityForResult(Intent intent, int requestCode, Bundle options);
 }
