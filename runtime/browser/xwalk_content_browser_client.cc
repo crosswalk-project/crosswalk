@@ -33,6 +33,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/printing/printing_message_filter.h"
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
@@ -185,6 +186,9 @@ void XWalkContentBrowserClient::RenderProcessWillLaunch(
 #if defined(OS_ANDROID)
   host->AddFilter(new cdm::CdmMessageFilterAndroid());
   host->AddFilter(new XWalkRenderMessageFilter(host->GetID()));
+#endif
+#if defined(ENABLE_PRINTING)
+  host->AddFilter(new PrintingMessageFilter(host->GetID()));
 #endif
 }
 

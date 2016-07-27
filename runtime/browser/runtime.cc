@@ -32,6 +32,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/printing/print_view_manager_basic.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/runtime/browser/xwalk_autofill_manager.h"
@@ -69,6 +70,7 @@ Runtime::Runtime(content::WebContents* web_contents)
       observer_(nullptr),
       weak_ptr_factory_(this) {
   web_contents_->SetDelegate(this);
+  PrintViewManagerBasic::CreateForWebContents(web_contents);
 #if !defined(OS_ANDROID)
   if (XWalkBrowserContext::GetDefault()->save_form_data())
     xwalk_autofill_manager_.reset(
