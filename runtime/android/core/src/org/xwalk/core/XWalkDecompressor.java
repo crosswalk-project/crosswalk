@@ -6,13 +6,11 @@ package org.xwalk.core;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -27,7 +25,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import SevenZip.Compression.LZMA.Decoder;
@@ -51,10 +48,10 @@ class XWalkDecompressor {
     private static final int LZMA_PROP_SIZE = 5;
     private static final int LZMA_OUTSIZE = 8;
 
-    public static boolean isLibraryCompressed(Context context) {
+    public static boolean isLibraryCompressed() {
         for (String library : MANDATORY_LIBRARIES) {
             try {
-                InputStream input = openRawResource(context, library);
+                InputStream input = openRawResource(library);
                 try {
                     input.close();
                 } catch (IOException e) {
@@ -66,9 +63,8 @@ class XWalkDecompressor {
         return true;
     }
 
-    public static boolean decompressLibrary(Context context) {
-        String libDir = context.getDir(XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
-                Context.MODE_PRIVATE).toString();
+    public static boolean decompressLibrary() {
+        String libDir = XWalkEnvironment.getPrivateDataDir();
         File f = new File(libDir);
         if (f.exists() && f.isFile()) f.delete();
         if (!f.exists() && !f.mkdirs()) return false;
@@ -77,7 +73,7 @@ class XWalkDecompressor {
         for (String library : MANDATORY_LIBRARIES) {
             try {
                 Log.d(TAG, "Decompressing " + library);
-                InputStream input = openRawResource(context, library);
+                InputStream input = openRawResource(library);
                 extractLzmaToFile(input, new File(libDir, library));
             } catch (Resources.NotFoundException e) {
                 Log.d(TAG, library + " not found");
@@ -120,24 +116,32 @@ class XWalkDecompressor {
             zipFile = new ZipFile(libFile);
 
             for (String resource : MANDATORY_RESOURCES) {
-                String entryDir = "";
+                ZipEntry entry = null;
                 if (isNativeLibrary(resource)) {
-                    if(Build.CPU_ABI.equalsIgnoreCase("armeabi")) {
-                        // We build armeabi-v7a native lib for both armeabi & armeabi-v7a
-                        entryDir = "lib" + File.separator + "armeabi-v7a" + File.separator;
-                    } else {
-                        entryDir = "lib" + File.separator + Build.CPU_ABI + File.separator;
+                    String abi = XWalkEnvironment.getDeviceAbi();
+                    String path = "lib" + File.separator + abi + File.separator + resource;
+                    entry = zipFile.getEntry(path);
+                    if (entry == null && XWalkEnvironment.is64bitDevice()) {
+                        if (abi.equals("arm64-v8a")) {
+                            abi = "armeabi-v7a";
+                        } else if (abi.equals("x86_64")) {
+                            abi = "x86";
+                        }
+                        path = "lib" + File.separator + abi + File.separator + resource;
+                        entry = zipFile.getEntry(path);
                     }
                 } else if (isAsset(resource)) {
-                    entryDir = "assets" + File.separator;
+                    String path = "assets" + File.separator + resource;
+                    entry = zipFile.getEntry(path);
+                } else {
+                    entry = zipFile.getEntry(resource);
                 }
-                Log.d(TAG, "Extracting " + entryDir + resource);
 
-                ZipEntry entry = zipFile.getEntry(entryDir + resource);
                 if (entry == null) {
                     Log.e(TAG, resource + " not found");
                     return false;
                 }
+                Log.d(TAG, "Extracting " + resource);
                 extractStreamToFile(zipFile.getInputStream(entry), new File(destDir, resource));
             }
         } catch (IOException e) {
@@ -233,8 +237,9 @@ class XWalkDecompressor {
         return resource.endsWith(".dat") || resource.endsWith(".pak");
     }
 
-    private static InputStream openRawResource(Context context, String library)
+    private static InputStream openRawResource(String library)
             throws Resources.NotFoundException {
+        Context context = XWalkEnvironment.getApplicationContext();
         Resources res = context.getResources();
         String libraryName = library.split("\\.")[0];
         int id = res.getIdentifier(libraryName, "raw", context.getPackageName());

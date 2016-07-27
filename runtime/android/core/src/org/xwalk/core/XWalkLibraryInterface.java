@@ -53,9 +53,6 @@ interface XWalkLibraryInterface {
      */
     public static final int STATUS_RUNTIME_MISMATCH = 8;
 
-    public static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
-    public static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
-
     public static final String XWALK_CORE_PACKAGE = "org.xwalk.core";
     public static final String XWALK_CORE64_PACKAGE = "org.xwalk.core64";
     public static final String XWALK_CORE_IA_PACKAGE = "org.xwalk.core.ia";
