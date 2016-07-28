@@ -69,10 +69,6 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkExternalEx
         mExtension.onNewIntent(intent);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mExtension.onActivityResult(requestCode, resultCode, data);
-    }
-
     //------------------------------------------------
     // Overriden methods from XWalkExtensionAndroid
     //------------------------------------------------

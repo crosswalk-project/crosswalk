@@ -50,7 +50,7 @@ public class HandleActionUriTest extends XWalkViewInternalTestBase {
             @Override
             public void run() {
                 mNavigationHandler = new TestXWalkNavigationHandler(
-                        getXWalkView().getActivity());
+                        getXWalkView().getContext());
                 getXWalkView().setNavigationHandler(mNavigationHandler);
             }
         });

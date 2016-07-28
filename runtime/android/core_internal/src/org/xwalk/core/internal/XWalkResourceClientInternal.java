@@ -4,7 +4,6 @@
 
 package org.xwalk.core.internal;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -237,7 +236,7 @@ public class XWalkResourceClientInternal {
     @XWalkAPI
     public void onReceivedLoadError(XWalkViewInternal view, int errorCode, String description,
             String failingUrl) {
-        Toast.makeText(view.getActivity(), description, Toast.LENGTH_SHORT).show();
+        Toast.makeText(view.getContext(), description, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -300,9 +299,9 @@ public class XWalkResourceClientInternal {
     }
 
     /**
-     * Notify the host application to handle a SSL client certificate request. The host application 
-     * is responsible for showing the UI if desired and providing the keys. There are three ways to 
-     * respond: proceed(), cancel() or ignore(). XWalkView remembers the response if proceed() or cancel() 
+     * Notify the host application to handle a SSL client certificate request. The host application
+     * is responsible for showing the UI if desired and providing the keys. There are three ways to
+     * respond: proceed(), cancel() or ignore(). XWalkView remembers the response if proceed() or cancel()
      * is called and does not call onReceivedClientCertRequest() again for the same host and port pair.
      * XWalkView does not remember the response if ignore() is called.
      *
@@ -312,7 +311,7 @@ public class XWalkResourceClientInternal {
      *
      * @param view The XWalkView that is initiating the callback
      * @param handler An instance of a ClientCertRequestHandlerInternal
-     * 
+     *
      * @since 6.0
      */
     @XWalkAPI
@@ -386,8 +385,7 @@ public class XWalkResourceClientInternal {
         layout.addView(userNameEditText);
         layout.addView(passwordEditText);
 
-        final Activity curActivity = view.getActivity();
-        AlertDialog.Builder httpAuthDialog = new AlertDialog.Builder(curActivity);
+        AlertDialog.Builder httpAuthDialog = new AlertDialog.Builder(view.getContext());
         httpAuthDialog.setTitle(R.string.http_auth_title)
                 .setView(layout)
                 .setCancelable(false)

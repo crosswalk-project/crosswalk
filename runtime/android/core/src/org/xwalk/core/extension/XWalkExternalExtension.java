@@ -150,15 +150,6 @@ public class XWalkExternalExtension {
     }
 
     /**
-     * Tell extension that one activity exists so that it can know the result
-     * of the exit code.
-     * Please call XWalkExtensionContextClient.startActivityForResult()
-     * so that this callback can be called correctly for all cases.
-     */
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    }
-
-    /**
      * Called when a new extension instance is created.
      */
     public void onInstanceCreated(int instanceID) {
@@ -226,7 +217,7 @@ public class XWalkExternalExtension {
     public MessageHandler getMessageHandler() {
         return mHandler;
     }
-    
+
     public ReflectionHelper getTargetReflect(String cName) {
         ReflectionHelper targetReflect = mReflection.getConstructorReflection(cName);
         return (targetReflect != null) ? targetReflect : mReflection;
@@ -279,16 +270,5 @@ public class XWalkExternalExtension {
      */
     public final void broadcastMessage(String message) {
         mExtensionContext.broadcastMessage(this, message);
-    }
-
-    /**
-     * Start another activity to get some data back.
-     * Call this function then will get onActivityResult() callback.
-     * @param requestCode the request code.
-     * @param resultCode the result code.
-     * @param data the Intent data received.
-     */
-    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
-        mExtensionContext.startActivityForResult(intent, requestCode, options);
     }
 }

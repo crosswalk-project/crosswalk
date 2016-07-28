@@ -63,11 +63,6 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mXWalkView.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     public boolean onNewIntent(Intent intent) {
         return mXWalkView.onNewIntent(intent);
     }
