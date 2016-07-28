@@ -72,7 +72,7 @@ import android.os.Bundle;
  * <h3>Edit App Manifest</h3>
  *
  * <p>For shared mode and download mode, you might need to edit the Android manifest to set some
- * properties. </pn.>
+ * properties. </p>
  *
  * <h4>Shared Mode</h4>
  *

@@ -6,27 +6,20 @@ package org.xwalk.core;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -40,11 +33,6 @@ class XWalkCoreWrapper {
     private static final String TAG = "XWalkLib";
     private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
     private static final String OPTIMIZED_DEX_DIR = "dex";
-    private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";
-    private static final String META_XWALK_DOWNLOAD_MODE = "xwalk_download_mode";
-    private static final String META_XWALK_DOWNLOAD_MODE_UPDATE = "xwalk_download_mode_update";
-    private static final String PATTERN_BIT_MISMATCH =
-            "dlopen failed: \".+\" is (32|64)-bit instead of (32|64)-bit";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -78,7 +66,6 @@ class XWalkCoreWrapper {
     private int mApiVersion;
     private int mMinApiVersion;
     private int mCoreStatus;
-    private boolean mIsDownloadMode;
 
     private Context mWrapperContext;
     private Context mBridgeContext;
@@ -186,7 +173,7 @@ class XWalkCoreWrapper {
             return sProvisionalInstance.mCoreStatus;
         }
 
-        if (sProvisionalInstance.mIsDownloadMode) {
+        if (XWalkEnvironment.isDownloadMode()) {
             sProvisionalInstance.findDownloadedCore();
             return sProvisionalInstance.mCoreStatus;
         }
@@ -195,18 +182,17 @@ class XWalkCoreWrapper {
             Log.d(TAG, "Not verifying the package integrity of Crosswalk runtime library");
         }
 
-        if (sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_PACKAGE)) {
-            return sProvisionalInstance.mCoreStatus;
-        }
-
-        String cpuAbi = getPrimaryCpuAbi();
-        if (cpuAbi.equalsIgnoreCase("arm64-v8a")) {
-            sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_PACKAGE);
-        } else if (cpuAbi.equalsIgnoreCase("x86")) {
-            sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE);
-        } else if (cpuAbi.equalsIgnoreCase("x86_64")) {
-            if (!sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_PACKAGE)) {
+        if (XWalkEnvironment.is64bitDevice()) {
+            if (sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_PACKAGE)) {
+            } else if (sProvisionalInstance.findSharedCore(
+                    XWalkLibraryInterface.XWALK_CORE64_PACKAGE)) {
+            } else if (XWalkEnvironment.isIaDevice()) {
                 sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE);
+            }
+        } else {
+            if (sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_PACKAGE)) {
+            } else if (XWalkEnvironment.isIaDevice()) {
+                sProvisionalInstance.findSharedCore(XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE);
             }
         }
         return sProvisionalInstance.mCoreStatus;
@@ -249,13 +235,6 @@ class XWalkCoreWrapper {
                 minApiVersion : mApiVersion;
         mCoreStatus = XWalkLibraryInterface.STATUS_PENDING;
         mWrapperContext = context;
-
-        String enable = getApplicationMetaData(META_XWALK_DOWNLOAD_MODE);
-        if (enable == null) {
-            enable = getApplicationMetaData(META_XWALK_ENABLE_DOWNLOAD_MODE);
-        }
-        mIsDownloadMode = enable != null
-                && (enable.equalsIgnoreCase("enable") || enable.equalsIgnoreCase("true"));
     }
 
     private void initCoreBridge() {
@@ -336,14 +315,11 @@ class XWalkCoreWrapper {
             Log.d(TAG, "[Lib Version] build:" + buildVersion
                     + ", api:" + libVersion + ", min_api:" + minLibVersion);
 
-            if (mIsDownloadMode && !buildVersion.isEmpty()) {
-                String update = getApplicationMetaData(META_XWALK_DOWNLOAD_MODE_UPDATE);
-                if (update != null
-                        && (update.equalsIgnoreCase("enable") || update.equalsIgnoreCase("true"))
-                        && !buildVersion.equals(XWalkAppVersion.XWALK_BUILD_VERSION)) {
-                    mCoreStatus = XWalkLibraryInterface.STATUS_RUNTIME_MISMATCH;
-                    return false;
-                }
+            if (XWalkEnvironment.isDownloadMode() && XWalkEnvironment.isDownloadModeUpdate()
+                    && !buildVersion.isEmpty()
+                    && !buildVersion.equals(XWalkAppVersion.XWALK_BUILD_VERSION)) {
+                mCoreStatus = XWalkLibraryInterface.STATUS_RUNTIME_MISMATCH;
+                return false;
             }
 
             if (mMinApiVersion > libVersion) {
@@ -517,39 +493,5 @@ class XWalkCoreWrapper {
         } catch (ClassNotFoundException e) {
         }
         return null;
-    }
-
-    private String getApplicationMetaData(String name) {
-        try {
-            PackageManager packageManager = mWrapperContext.getPackageManager();
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(
-                    mWrapperContext.getPackageName(), PackageManager.GET_META_DATA);
-            return appInfo.metaData.getString(name);
-        } catch (NameNotFoundException | NullPointerException e) {
-        }
-        return null;
-    }
-
-    public static String getApplicationAbi() {
-        return Build.CPU_ABI;
-    }
-
-    public static String getPrimaryCpuAbi() {
-        try {
-            return Build.SUPPORTED_ABIS[0];
-        } catch (NoSuchFieldError e) {
-            try {
-                Process process = Runtime.getRuntime().exec("getprop ro.product.cpu.abi");
-                InputStreamReader ir = new InputStreamReader(process.getInputStream());
-                BufferedReader input = new BufferedReader(ir);
-                String abi = input.readLine();
-                input.close();
-                ir.close();
-                return abi;
-            } catch (IOException ex) {
-            }
-        }
-        // CPU_ABI is deprecated in API level 21 and maybe incorrect on Houdini
-        return Build.CPU_ABI;
     }
 }
