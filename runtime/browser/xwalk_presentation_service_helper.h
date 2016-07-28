@@ -69,6 +69,8 @@ inline Application* GetApplication(content::WebContents* contents) {
 }
 
 struct DisplayInfo {
+  DisplayInfo();
+
   gfx::Rect bounds;
   bool is_primary;
   bool in_use;
