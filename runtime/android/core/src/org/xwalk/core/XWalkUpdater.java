@@ -404,12 +404,6 @@ public class XWalkUpdater {
         return XWalkLibraryLoader.cancelHttpDownload();
     }
 
-    private boolean dismissDialog() {
-        if (mDialogManager == null || !mDialogManager.isShowingDialog()) return false;
-        mDialogManager.dismissDialog();
-        return true;
-    }
-
     private void downloadXWalkApk() {
         // The download url is defined by the meta-data element with the name "xwalk_apk_url"
         // inside the application tag in the Android manifest.
@@ -424,45 +418,47 @@ public class XWalkUpdater {
             return;
         }
 
-        try {
-            String packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
-            List<ResolveInfo> infos = mActivity.getPackageManager().queryIntentActivities(
-                    intent, PackageManager.MATCH_ALL);
-            boolean primaryStoreIsGooglePlay =
-                    infos.get(0).activityInfo.packageName.equals(GOOGLE_PLAY_PACKAGE);
+        String packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
+        List<ResolveInfo> infos = mActivity.getPackageManager().queryIntentActivities(
+                intent, PackageManager.MATCH_ALL);
 
-            String primaryCpuAbi = XWalkCoreWrapper.getPrimaryCpuAbi();
-            boolean isArmDevice = primaryCpuAbi.equalsIgnoreCase("armeabi-v7a")
-                    || primaryCpuAbi.equalsIgnoreCase("arm64-v8a");
+        boolean hasGooglePlay = false;
 
-            String appAbi = XWalkCoreWrapper.getApplicationAbi();
-            boolean is32BitApp = appAbi.equalsIgnoreCase("x86")
-                    || appAbi.equalsIgnoreCase("armeabi-v7a");
-
-            if (is32BitApp) {
-                if (primaryStoreIsGooglePlay || isArmDevice) {
-                    packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
-                } else {
-                    packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
-                }
-            } else {
-                if (primaryStoreIsGooglePlay || isArmDevice) {
-                    packageName = XWalkLibraryInterface.XWALK_CORE64_PACKAGE;
-                } else {
-                    packageName = XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE;
-                }
+        Log.d(TAG, "Available Stores:");
+        for (ResolveInfo info : infos) {
+            Log.d(TAG, info.activityInfo.packageName);
+            if (info.activityInfo.packageName.equals(GOOGLE_PLAY_PACKAGE)) {
+                hasGooglePlay = true;
+                break;
             }
-
-            intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
-            mActivity.startActivity(intent);
-
-            Log.d(TAG, "Market opened");
-            mDialogManager.dismissDialog();
-        } catch (ActivityNotFoundException e) {
-            throw new RuntimeException("Market open failed");
         }
+
+        String deviceAbi = XWalkCoreWrapper.getDeviceAbi();
+        String runtimeAbi = XWalkCoreWrapper.getRuntimeAbi();
+        boolean isArmDevice = deviceAbi.equals("armeabi-v7a") || deviceAbi.equals("arm64-v8a");
+        boolean is32BitApp = runtimeAbi.equals("armeabi-v7a") || runtimeAbi.equals("x86");
+        Log.d(TAG, "Device ABI: " + deviceAbi);
+        Log.d(TAG, "Runtime ABI: " + runtimeAbi);
+
+        if (hasGooglePlay || isArmDevice) {
+            if (is32BitApp) {
+                packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
+            } else {
+                packageName = XWalkLibraryInterface.XWALK_CORE64_PACKAGE;
+            }
+        } else {
+            if (is32BitApp) {
+                packageName = XWalkLibraryInterface.XWALK_CORE_IA_PACKAGE;
+            } else {
+                packageName = XWalkLibraryInterface.XWALK_CORE64_IA_PACKAGE;
+            }
+        }
+
+        Log.d(TAG, "Package name of Crosswalk to download: " + packageName);
+        intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
+        mActivity.startActivity(intent);
     }
 
     private void downloadXWalkApkInBackground() {
@@ -474,8 +470,22 @@ public class XWalkUpdater {
     }
 
     private String getXWalkApkUrl() {
+        String deviceAbi = XWalkCoreWrapper.getDeviceAbi();
+        boolean isX86Device = deviceAbi.equals("x86") || deviceAbi.equals("x86_64");
+
+        String runtimeAbi = XWalkCoreWrapper.getRuntimeAbi();
+        if (runtimeAbi.equals("armeabi-v7a")) {
+            if (isX86Device) {
+                runtimeAbi = "x86";
+            }
+        } else if (runtimeAbi.equals("arm64-v8a")) {
+            if (isX86Device) {
+                runtimeAbi = "x86_64";
+            }
+        }
+
         String url = getAppMetaData(META_XWALK_APK_URL);
-        return url == null ? "" : url + ARCH_QUERY_STRING + Build.CPU_ABI;
+        return url == null ? "" : url + ARCH_QUERY_STRING + runtimeAbi;
     }
 
     private class ForegroundListener implements DownloadListener {

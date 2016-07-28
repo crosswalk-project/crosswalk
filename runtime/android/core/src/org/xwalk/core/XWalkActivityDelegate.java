@@ -100,9 +100,7 @@ public class XWalkActivityDelegate
 
     @Override
     public void onDecompressCancelled() {
-        mDialogManager.dismissDialog();
         mWillDecompress = false;
-
         mIsInitializing = false;
         mCancelCommand.run();
     }
