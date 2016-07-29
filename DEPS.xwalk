@@ -18,7 +18,7 @@
 # -----------------------------------
 
 chromium_crosswalk_rev = '06412f5d7de15b8225fc3052637ea33c085105b7'
-v8_crosswalk_rev = 'cc6d02aa66378ad12c8593b34ac42b17ed64a697'
+v8_crosswalk_rev = '9f58cb24d71799dd8955dc29483e786c3f2d3c44'
 
 # We need our own copy of src/buildtools in order to have the gn and
 # clang-format binaries in a location that can be found automatically both by
