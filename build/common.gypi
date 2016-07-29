@@ -32,6 +32,14 @@
   # overridden here. The default values should match the ones in the original
   # .gyp files.
   'variables': {
+    'conditions': [
+      ['1==1', {
+        # From src/third_party/ffmpeg/ffmpeg.gyp.
+        # Whether to build the Chromium or Google Chrome version of FFmpeg (the
+        # latter contains additional codecs).
+        'ffmpeg_branding%': 'Chrome',
+      }],
+    ],
     # Putting a variables dict inside another variables dict looks kind of
     # weird. This is caused by the way GYP variable expansion and evaluation
     # works: one cannot set a variable in a scope and use it in a conditional
@@ -72,11 +80,6 @@
 
       # Whether to disable NaCl support.
       'disable_nacl%': 0,
-
-      # From src/third_party/ffmpeg/ffmpeg.gyp.
-      # Whether to build the Chromium or Google Chrome version of FFmpeg (the
-      # latter contains additional codecs).
-      'ffmpeg_branding%': 'Chromium',
 
       # From src/third_party/ffmpeg/ffmpeg.gyp.
       # Which target type to build libffmpeg as.
@@ -128,10 +131,6 @@
           'proprietary_codecs%': 1,
         }],
 
-        ['mediacodecs_EULA==1', {
-          'ffmpeg_branding%': 'Chrome',
-        }],
-
         ['OS=="android"', {
           # Make release builds smaller by omitting stack unwind support for
           # backtrace().
@@ -162,7 +161,6 @@
     # Copy conditionally-set variables out one scope.
     'component%': '<(component)',
     'disable_nacl%': '<(disable_nacl)',
-    'ffmpeg_branding%': '<(ffmpeg_branding)',
     'ffmpeg_component%': '<(ffmpeg_component)',
     'mediacodecs_EULA%': '<(mediacodecs_EULA)',
     'release_unwind_tables%': '<(release_unwind_tables)',
