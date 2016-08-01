@@ -20,7 +20,6 @@
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkDialogManager.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkFileChooser.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/ClientCertRequest.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkCookieManager.java',

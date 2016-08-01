@@ -20,6 +20,7 @@ interface XWalkRuntimeViewProvider {
     public void onResume();
     public void onPause();
     public void onDestroy();
+    public void onActivityResult(int requestCode, int resultCode, Intent data);
     public boolean onNewIntent(Intent intent);
 
     // For RuntimeView APIs.

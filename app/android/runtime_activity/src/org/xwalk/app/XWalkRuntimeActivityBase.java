@@ -100,6 +100,12 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
         if (mRuntimeView == null || !mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (mRuntimeView != null) mRuntimeView.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void tryLoadRuntimeView() {
         try {
             if (mUseAnimatableView) {

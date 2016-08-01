@@ -15,7 +15,7 @@ import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
 public class XWalkActivityDelegate
             implements DecompressListener, ActivateListener {
-    private static final String TAG = "XWalkLib";
+    private static final String TAG = "XWalkActivity";
 
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
@@ -66,10 +66,10 @@ public class XWalkActivityDelegate
         mIsInitializing = true;
         if (XWalkLibraryLoader.isLibraryReady()) {
             Log.d(TAG, "Activate by XWalkActivity");
-            XWalkLibraryLoader.startActivate(this);
+            XWalkLibraryLoader.startActivate(this, mActivity);
         } else {
             Log.d(TAG, "Initialize by XWalkActivity");
-            XWalkLibraryLoader.startDecompress(this);
+            XWalkLibraryLoader.startDecompress(this, mActivity);
         }
     }
 
@@ -99,7 +99,7 @@ public class XWalkActivityDelegate
             mWillDecompress = false;
         }
 
-        XWalkLibraryLoader.startActivate(this);
+        XWalkLibraryLoader.startActivate(this, mActivity);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class XWalkActivityDelegate
 
                         @Override
                         public void onXWalkUpdateCompleted() {
-                            XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this);
+                            XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this, mActivity);
                         }
                     },
                     mActivity);
