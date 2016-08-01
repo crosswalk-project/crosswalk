@@ -73,10 +73,6 @@
       # Whether to disable NaCl support.
       'disable_nacl%': 0,
 
-      # From src/third_party/widevine/cdm/widevine_cdm.gyp.
-      # Whether to build Crosswalk with support for the Widevine CDM.
-      'enable_widevine%': 0,
-
       # From src/third_party/ffmpeg/ffmpeg.gyp.
       # Whether to build the Chromium or Google Chrome version of FFmpeg (the
       # latter contains additional codecs).
@@ -166,7 +162,6 @@
     # Copy conditionally-set variables out one scope.
     'component%': '<(component)',
     'disable_nacl%': '<(disable_nacl)',
-    'enable_widevine%': '<(enable_widevine)',
     'ffmpeg_branding%': '<(ffmpeg_branding)',
     'ffmpeg_component%': '<(ffmpeg_component)',
     'mediacodecs_EULA%': '<(mediacodecs_EULA)',
