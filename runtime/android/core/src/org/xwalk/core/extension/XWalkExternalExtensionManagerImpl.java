@@ -4,6 +4,7 @@
 
 package org.xwalk.core.extension;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -41,6 +42,7 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
 
     private final XWalkView mXWalkView;
     private final Context mContext;
+    private final Activity mActivity;
 
     private final HashMap<String, XWalkExternalExtensionBridge> mExtensions = new HashMap<String, XWalkExternalExtensionBridge>();
     // This variable is to set whether to load external extensions. The default is true.
@@ -55,12 +57,14 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
         if (getBridge() == null) {
             Log.e(TAG, "Cannot load external extensions due to old version of runtime library");
             mContext = null;
+            mActivity = null;
             mLoadExternalExtensions = false;
             mNativeExtensionLoader = null;
             return;
         }
 
         mContext = getViewContext();
+        mActivity = getViewActivity();
         mLoadExternalExtensions = true;
         mNativeExtensionLoader = new XWalkNativeExtensionLoader();
 
@@ -93,10 +97,23 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
         return mContext;
     }
 
+    @Override
+    public Activity getActivity() {
+        return mActivity;
+    }
+
+    // Instead of calling startActivityForResult() on mActivity directly,
+    // call on XWalkView so that XWalkView's embedder could override this behavior
+    // to do additional job.
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
+        mXWalkView.startActivityForResult(intent, requestCode, options);
+    }
+
     // Start to override XWalkExternalExtensionManager api.
     // Load one Java external extension by its folder path under assets/xwalk-extensions,
-    // the extension folder structure should be like:
-    // ExtensionA
+    // the extension folder structure should be like: 
+    // ExtensionA 
     //     ExtensionA.json
     //     ExtensionA.js(Optional)
     @Override
@@ -112,7 +129,7 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
         String jsonFile = extensionPath + File.separator + folderName + ".json";
         String jsonFileContent;
         try {
-            jsonFileContent = getFileContent(mContext, jsonFile, false);
+            jsonFileContent = getFileContent(mActivity, jsonFile, false);
         } catch (IOException e) {
             Log.w(TAG, "Failed to read json file: " + jsonFile);
             return;
@@ -132,7 +149,7 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
             String jsApi = null;
             if (jsApiFile != null && jsApiFile.length() != 0) {
                 try {
-                    jsApi = getFileContent(mContext, jsApiFile, false);
+                    jsApi = getFileContent(mActivity, jsApiFile, false);
                 } catch (IOException e) {
                     Log.w(TAG, "Failed to read the file " + jsApiFile);
                     return;
@@ -209,6 +226,13 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        for(XWalkExternalExtensionBridge extension: mExtensions.values()) {
+            extension.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     public void setAllowExternalExtensions(boolean load) {
         mLoadExternalExtensions = load;
     }
@@ -251,9 +275,9 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
 
     private void createExternalExtension(String name, String className, String jsApi,
             XWalkExtensionContextClient extensionContext) {
-        Context context = extensionContext.getContext();
+        Activity activity = extensionContext.getActivity();
         try {
-            Class<?> clazz = context.getClassLoader().loadClass(className);
+            Class<?> clazz = activity.getClassLoader().loadClass(className);
             Constructor<?> constructor = clazz.getConstructor(String.class,
                     String.class, XWalkExtensionContextClient.class);
             constructor.newInstance(name, jsApi, this);
@@ -278,7 +302,8 @@ public class XWalkExternalExtensionManagerImpl extends XWalkExternalExtensionMan
         String path = null;
         try {
             ApplicationInfo appInfo =
-                    mContext.getPackageManager().getApplicationInfo(mContext.getPackageName(), 0);
+                    mContext.getPackageManager()
+                    .getApplicationInfo(mActivity.getPackageName(), 0);
             path = appInfo.nativeLibraryDir;
         } catch (final NameNotFoundException e) {
         }

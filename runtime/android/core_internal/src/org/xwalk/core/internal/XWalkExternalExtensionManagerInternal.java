@@ -47,16 +47,15 @@ public abstract class XWalkExternalExtensionManagerInternal {
 
     /**
      * Get current Activity for XWalkViewInternal.
-     * <strong>This method is no longer supported, it will always return null</strong>
      * @return the current Activity.
-     * @deprecated Not currently supported.
      */
-    @Deprecated
     @XWalkAPI
     public Activity getViewActivity() {
+        if (mXWalkView != null) {
+            return mXWalkView.getActivity();
+        }
         return null;
     }
-
 
     /**
      * Get current Context for XWalkViewInternal.
@@ -85,39 +84,35 @@ public abstract class XWalkExternalExtensionManagerInternal {
      * Extension manager should propagate to all external extensions.
      */
     @XWalkAPI
-    public void onStart() {}
+    public abstract void onStart();
 
     /**
      * Notify onResume().
      * Extension manager should propagate to all external extensions.
      */
     @XWalkAPI
-    public void onResume() {}
+    public abstract void onResume();
 
     /**
      * Notify onPause().
      * Extension manager should propagate to all external extensions.
      */
     @XWalkAPI
-    public void onPause() {}
+    public abstract void onPause();
 
     /**
      * Notify onStop().
      * Extension manager should propagate to all external extensions.
      */
     @XWalkAPI
-    public void onStop() {}
+    public abstract void onStop();
 
     /**
      * Notify onDestroy().
-     * <strong>Pleaes invoke super.onDestroy() first when you overriding this method.</strong>
      * Extension manager should propagate to all external extensions.
      */
     @XWalkAPI
-    public void onDestroy() {
-        mXWalkView.setExternalExtensionManager(null);
-        mXWalkView = null;
-    }
+    public abstract void onDestroy();
 
     /**
      * Notify onNewIntent().
@@ -130,13 +125,39 @@ public abstract class XWalkExternalExtensionManagerInternal {
     /**
      * Notify onActivityResult().
      * Extension manager should propagate to all external extensions.
-     * <strong>This method is no longer used.</strong>
      * @param requestCode the request code.
      * @param resultCode the result code.
      * @param data the Intent data received.
-     * @deprecated Not currently supported.
      */
-    @Deprecated
     @XWalkAPI
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
+    public abstract void onActivityResult(int requestCode, int resultCode, Intent data);
+
+    /**
+     * Get the activity state change notification from XWalkViewInternal.
+     * @hide
+     */
+    public void onActivityStateChange(Activity activity, int newState) {
+        //assert(getActivity() == activity);
+        switch (newState) {
+            case ActivityState.STARTED:
+                onStart();
+                break;
+            case ActivityState.PAUSED:
+                onPause();
+                break;
+            case ActivityState.RESUMED:
+                onResume();
+                break;
+            case ActivityState.DESTROYED:
+                onDestroy();
+                mXWalkView.setExternalExtensionManager(null);
+                mXWalkView = null;
+                break;
+            case ActivityState.STOPPED:
+                onStop();
+                break;
+            default:
+                break;
+        }
+    }
 }

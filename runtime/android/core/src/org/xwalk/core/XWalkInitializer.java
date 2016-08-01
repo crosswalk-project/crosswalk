@@ -4,7 +4,7 @@
 
 package org.xwalk.core;
 
-import android.content.Context;
+import android.app.Activity;
 import android.util.Log;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
@@ -12,11 +12,10 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 
 /**
  * <p><code>XWalkInitializer</code> is an alternative to {@link XWalkActivity} with the difference
- * that it provides a way of initializing Crosswalk Project runtime in background silently.
- * <code>XWalkInitializer</code> also allows for more flexibility, the developer doesn't have to
- * have their activity class extend {@link XWalkActivity} anymore, and the context for initializing
- * Crosswalk environment doesn't have to be an activity either, it could be a service now. However,
- * {@link XWalkActivity} is still recommended because it makes the code simpler.</p>
+ * that it provides a way of initializing Crosswalk Project runtime in background silently. Another
+ * advantage is that the developer can use their own activity class directly rather than having it
+ * extend {@link XWalkActivity}. However, {@link XWalkActivity} is still recommended because it
+ * makes the code simpler.</p>
  *
  * <p>If the initialization failed, which means Crosswalk Project runtime doesn't exist or doesn't
  * match the application, you could use {@link XWalkUpdater} to download suitable Crosswalk Project
@@ -151,27 +150,27 @@ public class XWalkInitializer {
         public void onXWalkInitCompleted();
     }
 
-    private static final String TAG = "XWalkLib";
+    private static final String TAG = "XWalkActivity";
 
     private XWalkInitListener mInitListener;
-    private Context mContext;
+    private Activity mActivity;
 
     private boolean mIsInitializing;
     private boolean mIsXWalkReady;
 
     /**
-     * Create an initializer
+     * Create an initializer for single activity.
      *
      * <p>This method must be invoked on the UI thread.
      *
      * @param listener The {@link XWalkInitListener} to use.
-     * @param context The context which initiate the initialization
+     * @param activity The activity which initiate the initialization
      */
-    public XWalkInitializer(XWalkInitListener listener, Context context) {
+    public XWalkInitializer(XWalkInitListener listener, Activity activity) {
         mInitListener = listener;
-        mContext = context;
+        mActivity = activity;
 
-        XWalkLibraryLoader.prepareToInit(mContext);
+        XWalkLibraryLoader.prepareToInit(mActivity);
     }
 
     /**
@@ -189,10 +188,10 @@ public class XWalkInitializer {
         mInitListener.onXWalkInitStarted();
         if (XWalkLibraryLoader.isLibraryReady()) {
             Log.d(TAG, "Activate by XWalkInitializer");
-            XWalkLibraryLoader.startActivate(new XWalkLibraryListener());
+            XWalkLibraryLoader.startActivate(new XWalkLibraryListener(), mActivity);
         } else {
             Log.d(TAG, "Initialize by XWalkInitializer");
-            XWalkLibraryLoader.startDecompress(new XWalkLibraryListener());
+            XWalkLibraryLoader.startDecompress(new XWalkLibraryListener(), mActivity);
         }
         return true;
     }
@@ -220,7 +219,7 @@ public class XWalkInitializer {
 
         @Override
         public void onDecompressCompleted() {
-            XWalkLibraryLoader.startActivate(this);
+            XWalkLibraryLoader.startActivate(this, mActivity);
         }
 
         @Override
