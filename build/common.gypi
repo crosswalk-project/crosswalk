@@ -196,17 +196,4 @@
     'xwalk_core_library_artifact_id%': 'xwalk_core_library_canary',
     'xwalk_shared_library_artifact_id%': 'xwalk_shared_library_canary',
   },
-  'target_defaults': {
-    'conditions': [
-      # TODO(rakuco): Remove this once we stop supporting Ubuntu Precise or
-      # default to use_sysroot==1. This is only required because Precise's dbus
-      # 1.4.18 causes
-      # <https://bugs.chromium.org/p/chromium/issues/detail?id=263960#c6>.
-      ['clang==1 and use_sysroot==0', {
-        'cflags': [
-          '-Wno-reserved-user-defined-literal',
-        ],
-      }],
-    ],
-  },
 }
