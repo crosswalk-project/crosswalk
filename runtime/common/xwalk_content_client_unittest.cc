@@ -7,7 +7,9 @@
 #include "base/command_line.h"
 #include "base/strings/string_split.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/origin_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "url/gurl.h"
 
 namespace {
 
@@ -60,4 +62,12 @@ void CheckUserAgentStringOrdering(bool mobile_device) {
 
 TEST(XWalkContentClientTest, Basic) {
   CheckUserAgentStringOrdering(false);
+}
+
+TEST(XWalkContentClientTest, TestSecuredOrigins) {
+  // XWalkContentClient is responsible of adding the app:// scheme as secure.
+  xwalk::XWalkContentClient content_client;
+  SetContentClient(&content_client);
+  GURL url("app://abcdefgh");
+  EXPECT_TRUE(content::IsOriginSecure(url));
 }
