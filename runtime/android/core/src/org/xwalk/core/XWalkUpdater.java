@@ -4,6 +4,7 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -287,47 +288,47 @@ public class XWalkUpdater {
 
     private XWalkUpdateListener mUpdateListener;
     private XWalkBackgroundUpdateListener mBackgroundUpdateListener;
-    private Context mContext;
+    private Activity mActivity;
     private XWalkDialogManager mDialogManager;
     private Runnable mDownloadCommand;
     private Runnable mCancelCommand;
     private boolean mIsDownloading;
 
     /**
-     * Create XWalkUpdater
+     * Create XWalkUpdater for single activity.
      *
      * @param listener The {@link XWalkUpdateListener} to use
-     * @param context The context which initiate the update
+     * @param activity The activity which initiate the update
      */
-    public XWalkUpdater(XWalkUpdateListener listener, Context context) {
+    public XWalkUpdater(XWalkUpdateListener listener, Activity activity) {
         mUpdateListener = listener;
-        mContext = context;
-        mDialogManager = new XWalkDialogManager(context);
+        mActivity = activity;
+        mDialogManager = new XWalkDialogManager(activity);
     }
 
     /**
-     * Create XWalkUpdater
+     * Create XWalkUpdater for single activity.
      *
      * @param listener The {@link XWalkUpdateListener} to use
-     * @param context The context which initiate the update
+     * @param activity The activity which initiate the update
      * @param dialogManager The {@link XWalkDialogManager} to use
      */
-    public XWalkUpdater(XWalkUpdateListener listener, Context context,
+    public XWalkUpdater(XWalkUpdateListener listener, Activity activity,
             XWalkDialogManager dialogManager) {
         mUpdateListener = listener;
-        mContext = context;
+        mActivity = activity;
         mDialogManager = dialogManager;
     }
 
     /**
-     * Create XWalkUpdater. This updater will download silently.
+     * Create XWalkUpdater for single activity. This updater will download silently.
      *
      * @param listener The {@link XWalkBackgroundUpdateListener} to use
-     * @param context The context which initiate the update
+     * @param activity The activity which initiate the update
      */
-    public XWalkUpdater(XWalkBackgroundUpdateListener listener, Context context) {
+    public XWalkUpdater(XWalkBackgroundUpdateListener listener, Activity activity) {
         mBackgroundUpdateListener = listener;
-        mContext = context;
+        mActivity = activity;
     }
 
     /**
@@ -369,7 +370,7 @@ public class XWalkUpdater {
             mDialogManager.showInitializationError(status, mCancelCommand, mDownloadCommand);
         } else if (mBackgroundUpdateListener != null) {
             String url = XWalkEnvironment.getXWalkApkUrl();
-            XWalkLibraryLoader.startHttpDownload(new BackgroundListener(), mContext, url);
+            XWalkLibraryLoader.startHttpDownload(new BackgroundListener(), mActivity, url);
         } else {
             throw new IllegalArgumentException("Update listener is null");
         }
@@ -400,14 +401,14 @@ public class XWalkUpdater {
     private void downloadXWalkApk() {
         String url = XWalkEnvironment.getXWalkApkUrl();
         if (!url.isEmpty()) {
-            XWalkLibraryLoader.startDownloadManager(new ForegroundListener(), mContext, url);
+            XWalkLibraryLoader.startDownloadManager(new ForegroundListener(), mActivity, url);
             return;
         }
 
         String packageName = XWalkLibraryInterface.XWALK_CORE_PACKAGE;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(ANDROID_MARKET_DETAILS + packageName));
-        List<ResolveInfo> infos = mContext.getPackageManager().queryIntentActivities(
+        List<ResolveInfo> infos = mActivity.getPackageManager().queryIntentActivities(
                 intent, PackageManager.MATCH_ALL);
 
         StringBuilder supportedStores = new StringBuilder();
@@ -457,7 +458,7 @@ public class XWalkUpdater {
         mDialogManager.showSelectStore(new Runnable() {
             @Override
             public void run() {
-                mContext.startActivity(storeIntent);
+                mActivity.startActivity(storeIntent);
             }
         }, storeName);
     }
@@ -497,7 +498,7 @@ public class XWalkUpdater {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
-            mContext.startActivity(intent);
+            mActivity.startActivity(intent);
         }
     }
 
@@ -529,7 +530,8 @@ public class XWalkUpdater {
         public void onDownloadCompleted(Uri uri) {
             mIsDownloading = false;
             final String libFile = uri.getPath();
-            final String destDir = XWalkEnvironment.getExtractedCoreDir();
+            final String destDir = mActivity.getDir(XWalkLibraryInterface.XWALK_CORE_EXTRACTED_DIR,
+                    Context.MODE_PRIVATE).getAbsolutePath();
             Log.d(TAG, "Download mode extract dir: " + destDir);
 
             new AsyncTask<Void, Void, Boolean>() {
@@ -570,7 +572,7 @@ public class XWalkUpdater {
     private boolean verifyDownloadedXWalkRuntime(String libFile) {
         // getPackageArchiveInfo also check the integrity of the downloaded runtime APK
         // besides returning the PackageInfo with signatures.
-        PackageInfo runtimePkgInfo = mContext.getPackageManager().getPackageArchiveInfo(
+        PackageInfo runtimePkgInfo = mActivity.getPackageManager().getPackageArchiveInfo(
                 libFile, PackageManager.GET_SIGNATURES);
         if (runtimePkgInfo == null) {
             Log.e(TAG, "The downloaded XWalkRuntimeLib.apk is invalid!");
@@ -579,8 +581,8 @@ public class XWalkUpdater {
 
         PackageInfo appPkgInfo = null;
         try {
-            appPkgInfo = mContext.getPackageManager().getPackageInfo(
-                    mContext.getPackageName(), PackageManager.GET_SIGNATURES);
+            appPkgInfo = mActivity.getPackageManager().getPackageInfo(
+                    mActivity.getPackageName(), PackageManager.GET_SIGNATURES);
         } catch (NameNotFoundException e) {
             return false;
         }
@@ -608,7 +610,7 @@ public class XWalkUpdater {
 
     private String getStoreName(String storePackage) {
         if (storePackage.equals(GOOGLE_PLAY_PACKAGE)) {
-            return mContext.getString(R.string.google_play_store);
+            return mActivity.getString(R.string.google_play_store);
         }
         return null;
     }

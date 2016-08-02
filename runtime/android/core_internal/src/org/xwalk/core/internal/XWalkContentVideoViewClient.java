@@ -17,10 +17,12 @@ import org.xwalk.core.internal.XWalkWebChromeClient.CustomViewCallback;
 
 class XWalkContentVideoViewClient implements ContentVideoViewEmbedder {
     private XWalkContentsClient mContentsClient;
+    private Activity mActivity;
     private XWalkViewInternal mView;
 
-    public XWalkContentVideoViewClient(XWalkContentsClient client, XWalkViewInternal view) {
+    public XWalkContentVideoViewClient(XWalkContentsClient client, Activity activity, XWalkViewInternal view) {
         mContentsClient = client;
+        mActivity = activity;
         mView = view;
     }
 

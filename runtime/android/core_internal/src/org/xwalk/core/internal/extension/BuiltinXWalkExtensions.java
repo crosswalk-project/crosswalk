@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import org.xwalk.core.internal.XWalkExtensionInternal;
 import org.xwalk.core.internal.extension.api.launchscreen.LaunchScreenExtension;
+import org.xwalk.core.internal.extension.api.wifidirect.WifiDirect;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,7 +25,7 @@ public class BuiltinXWalkExtensions {
     private static HashMap<String, XWalkExtensionInternal> sBuiltinExtensions =
             new HashMap<String, XWalkExtensionInternal>();
 
-    public static void load(Context context) {
+    public static void load(Context context, Activity activity) {
         // Create all built-in extension instances here.
 
         {
@@ -33,9 +34,21 @@ public class BuiltinXWalkExtensions {
                 jsApiContent = getExtensionJSFileContent(
                         context, LaunchScreenExtension.JS_API_PATH, true);
                 sBuiltinExtensions.put(LaunchScreenExtension.JS_API_PATH,
-                        new LaunchScreenExtension(jsApiContent, context));
+                        new LaunchScreenExtension(jsApiContent, activity));
             } catch (IOException e) {
                 Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
+            }
+        }
+
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getExtensionJSFileContent(
+                        context, WifiDirect.JS_API_PATH, true);
+                sBuiltinExtensions.put(WifiDirect.JS_API_PATH,
+                        new WifiDirect(jsApiContent, activity));
+            } catch(IOException e) {
+                Log.w(TAG, "Failed to read JS API file: " + WifiDirect.JS_API_PATH);
             }
         }
     }
