@@ -271,15 +271,17 @@ void UDPSocketObject::OnSend(int status) {
       addresses_[0],
       base::Bind(&UDPSocketObject::OnWrite, base::Unretained(this)));
 
-  if (ret == net::ERR_IO_PENDING) {
-    has_write_pending_ = true;
-  } else if (ret == write_buffer_size_) {
-    has_write_pending_ = false;
+  if (ret < net::OK) {
+    if (ret == net::ERR_IO_PENDING) {
+      has_write_pending_ = true;
+    } else {
+      socket_->Close();
+      setReadyState(READY_STATE_CLOSED);
+      DispatchEvent("close");
+      return;
+    }
   } else {
-    socket_->Close();
-    setReadyState(READY_STATE_CLOSED);
-    DispatchEvent("close");
-    return;
+    has_write_pending_ = false;
   }
 
   if (!is_reading_ && socket_->is_connected())
