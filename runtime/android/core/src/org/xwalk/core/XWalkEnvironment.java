@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 
@@ -27,11 +26,9 @@ class XWalkEnvironment {
     private static final String META_XWALK_APK_URL = "xwalk_apk_url";
     private static final String META_XWALK_VERIFY = "xwalk_verify";
 
-    private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
-    private static final String XWALK_CORE_EXTRACTED_DIR = "extracted_xwalkcore";
-    private static final String OPTIMIZED_DEX_DIR = "dex";
     private static final String PACKAGE_RE = "[a-z]+\\.[a-z0-9]+\\.[a-z0-9]+.*";
 
+    private static Context sInitializationContext;
     private static Context sApplicationContext;
 
     private static String sDeviceAbi;
@@ -44,30 +41,23 @@ class XWalkEnvironment {
     private static Boolean sIsXWalkVerify;
 
     public static void init(Context context) {
+        sInitializationContext = context;
         sApplicationContext = context.getApplicationContext();
+    }
+
+    public static void finishInit(Context context) {
+        if (context != sInitializationContext) {
+            throw new RuntimeException("The context of initialization is not consistent");
+        }
+        sInitializationContext = null;
+    }
+
+    public static Context getInitializationContext() {
+        return sInitializationContext;
     }
 
     public static Context getApplicationContext() {
         return sApplicationContext;
-    }
-
-    public static SharedPreferences getSharedPreferences() {
-        return sApplicationContext.getSharedPreferences("libxwalkcore", Context.MODE_PRIVATE);
-    }
-
-    public static String getPrivateDataDir() {
-        return sApplicationContext.getDir(PRIVATE_DATA_DIRECTORY_SUFFIX,
-                Context.MODE_PRIVATE).getAbsolutePath();
-    }
-
-    public static String getExtractedCoreDir() {
-        return sApplicationContext.getDir(XWALK_CORE_EXTRACTED_DIR,
-                Context.MODE_PRIVATE).getAbsolutePath();
-    }
-
-    public static String getOptimizedDexDir() {
-        return sApplicationContext.getDir(OPTIMIZED_DEX_DIR,
-                Context.MODE_PRIVATE).getAbsolutePath();
     }
 
     public static void setXWalkApkUrl(String url) {

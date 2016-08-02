@@ -70,7 +70,7 @@ public class WebNotificationTest extends XWalkViewInternalTestBase {
             @Override
             public void run() {
                 mNotificationService = new TestXWalkNotificationService(
-                        getXWalkView().getContext(), getXWalkView());
+                        getXWalkView().getActivity(), getXWalkView());
                 getXWalkView().setNotificationService(mNotificationService);
                 XWalkPreferencesInternal.setValue(XWalkPreferencesInternal.REMOTE_DEBUGGING, true);
             }

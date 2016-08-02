@@ -76,11 +76,7 @@ public class XWalkWebChromeClient {
     }
 
     private Activity addContentView(View view, CustomViewCallback callback) {
-        Activity activity = null;
-        try {
-            activity = (Activity) mXWalkView.getContext();
-        } catch (ClassCastException e) {
-        }
+        Activity activity = mXWalkView.getActivity();
 
         if (mCustomXWalkView != null || activity == null) {
             if (callback != null) callback.onCustomViewHidden();
@@ -144,11 +140,7 @@ public class XWalkWebChromeClient {
      * like to hide its custom view.
      */
     public void onHideCustomView() {
-        Activity activity = null;
-        try {
-            activity = (Activity) mXWalkView.getContext();
-        } catch (ClassCastException e) {
-        }
+        Activity activity = mXWalkView.getActivity();
         if (mCustomXWalkView == null || activity == null) return;
 
         if (mContentsClient != null) {

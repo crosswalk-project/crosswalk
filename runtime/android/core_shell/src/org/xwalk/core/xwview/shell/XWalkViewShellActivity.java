@@ -178,6 +178,11 @@ public class XWalkViewShellActivity extends XWalkActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (mActiveView != null) mActiveView.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public void onNewIntent(Intent intent) {
         if (mActiveView != null) {
             if (!mActiveView.onNewIntent(intent)) super.onNewIntent(intent);

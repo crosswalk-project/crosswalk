@@ -93,11 +93,11 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         int notificationId = intent.getIntExtra(XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID, -1);
         if (notificationId <= 0) return false;
         if (intent.getAction().equals(
-                mView.getContext().getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX)) {
+                mView.getActivity().getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX)) {
             onNotificationClose(notificationId, true);
             return true;
         } else if (intent.getAction().equals(
-                mView.getContext().getPackageName() + XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX)) {
+                mView.getActivity().getPackageName() + XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX)) {
             onNotificationClick(notificationId);
             return true;
         }
@@ -165,23 +165,23 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         Bitmap bigIcon = getNotificationIcon(icon);
         if (bigIcon != null) builder.setLargeIcon(bigIcon);
 
-        Context context = mView.getContext();
+        Context activity = mView.getActivity();
         String category = getCategoryFromNotificationId(notificationId);
 
-        Intent clickIntent = new Intent(context, context.getClass())
-                .setAction(context.getPackageName() + XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX)
+        Intent clickIntent = new Intent(activity, activity.getClass())
+                .setAction(activity.getPackageName() + XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX)
                 .putExtra(XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID, notificationId)
                 .setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .addCategory(category);
 
-        Intent closeIntent = new Intent(context.getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX)
+        Intent closeIntent = new Intent(activity.getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX)
                 .putExtra(XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID, notificationId)
                 .addCategory(category);
 
         builder.setContentIntent(PendingIntent.getActivity(
-                context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                activity, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         builder.setDeleteIntent(PendingIntent.getBroadcast(
-                context, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                activity, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
         doShowNotification(notificationId,
                 VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN ? builder.build() : builder.getNotification());
@@ -253,14 +253,14 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
 
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter(
-                mView.getContext().getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX);
+                mView.getActivity().getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX);
 
         for(Integer id : mExistNotificationIds.keySet()) {
             filter.addCategory(getCategoryFromNotificationId(id));
         }
 
         try {
-            mView.getContext().registerReceiver(mNotificationCloseReceiver, filter);
+            mView.getActivity().registerReceiver(mNotificationCloseReceiver, filter);
         } catch (AndroidRuntimeException e) {
             //FIXME(wang16): The exception will happen when there are multiple xwalkviews in one activity.
             //               Remove it after notification service supports multi-views.
@@ -269,6 +269,6 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     }
 
     private void unregisterReceiver() {
-        mView.getContext().unregisterReceiver(mNotificationCloseReceiver);
+        mView.getActivity().unregisterReceiver(mNotificationCloseReceiver);
     }
 }

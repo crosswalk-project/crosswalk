@@ -124,10 +124,22 @@ public class XWalkRuntimeView extends LinearLayout {
     }
 
     /**
+     * Tell runtime that one activity exists so that it can know the result code
+     * of the exit code.
+     *
+     * @param requestCode the request code to identify where the result is from
+     * @param resultCode the result code of the activity
+     * @param data the data to contain the result data
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mProvider.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
      * Tell runtime that the activity receive a new Intent to start it. It may contains
      * data that runtime want to deal with.
      * @param intent the new coming Intent.
-     * @return boolean whether runtime consumed it.
+     * @return boolean whether runtime consumed it. 
      */
     public boolean onNewIntent(Intent intent) {
         return mProvider.onNewIntent(intent);
