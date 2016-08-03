@@ -44,9 +44,6 @@ const char kUpdateItemWithBindOp[] =
 const char kRemoveItemWithBindOp[] =
     "DELETE FROM widget_storage WHERE key = ?";
 
-const char kSelectTableLength[] =
-    "SELECT count(*) FROM widget_storage ";
-
 const char kSelectCountWithBindOp[] =
     "SELECT count(*) FROM widget_storage "
     "WHERE key = ?";

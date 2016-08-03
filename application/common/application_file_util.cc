@@ -42,8 +42,6 @@ const char kAttributePrefix[] = "@";
 const char kNamespaceKey[] = "@namespace";
 const char kTextKey[] = "#text";
 
-const char kContentKey[] = "content";
-
 const xmlChar kWidgetNodeKey[] = "widget";
 const xmlChar kNameNodeKey[] = "name";
 const xmlChar kDescriptionNodeKey[] = "description";
@@ -170,7 +168,7 @@ inline bool IsElementSupportSpanAndDir(xmlNode* root) {
 }
 
 bool IsSingletonElement(const std::string& name) {
-  for (int i = 0; i < arraysize(kSingletonElements); ++i)
+  for (size_t i = 0; i < arraysize(kSingletonElements); ++i)
     if (kSingletonElements[i] == name)
       return true;
   return false;
