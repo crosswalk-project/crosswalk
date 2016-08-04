@@ -11,7 +11,8 @@
 
 namespace xwalk {
 
-DisplayInfo::DisplayInfo() {}
+DisplayInfo::DisplayInfo()
+    : is_primary(false), in_use(false) { }
 
 std::unique_ptr<DisplayInfoManagerService> DisplayInfoManagerService::Create() {
 #if defined(OS_WIN)
