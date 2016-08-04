@@ -214,6 +214,12 @@ void XWalkContentClient::AddAdditionalSchemes(
   savable_schemes->push_back(application::kApplicationScheme);
 }
 
+void XWalkContentClient::AddSecureSchemesAndOrigins(
+    std::set<std::string>* schemes,
+    std::set<GURL>* origins) {
+    schemes->insert(application::kApplicationScheme);
+}
+
 std::string XWalkContentClient::GetProcessTypeNameInEnglish(int type) {
   switch (type) {
     case PROCESS_TYPE_NACL_LOADER:
