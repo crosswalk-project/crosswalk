@@ -168,8 +168,8 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
-#if !defined(DISABLE_NACL)
   int id = host->GetID();
+#if !defined(DISABLE_NACL)
   net::URLRequestContextGetter* context =
       host->GetStoragePartition()->GetURLRequestContext();
 
