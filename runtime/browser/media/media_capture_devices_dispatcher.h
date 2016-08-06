@@ -80,6 +80,11 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
       content::MediaRequestState state) override;
   void OnCreatingAudioStream(int render_process_id,
                              int render_view_id) override {}
+  void OnSetCapturingLinkSecured(int render_process_id,
+                                 int render_frame_id,
+                                 int page_request_id,
+                                 content::MediaStreamType stream_type,
+                                 bool is_secure) override {}
 
   // Only for testing.
   void SetTestAudioCaptureDevices(const content::MediaStreamDevices& devices);

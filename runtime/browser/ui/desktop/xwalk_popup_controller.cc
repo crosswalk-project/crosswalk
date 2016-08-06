@@ -9,10 +9,10 @@
 
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "ui/gfx/display.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 #include "ui/gfx/geometry/rect_conversions.h"
 #include "ui/gfx/geometry/vector2d.h"
-#include "ui/gfx/screen.h"
 
 namespace xwalk {
 
@@ -52,9 +52,9 @@ void XWalkPopupController::UnregisterKeyPressCallback() {
   key_press_event_target_ = nullptr;
 }
 
-gfx::Display XWalkPopupController::GetDisplayNearestPoint(
+display::Display XWalkPopupController::GetDisplayNearestPoint(
   const gfx::Point& point) const {
-  return gfx::Screen::GetScreen()->GetDisplayNearestPoint(point);
+  return display::Screen::GetScreen()->GetDisplayNearestPoint(point);
 }
 
 gfx::Rect XWalkPopupController::RoundedElementBounds() const {
@@ -62,8 +62,8 @@ gfx::Rect XWalkPopupController::RoundedElementBounds() const {
 }
 
 std::pair<int, int> XWalkPopupController::CalculatePopupXAndWidth(
-  const gfx::Display& left_display,
-  const gfx::Display& right_display,
+  const display::Display& left_display,
+  const display::Display& right_display,
   int popup_required_width) const {
   int leftmost_display_x = left_display.bounds().x();
   int rightmost_display_x =
@@ -101,8 +101,8 @@ std::pair<int, int> XWalkPopupController::CalculatePopupXAndWidth(
 }
 
 std::pair<int, int> XWalkPopupController::CalculatePopupYAndHeight(
-    const gfx::Display& top_display,
-    const gfx::Display& bottom_display,
+    const display::Display& top_display,
+    const display::Display& bottom_display,
     int popup_required_height) const {
   int topmost_display_y = top_display.bounds().y();
   int bottommost_display_y =
@@ -148,9 +148,9 @@ gfx::Rect XWalkPopupController::GetPopupBounds(int desired_width,
       gfx::Vector2d(desired_width,
         RoundedElementBounds().height() + desired_height);
 
-  gfx::Display top_left_display = GetDisplayNearestPoint(
+  display::Display top_left_display = GetDisplayNearestPoint(
       top_left_corner_of_popup);
-  gfx::Display bottom_right_display = GetDisplayNearestPoint(
+  display::Display bottom_right_display = GetDisplayNearestPoint(
       bottom_right_corner_of_popup);
 
   std::pair<int, int> popup_x_and_width =

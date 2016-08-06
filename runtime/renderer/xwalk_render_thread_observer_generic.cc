@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
+#include "xwalk/runtime/renderer/xwalk_render_thread_observer_generic.h"
 
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/url_pattern.h"
@@ -39,7 +39,7 @@ AccessWhitelistItem::AccessWhitelistItem(
 }
 
 
-void XWalkRenderProcessObserver::AddAccessWhiteListEntry(
+void XWalkRenderThreadObserver::AddAccessWhiteListEntry(
     const GURL& source,
     const GURL& dest,
     const std::string& dest_host,
@@ -51,18 +51,18 @@ void XWalkRenderProcessObserver::AddAccessWhiteListEntry(
       allow_subdomains);
 }
 
-XWalkRenderProcessObserver::XWalkRenderProcessObserver()
+XWalkRenderThreadObserver::XWalkRenderThreadObserver()
     : is_blink_initialized_(false),
       security_mode_(application::ApplicationSecurityPolicy::NoSecurity) {
 }
 
-XWalkRenderProcessObserver::~XWalkRenderProcessObserver() {
+XWalkRenderThreadObserver::~XWalkRenderThreadObserver() {
 }
 
-bool XWalkRenderProcessObserver::OnControlMessageReceived(
+bool XWalkRenderThreadObserver::OnControlMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
+  IPC_BEGIN_MESSAGE_MAP(XWalkRenderThreadObserver, message)
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -70,11 +70,11 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
+void XWalkRenderThreadObserver::OnRenderProcessShutdown() {
   is_blink_initialized_ = false;
 }
 
-void XWalkRenderProcessObserver::OnSetAccessWhiteList(
+void XWalkRenderThreadObserver::OnSetAccessWhiteList(
     const GURL& source, const GURL& dest,
     const std::string& dest_host, bool allow_subdomains) {
   base::AutoLock lock(lock_);
@@ -85,14 +85,14 @@ void XWalkRenderProcessObserver::OnSetAccessWhiteList(
       new AccessWhitelistItem(source, dest, dest_host, allow_subdomains));
 }
 
-void XWalkRenderProcessObserver::OnEnableSecurityMode(
+void XWalkRenderThreadObserver::OnEnableSecurityMode(
     const GURL& url,
     application::ApplicationSecurityPolicy::SecurityMode mode) {
   app_url_ = url;
   security_mode_ = mode;
 }
 
-bool XWalkRenderProcessObserver::CanRequest(const GURL& orig,
+bool XWalkRenderThreadObserver::CanRequest(const GURL& orig,
                                             const GURL& dest) const {
   if (!blink::WebSecurityOrigin::create(orig.GetOrigin()).canRequest(dest))
     return false;

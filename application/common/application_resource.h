@@ -27,11 +27,10 @@ class ApplicationResource {
   };
 
   ApplicationResource();
-
   ApplicationResource(const std::string& application_id,
                     const base::FilePath& application_root,
                     const base::FilePath& relative_path);
-
+  ApplicationResource(const ApplicationResource& other);
   ~ApplicationResource();
 
   // set_follow_symlinks_anywhere allows the resource to be a symlink to

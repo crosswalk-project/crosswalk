@@ -27,16 +27,6 @@ XWalkSpeechRecognitionManagerDelegate
 ::~XWalkSpeechRecognitionManagerDelegate() {
 }
 
-void XWalkSpeechRecognitionManagerDelegate::GetDiagnosticInformation(
-    bool* can_report_metrics,
-    std::string* hardware_info) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  *can_report_metrics = true;
-  base::string16 device_model =
-      SpeechRecognitionManager::GetInstance()->GetAudioInputDeviceModel();
-  *hardware_info = base::UTF16ToUTF8(device_model);
-}
-
 void XWalkSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
     int session_id,
     base::Callback<void(bool ask_user, bool is_allowed)> callback) {
