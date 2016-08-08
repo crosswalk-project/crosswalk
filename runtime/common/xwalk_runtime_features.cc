@@ -31,6 +31,9 @@ XWalkRuntimeFeatures::Feature::Feature(
       enabled(enabled) {
 }
 
+XWalkRuntimeFeatures::Feature::Feature(const XWalkRuntimeFeatures::Feature&) =
+    default;
+
 // static
 XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
   return base::Singleton<XWalkRuntimeFeatures>::get();
