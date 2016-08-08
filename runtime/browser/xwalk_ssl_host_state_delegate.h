@@ -23,6 +23,8 @@ class CertPolicy {
  public:
   CertPolicy();
   ~CertPolicy();
+  CertPolicy(const CertPolicy&);
+
   // Returns true if the user has decided to proceed through the ssl error
   // before. For a certificate to be allowed, it must not have any
   // *additional* errors from when it was allowed.
