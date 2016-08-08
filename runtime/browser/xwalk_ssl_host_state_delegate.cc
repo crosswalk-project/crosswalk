@@ -26,6 +26,8 @@ CertPolicy::CertPolicy() {
 CertPolicy::~CertPolicy() {
 }
 
+CertPolicy::CertPolicy(const CertPolicy&) = default;
+
 // For an allowance, we consider a given |cert| to be a match to a saved
 // allowed cert if the |error| is an exact match to or subset of the errors
 // in the saved CertStatus.

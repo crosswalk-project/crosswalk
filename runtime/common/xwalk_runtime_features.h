@@ -43,6 +43,7 @@ class XWalkRuntimeFeatures {
             const std::string& description,
             Status status = Experimental,
             bool enabled = false);
+    Feature(const Feature&);
 
     std::string name;
     std::string cmd_line;
