@@ -11,6 +11,8 @@
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_platform_file.h"
 #include "third_party/skia/include/core/SkColor.h"
+#include "ui/gfx/geometry/point_f.h"
+#include "ui/gfx/geometry/size_f.h"
 
 // Singly-included section for enums and custom IPC traits.
 #ifndef XWALK_RUNTIME_COMMON_ANDROID_XWALK_RENDER_VIEW_MESSAGES_H_
@@ -51,8 +53,8 @@ IPC_MESSAGE_ROUTED1(XWalkViewMsg_DocumentHasImages, // NOLINT(*)
 // physical pixel values with the 0,0 at the top left of the current displayed
 // view (ie 0,0 is not the top left of the page if the page is scrolled).
 IPC_MESSAGE_ROUTED2(XWalkViewMsg_DoHitTest, // NOLINT(*)
-                    int /* view_x */,
-                    int /* view_y */)
+                    gfx::PointF /* touch_center */,
+                    gfx::SizeF /* touch_area */)
 
 // Enables receiving pictures from the renderer on every new frame.
 IPC_MESSAGE_ROUTED1(XWalkViewMsg_EnableCapturePictureCallback, // NOLINT(*)
