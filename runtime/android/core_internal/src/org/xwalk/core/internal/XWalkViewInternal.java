@@ -1167,7 +1167,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
         Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-        chooserIntent.putExtra(Intent.EXTRA_TITLE, "Choose an action");
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                 extraIntents.toArray(new Intent[] { }));
         getActivity().startActivityForResult(chooserIntent, INPUT_FILE_REQUEST_CODE);
