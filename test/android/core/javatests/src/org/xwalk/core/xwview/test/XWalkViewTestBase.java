@@ -1153,4 +1153,22 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected boolean hasEnteredFullscreen() throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mXWalkView.hasEnteredFullscreen();
+            }
+        });
+    }
+
+    protected void leaveFullscreen() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.leaveFullscreen();
+            }
+        });
+    }
 }
