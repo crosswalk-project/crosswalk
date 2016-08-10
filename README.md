@@ -17,6 +17,7 @@ Development of Crosswalk: https://lists.crosswalk-project.org/mailman/listinfo/c
 
 We are also on IRC: `#crosswalk` @ `chat.freenode.net`
 
+
 ## License
 
 Crosswalk's code uses the 3-clause BSD license, see our `LICENSE` file.
