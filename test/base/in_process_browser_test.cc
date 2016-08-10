@@ -33,7 +33,13 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using xwalk::Runtime;
+
+#if defined(OS_TIZEN)
+using xwalk::XWalkContentRendererClientTizen;
+#else
 using xwalk::XWalkContentRendererClient;
+#endif
+
 using xwalk::XWalkRunner;
 using xwalk::NativeAppWindow;
 
