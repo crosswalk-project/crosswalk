@@ -56,6 +56,10 @@
 #include "xwalk/runtime/browser/ui/webui/xwalk_web_ui_controller_factory.h"
 #endif
 
+#if defined(OS_LINUX)
+#include "xwalk/runtime/browser/ui/xwalk_javascript_native_dialog_factory.h"
+#endif
+
 namespace {
 
 // FIXME: Compare with method in startup_browser_creator.cc.
@@ -235,6 +239,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     delete parameters_.ui_task;
     run_default_message_loop_ = false;
   }
+#if defined(OS_LINUX)
+  InstallXWalkJavaScriptNativeDialogFactory();
+#endif
 }
 
 bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {

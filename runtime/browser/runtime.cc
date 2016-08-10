@@ -10,6 +10,9 @@
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
+#if defined(OS_LINUX)
+#include "components/app_modal/javascript_dialog_manager.h"
+#endif
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
@@ -222,10 +225,14 @@ void Runtime::DidNavigateMainFramePostCommit(
 
 content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager(
     content::WebContents* web_contents) {
+#if defined(OS_LINUX)
+  return app_modal::JavaScriptDialogManager::GetInstance();
+#else
   if (!javascript_dialog_manager_) {
     javascript_dialog_manager_.reset(new RuntimeJavaScriptDialogManager);
   }
   return javascript_dialog_manager_.get();
+#endif
 }
 
 void Runtime::ActivateContents(content::WebContents* contents) {

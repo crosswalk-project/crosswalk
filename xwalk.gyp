@@ -363,10 +363,14 @@
         ['OS=="linux"', {
           'dependencies': [
             'build/system.gyp:libnotify',
+            '../components/components.gyp:app_modal',
+            '../components/components.gyp:constrained_window',
           ],
           'sources': [
             'runtime/browser/linux/xwalk_notification_manager.cc',
             'runtime/browser/linux/xwalk_notification_manager.h',
+            'runtime/browser/ui/xwalk_javascript_native_dialog_factory.h',
+            'runtime/browser/ui/xwalk_javascript_native_dialog_factory_views.cc',
           ]
         }],  # OS=="linux"
         ['OS=="linux"', {
@@ -599,6 +603,11 @@
             '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
           ],
         }],
+        [ 'OS == "linux"', {
+          'dependencies': [
+            '<(DEPTH)/components/components_strings.gyp:components_strings',
+          ],
+        }],
         ['toolkit_views==1', {
           'dependencies': [
             '<(DEPTH)/ui/views/resources/views_resources.gyp:views_resources',
@@ -631,6 +640,13 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
+                ],
+              },
+            }],
+            [ 'OS =="linux"', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/components/strings/components_strings_en-US.pak',
                 ],
               },
             }],
