@@ -194,7 +194,10 @@ void Application::SetWindowShowState<Manifest::TYPE_MANIFEST>(
 
   if (display_string == values::kDisplayModeFullscreen) {
     params->display_mode = blink::WebDisplayModeFullscreen;
-    params->state = ui::SHOW_STATE_FULLSCREEN;
+    // Set ui::SHOW_STATE_MAXIMIZED instead of ui::SHOW_STATE_FULLSCREEN
+    // because there is no way to exit from full screen mode.
+    // Refer to XWALK-4861 for more details.
+    params->state = ui::SHOW_STATE_MAXIMIZED;
   } else if (display_string == values::kDisplayModeStandalone) {
     params->display_mode = blink::WebDisplayModeStandalone;
   }
