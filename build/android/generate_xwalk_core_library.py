@@ -281,6 +281,23 @@ def CopyResources(project_source, out_dir, out_project_dir, shared):
       if filename.endswith('.9.png'):
         ReplaceCrunchedImage(project_source, filename, dirname)
 
+def CopyExternalBinaries(project_source, out_project_dir, src_package, shared):
+  if src_package or shared:
+    return
+  # Copy external jar files to libs.
+  libs_dir = os.path.join(out_project_dir, 'libs')
+  if not os.path.exists(libs_dir):
+    os.mkdir(libs_dir)
+
+  libs_to_copy = [
+      'third_party/cardboard-java/src/CardboardSample/libs/cardboard.jar',
+  ]
+
+  for lib in libs_to_copy:
+    source_file = os.path.join(project_source, lib)
+    target_file = os.path.join(libs_dir, os.path.basename(lib))
+    shutil.copyfile(source_file, target_file)
+
 
 def main(argv):
   option_parser = optparse.OptionParser()
@@ -313,6 +330,8 @@ def main(argv):
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
   CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
+  CopyExternalBinaries(
+      options.source, out_project_dir, options.src_package, options.shared)
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_project_dir)
   # Remove unused files.
