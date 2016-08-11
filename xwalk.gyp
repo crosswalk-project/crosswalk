@@ -440,7 +440,7 @@
             '../components/components.gyp:app_modal',
             '../components/components.gyp:constrained_window',
             '../components/components.gyp:guest_view_browser',
-            '../components/components.gyp:ui_zoom',
+            '../components/components.gyp:zoom',
             '../ui/events/events.gyp:events',
             '../ui/strings/ui_strings.gyp:ui_strings',
             '../ui/views/controls/webview/webview.gyp:webview',
