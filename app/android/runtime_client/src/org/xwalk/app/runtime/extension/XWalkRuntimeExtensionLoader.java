@@ -4,7 +4,6 @@
 
 package org.xwalk.app.runtime.extension;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -19,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.xwalk.core.XWalkExternalExtensionManager;
 import org.xwalk.core.XWalkView;
 
 /**
@@ -26,23 +26,15 @@ import org.xwalk.core.XWalkView;
  * Employ XWalkView.getExtensionManager() to load external extensions actually.
  */
 public class XWalkRuntimeExtensionLoader {
-    private final static String TAG = "XWalkExtensionLoader";
-    private final static String XWALK_EXTENSIONS_FOLDER = "xwalk-extensions";
+    private static final String TAG = "XWalkExtensionLoader";
+    private static final String XWALK_EXTENSIONS_FOLDER = "xwalk-extensions";
 
-    private final XWalkView mXWalkView;
-    private final Activity mActivity;
-
-    public XWalkRuntimeExtensionLoader(XWalkView view, Activity activity) {
-        mXWalkView = view;
-        mActivity = activity;
+    public static void loadExtensions(XWalkView xwalkView, Context context) {
+        loadExternalExtensions(xwalkView, context);
     }
 
-    public void loadExtensions() {
-        loadExternalExtensions();
-    }
-
-    private void loadExternalExtensions() {
-        AssetManager assetManager = mActivity.getAssets();
+    private static void loadExternalExtensions(XWalkView xwalkView, Context context) {
+        AssetManager assetManager = context.getAssets();
         String[] extList;
         try {
             Log.i(TAG, "Iterate assets" + File.separator + XWALK_EXTENSIONS_FOLDER);
@@ -55,7 +47,8 @@ public class XWalkRuntimeExtensionLoader {
         for (String path : extList) {
             // Load the extension.
             Log.i(TAG, "Start to load extension: " + path);
-            mXWalkView.getExtensionManager().loadExtension(XWALK_EXTENSIONS_FOLDER + File.separator + path);
+            XWalkExternalExtensionManager extensionManager = xwalkView.getExtensionManager();
+            extensionManager.loadExtension(XWALK_EXTENSIONS_FOLDER + File.separator + path);
         }
     }
 }

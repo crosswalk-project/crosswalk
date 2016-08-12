@@ -157,15 +157,17 @@ public class XWalkPreferencesInternal {
 
     /**
      * The key string to enable/disable javascript.
-     * TODO(wang16): Remove this after cordova removes its dependency.
+     * @since 7.0
      */
-    static final String ENABLE_JAVASCRIPT = "enable-javascript";
+    @XWalkAPI
+    public static final String ENABLE_JAVASCRIPT = "enable-javascript";
 
     /**
      * The key string to enable/disable xwalk extensions.
-     *
+     * @since 7.0
      */
-    static final String ENABLE_EXTENSIONS = "enable-extensions";
+    @XWalkAPI
+    public static final String ENABLE_EXTENSIONS = "enable-extensions";
 
     static {
         sPrefMap.put(REMOTE_DEBUGGING, new PreferenceValue(false));

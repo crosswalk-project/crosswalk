@@ -4,8 +4,6 @@
 
 package org.xwalk.app.runtime;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
@@ -15,22 +13,24 @@ import android.view.View;
  *
  */
 interface XWalkRuntimeViewProvider {
+    public View getView();
+
     // For handling life cycle and activity result.
     public void onCreate();
+    public void onStart();
     public void onResume();
     public void onPause();
+    public void onStop();
     public void onDestroy();
-    public void onActivityResult(int requestCode, int resultCode, Intent data);
     public boolean onNewIntent(Intent intent);
+    public void onActivityResult(int requestCode, int resultCode, Intent data);
 
     // For RuntimeView APIs.
     public String getVersion();
-    public View getView();
     public void loadAppFromUrl(String url);
     public void loadAppFromManifest(String manifestUrl);
-    public void enableRemoteDebugging(String frontEndUrl, String socketName);
-    public void disableRemoteDebugging();
-    public void loadExtensions();
+    public void setRemoteDebugging(boolean value);
+    public void setUseAnimatableView(boolean value);
 
     // For instrumentation test.
     public String getTitleForTest();
