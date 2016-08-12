@@ -64,7 +64,7 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
   handler.Register("echoData", base::Bind(&EchoData, &counter));
   handler.Register("reset", base::Bind(&ResetCounter, &counter));
 
-  for (unsigned i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 1000; ++i) {
     std::string str1;
     std::unique_ptr<base::ListValue> data1(new base::ListValue());
     data1->AppendString(kTestString);
