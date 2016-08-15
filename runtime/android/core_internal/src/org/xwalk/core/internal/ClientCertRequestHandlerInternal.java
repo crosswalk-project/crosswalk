@@ -21,13 +21,17 @@ public class ClientCertRequestHandlerInternal implements ClientCertRequestIntern
     private static final String TAG = "ClientCertRequestHandlerInternal";
     private XWalkContentsClientBridge mContentsClient;
     private int mId;
+    private String[] mKeyTypes = {};
+    private Principal[] mPrincipals = {};
     private String mHost;
     private int mPort;
     private boolean mIsCalled;
 
-    ClientCertRequestHandlerInternal(XWalkContentsClientBridge contentsClient, int id, String host,
-            int port) {
+    ClientCertRequestHandlerInternal(XWalkContentsClientBridge contentsClient, int id,
+            String[] keyTypes, Principal[] principals, String host, int port) {
         mId = id;
+        mKeyTypes = keyTypes;
+        mPrincipals = principals;
         mHost = host;
         mPort = port;
         mContentsClient = contentsClient;
@@ -84,6 +88,16 @@ public class ClientCertRequestHandlerInternal implements ClientCertRequestIntern
     @XWalkAPI
     public int getPort() {
         return mPort;
+    }
+
+    @XWalkAPI
+    public String[] getKeyTypes() {
+        return mKeyTypes;
+    }
+
+    @XWalkAPI
+    public Principal[] getPrincipals() {
+        return mPrincipals;
     }
 
     private void proceedOnUiThread(PrivateKey privateKey, X509Certificate[] chain) {
