@@ -1,0 +1,28 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+source_set("test_support") {
+  testonly = true
+  sources = [
+    "in_process_browser_test.cc",
+    "in_process_browser_test.h",
+    "xwalk_test_launcher.cc",
+    "xwalk_test_suite.cc",
+    "xwalk_test_suite.h",
+    "xwalk_test_utils.cc",
+    "xwalk_test_utils.h",
+  ]
+  public_deps = [
+    "//base",
+    "//base/test:test_support",
+    "//content/public/browser",
+    "//content/test:browsertest_base",
+    "//content/test:test_support",
+    "//net",
+    "//skia",
+    "//testing/gtest",
+    "//ui/base",
+    "//url",
+  ]
+}

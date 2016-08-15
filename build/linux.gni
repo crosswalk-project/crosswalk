@@ -1,0 +1,26 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file contains feature flags for Crosswalk Linux build. Users should
+# import it into their build folder by run:
+#   echo 'import("//xwalk/build/linux.gni")' > out/your_folder/args.gn'
+# Then run:
+#   gn gen out/your_folder
+#   ninja -C out/your_folder xwalk_builder
+# to build xwalk and xwalk-test executable files.
+
+import("//xwalk/build/common.gni")
+
+# From src/third_party/ffmpeg/ffmpeg_options.gni
+# Set true to build ffmpeg as a shared library.
+# Since M44, ffmpeg is built as a static library by default. On Linux,
+# keep the previous behavior or building it as a shared library while
+# we figure out if it makes sense to switch to a static library by
+# default.
+is_component_ffmpeg = true
+
+# From //build/config/sysroot.gni.
+# Android and Windows do not use the sysroot, and we cannot use it on
+# Linux because we use libnotify that is not present there.
+use_sysroot = false

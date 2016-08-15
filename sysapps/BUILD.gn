@@ -1,0 +1,197 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//tools/grit/grit_rule.gni")
+
+source_set("sysapps") {
+  sources = [
+    "$root_gen_dir/xwalk/sysapps/common/common.cc",
+    "$root_gen_dir/xwalk/sysapps/common/common.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/raw_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/raw_socket.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_server_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_server_socket.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/tcp_socket.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/udp_socket.cc",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/udp_socket.h",
+    "common/binding_object.h",
+    "common/binding_object_store.cc",
+    "common/binding_object_store.h",
+    "common/common.idl",
+    "common/event_target.cc",
+    "common/event_target.h",
+    "common/sysapps_manager.cc",
+    "common/sysapps_manager.h",
+    "raw_socket/raw_socket.idl",
+    "raw_socket/raw_socket_extension.cc",
+    "raw_socket/raw_socket_extension.h",
+    "raw_socket/raw_socket_object.cc",
+    "raw_socket/raw_socket_object.h",
+    "raw_socket/tcp_server_socket.idl",
+    "raw_socket/tcp_server_socket_object.cc",
+    "raw_socket/tcp_server_socket_object.h",
+    "raw_socket/tcp_socket.idl",
+    "raw_socket/tcp_socket_object.cc",
+    "raw_socket/tcp_socket_object.h",
+    "raw_socket/udp_socket.idl",
+    "raw_socket/udp_socket_object.cc",
+    "raw_socket/udp_socket_object.h",
+  ]
+  deps = [
+    ":generate_jsapi_common",
+    ":generate_jsapi_raw_socket",
+    ":xwalk_sysapps_resources",
+    "//base",
+    "//net",
+    "//ui/base",
+    "//ui/gfx",
+    "//ui/gfx/geometry",
+    "//xwalk/extensions",
+  ]
+  if (is_linux) {
+    deps += [
+      "//components/storage_monitor",
+      "//media",
+      "//third_party/ffmpeg",
+    ]
+  }
+}
+
+# TODO(heke123): Remove this config by putting the files in the right place
+# in grit of grd file.
+config("xwalk_sysapps_resources_include_dir") {
+  include_dirs = [ "$root_gen_dir/xwalk/sysapps" ]
+}
+
+grit("xwalk_sysapps_resources") {
+  source = "//xwalk/sysapps/sysapps_resources.grd"
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/grit/xwalk_sysapps_resources.h",
+    "$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.rc",
+    "$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.pak",
+  ]
+  public_configs = [ ":xwalk_sysapps_resources_include_dir" ]
+  resource_ids = "//xwalk/resources/resource_ids"
+}
+
+executable("xwalk_sysapps_unittest") {
+  testonly = true
+  sources = [
+    "common/binding_object_store_unittest.cc",
+    "common/event_target_unittest.cc",
+    "common/sysapps_manager_unittest.cc",
+  ]
+  deps = [
+    ":sysapps",
+    "//base",
+    "//base/test:run_all_unittests",
+    "//content/test:test_support",
+    "//testing/gtest",
+    "//xwalk/extensions",
+  ]
+  if (is_linux && !is_component_build && is_component_ffmpeg) {
+    configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+  }
+  if (use_aura) {
+    deps += [ "//ui/views" ]
+  }
+}
+
+executable("xwalk_sysapps_browsertest") {
+  testonly = true
+  sources = [
+    "common/common_api_browsertest.cc",
+    "common/common_api_browsertest.h",
+    "raw_socket/raw_socket_api_browsertest.cc",
+  ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  deps = [
+    ":sysapps",
+    "//base",
+    "//content/test:test_support",
+    "//net",
+    "//skia",
+    "//testing/gtest",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/extensions",
+    "//xwalk/test/base:test_support",
+  ]
+  if (is_linux && !is_component_build && is_component_ffmpeg) {
+    configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+  }
+}
+
+action_foreach("generate_jsapi_raw_socket") {
+  visibility = [ ":*" ]
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/raw_socket/{{source_name_part}}.h",
+    "$root_gen_dir/xwalk/sysapps/raw_socket/{{source_name_part}}.cc",
+  ]
+  sources = [
+    "//xwalk/sysapps/raw_socket/raw_socket.idl",
+    "//xwalk/sysapps/raw_socket/tcp_server_socket.idl",
+    "//xwalk/sysapps/raw_socket/tcp_socket.idl",
+    "//xwalk/sysapps/raw_socket/udp_socket.idl",
+  ]
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+  idl_path = rebase_path("//xwalk/sysapps", "$root_out_dir")
+  gen_path = rebase_path("$root_gen_dir", "$root_out_dir")
+  script = "//tools/json_schema_compiler/compiler.py"
+  args = [
+    "$idl_path/raw_socket/{{source_name_part}}.idl",
+    "--root=$idl_path",
+    "--destdir=$gen_path/xwalk/sysapps",
+    "--namespace=xwalk::jsapi::{{source_name_part}}",
+    "--generator=cpp",
+  ]
+}
+
+action_foreach("generate_jsapi_common") {
+  visibility = [ ":*" ]
+  outputs = [
+    "$root_gen_dir/xwalk/sysapps/common/{{source_name_part}}.h",
+    "$root_gen_dir/xwalk/sysapps/common/{{source_name_part}}.cc",
+  ]
+  sources = [
+    "//xwalk/sysapps/common/common.idl",
+  ]
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+  idl_path = rebase_path("//xwalk/sysapps", "$root_out_dir")
+  gen_path = rebase_path("$root_gen_dir", "$root_out_dir")
+  script = "//tools/json_schema_compiler/compiler.py"
+  args = [
+    "$idl_path/common/{{source_name_part}}.idl",
+    "--root=$idl_path",
+    "--destdir=$gen_path/xwalk/sysapps",
+    "--namespace=xwalk::jsapi::{{source_name_part}}",
+    "--generator=cpp",
+  ]
+}
