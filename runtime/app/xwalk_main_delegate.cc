@@ -19,7 +19,6 @@
 #include "xwalk/runtime/common/logging_xwalk.h"
 #include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
-#include "xwalk/runtime/common/xwalk_resource_delegate.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
 #if !defined(DISABLE_NACL) && defined(OS_LINUX)
@@ -117,6 +116,7 @@ void XWalkMainDelegate::ZygoteStarting(
 
 #endif  // defined(OS_POSIX) && !defined(OS_ANDROID)
 
+// static
 void XWalkMainDelegate::InitializeResourceBundle() {
   base::FilePath pak_file;
   base::FilePath pak_dir;
@@ -129,10 +129,8 @@ void XWalkMainDelegate::InitializeResourceBundle() {
 #endif
 
 #if !defined(OS_ANDROID)
-  resource_delegate_.reset(new XWalkResourceDelegate());
   ui::ResourceBundle::InitSharedInstanceWithLocale(
-      "en-US", resource_delegate_.get(),
-      ui::ResourceBundle::DO_NOT_LOAD_COMMON_RESOURCES);
+      "en-US", nullptr, ui::ResourceBundle::DO_NOT_LOAD_COMMON_RESOURCES);
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
   ResourceBundle::GetSharedInstance().AddDataPackFromPath(
       pak_file, ui::SCALE_FACTOR_NONE);

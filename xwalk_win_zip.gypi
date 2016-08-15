@@ -3,7 +3,7 @@
     # The files and directories will be added with the same names to the
     # generated zip file, with <(PRODUCT_DIR)/ stripped from the beginning.
     'directories_to_package': [
-      '<(PRODUCT_DIR)/locales/xwalk',
+      '<(PRODUCT_DIR)/locales',
     ],
     'files_to_package': [
       '<(PRODUCT_DIR)/VERSION',
