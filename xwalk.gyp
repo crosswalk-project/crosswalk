@@ -336,8 +336,6 @@
         'runtime/common/xwalk_localized_error.h',
         'runtime/common/xwalk_paths.cc',
         'runtime/common/xwalk_paths.h',
-        'runtime/common/xwalk_resource_delegate.h',
-        'runtime/common/xwalk_resource_delegate.cc',
         'runtime/common/xwalk_runtime_features.cc',
         'runtime/common/xwalk_runtime_features.h',
         'runtime/common/xwalk_switches.cc',
@@ -634,11 +632,8 @@
       ],
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/locales/xwalk',
-          'files': [
-            '<(grit_out_dir)/en-US.pak',
-            '<(grit_out_dir)/zh-CN.pak',
-          ],
+          'destination': '<(PRODUCT_DIR)/',
+          'files': [ '<(grit_out_dir)/' ],
         },
       ],
     },
