@@ -22,7 +22,6 @@
 
 
 #if defined(OS_WIN)
-#include "xwalk/runtime/browser/printing/pdf_to_emf_converter.h"
 #include "printing/pdf_render_settings.h"
 #endif
 
@@ -223,101 +222,6 @@ printing::PrintedDocument* PrintJob::document() const {
   return document_.get();
 }
 
-#if defined(OS_WIN)
-
-class PrintJob::PdfToEmfState {
- public:
-  PdfToEmfState(const gfx::Size& page_size, const gfx::Rect& content_area)
-      : page_count_(0),
-        current_page_(0),
-        pages_in_progress_(0),
-        page_size_(page_size),
-        content_area_(content_area),
-        converter_(PdfToEmfConverter::CreateDefault()) {}
-
-  void Start(const scoped_refptr<base::RefCountedMemory>& data,
-             const PdfRenderSettings& conversion_settings,
-             const PdfToEmfConverter::StartCallback& start_callback) {
-    converter_->Start(data, conversion_settings, start_callback);
-  }
-
-  void GetMorePages(
-      const PdfToEmfConverter::GetPageCallback& get_page_callback) {
-    const int kMaxNumberOfTempFilesPerDocument = 3;
-    while (pages_in_progress_ < kMaxNumberOfTempFilesPerDocument &&
-           current_page_ < page_count_) {
-      ++pages_in_progress_;
-      converter_->GetPage(current_page_++, get_page_callback);
-    }
-  }
-
-  void OnPageProcessed(
-      const PdfToEmfConverter::GetPageCallback& get_page_callback) {
-    --pages_in_progress_;
-    GetMorePages(get_page_callback);
-    // Release converter if we don't need this any more.
-    if (!pages_in_progress_ && current_page_ >= page_count_)
-      converter_.reset();
-  }
-
-  void set_page_count(int page_count) { page_count_ = page_count; }
-  gfx::Size page_size() const { return page_size_; }
-  gfx::Rect content_area() const { return content_area_; }
-
- private:
-  int page_count_;
-  int current_page_;
-  int pages_in_progress_;
-  gfx::Size page_size_;
-  gfx::Rect content_area_;
-  std::unique_ptr<PdfToEmfConverter> converter_;
-};
-
-void PrintJob::StartPdfToEmfConversion(
-    const scoped_refptr<base::RefCountedMemory>& bytes,
-    const gfx::Size& page_size,
-    const gfx::Rect& content_area) {
-  DCHECK(!ptd_to_emf_state_.get());
-  ptd_to_emf_state_.reset(new PdfToEmfState(page_size, content_area));
-  const int kPrinterDpi = settings().dpi();
-  ptd_to_emf_state_->Start(
-      bytes,
-      printing::PdfRenderSettings(content_area, kPrinterDpi, true),
-      base::Bind(&PrintJob::OnPdfToEmfStarted, this));
-}
-
-void PrintJob::OnPdfToEmfStarted(int page_count) {
-  if (page_count <= 0) {
-    ptd_to_emf_state_.reset();
-    Cancel();
-    return;
-  }
-  ptd_to_emf_state_->set_page_count(page_count);
-  ptd_to_emf_state_->GetMorePages(
-      base::Bind(&PrintJob::OnPdfToEmfPageConverted, this));
-}
-
-void PrintJob::OnPdfToEmfPageConverted(int page_number,
-                                       float scale_factor,
-                                       std::unique_ptr<MetafilePlayer> emf) {
-  DCHECK(ptd_to_emf_state_);
-  if (!document_.get() || !emf) {
-    ptd_to_emf_state_.reset();
-    Cancel();
-    return;
-  }
-
-  // Update the rendered document. It will send notifications to the listener.
-  document_->SetPage(page_number, std::move(emf), scale_factor,
-                     ptd_to_emf_state_->page_size(),
-                     ptd_to_emf_state_->content_area());
-
-  ptd_to_emf_state_->GetMorePages(
-      base::Bind(&PrintJob::OnPdfToEmfPageConverted, this));
-}
-
-#endif  // OS_WIN
-
 void PrintJob::UpdatePrintedDocument(printing::PrintedDocument* new_document) {
   if (document_.get() == new_document)
     return;
@@ -367,10 +271,6 @@ void PrintJob::OnNotifyPrintJobEvent(const JobEventDetails& event_details) {
       break;
     }
     case JobEventDetails::PAGE_DONE:
-#if defined(OS_WIN)
-      ptd_to_emf_state_->OnPageProcessed(
-          base::Bind(&PrintJob::OnPdfToEmfPageConverted, this));
-#endif  // OS_WIN
       break;
     default: {
       NOTREACHED();

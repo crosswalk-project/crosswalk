@@ -154,17 +154,7 @@ void PrintViewManagerBase::OnDidPrintPage(
     }
   }
 
-#if defined(OS_WIN)
-  if (metafile_must_be_valid) {
-    scoped_refptr<base::RefCountedBytes> bytes = new base::RefCountedBytes(
-        reinterpret_cast<const unsigned char*>(shared_buf->memory()),
-        params.data_size);
-
-    document->DebugDumpData(bytes.get(), FILE_PATH_LITERAL(".pdf"));
-    print_job_->StartPdfToEmfConversion(
-        bytes, params.page_size, params.content_area);
-  }
-#else
+#if !defined(OS_WIN)
   // Update the rendered document. It will send notifications to the listener.
   document->SetPage(params.page_number, std::move(metafile), params.page_size,
                     params.content_area);

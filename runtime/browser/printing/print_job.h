@@ -95,13 +95,6 @@ class PrintJob : public PrintJobWorkerOwner,
   // Access the current printed document. Warning: may be NULL.
   printing::PrintedDocument* document() const;
 
-#if defined(OS_WIN)
-  void StartPdfToEmfConversion(
-      const scoped_refptr<base::RefCountedMemory>& bytes,
-      const gfx::Size& page_size,
-      const gfx::Rect& content_area);
-#endif  // OS_WIN
-
  protected:
   ~PrintJob() override;
 
@@ -124,13 +117,6 @@ class PrintJob : public PrintJobWorkerOwner,
   void Quit();
 
   void HoldUntilStopIsCalled();
-
-#if defined(OS_WIN)
-  void OnPdfToEmfStarted(int page_count);
-  void OnPdfToEmfPageConverted(int page_number,
-                               float scale_factor,
-                               std::unique_ptr<MetafilePlayer> emf);
-#endif  // OS_WIN
 
   content::NotificationRegistrar registrar_;
 
@@ -155,11 +141,6 @@ class PrintJob : public PrintJobWorkerOwner,
   // Is Canceling? If so, try to not cause recursion if on FAILED notification,
   // the notified calls Cancel() again.
   bool is_canceling_;
-
-#if defined(OS_WIN)
-  class PdfToEmfState;
-  std::unique_ptr<PdfToEmfState> ptd_to_emf_state_;
-#endif  // OS_WIN
 
   // Used at shutdown so that we can quit a nested message loop.
   base::WeakPtrFactory<PrintJob> quit_factory_;
