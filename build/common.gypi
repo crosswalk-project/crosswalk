@@ -73,6 +73,11 @@
       # Whether to disable NaCl support.
       'disable_nacl%': 0,
 
+      # Disable print preview as it enables lot of unnecessary preview code which
+      # we don't need. Also, if we enable it disables basic printing without
+      # implementing additional code for preview.
+      'enable_print_preview%': 0,
+
       # From src/third_party/ffmpeg/ffmpeg.gyp.
       # Whether to build the Chromium or Google Chrome version of FFmpeg (the
       # latter contains additional codecs).
