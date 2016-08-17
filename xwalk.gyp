@@ -336,6 +336,8 @@
         'runtime/common/xwalk_localized_error.h',
         'runtime/common/xwalk_paths.cc',
         'runtime/common/xwalk_paths.h',
+        'runtime/common/xwalk_resource_delegate.cc',
+        'runtime/common/xwalk_resource_delegate.h',
         'runtime/common/xwalk_runtime_features.cc',
         'runtime/common/xwalk_runtime_features.h',
         'runtime/common/xwalk_switches.cc',
@@ -617,7 +619,12 @@
       'target_name': 'xwalk_strings',
       'type': 'none',
       'variables': {
-        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xwalk/locales',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xwalk/locales/xwalk',
+      },
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/xwalk/locales',
+        ],
       },
       'actions': [
         {
@@ -632,7 +639,7 @@
       ],
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/',
+          'destination': '<(PRODUCT_DIR)/locales/',
           'files': [ '<(grit_out_dir)/' ],
         },
       ],
