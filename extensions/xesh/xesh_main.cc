@@ -157,7 +157,7 @@ class ExtensionManager {
         base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
             switches::kXWalkExternalExtensionsPath);
 
-    std::unique_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
+    std::unique_ptr<base::DictionaryValue::Storage> runtime_variables(new base::ValueMap);
     (*runtime_variables)["app_id"] = new base::StringValue("xesh");
 
     std::vector<std::string> extensions =

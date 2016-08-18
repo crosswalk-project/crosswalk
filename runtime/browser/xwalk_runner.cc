@@ -130,12 +130,13 @@ std::unique_ptr<StorageComponent> XWalkRunner::CreateStorageComponent() {
 
 void XWalkRunner::InitializeRuntimeVariablesForExtensions(
     const content::RenderProcessHost* host,
-    base::ValueMap* variables) {
+    base::DictionaryValue::Storage* variables) {
   application::Application* app = app_system()->application_service()->
       GetApplicationByRenderHostID(host->GetID());
 
   if (app)
-    (*variables)["app_id"] = new base::StringValue(app->id());
+    (*variables)["app_id"] =
+        base::WrapUnique(new base::StringValue(app->id()));
 }
 
 void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
@@ -163,7 +164,8 @@ void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
 
   InitializeEnvironmentVariablesForGoogleAPIs(host);
 
-  std::unique_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
+  std::unique_ptr<base::DictionaryValue::Storage>
+      runtime_variables(new base::DictionaryValue::Storage);
   InitializeRuntimeVariablesForExtensions(host, runtime_variables.get());
   extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions,

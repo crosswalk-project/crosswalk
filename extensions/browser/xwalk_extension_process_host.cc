@@ -115,7 +115,7 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,
     XWalkExtensionProcessHost::Delegate* delegate,
-    std::unique_ptr<base::ValueMap> runtime_variables)
+    std::unique_ptr<base::DictionaryValue::Storage> runtime_variables)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
@@ -138,12 +138,12 @@ XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
 
 namespace {
 
-void ToListValue(base::ValueMap* vm, base::ListValue* lv) {
+void ToListValue(base::DictionaryValue::Storage* vm, base::ListValue* lv) {
   lv->Clear();
 
-  for (base::ValueMap::iterator it = vm->begin(); it != vm->end(); it++) {
+  for (base::DictionaryValue::Storage::iterator it = vm->begin(); it != vm->end(); it++) {
     base::DictionaryValue* dv = new base::DictionaryValue();
-    dv->Set(it->first, it->second);
+    dv->Set(it->first, std::move(it->second));
     lv->Append(dv);
   }
 }
@@ -192,7 +192,7 @@ void XWalkExtensionProcessHost::StartProcess() {
       cmd_line.release(), true);
 
   base::ListValue runtime_variables_lv;
-  ToListValue(&const_cast<base::ValueMap&>(*runtime_variables_),
+  ToListValue(&const_cast<base::DictionaryValue::Storage&>(*runtime_variables_),
       &runtime_variables_lv);
   Send(new XWalkExtensionProcessMsg_RegisterExtensions(
         external_extensions_path_, runtime_variables_lv));

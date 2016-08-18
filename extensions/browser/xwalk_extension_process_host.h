@@ -54,7 +54,7 @@ class XWalkExtensionProcessHost
   XWalkExtensionProcessHost(content::RenderProcessHost* render_process_host,
                             const base::FilePath& external_extensions_path,
                             XWalkExtensionProcessHost::Delegate* delegate,
-                            std::unique_ptr<base::ValueMap> runtime_variables);
+                            std::unique_ptr<base::DictionaryValue::Storage> runtime_variables);
   ~XWalkExtensionProcessHost() override;
 
   // IPC::Sender implementation
@@ -106,7 +106,7 @@ class XWalkExtensionProcessHost
 
   XWalkExtensionProcessHost::Delegate* delegate_;
 
-  std::unique_ptr<base::ValueMap> runtime_variables_;
+  std::unique_ptr<base::DictionaryValue::Storage> runtime_variables_;
 
   // IPC channel for launcher to communicate with BP in service mode.
   std::unique_ptr<IPC::Channel> channel_;
