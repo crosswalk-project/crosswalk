@@ -360,12 +360,11 @@ void XWalkExtensionServer::Invalidate() {
 
 namespace {
 base::FilePath::StringType GetNativeLibraryPattern() {
-  const base::string16 library_pattern = base::GetNativeLibraryName(
-      base::UTF8ToUTF16("*"));
+  const std::string library_pattern = base::GetNativeLibraryName("*");
 #if defined(OS_WIN)
-  return library_pattern;
+  return base::UTF8ToUTF16(library_pattern);
 #else
-  return base::UTF16ToUTF8(library_pattern);
+  return library_pattern;
 #endif
 }
 }  // namespace
