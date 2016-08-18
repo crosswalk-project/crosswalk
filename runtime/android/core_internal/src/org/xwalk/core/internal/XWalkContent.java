@@ -56,7 +56,7 @@ import org.chromium.content_public.browser.NavigationController;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.content_public.browser.navigation_controller.UserAgentOverrideOption;
 import org.chromium.media.MediaPlayerBridge;
-import org.chromium.ui.base.ActivityWindowAndroid;
+import org.chromium.ui.base.WindowAndroid;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
 import org.json.JSONArray;
 
@@ -73,7 +73,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     private Context mViewContext;
     private XWalkContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
-    private ActivityWindowAndroid mWindow;
+    private WindowAndroid mWindow;
     private XWalkDevToolsServer mDevToolsServer;
     private XWalkViewInternal mXWalkView;
     private XWalkContentsClientBridge mContentsClientBridge;
@@ -138,7 +138,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mIoThreadClient = new XWalkIoThreadClientImpl();
 
         // Initialize mWindow which is needed by content
-        mWindow = new ActivityWindowAndroid(xwView.getActivity());
+        mWindow = new WindowAndroid(context);
 
         SharedPreferences sharedPreferences = new InMemorySharedPreferences();
         mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
@@ -430,11 +430,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewCore.onShow();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (mNativeContent == 0) return;
-        mWindow.onActivityResult(requestCode, resultCode, data);
-    }
-
     public boolean onNewIntent(Intent intent) {
         if (mNativeContent == 0) return false;
         return mContentsClientBridge.onNewIntent(intent);
@@ -603,7 +598,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         // If the data of manifest.json is not set, try to load it.
         if (data == null || data.isEmpty()) {
             try {
-                content = AndroidProtocolHandler.getUrlContent(mXWalkView.getActivity(), url);
+                content = AndroidProtocolHandler.getUrlContent(mXWalkView.getContext(), url);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to read the manifest: " + url);
             }
@@ -702,9 +697,12 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     @CalledByNative
     public void onGetFullscreenFlagFromManifest(boolean enterFullscreen) {
+        if (!(mXWalkView.getContext() instanceof Activity)) return;
+
+        Activity activity = (Activity) mXWalkView.getContext();
         if (enterFullscreen) {
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-                View decorView = mXWalkView.getActivity().getWindow().getDecorView();
+                View decorView = activity.getWindow().getDecorView();
                 decorView.setSystemUiVisibility(
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
                         View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
@@ -713,7 +711,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
                         View.SYSTEM_UI_FLAG_FULLSCREEN |
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
             } else {
-                mXWalkView.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             }
         }
     }

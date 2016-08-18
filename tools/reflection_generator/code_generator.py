@@ -37,5 +37,4 @@ class CodeGenerator(object):
     imports += '\n'
     imports += 'import java.lang.reflect.Constructor;\n'
     imports += 'import java.lang.reflect.Method;\n'
-    imports += 'import junit.framework.Assert;\n'
     return imports

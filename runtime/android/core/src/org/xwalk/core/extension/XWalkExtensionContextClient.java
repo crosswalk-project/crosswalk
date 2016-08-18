@@ -64,6 +64,7 @@ public interface XWalkExtensionContextClient {
     /**
      * Get the current Android Activity.
      * @return the current Android Activity.
+     * @deprecated This method is no longer supported
      */
     public Activity getActivity();
 
@@ -71,9 +72,10 @@ public interface XWalkExtensionContextClient {
      * Start another activity to get some data back.
      * External extensions should call this function to ensure
      * they can get their onActivityResultCallback() be called correctly.
+     * @param intent the intent to start.
      * @param requestCode the request code.
-     * @param resultCode the result code.
-     * @param data the Intent data received.
+     * @param options additional options for how the Activity should be started.
+     * @deprecated This method is no longer supported
      */
     public void startActivityForResult(Intent intent, int requestCode, Bundle options);
 }

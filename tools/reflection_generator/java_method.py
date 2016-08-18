@@ -782,7 +782,7 @@ ${DOC}
             ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
         } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
-                Assert.fail("Cannot call this method before xwalk is ready");
+                throw new RuntimeException("Crosswalk's APIs are not ready yet");
             } else {
                 XWalkCoreWrapper.handleRuntimeError(e);
             }
@@ -827,7 +827,7 @@ ${DOC}
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
         } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
-                Assert.fail("Cannot call this method before xwalk is ready");
+                throw new RuntimeException("Crosswalk's APIs are not ready yet");
             } else {
                 XWalkCoreWrapper.handleRuntimeError(e);
             }
@@ -872,7 +872,7 @@ ${DOC}
         try {\n"""
       suffix_str = """\n        } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
-                Assert.fail("Cannot call this method before xwalk is ready");
+                throw new RuntimeException("Crosswalk's APIs are not ready yet");
             } else {
                 XWalkCoreWrapper.handleRuntimeError(e);
             }

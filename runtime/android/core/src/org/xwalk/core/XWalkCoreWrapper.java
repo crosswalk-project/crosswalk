@@ -4,7 +4,6 @@
 
 package org.xwalk.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -32,7 +31,6 @@ class XWalkCoreWrapper {
     private static final String BRIDGE_PACKAGE = "org.xwalk.core.internal";
     private static final String TAG = "XWalkLib";
     private static final String XWALK_CORE_CLASSES_DEX = "classes.dex";
-    private static final String OPTIMIZED_DEX_DIR = "dex";
 
     private static XWalkCoreWrapper sProvisionalInstance;
     private static XWalkCoreWrapper sInstance;
@@ -115,27 +113,14 @@ class XWalkCoreWrapper {
         sReservedActions.get(tag).add(new ReservedAction(method));
     }
 
-    public static void handleRuntimeError(RuntimeException e) {
-        e.printStackTrace();
-        sInstance.mCoreStatus = XWalkLibraryInterface.STATUS_OLDER_VERSION;
-        final Activity activity = (Activity) sInstance.mWrapperContext;
-        XWalkUpdater xwalkUpdater = new XWalkUpdater(
-            new XWalkUpdater.XWalkUpdateListener() {
-                @Override
-                public void onXWalkUpdateCancelled() {
-                    activity.finish();
-                }
-            },
-            activity);
-        xwalkUpdater.updateXWalkRuntime();
-    }
-
     /**
      * This method must be invoked on the UI thread.
      */
     public static void handlePostInit(String tag) {
-        if (!sReservedActions.containsKey(tag)) return;
         Log.d(TAG, "Post init xwalk core in " + tag);
+        if (!sReservedActions.containsKey(tag)) {
+            return;
+        }
 
         LinkedList<ReservedAction> reservedActions = sReservedActions.get(tag);
         for (ReservedAction action : reservedActions) {
@@ -159,16 +144,21 @@ class XWalkCoreWrapper {
             }
         }
 
-        sReservedActivities.remove(tag);
         sReservedActions.remove(tag);
+        sReservedActivities.remove(tag);
     }
 
-    public static int attachXWalkCore(Context context) {
+    public static void handleRuntimeError(RuntimeException e) {
+        Log.e(TAG, "This API is incompatible with the Crosswalk runtime library");
+        e.printStackTrace();
+    }
+
+    public static int attachXWalkCore() {
         Assert.assertFalse(sReservedActivities.isEmpty());
         Assert.assertNull(sInstance);
 
         Log.d(TAG, "Attach xwalk core");
-        sProvisionalInstance = new XWalkCoreWrapper(context, 1);
+        sProvisionalInstance = new XWalkCoreWrapper(XWalkEnvironment.getApplicationContext(), 1);
         if (sProvisionalInstance.findEmbeddedCore()) {
             return sProvisionalInstance.mCoreStatus;
         }
@@ -281,11 +271,9 @@ class XWalkCoreWrapper {
     }
 
     private boolean findDownloadedCore() {
-        String libDir = mWrapperContext.getDir(XWalkLibraryInterface.XWALK_CORE_EXTRACTED_DIR,
-                Context.MODE_PRIVATE).getAbsolutePath();
+        String libDir = XWalkEnvironment.getExtractedCoreDir();
         String dexPath = libDir + File.separator + XWALK_CORE_CLASSES_DEX;
-        String dexOutputPath = mWrapperContext.getDir(OPTIMIZED_DEX_DIR, Context.MODE_PRIVATE).
-                getAbsolutePath();
+        String dexOutputPath = XWalkEnvironment.getOptimizedDexDir();
         ClassLoader localClassLoader = ClassLoader.getSystemClassLoader();
         mBridgeLoader = new DexClassLoader(dexPath, dexOutputPath, libDir, localClassLoader);
 
@@ -300,6 +288,7 @@ class XWalkCoreWrapper {
     }
 
     private boolean checkCoreVersion() {
+        Log.d(TAG, "[Environment] SDK:" + Build.VERSION.SDK_INT);
         Log.d(TAG, "[App Version] build:" + XWalkAppVersion.XWALK_BUILD_VERSION
                 + ", api:" + mApiVersion + ", min_api:" + mMinApiVersion);
 
@@ -363,9 +352,7 @@ class XWalkCoreWrapper {
                 }
 
                 if (!architectureMatched && mWrapperContext != null) {
-                    libDir = mWrapperContext.getDir(
-                            XWalkLibraryInterface.PRIVATE_DATA_DIRECTORY_SUFFIX,
-                            Context.MODE_PRIVATE).toString();
+                    libDir = XWalkEnvironment.getPrivateDataDir();
                     architectureMatched = (boolean) method.invoke(mBridgeContext, libDir);
                 }
             }
