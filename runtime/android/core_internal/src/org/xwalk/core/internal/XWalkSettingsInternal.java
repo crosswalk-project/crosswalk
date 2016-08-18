@@ -94,8 +94,8 @@ public class XWalkSettingsInternal {
     private boolean mAppCacheEnabled = true;
     private boolean mDomStorageEnabled = true;
     private boolean mDatabaseEnabled = true;
-    private boolean mUseWideViewport = true;
-    private boolean mLoadWithOverviewMode = true;
+    private boolean mUseWideViewport = false;
+    private boolean mLoadWithOverviewMode = false;
     private boolean mMediaPlaybackRequiresUserGesture = false;
     private String mDefaultVideoPosterURL;
     private final boolean mPasswordEchoEnabled;
