@@ -5,11 +5,9 @@
 
 package org.xwalk.core.internal;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -17,22 +15,18 @@ import android.net.http.SslCertificate;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.view.WindowManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
-import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
-import android.view.ViewStructure;
+import android.view.View.OnTouchListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
@@ -48,7 +42,7 @@ import org.chromium.base.annotations.CalledByNative;
 import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
-import org.chromium.content.browser.ContentViewClient;
+import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
 import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType;
@@ -77,6 +71,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
     private ContentViewCore mContentViewCore;
     private Context mViewContext;
+    private XWalkContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private ActivityWindowAndroid mWindow;
     private XWalkDevToolsServer mDevToolsServer;
@@ -200,6 +195,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewRenderView.onNativeLibraryLoaded(mWindow);
         mLaunchScreenManager = new XWalkLaunchScreenManager(mViewContext, mXWalkView);
         mContentViewRenderView.registerFirstRenderedFrameListener(mLaunchScreenManager);
+        mXWalkView.addView(mContentViewRenderView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
 
         mNativeContent = newNativeContent;
 
@@ -209,11 +207,15 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
 
         mWebContents = nativeGetWebContents(mNativeContent);
 
-        // Initialize ContentViewCore.
+        // Initialize ContentView.
         mContentViewCore = new ContentViewCore(mViewContext);
-        mContentViewCore.initialize(mXWalkView, mXWalkView, mWebContents, mWindow);
+        mContentView = XWalkContentView.createContentView(
+                mViewContext, mContentViewCore, mXWalkView);
+        mContentViewCore.initialize(mContentView, mContentView, mWebContents, mWindow);
         mNavigationController = mWebContents.getNavigationController();
-
+        mXWalkView.addView(mContentView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
         mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
@@ -305,7 +307,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             mNavigationController.loadUrl(params);
         }
 
-        mXWalkView.requestFocus();
+        mContentView.requestFocus();
     }
 
     public void loadUrl(String url, String data, Map<String, String> headers) {
@@ -722,6 +724,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         XWalkPreferencesInternal.unload(this);
         // Reset existing notification service in order to destruct it.
         setNotificationService(null);
+        // Remove its children used for page rendering from view hierarchy.
+        mXWalkView.removeView(mContentView);
+        mXWalkView.removeView(mContentViewRenderView);
         mContentViewRenderView.setCurrentContentViewCore(null);
 
         // Destroy the native resources.
@@ -738,7 +743,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     }
 
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        return mContentViewCore.onCreateInputConnection(outAttrs);
+        return mContentView.onCreateInputConnectionSuper(outAttrs);
     }
 
     public boolean onTouchEvent(MotionEvent event) {
@@ -753,32 +758,36 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         return mContentViewCore.onTouchEvent(event);
     }
 
+    public void setOnTouchListener(OnTouchListener l) {
+        mContentView.setOnTouchListener(l);
+    }
+
     public void scrollTo(int x, int y) {
-        mContentViewCore.scrollTo(x, y);
+        mContentView.scrollTo(x, y);
     }
 
     public void scrollBy(int x, int y) {
-        mContentViewCore.scrollBy(x, y, false);
+        mContentView.scrollBy(x, y);
     }
 
     public int computeHorizontalScrollRange() {
-        return mContentViewCore.computeHorizontalScrollRange();
+        return mContentView.computeHorizontalScrollRangeDelegate();
     }
 
     public int computeHorizontalScrollOffset() {
-        return mContentViewCore.computeHorizontalScrollOffset();
+        return mContentView.computeHorizontalScrollOffsetDelegate();
     }
 
     public int computeVerticalScrollRange() {
-        return mContentViewCore.computeVerticalScrollRange();
+        return mContentView.computeVerticalScrollRangeDelegate();
     }
 
     public int computeVerticalScrollOffset() {
-        return mContentViewCore.computeVerticalScrollOffset();
+        return mContentView.computeVerticalScrollOffsetDelegate();
     }
 
     public int computeVerticalScrollExtent() {
-        return mContentViewCore.computeVerticalScrollExtent();
+        return mContentView.computeVerticalScrollExtentDelegate();
     }
 
     //--------------------------------------------------------------------------------------------
@@ -1080,129 +1089,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             boolean isDoneCounting) {
         mContentsClientBridge.onFindResultReceived(activeMatchOrdinal, numberOfMatches,
                 isDoneCounting);
-    }
-
-    protected void onAttachedToWindow() {
-        mContentViewCore.onAttachedToWindow();
-    }
-
-    protected void onDetachedFromWindow() {
-        mContentViewCore.onDetachedFromWindow();
-    }
-
-    protected void onVisibilityChanged(View changedView, int visibility) {
-        mContentViewCore.onVisibilityChanged(changedView, visibility);
-    }
-
-    protected ContentViewClient getContentViewClient() {
-        return mContentViewCore.getContentViewClient();
-    }
-
-    protected void onSizeChanged(int w, int h, int ow, int oh) {
-        mContentViewCore.onSizeChanged(w, h, ow, oh);
-    }
-
-    protected void onFocusChanged(boolean gainFocus) {
-        mContentViewCore.onFocusChanged(gainFocus);
-    }
-
-    protected void onWindowFocusChanged(boolean hasWindowFocus) {
-        mContentViewCore.onWindowFocusChanged(hasWindowFocus);
-    }
-
-    protected boolean supportsAccessibilityAction(int action) {
-        return mContentViewCore.supportsAccessibilityAction(action);
-    }
-
-    protected boolean performAccessibilityAction(int action, Bundle arguments) {
-        return mContentViewCore.performAccessibilityAction(action, arguments);
-    }
-
-    protected AccessibilityNodeProvider getAccessibilityNodeProvider() {
-        return mContentViewCore.getAccessibilityNodeProvider();
-    }
-
-    @TargetApi(VERSION_CODES.M)
-    protected void onProvideVirtualStructure(final ViewStructure structure) {
-        if (VERSION.SDK_INT < VERSION_CODES.M) {
-            return;
-        }
-        mContentViewCore.onProvideVirtualStructure(structure, false);
-    }
-
-    protected boolean onCheckIsTextEditor() {
-        return mContentViewCore.onCheckIsTextEditor();
-    }
-
-    protected boolean onKeyUp(int keyCode, KeyEvent event) {
-        return mContentViewCore.onKeyUp(keyCode, event);
-    }
-
-    protected boolean dispatchKeyEventPreIme(KeyEvent event) {
-        return mContentViewCore.dispatchKeyEventPreIme(event);
-    }
-
-    protected boolean dispatchKeyEvent(KeyEvent event) {
-        return mContentViewCore.dispatchKeyEvent(event);
-    }
-
-    protected boolean onHoverEvent(MotionEvent event) {
-        return mContentViewCore.onHoverEvent(event);
-    }
-
-    protected boolean isTouchExplorationEnabled() {
-        return mContentViewCore.isTouchExplorationEnabled();
-    }
-
-    protected boolean onGenericMotionEvent(MotionEvent event) {
-        return mContentViewCore.onGenericMotionEvent(event);
-    }
-
-    protected void onConfigurationChanged(Configuration newConfig) {
-        mContentViewCore.onConfigurationChanged(newConfig);
-    }
-
-    protected int computeHorizontalScrollExtent() {
-        // TODO(dtrainor): Need to expose scroll events properly to public. Either make getScroll*
-        // work or expose computeHorizontalScrollOffset()/computeVerticalScrollOffset as public.
-        return mContentViewCore.computeHorizontalScrollExtent();
-    }
-
-    protected boolean awakenScrollBars(int startDelay, boolean invalidate) {
-        return mContentViewCore.awakenScrollBars(startDelay, invalidate);
-    }
-
-    protected void extractSmartClipData(int x, int y, int width, int height) {
-        mContentViewCore.extractSmartClipData(x, y, width, height);
-    }
-
-    protected void setSmartClipResultHandler(final Handler resultHandler) {
-        if (resultHandler == null) {
-            mContentViewCore.setSmartClipDataListener(null);
-            return;
-        }
-        mContentViewCore.setSmartClipDataListener(new ContentViewCore.SmartClipDataListener() {
-            @Override
-            public void onSmartClipDataExtracted(String text, String html, Rect clipRect) {
-                Bundle bundle = new Bundle();
-                bundle.putString("url", mContentViewCore.getWebContents().getVisibleUrl());
-                bundle.putString("title", mContentViewCore.getWebContents().getTitle());
-                bundle.putParcelable("rect", clipRect);
-                bundle.putString("text", text);
-                bundle.putString("html", html);
-                try {
-                    Message msg = Message.obtain(resultHandler, 0);
-                    msg.setData(bundle);
-                    msg.sendToTarget();
-                } catch (Exception e) {
-                    Log.e(TAG, "Error calling handler for smart clip data: ", e);
-                }
-            }
-        });
-    }
-
-    protected ContentViewRenderView getContentViewRenderView() {
-        return mContentViewRenderView;
     }
 
     private native long nativeInit();
