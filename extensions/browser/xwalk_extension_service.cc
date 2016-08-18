@@ -219,7 +219,7 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
-    std::unique_ptr<base::ValueMap> runtime_variables) {
+    std::unique_ptr<base::DictionaryValue::Storage> runtime_variables) {
   XWalkExtensionData* data = new XWalkExtensionData;
   data->set_render_process_host(host);
 
@@ -243,12 +243,12 @@ void XWalkExtensionService::OnRenderProcessWillLaunch(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
-    std::unique_ptr<base::ValueMap> runtime_variables) {
+    std::unique_ptr<base::DictionaryValue::Storage> runtime_variables) {
   CHECK(host);
 
   if (!g_external_extensions_path_for_testing_.empty()) {
-    (*runtime_variables)["runtime_name"] =
-        new base::StringValue("xwalk");
+    (*runtime_variables)["runtime_name"] = base::WrapUnique(
+        new base::StringValue("xwalk"));
     OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
         extension_thread_extensions, std::move(runtime_variables));
     return;
@@ -372,7 +372,7 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
 void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, XWalkExtensionData* data,
-    std::unique_ptr<base::ValueMap> runtime_variables) {
+    std::unique_ptr<base::DictionaryValue::Storage> runtime_variables) {
   data->set_extension_process_host(base::WrapUnique(
       new XWalkExtensionProcessHost(host, external_extensions_path_, this,
                                     std::move(runtime_variables))));
