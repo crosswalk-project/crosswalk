@@ -287,10 +287,6 @@ bool AndroidStreamReaderURLRequestJob::GetMimeType(
   if (!input_stream_reader_wrapper_.get())
     return false;
 
-  // Since it's possible for this call to alter the InputStream a
-  // Seek or ReadRawData operation running in the background is not permitted.
-  DCHECK(!request_->status().is_io_pending());
-
   return delegate_->GetMimeType(
       env, request(), input_stream_reader_wrapper_->input_stream(), mime_type);
 }
