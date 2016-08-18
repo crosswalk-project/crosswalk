@@ -30,7 +30,8 @@ const GURL kAboutBlankURL = GURL("about:blank");
 
 XWalkExtensionRendererController::XWalkExtensionRendererController(
     Delegate* delegate)
-    : shutdown_event_(false, false),
+    : shutdown_event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
+                      base::WaitableEvent::InitialState::NOT_SIGNALED),
       delegate_(delegate) {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);

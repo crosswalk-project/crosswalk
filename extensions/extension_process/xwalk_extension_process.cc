@@ -20,7 +20,8 @@ namespace extensions {
 
 XWalkExtensionProcess::XWalkExtensionProcess(
     const IPC::ChannelHandle& channel_handle)
-    : shutdown_event_(false, false),
+    : shutdown_event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
+                      base::WaitableEvent::InitialState::NOT_SIGNALED),
       io_thread_("XWalkExtensionProcess_IOThread") {
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
