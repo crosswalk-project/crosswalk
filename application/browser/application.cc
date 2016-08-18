@@ -340,7 +340,7 @@ bool Application::RegisterPermissions(const std::string& extension_name,
       return false;
 
     base::DictionaryValue* dict_val =
-        static_cast<base::DictionaryValue*>(*iter);
+        static_cast<base::DictionaryValue*>(iter->get());
     std::string permission_name;
     if (!dict_val->GetString("permission_name", &permission_name))
       return false;
