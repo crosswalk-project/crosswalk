@@ -50,8 +50,8 @@
             android:src="@android:drawable/ic_menu_rotate"
             android:scaleType="center" />
     </LinearLayout>
-    <FrameLayout android:id="@+id/view_container"
+    <org.xwalk.core.internal.XWalkViewInternal android:id="@+id/xwalkview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </FrameLayout>
+    </org.xwalk.core.internal.XWalkViewInternal>
 </LinearLayout>
