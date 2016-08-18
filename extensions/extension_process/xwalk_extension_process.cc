@@ -51,7 +51,7 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 
 namespace {
 
-void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
+void ToValueMap(base::ListValue* lv, base::DictionaryValue::Storage* vm) {
   vm->clear();
 
   for (base::ListValue::iterator it = lv->begin(); it != lv->end(); it++) {
@@ -60,7 +60,7 @@ void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
       continue;
     for (base::DictionaryValue::Iterator dit(*dv);
         !dit.IsAtEnd(); dit.Advance())
-      (*vm)[dit.key()] = dit.value().DeepCopy();
+      (*vm)[dit.key()] = base::WrapUnique(dit.value().DeepCopy());
   }
 }
 
@@ -69,7 +69,8 @@ void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path, const base::ListValue& browser_variables_lv) {
   if (!path.empty()) {
-    std::unique_ptr<base::ValueMap> browser_variables(new base::ValueMap);
+    std::unique_ptr<base::DictionaryValue::Storage> browser_variables(
+      new base::DictionaryValue::Storage);
 
     ToValueMap(&const_cast<base::ListValue&>(browser_variables_lv),
           browser_variables.get());

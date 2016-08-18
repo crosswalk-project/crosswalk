@@ -13,6 +13,7 @@
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_Message_2.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
+#include "base/memory/ptr_util.h"
 
 namespace base {
 class FilePath;
@@ -39,8 +40,8 @@ class XWalkExternalExtension : public XWalkExtension {
 
   bool Initialize();
 
-  void set_runtime_variables(const base::ValueMap& runtime_variables) {
-    runtime_variables_ = runtime_variables;
+  void set_runtime_variables(base::DictionaryValue::Storage* runtime_variables) {
+      runtime_variables_.swap(*runtime_variables);
   }
 
  protected:
@@ -53,7 +54,7 @@ class XWalkExternalExtension : public XWalkExtension {
 
   // Variables from the browser process. Usually things like currently-running
   // application ID.
-  base::ValueMap runtime_variables_;
+  base::DictionaryValue::Storage runtime_variables_;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
   void CoreSetExtensionName(const char* name);
