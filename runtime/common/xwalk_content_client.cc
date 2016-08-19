@@ -195,7 +195,7 @@ base::StringPiece XWalkContentClient::GetDataResource(
       resource_id, scale_factor);
 }
 
-base::RefCountedStaticMemory* XWalkContentClient::GetDataResourceBytes(
+base::RefCountedMemory* XWalkContentClient::GetDataResourceBytes(
     int resource_id) const {
   return ResourceBundle::GetSharedInstance().LoadDataResourceBytes(resource_id);
 }
