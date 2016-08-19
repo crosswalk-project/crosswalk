@@ -20,9 +20,10 @@ Note: dates indicate the day when the release was promoted to the Stable channel
 
 * [XWALK-3889] Fail to exit fullscreen when invoking the 'leaveFullScreen' method of embeddingAPI on Android
 
-## Crosswalk 20
+## Crosswalk 20 (Jul 27, 2016)
 
 * Rebase to Chromium 50
+* Remove support for Android 4.0
 * Android: launch external apps via custom URL schemes
 * Windows: add download support
 * Windows: support notifications
