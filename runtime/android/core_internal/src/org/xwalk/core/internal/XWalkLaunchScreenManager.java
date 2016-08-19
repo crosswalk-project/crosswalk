@@ -54,13 +54,13 @@ public class XWalkLaunchScreenManager
     // and used by LaunchScreenExtension.
     private static String mIntentFilterStr;
 
-    private final static String BORDER_MODE_REPEAT = "repeat";
-    private final static String BORDER_MODE_STRETCH = "stretch";
-    private final static String BORDER_MODE_ROUND = "round";
+    private static final String BORDER_MODE_REPEAT = "repeat";
+    private static final String BORDER_MODE_STRETCH = "stretch";
+    private static final String BORDER_MODE_ROUND = "round";
 
     private XWalkViewInternal mXWalkView;
     private Activity mActivity;
-    private Context mLibContext;
+    private Context mContext;
     private Dialog mLaunchScreenDialog;
     private boolean mPageLoadFinished;
     private ReadyWhenType mReadyWhen;
@@ -86,29 +86,32 @@ public class XWalkLaunchScreenManager
 
     public XWalkLaunchScreenManager(Context context, XWalkViewInternal xwView) {
         mXWalkView = xwView;
-        mLibContext = context;
-        mActivity = mXWalkView.getActivity();
-        mIntentFilterStr = mActivity.getPackageName() + ".hideLaunchScreen";
+        mContext = context;
+        try {
+            mActivity = (Activity) mContext;
+        } catch (ClassCastException e) {
+        }
+        mIntentFilterStr = mContext.getPackageName() + ".hideLaunchScreen";
     }
 
     public void displayLaunchScreen(String readyWhen, final String imageBorderList) {
-        if (mXWalkView == null) return;
+        if (mXWalkView == null || mActivity == null) return;
         setReadyWhen(readyWhen);
 
         Runnable runnable = new Runnable() {
            public void run() {
-                int bgResId = mActivity.getResources().getIdentifier(
-                        "launchscreen_bg", "drawable", mActivity.getPackageName());
+                int bgResId = mContext.getResources().getIdentifier(
+                        "launchscreen_bg", "drawable", mContext.getPackageName());
                 if (bgResId == 0) return;
                 Drawable bgDrawable = null;
                 try {
-                    bgDrawable = mActivity.getResources().getDrawable(bgResId);
+                    bgDrawable = mContext.getResources().getDrawable(bgResId);
                 } catch (OutOfMemoryError e) {
                     e.printStackTrace();
                 }
                 if (bgDrawable == null) return;
 
-                mLaunchScreenDialog = new Dialog(mLibContext,
+                mLaunchScreenDialog = new Dialog(mContext,
                                                  android.R.style.Theme_Holo_Light_NoActionBar);
 
                 mLaunchScreenDialog.setOnKeyListener(new Dialog.OnKeyListener() {
@@ -134,7 +137,7 @@ public class XWalkLaunchScreenManager
                 mLaunchScreenDialog.show();
 
                 // Change the layout depends on the orientation change.
-                mOrientationListener = new OrientationEventListener(mActivity,
+                mOrientationListener = new OrientationEventListener(mContext,
                         SensorManager.SENSOR_DELAY_NORMAL) {
                     public void onOrientationChanged(int ori) {
                         if (mLaunchScreenDialog == null || !mLaunchScreenDialog.isShowing()) {
@@ -279,7 +282,7 @@ public class XWalkLaunchScreenManager
         if (!imgRect.contains(subRect)) return null;
 
         Bitmap subImage = Bitmap.createBitmap(img, x, y, width, height);
-        ImageView subImageView = new ImageView(mActivity);
+        ImageView subImageView = new ImageView(mContext);
         BitmapDrawable drawable;
         if (mode == BorderModeType.ROUND) {
             int originW = subImage.getWidth();
@@ -296,7 +299,7 @@ public class XWalkLaunchScreenManager
             mode = BorderModeType.REPEAT;
         }
         if (mode == BorderModeType.REPEAT) {
-            drawable = new BitmapDrawable(mActivity.getResources(), subImage);
+            drawable = new BitmapDrawable(mContext.getResources(), subImage);
             drawable.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
             subImageView.setImageDrawable(drawable);
             subImageView.setScaleType(ScaleType.FIT_XY);
@@ -311,10 +314,10 @@ public class XWalkLaunchScreenManager
     }
 
     private int getStatusBarHeight() {
-        int resourceId = mActivity.getResources().getIdentifier(
+        int resourceId = mContext.getResources().getIdentifier(
                 "status_bar_height", "dimen", "android");
         if (resourceId > 0) {
-            return mActivity.getResources().getDimensionPixelSize(resourceId);
+            return mContext.getResources().getDimensionPixelSize(resourceId);
         }
         // If not found, return default one.
         return 25;
@@ -369,7 +372,7 @@ public class XWalkLaunchScreenManager
         }
 
         // The border values are dpi from manifest.json, need to translate to px.
-        DisplayMetrics matrix = mActivity.getResources().getDisplayMetrics();
+        DisplayMetrics matrix = mContext.getResources().getDisplayMetrics();
         topBorder = (int)TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, topBorder, matrix);
         rightBorder = (int)TypedValue.applyDimension(
@@ -388,13 +391,13 @@ public class XWalkLaunchScreenManager
         }
 
         // Get foreground image
-        int imgResId = mActivity.getResources().getIdentifier(
-                       "launchscreen_img", "drawable", mActivity.getPackageName());
+        int imgResId = mContext.getResources().getIdentifier(
+                       "launchscreen_img", "drawable", mContext.getPackageName());
         if (imgResId == 0) return null;
-        Bitmap img = BitmapFactory.decodeResource(mActivity.getResources(), imgResId);
+        Bitmap img = BitmapFactory.decodeResource(mContext.getResources(), imgResId);
         if (img == null) return null;
 
-        RelativeLayout root = new RelativeLayout(mActivity);
+        RelativeLayout root = new RelativeLayout(mContext);
         root.setLayoutParams(new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
@@ -403,7 +406,7 @@ public class XWalkLaunchScreenManager
 
         // If no border specified, display the foreground image centered horizontally and vertically.
         if (borders.size() == 0) {
-            subImageView = new ImageView(mActivity);
+            subImageView = new ImageView(mContext);
             subImageView.setImageBitmap(img);
             params = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -558,7 +561,7 @@ public class XWalkLaunchScreenManager
                 hideLaunchScreenWhenReady();
             }
         };
-        mActivity.registerReceiver(mLaunchScreenReadyWhenReceiver, intentFilter);
+        mContext.registerReceiver(mLaunchScreenReadyWhenReceiver, intentFilter);
     }
 
     private void hideLaunchScreenWhenReady() {
@@ -582,7 +585,7 @@ public class XWalkLaunchScreenManager
             mLaunchScreenDialog = null;
         }
         if (mReadyWhen == ReadyWhenType.CUSTOM) {
-            mActivity.unregisterReceiver(mLaunchScreenReadyWhenReceiver);
+            mContext.unregisterReceiver(mLaunchScreenReadyWhenReceiver);
         }
     }
 

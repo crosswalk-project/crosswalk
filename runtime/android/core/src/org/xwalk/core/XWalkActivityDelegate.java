@@ -13,9 +13,8 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 import org.xwalk.core.XWalkUpdater.XWalkBackgroundUpdateListener;
 import org.xwalk.core.XWalkUpdater.XWalkUpdateListener;
 
-public class XWalkActivityDelegate
-            implements DecompressListener, ActivateListener {
-    private static final String TAG = "XWalkActivity";
+public class XWalkActivityDelegate implements DecompressListener, ActivateListener {
+    private static final String TAG = "XWalkLib";
 
     private Activity mActivity;
     private XWalkDialogManager mDialogManager;
@@ -23,11 +22,9 @@ public class XWalkActivityDelegate
     private Runnable mCancelCommand;
     private Runnable mCompleteCommand;
 
-    private boolean mIsInitializing;
     private boolean mIsXWalkReady;
     private boolean mBackgroundDecorated;
     private boolean mWillDecompress;
-    private String mXWalkApkUrl;
 
     public XWalkActivityDelegate(Activity activity,
             Runnable cancelCommand, Runnable completeCommand) {
@@ -49,11 +46,11 @@ public class XWalkActivityDelegate
     }
 
     public boolean isDownloadMode() {
-        return XWalkEnvironment.isDownloadMode();
+        return mIsXWalkReady && XWalkEnvironment.isDownloadMode();
     }
 
     public void setXWalkApkUrl(String url) {
-        mXWalkApkUrl = url;
+        XWalkEnvironment.setXWalkApkUrl(url);
     }
 
     public XWalkDialogManager getDialogManager() {
@@ -61,16 +58,15 @@ public class XWalkActivityDelegate
     }
 
     public void onResume() {
-        if (mIsInitializing || mIsXWalkReady) return;
+        if (mIsXWalkReady) return;
 
-        mIsInitializing = true;
-        if (XWalkLibraryLoader.isLibraryReady()) {
-            Log.d(TAG, "Activate by XWalkActivity");
-            XWalkLibraryLoader.startActivate(this, mActivity);
-        } else {
-            Log.d(TAG, "Initialize by XWalkActivity");
-            XWalkLibraryLoader.startDecompress(this, mActivity);
+        if (XWalkLibraryLoader.isInitializing() || XWalkLibraryLoader.isDownloading()) {
+            Log.d(TAG, "Other initialization or download is proceeding");
+            return;
         }
+
+        Log.d(TAG, "Initialize by XWalkActivity");
+        XWalkLibraryLoader.startDecompress(this);
     }
 
     @Override
@@ -88,7 +84,6 @@ public class XWalkActivityDelegate
     @Override
     public void onDecompressCancelled() {
         mWillDecompress = false;
-        mIsInitializing = false;
         mCancelCommand.run();
     }
 
@@ -99,7 +94,7 @@ public class XWalkActivityDelegate
             mWillDecompress = false;
         }
 
-        XWalkLibraryLoader.startActivate(this, mActivity);
+        XWalkLibraryLoader.startActivate(this);
     }
 
     @Override
@@ -108,8 +103,6 @@ public class XWalkActivityDelegate
 
     @Override
     public void onActivateFailed() {
-        mIsInitializing = false;
-
         if (mXWalkUpdater == null) {
             if (XWalkEnvironment.isDownloadMode()) {
                 mXWalkUpdater = new XWalkUpdater(
@@ -134,7 +127,7 @@ public class XWalkActivityDelegate
 
                         @Override
                         public void onXWalkUpdateCompleted() {
-                            XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this, mActivity);
+                            XWalkLibraryLoader.startActivate(XWalkActivityDelegate.this);
                         }
                     },
                     mActivity);
@@ -147,10 +140,6 @@ public class XWalkActivityDelegate
                         }
                     },
                     mActivity, mDialogManager);
-            }
-
-            if (mXWalkApkUrl != null) {
-                mXWalkUpdater.setXWalkApkUrl(mXWalkApkUrl);
             }
         }
 
@@ -168,7 +157,7 @@ public class XWalkActivityDelegate
 
     @Override
     public void onActivateCompleted() {
-        if (mDialogManager != null && mDialogManager.isShowingDialog()) {
+        if (mDialogManager.isShowingDialog()) {
             mDialogManager.dismissDialog();
         }
 
@@ -178,8 +167,8 @@ public class XWalkActivityDelegate
             mBackgroundDecorated = false;
         }
 
-        mIsInitializing = false;
         mIsXWalkReady = true;
+        XWalkLibraryLoader.finishInit(mActivity);
         mCompleteCommand.run();
     }
 }

@@ -12,9 +12,9 @@ import android.content.Context;
  * current setting.
  */
 final class XWalkRuntimeViewProviderFactory {
-    static public XWalkRuntimeViewProvider getProvider(Context context, Activity activity) {
+    static public XWalkRuntimeViewProvider getProvider(Context context) {
         // TODO(yongsheng): Do checkings here to decide which provider should
         // be used. The default is to use runtime core provider.
-        return new XWalkCoreProviderImpl(context, activity);
+        return new XWalkCoreProviderImpl(context);
     }
 }
