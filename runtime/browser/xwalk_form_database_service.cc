@@ -77,7 +77,9 @@ void XWalkFormDatabaseService::ClearFormDataImpl() {
 }
 
 bool XWalkFormDatabaseService::HasFormData() {
-  WaitableEvent completion(false, false);
+  WaitableEvent completion(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
   bool result = false;
   BrowserThread::PostTask(
       BrowserThread::DB,
