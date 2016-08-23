@@ -41,7 +41,6 @@ class SSLErrorPage : public content::InterstitialPageDelegate {
 
  private:
   content::WebContents* web_contents_;
-  const int cert_error_;
   const net::SSLInfo ssl_info_;
   const GURL request_url_;
   base::Callback<void(bool)> callback_;

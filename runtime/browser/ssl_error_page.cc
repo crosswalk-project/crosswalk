@@ -24,7 +24,6 @@ SSLErrorPage::SSLErrorPage(WebContents* web_contents,
                            const GURL& request_url,
                            const base::Callback<void(bool)>& callback)
     : web_contents_(web_contents),
-      cert_error_(cert_error),
       ssl_info_(ssl_info),
       request_url_(request_url),
       callback_(callback),
