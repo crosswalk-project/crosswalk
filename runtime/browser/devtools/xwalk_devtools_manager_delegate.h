@@ -23,8 +23,6 @@ class XWalkDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   static devtools_http_handler::DevToolsHttpHandler* CreateHttpHandler(
       XWalkBrowserContext* browser_context);
 
-  explicit XWalkDevToolsManagerDelegate(
-      content::BrowserContext* browser_context);
   ~XWalkDevToolsManagerDelegate() override;
 
   // DevToolsManagerDelegate implementation.
@@ -36,7 +34,6 @@ class XWalkDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
                                        base::DictionaryValue* command) override;
 
  private:
-  content::BrowserContext* browser_context_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsManagerDelegate);
 };
