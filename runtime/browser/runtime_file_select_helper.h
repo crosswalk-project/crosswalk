@@ -20,6 +20,7 @@
 
 namespace content {
 class RenderViewHost;
+class RenderFrameHost;
 class WebContents;
 }
 
@@ -36,7 +37,7 @@ class RuntimeFileSelectHelper
       public content::NotificationObserver {
  public:
   // Show the file chooser dialog.
-  static void RunFileChooser(content::WebContents* tab,
+  static void RunFileChooser(content::RenderFrameHost* render_frame_host,
                              const content::FileChooserParams& params);
 
   // Enumerates all the files in directory.
@@ -70,7 +71,7 @@ class RuntimeFileSelectHelper
     DISALLOW_COPY_AND_ASSIGN(DirectoryListerDispatchDelegate);
   };
 
-  void RunFileChooser(content::RenderViewHost* render_view_host,
+  void RunFileChooser(content::RenderFrameHost* render_frame_host,
                       content::WebContents* web_contents,
                       const content::FileChooserParams& params);
   void RunFileChooserOnFileThread(
@@ -133,9 +134,9 @@ class RuntimeFileSelectHelper
   // no whitespace.
   static bool IsAcceptTypeValid(const std::string& accept_type);
 
-  // The RenderViewHost and WebContents for the page showing a file dialog
+  // The RenderFrameHost and WebContents for the page showing a file dialog
   // (may only be one such dialog).
-  content::RenderViewHost* render_view_host_;
+  content::RenderFrameHost* render_frame_host_;
   content::WebContents* web_contents_;
 
   // Dialog box used for choosing files to upload from file form fields.
