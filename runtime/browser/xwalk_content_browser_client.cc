@@ -15,6 +15,7 @@
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/child_process_data.h"
 #include "content/public/browser/client_certificate_delegate.h"
+#include "content/public/browser/geolocation_delegate.h"
 #include "content/public/browser/presentation_service_delegate.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -92,6 +93,22 @@ namespace {
 // The application-wide singleton of ContentBrowserClient impl.
 XWalkContentBrowserClient* g_browser_client = nullptr;
 
+// A provider of services for Geolocation.
+class XWalkGeolocationDelegate : public content::GeolocationDelegate {
+ public:
+  explicit XWalkGeolocationDelegate(net::URLRequestContextGetter* request_context)
+      : request_context_(request_context) {}
+
+  content::AccessTokenStore* CreateAccessTokenStore() final {
+    return new XWalkAccessTokenStore(request_context_);
+  }
+
+ private:
+  net::URLRequestContextGetter* request_context_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkGeolocationDelegate);
+};
+
 }  // namespace
 
 // static
@@ -151,8 +168,9 @@ XWalkContentBrowserClient::CreateQuotaPermissionContext() {
   return new RuntimeQuotaPermissionContext();
 }
 
-content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
-  return new XWalkAccessTokenStore(
+content::GeolocationDelegate*
+XWalkContentBrowserClient::CreateGeolocationDelegate() {
+  return new XWalkGeolocationDelegate(
       xwalk_runner_->browser_context()->url_request_getter());
 }
 
@@ -365,11 +383,6 @@ bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,
   return false;
 }
 #endif
-
-content::LocationProvider*
-XWalkContentBrowserClient::OverrideSystemLocationProvider() {
-  return nullptr;
-}
 
 void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
     content::BrowserContext* browser_context,
