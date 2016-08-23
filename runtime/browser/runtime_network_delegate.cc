@@ -32,14 +32,14 @@ int RuntimeNetworkDelegate::OnBeforeURLRequest(
   return net::OK;
 }
 
-int RuntimeNetworkDelegate::OnBeforeSendHeaders(
+int RuntimeNetworkDelegate::OnBeforeStartTransaction(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     net::HttpRequestHeaders* headers) {
   return net::OK;
 }
 
-void RuntimeNetworkDelegate::OnSendHeaders(
+void RuntimeNetworkDelegate::OnStartTransaction(
     net::URLRequest* request,
     const net::HttpRequestHeaders& headers) {
 }
