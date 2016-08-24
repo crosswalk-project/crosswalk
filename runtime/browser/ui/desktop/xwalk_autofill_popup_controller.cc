@@ -105,7 +105,7 @@ XWalkAutofillPopupController::XWalkAutofillPopupController(
       base::Bind(&XWalkAutofillPopupController::HandleKeyPressEvent,
       base::Unretained(this)));
   label_font_list_ = value_font_list_.DeriveWithSizeDelta(kLabelFontSizeDelta);
-  title_font_list_ = value_font_list_.DeriveWithStyle(gfx::Font::BOLD);
+  title_font_list_ = value_font_list_.DeriveWithWeight(gfx::Font::Weight::BOLD);
 #if defined(OS_MACOSX)
   // There is no italic version of the system font.
   warning_font_list_ = value_font_list_;

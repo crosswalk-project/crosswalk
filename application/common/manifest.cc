@@ -224,9 +224,9 @@ void Manifest::ParseWGTI18nEachPath(const std::string& path) {
     bool get_first_one = false;
     for (base::ListValue::iterator it = list->begin();
         it != list->end(); ++it) {
-      ParseWGTI18nEachElement(*it, path);
+      ParseWGTI18nEachElement(it->get(), path);
       if (!get_first_one)
-        get_first_one = ParseWGTI18nEachElement(*it, path, kLocaleFirstOne);
+        get_first_one = ParseWGTI18nEachElement(it->get(), path, kLocaleFirstOne);
     }
   }
 }

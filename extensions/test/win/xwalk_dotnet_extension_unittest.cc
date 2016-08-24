@@ -15,17 +15,17 @@ class TestExtension : public XWalkExternalExtension {
  public:
   explicit TestExtension(const base::FilePath& path)
     : XWalkExternalExtension(path),
-    runtime_variables_(new base::ValueMap) {
+    runtime_variables_(new base::DictionaryValue::Storage) {
     (*runtime_variables_)["extension_path"] =
       new base::StringValue(path.AsUTF8Unsafe());
-    set_runtime_variables(*runtime_variables_);
+    set_runtime_variables(runtime_variables_.get());
   }
   XWalkExternalInstance* CreateExternalInstance() {
     return static_cast<XWalkExternalInstance*>(
         XWalkExternalExtension::CreateInstance());
   }
  private:
-  std::unique_ptr<base::ValueMap> runtime_variables_;
+  std::unique_ptr<base::DictionaryValue::Storage> runtime_variables_;
 };
 
 TEST(XWalkDotNetExtensionTest, InvalidExtensions) {

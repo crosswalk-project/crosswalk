@@ -139,7 +139,7 @@ void XWalkDevToolsFrontend::Close() {
 void XWalkDevToolsFrontend::DisconnectFromTarget() {
   if (!agent_host_)
     return;
-  agent_host_->DetachClient();
+  agent_host_->DetachClient(this);
   agent_host_ = nullptr;
 }
 
@@ -179,7 +179,7 @@ void XWalkDevToolsFrontend::DocumentAvailableInMainFrame() {
 
 void XWalkDevToolsFrontend::WebContentsDestroyed() {
   if (agent_host_)
-    agent_host_->DetachClient();
+    agent_host_->DetachClient(this);
   delete this;
 }
 
@@ -205,7 +205,7 @@ void XWalkDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     if (!params->GetString(0, &protocol_message))
       return;
     if (agent_host_)
-      agent_host_->DispatchProtocolMessage(protocol_message);
+      agent_host_->DispatchProtocolMessage(this, protocol_message);
   } else if (method == "loadCompleted") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.setUseSoftMenu(true);"));

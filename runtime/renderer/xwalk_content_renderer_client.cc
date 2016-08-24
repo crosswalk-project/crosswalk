@@ -81,6 +81,10 @@ class XWalkFrameHelper
           render_frame()->GetWebFrame(), context);
   }
 
+  void OnDestruct() override {
+    delete this;
+  }
+
  private:
   extensions::XWalkExtensionRendererController* extension_controller_;
 
