@@ -15,9 +15,6 @@
       <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
       <include name="IDR_XWALK_NATIVE_FILE_SYSTEM_API" file="../../experimental/native_file_system/native_file_system_api.js" type="BINDATA" />
       <include name="IDR_XWALK_WIFIDIRECT_API" file="../../experimental/wifidirect/wifidirect_api.js" type="BINDATA" />
-      <include name="IDR_FILE_PICKER_HTML" file="file_picker/file_picker.html" type="BINDATA" />
-      <include name="IDR_FILE_PICKER_JS" file="file_picker/file_picker.js" type="BINDATA" />
-      <include name="IDR_FILE_PICKER_CSS" file="file_picker/file_picker.css" type="BINDATA" />
     </includes>
     <structures>
       <structure type="chrome_scaled_image" name="IDR_CLOSE" file="close.png" />
@@ -45,28 +42,6 @@
       <!-- Color chooser dialog default titles (only used on Linux) -->
       <message name="IDS_SELECT_COLOR_DIALOG_TITLE" desc="The default title for the Select Color color chooser dialog.">
         Select Color
-      </message>
-      <!-- File-picker strings -->
-      <message name="IDS_FILE_PICKER_TITLE" desc="File picker title">
-        Save file as
-      </message>
-      <message name="IDS_FILE_PICKER_FILE_NAME" desc="File Name">
-        File name
-      </message>
-      <message name="IDS_FILE_BROWSER_SELECT_FOLDER_TITLE" desc="Select folder title.">
-        Select a folder to open
-      </message>
-      <message name="IDS_FILE_BROWSER_SELECT_UPLOAD_FOLDER_TITLE" desc="Select folder title for upload.">
-        Select a folder to upload
-      </message>
-      <message name="IDS_FILE_BROWSER_SELECT_OPEN_FILE_TITLE" desc="Select open file title.">
-        Select a file to open
-      </message>
-      <message name="IDS_FILE_BROWSER_SELECT_OPEN_MULTI_FILE_TITLE" desc="Select open multi file title.">
-        Select one or more files
-      </message>
-      <message name="IDS_FILE_BROWSER_SELECT_SAVEAS_FILE_TITLE" desc="Select saveas file title.">
-        Save file as
       </message>
       <message name="IDS_GEOLOCATION_DIALOG_QUESTION" desc="Question asked on the dialog whenever URL wants to access the user's physical location">
         <ph name="URL">
