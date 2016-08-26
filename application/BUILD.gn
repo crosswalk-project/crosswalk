@@ -1,0 +1,59 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# GYP version: xwalk_application.gypi:generate_xwalk_application_resources
+import("//tools/grit/grit_rule.gni")
+import("//tools/grit/repack.gni")
+
+source_set("xwalk_application_lib") {
+  sources = [
+    "browser/application.cc",
+    "browser/application.h",
+    "browser/application_protocols.cc",
+    "browser/application_protocols.h",
+    "browser/application_security_policy.cc",
+    "browser/application_security_policy.h",
+    "browser/application_service.cc",
+    "browser/application_service.h",
+    "browser/application_system.cc",
+    "browser/application_system.h",
+    "extension/application_runtime_extension.cc",
+    "extension/application_runtime_extension.h",
+    "extension/application_widget_extension.cc",
+    "extension/application_widget_extension.h",
+    "extension/application_widget_storage.cc",
+    "extension/application_widget_storage.h",
+    "renderer/application_native_module.cc",
+    "renderer/application_native_module.h",
+  ]
+  deps = [
+    ":xwalk_application_resources",
+    "//base",
+    "//crypto",
+    "//ipc",
+    "//third_party/WebKit/public:blink",
+    "//third_party/libxml",
+    "//third_party/zlib:zip",
+    "//ui/base",
+    "//url",
+    "//xwalk/application/common:xwalk_application_common_lib",
+  ]
+}
+
+# TODO(heke123): Remove this config by putting the files in the right place
+# in grit of grd file.
+config("xwalk_application_resources_include_dir") {
+  include_dirs = [ "$root_gen_dir/xwalk/application" ]
+}
+
+grit("xwalk_application_resources") {
+  source = "application_resources.grd"
+  outputs = [
+    "$root_gen_dir/xwalk/application/grit/xwalk_application_resources.h",
+    "$root_gen_dir/xwalk/application/xwalk_application_resources.pak",
+    "$root_gen_dir/xwalk/application/xwalk_application_resources.rc",
+  ]
+  public_configs = [ ":xwalk_application_resources_include_dir" ]
+  resource_ids = "//xwalk/resources/resource_ids"
+}

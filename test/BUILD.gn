@@ -1,0 +1,76 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/ui.gni")
+
+executable("xwalk_browsertest") {
+  testonly = true
+  sources = [
+    "//xwalk/application/test/application_browsertest.cc",
+    "//xwalk/application/test/application_browsertest.h",
+    "//xwalk/application/test/application_test.cc",
+    "//xwalk/application/test/application_testapi.cc",
+    "//xwalk/application/test/application_testapi.h",
+    "//xwalk/application/test/application_testapi_test.cc",
+    "//xwalk/experimental/native_file_system/native_file_system_api_browsertest.cc",
+    "//xwalk/runtime/browser/devtools/xwalk_devtools_browsertest.cc",
+    "//xwalk/runtime/browser/xwalk_download_browsertest.cc",
+    "//xwalk/runtime/browser/xwalk_form_input_browsertest.cc",
+    "//xwalk/runtime/browser/xwalk_runtime_browsertest.cc",
+    "//xwalk/runtime/browser/xwalk_switches_browsertest.cc",
+  ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  include_dirs = [ "$root_gen_dir/xwalk/application" ]
+  deps = [
+    "//base",
+    "//content/public/browser",
+    "//content/public/common",
+    "//content/test:test_support",
+    "//net",
+    "//skia",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/libxml",
+    "//ui/base",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/application:xwalk_application_lib",
+    "//xwalk/resources:xwalk_resources",
+    "//xwalk/test/base:test_support",
+  ]
+}
+
+executable("xwalk_unittest") {
+  testonly = true
+  sources = [
+    "//xwalk/application/common/application_file_util_unittest.cc",
+    "//xwalk/application/common/application_unittest.cc",
+    "//xwalk/application/common/id_util_unittest.cc",
+    "//xwalk/application/common/manifest_handler_unittest.cc",
+    "//xwalk/application/common/manifest_handlers/csp_handler_unittest.cc",
+    "//xwalk/application/common/manifest_handlers/permissions_handler_unittest.cc",
+    "//xwalk/application/common/manifest_handlers/unittest_util.cc",
+    "//xwalk/application/common/manifest_handlers/unittest_util.h",
+    "//xwalk/application/common/manifest_handlers/warp_handler_unittest.cc",
+    "//xwalk/application/common/manifest_handlers/widget_handler_unittest.cc",
+    "//xwalk/application/common/manifest_unittest.cc",
+    "//xwalk/application/common/package/package_unittest.cc",
+    "//xwalk/runtime/common/xwalk_content_client_unittest.cc",
+    "//xwalk/runtime/common/xwalk_runtime_features_unittest.cc",
+  ]
+  deps = [
+    "//base",
+    "//content/public/common",
+    "//content/test:test_support",
+    "//testing/gtest",
+    "//ui/base",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/application:xwalk_application_lib",
+    "//xwalk/test/base:test_support",
+  ]
+  if (toolkit_views) {
+    sources +=
+        [ "//xwalk/runtime/browser/ui/top_view_layout_views_unittest.cc" ]
+    deps += [ "//skia" ]
+  }
+}

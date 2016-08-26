@@ -1,0 +1,165 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//tools/grit/grit_rule.gni")
+import("//tools/grit/repack.gni")
+import("//xwalk/resources/locales.gni")
+
+repack("xwalk_pak") {
+  output = "$root_out_dir/xwalk.pak"
+  sources = [
+    "$root_gen_dir/blink/public/resources/blink_resources.pak",
+    "$root_gen_dir/components/components_resources.pak",
+    "$root_gen_dir/content/app/strings/content_strings_en-US.pak",
+    "$root_gen_dir/content/content_resources.pak",
+    "$root_gen_dir/net/net_resources.pak",
+    "$root_gen_dir/ui/strings/app_locale_settings_en-US.pak",
+    "$root_gen_dir/ui/strings/ui_strings_en-US.pak",
+    "$root_gen_dir/xwalk/application/xwalk_application_resources.pak",
+    "$root_gen_dir/xwalk/extensions/xwalk_extensions_resources.pak",
+    "$root_gen_dir/xwalk/resources/xwalk_resources.pak",
+    "$root_gen_dir/xwalk/sysapps/xwalk_sysapps_resources.pak",
+  ]
+  deps = [
+    ":generate_xwalk_resources",
+    "//components/resources",
+    "//content:resources",
+    "//content/app/resources",
+    "//content/app/strings",
+    "//net:net_resources",
+    "//third_party/WebKit/public:image_resources",
+    "//third_party/WebKit/public:resources",
+    "//ui/app_list/resources",
+    "//ui/resources",
+    "//ui/strings",
+    "//xwalk/application:xwalk_application_resources",
+    "//xwalk/extensions:xwalk_extensions_resources",
+    "//xwalk/sysapps:xwalk_sysapps_resources",
+  ]
+  if (is_linux) {
+    sources += [
+      "$root_gen_dir/blink/devtools_resources.pak",
+      "$root_gen_dir/components/strings/components_strings_en-US.pak",
+    ]
+    deps += [
+      "//components/strings:components_strings",
+      "//content/browser/devtools:devtools_resources",
+    ]
+  }
+  if (toolkit_views) {
+    deps += [ "//ui/views/resources" ]
+  }
+}
+
+repack("xwalk_resources_100_percent_pak") {
+  output = "$root_out_dir/xwalk_100_percent.pak"
+  sources = [
+    "$root_gen_dir/blink/public/resources/blink_image_resources_100_percent.pak",
+    "$root_gen_dir/components/components_resources_100_percent.pak",
+    "$root_gen_dir/content/app/resources/content_resources_100_percent.pak",
+    "$root_gen_dir/ui/resources/ui_resources_100_percent.pak",
+  ]
+  deps = [
+    "//components/resources",
+    "//content/app/resources",
+    "//third_party/WebKit/public:image_resources",
+    "//ui/resources",
+  ]
+  if (toolkit_views) {
+    deps += [ "//ui/views/resources:resources_grd" ]
+    sources +=
+        [ "$root_gen_dir/ui/views/resources/views_resources_100_percent.pak" ]
+  }
+}
+
+repack("xwalk_resources_200_percent_pak") {
+  output = "$root_out_dir/xwalk_200_percent.pak"
+  sources = [
+    "$root_gen_dir/blink/public/resources/blink_image_resources_200_percent.pak",
+    "$root_gen_dir/components/components_resources_200_percent.pak",
+    "$root_gen_dir/content/app/resources/content_resources_200_percent.pak",
+    "$root_gen_dir/ui/resources/ui_resources_200_percent.pak",
+  ]
+  deps = [
+    "//components/resources",
+    "//content/app/resources:resources",
+    "//third_party/WebKit/public:image_resources",
+    "//ui/resources",
+  ]
+  if (toolkit_views) {
+    sources +=
+        [ "$root_gen_dir/ui/views/resources/views_resources_200_percent.pak" ]
+    deps += [ "//ui/views/resources:resources_grd" ]
+  }
+}
+
+repack("xwalk_resources_300_percent_pak") {
+  output = "$root_out_dir/xwalk_300_percent.pak"
+  sources = [
+    "$root_gen_dir/components/components_resources_300_percent.pak",
+    "$root_gen_dir/ui/resources/ui_resources_300_percent.pak",
+  ]
+  deps = [
+    "//components/resources",
+    "//ui/resources",
+  ]
+  if (toolkit_views) {
+    sources +=
+        [ "$root_gen_dir/ui/views/resources/views_resources_300_percent.pak" ]
+    deps += [ "//ui/views/resources:resources_grd" ]
+  }
+}
+
+# TODO(heke123): Get rid of this grit+copy combination by putting the files in
+# the right places in grit of the grd file.
+grit("generate_xwalk_resources") {
+  source = "//xwalk/runtime/resources/xwalk_resources.grd"
+  resource_ids = "//xwalk/resources/resource_ids"
+  outputs = [
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources.h",
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources_map.cc",
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources_map.h",
+    "$root_gen_dir/xwalk/resources/xwalk_resources.pak",
+    "$root_gen_dir/xwalk/resources/xwalk_resources.rc",
+  ]
+}
+
+copy("xwalk_resources") {
+  sources = [
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources.h",
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources_map.cc",
+    "$root_gen_dir/xwalk/resources/grit/xwalk_resources_map.h",
+  ]
+  outputs = [
+    "$root_gen_dir/xwalk/grit/{{source_file_part}}",
+  ]
+  deps = [
+    ":generate_xwalk_resources",
+  ]
+}
+
+# TODO(heke123): Get rid of this grit+copy combination by putting the files in
+# the right places in grit of the grd file.
+grit("xwalk_strings") {
+  source = "//xwalk/runtime/resources/xwalk_strings.grd"
+  outputs = [
+    "../grit/xwalk_strings.h",
+  ]
+  outputs += locales
+  output_dir = "$root_gen_dir/xwalk/locales"
+  resource_ids = "//xwalk/resources/resource_ids"
+}
+
+copy("xwalk_locales") {
+  sources = []
+  foreach(pak, locales) {
+    sources += [ "$root_gen_dir/xwalk/locales/$pak" ]
+  }
+  outputs = [
+    "$root_out_dir/locales/xwalk/{{source_file_part}}",
+  ]
+  deps = [
+    ":xwalk_strings",
+  ]
+}
