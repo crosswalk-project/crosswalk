@@ -147,11 +147,12 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     public void setUIClient(XWalkUIClientInternal client) {
         // If it's null, use Crosswalk implementation.
-        if (client != null) {
+        if (client == null) {
+            mXWalkUIClient = new XWalkUIClientInternal(mXWalkView);
+        } else {
             mXWalkUIClient = client;
-            return;
         }
-        mXWalkUIClient = new XWalkUIClientInternal(mXWalkView);
+        mXWalkUIClient.setContentsClient(this);
     }
 
     public void setResourceClient(XWalkResourceClientInternal client) {
@@ -167,7 +168,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
         // If it's null, use Crosswalk implementation.
         if (client == null) return;
-        client.setContentsClient(this);
         mXWalkWebChromeClient = client;
     }
 
@@ -499,24 +499,24 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
-        if (mXWalkWebChromeClient != null) {
-            mXWalkWebChromeClient.onShowCustomView(view, callback);
+    public void onShowCustomView(View view, CustomViewCallbackInternal callback) {
+        if (mXWalkUIClient != null) {
+            mXWalkUIClient.onShowCustomView(view, callback);
         }
     }
 
     @Override
     public void onShowCustomView(View view, int requestedOrientation,
-            XWalkWebChromeClient.CustomViewCallback callback) {
-        if (mXWalkWebChromeClient != null) {
-            mXWalkWebChromeClient.onShowCustomView(view, requestedOrientation, callback);
+            CustomViewCallbackInternal callback) {
+        if (mXWalkUIClient != null) {
+            mXWalkUIClient.onShowCustomView(view, requestedOrientation, callback);
         }
     }
 
     @Override
     public void onHideCustomView() {
-        if (mXWalkWebChromeClient != null) {
-            mXWalkWebChromeClient.onHideCustomView();
+        if (mXWalkUIClient != null) {
+            mXWalkUIClient.onHideCustomView();
         }
     }
 

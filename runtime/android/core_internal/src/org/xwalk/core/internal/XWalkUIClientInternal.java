@@ -8,17 +8,21 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ValueCallback;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import org.chromium.base.ApiCompatibilityUtils;
 
@@ -36,6 +40,11 @@ public class XWalkUIClientInternal {
     private boolean mOriginalFullscreen;
     private boolean mOriginalForceNotFullscreen;
     private boolean mIsFullscreen = false;
+    private View mCustomXWalkView;
+    private final int INVALID_ORIENTATION = -2;
+    private int mPreOrientation = INVALID_ORIENTATION;
+    private CustomViewCallbackInternal mCustomViewCallback;
+    private XWalkContentsClient mContentsClient;
 
     /**
      * Initiator
@@ -523,5 +532,108 @@ public class XWalkUIClientInternal {
         mDialog = dialogBuilder.create();
         mDialog.show();
         return false;
+    }
+
+    void setContentsClient(XWalkContentsClient client) {
+        mContentsClient = client;
+    }
+
+    private Activity addContentView(View view, CustomViewCallbackInternal callback) {
+        Activity activity = null;
+        try {
+            Context context = mXWalkView.getContext();
+            if (context instanceof Activity) {
+                activity = (Activity) context;
+            }
+        } catch (ClassCastException e) {
+        }
+
+        if (mCustomXWalkView != null || activity == null) {
+            if (callback != null) callback.onCustomViewHidden();
+            return null;
+        }
+
+        mCustomXWalkView = view;
+        mCustomViewCallback = callback;
+        if (mContentsClient != null) {
+            mContentsClient.onToggleFullscreen(true);
+        }
+
+        // Add the video view to the activity's DecorView.
+        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
+        decor.addView(mCustomXWalkView, 0,
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        Gravity.CENTER));
+        return activity;
+    }
+
+    /**
+     * Notify the host application that the current page would
+     * like to show a custom View.
+     * @param view is the View object to be shown.
+     * @param callback is the callback to be invoked if and when the view is dismissed.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void onShowCustomView(View view,
+            CustomViewCallbackInternal callback) {
+        addContentView(view, callback);
+    }
+
+    /**
+     * Notify the host application that the current page would
+     * like to show a custom View in a particular orientation.
+     * @param view is the View object to be shown.
+     * @param requestedOrientation An orientation constant as used in
+     * {@link ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
+     * @param callback is the callback to be invoked if and when the view is dismissed.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void onShowCustomView(View view,
+            int requestedOrientation, CustomViewCallbackInternal callback) {
+        Activity activity = addContentView(view, callback);
+        if (activity == null) return;
+
+        final int orientation = activity.getResources().getConfiguration().orientation;
+
+        if (requestedOrientation != orientation &&
+                requestedOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&
+                requestedOrientation <= ActivityInfo.SCREEN_ORIENTATION_LOCKED) {
+            mPreOrientation = orientation;
+            activity.setRequestedOrientation(requestedOrientation);
+        }
+    }
+
+    /**
+     * Notify the host application that the current page would
+     * like to hide its custom view.
+     * @since 7.0
+     */
+    @XWalkAPI
+    public void onHideCustomView() {
+        if (mCustomXWalkView == null || !(mXWalkView.getContext() instanceof Activity)) return;
+
+        if (mContentsClient != null) {
+            mContentsClient.onToggleFullscreen(false);
+        }
+
+        Activity activity = (Activity) mXWalkView.getContext();
+        // Remove video view from activity's ContentView.
+        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
+        decor.removeView(mCustomXWalkView);
+        if (mCustomViewCallback != null) mCustomViewCallback.onCustomViewHidden();
+
+        if (mPreOrientation != INVALID_ORIENTATION &&
+                mPreOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&
+                mPreOrientation <= ActivityInfo.SCREEN_ORIENTATION_LOCKED) {
+            activity.setRequestedOrientation(mPreOrientation);
+            mPreOrientation = INVALID_ORIENTATION;
+        }
+
+        mCustomXWalkView = null;
+        mCustomViewCallback = null;
     }
 }
