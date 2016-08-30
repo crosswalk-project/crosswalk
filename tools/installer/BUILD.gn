@@ -1,0 +1,115 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Simplified version based on //chrome/installer/linux
+import("//xwalk/build/version.gni")
+
+# Modified from template("linux_package") in //chrome/installer/linux/BUILD.gn
+action("xwalk_installer_package_deb") {
+  deps = [
+    ":common_packaging_files",
+    ":deb_packaging_files",
+    ":generate_changelog",
+    "//xwalk",
+    "//xwalk:generate_upstream_blink_version",
+  ]
+  packaging_files_binaries = [ "$root_out_dir/xwalk" ]
+  if (is_component_ffmpeg) {
+    packaging_files_binaries += [ "$root_out_dir/libffmpeg.so" ]
+    deps += [ "//third_party/ffmpeg" ]
+  }
+
+  script = "//chrome/installer/linux/flock_make_package.py"
+  if (current_cpu == "x86") {
+    # The shell scripts use "ia32" instead of "x86".
+    build_script_arch = "ia32"
+  } else {
+    build_script_arch = current_cpu
+  }
+
+  if (current_cpu == "x86") {
+    deb_arch = "i386"
+  } else if (current_cpu == "x64") {
+    deb_arch = "amd64"
+  } else {
+    assert(false, "Linux installer not configured for this architecture.")
+  }
+
+  inputs = packaging_files_binaries
+  outputs = [
+    "$root_out_dir/crosswalk-${xwalk_version}-1_${deb_arch}.deb",
+  ]
+
+  args = [
+    rebase_path("$root_out_dir/linux_package.lock", root_build_dir),
+    rebase_path("$root_out_dir/installer/debian/build.sh", root_build_dir),
+    "-o",
+    rebase_path(root_out_dir, root_build_dir),
+    "-b",
+    rebase_path(root_out_dir, root_build_dir),
+    "-a",
+    build_script_arch,
+  ]
+}
+
+action("generate_changelog") {
+  visibility = [ ":*" ]
+  outputs = [
+    "$root_out_dir/installer/changes.txt",
+  ]
+
+  script = "//xwalk/tools/installer/common/generate-changelog.py"
+  args = [
+    rebase_path("//xwalk/tools/installer/common/generate-changelog.sh",
+                root_build_dir),
+    rebase_path("$root_out_dir/installer/changes.txt", root_build_dir),
+  ]
+  deps = [
+    ":common_packaging_files",
+    ":deb_packaging_files",
+    ":version_packaging_files",
+  ]
+}
+
+copy("common_packaging_files") {
+  visibility = [ ":*" ]
+  sources = [
+    "common/crosswalk.info",
+    "common/generate-changelog.sh",
+    "common/installer.include",
+    "common/wrapper",
+  ]
+
+  if (current_cpu == "x86") {
+    sources += [ "//build/linux/bin/eu-strip" ]
+  } else if (current_cpu == "x64") {
+    sources += [ "/usr/bin/eu-strip" ]
+  }
+
+  outputs = [
+    "$root_out_dir/installer/common/{{source_file_part}}",
+  ]
+}
+
+copy("deb_packaging_files") {
+  visibility = [ ":*" ]
+  sources = [
+    "debian/build.sh",
+    "debian/changelog.template",
+    "debian/control.template",
+  ]
+  outputs = [
+    "$root_out_dir/installer/debian/{{source_file_part}}",
+  ]
+}
+
+copy("version_packaging_files") {
+  visibility = [ ":*" ]
+  sources = [
+    "//xwalk/VERSION",
+  ]
+  outputs = [
+    "$root_out_dir/installer/{{source_file_part}}",
+  ]
+}

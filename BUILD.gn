@@ -22,6 +22,15 @@ group("xwalk_builder") {
   }
 }
 
+if (is_linux) {
+  group("xwalk_installer") {
+    testonly = true
+    deps = [
+      "//xwalk/tools/installer:xwalk_installer_package_deb",
+    ]
+  }
+}
+
 executable("xwalk") {
   sources = [
     "runtime/app/xwalk_main.cc",
@@ -198,6 +207,12 @@ source_set("xwalk_runtime") {
     "runtime/browser/xwalk_content_settings.h",
     "runtime/browser/xwalk_form_database_service.cc",
     "runtime/browser/xwalk_form_database_service.h",
+    "runtime/browser/xwalk_notification_manager_linux.cc",
+    "runtime/browser/xwalk_notification_manager_linux.h",
+    "runtime/browser/xwalk_notification_manager_win.cc",
+    "runtime/browser/xwalk_notification_manager_win.h",
+    "runtime/browser/xwalk_notification_win.cc",
+    "runtime/browser/xwalk_notification_win.h",
     "runtime/browser/xwalk_permission_manager.cc",
     "runtime/browser/xwalk_permission_manager.h",
     "runtime/browser/xwalk_platform_notification_service.cc",
@@ -354,11 +369,9 @@ source_set("xwalk_runtime") {
   ]
 
   if (is_linux) {
+    configs += [ "//xwalk/build/libnotify" ]
     deps += [ "//xwalk/resources:xwalk_locales" ]
   }
-
-  # TODO(heke123): Add WebNotification for Linux
-  # WebNotification needs libgtk2ui and libnotify.
 
   if (disable_bundled_extensions) {
     defines += [ "DISABLE_BUNDLED_EXTENSIONS" ]
