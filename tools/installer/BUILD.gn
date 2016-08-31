@@ -1,3 +1,4 @@
+# Copyright (c) 2015 The Chromium Authors. All rights reserved.
 # Copyright (c) 2016 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -6,7 +7,7 @@
 import("//xwalk/build/version.gni")
 
 # Modified from template("linux_package") in //chrome/installer/linux/BUILD.gn
-action("xwalk_installer_package_deb") {
+action("xwalk_installer_linux_debian") {
   deps = [
     ":common_packaging_files",
     ":deb_packaging_files",
