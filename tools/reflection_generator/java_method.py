@@ -563,7 +563,7 @@ ${POST_BRIDGE_LINES}
     if return_is_internal:
       template = Template("""\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        if (${METHOD_DECLARE_NAME}.isNull()) {
+        if (${METHOD_DECLARE_NAME} == null || ${METHOD_DECLARE_NAME}.isNull()) {
             ${RETURN_SUPER}${NAME}Super(${PARAMS_PASSING_SUPER});
         } else {
             ${GENERIC_TYPE_DECLARE}${RETURN}coreBridge.getBridgeObject(\
@@ -581,7 +581,7 @@ ${PARAMS_PASSING});
     else :
       template = Template("""\
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
-        if (${METHOD_DECLARE_NAME}.isNull()) {
+        if (${METHOD_DECLARE_NAME} == null || ${METHOD_DECLARE_NAME}.isNull()) {
             ${RETURN_SUPER}${NAME}Super(${PARAMS_PASSING_SUPER});
         } else {
             ${GENERIC_TYPE_DECLARE}${RETURN}${METHOD_DECLARE_NAME}.invoke(\
