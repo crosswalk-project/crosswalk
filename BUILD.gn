@@ -26,7 +26,7 @@ if (is_linux) {
   group("xwalk_installer") {
     testonly = true
     deps = [
-      "//xwalk/tools/installer:xwalk_installer_package_deb",
+      "//xwalk/tools/installer:xwalk_installer_linux_debian",
     ]
   }
 }
