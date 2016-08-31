@@ -5,137 +5,97 @@
 package org.xwalk.app;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+import android.view.Window;
+import android.view.WindowManager;
 
 import org.xwalk.app.runtime.XWalkRuntimeView;
-import org.xwalk.core.XWalkActivityDelegate;
-import org.xwalk.core.XWalkPreferences;
+import org.xwalk.core.XWalkActivity;
 
-public abstract class XWalkRuntimeActivityBase extends Activity {
-    private static final String TAG = "XWalkRuntimeActivityBase";
+public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
+    private static final String TAG = "XWalkRuntimeActivity";
+
+    private static final int SYSTEM_UI_OPTIONS =
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
     private XWalkRuntimeView mRuntimeView;
-    private XWalkActivityDelegate mActivityDelegate;
-
-    private boolean mRemoteDebugging = false;
-
-    private boolean mUseAnimatableView = false;
+    private boolean mRemoteDebugging;
+    private boolean mUseAnimatableView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Runnable cancelCommand = new Runnable() {
-            @Override
-            public void run() {
-                if (mActivityDelegate.isDownloadMode()) {
-                    Toast.makeText(XWalkRuntimeActivityBase.this,
-                            "Crosswalk Runtime Update Failed!",
-                            Toast.LENGTH_LONG).show();
-                }
-                finish();
-            }
-        };
-        Runnable completeCommand = new Runnable() {
-            @Override
-            public void run() {
-                onXWalkReady();
-            }
-        };
-        mActivityDelegate = new XWalkActivityDelegate(this, cancelCommand, completeCommand);
+        mRuntimeView = new XWalkRuntimeView(this, null);
+        setContentView(mRuntimeView);
 
-        tryLoadRuntimeView();
+        mRuntimeView.setRemoteDebugging(mRemoteDebugging);
+        mRuntimeView.setUseAnimatableView(mUseAnimatableView);
     }
 
-    public void onXWalkReady() {
-        // XWalkPreferences.ENABLE_EXTENSIONS
-        if (XWalkPreferences.getValue("enable-extensions")) {
-            // Enable xwalk extension mechanism and start load extensions here.
-            // Note that it has to be after above initialization.
-            // RuntimeView will finally employ XWalkView to load external extensions.
-            mRuntimeView.loadExtensions();
-        }
+    @Override
+    protected void onXWalkFailed() {
+        didTryLoadRuntimeView(null);
+    }
+
+    @Override
+    protected void onXWalkReady() {
+        mRuntimeView.onCreate();
         didTryLoadRuntimeView(mRuntimeView);
-        // TODO(sunlin): In shared mode, mRuntimeView.onCreate() will be
-        // called after onResume(). Currently, there is no impact because
-        // both of onCreate and onResume in XWalkRuntimeView is empty.
-        if (mRuntimeView != null) mRuntimeView.onCreate();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mRuntimeView != null) mRuntimeView.onPause();
+        mRuntimeView.onStart();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mActivityDelegate.onResume();
-        if (mRuntimeView != null) mRuntimeView.onResume();
+        mRuntimeView.onResume();
+        enterFullscreen();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mRuntimeView.onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        mRuntimeView.onStop();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mRuntimeView.onDestroy();
     }
 
     @Override
     public void onNewIntent(Intent intent) {
-        if (mRuntimeView == null || !mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
+        if (!mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (mRuntimeView != null) mRuntimeView.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void tryLoadRuntimeView() {
-        try {
-            if (mUseAnimatableView) {
-                XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
-            } else {
-                XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, false);
-            }
-            mRuntimeView = new XWalkRuntimeView(this, this, null);
-            if (mRemoteDebugging) {
-                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
-            } else {
-                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
-            }
-            setContentView(mRuntimeView);
-        } catch (Exception e) {
-            handleException(e);
-        }
+        mRuntimeView.onActivityResult(requestCode, resultCode, data);
     }
 
     public XWalkRuntimeView getRuntimeView() {
         return mRuntimeView;
-    }
-
-    public void handleException(Throwable e) {
-        if (e == null) return;
-        if (e instanceof RuntimeException && e.getCause() != null) {
-            handleException(e.getCause());
-            return;
-        }
-        Log.e(TAG, Log.getStackTraceString(e));
     }
 
     /*
@@ -147,15 +107,43 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
      */
     abstract protected void didTryLoadRuntimeView(View runtimeView);
 
-    public void setRemoteDebugging(boolean value) {
+    protected void setRemoteDebugging(boolean value) {
+        Log.d(TAG, "Set remote debugging to " + value);
         mRemoteDebugging = value;
     }
 
-    public void setUseAnimatableView(boolean value) {
+    protected void setUseAnimatableView(boolean value) {
+        Log.d(TAG, "Set use animatable view to " + value);
         mUseAnimatableView = value;
     }
 
-    public boolean isXWalkReady() {
-        return mActivityDelegate.isXWalkReady();
+    protected void setIsFullscreen(boolean isFullscreen) {
+        if (!isFullscreen || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            return;
+        }
+
+        Log.d(TAG, "Set full screen");
+        final View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(
+                new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                            decorView.setSystemUiVisibility(SYSTEM_UI_OPTIONS);
+                        }
+                    }
+                }
+        );
+    }
+
+    private void enterFullscreen() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            return;
+        }
+
+        if ((getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
+            Log.d(TAG, "Enter full screen");
+            getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_OPTIONS);
+        }
     }
 }

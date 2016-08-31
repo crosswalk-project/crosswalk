@@ -140,7 +140,7 @@ TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
 
   // Only name and version ,others are empty string "",but exist.
   // And widget have 10 items.
-  EXPECT_EQ(info->GetWidgetInfo()->size(), 10);
+  EXPECT_EQ(info->GetWidgetInfo()->size(), 10u);
 
   base::DictionaryValue* widget = info->GetWidgetInfo();
   base::DictionaryValue::Iterator it(*widget);

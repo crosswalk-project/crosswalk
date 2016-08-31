@@ -38,7 +38,7 @@ TEST_F(CSPHandlerTest, DISABLED_NoCSP) {
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_MANIFEST, *manifest);
   EXPECT_TRUE(application.get());
-  EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 2);
+  EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 2u);
 }
 
 TEST_F(CSPHandlerTest, EmptyCSP) {
@@ -47,7 +47,7 @@ TEST_F(CSPHandlerTest, EmptyCSP) {
   scoped_refptr<ApplicationData> application =
       CreateApplication(Manifest::TYPE_MANIFEST, *manifest);
   EXPECT_TRUE(application.get());
-  EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 0);
+  EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 0u);
 }
 
 TEST_F(CSPHandlerTest, CSP) {
@@ -58,11 +58,11 @@ TEST_F(CSPHandlerTest, CSP) {
   EXPECT_TRUE(application.get());
   const std::map<std::string, std::vector<std::string> >& policies =
       GetCSPInfo(application)->GetDirectives();
-  EXPECT_EQ(policies.size(), 1);
+  EXPECT_EQ(policies.size(), 1u);
   std::map<std::string, std::vector<std::string> >::const_iterator it =
       policies.find("default-src");
   ASSERT_NE(it, policies.end());
-  EXPECT_EQ(it->second.size(), 1);
+  EXPECT_EQ(it->second.size(), 1u);
   EXPECT_STREQ((it->second)[0].c_str(), "'self'");
 }
 

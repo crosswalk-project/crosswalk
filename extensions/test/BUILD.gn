@@ -1,0 +1,157 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+executable("xwalk_extensions_unittest") {
+  testonly = true
+  sources = [
+    "//xwalk/extensions/browser/xwalk_extension_function_handler_unittest.cc",
+    "//xwalk/extensions/common/xwalk_extension_server_unittest.cc",
+  ]
+  deps = [
+    "//base",
+    "//base/test:run_all_unittests",
+    "//testing/gtest",
+    "//xwalk/extensions",
+  ]
+  if (is_linux && !is_component_build && is_component_ffmpeg) {
+    configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+  }
+}
+
+executable("xwalk_extensions_browsertest") {
+  testonly = true
+  sources = [
+    "$root_gen_dir/xwalk/extensions/test/test.cc",
+    "$root_gen_dir/xwalk/extensions/test/test.h",
+    "bad_extension_test.cc",
+    "conflicting_entry_points.cc",
+    "context_destruction.cc",
+    "crash_extension_process.cc",
+    "export_object.cc",
+    "extension_in_iframe.cc",
+    "external_extension.cc",
+    "external_extension_multi_process.cc",
+    "in_process_threads_browsertest.cc",
+    "internal_extension_browsertest.cc",
+    "internal_extension_browsertest.h",
+    "namespace_read_only.cc",
+    "nested_namespace.cc",
+    "test.idl",
+    "v8tools_module.cc",
+    "xwalk_extensions_browsertest.cc",
+    "xwalk_extensions_test_base.cc",
+    "xwalk_extensions_test_base.h",
+  ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  deps = [
+    ":bad_extension",
+    ":bulk_data_transmission",
+    ":crash_extension",
+    ":echo_extension",
+    ":echo_extension_messaging_2",
+    ":generate_jsapi_extensions_test",
+    ":get_runtime_variable",
+    ":multiple_entry_points_extension",
+    "//base",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net",
+    "//skia",
+    "//testing/gtest",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/extensions",
+    "//xwalk/extensions:xwalk_extensions_resources",
+    "//xwalk/test/base:test_support",
+  ]
+  if (is_linux && !is_component_build && is_component_ffmpeg) {
+    configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+  }
+}
+
+action("generate_jsapi_extensions_test") {
+  outputs = [
+    "$root_gen_dir/xwalk/extensions/test/test.h",
+    "$root_gen_dir/xwalk/extensions/test/test.cc",
+  ]
+  script = "//tools/json_schema_compiler/compiler.py"
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+  root_path = rebase_path("//xwalk/extensions", "$root_out_dir")
+  gen_path = rebase_path("$root_gen_dir", "$root_out_dir")
+  args = [
+    "$root_path/test/test.idl",
+    "--root=$root_path",
+    "--destdir=$gen_path/xwalk/extensions/",
+    "--namespace=xwalk::jsapi::test",
+    "--generator=cpp",
+  ]
+}
+
+loadable_module("echo_extension") {
+  visibility = [ ":*" ]
+  sources = [
+    "echo_extension.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/echo_extension"
+}
+
+loadable_module("echo_extension_messaging_2") {
+  visibility = [ ":*" ]
+  sources = [
+    "echo_extension_messaging_2.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/echo_extension"
+}
+
+loadable_module("bad_extension") {
+  visibility = [ ":*" ]
+  sources = [
+    "bad_extension.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/bad_extension"
+}
+
+loadable_module("get_runtime_variable") {
+  visibility = [ ":*" ]
+  sources = [
+    "get_runtime_variable.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/get_runtime_variable"
+}
+
+loadable_module("multiple_entry_points_extension") {
+  visibility = [ ":*" ]
+  sources = [
+    "multiple_entry_points_extension.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/multiple_extension"
+}
+
+loadable_module("crash_extension") {
+  visibility = [ ":*" ]
+  sources = [
+    "crash_extension.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/crash_extension"
+}
+
+loadable_module("bulk_data_transmission") {
+  visibility = [ ":*" ]
+  sources = [
+    "bulk_data_transmission.c",
+  ]
+  output_dir = "$root_out_dir/tests/extension/bulk_data_transmission"
+}

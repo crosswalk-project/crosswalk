@@ -157,6 +157,7 @@ class Method(object):
     self._wrapper_params_declare_for_bridge = ''
     self._wrapper_params_pass_to_bridge = ''
     self._is_reservable = False
+    self._parameter_is_internal = False
 
     self.ParseMethodParams(params)
     self.ParseMethodAnnotation(annotation)
@@ -415,11 +416,12 @@ class Method(object):
       # the way bridge uses as the condition for whether call super or
       # call wrapper in override call
       #   XWalkViewInternal view => (view instanceof XWalkViewBridge)
-      if (is_internal_class and
-          not java_data.HasInstanceCreateInternallyAnnotation()):
-        return'(%s instanceof %s)' % (param_name, java_data.GetBridgeName())
-      else:
-        return None
+      if is_internal_class:
+        if not java_data.HasInstanceCreateInternallyAnnotation():
+          return'(%s instanceof %s)' % (param_name, java_data.GetBridgeName())
+        else:
+          self._parameter_is_internal = True
+      return None
     elif param_string_type == ParamStringType.WRAPPER_DECLARE:
       # the way wrapper declare the param
       #   XWalkViewInternal view => XWalkView view
@@ -533,9 +535,12 @@ ${POST_BRIDGE_LINES}
     return template.substitute(value)
 
   def GenerateBridgeOverrideMethod(self):
-    if not self._bridge_override_condition:
+    if not self._bridge_override_condition and not self._parameter_is_internal:
       return '    @Override'
-    template = Template("""\
+    # If _bridge_override_condition and _parameter_is_internal are True
+    # concurrently, _bridge_override_condition should be treated in priority.
+    if self._bridge_override_condition:
+      template = Template("""\
     @Override
     public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
         if (${IF_CONDITION}) {
@@ -543,6 +548,13 @@ ${POST_BRIDGE_LINES}
         } else {
             ${RETURN}super.${NAME}(${PARAMS_PASSING});
         }
+    }
+""")
+    else:
+      template = Template("""\
+    @Override
+    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {
+        ${RETURN}${NAME}(${BRIDGE_PARAMS_PASSING});
     }
 """)
 
@@ -782,7 +794,7 @@ ${DOC}
             ${RETURN}${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING});
         } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
-                Assert.fail("Cannot call this method before xwalk is ready");
+                throw new RuntimeException("Crosswalk's APIs are not ready yet");
             } else {
                 XWalkCoreWrapper.handleRuntimeError(e);
             }
@@ -827,7 +839,7 @@ ${DOC}
 ${METHOD_DECLARE_NAME}.invoke(${PARAMS_PASSING}));
         } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
-                Assert.fail("Cannot call this method before xwalk is ready");
+                throw new RuntimeException("Crosswalk's APIs are not ready yet");
             } else {
                 XWalkCoreWrapper.handleRuntimeError(e);
             }
@@ -872,7 +884,7 @@ ${DOC}
         try {\n"""
       suffix_str = """\n        } catch (UnsupportedOperationException e) {
             if (coreWrapper == null) {
-                Assert.fail("Cannot call this method before xwalk is ready");
+                throw new RuntimeException("Crosswalk's APIs are not ready yet");
             } else {
                 XWalkCoreWrapper.handleRuntimeError(e);
             }

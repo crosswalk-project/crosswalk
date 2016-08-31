@@ -158,7 +158,7 @@ TEST(XWalkSysAppsEventTargetTest, DispatchEvent) {
 
   EXPECT_TRUE(target->HandleFunction(std::move(eventInfo)));
 
-  for (unsigned i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 1000; ++i) {
     target->InjectEvent("event1");
     EXPECT_EQ(message_count, i + 1);
   }

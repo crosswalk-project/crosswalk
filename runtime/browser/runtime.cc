@@ -270,8 +270,7 @@ content::ColorChooser* Runtime::OpenColorChooser(
 void Runtime::RunFileChooser(
     content::RenderFrameHost* render_frame_host,
     const content::FileChooserParams& params) {
-#if defined(USE_AURA) && defined(OS_LINUX) && \
-    !defined(USE_WEBUI_FILE_PICKER) && !defined(USE_GTK_UI)
+#if defined(USE_AURA) && defined(OS_LINUX) && !defined(USE_GTK_UI)
   NOTIMPLEMENTED();
 #else
   RuntimeFileSelectHelper::RunFileChooser(render_frame_host, params);

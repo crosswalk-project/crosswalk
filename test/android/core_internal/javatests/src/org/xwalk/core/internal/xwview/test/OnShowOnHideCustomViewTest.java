@@ -15,18 +15,18 @@ import org.chromium.content.browser.test.util.TouchCommon;
 import org.xwalk.core.internal.xwview.test.util.VideoTestWebServer;
 
 /**
- * Tests XWalkWebChromeClient::onShow/onHideCustomView.
+ * Tests XWalkUIClient::onShow/onHideCustomView.
  */
 public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
     private VideoTestWebServer mWebServer;
-    private TestXWalkWebChromeClientBase mWebChromeClient;
+    private TestXWalkUIClientInternal mUIClient;
     private ContentViewCore mContentViewCore;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mWebChromeClient = new TestXWalkWebChromeClientBase();
-        setXWalkWebChromeClient(mWebChromeClient);
+        mUIClient = new XWalkViewInternalTestBase.TestXWalkUIClientInternal();
+        setUIClient(mUIClient);
         mContentViewCore = getContentViewCore();
         mWebServer = new VideoTestWebServer(getInstrumentation().getContext());
     }
@@ -59,7 +59,7 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
         // of the custom view. Note that we're not able to get the precise location of the
         // control since it is a shadow element, so this test might break if the location
         // ever moves.
-        TouchCommon.singleClickView(mWebChromeClient.getCustomView());
+        TouchCommon.singleClickView(mUIClient.getCustomView());
 
         DOMUtils.waitForMediaPlay(
                 mContentViewCore.getWebContents(), VideoTestWebServer.VIDEO_ID);
@@ -68,12 +68,12 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
     private void doOnShowAndHideCustomViewTest(final Runnable existFullscreen) throws Throwable {
         doOnShowCustomViewTest();
         getInstrumentation().runOnMainSync(existFullscreen);
-        mWebChromeClient.waitForCustomViewHidden();
+        mUIClient.waitForCustomViewHidden();
     }
 
     private void doOnShowCustomViewTest() throws Exception {
         loadTestPageAndClickFullscreen();
-        mWebChromeClient.waitForCustomViewShown();
+        mUIClient.waitForCustomViewShown();
     }
 
     private void loadTestPageAndClickFullscreen() throws Exception {

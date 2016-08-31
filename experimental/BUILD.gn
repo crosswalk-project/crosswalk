@@ -1,0 +1,58 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+source_set("experimental") {
+  sources = [
+    "$root_gen_dir/xwalk/experimental/native_file_system/native_file_system.cc",
+    "$root_gen_dir/xwalk/experimental/native_file_system/native_file_system.h",
+    "native_file_system/native_file_system.idl",
+    "native_file_system/native_file_system_extension.cc",
+    "native_file_system/native_file_system_extension.h",
+    "native_file_system/virtual_root_provider.cc",
+    "native_file_system/virtual_root_provider.h",
+    "native_file_system/virtual_root_provider_android.cc",
+    "native_file_system/virtual_root_provider_linux.cc",
+    "native_file_system/virtual_root_provider_mac.cc",
+    "native_file_system/virtual_root_provider_win.cc",
+  ]
+  include_dirs = [ "$root_gen_dir/xwalk/experimental" ]
+  deps = [
+    ":generate_jsapi_file_system",
+    "//xwalk/resources:generate_xwalk_resources",
+  ]
+}
+
+action_foreach("generate_jsapi_file_system") {
+  outputs = [
+    "$root_gen_dir/xwalk/experimental/native_file_system/{{source_name_part}}.h",
+    "$root_gen_dir/xwalk/experimental/native_file_system/{{source_name_part}}.cc",
+  ]
+  sources = [
+    "//xwalk/experimental/native_file_system/native_file_system.idl",
+  ]
+  inputs = [
+    "//tools/json_schema_compiler/cc_generator.py",
+    "//tools/json_schema_compiler/code.py",
+    "//tools/json_schema_compiler/compiler.py",
+    "//tools/json_schema_compiler/cpp_generator.py",
+    "//tools/json_schema_compiler/cpp_type_generator.py",
+    "//tools/json_schema_compiler/cpp_util.py",
+    "//tools/json_schema_compiler/h_generator.py",
+    "//tools/json_schema_compiler/idl_schema.py",
+    "//tools/json_schema_compiler/model.py",
+    "//tools/json_schema_compiler/util.cc",
+    "//tools/json_schema_compiler/util.h",
+    "//tools/json_schema_compiler/util_cc_helper.py",
+  ]
+  idl_path = rebase_path("//xwalk/experimental", "$root_out_dir")
+  gen_path = rebase_path("$root_gen_dir", "$root_out_dir")
+  script = "//tools/json_schema_compiler/compiler.py"
+  args = [
+    "$idl_path/native_file_system/{{source_name_part}}.idl",
+    "--root=$idl_path",
+    "--destdir=$gen_path/xwalk/experimental",
+    "--namespace=xwalk::jsapi::native_file_system",
+    "--generator=cpp",
+  ]
+}

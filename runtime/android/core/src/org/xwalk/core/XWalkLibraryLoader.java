@@ -4,7 +4,6 @@
 
 package org.xwalk.core;
 
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.app.DownloadManager.Query;
@@ -132,6 +131,18 @@ class XWalkLibraryLoader {
 
     private static AsyncTask<Void, Integer, Integer> sActiveTask;
 
+    public static boolean isInitializing() {
+        return sActiveTask != null &&
+                (sActiveTask instanceof DecompressTask
+                        || sActiveTask instanceof ActivateTask);
+    }
+
+    public static boolean isDownloading() {
+        return sActiveTask != null &&
+                (sActiveTask instanceof DownloadManagerTask
+                        || sActiveTask instanceof HttpDownloadTask);
+    }
+
     /**
      * Return true if running in shared mode, false if in embedded mode.
      *
@@ -162,9 +173,13 @@ class XWalkLibraryLoader {
      *
      * <p>This method must be invoked on the UI thread.
      */
-    public static void prepareToInit(Activity activity) {
-        XWalkEnvironment.init(activity);
-        XWalkCoreWrapper.handlePreInit(activity.getClass().getName());
+    public static void prepareToInit(Context context) {
+        XWalkEnvironment.init(context);
+        XWalkCoreWrapper.handlePreInit(context.getClass().getName());
+    }
+
+    public static void finishInit(Context context) {
+        XWalkCoreWrapper.handlePostInit(context.getClass().getName());
     }
 
     /**
@@ -173,13 +188,9 @@ class XWalkLibraryLoader {
      * <p>This method must be invoked on the UI thread.
      *
      * @param listener The {@link DecompressListener} to use
-     * @param context The context of the package that holds the compressed Crosswalk runtime
      */
-    public static void startDecompress(DecompressListener listener, Context context) {
-        if (context != XWalkEnvironment.getInitializationContext()) {
-            throw new RuntimeException("The context of initialization is not consistent");
-        }
-        new DecompressTask(listener, context).execute();
+    public static void startDecompress(DecompressListener listener) {
+        new DecompressTask(listener).execute();
     }
 
     /**
@@ -188,8 +199,8 @@ class XWalkLibraryLoader {
      * @return false if decompression is not running or could not be cancelled, true otherwise
      */
     public static boolean cancelDecompress() {
-        DecompressTask task = (DecompressTask) sActiveTask;
-        return task != null && task.cancel(true);
+        return sActiveTask != null && sActiveTask instanceof DecompressTask
+                && sActiveTask.cancel(true);
     }
 
     /**
@@ -199,11 +210,8 @@ class XWalkLibraryLoader {
      *
      * @param listener The {@link ActivateListener} to use
      */
-    public static void startActivate(ActivateListener listener, Activity activity) {
-        if (activity != XWalkEnvironment.getInitializationContext()) {
-            throw new RuntimeException("The context of initialization is not consistent");
-        }
-        new ActivateTask(listener, activity).execute();
+    public static void startActivate(ActivateListener listener) {
+        new ActivateTask(listener).execute();
     }
 
     /**
@@ -217,9 +225,6 @@ class XWalkLibraryLoader {
      */
     public static void startDownloadManager(DownloadListener listener, Context context,
             String url) {
-        if (context != XWalkEnvironment.getInitializationContext()) {
-            throw new RuntimeException("The context of initialization is not consistent");
-        }
         new DownloadManagerTask(listener, context, url).execute();
     }
 
@@ -229,7 +234,8 @@ class XWalkLibraryLoader {
      * @return false if download is not running or could not be cancelled, true otherwise
      */
     public static boolean cancelDownloadManager() {
-        return sActiveTask != null && sActiveTask.cancel(true);
+        return sActiveTask != null && sActiveTask instanceof DownloadManagerTask
+                && sActiveTask.cancel(true);
     }
 
     /**
@@ -242,9 +248,6 @@ class XWalkLibraryLoader {
      * @param url The URL of the Crosswalk runtime
      */
     public static void startHttpDownload(DownloadListener listener, Context context, String url) {
-        if (context != XWalkEnvironment.getInitializationContext()) {
-            throw new RuntimeException("The context of initialization is not consistent");
-        }
         new HttpDownloadTask(listener, context, url).execute();
     }
 
@@ -254,19 +257,18 @@ class XWalkLibraryLoader {
      * @return False if download is not running or could not be cancelled, true otherwise
      */
     public static boolean cancelHttpDownload() {
-        return sActiveTask != null && sActiveTask.cancel(true);
+        return sActiveTask != null && sActiveTask instanceof HttpDownloadTask
+                && sActiveTask.cancel(true);
     }
 
     private static class DecompressTask extends AsyncTask<Void, Integer, Integer> {
         DecompressListener mListener;
-        Context mContext;
         boolean mIsCompressed;
         boolean mIsDecompressed;
 
-        DecompressTask(DecompressListener listener, Context context) {
+        DecompressTask(DecompressListener listener) {
             super();
             mListener = listener;
-            mContext = context;
         }
 
         @Override
@@ -274,10 +276,9 @@ class XWalkLibraryLoader {
             Log.d(TAG, "DecompressTask started");
             sActiveTask = this;
 
-            mIsCompressed = XWalkDecompressor.isLibraryCompressed(mContext);
+            mIsCompressed = XWalkDecompressor.isLibraryCompressed();
             if (mIsCompressed) {
-                SharedPreferences sp = mContext.getSharedPreferences("libxwalkcore",
-                        Context.MODE_PRIVATE);
+                SharedPreferences sp = XWalkEnvironment.getSharedPreferences();
                 int version = sp.getInt("version", 0);
                 mIsDecompressed = version > 0 && version == XWalkAppVersion.API_VERSION;
             }
@@ -288,10 +289,9 @@ class XWalkLibraryLoader {
         protected Integer doInBackground(Void... params) {
             if (!mIsCompressed || mIsDecompressed) return 0;
 
-            if (!XWalkDecompressor.decompressLibrary(mContext)) return 1;
+            if (!XWalkDecompressor.decompressLibrary()) return 1;
 
-            SharedPreferences sp = mContext.getSharedPreferences("libxwalkcore",
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = XWalkEnvironment.getSharedPreferences();
             sp.edit().putInt("version", XWalkAppVersion.API_VERSION).apply();
             return 0;
         }
@@ -316,12 +316,10 @@ class XWalkLibraryLoader {
 
     private static class ActivateTask extends AsyncTask<Void, Integer, Integer> {
         ActivateListener mListener;
-        Activity mActivity;
 
-        ActivateTask(ActivateListener listener, Activity activity) {
+        ActivateTask(ActivateListener listener) {
             super();
             mListener = listener;
-            mActivity = activity;
         }
 
         @Override
@@ -334,17 +332,13 @@ class XWalkLibraryLoader {
         @Override
         protected Integer doInBackground(Void... params) {
             if (XWalkCoreWrapper.getInstance() != null) return -1;
-            return XWalkCoreWrapper.attachXWalkCore(mActivity);
+            return XWalkCoreWrapper.attachXWalkCore();
         }
 
         @Override
         protected void onPostExecute(Integer result) {
             if (result == XWalkLibraryInterface.STATUS_MATCH) {
                 XWalkCoreWrapper.dockXWalkCore();
-            }
-            if (XWalkCoreWrapper.getInstance() != null) {
-                XWalkCoreWrapper.handlePostInit(mActivity.getClass().getName());
-                XWalkEnvironment.finishInit(mActivity);
             }
 
             Log.d(TAG, "ActivateTask finished, " + result);

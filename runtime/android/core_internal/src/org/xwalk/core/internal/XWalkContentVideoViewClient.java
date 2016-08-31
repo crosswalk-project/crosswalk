@@ -13,23 +13,20 @@ import org.chromium.base.CommandLine;
 import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentVideoViewEmbedder;
 import org.chromium.content.common.ContentSwitches;
-import org.xwalk.core.internal.XWalkWebChromeClient.CustomViewCallback;
 
 class XWalkContentVideoViewClient implements ContentVideoViewEmbedder {
     private XWalkContentsClient mContentsClient;
-    private Activity mActivity;
     private XWalkViewInternal mView;
 
-    public XWalkContentVideoViewClient(XWalkContentsClient client, Activity activity, XWalkViewInternal view) {
+    public XWalkContentVideoViewClient(XWalkContentsClient client, XWalkViewInternal view) {
         mContentsClient = client;
-        mActivity = activity;
         mView = view;
     }
 
     @Override
     public void enterFullscreenVideo(View view) {
         mView.setOverlayVideoMode(true);
-        mContentsClient.onShowCustomView(view, null);
+        mContentsClient.onShowCustomView(view, new CustomViewCallbackHandlerInternal());
     }
 
     @Override

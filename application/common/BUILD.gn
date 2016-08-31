@@ -1,0 +1,51 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+source_set("xwalk_application_common_lib") {
+  sources = [
+    "application_data.cc",
+    "application_data.h",
+    "application_file_util.cc",
+    "application_file_util.h",
+    "application_manifest_constants.cc",
+    "application_manifest_constants.h",
+    "application_resource.cc",
+    "application_resource.h",
+    "constants.cc",
+    "constants.h",
+    "id_util.cc",
+    "id_util.h",
+    "manifest.cc",
+    "manifest.h",
+    "manifest_handler.cc",
+    "manifest_handler.h",
+    "manifest_handlers/csp_handler.cc",
+    "manifest_handlers/csp_handler.h",
+    "manifest_handlers/permissions_handler.cc",
+    "manifest_handlers/permissions_handler.h",
+    "manifest_handlers/warp_handler.cc",
+    "manifest_handlers/warp_handler.h",
+    "manifest_handlers/widget_handler.cc",
+    "manifest_handlers/widget_handler.h",
+    "package/package.cc",
+    "package/package.h",
+    "package/wgt_package.cc",
+    "package/wgt_package.h",
+    "package/xpk_package.cc",
+    "package/xpk_package.h",
+    "permission_policy_manager.cc",
+    "permission_policy_manager.h",
+    "permission_types.h",
+  ]
+  deps = [
+    "//base",
+    "//base:i18n",
+    "//crypto",
+    "//net",
+    "//sql",
+    "//third_party/libxml",
+    "//third_party/zlib:zip",
+    "//url",
+  ]
+}

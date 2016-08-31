@@ -172,9 +172,15 @@ stage_install_common() {
   done
 
   # ffmpeg libs
+  # TODO(heke123): Remove below 4 lines when GYP is totally replaced by GN.
   if [ -f "${BUILDDIR}/lib/libffmpeg.so" ]; then
       install -m 755 -d "${STAGEDIR}/${INSTALLDIR}/lib/"
       install -m 644 -s "${BUILDDIR}/lib/libffmpeg.so" "${STAGEDIR}/${INSTALLDIR}/lib/"
+  fi
+
+  if [ -f "${BUILDDIR}/libffmpeg.so" ]; then
+      install -m 755 -d "${STAGEDIR}/${INSTALLDIR}/"
+      install -m 644 -s "${BUILDDIR}/libffmpeg.so" "${STAGEDIR}/${INSTALLDIR}/"
   fi
 
   # launcher script and symlink

@@ -37,7 +37,7 @@ namespace xwalk {
 
 // A class that handles the Java<->Native communication for the
 // XWalkContentsClient. XWalkContentsClientBridge is created and owned by
-// native XWalkContent class and it only has a weak reference to the
+// native XWalkViewContents class and it only has a weak reference to the
 // its Java peer. Since the Java XWalkContentsClientBridge can have
 // indirect refs from the Application (via callbacks) and so can outlive
 // XWalkView, this class notifies it before being destroyed and to nullify

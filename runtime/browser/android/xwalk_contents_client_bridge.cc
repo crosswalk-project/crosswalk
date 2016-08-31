@@ -97,7 +97,7 @@ XWalkContentsClientBridge::~XWalkContentsClientBridge() {
   if (obj.is_null())
     return;
   // Clear the weak reference from the java peer to the native object since
-  // it is possible that java object lifetime can exceed the XWalkContent.
+  // it is possible that java object lifetime can exceed the XWalkViewContents.
   Java_XWalkContentsClientBridge_setNativeContentsClientBridge(
       env, obj.obj(), 0);
 }

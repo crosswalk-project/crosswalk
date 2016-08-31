@@ -1,0 +1,18 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file contains common build flags for building Crosswalk. Users should
+# NOT directly import this file into their build folder.
+# See //xwalk/build/linux.gni for how to import flags for Crosswalk-Linux Build
+
+root_extra_deps = [ "//xwalk:xwalk_builder" ]
+
+# From src/build/config/features.gni
+# Disable WebVR support. The code is still experimental and and ends up
+# pulling additional dependencies into our JARs (XWALK-6597).
+enable_webvr = false
+
+# From src/build/config/features.gni
+# Whether to include support for proprietary codecs.
+proprietary_codecs = true

@@ -4,7 +4,7 @@
 
 package org.xwalk.core;
 
-import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import org.xwalk.core.XWalkLibraryLoader.ActivateListener;
@@ -12,10 +12,11 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
 
 /**
  * <p><code>XWalkInitializer</code> is an alternative to {@link XWalkActivity} with the difference
- * that it provides a way of initializing Crosswalk Project runtime in background silently. Another
- * advantage is that the developer can use their own activity class directly rather than having it
- * extend {@link XWalkActivity}. However, {@link XWalkActivity} is still recommended because it
- * makes the code simpler.</p>
+ * that it provides a way of initializing Crosswalk Project runtime in background silently.
+ * <code>XWalkInitializer</code> also allows for more flexibility, the developer doesn't have to
+ * have their activity class extend {@link XWalkActivity} anymore, and the context for initializing
+ * Crosswalk environment doesn't have to be an activity either, it could be a service now. However,
+ * {@link XWalkActivity} is still recommended because it makes the code simpler.</p>
  *
  * <p>If the initialization failed, which means Crosswalk Project runtime doesn't exist or doesn't
  * match the application, you could use {@link XWalkUpdater} to download suitable Crosswalk Project
@@ -150,27 +151,25 @@ public class XWalkInitializer {
         public void onXWalkInitCompleted();
     }
 
-    private static final String TAG = "XWalkActivity";
+    private static final String TAG = "XWalkLib";
 
     private XWalkInitListener mInitListener;
-    private Activity mActivity;
-
-    private boolean mIsInitializing;
+    private Context mContext;
     private boolean mIsXWalkReady;
 
     /**
-     * Create an initializer for single activity.
+     * Create an initializer
      *
      * <p>This method must be invoked on the UI thread.
      *
      * @param listener The {@link XWalkInitListener} to use.
-     * @param activity The activity which initiate the initialization
+     * @param context The context which initiate the initialization
      */
-    public XWalkInitializer(XWalkInitListener listener, Activity activity) {
+    public XWalkInitializer(XWalkInitListener listener, Context context) {
         mInitListener = listener;
-        mActivity = activity;
+        mContext = context;
 
-        XWalkLibraryLoader.prepareToInit(mActivity);
+        XWalkLibraryLoader.prepareToInit(mContext);
     }
 
     /**
@@ -179,20 +178,19 @@ public class XWalkInitializer {
      * <p>This method must be invoked on the UI thread.
      *
      * @return Return true if initialization started, false if another initialization is proceeding
-     * or Crosswalk initialization is already completed successfully.
+     * , or XWalkUpdater is downloading, or initialization is already completed successfully.
      */
     public boolean initAsync() {
-        if (mIsInitializing || mIsXWalkReady) return false;
+        if (mIsXWalkReady) return false;
 
-        mIsInitializing = true;
-        mInitListener.onXWalkInitStarted();
-        if (XWalkLibraryLoader.isLibraryReady()) {
-            Log.d(TAG, "Activate by XWalkInitializer");
-            XWalkLibraryLoader.startActivate(new XWalkLibraryListener(), mActivity);
-        } else {
-            Log.d(TAG, "Initialize by XWalkInitializer");
-            XWalkLibraryLoader.startDecompress(new XWalkLibraryListener(), mActivity);
+        if (XWalkLibraryLoader.isInitializing() || XWalkLibraryLoader.isDownloading()) {
+            Log.d(TAG, "Other initialization or download is proceeding");
+            return false;
         }
+
+        Log.d(TAG, "Initialized by XWalkInitializer");
+        XWalkLibraryLoader.startDecompress(new XWalkLibraryListener());
+        mInitListener.onXWalkInitStarted();
         return true;
     }
 
@@ -203,7 +201,36 @@ public class XWalkInitializer {
      */
     public boolean cancelInit() {
         Log.d(TAG, "Cancel by XWalkInitializer");
-        return mIsInitializing && XWalkLibraryLoader.cancelDecompress();
+        return XWalkLibraryLoader.cancelDecompress();
+    }
+
+    /**
+     * Return whether Crosswalk's APIs are ready to use.
+     *
+     * @return true when or after {@link XWalkInitListener#onXWalkInitCompleted()} is invoked,
+     *         false otherwise
+     */
+    public boolean isXWalkReady() {
+        return mIsXWalkReady;
+    }
+    /**
+     * Return whether running in shared mode. This method has meaning only when the return value
+     * of {@link #isXWalkReady} is true.
+     *
+     * @return true if running in shared mode, false otherwise
+     */
+    public boolean isSharedMode() {
+        return mIsXWalkReady && XWalkLibraryLoader.isSharedLibrary();
+    }
+
+    /**
+     * Return whether running in download  mode. This method has meaning only when the return value
+     * of {@link #isXWalkReady} is true.
+     *
+     * @return true if running in download mode, false otherwise
+     */
+    public boolean isDownloadMode() {
+        return mIsXWalkReady && XWalkEnvironment.isDownloadMode();
     }
 
     private class XWalkLibraryListener implements DecompressListener, ActivateListener {
@@ -213,13 +240,12 @@ public class XWalkInitializer {
 
         @Override
         public void onDecompressCancelled() {
-            mIsInitializing = false;
             mInitListener.onXWalkInitCancelled();
         }
 
         @Override
         public void onDecompressCompleted() {
-            XWalkLibraryLoader.startActivate(this, mActivity);
+            XWalkLibraryLoader.startActivate(this);
         }
 
         @Override
@@ -228,14 +254,13 @@ public class XWalkInitializer {
 
         @Override
         public void onActivateFailed() {
-            mIsInitializing = false;
             mInitListener.onXWalkInitFailed();
         }
 
         @Override
         public void onActivateCompleted() {
-            mIsInitializing = false;
             mIsXWalkReady = true;
+            XWalkLibraryLoader.finishInit(mContext);
             mInitListener.onXWalkInitCompleted();
         }
     }

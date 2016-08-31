@@ -154,7 +154,7 @@ TEST(XWalkSysAppsBindingObjectStoreTest, OnPostMessageToObject) {
   store->AddBindingObject("foobar2", std::move(binding_object_ptr2));
   EXPECT_EQ(BindingObjectTest::instance_count(), 2);
 
-  for (unsigned i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 1000; ++i) {
     std::unique_ptr<base::ListValue> arguments(new base::ListValue);
 
     // Object ID.

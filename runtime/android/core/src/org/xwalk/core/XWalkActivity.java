@@ -166,16 +166,17 @@ public abstract class XWalkActivity extends Activity {
     }
 
     /**
-     * Return whether Crosswalk Project runtime is ready.
+     * Return whether Crosswalk's APIs are ready to use.
      *
-     * @return true if Crosswalk Project runtime is ready, false otherwise
+     * @return true when or after {@link #onXWalkReady} is invoked, false otherwise
      */
     public boolean isXWalkReady() {
         return mActivityDelegate.isXWalkReady();
     }
 
     /**
-     * Return whether running in shared mode.
+     * Return whether running in shared mode. This method has meaning only when the return value
+     * of {@link #isXWalkReady} is true.
      *
      * @return true if running in shared mode, false otherwise
      */
@@ -184,7 +185,8 @@ public abstract class XWalkActivity extends Activity {
     }
 
     /**
-     * Return whether running in shared mode.
+     * Return whether running in download mode. This method has meaning only when the return value
+     * of {@link #isXWalkReady} is true
      *
      * @return true if running in download mode, false otherwise
      */

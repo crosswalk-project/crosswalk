@@ -179,9 +179,6 @@
     # pulling additional dependencies into our JARs (XWALK-6597).
     'enable_webvr%': 0,
 
-    # Whether to use a WebUI-based file picker.
-    'use_webui_file_picker%': 0,
-
     # Android: whether the integrity of the Crosswalk runtime library should be
     # verified when Crosswalk is run in shared mode.
     'verify_xwalk_apk%': 0,

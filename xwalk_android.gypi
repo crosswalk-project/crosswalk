@@ -26,9 +26,6 @@
       'include_dirs': [
         '..',
       ],
-      'ldflags': [
-        '-Wl,--no-fatal-warnings',
-      ],
       'sources': [
         'runtime/app/android/xwalk_entry_point.cc',
         'runtime/app/android/xwalk_jni_registrar.cc',

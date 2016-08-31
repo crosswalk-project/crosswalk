@@ -16,19 +16,14 @@
 
 package org.xwalk.core.internal;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Message;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebStorage;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
-import android.widget.FrameLayout;
 
 /**
  * It's an internal legacy class which is to handle kinds of ui related
@@ -38,23 +33,7 @@ import android.widget.FrameLayout;
  * @hide
  */
 public class XWalkWebChromeClient {
-    private Context mContext;
-    private View mCustomXWalkView;
-    private XWalkViewInternal mXWalkView;
-    private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
-    private XWalkContentsClient mContentsClient = null;
     private long XWALK_MAX_QUOTA = 1024 * 1024 * 100;
-    private final int INVALID_ORIENTATION = -2;
-    private int mPreOrientation = INVALID_ORIENTATION;
-
-    public XWalkWebChromeClient(XWalkViewInternal view) {
-        mContext = view.getContext();
-        mXWalkView = view;
-    }
-
-    void setContentsClient(XWalkContentsClient client) {
-        mContentsClient = client;
-    }
 
     /**
      * Notify the host application of a new favicon for the current page.
@@ -62,106 +41,6 @@ public class XWalkWebChromeClient {
      * @param icon A Bitmap containing the favicon for the current page.
      */
     public void onReceivedIcon(XWalkViewInternal view, Bitmap icon) {}
-
-    /**
-     * A callback interface used by the host application to notify
-     * the current page that its custom view has been dismissed.
-     */
-    public interface CustomViewCallback {
-        /**
-         * Invoked when the host application dismisses the
-         * custom view.
-         */
-        public void onCustomViewHidden();
-    }
-
-    private Activity addContentView(View view, CustomViewCallback callback) {
-        Activity activity = mXWalkView.getActivity();
-
-        if (mCustomXWalkView != null || activity == null) {
-            if (callback != null) callback.onCustomViewHidden();
-            return null;
-        }
-
-        mCustomXWalkView = view;
-        mCustomViewCallback = callback;
-
-        if (mContentsClient != null) {
-            mContentsClient.onToggleFullscreen(true);
-        }
-
-        // Add the video view to the activity's DecorView.
-        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
-        decor.addView(mCustomXWalkView, 0,
-                new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        Gravity.CENTER));
-        return activity;
-    }
-
-    /**
-     * Notify the host application that the current page would
-     * like to show a custom View.
-     * @param view is the View object to be shown.
-     * @param callback is the callback to be invoked if and when the view
-     * is dismissed.
-     */
-    public void onShowCustomView(View view, CustomViewCallback callback) {
-        addContentView(view, callback);
-    }
-
-    /**
-     * Notify the host application that the current page would
-     * like to show a custom View in a particular orientation.
-     * @param view is the View object to be shown.
-     * @param requestedOrientation An orientation constant as used in
-     * {@link ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
-     * @param callback is the callback to be invoked if and when the view
-     * is dismissed.
-     */
-    public void onShowCustomView(View view, int requestedOrientation,
-            CustomViewCallback callback) {
-        Activity activity = addContentView(view, callback);
-        if (activity == null) return;
-
-        final int orientation = activity.getResources().getConfiguration().orientation;
-
-        if (requestedOrientation != orientation &&
-                requestedOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&
-                requestedOrientation <= ActivityInfo.SCREEN_ORIENTATION_LOCKED) {
-            mPreOrientation = orientation;
-            activity.setRequestedOrientation(requestedOrientation);
-        }
-    };
-
-    /**
-     * Notify the host application that the current page would
-     * like to hide its custom view.
-     */
-    public void onHideCustomView() {
-        Activity activity = mXWalkView.getActivity();
-        if (mCustomXWalkView == null || activity == null) return;
-
-        if (mContentsClient != null) {
-            mContentsClient.onToggleFullscreen(false);
-        }
-
-        // Remove video view from activity's ContentView.
-        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
-        decor.removeView(mCustomXWalkView);
-        if (mCustomViewCallback != null) mCustomViewCallback.onCustomViewHidden();
-
-        if (mPreOrientation != INVALID_ORIENTATION &&
-                mPreOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&
-                mPreOrientation <= ActivityInfo.SCREEN_ORIENTATION_LOCKED) {
-            activity.setRequestedOrientation(mPreOrientation);
-            mPreOrientation = INVALID_ORIENTATION;
-        }
-
-        mCustomXWalkView = null;
-        mCustomViewCallback = null;
-    }
 
    /**
     * Tell the client that the quota has been exceeded for the Web SQL Database

@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -25,6 +27,7 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
+import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.base.annotations.JNINamespace;
 import org.chromium.base.PathUtils;
@@ -104,15 +107,45 @@ class XWalkViewDelegate {
             throw new RuntimeException("Failed to load native library");
         }
 
+        if (sInitialized) return;
+
+        Context context = libContext == null ?
+                appContext : new MixedContext(libContext, appContext);
+
+        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
+
+        // Initialize chromium resources. Assign them the correct ids in xwalk core.
+        XWalkInternalResources.resetIds(context);
+
+        // Last place to initialize CommandLine object. If you haven't initialize
+        // the CommandLine object before XWalkViewContent is created, here will create
+        // the object to guarantee the CommandLine object is not null and the
+        // consequent prodedure does not crash.
+        if (!CommandLine.isInitialized()) {
+            CommandLine.init(readCommandLine(context.getApplicationContext()));
+        }
+
         try {
-            if (libContext == null) {
-                init(appContext);
-            } else {
-                init(new MixedContext(libContext, appContext));
-            }
+            setupResourceInterceptor(context);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        // Use MixedContext to initialize the ResourceExtractor, as the pak file
+        // is in the library apk if in shared apk mode.
+        ResourceExtractor.get(context);
+
+        startBrowserProcess(context);
+
+        if (appContext instanceof Activity) {
+            ApplicationStatusManager.init(((Activity) appContext).getApplication());
+        } else if (appContext instanceof Service) {
+            ApplicationStatusManager.init(((Service) appContext).getApplication());
+        }
+
+        XWalkPresentationHost.createInstanceOnce(context);
+
+        sInitialized = true;
     }
 
     // Keep this function to preserve backward compatibility.
@@ -156,32 +189,6 @@ class XWalkViewDelegate {
 
         sLibraryLoaded = true;
         return true;
-    }
-
-    private static void init(final Context context) throws IOException {
-        if (sInitialized) return;
-
-        PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX, context);
-
-        // Initialize chromium resources. Assign them the correct ids in xwalk core.
-        XWalkInternalResources.resetIds(context);
-
-        // Last place to initialize CommandLine object. If you haven't initialize
-        // the CommandLine object before XWalkViewContent is created, here will create
-        // the object to guarantee the CommandLine object is not null and the
-        // consequent prodedure does not crash.
-        if (!CommandLine.isInitialized()) {
-            CommandLine.init(readCommandLine(context.getApplicationContext()));
-        }
-
-        setupResourceInterceptor(context);
-
-        // Use MixedContext to initialize the ResourceExtractor, as the pak file
-        // is in the library apk if in shared apk mode.
-        ResourceExtractor.get(context);
-
-        startBrowserProcess(context);
-        sInitialized = true;
     }
 
     private static void startBrowserProcess(final Context context) {

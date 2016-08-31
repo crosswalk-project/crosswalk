@@ -4,7 +4,6 @@
 
 package org.xwalk.app.runtime;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -26,22 +25,6 @@ public class XWalkRuntimeView extends LinearLayout {
     private XWalkRuntimeViewProvider mProvider;
 
     /**
-     * Contructs a XWalkRuntimeView with Activity and library Context. Called
-     * from runtime client.
-     *
-     * @param activity the activity from runtime client
-     * @param context a context when creating this package
-     * @param attrs the attributes of the XML tag that is inflating the view
-     */
-    public XWalkRuntimeView(Activity activity, Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        // MixedContext is needed for cross package because the application
-        // context is different.
-        init(context, activity);
-    }
-
-    /**
      * This is for inflating this view from XML. Called from test shell.
      * @param context a context to construct View
      * @param attrs the attributes of the XML tag that is inflating the view
@@ -49,16 +32,72 @@ public class XWalkRuntimeView extends LinearLayout {
     public XWalkRuntimeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        init(context, (Activity)context);
+        mProvider = XWalkRuntimeViewProviderFactory.getProvider(context);
+        setOrientation(LinearLayout.VERTICAL);
+    }
+    /**
+     * Tell runtime that the application is on creating. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onCreate() {
+        mProvider.onCreate();
+        addView(mProvider.getView(), new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
     }
 
-    private void init(Context context, Activity activity) {
-        mProvider = XWalkRuntimeViewProviderFactory.getProvider(context, activity);
-        setOrientation(LinearLayout.VERTICAL);
-        this.addView(mProvider.getView(),
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT));
+    /**
+     * Tell runtime that the application is on start. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onStart() {
+        mProvider.onStart();
+    }
+
+    /**
+     * Tell runtime that the application is on resuming. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onResume() {
+        mProvider.onResume();
+    }
+
+    /**
+     * Tell runtime that the application is on pausing. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onPause() {
+        mProvider.onPause();
+    }
+
+    /**
+     * Tell runtime that the application is on stop. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onStop() {
+        mProvider.onStop();
+    }
+
+    /**
+     * Tell runtime that the application is on destroying. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onDestroy() {
+        mProvider.onDestroy();
+    }
+
+    /**
+     * Tell runtime that the activity receive a new Intent to start it. It may contains
+     * data that runtime want to deal with.
+     * @param intent the new coming Intent.
+     * @return boolean whether runtime consumed it.
+     */
+    public boolean onNewIntent(Intent intent) {
+        return mProvider.onNewIntent(intent);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mProvider.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -91,85 +130,12 @@ public class XWalkRuntimeView extends LinearLayout {
         mProvider.loadAppFromManifest(manifestUrl);
     }
 
-    /**
-     * Tell runtime that the application is on creating. This can make runtime
-     * be aware of application life cycle.
-     */
-    public void onCreate() {
-        mProvider.onCreate();
+    public void setRemoteDebugging(boolean value) {
+        mProvider.setRemoteDebugging(value);
     }
 
-    /**
-     * Tell runtime that the application is on resuming. This can make runtime
-     * be aware of application life cycle.
-     */
-    public void onResume() {
-        mProvider.onResume();
-    }
-
-    /**
-     * Tell runtime that the application is on pausing. This can make runtime
-     * be aware of application life cycle.
-     */
-    public void onPause() {
-        mProvider.onPause();
-    }
-
-    /**
-     * Tell runtime that the application is on destroying. This can make runtime
-     * be aware of application life cycle.
-     */
-    public void onDestroy() {
-        mProvider.onDestroy();
-    }
-
-    /**
-     * Tell runtime that one activity exists so that it can know the result code
-     * of the exit code.
-     *
-     * @param requestCode the request code to identify where the result is from
-     * @param resultCode the result code of the activity
-     * @param data the data to contain the result data
-     */
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mProvider.onActivityResult(requestCode, resultCode, data);
-    }
-
-    /**
-     * Tell runtime that the activity receive a new Intent to start it. It may contains
-     * data that runtime want to deal with.
-     * @param intent the new coming Intent.
-     * @return boolean whether runtime consumed it. 
-     */
-    public boolean onNewIntent(Intent intent) {
-        return mProvider.onNewIntent(intent);
-    }
-
-    /**
-     * Enable remote debugging for the loaded web application. The caller
-     * can set the url of debugging url. Besides, the socket name for remote
-     * debugging has to be unique so typically the string can be appended
-     * with the package name of the application.
-     *
-     * @param frontEndUrl the url of debugging url. If it's empty, then a
-     *                    default url will be used.
-     * @param socketName the unique socket name for setting up socket for
-     *                   remote debugging. If it's empty, then a default
-     *                   name will be used.
-     * @return the url of web socket for remote debugging
-     */
-    public void enableRemoteDebugging(String frontEndUrl, String socketName) {
-        // TODO(yongsheng): Figure out which parameters are needed once we
-        // have a conclusion.
-        mProvider.enableRemoteDebugging(frontEndUrl,socketName);
-    }
-
-    /**
-     * Disable remote debugging so runtime can close related stuff for
-     * this feature.
-     */
-    public void disableRemoteDebugging() {
-        mProvider.disableRemoteDebugging();
+    public void setUseAnimatableView(boolean value) {
+        mProvider.setUseAnimatableView(value);
     }
 
     // For instrumentation test.
@@ -183,9 +149,5 @@ public class XWalkRuntimeView extends LinearLayout {
 
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
         mProvider.loadDataForTest(data, mimeType, isBase64Encoded);
-    }
-
-    public void loadExtensions() {
-        mProvider.loadExtensions();
     }
 }
