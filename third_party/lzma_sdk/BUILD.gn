@@ -1,0 +1,24 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_library("lzma_sdk_java") {
+  java_files = [
+    "src/SevenZip/Compression/LZ/BinTree.java",
+    "src/SevenZip/Compression/LZ/InWindow.java",
+    "src/SevenZip/Compression/LZ/OutWindow.java",
+    "src/SevenZip/Compression/LZMA/Base.java",
+    "src/SevenZip/Compression/LZMA/Decoder.java",
+    "src/SevenZip/Compression/LZMA/Encoder.java",
+    "src/SevenZip/Compression/RangeCoder/BitTreeDecoder.java",
+    "src/SevenZip/Compression/RangeCoder/BitTreeEncoder.java",
+    "src/SevenZip/Compression/RangeCoder/Decoder.java",
+    "src/SevenZip/Compression/RangeCoder/Encoder.java",
+    "src/SevenZip/CRC.java",
+    "src/SevenZip/ICodeProgress.java",
+    "src/SevenZip/LzmaAlone.java",
+    "src/SevenZip/LzmaBench.java",
+  ]
+}

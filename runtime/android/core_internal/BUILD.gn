@@ -1,0 +1,175 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+import("//xwalk/build/version.gni")
+import("//xwalk/build/xwalk.gni")
+
+reflection_gen_dir = "$root_gen_dir/xwalk_core_reflection_layer/"
+android_library("xwalk_core_internal_java") {
+  deps = [
+    ":xwalk_core_internal_java_resources",
+    ":xwalk_core_reflection_layer_java_gen",
+    "//base:base_java",
+    "//components/navigation_interception/android:navigation_interception_java",
+    "//components/web_contents_delegate_android:web_contents_delegate_android_java",
+    "//content/public/android:content_java",
+    "//media/base/android:media_java",
+    "//net/android:net_java",
+    "//ui/android:ui_java",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+  ]
+  srcjars = [ "$reflection_gen_dir/bridge/bridge.srcjar" ]
+  java_files = [
+    "src/org/xwalk/core/internal/AndroidProtocolHandler.java",
+    "src/org/xwalk/core/internal/ClientCertLookupTable.java",
+    "src/org/xwalk/core/internal/ClientCertRequestHandlerInternal.java",
+    "src/org/xwalk/core/internal/ClientCertRequestInternal.java",
+    "src/org/xwalk/core/internal/CustomViewCallbackHandlerInternal.java",
+    "src/org/xwalk/core/internal/CustomViewCallbackInternal.java",
+    "src/org/xwalk/core/internal/ErrorCodeConversionHelper.java",
+    "src/org/xwalk/core/internal/InMemorySharedPreferences.java",
+    "src/org/xwalk/core/internal/MixedContext.java",
+    "src/org/xwalk/core/internal/PageLoadListener.java",
+    "src/org/xwalk/core/internal/ReflectConstructor.java",
+    "src/org/xwalk/core/internal/ReflectField.java",
+    "src/org/xwalk/core/internal/ReflectMethod.java",
+    "src/org/xwalk/core/internal/SslUtil.java",
+    "src/org/xwalk/core/internal/UrlUtilities.java",
+    "src/org/xwalk/core/internal/XWalkAPI.java",
+    "src/org/xwalk/core/internal/XWalkAutofillClientAndroid.java",
+    "src/org/xwalk/core/internal/XWalkClient.java",
+    "src/org/xwalk/core/internal/XWalkContent.java",
+    "src/org/xwalk/core/internal/XWalkContentLifecycleNotifier.java",
+    "src/org/xwalk/core/internal/XWalkContentVideoViewClient.java",
+    "src/org/xwalk/core/internal/XWalkContentView.java",
+    "src/org/xwalk/core/internal/XWalkContentsClient.java",
+    "src/org/xwalk/core/internal/XWalkContentsClientBridge.java",
+    "src/org/xwalk/core/internal/XWalkContentsClientCallbackHelper.java",
+    "src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java",
+    "src/org/xwalk/core/internal/XWalkCookieManagerInternal.java",
+    "src/org/xwalk/core/internal/XWalkCoreBridge.java",
+    "src/org/xwalk/core/internal/XWalkDevToolsServer.java",
+    "src/org/xwalk/core/internal/XWalkDownloadListenerImpl.java",
+    "src/org/xwalk/core/internal/XWalkDownloadListenerInternal.java",
+    "src/org/xwalk/core/internal/XWalkExtensionInternal.java",
+    "src/org/xwalk/core/internal/XWalkExternalExtensionManagerInternal.java",
+    "src/org/xwalk/core/internal/XWalkFindListenerInternal.java",
+    "src/org/xwalk/core/internal/XWalkGeolocationPermissions.java",
+    "src/org/xwalk/core/internal/XWalkGetBitmapCallbackInternal.java",
+    "src/org/xwalk/core/internal/XWalkHitTestResultInternal.java",
+    "src/org/xwalk/core/internal/XWalkHttpAuthHandlerInternal.java",
+    "src/org/xwalk/core/internal/XWalkHttpAuthInternal.java",
+    "src/org/xwalk/core/internal/XWalkInternalResources.java",
+    "src/org/xwalk/core/internal/XWalkJavascriptResultHandlerInternal.java",
+    "src/org/xwalk/core/internal/XWalkJavascriptResultInternal.java",
+    "src/org/xwalk/core/internal/XWalkLaunchScreenManager.java",
+    "src/org/xwalk/core/internal/XWalkMediaPlayerResourceLoadingFilter.java",
+    "src/org/xwalk/core/internal/XWalkNativeExtensionLoaderInternal.java",
+    "src/org/xwalk/core/internal/XWalkNavigationHandler.java",
+    "src/org/xwalk/core/internal/XWalkNavigationHandlerImpl.java",
+    "src/org/xwalk/core/internal/XWalkNavigationHistoryInternal.java",
+    "src/org/xwalk/core/internal/XWalkNavigationItemInternal.java",
+    "src/org/xwalk/core/internal/XWalkNotificationService.java",
+    "src/org/xwalk/core/internal/XWalkNotificationServiceImpl.java",
+    "src/org/xwalk/core/internal/XWalkPathHelper.java",
+    "src/org/xwalk/core/internal/XWalkPreferencesInternal.java",
+    "src/org/xwalk/core/internal/XWalkPresentationHost.java",
+    "src/org/xwalk/core/internal/XWalkResourceClientInternal.java",
+    "src/org/xwalk/core/internal/XWalkSettingsInternal.java",
+    "src/org/xwalk/core/internal/XWalkSwitches.java",
+    "src/org/xwalk/core/internal/XWalkUIClientInternal.java",
+    "src/org/xwalk/core/internal/XWalkViewDelegate.java",
+    "src/org/xwalk/core/internal/XWalkViewInternal.java",
+    "src/org/xwalk/core/internal/XWalkWebChromeClient.java",
+    "src/org/xwalk/core/internal/XWalkWebContentsDelegate.java",
+    "src/org/xwalk/core/internal/XWalkWebContentsDelegateAdapter.java",
+    "src/org/xwalk/core/internal/XWalkWebResourceRequestHandlerInternal.java",
+    "src/org/xwalk/core/internal/XWalkWebResourceRequestInternal.java",
+    "src/org/xwalk/core/internal/XWalkWebResourceResponseInternal.java",
+    "src/org/xwalk/core/internal/extension/BuiltinXWalkExtensions.java",
+    "src/org/xwalk/core/internal/extension/XWalkExtensionWithActivityStateListener.java",
+    "src/org/xwalk/core/internal/extension/api/launchscreen/LaunchScreenExtension.java",
+    "src/org/xwalk/core/internal/extension/api/presentation/PresentationExtension.java",
+    "src/org/xwalk/core/internal/extension/api/presentation/PresentationView.java",
+    "src/org/xwalk/core/internal/extension/api/presentation/PresentationViewJBMR1.java",
+    "src/org/xwalk/core/internal/extension/api/presentation/PresentationViewNull.java",
+    "src/org/xwalk/core/internal/extension/api/presentation/XWalkPresentationContent.java",
+    "src/org/xwalk/core/internal/extension/api/wifidirect/WifiDirect.java",
+    "src/org/xwalk/core/internal/extension/api/DisplayManagerJBMR1.java",
+    "src/org/xwalk/core/internal/extension/api/DisplayManagerNull.java",
+    "src/org/xwalk/core/internal/extension/api/XWalkDisplayManager.java",
+  ]
+}
+
+java_strings_grd("xwalk_core_strings") {
+  grd_file = "strings/android_xwalk_strings.grd"
+  outputs = [
+    "values/android_xwalk_strings.xml",
+  ]
+}
+
+android_resources("xwalk_core_internal_java_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core.internal"
+  deps = [
+    ":xwalk_core_strings",
+  ]
+}
+
+action("xwalk_core_reflection_layer_java_gen") {
+  script = "//xwalk/tools/reflection_generator/reflection_generator.py"
+  args = [
+    "--input-dir",
+    rebase_path("src/org/xwalk/core/internal/"),
+    "--template-dir",
+    rebase_path("//xwalk/runtime/android/templates/"),
+    "--bridge-output",
+    rebase_path("$reflection_gen_dir/bridge/"),
+    "--wrapper-output",
+    rebase_path("$reflection_gen_dir/wrapper/"),
+    "--use-srcjars",
+    "--stamp",
+    rebase_path("$reflection_gen_dir/gen.timestamp"),
+    "--api-version",
+    api_version,
+    "--min-api-version",
+    min_api_version,
+    "--xwalk-build-version",
+    xwalk_version,
+  ]
+  if (verify_xwalk_apk) {
+    args += [ "--verify-xwalk-apk" ]
+  }
+  outputs = [
+    "$reflection_gen_dir/bridge/bridge.srcjar",
+    "$reflection_gen_dir/wrapper/wrapper.srcjar",
+  ]
+}
+
+generate_jni("xwalk_core_native_jni") {
+  jni_package = "xwalk"
+  sources = [
+    "src/org/xwalk/core/internal/AndroidProtocolHandler.java",
+    "src/org/xwalk/core/internal/XWalkAutofillClientAndroid.java",
+    "src/org/xwalk/core/internal/XWalkContent.java",
+    "src/org/xwalk/core/internal/XWalkContentLifecycleNotifier.java",
+    "src/org/xwalk/core/internal/XWalkContentsClientBridge.java",
+    "src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java",
+    "src/org/xwalk/core/internal/XWalkCookieManagerInternal.java",
+    "src/org/xwalk/core/internal/XWalkDevToolsServer.java",
+    "src/org/xwalk/core/internal/XWalkHttpAuthHandlerInternal.java",
+    "src/org/xwalk/core/internal/XWalkPathHelper.java",
+    "src/org/xwalk/core/internal/XWalkPresentationHost.java",
+    "src/org/xwalk/core/internal/XWalkSettingsInternal.java",
+    "src/org/xwalk/core/internal/XWalkViewDelegate.java",
+    "src/org/xwalk/core/internal/XWalkWebContentsDelegate.java",
+    "src/org/xwalk/core/internal/XWalkWebResourceResponseInternal.java",
+  ]
+}
+
+generate_jar_jni("xwalk_core_jar_jni") {
+  jni_package = "xwalk"
+  classes = [ "java/io/InputStream.class" ]
+}

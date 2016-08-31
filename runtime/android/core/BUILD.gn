@@ -1,0 +1,64 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_core_java") {
+  deps = [
+    ":xwalk_core_java_resources",
+    "//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_java_gen",
+    "//xwalk/third_party/lzma_sdk:lzma_sdk_java",
+  ]
+  srcjars =
+      [ "$root_gen_dir/xwalk_core_reflection_layer/wrapper/wrapper.srcjar" ]
+  java_files = [
+    "src/org/xwalk/core/extension/BindingObject.java",
+    "src/org/xwalk/core/extension/BindingObjectAutoJS.java",
+    "src/org/xwalk/core/extension/BindingObjectStore.java",
+    "src/org/xwalk/core/extension/EventTarget.java",
+    "src/org/xwalk/core/extension/ExtensionInstanceHelper.java",
+    "src/org/xwalk/core/extension/JsApi.java",
+    "src/org/xwalk/core/extension/JsConstructor.java",
+    "src/org/xwalk/core/extension/JsContextInfo.java",
+    "src/org/xwalk/core/extension/JsStubGenerator.java",
+    "src/org/xwalk/core/extension/MessageHandler.java",
+    "src/org/xwalk/core/extension/MessageInfo.java",
+    "src/org/xwalk/core/extension/ReflectionHelper.java",
+    "src/org/xwalk/core/extension/XWalkCoreExtensionBridge.java",
+    "src/org/xwalk/core/extension/XWalkExtensionContextClient.java",
+    "src/org/xwalk/core/extension/XWalkExternalExtension.java",
+    "src/org/xwalk/core/extension/XWalkExternalExtensionBridge.java",
+    "src/org/xwalk/core/extension/XWalkExternalExtensionBridgeFactory.java",
+    "src/org/xwalk/core/extension/XWalkExternalExtensionManagerImpl.java",
+    "src/org/xwalk/core/JavascriptInterface.java",
+    "src/org/xwalk/core/XWalkActivity.java",
+    "src/org/xwalk/core/XWalkActivityDelegate.java",
+    "src/org/xwalk/core/XWalkApplication.java",
+    "src/org/xwalk/core/XWalkEnvironment.java",
+    "src/org/xwalk/core/XWalkFileChooser.java",
+    "src/org/xwalk/core/XWalkCoreWrapper.java",
+    "src/org/xwalk/core/XWalkDialogManager.java",
+    "src/org/xwalk/core/XWalkInitializer.java",
+    "src/org/xwalk/core/XWalkDecompressor.java",
+    "src/org/xwalk/core/XWalkLibraryInterface.java",
+    "src/org/xwalk/core/XWalkLibraryLoader.java",
+    "src/org/xwalk/core/XWalkMixedResources.java",
+    "src/org/xwalk/core/XWalkUpdater.java",
+  ]
+}
+
+android_resources("xwalk_core_java_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core"
+  deps = [
+    ":xwalk_app_strings",
+  ]
+}
+
+java_strings_grd("xwalk_app_strings") {
+  grd_file = "strings/xwalk_app_strings.grd"
+  outputs = [
+    "values/xwalk_app_strings.xml",
+  ]
+}

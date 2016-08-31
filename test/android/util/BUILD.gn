@@ -1,0 +1,36 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_test_util_java") {
+  testonly = true
+  java_files = [
+    "src/org/xwalk/test/util/OnTitleUpdatedHelper.java",
+    "src/org/xwalk/test/util/XWalkTestUtilBase.java",
+    "src/org/xwalk/test/util/XWalkTestUtilCallbacks.java",
+  ]
+  deps = [
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+  ]
+}
+
+android_library("xwalk_runtime_client_test_utils_java") {
+  testonly = true
+  java_files = [
+    "runtime_client/src/com/example/extension/MyExtension.java",
+    "runtime_client/src/org/xwalk/test/util/ActivityToCausePause.java",
+    "runtime_client/src/org/xwalk/test/util/RuntimeClientApiTestBase.java",
+    "runtime_client/src/org/xwalk/test/util/XWalkRuntimeClientTestGeneric.java",
+    "runtime_client/src/org/xwalk/test/util/XWalkRuntimeClientTestUtilBase.java",
+  ]
+  deps = [
+    ":xwalk_test_util_java",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+}

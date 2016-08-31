@@ -20,6 +20,24 @@ group("xwalk_builder") {
       ":xwalk_all_tests",
     ]
   }
+  if (is_android) {
+    deps += [
+      # For internal testing.
+      "app/android/runtime_client_embedded_shell:xwalk_runtime_client_embedded_shell_apk",
+      "app/android/runtime_client_shell:xwalk_runtime_client_shell_apk",
+      "runtime/android/core_internal_shell:xwalk_core_internal_shell_apk",
+      "runtime/android/core_shell:xwalk_core_shell_apk",
+      "test/android/core/javatests:xwalk_core_test_apk",
+      "test/android/core_internal/javatests:xwalk_core_internal_test_apk",
+      "test/android/runtime_client/javatests:xwalk_runtime_client_test_apk",
+      "test/android/runtime_client_embedded/javatests:xwalk_runtime_client_embedded_test_apk",
+
+      # For external testing.
+      "app/android/app_hello_world:xwalk_app_hello_world_apk",
+      "runtime/android/runtime_lib:xwalk_runtime_lib_apk",
+      "runtime/android/sample:xwalk_core_sample_apk",
+    ]
+  }
 }
 
 if (is_linux) {
@@ -363,14 +381,25 @@ source_set("xwalk_runtime") {
     "//xwalk/resources:xwalk_resources_100_percent_pak",
     "//xwalk/resources:xwalk_resources_200_percent_pak",
     "//xwalk/resources:xwalk_resources_300_percent_pak",
-    "//xwalk/resources:xwalk_strings",
     "//xwalk/sysapps",
     "//xwalk/sysapps:xwalk_sysapps_resources",
   ]
 
+  if (is_android) {
+    deps += [
+      "//components/cdm/browser",
+      "//xwalk/runtime/android/core_internal:xwalk_core_jar_jni",
+      "//xwalk/runtime/android/core_internal:xwalk_core_native_jni",
+    ]
+  } else {
+    deps += [
+      "//xwalk/resources:xwalk_locales",
+      "//xwalk/resources:xwalk_strings",
+    ]
+  }
+
   if (is_linux) {
     configs += [ "//xwalk/build/libnotify" ]
-    deps += [ "//xwalk/resources:xwalk_locales" ]
   }
 
   if (disable_bundled_extensions) {

@@ -46,3 +46,32 @@ _result = exec_script("//build/util/version.py",
                       "scope",
                       [ xwalk_version_file ])
 xwalk_version = _result.full
+
+if (is_android) {
+  import("//build/config/android/config.gni")
+
+  # Get xwalk API version
+  _xwalk_api_version_template = "api = \"@API@\" min_api = \"@MIN_API@\""
+  xwalk_api_version_file = "//xwalk/API_VERSION"
+  _result = exec_script("//build/util/version.py",
+                        [
+                          "-f",
+                          rebase_path(xwalk_api_version_file, root_build_dir),
+                          "-t",
+                          _xwalk_api_version_template,
+                        ],
+                        "scope",
+                        [ xwalk_api_version_file ])
+  api_version = _result.api
+  min_api_version = _result.min_api
+
+  # Get xwalk_version_code
+  _result = exec_script("//xwalk/build/android/generate_version_code.py",
+                        [
+                          "--abi-name=$android_app_abi",
+                          "--version=$xwalk_version",
+                        ],
+                        "trim string",
+                        [ xwalk_version_file ])
+  xwalk_version_code = _result
+}

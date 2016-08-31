@@ -1,0 +1,20 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_app_runtime_java") {
+  java_files = [
+    "//xwalk/app/android/runtime_activity/src/org/xwalk/app/XWalkRuntimeActivityBase.java",
+    "src/org/xwalk/app/runtime/extension/XWalkRuntimeExtensionLoader.java",
+    "src/org/xwalk/app/runtime/XWalkCoreProviderImpl.java",
+    "src/org/xwalk/app/runtime/XWalkRuntimeTestHelper.java",
+    "src/org/xwalk/app/runtime/XWalkRuntimeView.java",
+    "src/org/xwalk/app/runtime/XWalkRuntimeViewProvider.java",
+    "src/org/xwalk/app/runtime/XWalkRuntimeViewProviderFactory.java",
+  ]
+  deps = [
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+}

@@ -1,0 +1,94 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+instrumentation_test_apk("xwalk_core_internal_test_apk") {
+  apk_name = "XWalkCoreInternalTest"
+  android_manifest = "AndroidManifest.xml"
+  apk_under_test = "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk"
+  deps = [
+    ":xwalk_core_internal_test_apk_assets",
+    ":xwalk_core_internal_test_java",
+    "//tools/android/forwarder2:forwarder2",
+    "//tools/android/md5sum:md5sum",
+    "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk_java",
+  ]
+  data_deps = [
+    "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk",
+  ]
+}
+
+android_library("xwalk_core_internal_test_java") {
+  testonly = true
+  visibility = [ ":*" ]
+  java_files = [
+    "src/org/xwalk/core/internal/xwview/test/util/CommonResources.java",
+    "src/org/xwalk/core/internal/xwview/test/util/VideoTestWebServer.java",
+    "src/org/xwalk/core/internal/xwview/test/ExtensionBroadcastInternal.java",
+    "src/org/xwalk/core/internal/xwview/test/ExtensionBroadcastInternalTest.java",
+    "src/org/xwalk/core/internal/xwview/test/ExtensionEchoInternal.java",
+    "src/org/xwalk/core/internal/xwview/test/ExtensionEchoInternalTest.java",
+    "src/org/xwalk/core/internal/xwview/test/GeolocationPermissionTest.java",
+    "src/org/xwalk/core/internal/xwview/test/HandleActionUriTest.java",
+    "src/org/xwalk/core/internal/xwview/test/LoadTest.java",
+    "src/org/xwalk/core/internal/xwview/test/OnReceivedErrorTest.java",
+    "src/org/xwalk/core/internal/xwview/test/OnShowOnHideCustomViewTest.java",
+    "src/org/xwalk/core/internal/xwview/test/OnTitleUpdatedHelper.java",
+    "src/org/xwalk/core/internal/xwview/test/RendererResponsivenessTest.java",
+    "src/org/xwalk/core/internal/xwview/test/SetAppCacheEnabledTest.java",
+    "src/org/xwalk/core/internal/xwview/test/SetDatabaseEnabledTest.java",
+    "src/org/xwalk/core/internal/xwview/test/SetDomStorageEnabledTest.java",
+    "src/org/xwalk/core/internal/xwview/test/SetNetworkAvailableTest.java",
+    "src/org/xwalk/core/internal/xwview/test/TestHelperBridge.java",
+    "src/org/xwalk/core/internal/xwview/test/UserAgentTest.java",
+    "src/org/xwalk/core/internal/xwview/test/WebNotificationTest.java",
+    "src/org/xwalk/core/internal/xwview/test/XWalkJavascriptResultTest.java",
+    "src/org/xwalk/core/internal/xwview/test/XWalkViewInternalTestBase.java",
+    "src/org/xwalk/core/internal/xwview/test/XWalkViewInternalTestTouchUtils.java",
+    "src/org/xwalk/core/internal/xwview/test/ZoomTest.java",
+  ]
+  deps = [
+    "//base:base_java",
+    "//base:base_java_test_support",
+    "//content/public/android:content_java",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//third_party/android_tools:legacy_http_javalib",
+    "//ui/android:ui_java",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_internal_shell:xwalk_core_internal_shell_apk_java",
+  ]
+}
+
+android_assets("xwalk_core_internal_test_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [
+    "//xwalk/test/android/data/broadcast.html",
+    "//xwalk/test/android/data/echo_binary_java.html",
+    "//xwalk/test/android/data/echo_java.html",
+    "//xwalk/test/android/data/echo_sync_java.html",
+    "//xwalk/test/android/data/framesEcho.html",
+    "//xwalk/test/android/data/full_screen_video_test.html",
+    "//xwalk/test/android/data/geolocation.html",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/navigator.online.html",
+    "//xwalk/test/android/data/notification.html",
+    "//xwalk/test/android/data/renderHung.html",
+  ]
+  renaming_destinations = [
+    "broadcast.html",
+    "echo_binary_java.html",
+    "echo_java.html",
+    "echo_sync_java.html",
+    "framesEcho.html",
+    "full_screen_video_test.html",
+    "geolocation.html",
+    "index.html",
+    "navigator.online.html",
+    "notification.html",
+    "renderHung.html",
+  ]
+}

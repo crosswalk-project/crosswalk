@@ -1,0 +1,65 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_runtime_client_shell_apk") {
+  apk_name = "XWalkRuntimeClientShell"
+  android_manifest = "AndroidManifest.xml"
+  native_libs = [
+    "$root_out_dir/libecho_extension.so",
+    "$root_out_dir/libxwalkdummy.so",
+  ]
+  deps = [
+    ":xwalk_runtime_client_shell_apk_assets",
+    ":xwalk_runtime_client_shell_apk_java",
+    ":xwalk_runtime_client_shell_apk_resources",
+    "//base:base_java",
+    "//xwalk/extensions/test:echo_extension",
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+  ]
+}
+
+android_library("xwalk_runtime_client_shell_apk_java") {
+  java_files = [ "src/org/xwalk/runtime/client/shell/XWalkRuntimeClientShellActivity.java" ]
+  deps = [
+    ":xwalk_runtime_client_shell_apk_resources",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+}
+
+android_assets("xwalk_runtime_client_shell_apk_assets") {
+  renaming_sources = [
+    "//xwalk/test/android/data/www/manifest_self.json",
+    "//xwalk/test/android/data/www/manifest_inline_script.json",
+    "//xwalk/test/android/data/www/cross_origin.html",
+    "//xwalk/test/android/data/www/csp.html",
+    "//xwalk/test/android/data/www/manifest_without_xwalk_hosts.json",
+    "//xwalk/test/android/data/www/manifest_xwalk_hosts.json",
+    "//xwalk/test/android/data/manifest.json",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/sampapp-icon-helloworld.png",
+    "//xwalk/test/android/data/myextension/myextension.js",
+    "//xwalk/test/android/data/myextension/myextension.json",
+  ]
+  renaming_destinations = [
+    "www/manifest_self.json",
+    "www/manifest_inline_script.json",
+    "www/cross_origin.html",
+    "www/csp.html",
+    "www/manifest_without_xwalk_hosts.json",
+    "www/manifest_xwalk_hosts.json",
+    "manifest.json",
+    "index.html",
+    "sampapp-icon-helloworld.png",
+    "xwalk-extensions/myextension/myextension.js",
+    "xwalk-extensions/myextension/myextension.json",
+  ]
+}
+
+android_resources("xwalk_runtime_client_shell_apk_resources") {
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.runtime.client.shell"
+}

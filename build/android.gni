@@ -1,0 +1,25 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file contains feature flags for Crosswalk Android build. Users should
+# import it into their build folder by run:
+#   echo 'import("//xwalk/build/android.gni")' > out/your_dir/args.gn'
+# Add your build args in file args.gn like: target_os = "android"
+# See more in "https://chromium.googlesource.com/chromium/src/+/master/docs/
+# android_build_instructions.md"
+# Then run:
+#   gn gen out/your_dir
+#   ninja -C out/your_dir xwalk_builder
+# to generate Android Apks of Crosswalk.
+
+import("//xwalk/build/common.gni")
+
+# Make release builds smaller by omitting stack unwind support for backtrace()
+# TODO(rakuco): determine if we only want this in official builds.
+# From //build/config/compiler/BUILD.gn
+exclude_unwind_tables = true
+
+# Temporarily disable use of external snapshot files (XWALK-3516).
+# From //build_overrides/v8.gni
+v8_use_external_startup_data = false
