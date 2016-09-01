@@ -64,9 +64,6 @@ REFLECTION_HERLPER = [
 WRAPPER_PACKAGE = 'org.xwalk.core'
 BRIDGE_PACKAGE = 'org.xwalk.core.internal'
 
-bridge_path = ''
-wrapper_path = ''
-
 
 def PerformSerialize(output_path, generator):
   file_name = generator.GetGeneratedClassFileName()
@@ -75,7 +72,7 @@ def PerformSerialize(output_path, generator):
   print('%s has been generated!' % file_name)
 
 
-def GenerateJavaBindingClass(input_dir):
+def GenerateJavaBindingClass(input_dir, bridge_path, wrapper_path):
   class_loader = JavaClassLoader(input_dir, CLASSES_TO_BE_PROCESS)
   for input_class in CLASSES_TO_BE_PROCESS:
     print('Generate bridge and wrapper code for %s' % input_class)
@@ -96,7 +93,7 @@ def GenerateJavaBindingClass(input_dir):
       PerformSerialize(wrapper_path, wrapper_generator)
 
 
-def GenerateJavaReflectClass(input_dir):
+def GenerateJavaReflectClass(input_dir, wrapper_path):
   for helper in REFLECTION_HERLPER:
     with open(os.path.join(wrapper_path, helper), 'w') as f:
       for line in open(os.path.join(input_dir, helper), 'r'):
@@ -106,8 +103,9 @@ def GenerateJavaReflectClass(input_dir):
           f.write(line)
 
 
-def GenerateJavaTemplateClass(template_dir, xwalk_build_version,
-    api_version, min_api_version, verify_xwalk_apk):
+def GenerateJavaTemplateClass(template_dir, bridge_path, wrapper_path,
+                              xwalk_build_version, api_version,
+                              min_api_version, verify_xwalk_apk):
   template_file = os.path.join(template_dir, 'XWalkCoreVersion.template')
   template = Template(open(template_file, 'r').read())
   value = {'API_VERSION': api_version,
@@ -165,23 +163,24 @@ This script can generate bridge and wrap source files for given directory.
   if os.path.isdir(options.wrapper_output):
     shutil.rmtree(options.wrapper_output)
 
-  global bridge_path
   bridge_path = os.path.join(options.bridge_output,
                              os.path.sep.join(BRIDGE_PACKAGE.split('.')))
   os.makedirs(bridge_path)
 
-  global wrapper_path
   wrapper_path = os.path.join(options.wrapper_output,
                               os.path.sep.join(WRAPPER_PACKAGE.split('.')))
   os.makedirs(wrapper_path)
 
   if options.input_dir:
-    GenerateJavaBindingClass(options.input_dir)
-    GenerateJavaReflectClass(options.input_dir)
+    GenerateJavaBindingClass(options.input_dir, bridge_path, wrapper_path)
+    GenerateJavaReflectClass(options.input_dir, wrapper_path)
 
   if options.template_dir:
-    GenerateJavaTemplateClass(options.template_dir, options.xwalk_build_version,
-        options.api_version, options.min_api_version, options.verify_xwalk_apk)
+    GenerateJavaTemplateClass(options.template_dir,
+                              bridge_path, wrapper_path,
+                              options.xwalk_build_version,
+                              options.api_version, options.min_api_version,
+                              options.verify_xwalk_apk)
 
   if options.stamp:
     build_utils.Touch(options.stamp)
