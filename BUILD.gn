@@ -500,7 +500,7 @@ source_set("xwalk_runtime") {
       "//components/app_modal",
       "//components/constrained_window",
       "//components/guest_view/browser",
-      "//components/ui/zoom",
+      "//components/zoom",
       "//ui/events",
       "//ui/resources",
       "//ui/strings:ui_strings",
