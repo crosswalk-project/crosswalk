@@ -72,6 +72,7 @@
           '>!@(find <(template_dir) -name "*.template")'
         ],
         'timestamp': '<(reflection_java_dir)/gen.timestamp',
+        'extra_reflection_args': [],
       },
       'all_dependent_settings': {
         'variables': {
@@ -79,6 +80,13 @@
           'reflection_gen_dir': '<(reflection_java_dir)',
         },
       },
+      'conditions': [
+        ['verify_xwalk_apk==1', {
+          'variables': {
+            'extra_reflection_args': ['--verify-xwalk-apk'],
+          },
+        }],
+      ],
       'actions': [
         {
           'action_name': 'generate_reflection',
@@ -103,8 +111,8 @@
             '--stamp', '<(timestamp)',
             '--api-version=<(api_version)',
             '--min-api-version=<(min_api_version)',
-            '--verify-xwalk-apk=<(verify_xwalk_apk)',
             '--xwalk-build-version=<(xwalk_version)',
+            '<@(extra_reflection_args)',
           ],
         },
       ],
