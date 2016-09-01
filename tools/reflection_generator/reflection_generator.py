@@ -152,11 +152,11 @@ def main(argv):
     shutil.rmtree(options.wrapper_output)
 
   bridge_path = os.path.join(options.bridge_output,
-                             os.path.sep.join(BRIDGE_PACKAGE.split('.')))
+                             BRIDGE_PACKAGE.replace('.', os.path.sep))
   os.makedirs(bridge_path)
 
   wrapper_path = os.path.join(options.wrapper_output,
-                              os.path.sep.join(WRAPPER_PACKAGE.split('.')))
+                              WRAPPER_PACKAGE.replace('.', os.path.sep))
   os.makedirs(wrapper_path)
 
   if options.input_dir:
