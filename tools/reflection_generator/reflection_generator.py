@@ -26,7 +26,7 @@ from util import build_utils
 
 
 # Classes list that have to generate bridge and wrap code.
-CLASSES_TO_BE_PROCESS = [
+CLASSES_TO_PROCESS = [
     'ClientCertRequestHandlerInternal',
     'ClientCertRequestInternal',
     'CustomViewCallbackHandlerInternal',
@@ -55,7 +55,7 @@ CLASSES_TO_BE_PROCESS = [
     'XWalkWebResourceResponseInternal',
 ]
 
-REFLECTION_HERLPER = [
+REFLECTION_HELPERS = [
     'ReflectMethod.java',
     'ReflectField.java',
     'ReflectConstructor.java',
@@ -69,13 +69,13 @@ def PerformSerialize(output_path, generator):
   file_name = generator.GetGeneratedClassFileName()
   with open(os.path.join(output_path, file_name), 'w') as f:
     f.write(generator.GetGeneratedCode())
-  print('%s has been generated!' % file_name)
+  print('Generated %s.' % file_name)
 
 
 def GenerateJavaBindingClass(input_dir, bridge_path, wrapper_path):
-  class_loader = JavaClassLoader(input_dir, CLASSES_TO_BE_PROCESS)
-  for input_class in CLASSES_TO_BE_PROCESS:
-    print('Generate bridge and wrapper code for %s' % input_class)
+  class_loader = JavaClassLoader(input_dir, CLASSES_TO_PROCESS)
+  for input_class in CLASSES_TO_PROCESS:
+    print('Generating bridge and wrapper code for %s.' % input_class)
     java_data = class_loader.GetJavaData(input_class)
     if java_data.class_type == 'interface':
       # Generate Interface code.
@@ -94,7 +94,7 @@ def GenerateJavaBindingClass(input_dir, bridge_path, wrapper_path):
 
 
 def GenerateJavaReflectClass(input_dir, wrapper_path):
-  for helper in REFLECTION_HERLPER:
+  for helper in REFLECTION_HELPERS:
     with open(os.path.join(wrapper_path, helper), 'w') as f:
       for line in open(os.path.join(input_dir, helper), 'r'):
         if line.startswith('package '):
