@@ -230,7 +230,9 @@ public class XWalkFileChooser {
                 deleteImageFile();
             }
 
-            Log.d(TAG, "Received file: " + results.toString());
+            if (results != null) {
+                Log.d(TAG, "Received file: " + results.toString());
+            }
             mFilePathCallback.onReceiveValue(results);
             mFilePathCallback = null;
         }
