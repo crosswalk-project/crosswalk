@@ -120,7 +120,7 @@ def GenerateJavaTemplateClass(template_dir, xwalk_build_version,
   template_file = os.path.join(template_dir, 'XWalkAppVersion.template')
   template = Template(open(template_file, 'r').read())
   value = {'API_VERSION': api_version,
-           'VERIFY_XWALK_APK': 'true' if verify_xwalk_apk == 1 else 'false',
+           'VERIFY_XWALK_APK': str(verify_xwalk_apk).lower(),
            'XWALK_BUILD_VERSION': xwalk_build_version}
   output_file = os.path.join(wrapper_path, "XWalkAppVersion.java")
   with open(output_file, 'w') as f:
@@ -148,8 +148,9 @@ This script can generate bridge and wrap source files for given directory.
   option_parser.add_option('--stamp', help='the file to touch on success.')
   option_parser.add_option('--api-version', help='API Version')
   option_parser.add_option('--min-api-version', help='Min API Version')
-  option_parser.add_option('--verify-xwalk-apk', default=0, type='int',
-      help='Verify Crosswalk library APK before loading')
+  option_parser.add_option('--verify-xwalk-apk', action='store_true',
+                           default=False,
+                           help='Verify Crosswalk library APK before loading')
   option_parser.add_option('--xwalk-build-version', help='XWalk Build Version')
 
   options, _ = option_parser.parse_args(argv)
