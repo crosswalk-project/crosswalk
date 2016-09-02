@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import optparse
+import argparse
 import os
 import shutil
 from string import Template
@@ -126,37 +126,25 @@ def GenerateJavaTemplateClass(template_dir, bridge_path, wrapper_path,
 
 
 def main(argv):
-  usage = """Usage: %prog [OPTIONS]
-This script can generate bridge and wrap source files for given directory.
-\'input_dir\' is provided as directory containing source files.
-  """
-  option_parser = optparse.OptionParser(usage=usage)
-  option_parser.add_option('--input-dir',
-                           help=('Input source file directory which contains '
-                                 'input files'))
-  option_parser.add_option('--template-dir',
-                           help=('Templates directory to generate java source '
-                                 'file'))
-  option_parser.add_option('--bridge-output',
-                           help=('Output directory where the bridge code is '
-                                 'placed.'))
-  option_parser.add_option('--wrapper-output',
-                           help=('Output directory where the wrap code is '
-                                 'placed.'))
-  option_parser.add_option('--stamp', help='the file to touch on success.')
-  option_parser.add_option('--api-version', help='API Version')
-  option_parser.add_option('--min-api-version', help='Min API Version')
-  option_parser.add_option('--verify-xwalk-apk', action='store_true',
-                           default=False,
-                           help='Verify Crosswalk library APK before loading')
-  option_parser.add_option('--xwalk-build-version', help='XWalk Build Version')
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--input-dir', required=True,
+                      help=('Input source file directory which contains input '
+                            'files'))
+  parser.add_argument('--template-dir',
+                      help='Templates directory to generate java source file')
+  parser.add_argument('--bridge-output', required=True,
+                      help='Output directory where the bridge code is placed.')
+  parser.add_argument('--wrapper-output', required=True,
+                      help='Output directory where the wrap code is placed.')
+  parser.add_argument('--stamp', help='the file to touch on success.')
+  parser.add_argument('--api-version', help='API Version')
+  parser.add_argument('--min-api-version', help='Min API Version')
+  parser.add_argument('--verify-xwalk-apk', action='store_true',
+                      default=False,
+                      help='Verify Crosswalk library APK before loading.')
+  parser.add_argument('--xwalk-build-version', help='XWalk Build Version')
 
-  options, _ = option_parser.parse_args(argv)
-  if (not options.input_dir or
-      not options.bridge_output or
-      not options.wrapper_output):
-    print('Error: Must specify input and output.')
-    return 1
+  options = parser.parse_args()
 
   if os.path.isdir(options.bridge_output):
     shutil.rmtree(options.bridge_output)
