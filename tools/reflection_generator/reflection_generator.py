@@ -104,25 +104,17 @@ def GenerateJavaReflectClass(input_dir, wrapper_path):
 
 
 def GenerateJavaTemplateClass(template_dir, bridge_path, wrapper_path,
-                              xwalk_build_version, api_version,
-                              min_api_version, verify_xwalk_apk):
-  template_file = os.path.join(template_dir, 'XWalkCoreVersion.template')
-  template = Template(open(template_file, 'r').read())
-  value = {'API_VERSION': api_version,
-           'MIN_API_VERSION': min_api_version,
-           'XWALK_BUILD_VERSION': xwalk_build_version}
-  output_file = os.path.join(bridge_path, "XWalkCoreVersion.java")
-  with open(output_file, 'w') as f:
-    f.write(template.substitute(value))
-
-  template_file = os.path.join(template_dir, 'XWalkAppVersion.template')
-  template = Template(open(template_file, 'r').read())
-  value = {'API_VERSION': api_version,
-           'VERIFY_XWALK_APK': str(verify_xwalk_apk).lower(),
-           'XWALK_BUILD_VERSION': xwalk_build_version}
-  output_file = os.path.join(wrapper_path, "XWalkAppVersion.java")
-  with open(output_file, 'w') as f:
-    f.write(template.substitute(value))
+                              mapping):
+  with open(os.path.join(template_dir, 'XWalkAppVersion.template')) as f:
+    contents = f.read()
+    out_path = os.path.join(wrapper_path, 'XWalkAppVersion.java')
+    with open(out_path, 'w') as out_f:
+      out_f.write(Template(contents).substitute(mapping))
+  with open(os.path.join(template_dir, 'XWalkCoreVersion.template')) as f:
+    contents = f.read()
+    out_path = os.path.join(bridge_path, 'XWalkCoreVersion.java')
+    with open(out_path, 'w') as out_f:
+      out_f.write(Template(contents).substitute(mapping))
 
 
 def main(argv):
@@ -164,11 +156,14 @@ def main(argv):
     GenerateJavaReflectClass(options.input_dir, wrapper_path)
 
   if options.template_dir:
-    GenerateJavaTemplateClass(options.template_dir,
-                              bridge_path, wrapper_path,
-                              options.xwalk_build_version,
-                              options.api_version, options.min_api_version,
-                              options.verify_xwalk_apk)
+    mapping = {
+      'API_VERSION': options.api_version,
+      'MIN_API_VERSION': options.min_api_version,
+      'XWALK_BUILD_VERSION': options.xwalk_build_version,
+      'VERIFY_XWALK_APK': str(options.verify_xwalk_apk).lower(),
+    }
+    GenerateJavaTemplateClass(options.template_dir, bridge_path, wrapper_path,
+                              mapping)
 
   if options.stamp:
     build_utils.Touch(options.stamp)
