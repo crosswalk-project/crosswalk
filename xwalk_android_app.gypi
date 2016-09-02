@@ -5,25 +5,24 @@
       'type': 'none',
       'actions': [
         {
-          # Generate the version for runtime client.
           'action_name': 'generate_runtime_client_version',
           'variables': {
+            'version_py': '<(DEPTH)/build/util/version.py',
             'template_file': 'app/android/runtime_client/src/templates/XWalkRuntimeClientVersion.template',
             'output_file': '<(SHARED_INTERMEDIATE_DIR)/version_java/XWalkRuntimeClientVersion.java',
           },
           'inputs': [
             'VERSION',
             '<(template_file)',
-            'build/android/generate_runtime_client_version.py',
+            '<(version_py)',
           ],
           'outputs': [
             '<(output_file)',
           ],
           'action': [
-            'python', 'build/android/generate_runtime_client_version.py',
-            '--template=<(template_file)',
-            '--output=<(output_file)',
-            '--xwalk-version=<(xwalk_version)',
+            'python', '<(version_py)', '-f', 'VERSION',
+                      '-i', '<(template_file)',
+                      '-o', '<(output_file)',
           ],
         },
       ],
