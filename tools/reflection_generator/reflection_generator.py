@@ -7,12 +7,12 @@
 import optparse
 import os
 import shutil
+from string import Template
 import sys
 
 from bridge_generator import BridgeGenerator
 from interface_generator import InterfaceGenerator
 from java_class import JavaClassLoader
-from string import Template
 from wrapper_generator import WrapperGenerator
 
 GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
