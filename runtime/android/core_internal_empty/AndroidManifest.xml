@@ -9,9 +9,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.core.library.empty">
 
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="21" />
+
     <application android:name="android.app.Application"
         android:label="XWalkCoreLibraryEmpty" android:hardwareAccelerated="true">
     </application>
-
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="21" />
 </manifest>

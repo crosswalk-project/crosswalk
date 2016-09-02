@@ -8,16 +8,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.runtime.client.embedded.test">
 
-    <application>
-        <uses-library android:name="android.test.runner" />
-        <provider android:name="org.xwalk.runtime.client.test.TestContentProvider"
-            android:authorities="org.xwalk.runtime.client.embedded.test.TestContentProvider" />
-    </application>
-
     <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="21" />
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="org.xwalk.runtime.client.embedded.shell"
-        android:label="Test for org.xwalk.runtime.client.embedded" />
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
     <uses-permission android:name="android.permission.INJECT_EVENTS" />
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
@@ -26,4 +17,14 @@
     <uses-permission android:name="android.permission.READ_LOGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+
+    <application>
+        <uses-library android:name="android.test.runner" />
+        <provider android:name="org.xwalk.runtime.client.test.TestContentProvider"
+            android:authorities="org.xwalk.runtime.client.embedded.test.TestContentProvider" />
+    </application>
+
+    <instrumentation android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="org.xwalk.runtime.client.embedded.shell"
+        android:label="Test for org.xwalk.runtime.client.embedded" />
 </manifest>

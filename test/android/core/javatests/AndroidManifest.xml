@@ -8,18 +8,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.core.xwview.test">
 
-    <application>
-        <uses-library android:name="android.test.runner" />
-    </application>
-
     <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="21" />
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="org.xwalk.core.xwview.shell"
-        android:label="Test for org.xwalk.core.xwview" />
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION" />
     <uses-permission android:name="android.permission.INJECT_EVENTS" />
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_LOGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application>
+        <uses-library android:name="android.test.runner" />
+    </application>
+
+    <instrumentation android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="org.xwalk.core.xwview.shell"
+        android:label="Test for org.xwalk.core.xwview" />
 </manifest>
