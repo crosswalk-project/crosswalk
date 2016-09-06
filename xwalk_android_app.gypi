@@ -1,33 +1,6 @@
 {
   'targets': [
     {
-      'target_name': 'generate_xwalk_runtime_client_version',
-      'type': 'none',
-      'actions': [
-        {
-          'action_name': 'generate_runtime_client_version',
-          'variables': {
-            'version_py': '<(DEPTH)/build/util/version.py',
-            'template_file': 'app/android/runtime_client/src/templates/XWalkRuntimeClientVersion.template',
-            'output_file': '<(SHARED_INTERMEDIATE_DIR)/version_java/XWalkRuntimeClientVersion.java',
-          },
-          'inputs': [
-            'VERSION',
-            '<(template_file)',
-            '<(version_py)',
-          ],
-          'outputs': [
-            '<(output_file)',
-          ],
-          'action': [
-            'python', '<(version_py)', '-f', 'VERSION',
-                      '-i', '<(template_file)',
-                      '-o', '<(output_file)',
-          ],
-        },
-      ],
-    },
-    {
       'target_name': 'xwalk_app_hello_world_apk',
       'type': 'none',
       'dependencies': [
@@ -88,7 +61,6 @@
       'target_name': 'xwalk_app_runtime_java',
       'type': 'none',
       'dependencies': [
-        'generate_xwalk_runtime_client_version',
         'xwalk_core_java',
       ],
       'variables': {
@@ -96,7 +68,6 @@
         'additional_src_dirs': [
           'app/android/runtime_client',
         ],
-        'generated_src_dirs': [ '<(SHARED_INTERMEDIATE_DIR)/version_java' ],
       },
       'includes': ['../build/java.gypi'],
     },
