@@ -139,8 +139,9 @@
         'resource_map_dir': '<(PRODUCT_DIR)/resource_map',
         'timestamp': '<(resource_map_dir)/gen.timestamp',
       },
-      'all_dependent_settings': {
+      'direct_dependent_settings': {
         'variables': {
+          'generated_src_dirs': ['<(resource_map_dir)'],
           'resource_map_gen_timestamp': '<(timestamp)',
         },
       },
@@ -176,9 +177,6 @@
         'java_in_dir': 'runtime/android/core_internal_empty',
         'is_test_apk': 1,
         'additional_input_paths': [ '>(resource_map_gen_timestamp)' ],
-        'generated_src_dirs': [
-           '<(PRODUCT_DIR)/resource_map',
-        ],
         'native_lib_target': 'libxwalkdummy',
         'additional_bundled_libs': [
           '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
@@ -196,12 +194,10 @@
       'type': 'none',
       'dependencies': [
         'xwalk_core_library',
-        'generate_resource_maps',
       ],
       'variables': {
         'apk_name': '<(core_empty_embedder_apk_name)',
         'java_in_dir': 'runtime/android/core_internal_empty',
-        'additional_input_paths': [ '>(resource_map_gen_timestamp)' ],
       },
       'includes': [ '../build/java_apk.gypi' ],
     },
