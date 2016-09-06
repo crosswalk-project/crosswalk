@@ -121,18 +121,15 @@ void XWalkWebContentsDelegate::RunFileChooser(
     return;
   }
   int mode = static_cast<int>(params.mode);
-  jboolean overridden =
-      Java_XWalkWebContentsDelegate_shouldOverrideRunFileChooser(env,
-          java_delegate.obj(),
-          web_contents->GetRenderProcessHost()->GetID(),
-          web_contents->GetRenderViewHost()->GetRoutingID(),
-          mode,
-          ConvertUTF16ToJavaString(env,
-              base::JoinString(params.accept_types,
-                               base::ASCIIToUTF16(","))).obj(),
-          params.capture);
-  if (overridden == JNI_FALSE)
-    RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
+  Java_XWalkWebContentsDelegate_shouldOverrideRunFileChooser(env,
+      java_delegate.obj(),
+      web_contents->GetRenderProcessHost()->GetID(),
+      web_contents->GetRenderViewHost()->GetRoutingID(),
+      mode,
+      ConvertUTF16ToJavaString(env,
+          base::JoinString(params.accept_types,
+                           base::ASCIIToUTF16(","))).obj(),
+      params.capture);
 }
 
 content::JavaScriptDialogManager*
