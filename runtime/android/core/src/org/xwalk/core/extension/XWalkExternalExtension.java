@@ -144,6 +144,8 @@ public class XWalkExternalExtension {
 
     /**
      * Called when this app is onNewIntent.
+     *
+     * @param intent passed from android.app.Activity.onNewIntent()
      */
     public void onNewIntent(Intent intent) {
     }
@@ -163,6 +165,8 @@ public class XWalkExternalExtension {
 
     /**
      * Called when a new extension instance is created.
+     *
+     * @param instanceID the ID of the instance that is created
      */
     public void onInstanceCreated(int instanceID) {
         instanceHelpers.put(instanceID,
@@ -171,6 +175,8 @@ public class XWalkExternalExtension {
 
     /**
      * Called when a extension instance is destroyed.
+     *
+     * @param instanceID the ID of the instance that is destroyed
      */
     public void onInstanceDestroyed(int instanceID) {
         instanceHelpers.remove(instanceID);
@@ -213,6 +219,7 @@ public class XWalkExternalExtension {
      * message.
      * @param extensionInstanceID the ID of extension instance where the message came from.
      * @param message the message from JavaScript code.
+     * @return whether the message is handled
      */
     public String onSyncMessage(int extensionInstanceID, String message) {
         Object result = null;

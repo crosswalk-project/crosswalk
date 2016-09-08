@@ -101,6 +101,8 @@ public class XWalkFileChooser {
 
     /**
      * Create a file chooser using an activity.
+     *
+     * @param activity the activity to start file chooser
      */
     public XWalkFileChooser(Activity activity) {
         mActivity = activity;
@@ -115,6 +117,7 @@ public class XWalkFileChooser {
      *        with this file picker.
      * @param capture value of the 'capture' attribute of the input tag associated
      *        with this file picker
+     * @return true if file chooser is launched
      * @since 7.0
      */
     public boolean showFileChooser(ValueCallback<Uri> uploadFile, String acceptType,

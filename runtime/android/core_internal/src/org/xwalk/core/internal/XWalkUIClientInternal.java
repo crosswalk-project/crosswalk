@@ -164,6 +164,7 @@ public class XWalkUIClientInternal {
      * @param message the message to be shown.
      * @param defaultValue the default value string. Only valid for Prompt dialog.
      * @param result the callback to handle the result from caller.
+     * @return true if the client will handle the dialog
      * @since 1.0
      */
     @XWalkAPI

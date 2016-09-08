@@ -411,6 +411,9 @@ public class XWalkResourceClientInternal {
      * Construct an instance of XWalkWebResourceResponseInternal
      * for application usage.
      *
+     * @param mimeType the resource response's MIME type, for example text/html
+     * @param encoding the resource response's encoding
+     * @param data the input stream that provides the resource response's data
      * @return XWalkWebResourceResponseInternal.
      * @since 6.0
      */
@@ -424,6 +427,12 @@ public class XWalkResourceClientInternal {
      * Construct an instance of XWalkWebResourceResponseInternal
      * for application usage.
      *
+     * @param mimeType the resource response's MIME type, for example text/html
+     * @param encoding the resource response's encoding
+     * @param data the input stream that provides the resource response's data
+     * @param statusCode the status code needs to be in the ranges [100, 299], [400, 599]
+     * @param reasonPhrase the phrase describing the status code, for example "OK"
+     * @param responseHeaders the resource response's headers represented as a mapping of header
      * @return XWalkWebResourceResponseInternal.
      * @since 6.0
      */

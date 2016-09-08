@@ -773,6 +773,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * <a href="http://developer.android.com/reference/android/app/Activity.html">
      * android.app.Activity.onNewIntent()</a>.
      * @param intent passed from android.app.Activity.onNewIntent().
+     * @return true if this intent is handled
      * @since 1.0
      */
     @XWalkAPI
@@ -790,6 +791,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * Save current internal state of this XWalkViewInternal. This can help restore this state
      * afterwards restoring.
      * @param outState the saved state for restoring.
+     * @return true if the state is saved
      * @since 1.0
      */
     @XWalkAPI
@@ -959,6 +961,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     /**
      * This method is used by Cordova for hacking.
      * TODO(yongsheng): remove this and related test cases?
+     *
+     * @param networkUp whether network is available
      */
     @XWalkAPI
     public void setNetworkAvailable(boolean networkUp) {
@@ -1522,6 +1526,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     /**
      * Clears the client certificate preferences stored in response to
      * proceeding/cancelling client cert requests.
+     *
+     * @param callback a runnable to be invoked when client certs are cleared
      * @since 6.0
      */
     @XWalkAPI

@@ -96,7 +96,8 @@ public class XWalkCookieManagerInternal {
     }
 
     /**
-     *  Return true if there are stored cookies.
+     * Get whether there are stored cookies.
+     * @return true if there are stored cookies
      * @since 5.0
      */
     @XWalkAPI
@@ -123,7 +124,8 @@ public class XWalkCookieManagerInternal {
     }
 
     /**
-     * Whether cookies are accepted for file scheme URLs.
+     * Get whether cookies are accepted for file scheme URLs.
+     * @return true if cookies are accepted for file scheme URLs
      * @since 5.0
      */
     @XWalkAPI
