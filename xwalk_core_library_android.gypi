@@ -294,11 +294,50 @@
       ],
     },
     {
+      'target_name': 'xwalk_core_library_strip_native_libs',
+      'type': 'none',
+      'dependencies': [
+        'libxwalkcore',
+        'libxwalkdummy',
+      ],
+      'variables': {
+        'intermediate_dir': '<(PRODUCT_DIR)/<(_target_name)',
+        'ordered_libraries_file': '<(intermediate_dir)/native_libraries.json',
+      },
+      'direct_dependent_settings': {
+        'variables': {
+          'stripped_native_libraries': [
+            '<(intermediate_dir)/libxwalkcore.so',
+            '<(intermediate_dir)/libxwalkdummy.so',
+          ],
+        },
+      },
+      'actions': [
+        {
+          'variables': {
+            'input_libraries': [
+              '<(SHARED_LIB_DIR)/libxwalkcore.so',
+              '<(SHARED_LIB_DIR)/libxwalkdummy.so',
+            ],
+          },
+          'includes': ['../build/android/write_ordered_libraries.gypi'],
+        },
+        {
+          'action_name': 'strip_native_libraries',
+          'variables': {
+            'stripped_libraries_dir': '<(intermediate_dir)',
+            'stamp': '<(intermediate_dir)/stamp',
+          },
+          'includes': ['../build/android/strip_native_libraries.gypi'],
+        },
+      ],
+    },
+    {
       'target_name': 'xwalk_core_library',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_shell_apk',
         'xwalk_core_library_java',
+        'xwalk_core_library_strip_native_libs',
       ],
       'actions': [
         {
@@ -313,6 +352,8 @@
           ],
           'action': [
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
+            '--abi', '<(android_app_abi)',
+            '--native-libraries', '>(stripped_native_libraries)',
             '-s', '<(DEPTH)',
             '-t', '<(PRODUCT_DIR)'
           ],
@@ -350,6 +391,7 @@
       'type': 'none',
       'dependencies': [
         'xwalk_core_library',
+        'xwalk_core_library_strip_native_libs',
       ],
       'variables': {
          # TODO(wang16): This list is hard coded for now. It might be broken by rebase to
@@ -390,6 +432,8 @@
           ],
           'action': [
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
+            '--abi', '<(android_app_abi)',
+            '--native-libraries', '>(stripped_native_libraries)',
             '-s',  '<(DEPTH)',
             '-t', '<(PRODUCT_DIR)',
             '--src-package',
