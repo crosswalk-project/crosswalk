@@ -372,6 +372,8 @@ public class XWalkSettingsInternal {
      * default. Note that this enables or disables file system access only.
      * Assets and resources are still accessible using file:///android_asset and
      * file:///android_res.
+     *
+     * @param allow whether file access is allowed
      * @since 7.0
      */
     @XWalkAPI
@@ -387,6 +389,7 @@ public class XWalkSettingsInternal {
      * Gets whether this XWalkView supports file access.
      *
      * @see #setAllowFileAccess
+     * @return true if this XWalkView supports file access.
      * @since 7.0
      */
     @XWalkAPI
@@ -400,6 +403,8 @@ public class XWalkSettingsInternal {
      * Enables or disables content URL access within XWalkView. Content URL
      * access allows XWalkView to load content from a content provider installed
      * in the system. The default is enabled.
+     *
+     * @param allow whether content URL access is allowed
      * @since 7.0
      */
     @XWalkAPI
@@ -415,6 +420,7 @@ public class XWalkSettingsInternal {
      * Gets whether this XWalkView supports content URL access.
      *
      * @see #setAllowContentAccess
+     * @return true if this XWalkView supports content URL access.
      * @since 7.0
      */
     @XWalkAPI
@@ -1000,6 +1006,8 @@ public class XWalkSettingsInternal {
 
     /**
      * Sets whether the XWalkView should save form data. The default is true.
+     *
+     * @param enable whether the XWalkView should save form data
      * @since 7.0
      */
     @XWalkAPI

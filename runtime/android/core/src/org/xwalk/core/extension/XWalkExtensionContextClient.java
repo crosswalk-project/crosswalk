@@ -18,11 +18,15 @@ import android.os.Bundle;
 public interface XWalkExtensionContextClient {
     /**
      * Register an xwalk extension into context.
+     *
+     * @param extension the external extension to be registered
      */
     public void registerExtension(XWalkExternalExtension extension);
 
     /**
      * Unregister an xwalk extension with the given unique name from context.
+     *
+     * @param name the name of the external extension to be unregistered
      */
     public void unregisterExtension(String name);
 
