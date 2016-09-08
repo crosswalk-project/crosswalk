@@ -11,10 +11,17 @@ import os
 import shutil
 import sys
 import zipfile
-from common_function import RemoveUnusedFilesInReleaseMode
 from xml.dom.minidom import Document
 
-XWALK_CORE_SHELL_APK = 'xwalk_core_shell_apk'
+GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
+                               os.pardir, os.pardir, os.pardir,
+                               'build',
+                               'android',
+                               'gyp')
+sys.path.append(GYP_ANDROID_DIR)
+
+from util import build_utils
+
 
 def AddGeneratorOptions(option_parser):
   option_parser.add_option('-s', dest='source',
@@ -23,6 +30,10 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('-t', dest='target',
                            help='Product out target directory.',
                            type='string')
+  option_parser.add_option('--abi',
+                           help='Android ABI being used in the build.')
+  option_parser.add_option('--native-libraries',
+                           help='List of libraries to copy to libs/<abi>.')
   option_parser.add_option('--shared', action='store_true',
                            default=False,
                            help='Generate shared library', )
@@ -147,9 +158,12 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
   pak_list_xml.writexml(pak_list_file, newl='\n', encoding='utf-8')
   pak_list_file.close()
 
-  # Copy native libraries.
-  source_dir = os.path.join(out_dir, XWALK_CORE_SHELL_APK, 'libs')
-  distutils.dir_util.copy_tree(source_dir, libs_dir)
+
+def CopyNativeLibraries(out_project_dir, abi_name, native_libraries):
+  destination_path = os.path.join(out_project_dir, 'libs', abi_name)
+  build_utils.MakeDirectory(destination_path)
+  for native_lib in native_libraries:
+    shutil.copy2(native_lib, destination_path)
 
 
 def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix, blacklist=None):
@@ -313,12 +327,14 @@ def main(argv):
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
   CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
+
+  if options.native_libraries:
+    CopyNativeLibraries(out_project_dir, options.abi,
+                        build_utils.ParseGypList(options.native_libraries))
+
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_project_dir)
-  # Remove unused files.
-  mode = os.path.basename(os.path.normpath(out_dir))
-  RemoveUnusedFilesInReleaseMode(mode,
-      os.path.join(out_project_dir, 'libs'))
+
   # Create empty src directory
   src_dir = os.path.join(out_project_dir, 'src')
   if not os.path.isdir(src_dir):
