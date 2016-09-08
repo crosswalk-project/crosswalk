@@ -130,53 +130,15 @@
       ],
     },
     {
-      'target_name': 'generate_resource_maps',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_core_internal_java',
-      ],
-      'variables': {
-        'resource_map_dir': '<(PRODUCT_DIR)/resource_map',
-        'timestamp': '<(resource_map_dir)/gen.timestamp',
-      },
-      'direct_dependent_settings': {
-        'variables': {
-          'generated_src_dirs': ['<(resource_map_dir)'],
-          'resource_map_gen_timestamp': '<(timestamp)',
-        },
-      },
-      'actions': [
-        {
-          'action_name': 'generate_resource_maps',
-          'message': 'Generating Resource Maps.',
-          'inputs': [
-            'build/android/generate_resource_map.py',
-          ],
-          'outputs': [
-            '<(PRODUCT_DIR)/generate_resource_maps_intermediate/always_run',
-            '<(timestamp)',
-          ],
-          'action': [
-            'python', 'build/android/generate_resource_map.py',
-            '--gen-dir', '<(PRODUCT_DIR)/gen',
-            '--resource-map-dir', '<(resource_map_dir)',
-            '--stamp', '<(timestamp)',
-          ],
-        },
-      ]
-    },
-    {
       'target_name': 'xwalk_core_internal_empty_embedder_apk',
       'type': 'none',
       'dependencies': [
-        'generate_resource_maps',
         'libxwalkdummy',
+        'xwalk_core_internal_java',
       ],
       'variables': {
         'apk_name': '<(core_internal_empty_embedder_apk_name)',
         'java_in_dir': 'runtime/android/core_internal_empty',
-        'is_test_apk': 1,
-        'additional_input_paths': [ '>(resource_map_gen_timestamp)' ],
         'native_lib_target': 'libxwalkdummy',
         'additional_bundled_libs': [
           '<(PRODUCT_DIR)/lib/libxwalkcore.>(android_product_extension)',
