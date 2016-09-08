@@ -2,7 +2,7 @@
 
 Note: dates indicate the day when the release was promoted to the Stable channel.
 
-## Crosswalk 21
+## Crosswalk 21 (Sep 8, 2016)
 
 * Rebase to Chromium 51
 
