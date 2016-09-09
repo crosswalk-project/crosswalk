@@ -11,7 +11,6 @@ android_apk("xwalk_core_internal_shell_apk") {
   deps = [
     ":xwalk_core_internal_shell_apk_assets",
     ":xwalk_core_internal_shell_apk_java",
-    ":xwalk_core_internal_shell_apk_pak",
     ":xwalk_core_internal_shell_apk_resources",
     "//base:base_java",
     "//xwalk/runtime/app/android:libxwalkcore",
@@ -37,24 +36,8 @@ android_assets("xwalk_core_internal_shell_apk_assets") {
   renaming_sources = [ "//xwalk/test/android/data/index.html" ]
   renaming_destinations = [ "www/index.html" ]
   deps = [
-    "//xwalk/resources:xwalk_pak",
-    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//xwalk/resources:pak_file_assets",
   ]
-}
-
-android_assets("xwalk_core_internal_shell_apk_pak") {
-  visibility = [ ":*" ]
-  sources = [
-    "$root_out_dir/xwalk.pak",
-    "$root_out_dir/xwalk_100_percent.pak",
-  ]
-  deps = [
-    "//third_party/icu:icu_assets",
-    "//v8:v8_external_startup_data_assets",
-    "//xwalk/resources:xwalk_pak",
-    "//xwalk/resources:xwalk_resources_100_percent_pak",
-  ]
-  disable_compression = true
 }
 
 android_resources("xwalk_core_internal_shell_apk_resources") {

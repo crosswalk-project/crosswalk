@@ -15,7 +15,6 @@ android_apk("xwalk_runtime_client_embedded_shell_apk") {
   deps = [
     ":xwalk_runtime_client_embedded_shell_apk_assets",
     ":xwalk_runtime_client_embedded_shell_apk_java",
-    ":xwalk_runtime_client_embedded_shell_apk_pak",
     ":xwalk_runtime_client_embedded_shell_apk_resources",
     "//base:base_java",
     "//xwalk/extensions/test:echo_extension",
@@ -36,26 +35,11 @@ android_library("xwalk_runtime_client_embedded_shell_apk_java") {
   ]
 }
 
-android_assets("xwalk_runtime_client_embedded_shell_apk_pak") {
-  sources = [
-    "$root_out_dir/xwalk.pak",
-    "$root_out_dir/xwalk_100_percent.pak",
-  ]
-  deps = [
-    "//third_party/icu:icu_assets",
-    "//v8:v8_external_startup_data_assets",
-    "//xwalk/resources:xwalk_pak",
-    "//xwalk/resources:xwalk_resources_100_percent_pak",
-  ]
-  disable_compression = true
-}
-
 android_assets("xwalk_runtime_client_embedded_shell_apk_assets") {
   sources = []
   deps = [
     "//third_party/icu:icu_assets",
-    "//xwalk/resources:xwalk_pak",
-    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//xwalk/resources:pak_file_assets",
   ]
   renaming_sources = [
     "//xwalk/test/android/data/manifest.json",

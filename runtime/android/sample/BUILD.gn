@@ -35,7 +35,6 @@ android_apk("xwalk_core_sample_apk") {
     "//xwalk/extensions/android:xwalk_core_extensions_java",
     "//xwalk/runtime/android/core:xwalk_core_java",
     "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
-    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_pak",
     "//xwalk/runtime/app/android:libxwalkcore",
   ]
 }
@@ -78,5 +77,6 @@ android_assets("xwalk_core_sample_apk_assets") {
   deps = [
     "//third_party/icu:icu_assets",
     "//v8:v8_external_startup_data_assets",
+    "//xwalk/resources:pak_file_assets",
   ]
 }

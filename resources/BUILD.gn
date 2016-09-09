@@ -6,6 +6,10 @@ import("//tools/grit/grit_rule.gni")
 import("//tools/grit/repack.gni")
 import("//xwalk/resources/locales.gni")
 
+if (is_android) {
+  import("//build/config/android/rules.gni")
+}
+
 repack("xwalk_pak") {
   output = "$root_out_dir/xwalk.pak"
   sources = [
@@ -108,6 +112,22 @@ repack("xwalk_resources_300_percent_pak") {
     sources +=
         [ "$root_gen_dir/ui/views/resources/views_resources_300_percent.pak" ]
     deps += [ "//ui/views/resources:resources_grd" ]
+  }
+}
+
+if (is_android) {
+  android_assets("pak_file_assets") {
+    sources = [
+      "$root_out_dir/xwalk.pak",
+      "$root_out_dir/xwalk_100_percent.pak",
+    ]
+    deps = [
+      ":xwalk_pak",
+      ":xwalk_resources_100_percent_pak",
+      "//third_party/icu:icu_assets",
+      "//v8:v8_external_startup_data_assets",
+    ]
+    disable_compression = true
   }
 }
 
