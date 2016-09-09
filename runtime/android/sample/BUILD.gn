@@ -3,7 +3,6 @@
 # found in the LICENSE file.
 
 import("//build/config/android/rules.gni")
-import("//third_party/icu/config.gni")
 
 android_apk("xwalk_core_sample_apk") {
   apk_name = "CrosswalkSample"
@@ -76,15 +75,8 @@ android_assets("xwalk_core_sample_apk_assets") {
     "echo_java.html",
   ]
   sources = []
-  deps = []
-  if (icu_use_data_file) {
-    sources += [ "$root_out_dir/icudtl.dat" ]
-    deps += [ "//third_party/icu:icudata" ]
-  }
-  if (v8_use_external_startup_data) {
-    sources += [
-      "$root_out_dir/natives_blob.bin",
-      "$root_out_dir/snapshot_blob.bin",
-    ]
-  }
+  deps = [
+    "//third_party/icu:icu_assets",
+    "//v8:v8_external_startup_data_assets",
+  ]
 }

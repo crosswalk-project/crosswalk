@@ -4,7 +4,6 @@
 
 import("//build/config/android/rules.gni")
 import("//xwalk/build/version.gni")
-import("//third_party/icu/config.gni")
 
 android_apk("xwalk_runtime_lib_apk") {
   apk_name = "XWalkRuntimeLib"
@@ -46,17 +45,9 @@ android_assets("xwalk_runtime_lib_apk_assets") {
     "jsapi/wifidirect_api.js",
   ]
   deps = [
+    "//third_party/icu:icu_assets",
+    "//v8:v8_external_startup_data_assets",
     "//xwalk/resources:xwalk_pak",
     "//xwalk/resources:xwalk_resources_100_percent_pak",
   ]
-  if (icu_use_data_file) {
-    deps += [ "//third_party/icu:icudata" ]
-    sources += [ "$root_out_dir/icudtl.dat" ]
-  }
-  if (v8_use_external_startup_data) {
-    sources += [
-      "$root_out_dir/natives_blob.bin",
-      "$root_out_dir/snapshot_blob.bin",
-    ]
-  }
 }
