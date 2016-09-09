@@ -889,8 +889,8 @@
             'xwalk_runtime_client_test_apk',
 
             # For external testing.
-            'pack_xwalk_core_library',
-            'pack_xwalk_shared_library',
+            'xwalk_core_library',
+            'xwalk_shared_library',
             'xwalk_core_library_documentation',
             'xwalk_runtime_lib_apk',
             'xwalk_runtime_lib_lzma_apk',

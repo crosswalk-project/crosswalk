@@ -69,67 +69,6 @@
       ],
     },
     {
-      'target_name': 'pack_xwalk_core_library',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_core_library',
-        'xwalk_core_library_src',
-      ],
-      'actions': [
-        {
-          'action_name': 'pack_xwalk_core_library',
-          'message': 'Packaging XwalkCore Library Project.',
-          'inputs': [
-            '<(DEPTH)/xwalk/tools/tar.py',
-          ],
-          'outputs': [
-            '<(PRODUCT_DIR)/pack_xwalk_core_library_intermediate/always_run',
-          ],
-          'action': [
-            'python', 'tools/tar.py',
-            '<(PRODUCT_DIR)/xwalk_core_library'
-          ],
-        },
-        {
-          'action_name': 'pack_xwalk_core_library_src',
-          'message': 'Packaging XwalkCore Library Project Source.',
-          'inputs': [
-            '<(DEPTH)/xwalk/tools/tar.py',
-          ],
-          'outputs': [
-            '<(PRODUCT_DIR)/pack_xwalk_core_library_src_intermediate/always_run',
-          ],
-          'action': [
-            'python', 'tools/tar.py',
-            '<(PRODUCT_DIR)/xwalk_core_library_src'
-          ],
-        },
-      ],
-    },
-    {
-      'target_name': 'pack_xwalk_shared_library',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_shared_library',
-      ],
-      'actions': [
-        {
-          'action_name': 'pack_xwalk_shared_library',
-          'message': 'Packaging XwalkCore Shared Library Project.',
-          'inputs': [
-            '<(DEPTH)/xwalk/tools/tar.py',
-          ],
-          'outputs': [
-            '<(PRODUCT_DIR)/pack_xwalk_shared_library_intermediate/always_run',
-          ],
-          'action': [
-            'python', 'tools/tar.py',
-            '<(PRODUCT_DIR)/xwalk_shared_library'
-          ],
-        },
-      ],
-    },
-    {
       'target_name': 'xwalk_core_internal_empty_embedder_apk',
       'type': 'none',
       'dependencies': [
