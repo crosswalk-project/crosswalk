@@ -1,0 +1,90 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+import("//third_party/icu/config.gni")
+
+android_apk("xwalk_core_sample_apk") {
+  apk_name = "CrosswalkSample"
+  android_manifest = "AndroidManifest.xml"
+  java_files = [
+    "src/org/xwalk/core/sample/AnimatableXWalkViewActivity.java",
+    "src/org/xwalk/core/sample/ExtensionActivity.java",
+    "src/org/xwalk/core/sample/ExtensionEcho.java",
+    "src/org/xwalk/core/sample/LoadAppFromManifestActivity.java",
+    "src/org/xwalk/core/sample/MultiXWalkViewActivity.java",
+    "src/org/xwalk/core/sample/MultiXWalkViewOverlayActivity.java",
+    "src/org/xwalk/core/sample/OnCreateWindowRequestedActivity.java",
+    "src/org/xwalk/core/sample/OnHideOnShowActivity.java",
+    "src/org/xwalk/core/sample/OnReceivedIconActivity.java",
+    "src/org/xwalk/core/sample/PauseTimersActivity.java",
+    "src/org/xwalk/core/sample/ResourceAndUIClientsActivity.java",
+    "src/org/xwalk/core/sample/SupportZoomActivity.java",
+    "src/org/xwalk/core/sample/XWalkBaseActivity.java",
+    "src/org/xwalk/core/sample/XWalkEmbeddingAPISample.java",
+    "src/org/xwalk/core/sample/XWalkNavigationActivity.java",
+    "src/org/xwalk/core/sample/XWalkPreferencesActivity.java",
+    "src/org/xwalk/core/sample/XWalkVersionAndAPIVersion.java",
+    "src/org/xwalk/core/sample/XWalkViewWithLayoutActivity.java",
+  ]
+  native_libs = [ "$root_out_dir/libxwalkcore.so" ]
+  deps = [
+    ":xwalk_core_sample_apk_assets",
+    ":xwalk_core_sample_apk_resources",
+    "//base:base_java",
+    "//xwalk/extensions/android:xwalk_core_extensions_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_pak",
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
+}
+
+android_resources("xwalk_core_sample_apk_resources") {
+  visibility = [ ":*" ]
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core.sample"
+}
+
+android_assets("xwalk_core_sample_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [
+    "assets/builtinzoom.html",
+    "assets/create_window_1.html",
+    "assets/create_window_2.html",
+    "assets/doubletapzoom.html",
+    "assets/favicon.html",
+    "assets/icon.png",
+    "assets/index.html",
+    "assets/manifest.json",
+    "assets/new_window.html",
+    "assets/pause_timers.html",
+    "//xwalk/test/android/data/echo_java.html",
+  ]
+  renaming_destinations = [
+    "builtinzoom.html",
+    "create_window_1.html",
+    "create_window_2.html",
+    "doubletapzoom.html",
+    "favicon.html",
+    "icon.png",
+    "index.html",
+    "manifest.json",
+    "new_window.html",
+    "pause_timers.html",
+    "echo_java.html",
+  ]
+  sources = []
+  deps = []
+  if (icu_use_data_file) {
+    sources += [ "$root_out_dir/icudtl.dat" ]
+    deps += [ "//third_party/icu:icudata" ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+}

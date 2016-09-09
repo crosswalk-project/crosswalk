@@ -101,11 +101,23 @@ action("generate_jsapi_extensions_test") {
 }
 
 loadable_module("echo_extension") {
-  visibility = [ ":*" ]
+  visibility = [
+    ":*",
+
+    # These test Android targets also package this library.
+    "//xwalk/app/android/runtime_client_shell:*",
+    "//xwalk/app/android/runtime_client_embedded_shell:*",
+  ]
   sources = [
     "echo_extension.c",
   ]
-  output_dir = "$root_out_dir/tests/extension/echo_extension"
+
+  # This library is used as in |native_libs| in the Android targets mentioned
+  # above, and as of M52 these libraries are required to be in $root_out_dir.
+  # TODO(heke123): Check if we can get rid of this once we move to M53.
+  if (!is_android) {
+    output_dir = "$root_out_dir/tests/extension/echo_extension"
+  }
 }
 
 loadable_module("echo_extension_messaging_2") {

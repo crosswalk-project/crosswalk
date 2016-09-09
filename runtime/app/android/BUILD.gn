@@ -1,0 +1,26 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+shared_library("libxwalkcore") {
+  sources = [
+    "xwalk_entry_point.cc",
+    "xwalk_jni_registrar.cc",
+    "xwalk_jni_registrar.h",
+  ]
+  deps = [
+    "//components/auto_login_parser",
+    "//components/cdm/browser",
+    "//components/cdm/renderer",
+    "//components/navigation_interception",
+    "//components/visitedlink/browser",
+    "//components/visitedlink/renderer",
+    "//components/web_contents_delegate_android",
+    "//mojo/public/cpp/bindings",
+    "//skia",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/extensions/android:xwalk_core_extensions_native_jni",
+    "//xwalk/runtime/android/core_internal:xwalk_core_jar_jni",
+    "//xwalk/runtime/android/core_internal:xwalk_core_native_jni",
+  ]
+}

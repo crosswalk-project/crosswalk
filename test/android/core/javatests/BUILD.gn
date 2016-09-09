@@ -1,0 +1,168 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+instrumentation_test_apk("xwalk_core_test_apk") {
+  apk_name = "XWalkCoreTest"
+  android_manifest = "AndroidManifest.xml"
+  apk_under_test = "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk"
+  deps = [
+    ":xwalk_core_test_apk_assets",
+    ":xwalk_core_test_java",
+    "//tools/android/forwarder2:forwarder2",
+    "//tools/android/md5sum:md5sum",
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_java",
+  ]
+  data_deps = [
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk",
+  ]
+}
+
+android_library("xwalk_core_test_java") {
+  testonly = true
+  visibility = [ ":*" ]
+  java_files = [
+    "src/org/xwalk/core/xwview/test/util/CommonResources.java",
+    "src/org/xwalk/core/xwview/test/util/ImagePageGenerator.java",
+    "src/org/xwalk/core/xwview/test/AddAndRemoveJavascriptInterfaceTest.java",
+    "src/org/xwalk/core/xwview/test/CanGoBackTest.java",
+    "src/org/xwalk/core/xwview/test/CanGoForwardTest.java",
+    "src/org/xwalk/core/xwview/test/ClearCacheForSingleFileTest.java",
+    "src/org/xwalk/core/xwview/test/ClearCacheTest.java",
+    "src/org/xwalk/core/xwview/test/ClearClientCertPreferenceTest.java",
+    "src/org/xwalk/core/xwview/test/ClearHistoryTest.java",
+    "src/org/xwalk/core/xwview/test/ClearSslPreferenceTest.java",
+    "src/org/xwalk/core/xwview/test/CookieManagerTest.java",
+    "src/org/xwalk/core/xwview/test/DefaultFixedFontSizeTest.java",
+    "src/org/xwalk/core/xwview/test/DefaultFontSizeTest.java",
+    "src/org/xwalk/core/xwview/test/DownloadListenerTest.java",
+    "src/org/xwalk/core/xwview/test/EnterAndLeaveFullscreenTest.java",
+    "src/org/xwalk/core/xwview/test/EvaluateJavascriptTest.java",
+    "src/org/xwalk/core/xwview/test/ExtensionEcho.java",
+    "src/org/xwalk/core/xwview/test/ExtensionEchoTest.java",
+    "src/org/xwalk/core/xwview/test/FindAsyncTest.java",
+    "src/org/xwalk/core/xwview/test/GetAPIVersionTest.java",
+    "src/org/xwalk/core/xwview/test/GetCompositingSurfaceTypeTest.java",
+    "src/org/xwalk/core/xwview/test/GetContentHeightTest.java",
+    "src/org/xwalk/core/xwview/test/GetCurrentItemTest.java",
+    "src/org/xwalk/core/xwview/test/GetFaviconTest.java",
+    "src/org/xwalk/core/xwview/test/GetItemAtTest.java",
+    "src/org/xwalk/core/xwview/test/GetTitleTest.java",
+    "src/org/xwalk/core/xwview/test/GetUrlTest.java",
+    "src/org/xwalk/core/xwview/test/GetXWalkVersionTest.java",
+    "src/org/xwalk/core/xwview/test/HasItemAtTest.java",
+    "src/org/xwalk/core/xwview/test/HistorySizeTest.java",
+    "src/org/xwalk/core/xwview/test/LayoutAlgorithmTest.java",
+    "src/org/xwalk/core/xwview/test/LoadTest.java",
+    "src/org/xwalk/core/xwview/test/LoadWithOverviewModeTest.java",
+    "src/org/xwalk/core/xwview/test/NavigateTest.java",
+    "src/org/xwalk/core/xwview/test/OnConsoleMessageTest.java",
+    "src/org/xwalk/core/xwview/test/OnCreateWindowRequestedTest.java",
+    "src/org/xwalk/core/xwview/test/OnDocumentLoadedInFrameTest.java",
+    "src/org/xwalk/core/xwview/test/OnFullscreenToggledTest.java",
+    "src/org/xwalk/core/xwview/test/OnJavascriptCloseWindowTest.java",
+    "src/org/xwalk/core/xwview/test/OnJavascriptModalDialogTest.java",
+    "src/org/xwalk/core/xwview/test/OnLoadFinishedTest.java",
+    "src/org/xwalk/core/xwview/test/OnPageFinishedTest.java",
+    "src/org/xwalk/core/xwview/test/OnPageLoadStartedTest.java",
+    "src/org/xwalk/core/xwview/test/OnPageLoadStoppedTest.java",
+    "src/org/xwalk/core/xwview/test/OnProgressChangedTest.java",
+    "src/org/xwalk/core/xwview/test/OnReceivedClientCertRequestTest.java",
+    "src/org/xwalk/core/xwview/test/OnReceivedErrorTest.java",
+    "src/org/xwalk/core/xwview/test/OnReceivedHttpAuthRequestTest.java",
+    "src/org/xwalk/core/xwview/test/OnReceivedIconTest.java",
+    "src/org/xwalk/core/xwview/test/OnReceivedResponseHeadersTest.java",
+    "src/org/xwalk/core/xwview/test/OnReceivedTitleTest.java",
+    "src/org/xwalk/core/xwview/test/OnRequestFocusTest.java",
+    "src/org/xwalk/core/xwview/test/OnScaleChangedTest.java",
+    "src/org/xwalk/core/xwview/test/OnTitleUpdatedHelper.java",
+    "src/org/xwalk/core/xwview/test/OnUnhandledKeyEventTest.java",
+    "src/org/xwalk/core/xwview/test/OnUpdateTitleTest.java",
+    "src/org/xwalk/core/xwview/test/OpenFileChooserTest.java",
+    "src/org/xwalk/core/xwview/test/ProfileTest.java",
+    "src/org/xwalk/core/xwview/test/ReloadTest.java",
+    "src/org/xwalk/core/xwview/test/SaveRestoreStateTest.java",
+    "src/org/xwalk/core/xwview/test/SetAcceptLanuagesTest.java",
+    "src/org/xwalk/core/xwview/test/SetInitialScaleTest.java",
+    "src/org/xwalk/core/xwview/test/SetOriginAccessWhitelistTest.java",
+    "src/org/xwalk/core/xwview/test/SetUserAgentStringTest.java",
+    "src/org/xwalk/core/xwview/test/SettingsTest.java",
+    "src/org/xwalk/core/xwview/test/ShouldInterceptLoadRequestTest.java",
+    "src/org/xwalk/core/xwview/test/ShouldOverrideKeyEventTest.java",
+    "src/org/xwalk/core/xwview/test/ShouldOverrideUrlLoadingTest.java",
+    "src/org/xwalk/core/xwview/test/SpatialNavigationTest.java",
+    "src/org/xwalk/core/xwview/test/TestHelperBridge.java",
+    "src/org/xwalk/core/xwview/test/TextZoomTest.java",
+    "src/org/xwalk/core/xwview/test/UseWideViewportTest.java",
+    "src/org/xwalk/core/xwview/test/UserAgentTest.java",
+    "src/org/xwalk/core/xwview/test/VideoWithBlobUrlTest.java",
+    "src/org/xwalk/core/xwview/test/XWalkViewTestBase.java",
+    "src/org/xwalk/core/xwview/test/ZoomTest.java",
+  ]
+  deps = [
+    "//base:base_java",
+    "//base:base_java_test_support",
+    "//content/public/android:content_java",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//third_party/android_tools:legacy_http_javalib",
+    "//ui/android:ui_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_shell:xwalk_core_shell_apk_java",
+  ]
+}
+
+android_assets("xwalk_core_test_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [
+    "//xwalk/test/android/data/add_js_interface.html",
+    "//xwalk/test/android/data/create_window_1.html",
+    "//xwalk/test/android/data/create_window_2.html",
+    "//xwalk/test/android/data/console_message.html",
+    "//xwalk/test/android/data/echo_binary_java.html",
+    "//xwalk/test/android/data/echo_java.html",
+    "//xwalk/test/android/data/echo_sync_java.html",
+    "//xwalk/test/android/data/favicon.html",
+    "//xwalk/test/android/data/file_chooser.html",
+    "//xwalk/test/android/data/find.html",
+    "//xwalk/test/android/data/framesEcho.html",
+    "//xwalk/test/android/data/fullscreen_enter_exit.html",
+    "//xwalk/test/android/data/fullscreen_togged.html",
+    "//xwalk/test/android/data/icon.png",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/js_modal_dialog.html",
+    "//xwalk/test/android/data/new_window.html",
+    "//xwalk/test/android/data/profile.html",
+    "//xwalk/test/android/data/read_video_data.html",
+    "//xwalk/test/android/data/save_video_data.html",
+    "//xwalk/test/android/data/scale_changed.html",
+    "//xwalk/test/android/data/window.close.html",
+  ]
+  renaming_destinations = [
+    "add_js_interface.html",
+    "create_window_1.html",
+    "create_window_2.html",
+    "console_message.html",
+    "echo_binary_java.html",
+    "echo_java.html",
+    "echo_sync_java.html",
+    "favicon.html",
+    "file_chooser.html",
+    "find.html",
+    "framesEcho.html",
+    "fullscreen_enter_exit.html",
+    "fullscreen_togged.html",
+    "icon.png",
+    "index.html",
+    "js_modal_dialog.html",
+    "new_window.html",
+    "profile.html",
+    "read_video_data.html",
+    "save_video_data.html",
+    "scale_changed.html",
+    "window.close.html",
+  ]
+}

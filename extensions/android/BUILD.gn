@@ -1,0 +1,24 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_library("xwalk_core_extensions_java") {
+  deps = [
+    "//base:base_java",
+    "//content/public/android:content_java",
+  ]
+  java_files = [
+    "java/src/org/xwalk/core/internal/extensions/XWalkExtensionAndroid.java",
+    "java/src/org/xwalk/core/internal/extensions/XWalkNativeExtensionLoaderAndroid.java",
+  ]
+}
+
+generate_jni("xwalk_core_extensions_native_jni") {
+  jni_package = "xwalk"
+  sources = [
+    "java/src/org/xwalk/core/internal/extensions/XWalkExtensionAndroid.java",
+    "java/src/org/xwalk/core/internal/extensions/XWalkNativeExtensionLoaderAndroid.java",
+  ]
+}

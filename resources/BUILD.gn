@@ -37,7 +37,7 @@ repack("xwalk_pak") {
     "//xwalk/extensions:xwalk_extensions_resources",
     "//xwalk/sysapps:xwalk_sysapps_resources",
   ]
-  if (is_linux) {
+  if (!is_android) {
     sources += [
       "$root_gen_dir/blink/devtools_resources.pak",
       "$root_gen_dir/components/strings/components_strings_en-US.pak",

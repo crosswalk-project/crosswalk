@@ -1,0 +1,100 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+import("//third_party/icu/config.gni")
+
+android_apk("xwalk_core_shell_apk") {
+  apk_name = "XWalkCoreShell"
+  android_manifest = "AndroidManifest.xml"
+  native_libs = [
+    "$root_out_dir/libxwalkcore.so",
+    "$root_out_dir/libxwalkdummy.so",
+  ]
+  deps = [
+    ":xwalk_core_shell_apk_assets",
+    ":xwalk_core_shell_apk_java",
+    ":xwalk_core_shell_apk_pak",
+    ":xwalk_core_shell_apk_resources",
+    "//base:base_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
+}
+
+android_library("xwalk_core_shell_apk_java") {
+  java_files = [
+    "src/org/xwalk/core/xwview/shell/SectionsPagerAdapter.java",
+    "src/org/xwalk/core/xwview/shell/XWalkViewSectionFragment.java",
+    "src/org/xwalk/core/xwview/shell/XWalkViewShellActivity.java",
+    "src/org/xwalk/core/xwview/test/TestContentProvider.java",
+    "src/org/xwalk/core/xwview/test/XWalkViewTestRunnerActivity.java",
+  ]
+  deps = [
+    ":xwalk_core_shell_apk_resources",
+    "//base:base_java",
+    "//content/public/android:content_java",
+    "//third_party/android_tools:android_support_v13_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+}
+
+android_assets("xwalk_core_shell_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [
+    "//xwalk/test/android/data/asset_file.html",
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/www/cross_origin.html",
+    "//xwalk/test/android/data/request_focus_left_frame.html",
+    "//xwalk/test/android/data/request_focus_main.html",
+    "//xwalk/test/android/data/request_focus_right_frame.html",
+    "//xwalk/test/android/data/request_focus_right_frame1.html",
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+  renaming_destinations = [
+    "www/asset_file.html",
+    "www/index.html",
+    "www/cross_origin.html",
+    "www/request_focus_left_frame.html",
+    "www/request_focus_main.html",
+    "www/request_focus_right_frame.html",
+    "www/request_focus_right_frame1.html",
+    "jsapi/launch_screen_api.js",
+    "jsapi/wifidirect_api.js",
+  ]
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+}
+
+android_assets("xwalk_core_shell_apk_pak") {
+  sources = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  if (icu_use_data_file) {
+    deps += [ "//third_party/icu:icudata" ]
+    sources += [ "$root_out_dir/icudtl.dat" ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+  disable_compression = true
+}
+
+android_resources("xwalk_core_shell_apk_resources") {
+  visibility = [ ":*" ]
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core.xwview.shell"
+}

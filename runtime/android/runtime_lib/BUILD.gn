@@ -1,0 +1,62 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+import("//xwalk/build/version.gni")
+import("//third_party/icu/config.gni")
+
+android_apk("xwalk_runtime_lib_apk") {
+  apk_name = "XWalkRuntimeLib"
+  android_manifest = "AndroidManifest.xml"
+  java_files = []
+  native_libs = [ "$root_out_dir/libxwalkcore.so" ]
+  version_name = xwalk_version
+  version_code = xwalk_version_code
+  deps = [
+    ":xwalk_runtime_lib_apk_assets",
+    ":xwalk_runtime_lib_apk_resources",
+    "//base:base_java",
+    "//components/web_contents_delegate_android:web_contents_delegate_android_java_resources",
+    "//ui/android:ui_java_resources",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java_resources",
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
+}
+
+android_resources("xwalk_runtime_lib_apk_resources") {
+  visibility = [ ":*" ]
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.core"
+}
+
+android_assets("xwalk_runtime_lib_apk_assets") {
+  visibility = [ ":*" ]
+  sources = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+  renaming_sources = [
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+  renaming_destinations = [
+    "jsapi/launch_screen_api.js",
+    "jsapi/wifidirect_api.js",
+  ]
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  if (icu_use_data_file) {
+    deps += [ "//third_party/icu:icudata" ]
+    sources += [ "$root_out_dir/icudtl.dat" ]
+  }
+  if (v8_use_external_startup_data) {
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+}

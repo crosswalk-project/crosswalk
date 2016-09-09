@@ -1,0 +1,73 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+instrumentation_test_apk("xwalk_runtime_client_embedded_test_apk") {
+  apk_name = "XWalkRuntimeClientEmbeddedTest"
+  android_manifest = "AndroidManifest.xml"
+  apk_under_test = "//xwalk/app/android/runtime_client_embedded_shell:xwalk_runtime_client_embedded_shell_apk"
+  deps = [
+    ":xwalk_runtime_client_embedded_test_apk_assets",
+    ":xwalk_runtime_client_embedded_test_java",
+    "//tools/android/forwarder2:forwarder2",
+    "//tools/android/md5sum:md5sum",
+  ]
+  data_deps = [
+    "//xwalk/app/android/runtime_client_embedded_shell:xwalk_runtime_client_embedded_shell_apk",
+  ]
+}
+
+android_library("xwalk_runtime_client_embedded_test_java") {
+  testonly = true
+  visibility = [ ":*" ]
+  java_files = [
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/CSPTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/CrossOriginXhrTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/EnableRemoteDebuggingTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/ExternalExtensionTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/GetVersionTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/LoadAppFromManifestTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/LoadAppFromUrlTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/NativeExternalExtensionTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/NativeFileSystemTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/PauseResumeTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/PresentationTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/ScreenOrientationTest.java",
+    "//xwalk/test/android/runtime_client_embedded/javatests/src/org/xwalk/runtime/client/embedded/test/XWalkRuntimeClientTestBase.java",
+  ]
+  deps = [
+    "//base:base_java_test_support",
+    "//content/public/test/android:content_java_test_support",
+    "//net/android:net_java_test_support",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/app/android/runtime_client_embedded_shell:xwalk_runtime_client_embedded_shell_apk_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+    "//xwalk/test/android/util:xwalk_runtime_client_test_utils_java",
+  ]
+}
+
+android_assets("xwalk_runtime_client_embedded_test_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [
+    "//xwalk/extensions/test/data/echo.html",
+    "//xwalk/test/android/data/displayAvailableTest.html",
+    "//xwalk/test/android/data/echo_binary_java.html",
+    "//xwalk/test/android/data/echo_java.html",
+    "//xwalk/test/android/data/echo_sync_java.html",
+    "//xwalk/test/android/data/native_file_system.html",
+    "//xwalk/test/android/data/screen_orientation.html",
+    "//xwalk/test/android/data/timer.html",
+  ]
+  renaming_destinations = [
+    "echo.html",
+    "displayAvailableTest.html",
+    "echo_binary_java.html",
+    "echo_java.html",
+    "echo_sync_java.html",
+    "native_file_system.html",
+    "screen_orientation.html",
+    "timer.html",
+  ]
+}

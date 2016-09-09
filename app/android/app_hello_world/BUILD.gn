@@ -1,0 +1,35 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/android/rules.gni")
+
+android_apk("xwalk_app_hello_world_apk") {
+  apk_name = "XWalkAppHelloWorld"
+  android_manifest = "AndroidManifest.xml"
+  java_files = [ "src/org/xwalk/app/hello/world/HelloWorldActivity.java" ]
+  deps = [
+    ":xwalk_app_hello_world_apk_assets",
+    ":xwalk_app_hello_world_apk_resources",
+    "//xwalk/app/android/runtime_client:xwalk_app_runtime_java",
+    "//xwalk/runtime/android/core:xwalk_core_java",
+  ]
+}
+
+android_resources("xwalk_app_hello_world_apk_resources") {
+  visibility = [ ":*" ]
+  resource_dirs = [ "res" ]
+  custom_package = "org.xwalk.app.hello.world"
+}
+
+android_assets("xwalk_app_hello_world_apk_assets") {
+  visibility = [ ":*" ]
+  renaming_sources = [
+    "//xwalk/test/android/data/index.html",
+    "//xwalk/test/android/data/sampapp-icon-helloworld.png",
+  ]
+  renaming_destinations = [
+    "www/index.html",
+    "www/sampapp-icon-helloworld.png",
+  ]
+}
