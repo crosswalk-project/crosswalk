@@ -23,8 +23,9 @@ android_library("xwalk_core_java") {
     "//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_gen",
     "//xwalk/third_party/lzma_sdk:lzma_sdk_java",
   ]
-  srcjars =
-      [ "$root_gen_dir/xwalk_core_reflection_layer/wrapper/wrapper.srcjar" ]
+  srcjars = [
+    "$root_gen_dir/xwalk_core_reflection_layer/wrapper/wrapper.srcjar",
+  ]
   java_files = [
     "src/org/xwalk/core/extension/BindingObject.java",
     "src/org/xwalk/core/extension/BindingObjectAutoJS.java",
