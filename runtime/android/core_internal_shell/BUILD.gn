@@ -7,13 +7,14 @@ import("//build/config/android/rules.gni")
 android_apk("xwalk_core_internal_shell_apk") {
   apk_name = "XWalkCoreInternalShell"
   android_manifest = "AndroidManifest.xml"
-  native_libs = [ "$root_out_dir/libxwalkcore.so" ]
+  shared_libraries = [
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
   deps = [
     ":xwalk_core_internal_shell_apk_assets",
     ":xwalk_core_internal_shell_apk_java",
     ":xwalk_core_internal_shell_apk_resources",
     "//base:base_java",
-    "//xwalk/runtime/app/android:libxwalkcore",
   ]
 }
 

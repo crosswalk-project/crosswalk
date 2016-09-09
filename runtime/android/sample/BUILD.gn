@@ -27,7 +27,9 @@ android_apk("xwalk_core_sample_apk") {
     "src/org/xwalk/core/sample/XWalkVersionAndAPIVersion.java",
     "src/org/xwalk/core/sample/XWalkViewWithLayoutActivity.java",
   ]
-  native_libs = [ "$root_out_dir/libxwalkcore.so" ]
+  shared_libraries = [
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
   deps = [
     ":xwalk_core_sample_apk_assets",
     ":xwalk_core_sample_apk_resources",
@@ -35,7 +37,6 @@ android_apk("xwalk_core_sample_apk") {
     "//xwalk/extensions/android:xwalk_core_extensions_java",
     "//xwalk/runtime/android/core:xwalk_core_java",
     "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
-    "//xwalk/runtime/app/android:libxwalkcore",
   ]
 }
 
