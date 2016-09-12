@@ -72,7 +72,7 @@
       'includes': ['../build/java.gypi'],
     },
     {
-      'target_name': 'prepare_xwalk_app_template',
+      'target_name': 'xwalk_app_template',
       'type': 'none',
       'dependencies': [
         'xwalk_app_runtime_java',
@@ -97,30 +97,6 @@
             '--build-mode', '<(CONFIGURATION_NAME)',
             '--output-dir', '<(PRODUCT_DIR)/xwalk_app_template',
             '--source-dir', '<(DEPTH)/xwalk',
-          ],
-        },
-      ],
-    },
-    {
-      'target_name': 'xwalk_app_template',
-      'type': 'none',
-      'dependencies': [
-        'prepare_xwalk_app_template',
-      ],
-      'actions': [
-        {
-          'action_name': 'tar_app_template',
-          'inputs': [
-            'app/android/app_template/AndroidManifest.xml',
-            'tools/tar.py',
-          ],
-          'outputs': [
-            '<(PRODUCT_DIR)/xwalk_app_template.tar.gz',
-            '<(PRODUCT_DIR)/xwalk_app_template_intermediate/always_run',
-          ],
-          'action': [
-            'python', 'tools/tar.py',
-            '<(PRODUCT_DIR)/xwalk_app_template'
           ],
         },
       ],
