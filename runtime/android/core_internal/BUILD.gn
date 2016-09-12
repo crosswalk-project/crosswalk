@@ -10,7 +10,7 @@ reflection_gen_dir = "$root_gen_dir/xwalk_core_reflection_layer/"
 android_library("xwalk_core_internal_java") {
   deps = [
     ":xwalk_core_internal_java_resources",
-    ":xwalk_core_reflection_layer_java_gen",
+    ":xwalk_core_reflection_layer_gen",
     "//base:base_java",
     "//components/navigation_interception/android:navigation_interception_java",
     "//components/web_contents_delegate_android:web_contents_delegate_android_java",
@@ -103,7 +103,7 @@ android_library("xwalk_core_internal_java") {
   ]
 }
 
-java_strings_grd("xwalk_core_strings") {
+java_strings_grd("xwalk_core_strings_grd") {
   grd_file = "strings/android_xwalk_strings.grd"
   outputs = [
     "values/android_xwalk_strings.xml",
@@ -114,11 +114,11 @@ android_resources("xwalk_core_internal_java_resources") {
   resource_dirs = [ "res" ]
   custom_package = "org.xwalk.core.internal"
   deps = [
-    ":xwalk_core_strings",
+    ":xwalk_core_strings_grd",
   ]
 }
 
-action("xwalk_core_reflection_layer_java_gen") {
+action("xwalk_core_reflection_layer_gen") {
   script = "//xwalk/tools/reflection_generator/reflection_generator.py"
   args = [
     "--input-dir",

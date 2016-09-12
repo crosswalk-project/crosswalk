@@ -7,7 +7,7 @@ import("//build/config/android/rules.gni")
 android_library("xwalk_core_java") {
   deps = [
     ":xwalk_core_java_resources",
-    "//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_java_gen",
+    "//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_gen",
     "//xwalk/third_party/lzma_sdk:lzma_sdk_java",
   ]
   srcjars =
@@ -52,11 +52,11 @@ android_resources("xwalk_core_java_resources") {
   resource_dirs = [ "res" ]
   custom_package = "org.xwalk.core"
   deps = [
-    ":xwalk_app_strings",
+    ":xwalk_app_strings_grd",
   ]
 }
 
-java_strings_grd("xwalk_app_strings") {
+java_strings_grd("xwalk_app_strings_grd") {
   grd_file = "strings/xwalk_app_strings.grd"
   outputs = [
     "values/xwalk_app_strings.xml",
