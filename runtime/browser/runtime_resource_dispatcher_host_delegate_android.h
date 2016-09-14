@@ -54,7 +54,8 @@ class RuntimeResourceDispatcherHostDelegateAndroid
           web_contents_getter,
       bool is_main_frame,
       ui::PageTransition page_transition,
-      bool has_user_gesture) override;
+      bool has_user_gesture,
+      content::ResourceContext* resource_context) override;
   void OnResponseStarted(
       net::URLRequest* request,
       content::ResourceContext* resource_context,
