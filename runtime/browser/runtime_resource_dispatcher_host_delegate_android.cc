@@ -285,7 +285,8 @@ bool RuntimeResourceDispatcherHostDelegateAndroid::HandleExternalProtocol(
     const content::ResourceRequestInfo::WebContentsGetter& web_contents_getter,
     bool is_main_frame,
     ui::PageTransition page_transition,
-    bool has_user_gesture) {
+    bool has_user_gesture,
+    content::ResourceContext* resource_context) {
   // On Android, there are many Uris need to be handled differently.
   // e.g: sms:, tel:, mailto: and etc.
   // So here return false to let embedders to decide which protocol
