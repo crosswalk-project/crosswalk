@@ -214,6 +214,10 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
   Send(new XWalkViewHostMsg_UpdateHitTestData(routing_id(), data));
 }
 
+void XWalkRenderViewExt::OnDestruct() {
+  delete this;
+}
+
 void XWalkRenderViewExt::OnDoHitTest(const gfx::PointF& touch_center,
                                      const gfx::SizeF& touch_area) {
   if (!render_view() || !render_view()->GetWebView())
