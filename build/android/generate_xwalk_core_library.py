@@ -37,9 +37,6 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('--shared', action='store_true',
                            default=False,
                            help='Generate shared library', )
-  option_parser.add_option('--src-package', action='store_true',
-                           default=False,
-                           help='Use java sources instead of java libs.')
 
   option_parser.add_option('--use-lzma', action='store_true',
                            default=False,
@@ -100,7 +97,7 @@ def CopyJSBindingFiles(project_source, out_project_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, out_project_dir, src_package, shared):
+def CopyBinaries(out_dir, out_project_dir, shared):
   # Copy jar files to libs.
   libs_dir = os.path.join(out_project_dir, 'libs')
   if not os.path.exists(libs_dir):
@@ -108,8 +105,6 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
 
   if shared:
     libs_to_copy = ['xwalk_core_library_java_app_part.jar']
-  elif src_package:
-    libs_to_copy = ['jsr_305_javalib.jar', ]
   else:
     libs_to_copy = ['xwalk_core_library_java.jar', ]
 
@@ -305,16 +300,11 @@ def main(argv):
     print 'Source project does not exist, please provide correct directory.'
     sys.exit(1)
   out_dir = options.target
-  if options.src_package:
-    if options.shared :
-      out_project_dir = os.path.join(out_dir, 'xwalk_shared_library_src')
-    else :
-      out_project_dir = os.path.join(out_dir, 'xwalk_core_library_src')
-  else:
-    if options.shared :
-      out_project_dir = os.path.join(out_dir, 'xwalk_shared_library')
-    else :
-      out_project_dir = os.path.join(out_dir, 'xwalk_core_library')
+
+  if options.shared:
+    out_project_dir = os.path.join(out_dir, 'xwalk_shared_library')
+  else :
+    out_project_dir = os.path.join(out_dir, 'xwalk_core_library')
 
   # Clean directory for project first.
   CleanLibraryProject(out_project_dir)
@@ -326,7 +316,7 @@ def main(argv):
   CopyProjectFiles(options.source, out_project_dir, options.shared)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
-  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
+  CopyBinaries(out_dir, out_project_dir, options.shared)
 
   if options.native_libraries:
     CopyNativeLibraries(out_project_dir, options.abi,
