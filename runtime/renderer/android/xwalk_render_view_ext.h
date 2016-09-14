@@ -37,6 +37,7 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
   void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                 bool is_new_navigation) override;
   void FocusedNodeChanged(const blink::WebNode& node) override;
+  void OnDestruct() override;
 
   void OnDocumentHasImagesRequest(int id);
 
