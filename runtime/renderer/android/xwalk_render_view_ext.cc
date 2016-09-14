@@ -13,7 +13,6 @@
 #include "content/public/renderer/android_content_detection_prefixes.h"
 #include "content/public/renderer/document_state.h"
 #include "content/public/renderer/render_view.h"
-#include "skia/ext/refptr.h"
 #include "third_party/WebKit/public/platform/WebSecurityOrigin.h"
 #include "third_party/WebKit/public/platform/WebSize.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
