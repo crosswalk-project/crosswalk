@@ -27,10 +27,9 @@ class XWalkWebContentsDelegate
   void CloseContents(content::WebContents* source) override;
   void ActivateContents(content::WebContents* contents) override;
   void UpdatePreferredSize(content::WebContents* web_contents,
-                                   const gfx::Size& pref_size) override;
-  void RunFileChooser(
-      content::WebContents* web_contents,
-      const content::FileChooserParams& params) override;
+                           const gfx::Size& pref_size) override;
+  void RunFileChooser(content::RenderFrameHost* render_frame_host,
+                      const content::FileChooserParams& params) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* web_contents) override;
 

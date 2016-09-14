@@ -15,8 +15,8 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
-#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_file_info.h"
 #include "content/public/common/file_chooser_params.h"
@@ -105,7 +105,7 @@ void XWalkWebContentsDelegate::UpdatePreferredSize(
 }
 
 void XWalkWebContentsDelegate::RunFileChooser(
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     const content::FileChooserParams& params) {
   JNIEnv* env = AttachCurrentThread();
 
@@ -115,7 +115,7 @@ void XWalkWebContentsDelegate::RunFileChooser(
 
   if (params.mode == FileChooserParams::Save) {
     // Save not supported, so cancel it.
-    web_contents->GetRenderViewHost()->FilesSelectedInChooser(
+    render_frame_host->FilesSelectedInChooser(
          std::vector<content::FileChooserFileInfo>(),
          params.mode);
     return;
@@ -123,8 +123,8 @@ void XWalkWebContentsDelegate::RunFileChooser(
   int mode = static_cast<int>(params.mode);
   Java_XWalkWebContentsDelegate_shouldOverrideRunFileChooser(env,
       java_delegate.obj(),
-      web_contents->GetRenderProcessHost()->GetID(),
-      web_contents->GetRenderViewHost()->GetRoutingID(),
+      render_frame_host->GetProcess()->GetID(),
+      render_frame_host->GetRoutingID(),
       mode,
       ConvertUTF16ToJavaString(env,
           base::JoinString(params.accept_types,
