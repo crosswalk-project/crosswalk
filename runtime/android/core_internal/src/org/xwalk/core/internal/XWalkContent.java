@@ -237,8 +237,6 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentsClientBridge.setDIPScale(mDIPScale);
         mSettings.setDIPScale(mDIPScale);
 
-        mContentViewCore.setDownloadDelegate(mContentsClientBridge);
-
         String language = Locale.getDefault().toString().replaceAll("_", "-").toLowerCase();
         if (language.isEmpty()) language = "en";
         mSettings.setAcceptLanguages(language);
