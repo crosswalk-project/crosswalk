@@ -783,6 +783,7 @@ public class XWalkSettingsInternal {
     @CalledByNative
     private boolean getAppCacheEnabled() {
         // When no app cache path is set, use chromium default cache path.
+        assert Thread.holdsLock(mXWalkSettingsLock);
         return mAppCacheEnabled;
     }
 
@@ -945,6 +946,7 @@ public class XWalkSettingsInternal {
 
     @CalledByNative
     private String getUserAgentLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
         return mUserAgent;
     }
 
@@ -1041,11 +1043,13 @@ public class XWalkSettingsInternal {
 
     @CalledByNative
     private String getAcceptLanguagesLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
         return mAcceptLanguages;
     }
 
     @CalledByNative
     private boolean getSaveFormDataLocked() {
+        assert Thread.holdsLock(mXWalkSettingsLock);
         return mAutoCompleteEnabled;
     }
 
