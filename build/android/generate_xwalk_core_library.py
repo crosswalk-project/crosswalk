@@ -3,15 +3,22 @@
 # Copyright (c) 2013 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-# pylint: disable=F0401
 
-import distutils.dir_util
-import optparse
+"""Prepares an Eclipse project directory with Crosswalk added as a library.
+
+It creates a new directory with a base, empty template, fills it with the
+appropriate resources from Chromium and Crosswalk and optionally adds native
+libraries such as libxwalkcore.so.
+
+The output is used by other tools such as generate_app_packaging_tool.py and
+generate_xwalk_core_library_aar.py.
+"""
+
+import argparse
+import collections
 import os
 import shutil
 import sys
-import zipfile
-from xml.dom.minidom import Document
 
 GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
                                os.pardir, os.pardir, os.pardir,
@@ -21,324 +28,182 @@ GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
 sys.path.append(GYP_ANDROID_DIR)
 
 from util import build_utils
+import package_resources
 
 
-def AddGeneratorOptions(option_parser):
-  option_parser.add_option('-s', dest='source',
-                           help='Source directory of project root.',
-                           type='string')
-  option_parser.add_option('-t', dest='target',
-                           help='Product out target directory.',
-                           type='string')
-  option_parser.add_option('--abi',
-                           help='Android ABI being used in the build.')
-  option_parser.add_option('--native-libraries',
-                           help='List of libraries to copy to libs/<abi>.')
-  option_parser.add_option('--shared', action='store_true',
-                           default=False,
-                           help='Generate shared library', )
-
-  option_parser.add_option('--use-lzma', action='store_true',
-                           default=False,
-                           help='Use LZMA compress native library when specified')
+Resource = collections.namedtuple('Resource', ['filename', 'src'])
 
 
-def CleanLibraryProject(out_project_dir):
-  if os.path.exists(out_project_dir):
-    for item in os.listdir(out_project_dir):
-      sub_path = os.path.join(out_project_dir, item)
-      if os.path.isdir(sub_path):
-        shutil.rmtree(sub_path)
-      elif os.path.isfile(sub_path):
-        os.remove(sub_path)
+def CopyJSBindingFiles(js_files, output_dir):
+  res_raw_dir = os.path.join(output_dir, 'res', 'raw')
+  build_utils.MakeDirectory(res_raw_dir)
+  for js_file in js_files:
+    shutil.copy2(js_file, res_raw_dir)
 
 
-def CopyProjectFiles(project_source, out_project_dir, shared):
-  print('Copying library project files...')
-  if shared :
-    template_dir = os.path.join(project_source, 'xwalk', 'build', 'android',
-        'xwalk_shared_library_template')
-  else :
-    template_dir = os.path.join(project_source, 'xwalk', 'build', 'android',
-        'xwalkcore_library_template')
-
-  files_to_copy = [
-      # AndroidManifest.xml from template.
-      'AndroidManifest.xml',
-      # Eclipse project properties from template.
-      'project.properties',
-      # Ant build file.
-      'build.xml',
-      # Ant properties file.
-      'ant.properties',
-  ]
-  for f in files_to_copy:
-    source_file = os.path.join(template_dir, f)
-    target_file = os.path.join(out_project_dir, f)
-
-    shutil.copy2(source_file, target_file)
+def CopyMainJar(output_dir, jar_path):
+  libs_dir = os.path.join(output_dir, 'libs')
+  build_utils.MakeDirectory(libs_dir)
+  shutil.copy2(jar_path, libs_dir)
 
 
-def CopyJSBindingFiles(project_source, out_project_dir):
-  print 'Copying js binding files...'
-  jsapi_dir = os.path.join(out_project_dir, 'res', 'raw')
-  if not os.path.exists(jsapi_dir):
-    os.makedirs(jsapi_dir)
+def CopyBinaryData(output_dir, binary_files):
+  res_raw_dir = os.path.join(output_dir, 'res', 'raw')
+  res_value_dir = os.path.join(output_dir, 'res', 'values')
+  build_utils.MakeDirectory(res_raw_dir)
+  build_utils.MakeDirectory(res_value_dir)
 
-  jsfiles_to_copy = [
-      'xwalk/experimental/launch_screen/launch_screen_api.js',
-      'xwalk/experimental/wifidirect/wifidirect_api.js'
-  ]
+  # Poor man's XML writer. It is safe to assume there are only ASCII characters
+  # in the entries we are going to write.
+  resource_file = os.path.join(res_value_dir, 'xwalk_resources_list.xml')
+  resource_top = """<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="xwalk_resources_list">
+"""
+  resource_bottom = """</string-array>
+</resources>
+"""
 
-  # Copy JS binding file to assets/jsapi folder.
-  for jsfile in jsfiles_to_copy:
-    source_file = os.path.join(project_source, jsfile)
-    target_file = os.path.join(jsapi_dir, os.path.basename(source_file))
-    shutil.copyfile(source_file, target_file)
-
-
-def CopyBinaries(out_dir, out_project_dir, shared):
-  # Copy jar files to libs.
-  libs_dir = os.path.join(out_project_dir, 'libs')
-  if not os.path.exists(libs_dir):
-    os.mkdir(libs_dir)
-
-  if shared:
-    libs_to_copy = ['xwalk_core_library_java_app_part.jar']
-  else:
-    libs_to_copy = ['xwalk_core_library_java.jar', ]
-
-  for lib in libs_to_copy:
-    source_file = os.path.join(out_dir, 'lib.java', lib)
-    target_file = os.path.join(libs_dir, lib)
-    shutil.copyfile(source_file, target_file)
-
-  if shared:
-    return
-
-  print 'Copying binaries...'
-  # Copy assets.
-  res_raw_dir = os.path.join(out_project_dir, 'res', 'raw')
-  res_value_dir = os.path.join(out_project_dir, 'res', 'values')
-  if not os.path.exists(res_raw_dir):
-    os.mkdir(res_raw_dir)
-  if not os.path.exists(res_value_dir):
-    os.mkdir(res_value_dir)
-
-  paks_to_copy = [
-      'icudtl.dat',
-      # Please refer to XWALK-3516, disable v8 use external startup data,
-      # reopen it if needed later.
-      # 'natives_blob.bin',
-      # 'snapshot_blob.bin',
-      'xwalk.pak',
-      'xwalk_100_percent.pak',
-  ]
-
-  pak_list_xml = Document()
-  resources_node = pak_list_xml.createElement('resources')
-  string_array_node = pak_list_xml.createElement('string-array')
-  string_array_node.setAttribute('name', 'xwalk_resources_list')
-  pak_list_xml.appendChild(resources_node)
-  resources_node.appendChild(string_array_node)
-  for pak in paks_to_copy:
-    source_file = os.path.join(out_dir, pak)
-    target_file = os.path.join(res_raw_dir, pak)
-    shutil.copyfile(source_file, target_file)
-    item_node = pak_list_xml.createElement('item')
-    item_node.appendChild(pak_list_xml.createTextNode(pak))
-    string_array_node.appendChild(item_node)
-  pak_list_file = open(os.path.join(res_value_dir,
-                                    'xwalk_resources_list.xml'), 'w')
-  pak_list_xml.writexml(pak_list_file, newl='\n', encoding='utf-8')
-  pak_list_file.close()
+  with open(resource_file, 'w') as out_f:
+    out_f.write(resource_top)
+    for binary_file in binary_files:
+      shutil.copy2(binary_file, res_raw_dir)
+      out_f.write("<item>%s</item>\n" % os.path.basename(binary_file))
+    out_f.write(resource_bottom)
 
 
-def CopyNativeLibraries(out_project_dir, abi_name, native_libraries):
-  destination_path = os.path.join(out_project_dir, 'libs', abi_name)
+def CopyNativeLibraries(output_dir, abi_name, native_libraries):
+  destination_path = os.path.join(output_dir, 'libs', abi_name)
   build_utils.MakeDirectory(destination_path)
   for native_lib in native_libraries:
     shutil.copy2(native_lib, destination_path)
 
 
-def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix, blacklist=None):
-  """ Copy the files into the output directory. If one file in input_dir folder
-  doesn't exist, copy it directly. If a file exists, copy it and rename the
-  file so that the resources won't be overrided. So all of them could be
-  packaged into the xwalk core library.
-  """
-  blacklist = blacklist or []
-  for root, _, files in os.walk(input_dir):
-    for f in files:
-      if f in blacklist:
-        continue
-      src_file = os.path.join(root, f)
-      relative_path = os.path.relpath(src_file, input_dir)
-      target_file = os.path.join(output_dir, relative_path)
-      target_dir_name = os.path.dirname(target_file)
-      if not os.path.exists(target_dir_name):
-        os.makedirs(target_dir_name)
-      # If the file exists, copy it and rename it with another name to
-      # avoid overwriting the existing one.
-      if os.path.exists(target_file):
-        target_base_name = os.path.basename(target_file)
-        target_base_name = prefix + '_' + target_base_name
-        target_file = os.path.join(target_dir_name, target_base_name)
-      shutil.copyfile(src_file, target_file)
+def CopyResources(output_dir, resources, resource_strings):
+  res_dir = os.path.join(output_dir, 'res')
+  build_utils.MakeDirectory(res_dir)
 
+  def _resource_predicate(name):
+    """Predicate for the ExtractAll() call below. Makes sure only the files we
+    want are extracted."""
+    if name == 'OWNERS':
+      return False
+    _, ext = os.path.splitext(name)
+    if ext not in ('.png', '.wav', '.xml'):
+      # We raise an exception here because if there is a new file type being
+      # packaged we need to check what changed compared to what was going on
+      # before.
+      raise ValueError("Unexpected file type: %s" % name)
+    return True
 
-def MoveImagesToNonMdpiFolders(res_root):
-  """Move images from drawable-*-mdpi-* folders to drawable-* folders.
+  # Part 1: extract the partly-processed resource zip files (which do not
+  # include the .grd string zips), making sure we replace crunched 9-patch
+  # images with the original ones and avoiding file name colisions.
+  for index, resource in enumerate(resources):
+    with build_utils.TempDir() as temp_dir:
+      temp_res_dir = os.path.join(temp_dir, 'res')
+      build_utils.ExtractAll(resource.filename, path=temp_res_dir,
+                             predicate=_resource_predicate)
+      for dirpath, _, filenames in os.walk(temp_res_dir):
+        if dirpath == temp_res_dir:  # Do not create res/res/.
+          continue
+        res_dir_subpath = os.path.join(res_dir, os.path.basename(dirpath))
+        build_utils.MakeDirectory(res_dir_subpath)
+        for filename in filenames:
+          if filename.endswith('.9.png'):
+            # 9-patch files need to be handled specially. We need the original,
+            # uncrunched versions to avoid crunching them twice and failing
+            # (once when building the resources, and then when the user is
+            # building their project with Crosswalk).
+            original_9p = os.path.join(resource.src,
+                                       os.path.basename(dirpath),
+                                       filename)
+            if not os.path.isfile(original_9p):
+              raise IOError("Expected to find %s." % original_9p)
+            shutil.copy2(original_9p, os.path.join(dirpath, filename))
+          # Avoid ovewriting existing files.
+          root, ext = os.path.splitext(filename)
+          if os.path.isfile(os.path.join(res_dir_subpath, filename)):
+            destname = '%s_%02d%s' % (root, index, ext)
+          else:
+            destname = filename
+          shutil.copy2(os.path.join(dirpath, filename),
+                       os.path.join(res_dir_subpath, destname))
+  package_resources.MoveImagesToNonMdpiFolders(res_dir)
 
-  Why? http://crbug.com/289843
-
-  Copied from build/android/gyp/package_resources.py.
-  """
-  for src_dir_name in os.listdir(res_root):
-    src_components = src_dir_name.split('-')
-    if src_components[0] != 'drawable' or 'mdpi' not in src_components:
-      continue
-    src_dir = os.path.join(res_root, src_dir_name)
-    if not os.path.isdir(src_dir):
-      continue
-    dst_components = [c for c in src_components if c != 'mdpi']
-    assert dst_components != src_components
-    dst_dir_name = '-'.join(dst_components)
-    dst_dir = os.path.join(res_root, dst_dir_name)
-    if not os.path.isdir(dst_dir):
-      os.makedirs(dst_dir)
-    for src_file_name in os.listdir(src_dir):
-      if not src_file_name.endswith('.png'):
-        continue
-      src_file = os.path.join(src_dir, src_file_name)
-      dst_file = os.path.join(dst_dir, src_file_name)
-      assert not os.path.lexists(dst_file)
-      shutil.move(src_file, dst_file)
-
-
-def ReplaceCrunchedImage(project_source, filename, filepath):
-  """Replace crunched images with source images.
-  """
-  search_dir = [
-      'components/web_contents_delegate_android/android/java/res',
-      'content/public/android/java/res',
-      'ui/android/java/res'
-  ]
-
-  pathname = os.path.basename(filepath)
-  #replace crunched 9-patch image resources.
-  for search in search_dir:
-    absdir = os.path.join(project_source, search)
-    for dirname, _, files in os.walk(absdir):
-      if filename in files:
-        relativedir = os.path.basename(dirname)
-        if (pathname == 'drawable' and relativedir == 'drawable-mdpi') or \
-            relativedir == pathname:
-          source_file = os.path.abspath(os.path.join(dirname, filename))
-          target_file = os.path.join(filepath, filename)
-          shutil.copyfile(source_file, target_file)
-          return
-
-
-def CopyResources(project_source, out_dir, out_project_dir, shared):
-  print 'Copying resources...'
-  res_dir = os.path.join(out_project_dir, 'res')
-  temp_dir = os.path.join(out_project_dir, 'temp')
-  if os.path.exists(res_dir):
-    shutil.rmtree(res_dir)
-  if os.path.exists(temp_dir):
-    shutil.rmtree(temp_dir)
-
-  # All resources should be in specific folders in res_directory.
-  # Since there might be some resource files with same names from
-  # different folders like ui_java, content_java and others,
-  # it's necessary to rename some files to avoid overridding.
-  res_to_copy = [
-      # zip file list
-      'content_java.zip',
-      'content_strings_grd.zip',
-      'ui_java.zip',
-      'ui_strings_grd.zip',
-      'web_contents_delegate_android_java.zip',
-      'xwalk_core_internal_java.zip',
-      'xwalk_core_java.zip',
-      'xwalk_core_strings.zip',
-      'xwalk_app_strings.zip'
-  ]
-
-  for res_zip in res_to_copy:
-    zip_file = os.path.join(out_dir, 'res.java', res_zip)
-    zip_name = os.path.splitext(res_zip)[0]
-    if not os.path.isfile(zip_file):
-      raise Exception('Resource zip not found: ' + zip_file)
-    subdir = os.path.join(temp_dir, zip_name)
-    if os.path.isdir(subdir):
-      raise Exception('Resource zip name conflict: ' + zip_name)
-    os.makedirs(subdir)
-    with zipfile.ZipFile(zip_file) as z:
-      z.extractall(path=subdir)
-    CopyDirAndPrefixDuplicates(subdir, res_dir, zip_name,
-                               blacklist=['OWNERS'])
-    MoveImagesToNonMdpiFolders(res_dir)
-
-  if os.path.isdir(temp_dir):
-    shutil.rmtree(temp_dir)
-
-  #search 9-patch, then replace it with uncrunch image.
-  for dirname, _, files in os.walk(res_dir):
-    for filename in files:
-      if filename.endswith('.9.png'):
-        ReplaceCrunchedImage(project_source, filename, dirname)
+  # Part 2: extract .xml strings files (made from .grd files).
+  for zip_file in resource_strings:
+    build_utils.ExtractAll(zip_file, path=res_dir)
 
 
 def main(argv):
-  option_parser = optparse.OptionParser()
-  AddGeneratorOptions(option_parser)
-  options, _ = option_parser.parse_args(argv)
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--abi',
+                      help='Android ABI being used in the build.')
+  parser.add_argument('--binary-files',
+                      help='Binary files to store in res/raw.')
+  parser.add_argument('--js-bindings', required=True,
+                      help='.js files to copy to res/raw.')
+  parser.add_argument('--main-jar', required=True,
+                      help='Path to the main JAR to copy to libs/.')
+  parser.add_argument('--native-libraries',
+                      help='List of libraries to copy to libs/<abi>.')
+  parser.add_argument('--output-dir', required=True,
+                      help='Directory where the project will be created.')
+  parser.add_argument('--resource-strings', default='',
+                      help='List of zipped .grd files.')
+  parser.add_argument('--resource-zip-sources', default='',
+                      help='Source directories corresponding to each zipped '
+                      'resource file from --resource-zips.')
+  parser.add_argument('--resource-zips', default='',
+                      help='Zipped, processed resource files.')
+  parser.add_argument('--stamp', required=True,
+                      help='Path to touch on success.')
+  parser.add_argument('--template-dir', required=True,
+                      help='Directory with an empty app template.')
 
-  if not os.path.exists(options.source):
-    print 'Source project does not exist, please provide correct directory.'
-    sys.exit(1)
-  out_dir = options.target
+  options = parser.parse_args()
 
-  if options.shared:
-    out_project_dir = os.path.join(out_dir, 'xwalk_shared_library')
-  else :
-    out_project_dir = os.path.join(out_dir, 'xwalk_core_library')
+  options.resource_strings = build_utils.ParseGypList(options.resource_strings)
+  options.resource_zips = build_utils.ParseGypList(options.resource_zips)
+  options.resource_zip_sources = build_utils.ParseGypList(
+      options.resource_zip_sources)
 
-  # Clean directory for project first.
-  CleanLibraryProject(out_project_dir)
+  if len(options.resource_zips) != len(options.resource_zip_sources):
+    print('--resource-zips and --resource-zip-sources must have the same '
+          'number of arguments.')
+    return 1
 
-  if not os.path.exists(out_project_dir):
-    os.mkdir(out_project_dir)
+  resources = []
+  for resource_zip, resource_src in zip(options.resource_zips,
+                                        options.resource_zip_sources):
+    resources.append(Resource(filename=resource_zip, src=resource_src))
 
   # Copy Eclipse project files of library project.
-  CopyProjectFiles(options.source, out_project_dir, options.shared)
-  # Copy binaries and resuorces.
-  CopyResources(options.source, out_dir, out_project_dir, options.shared)
-  CopyBinaries(out_dir, out_project_dir, options.shared)
+  build_utils.DeleteDirectory(options.output_dir)
+  shutil.copytree(options.template_dir, options.output_dir)
+
+  # Copy binaries and resources.
+  CopyResources(options.output_dir, resources, options.resource_strings)
+  CopyMainJar(options.output_dir, options.main_jar)
+
+  if options.binary_files:
+    CopyBinaryData(options.output_dir,
+                   build_utils.ParseGypList(options.binary_files))
 
   if options.native_libraries:
-    CopyNativeLibraries(out_project_dir, options.abi,
+    CopyNativeLibraries(options.output_dir, options.abi,
                         build_utils.ParseGypList(options.native_libraries))
 
   # Copy JS API binding files.
-  CopyJSBindingFiles(options.source, out_project_dir)
+  CopyJSBindingFiles(build_utils.ParseGypList(options.js_bindings),
+                     options.output_dir)
 
-  # Create empty src directory
-  src_dir = os.path.join(out_project_dir, 'src')
-  if not os.path.isdir(src_dir):
-    os.mkdir(src_dir)
-  readme = os.path.join(src_dir, 'README.md')
-  open(readme, 'w').write(
-      "# Source folder for xwalk library\n"
-      "## Why it's empty\n"
-      "xwalk library doesn't contain java sources.\n"
-      "## Why put me here\n"
-      "To make archives keep the folder, "
-      "the src directory is needed to build an apk by ant.")
-  print 'Your Android library project has been created at %s' % (
-      out_project_dir)
+  # Create an empty src/.
+  build_utils.MakeDirectory(os.path.join(options.output_dir, 'src'))
+
+  build_utils.Touch(options.stamp)
+
 
 if __name__ == '__main__':
   sys.exit(main(sys.argv))
