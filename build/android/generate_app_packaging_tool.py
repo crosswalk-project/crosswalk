@@ -8,8 +8,6 @@ import os
 import shutil
 import sys
 
-from common_function import RemoveUnusedFilesInReleaseMode
-
 
 def GenerateAppTemplate(build_dir, build_mode, output_dir, source_dir):
   """
@@ -43,11 +41,6 @@ def GenerateAppTemplate(build_dir, build_mode, output_dir, source_dir):
       if e.errno == errno.EEXIST:
         pass
     shutil.copy2(src, dest)
-
-  # Remove gdbserver from Release builds. See http://crrev.com/14200040 and
-  # Android's platform/sdk's ApkBuilder.java which do the same.
-  RemoveUnusedFilesInReleaseMode(build_mode,
-                                 os.path.join(output_dir, 'native_libs'))
 
 
 def main():

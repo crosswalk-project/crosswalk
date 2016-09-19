@@ -85,7 +85,6 @@
           'action_name': 'prepare_xwalk_app_template',
           'message': 'Generating XWalk App Template.',
           'inputs': [
-            'build/android/common_function.py',
             'build/android/generate_app_packaging_tool.py',
           ],
           'outputs': [
