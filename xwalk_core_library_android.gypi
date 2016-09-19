@@ -434,7 +434,6 @@
           'action_name': 'generate_xwalk_core_library_aar',
           'message': 'Generating AAR of XWalk Core Library',
           'inputs': [
-            '<(DEPTH)/xwalk/build/android/common_function.py',
             '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library_aar.py',
           ],
           'outputs': [
@@ -460,7 +459,6 @@
           'action_name': 'generate_xwalk_shared_library_aar',
           'message': 'Generating AAR of XWalk Shared Library',
           'inputs': [
-            '<(DEPTH)/xwalk/build/android/common_function.py',
             '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library_aar.py',
           ],
           'outputs': [
