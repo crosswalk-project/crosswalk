@@ -35,7 +35,7 @@ def main():
   parser.add_argument('--xwalk-runtime-jar', required=True,
                       help='Path to the Crosswalk runtime JAR.')
 
-  args = parser.parse_args()
+  args = parser.parse_args(build_utils.ExpandFileArgs(sys.argv[1:]))
 
   build_utils.DeleteDirectory(args.output_dir)
   build_utils.MakeDirectory(args.output_dir)
