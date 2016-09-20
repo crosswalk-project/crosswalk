@@ -21,6 +21,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/result_codes.h"
+#include "media/base/media_switches.h"
 #include "net/android/network_change_notifier_factory_android.h"
 #include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
@@ -84,6 +85,8 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
   // Enable viewport.
   command_line->AppendSwitch(switches::kEnableViewport);
+  // Temporary fix for XWALK-7231
+  command_line->AppendSwitch(switches::kDisableUnifiedMediaPipeline);
 
   // Only force to enable WebGL for Android for IA platforms because
   // we've tested the WebGL conformance test. For other platforms, just
