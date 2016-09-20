@@ -33,7 +33,8 @@ def GenerateAppTemplate(build_dir, build_mode, output_dir, source_dir):
   )
 
   for src, dest in dirs:
-    shutil.copytree(src, dest)
+    # Make sure app/android/app_template's BUILD.gn is not included.
+    shutil.copytree(src, dest, ignore=shutil.ignore_patterns('*.gn'))
   for src, dest in files:
     try:
       os.makedirs(os.path.dirname(dest))
