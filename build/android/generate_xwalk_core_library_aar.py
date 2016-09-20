@@ -4,81 +4,58 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import optparse
+"""Creates an AAR file.
+
+An AAR is a zip file whose format is described here:
+https://sites.google.com/a/android.com/tools/tech-docs/new-build-system/aar-format
+"""
+
+import argparse
 import os
 import sys
 import zipfile
 
 
+def AddDirectoryToAAR(aar_file, src_dir, dest_dir):
+  """Adds |src_dir| to |aar_file| with the name |dest_dir|."""
+  for root, _, files in os.walk(src_dir):
+    for f in files:
+      aar_file.write(
+          os.path.join(root, f),
+          os.path.join(dest_dir, os.path.relpath(root, src_dir), f))
+
+
 def main():
-  option_parser = optparse.OptionParser()
-  option_parser.add_option('-t', dest='target',
-                           help='Product out target directory.')
-  option_parser.add_option('--shared', action='store_true',
-                           default=False,
-                           help='Generate shared library', )
-  options, _ = option_parser.parse_args()
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--aar-path', required=True,
+                      help='Path to the AAR file that will be created.')
+  parser.add_argument('--android-manifest', required=True,
+                      help='Path to AndroidManifest.xml to copy to the AAR.')
+  parser.add_argument('--classes-jar', required=True,
+                      help='Path to the JAR that will become classes.jar.')
+  parser.add_argument('--jni-abi',
+                      help='Android ABI name.')
+  parser.add_argument('--jni-dir',
+                      help='/path/to/<ABI> that will be copied to libs/.')
+  parser.add_argument('--res-dir', required=True,
+                      help='/path/to/res to copy to res/ in the AAR file.')
+  parser.add_argument('--r-txt', required=True,
+                      help='Path to the R.txt file to copy to the AAR file.')
 
-  # The first entry of each tuple is the source file/directory that will be
-  # copied (and must exist), the second entry is its relative path inside the
-  # AAR file.
-  if options.shared:
-    dirs = (
-      (os.path.join(options.target, 'xwalk_shared_library', 'libs'),
-       'jni'),
-      (os.path.join(options.target, 'xwalk_shared_library', 'res'),
-       'res'),
-    )
-    files = (
-      (os.path.join(options.target, 'xwalk_shared_library',
-        'AndroidManifest.xml'), 'AndroidManifest.xml'),
-      (os.path.join(options.target, 'xwalk_shared_library', 'libs',
-        'xwalk_core_library_java_app_part.jar'), 'classes.jar'),
-      (os.path.join(options.target, 'xwalk_core_empty_embedder_apk',
-        'gen', 'R.txt'), 'R.txt'),
-    )
-    exclude_files = (
-      os.path.join(options.target, 'xwalk_shared_library', 'libs',
-        'xwalk_core_library_java_app_part.jar'),
-    )
+  options = parser.parse_args()
+  if bool(options.jni_abi) ^ bool(options.jni_dir):
+    print '--jni-abi and --jni-dir must be specified together.'
+    return 1
 
-    aar_path = os.path.join(options.target, 'xwalk_shared_library.aar')
-  else:
-    dirs = (
-      (os.path.join(options.target, 'xwalk_core_library', 'libs'),
-       'jni'),
-      (os.path.join(options.target, 'xwalk_core_library', 'res'),
-       'res'),
-    )
-    files = (
-      (os.path.join(options.target, 'xwalk_core_library', 'AndroidManifest.xml'),
-       'AndroidManifest.xml'),
-      (os.path.join(options.target, 'xwalk_core_library', 'libs',
-        'xwalk_core_library_java.jar'),
-      'classes.jar'),
-      (os.path.join(options.target, 'xwalk_core_empty_embedder_apk',
-        'gen', 'R.txt'), 'R.txt'),
-    )
-    # This is a list of files that will not be packaged: mostly a blacklist of
-    # files within |dirs|.
-    exclude_files = (
-      os.path.join(options.target, 'xwalk_core_library', 'libs',
-      'xwalk_core_library_java.jar'),
-    )
+  with zipfile.ZipFile(options.aar_path, 'w', zipfile.ZIP_DEFLATED) as aar:
+    if options.jni_dir:
+      AddDirectoryToAAR(aar, options.jni_dir,
+                        os.path.join('jni', options.jni_abi))
+    AddDirectoryToAAR(aar, options.res_dir, 'res')
 
-    aar_path = os.path.join(options.target, 'xwalk_core_library.aar')
-
-  with zipfile.ZipFile(aar_path, 'w', zipfile.ZIP_DEFLATED) as aar_file:
-    for src, dest in files:
-      aar_file.write(src, dest)
-    for src, dest in dirs:
-      for root, _, files in os.walk(src):
-        for f in files:
-          real_path = os.path.join(root, f)
-          zip_path = os.path.join(dest, os.path.relpath(root, src), f)
-          if real_path in exclude_files:
-            continue
-          aar_file.write(real_path, zip_path)
+    aar.write(options.android_manifest, 'AndroidManifest.xml')
+    aar.write(options.classes_jar, 'classes.jar')
+    aar.write(options.r_txt, 'R.txt')
 
   return 0
 
