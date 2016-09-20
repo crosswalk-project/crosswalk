@@ -125,8 +125,8 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--jars=>(input_jars_paths)',
             '--output-jar=<(jar_final_path)',
+            '>(input_jars_paths)',
           ],
         },
       ],
@@ -154,8 +154,8 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--jars=>(input_jars_paths)',
             '--output-jar=<(jar_final_path)',
+            '>(input_jars_paths)',
           ],
         },
       ],
@@ -184,12 +184,12 @@
           ],
           'action': [
             'python', 'build/android/merge_jars.py',
-            '--jars=>(input_jars_paths)',
             '--output-jar=<(jar_final_path)',
             # This argument is important for this final JAR we are creating, as
             # it validates that we are filtering out the right JARs when doing
             # the merge.
             '--validate-skipped-jars-list',
+            '>(input_jars_paths)',
           ],
         },
       ],
