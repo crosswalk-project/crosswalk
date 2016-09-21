@@ -87,8 +87,6 @@ generate_android_project("xwalk_core_library") {
     "//xwalk/resources:xwalk_pak",
     "//xwalk/resources:xwalk_resources_100_percent_pak",
     "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
-    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
-    "//xwalk/runtime/app/android:libxwalkcore",
   ]
   binary_files = [
     "$root_out_dir/xwalk.pak",
@@ -98,11 +96,6 @@ generate_android_project("xwalk_core_library") {
     "//xwalk/experimental/launch_screen/launch_screen_api.js",
     "//xwalk/experimental/wifidirect/wifidirect_api.js",
   ]
-  native_libs = [
-    "$root_out_dir/libxwalkdummy.so",
-    "$root_out_dir/libxwalkcore.so",
-  ]
-
   # We only need to exclude those classes because invoker.android_manifest
   # usually points to a manifest with the same package name (org.xwalk.core),
   # leading to the resources being processed again by Ant when building with
@@ -114,6 +107,10 @@ generate_android_project("xwalk_core_library") {
     "*/org/xwalk/core/R##*.class",
     "*/org/xwalk/core/library/empty/R.class",
     "*/org/xwalk/core/library/empty/R##*.class",
+  ]
+  shared_libraries = [
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+    "//xwalk/runtime/app/android:libxwalkcore",
   ]
   template_dir = "//xwalk/build/android/xwalkcore_library_template"
 
