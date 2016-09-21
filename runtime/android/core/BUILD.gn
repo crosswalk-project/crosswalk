@@ -169,3 +169,73 @@ maven_pom("xwalk_shared_library_pom_gen") {
   pom_input = "//xwalk/runtime/android/maven/xwalk_shared_library.pom.xml.in"
   pom_output = "$root_out_dir/xwalk_shared_library.pom.xml"
 }
+
+action("xwalk_core_library_documentation") {
+  _java_files = [
+    "//xwalk/runtime/android/core/src/org/xwalk/core/JavascriptInterface.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkActivity.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkDialogManager.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkFileChooser.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkInitializer.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/XWalkUpdater.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExtensionContextClient.java",
+    "//xwalk/runtime/android/core/src/org/xwalk/core/extension/XWalkExternalExtension.java",
+  ]
+  _srcjar = "$root_gen_dir/xwalk_core_reflection_layer/wrapper/wrapper.srcjar"
+  _stamp_file = "$target_gen_dir/$target_name.stamp"
+  _wrapper_java_files = [
+    "org/xwalk/core/ClientCertRequest.java",
+    "org/xwalk/core/XWalkCookieManager.java",
+    "org/xwalk/core/XWalkDownloadListener.java",
+    "org/xwalk/core/XWalkExternalExtensionManager.java",
+    "org/xwalk/core/XWalkFindListener.java",
+    "org/xwalk/core/XWalkGetBitmapCallback.java",
+    "org/xwalk/core/XWalkHttpAuthHandler.java",
+    "org/xwalk/core/XWalkJavascriptResult.java",
+    "org/xwalk/core/XWalkNativeExtensionLoader.java",
+    "org/xwalk/core/XWalkNavigationHistory.java",
+    "org/xwalk/core/XWalkNavigationItem.java",
+    "org/xwalk/core/XWalkPreferences.java",
+    "org/xwalk/core/XWalkResourceClient.java",
+    "org/xwalk/core/XWalkSettings.java",
+    "org/xwalk/core/XWalkUIClient.java",
+    "org/xwalk/core/XWalkView.java",
+    "org/xwalk/core/XWalkWebResourceRequest.java",
+    "org/xwalk/core/XWalkWebResourceResponse.java",
+  ]
+
+  # Derive xwalk_core_java.jar's path via its build_config.
+  _core_java_gen_dir = get_label_info(":xwalk_core_java", "target_gen_dir")
+  _core_java_name = get_label_info(":xwalk_core_java", "name")
+  _core_java_build_config =
+      rebase_path("$_core_java_gen_dir/$_core_java_name.build_config",
+                  root_build_dir)
+
+  _rebased_java_files = rebase_path(_java_files, root_build_dir)
+
+  script = "//xwalk/runtime/android/core/tools/generate_javadoc.py"
+  outputs = [
+    _stamp_file,
+  ]
+  deps = [
+    ":xwalk_core_java",
+    "//xwalk/runtime/android/core_internal:xwalk_core_reflection_layer_gen",
+  ]
+  sources = _java_files + [ _srcjar ]
+  args = [
+    "--classpath",
+    rebase_path(android_sdk_jar, root_build_dir),
+    "--classpath",
+    "@FileArg($_core_java_build_config:deps_info:jar_path)",
+    "--input-srcjar",
+    rebase_path(_srcjar, root_build_dir),
+    "--java-files",
+    "$_rebased_java_files",
+    "--output-dir",
+    rebase_path("$root_out_dir/xwalk_core_library_docs", root_build_dir),
+    "--srcjar-files",
+    "$_wrapper_java_files",
+    "--stamp",
+    rebase_path(_stamp_file, root_build_dir),
+  ]
+}
