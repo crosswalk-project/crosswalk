@@ -89,12 +89,13 @@ template("generate_xwalk_core_library") {
 #     added to res/raw.
 #   js_bindings [required]
 #     List of Crosswalk extension bindings .js files to add to res/raw.
-#   native_libs [optional]
-#     List of architecture-dependent shared libraries to include in the
-#     project.
 #   resource_excluded_patterns [optional]
 #     A list that accepts fnmatch-style wildcards with resource classes that
 #     should be left out of the JARs being built.
+#   shared_libraries [optional]
+#     List of architecture-dependent shared library targets to bundle. If these
+#     targets depend on other shared_library targets, they will also be
+#     included.
 #   template_dir [required]
 #     Directory to the template directory containing a ant.properties,
 #     AndroidManifest.xml and others.
@@ -109,9 +110,19 @@ template("generate_android_project") {
   _resource_jar_path = "${_base_path}_resources.jar"
   _target_name = target_name
 
-  _native_libs = []
-  if (defined(invoker.native_libs)) {
-    _native_libs = invoker.native_libs
+  _native_libs_deps = []
+  if (defined(invoker.shared_libraries) && invoker.shared_libraries != []) {
+    _native_libs_deps += invoker.shared_libraries
+
+    # To determine the filenames of all dependent shared libraries, write the
+    # runtime deps of |shared_libraries| to a file during "gn gen".
+    # write_build_config.py will then grep this file for *.so to obtain the
+    # complete list.
+    _runtime_deps_file = "${_base_path}.native.runtimedeps"
+    group("${_target_name}__runtime_deps") {
+      deps = _native_libs_deps
+      write_runtime_deps = _runtime_deps_file
+    }
   }
 
   # Write a build_config file. Its contents are used by several other targets
@@ -125,16 +136,24 @@ template("generate_android_project") {
   write_build_config(_build_config_target) {
     type = "android_apk"
     deps = invoker.deps
+    possible_config_deps = invoker.deps
 
     build_config = _build_config
     jar_path = _merged_jar_path
-    native_libs = _native_libs
 
     # The following are required to write an android_apk build config file, but
     # we do not use them for anything.
     android_manifest = invoker.android_manifest
     dex_path = _base_path + "__unused.dex"
     resources_zip = _base_path + "__unused.resources.zip"
+
+    # Don't depend on the runtime_deps target in order to avoid having to
+    # build the native libraries just to create the .build_config file.
+    # The dep is unnecessary since the runtime_deps file is created by gn gen
+    # and the runtime_deps file is added to write_build_config.py's depfile.
+    if (_native_libs_deps != []) {
+      shared_libraries_runtime_deps_file = _runtime_deps_file
+    }
   }
 
   _srcjar_deps = []
@@ -160,9 +179,11 @@ template("generate_android_project") {
 
   # If we are shipping native libraries, we need to create a wrapper to be able
   # to load them at runtime.
-  if (_native_libs != []) {
+  if (_native_libs_deps != []) {
     # TODO(rakuco): We may need an additional block adding libc++_shared.so for
     # the is_component_build case. See the android_apk template in rules.gni.
+    # M53 also added a block to order the library dependencies, but we do not
+    # need that for now.
 
     java_cpp_template("${target_name}__native_libraries_java") {
       package_name = "org/chromium/base/library_loader"
@@ -252,7 +273,7 @@ template("generate_android_project") {
                            ])
     output_dir = "$root_out_dir/$_target_name"
 
-    if (_native_libs != []) {
+    if (_native_libs_deps != []) {
       has_native_libraries = true
     }
   }
@@ -288,7 +309,7 @@ template("generate_android_project") {
       rebase_path(_r_file_path, root_build_dir),
     ]
 
-    if (_native_libs != []) {
+    if (_native_libs_deps != []) {
       args += [
         "--jni-abi",
         android_app_abi,
