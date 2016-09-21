@@ -31,3 +31,49 @@ android_resources("xwalk_app_template_apk_resources") {
   resource_dirs = [ "res" ]
   custom_package = "org.xwalk.app.template"
 }
+
+action("xwalk_app_template") {
+  # Use xwalk_app_runtime_java's build_config to derive the path to the JAR.
+  _app_runtime_target =
+      "//xwalk/app/android/runtime_client:xwalk_app_runtime_java"
+  _app_runtime_gen_dir = get_label_info(_app_runtime_target, "target_gen_dir")
+  _app_runtime_name = get_label_info(_app_runtime_target, "name")
+  _app_runtime_build_config =
+      rebase_path("$_app_runtime_gen_dir/$_app_runtime_name.build_config",
+                  root_build_dir)
+
+  script = "//xwalk/build/android/generate_app_packaging_tool.py"
+  deps = [
+    "//xwalk/runtime/android/core:xwalk_core_library",
+    "//xwalk/runtime/android/core:xwalk_shared_library",
+    _app_runtime_target,
+  ]
+  sources = [
+    "//xwalk/API_VERSION",
+    "//xwalk/VERSION",
+  ]
+
+  _stamp = "$target_gen_dir/$target_name.stamp"
+  outputs = [
+    _stamp,
+  ]
+
+  _rebased_sources = rebase_path(sources, root_build_dir)
+
+  args = [
+    "--android-template",
+    rebase_path("//xwalk/app/android/app_template", root_build_dir),
+    "--core-library-dir",
+    rebase_path("$root_out_dir/xwalk_core_library", root_build_dir),
+    "--extra-files",
+    "$_rebased_sources",
+    "--output-dir",
+    rebase_path("$root_out_dir/xwalk_app_template", root_build_dir),
+    "--shared-library-dir",
+    rebase_path("$root_out_dir/xwalk_shared_library", root_build_dir),
+    "--stamp",
+    rebase_path(_stamp, root_build_dir),
+    "--xwalk-runtime-jar",
+    "@FileArg($_app_runtime_build_config:deps_info:jar_path)",
+  ]
+}
