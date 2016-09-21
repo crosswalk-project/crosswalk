@@ -239,6 +239,7 @@ def main(argv):
 
   # Create an empty src/.
   build_utils.MakeDirectory(os.path.join(options.output_dir, 'src'))
+  build_utils.Touch(os.path.join(options.output_dir, 'src', '.empty'))
 
   build_utils.Touch(options.stamp)
 
