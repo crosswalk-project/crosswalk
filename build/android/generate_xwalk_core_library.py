@@ -27,6 +27,9 @@ GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
                                'gyp')
 sys.path.append(GYP_ANDROID_DIR)
 
+SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                        '..', '..', '..'))
+
 from util import build_utils
 import package_resources
 
@@ -133,7 +136,31 @@ def CopyResources(output_dir, resources, resource_strings):
 
   # Part 2: extract .xml strings files (made from .grd files).
   for zip_file in resource_strings:
-    build_utils.ExtractAll(zip_file, path=res_dir)
+    # Exclude anything that doesn't end in .xml (such as .stamp files generated
+    # with GN).
+    build_utils.ExtractAll(zip_file, path=res_dir, pattern='*.xml')
+
+
+def MakeResourceTuple(resource_zip, resource_src):
+  """Helper that returns a Resource tuple with |resource_zip| and the
+  correspoding directory in the source tree that generated this file.
+  """
+  # With gyp, we can just use |resource_src|.
+  if resource_src is not None:
+    return Resource(filename=resource_zip, src=resource_src)
+
+  # With GN, |resource_src| is None and we derive the source path from
+  # |resource_zip|.
+  if not resource_zip.startswith('gen/'):
+    raise ValueError('%s is expected to be in gen/.' % resource_zip)
+  src_subpath = os.path.dirname(resource_zip)
+  for res_subpath in ('android/java/res', 'java/res', 'res'):
+    path = os.path.join(SRC_ROOT,
+                        src_subpath[4:],  # Drop the gen/ part.
+                        res_subpath)
+    if os.path.isdir(path):
+      return Resource(filename=resource_zip, src=path)
+  raise ValueError('Cannot find the sources for %s' % resource_zip)
 
 
 def main(argv):
@@ -162,13 +189,17 @@ def main(argv):
   parser.add_argument('--template-dir', required=True,
                       help='Directory with an empty app template.')
 
-  options = parser.parse_args()
+  options = parser.parse_args(build_utils.ExpandFileArgs(sys.argv[1:]))
 
   options.resource_strings = build_utils.ParseGypList(options.resource_strings)
   options.resource_zips = build_utils.ParseGypList(options.resource_zips)
   options.resource_zip_sources = build_utils.ParseGypList(
       options.resource_zip_sources)
 
+  # With GN, just create a list with None as elements, we derive the source
+  # directories based on the zipped resources' paths.
+  if len(options.resource_zip_sources) == 0:
+    options.resource_zip_sources = [None] * len(options.resource_zips)
   if len(options.resource_zips) != len(options.resource_zip_sources):
     print('--resource-zips and --resource-zip-sources must have the same '
           'number of arguments.')
@@ -177,7 +208,14 @@ def main(argv):
   resources = []
   for resource_zip, resource_src in zip(options.resource_zips,
                                         options.resource_zip_sources):
-    resources.append(Resource(filename=resource_zip, src=resource_src))
+    if resource_zip.endswith('_grd.resources.zip'):
+      # In GN, we just use --resource-zips, and the string files are
+      # part of the list.
+      # We need to put them into options.resource_strings for separate
+      # processing, and do so by filtering the files by their names.
+      options.resource_strings.append(resource_zip)
+    else:
+      resources.append(MakeResourceTuple(resource_zip, resource_src))
 
   # Copy Eclipse project files of library project.
   build_utils.DeleteDirectory(options.output_dir)

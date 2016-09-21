@@ -34,6 +34,8 @@ group("xwalk_builder") {
 
       # For external testing.
       "app/android/app_hello_world:xwalk_app_hello_world_apk",
+      "runtime/android/core:xwalk_core_library",
+      "runtime/android/core:xwalk_shared_library",
       "runtime/android/runtime_lib:xwalk_runtime_lib_apk",
       "runtime/android/sample:xwalk_core_sample_apk",
     ]

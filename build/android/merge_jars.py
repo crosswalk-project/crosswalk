@@ -97,15 +97,19 @@ def ValidateKnownSkippedJars(jar_list):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('--jars', help='The jars to merge.')
+  parser.add_argument('jars', nargs=argparse.REMAINDER,
+                      help='The jars to merge.')
   parser.add_argument('--output-jar', help='Name of the merged JAR file.')
   parser.add_argument('--validate-skipped-jars-list', action='store_true',
                       help='Whether to validate KNOWN_SKIPPED_JARS by making '
                       'sure it matches all the jars passed in --jars that are '
                       'being skipped.')
 
-  options = parser.parse_args()
-  options.jars = build_utils.ParseGypList(options.jars)
+  options = parser.parse_args(build_utils.ExpandFileArgs(sys.argv[1:]))
+  jars = []
+  for j in options.jars:
+    jars.extend(build_utils.ParseGypList(j))
+  options.jars = jars
 
   if options.validate_skipped_jars_list:
     extra, missing = ValidateKnownSkippedJars(options.jars)

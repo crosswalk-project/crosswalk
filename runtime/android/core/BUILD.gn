@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 
 import("//build/config/android/rules.gni")
+import("//build_overrides/v8.gni")
+import("//third_party/icu/config.gni")
+import("//xwalk/build/android/generate_android_project.gni")
 
 android_library("xwalk_core_java") {
   deps = [
@@ -61,4 +64,85 @@ java_strings_grd("xwalk_app_strings_grd") {
   outputs = [
     "values/xwalk_app_strings.xml",
   ]
+}
+
+generate_android_project("xwalk_core_library") {
+  android_manifest =
+      "//xwalk/runtime/android/core_internal_empty/AndroidManifest.xml"
+  deps = [
+    ":xwalk_core_java",
+    "//base:base_java",
+    "//third_party/icu:icudata",
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//xwalk/runtime/android/core_internal:xwalk_core_internal_java",
+    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
+    "//xwalk/runtime/app/android:libxwalkcore",
+  ]
+  binary_files = [
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+  js_bindings = [
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+  native_libs = [
+    "$root_out_dir/libxwalkdummy.so",
+    "$root_out_dir/libxwalkcore.so",
+  ]
+
+  # We only need to exclude those classes because invoker.android_manifest
+  # usually points to a manifest with the same package name (org.xwalk.core),
+  # leading to the resources being processed again by Ant when building with
+  # app-tools and dex complaining of multiple definitions of
+  # org.xwalk.core.R.
+  # TODO(rakuco): Check if we should fix the manifest instead.
+  resource_excluded_patterns = [
+    "*/org/xwalk/core/R.class",
+    "*/org/xwalk/core/R##*.class",
+    "*/org/xwalk/core/library/empty/R.class",
+    "*/org/xwalk/core/library/empty/R##*.class",
+  ]
+  template_dir = "//xwalk/build/android/xwalkcore_library_template"
+
+  if (icu_use_data_file) {
+    binary_files += [ "$root_out_dir/icudtl.dat" ]
+  }
+
+  if (v8_use_external_startup_data) {
+    binary_files += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+    deps += [ "//v8" ]
+  }
+}
+
+generate_android_project("xwalk_shared_library") {
+  android_manifest =
+      "//xwalk/runtime/android/core_internal_empty/AndroidManifest.xml"
+  deps = [
+    ":xwalk_core_java",
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+  ]
+  js_bindings = [
+    "//xwalk/experimental/launch_screen/launch_screen_api.js",
+    "//xwalk/experimental/wifidirect/wifidirect_api.js",
+  ]
+
+  # We only need to exclude those classes because invoker.android_manifest
+  # usually points to a manifest with the same package name (org.xwalk.core),
+  # leading to the resources being processed again by Ant when building with
+  # app-tools and dex complaining of multiple definitions of
+  # org.xwalk.core.R.
+  # TODO(rakuco): Check if we should fix the manifest instead.
+  resource_excluded_patterns = [
+    "*/org/xwalk/core/R.class",
+    "*/org/xwalk/core/R##*.class",
+    "*/org/xwalk/core/library/empty/R.class",
+    "*/org/xwalk/core/library/empty/R##*.class",
+  ]
+  template_dir = "//xwalk/build/android/xwalk_shared_library_template"
 }
