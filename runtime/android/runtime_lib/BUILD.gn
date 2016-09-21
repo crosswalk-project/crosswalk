@@ -11,9 +11,7 @@ android_apk("xwalk_runtime_lib_apk") {
   apk_name = "XWalkRuntimeLib"
   android_manifest = "AndroidManifest.xml"
   java_files = []
-  shared_libraries = [
-    "//xwalk/runtime/app/android:libxwalkcore",
-  ]
+  shared_libraries = [ "//xwalk/runtime/app/android:libxwalkcore" ]
   version_name = xwalk_version
   version_code = xwalk_version_code
   deps = [

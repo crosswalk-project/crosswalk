@@ -7,12 +7,8 @@ import("//build/config/android/rules.gni")
 android_apk("xwalk_runtime_client_shell_apk") {
   apk_name = "XWalkRuntimeClientShell"
   android_manifest = "AndroidManifest.xml"
-  shared_libraries = [
-    "//xwalk/runtime/android/dummy_lib:libxwalkdummy",
-  ]
-  loadable_modules = [
-    "$root_out_dir/libecho_extension.so",
-  ]
+  shared_libraries = [ "//xwalk/runtime/android/dummy_lib:libxwalkdummy" ]
+  loadable_modules = [ "$root_out_dir/libecho_extension.so" ]
   deps = [
     ":xwalk_runtime_client_shell_apk_assets",
     ":xwalk_runtime_client_shell_apk_java",
