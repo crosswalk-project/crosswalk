@@ -228,6 +228,10 @@
           'variables': {
             'stripped_libraries_dir': '<(intermediate_dir)',
             'stamp': '<(intermediate_dir)/stamp',
+            'input_paths': [
+              '<(SHARED_LIB_DIR)/libxwalkcore.so',
+              '<(SHARED_LIB_DIR)/libxwalkdummy.so',
+            ],
           },
           'includes': ['../build/android/strip_native_libraries.gypi'],
         },
