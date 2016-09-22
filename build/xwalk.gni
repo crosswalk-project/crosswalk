@@ -11,9 +11,4 @@ declare_args() {
   # Android: whether the integrity of the Crosswalk runtime library should
   # be verified when Crosswalk is run in shared mode.
   verify_xwalk_apk = false
-
-  # Name of Crosswalk Maven artifacts used to generate their respective POM
-  # files.
-  xwalk_core_library_artifact_id = "xwalk_core_library_canary"
-  xwalk_shared_library_artifact_id = "xwalk_shared_library_canary"
 }

@@ -6,6 +6,15 @@ import("//build/config/android/rules.gni")
 import("//build_overrides/v8.gni")
 import("//third_party/icu/config.gni")
 import("//xwalk/build/android/generate_android_project.gni")
+import("//xwalk/build/android/maven_pom.gni")
+import("//xwalk/build/version.gni")
+
+declare_args() {
+  # Name of Crosswalk Maven artifacts used to generate their respective POM
+  # files.
+  xwalk_core_library_artifact_id = "xwalk_core_library_canary"
+  xwalk_shared_library_artifact_id = "xwalk_shared_library_canary"
+}
 
 android_library("xwalk_core_java") {
   deps = [
@@ -145,4 +154,18 @@ generate_android_project("xwalk_shared_library") {
     "*/org/xwalk/core/library/empty/R##*.class",
   ]
   template_dir = "//xwalk/build/android/xwalk_shared_library_template"
+}
+
+maven_pom("xwalk_core_library_pom_gen") {
+  artifact_id = xwalk_core_library_artifact_id
+  artifact_version = xwalk_version
+  pom_input = "//xwalk/runtime/android/maven/xwalk_core_library.pom.xml.in"
+  pom_output = "$root_out_dir/xwalk_core_library.pom.xml"
+}
+
+maven_pom("xwalk_shared_library_pom_gen") {
+  artifact_id = xwalk_shared_library_artifact_id
+  artifact_version = xwalk_version
+  pom_input = "//xwalk/runtime/android/maven/xwalk_shared_library.pom.xml.in"
+  pom_output = "$root_out_dir/xwalk_shared_library.pom.xml"
 }

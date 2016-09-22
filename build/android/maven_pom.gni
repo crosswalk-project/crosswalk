@@ -1,0 +1,50 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//chrome/version.gni")
+
+# This template provides a target to generate a Maven POM XML file that can
+# later be used in Maven repositories.
+# It takes a template POM and substitutes the values @ARTIFACT_ID@ and
+# @ARTIFACT_VERSION@ with the variables provided to this file.
+#
+# Arguments:
+#   artifact_id [required]
+#     Value for the <artifactId> field in the POM file.
+#   artifact_version [required]
+#     Value for the <version> field in the POM file.
+#   pom_input [required]
+#     Path to the POM file that will be processed.
+#   pom_output [required]
+#     Path to the generated POM file.
+#
+# Example:
+#   maven_pom("my_artifact_pom_gen") {
+#     artifact_id = "foo_bar_canary"
+#     artifact_version = "1.2.3.4"
+#     pom_input = "//path/to/my_artifact.pom.xml.in"
+#     pom_output = "$target_gen_dir/my_artifact.pom.xml"
+#   }
+template("maven_pom") {
+  assert(defined(invoker.artifact_id))
+  assert(defined(invoker.artifact_version))
+  assert(defined(invoker.pom_input))
+  assert(defined(invoker.pom_output))
+
+  _artifact_id = invoker.artifact_id
+  _artifact_version = invoker.artifact_version
+
+  process_version(target_name) {
+    forward_variables_from(invoker, [ "deps" ])
+    template_file = invoker.pom_input
+    output = invoker.pom_output
+    extra_args = [
+      "-e",
+      "ARTIFACT_ID='$_artifact_id'",
+      "-e",
+      "ARTIFACT_VERSION='$_artifact_version'",
+    ]
+    process_only = true
+  }
+}
