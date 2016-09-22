@@ -12,7 +12,7 @@
       'target_name': 'xwalk_core_library_documentation',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_library_java_app_part'
+        'xwalk_core_java'
       ],
       'variables': {
         'api_files': [
@@ -43,27 +43,29 @@
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkWebResourceRequest.java',
           '>(reflection_gen_dir)/wrapper/org/xwalk/core/XWalkWebResourceResponse.java',
         ],
-        'xwalk_core_jar': '<(PRODUCT_DIR)/lib.java/xwalk_core_library_java_app_part.jar',
-        'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',
+        'javadoc_wrapper': '<(DEPTH)/xwalk/runtime/android/core/tools/generate_javadoc.py',
+        'output_dir': '<(PRODUCT_DIR)/xwalk_core_library_docs',
+        'stamp': '<(INTERMEDIATE_DIR)/stamp',
+        'xwalk_core_jar': '<(PRODUCT_DIR)/lib.java/xwalk_core_java.jar',
       },
       'actions': [
         {
           'action_name': 'javadoc_xwalk_core_library',
           'message': 'Creating documentation for XWalk Core Library',
           'inputs': [
-            '>(xwalk_core_jar)',
+            '<(javadoc_wrapper)',
+            '<(xwalk_core_jar)',
           ],
           'outputs': [
-            '<(docs)',
+            '<(stamp)',
           ],
           'action': [
-            'javadoc',
-            '-quiet',
-            '-XDignore.symbol.file',
-            '-d', '<(docs)',
-            '-classpath', '<(android_sdk)/android.jar',
-            '-bootclasspath', '<(xwalk_core_jar)',
-            '<@(api_files)',
+            'python', '<(javadoc_wrapper)',
+            '--classpath', '<(android_sdk_jar)',
+            '--classpath', '<(xwalk_core_jar)',
+            '--java-files', '<(api_files)',
+            '--output-dir', '<(output_dir)',
+            '--stamp', '<(stamp)',
           ],
         },
       ],
