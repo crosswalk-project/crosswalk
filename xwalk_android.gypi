@@ -307,12 +307,14 @@
             '<@(build_system_inputs)',
           ],
           'outputs': [
-            "<!@(['python', 'build/android/lzma_compress.py', '--mode=show-output-names', \
-                  '--sources=<(lzma_compress_inputs)', '--dest-path=<(assets_dir)'])",
+            '<(assets_dir)/classes.dex',
+            '<(assets_dir)/icudtl.dat.lzma',
+            '<(assets_dir)/libxwalkcore.so.lzma',
+            '<(assets_dir)/xwalk.pak.lzma',
+            '<(assets_dir)/xwalk_100_percent.pak.lzma',
           ],
           'action': [
             'python', 'build/android/lzma_compress.py',
-            '--mode=compress',
             '--dest-path=<(assets_dir)',
             '--sources=<(lzma_compress_inputs)',
           ],
