@@ -56,6 +56,7 @@ import org.chromium.content_public.browser.NavigationController;
 import org.chromium.content_public.browser.WebContents;
 import org.chromium.content_public.browser.navigation_controller.UserAgentOverrideOption;
 import org.chromium.media.MediaPlayerBridge;
+import org.chromium.ui.base.ActivityWindowAndroid;
 import org.chromium.ui.base.WindowAndroid;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
 import org.json.JSONArray;
@@ -137,8 +138,9 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
             mContentsClientBridge);
         mIoThreadClient = new XWalkIoThreadClientImpl();
 
-        // Initialize mWindow which is needed by content
-        mWindow = new WindowAndroid(context);
+        // Initialize mWindow which is needed by content.
+        mWindow = WindowAndroid.activityFromContext(context) != null ?
+                new ActivityWindowAndroid(context) : new WindowAndroid(context);
 
         SharedPreferences sharedPreferences = new InMemorySharedPreferences();
         mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
