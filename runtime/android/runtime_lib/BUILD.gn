@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 import("//build/config/android/rules.gni")
+import("//build_overrides/v8.gni")
+import("//third_party/icu/config.gni")
 import("//xwalk/build/version.gni")
 
 android_apk("xwalk_runtime_lib_apk") {
@@ -44,5 +46,94 @@ android_assets("xwalk_runtime_lib_apk_assets") {
     "//third_party/icu:icu_assets",
     "//v8:v8_external_startup_data_assets",
     "//xwalk/resources:pak_file_assets",
+  ]
+}
+
+# The code for generating XWalkRuntimeLibLzma.apk below is definitely not
+# beautiful: the fact that it compresses a dex class from another APK prevents
+# it from looking minimally nice. We have to keep a list of .lzma files we
+# generate because android_assets() expects a list of files instead of a
+# directory, so we keep a hardcoded list of assets we want to compress.
+
+template("compressed_android_assets") {
+  assert(defined(invoker.deps))
+  assert(defined(invoker.sources))
+
+  _compressed_assets_dir = "$target_gen_dir/compressed_assets"
+  _compressed_assets = []
+
+  # Transform the list of sources into $_compressed_assets_dir/$file.lzma.
+  foreach(source, invoker.sources) {
+    _source_file = get_path_info(source, "file")
+    assert(_source_file != "")
+    _compressed_assets += [ "$_compressed_assets_dir/$_source_file.lzma" ]
+  }
+
+  _compress_target = "${target_name}__compress"
+  action(_compress_target) {
+    forward_variables_from(invoker, [ "deps" ])
+
+    _rebased_sources = rebase_path(invoker.sources, root_out_dir)
+
+    script = "//xwalk/build/android/lzma_compress.py"
+    outputs = _compressed_assets
+    args = [
+      "--dest-path",
+      rebase_path(_compressed_assets_dir, root_out_dir),
+      "--sources",
+      "$_rebased_sources",
+    ]
+  }
+
+  android_assets(target_name) {
+    deps = [
+      ":$_compress_target",
+    ]
+    sources = _compressed_assets
+    disable_compression = true
+  }
+}
+
+compressed_android_assets("xwalk_runtime_lib_lzma_assets") {
+  _runtime_apk_target = ":xwalk_runtime_lib_apk"
+  _runtime_apk_name = get_label_info(_runtime_apk_target, "name")
+  _runtime_apk_gen_dir = get_label_info(_runtime_apk_target, "target_gen_dir")
+
+  deps = [
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//xwalk/runtime/app/android:libxwalkcore",
+    _runtime_apk_target,
+  ]
+  sources = [
+    "$_runtime_apk_gen_dir/$_runtime_apk_name/classes.dex",
+    "$root_out_dir/libxwalkcore.so",
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+  ]
+
+  if (icu_use_data_file) {
+    deps += [ "//third_party/icu:icudata" ]
+    sources += [ "$root_out_dir/icudtl.dat" ]
+  }
+
+  if (v8_use_external_startup_data) {
+    deps += [ "//v8" ]
+    sources += [
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/snapshot_blob.bin",
+    ]
+  }
+}
+
+android_apk("xwalk_runtime_lib_lzma_apk") {
+  apk_name = "XWalkRuntimeLibLzma"
+  android_manifest = "AndroidManifest.xml"
+  java_files = []
+  version_name = xwalk_version
+  version_code = xwalk_version_code
+  deps = [
+    ":xwalk_runtime_lib_apk_resources",
+    ":xwalk_runtime_lib_lzma_assets",
   ]
 }
