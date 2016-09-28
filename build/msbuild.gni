@@ -1,0 +1,100 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This template handles invoking MSBuild to generate an extension DLL and its
+# accompanying bridge DLL from a number of C# source files.
+# Two files are generated in |output_dir|: "<output_name>.dll" and
+# "<output_name>_bridge.dll".
+#
+# Parameters:
+#   output_dir [required]
+#     Path where the DLLs will be generated.
+#   output_name [required]
+#     Name of the extension DLL (without the ".dll" at the end)
+#   project_path [required]
+#     Path to the .csproj file that MSBuild will use.
+#   sources [required]
+#     List of C# source files being built.
+#
+# Example:
+#   msbuild("my_dotnet_extension") {
+#     output_dir = "$root_out_dir/my_dotnet_extension"
+#     output_name = "dotnet_extension"
+#     project_path = "//path/to/my_dotnet_extension.csproj"
+#     sources = [
+#       "foo.cs",
+#     ]
+#   }
+template("msbuild") {
+  assert(defined(invoker.output_dir))
+  assert(defined(invoker.output_name))
+  assert(defined(invoker.project_path))
+  assert(defined(invoker.sources) && invoker.sources != [])
+
+  _msbuild_target = "${target_name}__msbuild"
+  action(_msbuild_target) {
+    forward_variables_from(invoker,
+                           [
+                             "testonly",
+                             "visibility",
+                           ])
+    if (is_debug) {
+      _build_type = "Debug"
+    } else {
+      _build_type = "Release"
+    }
+    if (target_cpu == "x86") {
+      _environment_file = "environment.x86"
+    } else {
+      _environment_file = "environment.x64"
+    }
+    _output_dll = invoker.output_dir + "/" + invoker.output_name + ".dll"
+
+    script = "//xwalk/tools/msbuild_dotnet.py"
+    inputs = invoker.sources
+    outputs = [
+      _output_dll,
+    ]
+    args = [
+      "--build-type",
+      _build_type,
+      "--environment-file",
+      _environment_file,
+      "--project",
+      rebase_path(invoker.project_path, root_out_dir),
+      "--output-dir",
+      rebase_path(invoker.output_dir, root_out_dir),
+    ]
+  }
+
+  _rename_target = "${target_name}__bridge_rename"
+  copy(_rename_target) {
+    forward_variables_from(invoker,
+                           [
+                             "testonly",
+                             "visibility",
+                           ])
+    deps = [
+      "//xwalk/dotnet:xwalk_dotnet_bridge",
+    ]
+    sources = [
+      "$root_out_dir/xwalk_dotnet_bridge.dll",
+    ]
+    outputs = [
+      invoker.output_dir + "/" + invoker.output_name + "_bridge.dll",
+    ]
+  }
+
+  group(target_name) {
+    forward_variables_from(invoker,
+                           [
+                             "testonly",
+                             "visibility",
+                           ])
+    public_deps = [
+      ":$_msbuild_target",
+      ":$_rename_target",
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+shared_library("xwalk_dotnet_bridge") {
+  sources = [
+    "//xwalk/extensions/public/XW_Extension.h",
+    "//xwalk/extensions/public/XW_Extension_EntryPoints.h",
+    "//xwalk/extensions/public/XW_Extension_Permissions.h",
+    "//xwalk/extensions/public/XW_Extension_Runtime.h",
+    "//xwalk/extensions/public/XW_Extension_SyncMessage.h",
+    "xwalk_dotnet_bridge.cc",
+    "xwalk_dotnet_bridge.h",
+  ]
+
+  configs -= [
+    "//build/config/compiler:no_rtti",
+    "//build/config/win:default_crt",
+  ]
+  configs += [
+    "//build/config/compiler:rtti",
+    "//build/config/win:dynamic_crt",
+  ]
+  cflags = [ "/CLR" ]
+}
