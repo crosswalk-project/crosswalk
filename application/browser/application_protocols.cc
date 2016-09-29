@@ -52,14 +52,11 @@ namespace {
 net::HttpResponseHeaders* BuildHttpHeaders(
     const std::string& content_security_policy,
     const std::string& mime_type, const std::string& method,
-    const base::FilePath& file_path, const base::FilePath& relative_path,
-    bool is_authority_match) {
+    const base::FilePath& file_path, const base::FilePath& relative_path) {
   std::string raw_headers;
   if (method == "GET") {
     if (relative_path.empty())
       raw_headers.append("HTTP/1.1 400 Bad Request");
-    else if (!is_authority_match)
-      raw_headers.append("HTTP/1.1 403 Forbidden");
     else if (file_path.empty())
       raw_headers.append("HTTP/1.1 404 Not Found");
     else
@@ -103,15 +100,13 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
       const base::FilePath& directory_path,
       const base::FilePath& relative_path,
       const std::string& content_security_policy,
-      const std::list<std::string>& locales,
-      bool is_authority_match)
+      const std::list<std::string>& locales)
       : net::URLRequestFileJob(
           request, network_delegate, base::FilePath(), file_task_runner),
         content_security_policy_(content_security_policy),
         locales_(locales),
         resource_(application_id, directory_path, relative_path),
         relative_path_(relative_path),
-        is_authority_match_(is_authority_match),
         weak_factory_(this) {
   }
 
@@ -121,7 +116,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
     std::string method = request()->method();
     response_info_.headers = BuildHttpHeaders(
         content_security_policy_, mime_type, method, file_path_,
-        relative_path_, is_authority_match_);
+        relative_path_);
     *info = response_info_;
   }
 
@@ -158,7 +153,6 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   }
 
   net::HttpResponseInfo response_info_;
-  bool is_authority_match_;
   base::WeakPtrFactory<URLRequestApplicationJob> weak_factory_;
 };
 
@@ -268,27 +262,22 @@ ApplicationProtocolHandler::MaybeCreateJob(
 
   base::FilePath relative_path =
       ApplicationURLToRelativeFilePath(request->url());
-  base::FilePath directory_path;
+  base::FilePath directory_path = application->path();
   std::string content_security_policy;
-  if (application.get()) {
-    directory_path = application->path();
-    const char* csp_key = GetCSPKey(application->manifest_type());
-    const CSPInfo* csp_info = static_cast<CSPInfo*>(
-          application->GetManifestData(csp_key));
-    if (csp_info) {
-      for (auto& directive : csp_info->GetDirectives()) {
-        content_security_policy.append(directive.first)
-                               .append(kSpace)
-                               .append(base::JoinString(directive.second,
-                                                        kSpace))
-                               .append(kSemicolon);
-      }
+  const char* csp_key = GetCSPKey(application->manifest_type());
+  const CSPInfo* csp_info =
+      static_cast<CSPInfo*>(application->GetManifestData(csp_key));
+  if (csp_info) {
+    for (auto& directive : csp_info->GetDirectives()) {
+      content_security_policy.append(directive.first)
+          .append(kSpace)
+          .append(base::JoinString(directive.second, kSpace))
+          .append(kSemicolon);
     }
   }
 
   std::list<std::string> locales;
-  if (application.get() &&
-      application->manifest_type() == Manifest::TYPE_WIDGET) {
+  if (application->manifest_type() == Manifest::TYPE_WIDGET) {
     GetUserAgentLocales(GetSystemLocale(), locales);
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
   }
@@ -303,8 +292,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
       directory_path,
       relative_path,
       content_security_policy,
-      locales,
-      application.get());
+      locales);
 }
 
 }  // namespace
