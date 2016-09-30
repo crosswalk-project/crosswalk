@@ -12,7 +12,26 @@ import subprocess
 import sys
 
 
+def ParseNinjaEnvironmentFile(env_file):
+  """Parses a ninja environment.<arch> file and merges its values into the
+  existing environment variables.
+  """
+  with open(env_file, 'rb') as f:
+    lines = f.read().split('\0')
+    env = {}
+    for line in lines:
+      if '=' not in line:
+        continue
+      key, value = line.split('=')
+      os.environ[key] = value
+
+
 def LaunchMSBuild(options):
+  # GN needs --environment-file in order to find the MSBuild.exe executable,
+  # which is not added to the default %PATH% by the Visual Studio installer.
+  if options.environment_file is not None:
+    ParseNinjaEnvironmentFile(options.environment_file)
+
   params = [
     'Platform=AnyCPU',
     'Configuration=%s' % options.build_type,
@@ -31,6 +50,8 @@ def LaunchMSBuild(options):
 
 def main():
   parser = argparse.ArgumentParser()
+  parser.add_argument('--environment-file',
+                      help='Ninja environment file to evaluate.')
   parser.add_argument('--output-dir', required=True,
                       help='Set the output dir for MSBuild.')
   parser.add_argument('--project', required=True,
