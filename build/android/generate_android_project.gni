@@ -262,6 +262,12 @@ template("generate_android_project") {
   action(_aar_target) {
     _aar_path = "$root_out_dir/${_target_name}.aar"
 
+    # Curiously enough, the AARs should use the AndroidManifest.xml present in
+    # the template directory, not the one passed via invoker.android_manifest.
+    # The latter contains additional fields that conflict with the manifest
+    # generated when building Cordova apps (XWALK-7348).
+    _android_manifest = invoker.template_dir + "/AndroidManifest.xml"
+
     deps = [
       ":$_project_target",
     ]
@@ -273,7 +279,7 @@ template("generate_android_project") {
       "--aar-path",
       rebase_path(_aar_path, root_build_dir),
       "--android-manifest",
-      rebase_path(invoker.android_manifest, root_build_dir),
+      rebase_path(_android_manifest, root_build_dir),
       "--classes-jar",
       rebase_path(_merged_jar_path, root_build_dir),
       "--res-dir",
