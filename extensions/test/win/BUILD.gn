@@ -1,0 +1,240 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//xwalk/build/msbuild.gni")
+
+_out_dir_prefix = "$root_out_dir/tests/dotnet_extension"
+
+msbuild("dotnet_echo_extension") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/echo_extension"
+  output_name = "echo_extension"
+  project_path = "echo_extension/echo_extension.csproj"
+  sources = [
+    "echo_extension/XWalkExtension.cs",
+    "echo_extension/XWalkExtensionInstance.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_1") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_1"
+  output_name = "invalid_extension_1"
+  project_path = "invalid_extension_1/invalid_extension_1.csproj"
+  sources = [
+    "invalid_extension_1/Bla.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_2") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_2"
+  output_name = "invalid_extension_2"
+  project_path = "invalid_extension_2/invalid_extension_2.csproj"
+  sources = [
+    "invalid_extension_2/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_3") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_3"
+  output_name = "invalid_extension_3"
+  project_path = "invalid_extension_3/invalid_extension_3.csproj"
+  sources = [
+    "invalid_extension_3/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_4") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_4"
+  output_name = "invalid_extension_4"
+  project_path = "invalid_extension_4/invalid_extension_4.csproj"
+  sources = [
+    "invalid_extension_4/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_5") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_5"
+  output_name = "invalid_extension_5"
+  project_path = "invalid_extension_5/invalid_extension_5.csproj"
+  sources = [
+    "invalid_extension_5/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_6") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_6"
+  output_name = "invalid_extension_6"
+  project_path = "invalid_extension_6/invalid_extension_6.csproj"
+  sources = [
+    "invalid_extension_6/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_7") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_7"
+  output_name = "invalid_extension_7"
+  project_path = "invalid_extension_7/invalid_extension_7.csproj"
+  sources = [
+    "invalid_extension_7/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_8") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_8"
+  output_name = "invalid_extension_8"
+  project_path = "invalid_extension_8/invalid_extension_8.csproj"
+  sources = [
+    "invalid_extension_8/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_9") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_9"
+  output_name = "invalid_extension_9"
+  project_path = "invalid_extension_9/invalid_extension_9.csproj"
+  sources = [
+    "invalid_extension_9/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_10") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_10"
+  output_name = "invalid_extension_10"
+  project_path = "invalid_extension_10/invalid_extension_10.csproj"
+  sources = [
+    "invalid_extension_10/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_11") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_11"
+  output_name = "invalid_extension_11"
+  project_path = "invalid_extension_11/invalid_extension_11.csproj"
+  sources = [
+    "invalid_extension_11/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_invalid_extension_12") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/invalid_extension_12"
+  output_name = "invalid_extension_12"
+  project_path = "invalid_extension_12/invalid_extension_12.csproj"
+  sources = [
+    "invalid_extension_12/XWalkExtension.cs",
+  ]
+}
+
+msbuild("dotnet_echo_extension1") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/multiple_extension"
+  output_name = "echo_extension1"
+  project_path = "echo_extension1/echo_extension1.csproj"
+  sources = [
+    "echo_extension1/XWalkExtension.cs",
+    "echo_extension1/XWalkExtensionInstance.cs",
+  ]
+}
+
+msbuild("dotnet_echo_extension2") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/multiple_extension"
+  output_name = "echo_extension2"
+  project_path = "echo_extension2/echo_extension2.csproj"
+  sources = [
+    "echo_extension2/XWalkExtension.cs",
+    "echo_extension2/XWalkExtensionInstance.cs",
+  ]
+}
+
+group("dotnet_extensions") {
+  visibility = [ ":*" ]
+  testonly = true
+  public_deps = [
+    ":dotnet_echo_extension",
+    ":dotnet_echo_extension1",
+    ":dotnet_echo_extension2",
+    ":dotnet_invalid_extension_1",
+    ":dotnet_invalid_extension_10",
+    ":dotnet_invalid_extension_11",
+    ":dotnet_invalid_extension_12",
+    ":dotnet_invalid_extension_2",
+    ":dotnet_invalid_extension_3",
+    ":dotnet_invalid_extension_4",
+    ":dotnet_invalid_extension_5",
+    ":dotnet_invalid_extension_6",
+    ":dotnet_invalid_extension_7",
+    ":dotnet_invalid_extension_8",
+    ":dotnet_invalid_extension_9",
+  ]
+}
+
+executable("xwalk_dotnet_extensions_browsertest") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  deps = [
+    ":dotnet_extensions",
+    "//base",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net",
+    "//skia",
+    "//testing/gtest",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/extensions",
+    "//xwalk/test/base:test_support",
+  ]
+  sources = [
+    "//xwalk/extensions/test/xwalk_extensions_test_base.cc",
+    "//xwalk/extensions/test/xwalk_extensions_test_base.h",
+    "xwalk_dotnet_extensions_browsertest.cc",
+  ]
+}
+
+executable("xwalk_dotnet_extensions_unittest") {
+  testonly = true
+  deps = [
+    ":dotnet_extensions",
+    "//base",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//net",
+    "//skia",
+    "//testing/gtest",
+    "//xwalk:xwalk_runtime",
+    "//xwalk/extensions",
+    "//xwalk/test/base:test_support",
+  ]
+  sources = [
+    "//xwalk/extensions/test/xwalk_extensions_test_base.cc",
+    "//xwalk/extensions/test/xwalk_extensions_test_base.h",
+    "xwalk_dotnet_extension_unittest.cc",
+  ]
+}

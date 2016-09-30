@@ -14,6 +14,14 @@ import os
 import sys
 import zipfile
 
+GYP_ANDROID_DIR = os.path.join(os.path.dirname(__file__),
+                               os.pardir, os.pardir, os.pardir,
+                               'build',
+                               'android',
+                               'gyp')
+sys.path.append(GYP_ANDROID_DIR)
+from util import build_utils
+
 
 def main():
   parser = argparse.ArgumentParser()
@@ -21,11 +29,13 @@ def main():
                       help='Top-level build directory.')
   parser.add_argument('--dest', required=True,
                       help='Name of the ZIP file that will be generated.')
-  parser.add_argument('--dirs', nargs='*',
+  parser.add_argument('--dirs', required=True,
                       help='Directories to package.')
-  parser.add_argument('--files', nargs='*',
+  parser.add_argument('--files', required=True,
                       help='Files to package.')
   args = parser.parse_args()
+  args.dirs = build_utils.ParseGypList(args.dirs)
+  args.files = build_utils.ParseGypList(args.files)
 
   with zipfile.ZipFile(args.dest, 'w', zipfile.ZIP_DEFLATED) as zip_file:
     for filename in args.files:

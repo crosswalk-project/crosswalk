@@ -1,0 +1,20 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file contains feature flags for Crosswalk Windows build. Users should
+# import it into their build folder by run:
+#   echo 'import("//xwalk/build/windows.gni")' > out/your_dir/args.gn'
+# Then run:
+#   gn gen out/your_dir
+#   ninja -C out/your_dir xwalk_builder
+# to generate xwalk and xwalk-test executable files.
+
+import("//xwalk/build/common.gni")
+
+# Enable Native Client support.
+# From //build/config/features.gni
+enable_nacl = false
+
+# Whether to use the RealSense SDK (libpxc) video capture.
+use_rssdk = true

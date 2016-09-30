@@ -13,15 +13,16 @@ group("xwalk_builder") {
   # which targets are testonly. In order to group all targets into "xwalk_builder"
   # we just set testonly=true.
   testonly = true
-  deps = []
-  if (is_linux) {
-    deps += [
+  if (!is_android) {
+    deps = [
       ":xwalk",
       ":xwalk_all_tests",
     ]
-  }
-  if (is_android) {
-    deps += [
+    if (is_win) {
+      deps += [ ":generate_crosswalk_win_zip" ]
+    }
+  } else {
+    deps = [
       # For internal testing.
       "app/android/runtime_client_embedded_shell:xwalk_runtime_client_embedded_shell_apk",
       "app/android/runtime_client_shell:xwalk_runtime_client_shell_apk",
@@ -63,6 +64,17 @@ executable("xwalk") {
   deps = [
     ":xwalk_runtime",
   ]
+  if (is_win) {
+    configs -= [ "//build/config/win:console" ]
+    configs += [ "//build/config/win:windowed" ]
+    sources += [ "runtime/resources/xwalk.rc" ]
+    deps += [
+      "//base/allocator",
+      "//content:sandbox_helper_win",
+      "//xwalk/dotnet:xwalk_dotnet_bridge",
+      "//xwalk/experimental/wifidirect:wifidirect_extension",
+    ]
+  }
 }
 
 source_set("xwalk_runtime") {
@@ -209,6 +221,8 @@ source_set("xwalk_runtime") {
     "runtime/browser/ui/native_app_window_android.cc",
     "runtime/browser/ui/native_app_window_mac.h",
     "runtime/browser/ui/native_app_window_mac.mm",
+    "runtime/browser/wifidirect_component_win.cc",
+    "runtime/browser/wifidirect_component_win.h",
     "runtime/browser/xwalk_app_extension_bridge.cc",
     "runtime/browser/xwalk_app_extension_bridge.h",
     "runtime/browser/xwalk_application_mac.h",
@@ -409,6 +423,11 @@ source_set("xwalk_runtime") {
     configs += [ "//xwalk/build/libnotify" ]
   }
 
+  if (is_win) {
+    libs = [ "runtimeobject.lib" ]
+    deps += [ "//base/allocator" ]
+  }
+
   if (disable_bundled_extensions) {
     defines += [ "DISABLE_BUNDLED_EXTENSIONS" ]
   }
@@ -535,4 +554,62 @@ group("xwalk_all_tests") {
     "//xwalk/test:xwalk_browsertest",
     "//xwalk/test:xwalk_unittest",
   ]
+
+  if (is_win) {
+    deps += [
+      "//xwalk/extensions/test/win:xwalk_dotnet_extensions_browsertest",
+      "//xwalk/extensions/test/win:xwalk_dotnet_extensions_unittest",
+    ]
+  }
+}
+
+if (is_win) {
+  action("generate_crosswalk_win_zip") {
+    # The files and directories will be added with the same names to the
+    # generated zip file, with $root_out_dir stripped from the beginning.
+    dirs_to_package = [ "$root_out_dir/locales/xwalk" ]
+    files_to_package = [
+      "//xwalk/VERSION",
+      "$root_out_dir/d3dcompiler_47.dll",
+      "$root_out_dir/icudtl.dat",
+      "$root_out_dir/libEGL.dll",
+      "$root_out_dir/libGLESv2.dll",
+      "$root_out_dir/natives_blob.bin",
+      "$root_out_dir/osmesa.dll",
+      "$root_out_dir/snapshot_blob.bin",
+      "$root_out_dir/xwalk.exe",
+      "$root_out_dir/xwalk.pak",
+      "$root_out_dir/xwalk_100_percent.pak",
+      "$root_out_dir/xwalk_200_percent.pak",
+      "$root_out_dir/xwalk_300_percent.pak",
+      "$root_out_dir/xwalk_dotnet_bridge.dll",
+    ]
+    inputs = [
+      "//xwalk/VERSION",
+    ]
+    outputs = [
+      "$root_out_dir/crosswalk_win.zip",
+    ]
+    script = "//xwalk/build/win/generate_crosswalk_zip.py"
+
+    _rebased_dirs = rebase_path(dirs_to_package, root_out_dir)
+    _rebased_files = rebase_path(files_to_package, root_out_dir)
+
+    args = [
+      "--build-dir",
+      rebase_path(root_out_dir),
+      "--dest",
+      rebase_path("$root_out_dir/crosswalk_win.zip"),
+      "--dirs=$_rebased_dirs",
+      "--files=$_rebased_files",
+    ]
+    deps = [
+      ":xwalk",
+      "//xwalk/resources:xwalk_locales",
+      "//xwalk/resources:xwalk_pak",
+      "//xwalk/resources:xwalk_resources_100_percent_pak",
+      "//xwalk/resources:xwalk_resources_200_percent_pak",
+      "//xwalk/resources:xwalk_resources_300_percent_pak",
+    ]
+  }
 }

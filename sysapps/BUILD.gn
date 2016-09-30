@@ -57,6 +57,9 @@ source_set("sysapps") {
       "//third_party/ffmpeg",
     ]
   }
+  if (is_win) {
+    libs = [ "Pdh.lib" ]
+  }
 }
 
 # TODO(heke123): Remove this config by putting the files in the right place
