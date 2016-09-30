@@ -385,7 +385,7 @@ void XWalkDotNetBridge::HandleMessage(XW_Instance instance,
               << "': HandleMessage method is not defined";
     return;
   }
-  Object^ returnValue = handle_message_method->Invoke(
+  handle_message_method->Invoke(
       ((Object^)*instance_object_ptr), gcnew array<Object^>(1){ message_str });
 }
 
@@ -404,7 +404,7 @@ void XWalkDotNetBridge::HandleSyncMessage(XW_Instance instance,
               << "': HandleMessage method is not defined";
     return;
   }
-  Object^ returnValue = handle_sync_message_method->Invoke(
+  handle_sync_message_method->Invoke(
       ((Object^)*instance_object_ptr), gcnew array<Object^>(1){ message_str });
 }
 
