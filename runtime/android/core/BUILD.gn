@@ -8,6 +8,7 @@ import("//third_party/icu/config.gni")
 import("//xwalk/build/android/generate_android_project.gni")
 import("//xwalk/build/android/maven_pom.gni")
 import("//xwalk/build/version.gni")
+import("//xwalk/runtime/android/core_internal/chromium_java_deps.gni")
 
 declare_args() {
   # Name of Crosswalk Maven artifacts used to generate their respective POM
@@ -140,6 +141,18 @@ generate_android_project("xwalk_shared_library") {
     "//xwalk/experimental/launch_screen/launch_screen_api.js",
     "//xwalk/experimental/wifidirect/wifidirect_api.js",
   ]
+
+  # This target does not depend on //xwalk/runtime/android/core_internal, but
+  # it does need access to some resources that xwalk_core_internal_java ends up
+  # pulling (XWALK-7366).
+  # Even though |core_internal_java_chromium_deps| depends on the *_java
+  # targets instead of the *_java_resources ones, this is fine for our use
+  # case, as we only pass the resource zips to generate_xwalk_core_library.py
+  # anyway.
+  # For the effects of not adding these dependencies, see XWALK-7350 as well as
+  # XWALK-7358.
+  deps += [ "//xwalk/runtime/android/core_internal:xwalk_core_strings_grd" ]
+  deps += core_internal_java_chromium_deps
 
   # We only need to exclude those classes because invoker.android_manifest
   # usually points to a manifest with the same package name (org.xwalk.core),

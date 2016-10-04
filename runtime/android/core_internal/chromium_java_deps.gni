@@ -1,0 +1,20 @@
+# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This is a list of non-//xwalk targets that the xwalk_core_internal_java
+# target depends on. It is used by both :xwalk_core_internal_java and
+# //xwalk/runtime/android/core:xwalk_shared_library. The latter only needs the
+# *_java_resource targets, not the *_java ones, but in practice
+# generate_android_project() and its calls to write_build_config() take care of
+# using only the *_java_resource ones that the *_java targets depend on.
+# It is a hack required as long as XWALK-7366 is not fixed.
+core_internal_java_chromium_deps = [
+  "//base:base_java",
+  "//components/navigation_interception/android:navigation_interception_java",
+  "//components/web_contents_delegate_android:web_contents_delegate_android_java",
+  "//content/public/android:content_java",
+  "//media/base/android:media_java",
+  "//net/android:net_java",
+  "//ui/android:ui_java",
+]
