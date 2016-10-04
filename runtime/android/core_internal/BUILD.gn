@@ -5,21 +5,19 @@
 import("//build/config/android/rules.gni")
 import("//xwalk/build/version.gni")
 import("//xwalk/build/xwalk.gni")
+import("//xwalk/runtime/android/core_internal/chromium_java_deps.gni")
 
 reflection_gen_dir = "$root_gen_dir/xwalk_core_reflection_layer/"
 android_library("xwalk_core_internal_java") {
+  # ATTENTION: do NOT add dependencies on non-//xwalk targets below; they must
+  # be added to |core_internal_java_chromium_deps| instead. This variable is
+  # used here as well as in //xwalk/runtime/android/core:xwalk_shared_library.
   deps = [
     ":xwalk_core_internal_java_resources",
     ":xwalk_core_reflection_layer_gen",
-    "//base:base_java",
-    "//components/navigation_interception/android:navigation_interception_java",
-    "//components/web_contents_delegate_android:web_contents_delegate_android_java",
-    "//content/public/android:content_java",
-    "//media/base/android:media_java",
-    "//net/android:net_java",
-    "//ui/android:ui_java",
     "//xwalk/extensions/android:xwalk_core_extensions_java",
   ]
+  deps += core_internal_java_chromium_deps
   srcjars = [ "$reflection_gen_dir/bridge/bridge.srcjar" ]
   java_files = [
     "src/org/xwalk/core/internal/AndroidProtocolHandler.java",
