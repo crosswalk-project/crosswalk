@@ -563,53 +563,60 @@ group("xwalk_all_tests") {
   }
 }
 
-if (is_win) {
-  action("generate_crosswalk_win_zip") {
-    # The files and directories will be added with the same names to the
-    # generated zip file, with $root_out_dir stripped from the beginning.
-    dirs_to_package = [ "$root_out_dir/locales/xwalk" ]
-    files_to_package = [
-      "//xwalk/VERSION",
-      "$root_out_dir/d3dcompiler_47.dll",
-      "$root_out_dir/icudtl.dat",
-      "$root_out_dir/libEGL.dll",
-      "$root_out_dir/libGLESv2.dll",
-      "$root_out_dir/natives_blob.bin",
-      "$root_out_dir/osmesa.dll",
-      "$root_out_dir/snapshot_blob.bin",
-      "$root_out_dir/xwalk.exe",
-      "$root_out_dir/xwalk.pak",
-      "$root_out_dir/xwalk_100_percent.pak",
-      "$root_out_dir/xwalk_200_percent.pak",
-      "$root_out_dir/xwalk_300_percent.pak",
-      "$root_out_dir/xwalk_dotnet_bridge.dll",
-    ]
-    inputs = [
-      "//xwalk/VERSION",
-    ]
-    outputs = [
-      "$root_out_dir/crosswalk_win.zip",
-    ]
-    script = "//xwalk/build/win/generate_crosswalk_zip.py"
+# Copy xwalk/VERSION to the build directory for tools (such as
+# generate_crosswalk_zip.py) that assume all paths are under $root_out_dir.
+copy("VERSION") {
+  sources = [
+    "//xwalk/VERSION",
+  ]
+  outputs = [
+    "$root_out_dir/VERSION",
+  ]
+}
 
-    _rebased_dirs = rebase_path(dirs_to_package, root_out_dir)
-    _rebased_files = rebase_path(files_to_package, root_out_dir)
+action("generate_crosswalk_win_zip") {
+  # The files and directories will be added with the same names to the
+  # generated zip file, with $root_out_dir stripped from the beginning.
+  dirs_to_package = [ "$root_out_dir/locales/xwalk" ]
+  files_to_package = [
+    "$root_out_dir/VERSION",
+    "$root_out_dir/d3dcompiler_47.dll",
+    "$root_out_dir/icudtl.dat",
+    "$root_out_dir/libEGL.dll",
+    "$root_out_dir/libGLESv2.dll",
+    "$root_out_dir/natives_blob.bin",
+    "$root_out_dir/osmesa.dll",
+    "$root_out_dir/snapshot_blob.bin",
+    "$root_out_dir/xwalk.exe",
+    "$root_out_dir/xwalk.pak",
+    "$root_out_dir/xwalk_100_percent.pak",
+    "$root_out_dir/xwalk_200_percent.pak",
+    "$root_out_dir/xwalk_300_percent.pak",
+    "$root_out_dir/xwalk_dotnet_bridge.dll",
+  ]
+  outputs = [
+    "$root_out_dir/crosswalk_win.zip",
+  ]
+  script = "//xwalk/build/win/generate_crosswalk_zip.py"
 
-    args = [
-      "--build-dir",
-      rebase_path(root_out_dir),
-      "--dest",
-      rebase_path("$root_out_dir/crosswalk_win.zip"),
-      "--dirs=$_rebased_dirs",
-      "--files=$_rebased_files",
-    ]
-    deps = [
-      ":xwalk",
-      "//xwalk/resources:xwalk_locales",
-      "//xwalk/resources:xwalk_pak",
-      "//xwalk/resources:xwalk_resources_100_percent_pak",
-      "//xwalk/resources:xwalk_resources_200_percent_pak",
-      "//xwalk/resources:xwalk_resources_300_percent_pak",
-    ]
-  }
+  _rebased_dirs = rebase_path(dirs_to_package, root_out_dir)
+  _rebased_files = rebase_path(files_to_package, root_out_dir)
+
+  args = [
+    "--build-dir",
+    rebase_path(root_out_dir),
+    "--dest",
+    rebase_path("$root_out_dir/crosswalk_win.zip"),
+    "--dirs=$_rebased_dirs",
+    "--files=$_rebased_files",
+  ]
+  deps = [
+    ":VERSION",
+    ":xwalk",
+    "//xwalk/resources:xwalk_locales",
+    "//xwalk/resources:xwalk_pak",
+    "//xwalk/resources:xwalk_resources_100_percent_pak",
+    "//xwalk/resources:xwalk_resources_200_percent_pak",
+    "//xwalk/resources:xwalk_resources_300_percent_pak",
+  ]
 }
