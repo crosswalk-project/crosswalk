@@ -24,7 +24,12 @@ from util import build_utils
 
 
 def PathInZipArchive(fs_path, root_dir):
-  if os.path.commonprefix([os.path.abspath(fs_path), root_dir]) != root_dir:
+  # Normalize the paths because gyp and GN pass them differently.
+  # gyp in particular passes |root_dir| as a relative path and mixes "/" and
+  # "\" in the paths.
+  fs_path = os.path.abspath(os.path.normpath(fs_path))
+  root_dir = os.path.abspath(os.path.normpath(root_dir))
+  if os.path.commonprefix([fs_path, root_dir]) != root_dir:
     raise Exception("%s must be under %s" % (fs_path, root_dir))
   return os.path.relpath(fs_path, root_dir)
 
