@@ -132,8 +132,6 @@
         'runtime/browser/android/xwalk_cookie_access_policy.h',
         'runtime/browser/android/xwalk_dev_tools_server.cc',
         'runtime/browser/android/xwalk_dev_tools_server.h',
-        'runtime/browser/android/xwalk_download_resource_throttle.cc',
-        'runtime/browser/android/xwalk_download_resource_throttle.h',
         'runtime/browser/android/xwalk_http_auth_handler.cc',
         'runtime/browser/android/xwalk_http_auth_handler.h',
         'runtime/browser/android/xwalk_http_auth_handler_base.cc',
