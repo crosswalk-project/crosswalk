@@ -769,7 +769,6 @@ public class XWalkViewTestBase
             str = "document.getElementById('" + id + "')";
         }
         final String script1 = str + " != null";
-        final String script2 = str + ".dispatchEvent(evObj);";
         CriteriaHelper.pollInstrumentationThread(new Criteria() {
             @Override
             public boolean isSatisfied() {
@@ -785,10 +784,10 @@ public class XWalkViewTestBase
         }, WAIT_TIMEOUT_MS, CHECK_INTERVAL);
 
         try {
-            loadJavaScriptUrl("javascript:var evObj = document.createEvent('Events'); " +
-                "evObj.initEvent('click', true, false); " +
-                script2 +
-                "console.log('element with id [" + id + "] clicked');");
+            loadJavaScriptUrl(
+                "javascript:var evObj = new MouseEvent('click', {bubbles: true}); "
+                        + "document.getElementById('" + id + "').dispatchEvent(evObj);"
+                        + "console.log('element with id [" + id + "] clicked');");
         } catch (Throwable t) {
             t.printStackTrace();
         }
