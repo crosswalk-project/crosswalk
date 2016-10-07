@@ -59,7 +59,7 @@ source_set("extensions") {
     "//base",
     "//content",
     "//ipc",
-    "//third_party/WebKit/public:blink_headers",
+    "//third_party/WebKit/public:blink",
     "//url",
     "//v8",
   ]
