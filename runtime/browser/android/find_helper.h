@@ -46,7 +46,7 @@ class FindHelper : public content::WebContentsObserver {
   void ClearMatches();
 
  private:
-  void StartNewRequest(const base::string16& search_string);
+  void StartNewSession(const base::string16& search_string);
   bool MaybeHandleEmptySearch(const base::string16& search_string);
   void NotifyResults(int active_ordinal, int match_count, bool finished);
 
@@ -56,10 +56,14 @@ class FindHelper : public content::WebContentsObserver {
   // Used to check the validity of FindNext operations.
   bool async_find_started_;
 
-  // Used to provide different ids to each request and for result
+  // Used to provide different IDs to each request and for result
   // verification in asynchronous calls.
   int find_request_id_counter_;
   int current_request_id_;
+
+  // Used to mark the beginning of the current find session. This is the ID of
+  // the first find request in the current session.
+  int current_session_id_;
 
   // Required by FindNext and the incremental find replies.
   base::string16 last_search_string_;
