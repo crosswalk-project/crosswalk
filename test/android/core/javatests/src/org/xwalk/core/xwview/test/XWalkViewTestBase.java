@@ -38,7 +38,6 @@ import org.chromium.ui.gfx.DeviceDisplayInfo;
 
 import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.XWalkDownloadListener;
-import org.xwalk.core.XWalkFindListener;
 import org.xwalk.core.XWalkHttpAuthHandler;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
@@ -270,15 +269,6 @@ public class XWalkViewTestBase
         }
     }
 
-    class TestXWalkFindListener extends XWalkFindListener {
-        @Override
-        public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches,
-                boolean isDoneCounting) {
-            mTestHelperBridge.onFindResultReceived(activeMatchOrdinal, numberOfMatches,
-                    isDoneCounting);
-        }
-    }
-
     void setDownloadListener() {
         final Context context = getActivity();
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -286,15 +276,6 @@ public class XWalkViewTestBase
             public void run() {
                 TestXWalkDownloadListener listener = new TestXWalkDownloadListener(context);
                 getXWalkView().setDownloadListener(listener);
-            }
-        });
-    }
-
-    void setFindListener() {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setFindListener(new TestXWalkFindListener());
             }
         });
     }
@@ -1564,24 +1545,6 @@ public class XWalkViewTestBase
             @Override
             public SslCertificate call() throws Exception {
                 return mXWalkView.getCertificate();
-            }
-        });
-    }
-
-    protected void findAllAsync(final String text) {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mXWalkView.findAllAsync(text);
-            }
-        });
-    }
-
-    protected void findNext(final boolean forward) {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mXWalkView.findNext(forward);
             }
         });
     }
