@@ -58,7 +58,6 @@
       'variables': {
         'script_dir': 'tools/reflection_generator',
         'internal_dir': 'runtime/android/core_internal/src/org/xwalk/core/internal',
-        'template_dir': 'runtime/android/templates',
         'scripts': [
           '>!@(find <(script_dir) -name "*.py")'
         ],
@@ -68,9 +67,8 @@
         'reflect_sources': [
           '>!@(find <(internal_dir) -name "Reflect*.java")'
         ],
-        'templates': [
-          '>!@(find <(template_dir) -name "*.template")'
-        ],
+        'xwalk_app_version_template': 'runtime/android/templates/XWalkAppVersion.template',
+        'xwalk_core_version_template': 'runtime/android/templates/XWalkCoreVersion.template',
         'timestamp': '<(reflection_java_dir)/gen.timestamp',
         'extra_reflection_args': [],
       },
@@ -95,7 +93,8 @@
             '>@(scripts)',
             '>@(internal_sources)',
             '>@(reflect_sources)',
-            '>@(templates)',
+            '<(xwalk_app_version_template)',
+            '<(xwalk_core_version_template)',
             'API_VERSION',
             'VERSION',
           ],
@@ -105,7 +104,8 @@
           'action': [
             'python', '<(script_dir)/reflection_generator.py',
             '--input-dir', '<(internal_dir)',
-            '--template-dir', '<(template_dir)',
+            '--xwalk-app-version-template-path', '<(xwalk_app_version_template)',
+            '--xwalk-core-version-template-path', '<(xwalk_core_version_template)',
             '--bridge-output', '<(reflection_java_dir)/bridge',
             '--wrapper-output', '<(reflection_java_dir)/wrapper',
             '--stamp', '<(timestamp)',

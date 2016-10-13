@@ -130,25 +130,15 @@ def GenerateJavaReflectClass(input_dir, wrapper_path, wrapper_writer):
       wrapper_writer.WriteFile(wrapper_path, helper, wrapped_contents)
 
 
-def GenerateJavaTemplateClass(template_dir, bridge_path, bridge_writer,
-                              wrapper_path, wrapper_writer, mapping):
-  with open(os.path.join(template_dir, 'XWalkAppVersion.template')) as f:
-    contents = f.read()
-    wrapper_writer.WriteFile(wrapper_path, 'XWalkAppVersion.java',
-                             Template(contents).substitute(mapping))
-  with open(os.path.join(template_dir, 'XWalkCoreVersion.template')) as f:
-    contents = f.read()
-    bridge_writer.WriteFile(bridge_path, 'XWalkCoreVersion.java',
-                            Template(contents).substitute(mapping))
-
-
 def main(argv):
   parser = argparse.ArgumentParser()
   parser.add_argument('--input-dir', required=True,
                       help=('Input source file directory which contains input '
                             'files'))
-  parser.add_argument('--template-dir',
-                      help='Templates directory to generate java source file')
+  parser.add_argument('--xwalk-app-version-template-path', required=True,
+                      help='Path to the XWalkAppVersion.template template.')
+  parser.add_argument('--xwalk-core-version-template-path', required=True,
+                      help='Path to the XWalkCoreVersion.template template.')
   parser.add_argument('--bridge-output', required=True,
                       help='Output directory where the bridge code is placed.')
   parser.add_argument('--wrapper-output', required=True,
@@ -197,15 +187,20 @@ def main(argv):
 
   # TODO(rakuco): template handling should not be done in this script.
   # Once we stop supporting gyp, we should do this as part of the build system.
-  if options.template_dir:
-    mapping = {
-      'API_VERSION': options.api_version,
-      'MIN_API_VERSION': options.min_api_version,
-      'XWALK_BUILD_VERSION': options.xwalk_build_version,
-      'VERIFY_XWALK_APK': str(options.verify_xwalk_apk).lower(),
-    }
-    GenerateJavaTemplateClass(options.template_dir, bridge_path, bridge_writer,
-                              wrapper_path, wrapper_writer, mapping)
+  mapping = {
+    'API_VERSION': options.api_version,
+    'MIN_API_VERSION': options.min_api_version,
+    'XWALK_BUILD_VERSION': options.xwalk_build_version,
+    'VERIFY_XWALK_APK': str(options.verify_xwalk_apk).lower(),
+  }
+  with open(os.path.join(options.xwalk_app_version_template_path)) as f:
+    contents = f.read()
+    wrapper_writer.WriteFile(wrapper_path, 'XWalkAppVersion.java',
+                             Template(contents).substitute(mapping))
+  with open(os.path.join(options.xwalk_core_version_template_path)) as f:
+    contents = f.read()
+    bridge_writer.WriteFile(bridge_path, 'XWalkCoreVersion.java',
+                            Template(contents).substitute(mapping))
 
   if options.stamp:
     build_utils.Touch(options.stamp)
