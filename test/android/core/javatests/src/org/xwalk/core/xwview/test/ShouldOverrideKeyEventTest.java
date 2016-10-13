@@ -28,7 +28,7 @@ public class ShouldOverrideKeyEventTest extends XWalkViewTestBase {
         String fileContent = getFileContent(name);
         int count = mOverrideOrUnhandledKeyEventHelper.getCallCount();
 
-        loadDataAsync(null, fileContent, "text/html", false);
+        loadDataAsync(fileContent, "text/html", false);
         simulateKeyAction(KeyEvent.ACTION_DOWN);
         mOverrideOrUnhandledKeyEventHelper.waitForCallback(count);
 

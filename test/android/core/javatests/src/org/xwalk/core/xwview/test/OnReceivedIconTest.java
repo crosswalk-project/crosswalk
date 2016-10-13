@@ -46,7 +46,7 @@ public class OnReceivedIconTest extends XWalkViewTestBase {
         String fileContent = getFileContent("favicon.html");
         int count = mOnReceivedIconHelper.getCallCount();
 
-        loadDataAsync(null, fileContent, "text/html", false);
+        loadDataAsync(fileContent, "text/html", false);
         mOnReceivedIconHelper.waitForCallback(count);
         assertNotNull(mOnReceivedIconHelper.getIcon());
     }

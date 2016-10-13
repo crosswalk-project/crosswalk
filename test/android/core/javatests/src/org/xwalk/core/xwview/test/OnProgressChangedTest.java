@@ -39,7 +39,7 @@ public class OnProgressChangedTest extends XWalkViewTestBase {
         final String testPath = "/test.html";
         final String testUrl = mWebServer.setResponse(testPath, testHtml, null);
 
-        loadDataAsync(null, "<html><iframe src=\"" + testUrl + "\" /></html>",
+        loadDataAsync("<html><iframe src=\"" + testUrl + "\" /></html>",
                       "text/html",
                       false);
 

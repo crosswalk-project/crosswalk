@@ -31,7 +31,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doDebug();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -44,7 +44,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doError();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -57,7 +57,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doInfo();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -70,7 +70,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doLog();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -83,7 +83,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doWarn();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -96,7 +96,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doDir();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -109,7 +109,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doDirxml();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -122,7 +122,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doTable();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -135,7 +135,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doClear();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -148,7 +148,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doTrace();");
         mOnConsoleMessageHelper.waitForCallback(count);
         assertEquals(1, mOnConsoleMessageHelper.getCallCount());
@@ -161,7 +161,7 @@ public class OnConsoleMessageTest extends XWalkViewTestBase {
         String fileContent = getFileContent("console_message.html");
         int count = mOnConsoleMessageHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         executeJavaScriptAndWaitForResult("doAll();");
         mOnConsoleMessageHelper.waitForCallback(count,NUM_OF_CONSOLE_CALL);
         assertEquals(NUM_OF_CONSOLE_CALL, mOnConsoleMessageHelper.getCallCount());

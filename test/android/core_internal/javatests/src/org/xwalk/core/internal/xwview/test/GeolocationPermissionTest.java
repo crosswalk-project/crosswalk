@@ -63,7 +63,7 @@ public class GeolocationPermissionTest extends XWalkViewInternalTestBase {
             }
         });
         String fileContent = getFileContent("geolocation.html");
-        loadDataSync("https://google.com/", fileContent, "text/html", false);
+        loadDataWithBaseUrlSync(fileContent, "text/html", false, "https://google.com/", null);
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

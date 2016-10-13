@@ -101,6 +101,6 @@ public class ResourceAndUIClientsActivity extends XWalkBaseActivity {
         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
         mXWalkView.setResourceClient(new ResourceClient(mXWalkView));
         mXWalkView.setUIClient(new UIClient(mXWalkView));
-        mXWalkView.load("http://www.baidu.com", null);
+        mXWalkView.loadUrl("http://www.baidu.com");
     }
 }

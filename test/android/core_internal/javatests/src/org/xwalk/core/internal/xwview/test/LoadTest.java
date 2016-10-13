@@ -69,10 +69,10 @@ public class LoadTest extends XWalkViewInternalTestBase {
         final String name = "index.html";
         String fileContent = getFileContent(name);
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         assertEquals(expectedLocalTitle, getTitleOnUiThread());
 
-        loadDataSync(name, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         assertEquals(expectedLocalTitle, getTitleOnUiThread());
     }
 
@@ -92,7 +92,7 @@ public class LoadTest extends XWalkViewInternalTestBase {
     @SmallTest
     @Feature({"Load"})
     public void testEmpytUrlAndContent() throws Throwable {
-        loadDataAsync(null, null, "text/html", false);
+        loadDataWithBaseUrlAsync(null, "text/html", false, null, null);
         Thread.sleep(1000);
         assertNotNull(getTitleOnUiThread());
     }

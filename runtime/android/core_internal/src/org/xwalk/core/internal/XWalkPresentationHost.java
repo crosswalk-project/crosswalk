@@ -254,7 +254,7 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
         }
 
         public void loadUrl(final String url) {
-            mContentView.load(url, null);
+            mContentView.loadUrl(url);
         }
     }
 

@@ -163,7 +163,7 @@ public class XWalkViewShellActivity extends XWalkActivity
                 if (bundle.containsKey("url")) {
                     String extra = bundle.getString("url");
                     if (mActiveView != null)
-                        mActiveView.load(sanitizeUrl(extra), null);
+                        mActiveView.loadUrl(sanitizeUrl(extra));
                 }
             }
         };
@@ -214,7 +214,7 @@ public class XWalkViewShellActivity extends XWalkActivity
                 }
 
                 if (mActiveView == null) return true;
-                mActiveView.load(sanitizeUrl(mUrlTextView.getText().toString()), null);
+                mActiveView.loadUrl(sanitizeUrl(mUrlTextView.getText().toString()));
                 mUrlTextView.clearFocus();
                 setKeyboardVisibilityForUrl(false);
                 return true;

@@ -41,6 +41,6 @@ public class OnReceivedIconActivity extends XWalkBaseActivity {
             }
         });
 
-        mXWalkView.load("file:///android_asset/favicon.html", null);
+        mXWalkView.loadUrl("file:///android_asset/favicon.html");
     }
 }

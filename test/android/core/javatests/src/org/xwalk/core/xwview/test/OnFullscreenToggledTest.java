@@ -27,7 +27,7 @@ public class OnFullscreenToggledTest extends XWalkViewTestBase {
         String fileContent = getFileContent(name);
         int count = mOnFullscreenToggledHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         clickOnElementId("fullscreen_toggled", null);
         mOnFullscreenToggledHelper.waitForCallback(count);
         assertTrue(mOnFullscreenToggledHelper.getEnterFullscreen());

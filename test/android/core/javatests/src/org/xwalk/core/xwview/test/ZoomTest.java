@@ -37,7 +37,7 @@ public class ZoomTest extends XWalkViewTestBase {
     @Feature({"Zoom test"})
     public void testZoomUsingMultiTouch() throws Throwable {
         XWalkSettings settings = getXWalkSettingsOnUiThreadByXWalkView(getXWalkView());
-        loadDataSync(null, getZoomableHtml(0.5f), "text/html", false);
+        loadDataSync(getZoomableHtml(0.5f), "text/html", false);
 
         assertTrue(settings.supportZoom());
         assertFalse(settings.getBuiltInZoomControls());

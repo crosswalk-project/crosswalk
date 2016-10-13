@@ -281,47 +281,80 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mContentViewCore.onShow();
     }
 
-    void doLoadUrl(String url, String content, Map<String, String> headers) {
-        // Handle the same url loading by parameters.
-        if (url != null && !url.isEmpty() &&
-                TextUtils.equals(url, mWebContents.getUrl())) {
-            mNavigationController.reload(true);
-        } else {
-            LoadUrlParams params = null;
-            if (content == null || content.isEmpty()) {
-                params = new LoadUrlParams(url);
-            } else {
-                // When loading data with a non-data: base URL, the classic XWalkView would effectively
-                // "dump" that string of data into the XWalkView without going through regular URL
-                // loading steps such as decoding URL-encoded entities. We achieve this same behavior by
-                // base64 encoding the data that is passed here and then loading that as a data: URL.
-                try {
-                    params = LoadUrlParams.createLoadDataParamsWithBaseUrl(
-                            Base64.encodeToString(content.getBytes("utf-8"),
-                            Base64.DEFAULT), "text/html", true, url, null, "utf-8");
-                } catch (java.io.UnsupportedEncodingException e) {
-                    Log.w(TAG, "Unable to load data string " + content, e);
-                    return;
-                }
-            }
-            params.setOverrideUserAgent(UserAgentOverrideOption.TRUE);
-            if (headers != null) params.setExtraHeaders(headers);
-            mNavigationController.loadUrl(params);
-        }
-
+    private void doLoadUrl(LoadUrlParams params) {
+        params.setOverrideUserAgent(UserAgentOverrideOption.TRUE);
+        mNavigationController.loadUrl(params);
         mContentView.requestFocus();
+        mIsLoaded = true;
     }
 
-    public void loadUrl(String url, String data, Map<String, String> headers) {
+    private static String fixupBase(String url) {
+        return TextUtils.isEmpty(url) ? "about:blank" : url;
+    }
+
+    private static String fixupData(String data) {
+        return TextUtils.isEmpty(data) ? "" : data;
+    }
+
+    private static String fixupHistory(String url) {
+        return TextUtils.isEmpty(url) ? "about:blank" : url;
+    }
+
+    private static String fixupMimeType(String mimeType) {
+        return TextUtils.isEmpty(mimeType) ? "text/html" : mimeType;
+    }
+
+    private static boolean isBase64Encoded(String encoding) {
+        return "base64".equals(encoding);
+    }
+
+    public void loadData(String data, String mimeType, String encoding) {
         if (mNativeContent == 0) return;
 
-        if ((url == null || url.isEmpty()) &&
-                (data == null || data.isEmpty())) {
+        data = TextUtils.isEmpty(data) ? "" : data;
+        mimeType = TextUtils.isEmpty(mimeType) ? "text/html" : mimeType;
+        doLoadUrl(LoadUrlParams.createLoadDataParams(
+                  fixupData(data), fixupMimeType(mimeType),isBase64Encoded(encoding)));
+    }
+
+    public void loadDataWithBaseURL(
+            String baseUrl, String data, String mimeType, String encoding, String historyUrl) {
+        if (mNativeContent == 0) return;
+
+        data = fixupData(data);
+        mimeType = fixupMimeType(mimeType);
+        LoadUrlParams loadUrlParams;
+        baseUrl = fixupBase(baseUrl);
+        historyUrl = fixupHistory(historyUrl);
+
+        // When loading data with a non-data: base URL, the classic WebView would effectively
+        // "dump" that string of data into the WebView without going through regular URL
+        // loading steps such as decoding URL-encoded entities. We achieve this same behavior by
+        // base64 encoding the data that is passed here and then loading that as a data: URL.
+        try {
+            loadUrlParams = LoadUrlParams.createLoadDataParamsWithBaseUrl(
+                    Base64.encodeToString(data.getBytes("utf-8"), Base64.DEFAULT), mimeType,
+                    true, baseUrl, historyUrl, "utf-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            Log.w(TAG, "Unable to load data string " + data, e);
             return;
         }
+        doLoadUrl(loadUrlParams);
+    }
 
-        doLoadUrl(url, data, headers);
-        mIsLoaded = true;
+    public void loadUrl(String url) {
+        // Early out to match the old classic Android WebView's implementation.
+        if (url == null) {
+            return;
+        }
+        loadUrl(url, null);
+    }
+
+    public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+        if (mNativeContent == 0) return;
+        LoadUrlParams params = new LoadUrlParams(url);
+        if (additionalHttpHeaders != null) params.setExtraHeaders(additionalHttpHeaders);
+        doLoadUrl(params);
     }
 
     public void reload(int mode) {
@@ -685,7 +718,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
     @CalledByNative
     public void onGetUrlFromManifest(String url) {
         if (url != null && !url.isEmpty()) {
-            loadUrl(url, null, null);
+            loadUrl(url);
         }
     }
 
@@ -694,7 +727,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         if (url == null || url.isEmpty()) return;
         mLaunchScreenManager.displayLaunchScreen(readyWhen, imageBorder);
         mContentsClientBridge.registerPageLoadListener(mLaunchScreenManager);
-        loadUrl(url, null, null);
+        loadUrl(url);
     }
 
     @CalledByNative

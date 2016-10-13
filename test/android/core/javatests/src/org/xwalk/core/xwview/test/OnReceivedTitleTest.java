@@ -65,7 +65,7 @@ public class OnReceivedTitleTest extends XWalkViewTestBase {
         final String fileContent = getFileContent(name);
         int onReceivedTitleCallCount = mOnTitleUpdatedHelper.getCallCount();
 
-        loadDataSync(name, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         mOnTitleUpdatedHelper.waitForCallback(onReceivedTitleCallCount);
         assertNotNull(mOnTitleUpdatedHelper.getTitle());
     }

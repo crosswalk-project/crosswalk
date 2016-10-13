@@ -60,10 +60,7 @@ public class OnReceivedErrorTest extends XWalkViewTestBase {
                 mTestHelperBridge.getOnPageFinishedHelper();
 
         int currentCallCount = onPageFinishedHelper.getCallCount();
-        loadDataAsync("<html><iframe src=\"http//invalid.url.co/\" /></html>",
-                      null,
-                      "text/html",
-                      false);
+        loadUrlAsync("<html><iframe src=\"http//invalid.url.co/\" /></html>");
 
         onPageFinishedHelper.waitForCallback(currentCallCount);
         assertEquals(0, mOnReceivedErrorHelper.getCallCount());

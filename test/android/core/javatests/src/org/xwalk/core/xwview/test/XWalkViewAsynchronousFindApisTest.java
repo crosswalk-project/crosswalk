@@ -20,14 +20,14 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllFinds() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
     }
 
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllDouble() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         findAllAsyncOnUiThread("wood");
         assertEquals(4, findAllAsyncOnUiThread("chuck"));
     }
@@ -35,7 +35,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllDoubleNext() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
         assertEquals(4, findAllAsyncOnUiThread("wood"));
         assertEquals(2, findNextOnUiThread(true));
@@ -44,28 +44,28 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllDoesNotFind() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(0, findAllAsyncOnUiThread("foo"));
     }
 
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllEmptyPage() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(0, findAllAsyncOnUiThread("foo"));
     }
 
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllEmptyString() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(0, findAllAsyncOnUiThread(""));
     }
 
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindNextForward() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
 
         for (int i = 2; i <= 4; i++) {
@@ -77,7 +77,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindNextBackward() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
 
         for (int i = 4; i >= 1; i--) {
@@ -89,7 +89,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindNextBig() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
 
         assertEquals(1, findNextOnUiThread(true));
@@ -104,7 +104,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindAllEmptyNext() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
         assertEquals(1, findNextOnUiThread(true));
         assertEquals(0, findAllAsyncOnUiThread(""));
@@ -117,7 +117,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testClearMatches() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
         clearMatchesOnUiThread();
     }
@@ -125,7 +125,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testClearFindNext() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(4, findAllAsyncOnUiThread("wood"));
         clearMatchesOnUiThread();
         assertEquals(4, findAllAsyncOnUiThread("wood"));
@@ -135,7 +135,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindEmptyNext() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         assertEquals(0, findAllAsyncOnUiThread(""));
         assertEquals(0, findNextOnUiThread(true));
         assertEquals(4, findAllAsyncOnUiThread("wood"));
@@ -144,7 +144,7 @@ public class XWalkViewAsynchronousFindApisTest extends XWalkViewFindApisTestBase
     @SmallTest
     @Feature({"XWalkView", "FindInPage"})
     public void testFindNextFirst() throws Throwable {
-        loadDataSync(null, data, "text/html", false);
+        loadDataSync(data, "text/html", false);
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {

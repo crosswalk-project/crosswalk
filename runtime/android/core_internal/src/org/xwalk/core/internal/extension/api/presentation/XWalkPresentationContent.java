@@ -69,7 +69,7 @@ public class XWalkPresentationContent {
             };
             mContentView.setUIClient(xWalkUIClient);
         }
-        mContentView.load(url, null);
+        mContentView.loadUrl(url);
     }
 
     public int getPresentationId() {

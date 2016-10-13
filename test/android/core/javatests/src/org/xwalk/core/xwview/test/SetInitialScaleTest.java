@@ -47,7 +47,7 @@ public class SetInitialScaleTest extends XWalkViewTestBase {
         // So we first change the scale to some non-default value, and then wait
         // until it gets back to 1.0.
         int onScaleChangedCallCount = mOnScaleChangedHelper.getCallCount();
-        loadDataSync(null, pageScale4, "text/html", false);
+        loadDataSync(pageScale4, "text/html", false);
         mOnScaleChangedHelper.waitForCallback(onScaleChangedCallCount);
         assertEquals(4.0f, getScaleFactor());
 
@@ -55,7 +55,7 @@ public class SetInitialScaleTest extends XWalkViewTestBase {
         // page scale change may occur, and this makes the usual onScaleChanged-based workflow
         // flaky. So instead, we are just polling the scale until it becomes 1.0.
         setInitialScale(50);
-        loadDataSync(null, page, "text/html", false);
+        loadDataSync(page, "text/html", false);
         ensureScaleBecomes(1.0f);
     }
 
@@ -80,25 +80,25 @@ public class SetInitialScaleTest extends XWalkViewTestBase {
                 ).getResources().getDisplayMetrics().density;
 
         assertEquals(defaultScaleFactor, getScaleFactor(), .01f);
-        loadDataSync(null, page, "text/html", false);
+        loadDataSync(page, "text/html", false);
         assertEquals(defaultScale, getPixelScale(), .01f);
 
         int onScaleChangedCallCount = mOnScaleChangedHelper.getCallCount();
         setInitialScale(60);
-        loadDataSync(null, page, "text/html", false);
+        loadDataSync(page, "text/html", false);
         mOnScaleChangedHelper.waitForCallback(onScaleChangedCallCount);
         assertEquals(0.6f, getPixelScale(), .01f);
 
         onScaleChangedCallCount = mOnScaleChangedHelper.getCallCount();
         setInitialScale(500);
-        loadDataSync(null, page, "text/html", false);
+        loadDataSync(page, "text/html", false);
         mOnScaleChangedHelper.waitForCallback(onScaleChangedCallCount);
         assertEquals(5.0f, getPixelScale(), .01f);
 
         onScaleChangedCallCount = mOnScaleChangedHelper.getCallCount();
         // default min-scale will be used.
         setInitialScale(0);
-        loadDataSync(null, page, "text/html", false);
+        loadDataSync(page, "text/html", false);
         mOnScaleChangedHelper.waitForCallback(onScaleChangedCallCount);
         assertEquals(defaultScale, getPixelScale(), .01f);
     }

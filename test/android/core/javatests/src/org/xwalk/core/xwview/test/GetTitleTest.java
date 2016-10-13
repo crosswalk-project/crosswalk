@@ -35,7 +35,7 @@ public class GetTitleTest extends XWalkViewTestBase {
         final String name = "index.html";
         final String fileContent = getFileContent(name);
 
-        loadDataSync(name, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         assertEquals(mTitle, getTitleOnUiThread());
     }
 }

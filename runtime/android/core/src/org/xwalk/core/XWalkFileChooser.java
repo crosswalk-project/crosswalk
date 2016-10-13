@@ -68,7 +68,7 @@ import java.util.Date;
  *
  *     &#64;Override
  *     protected void onXWalkReady() {
- *         mXWalkView.load("file:///android_asset/test.html", null);
+ *         mXWalkView.loadUrl("file:///android_asset/test.html");
  *     }
  *
  *     &#64;Override

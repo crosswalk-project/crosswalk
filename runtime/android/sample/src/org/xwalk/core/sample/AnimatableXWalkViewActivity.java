@@ -61,7 +61,7 @@ public class AnimatableXWalkViewActivity extends XWalkBaseActivity {
         });
 
         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
-        mXWalkView.load("http://www.baidu.com", null);
+        mXWalkView.loadUrl("http://www.baidu.com");
     }
 
     @Override

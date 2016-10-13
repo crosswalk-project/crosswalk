@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -200,7 +201,7 @@ import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
  *     public void onXWalkReady() {
  *         // Do anyting with the embedding API
  *
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *         mXWalkView.loadUrl("https://crosswalk-project.org/");
  *     }
  *
  *     &#64;Override
@@ -420,7 +421,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * If url is null or empty and content is null or empty, then this function
      * will do nothing.
      * If content is not null, load the web page/app from the content.
-     * If content is not null and the url is not set, return "about:blank" ifi
+     * If content is not null and the url is not set, return "about:blank" if
      * calling {@link XWalkViewInternal#getUrl()}.
      * If content is null, try to load the content from the url.
      *
@@ -428,13 +429,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * It can also load files from Android assets, e.g. 'file:///android_asset/'.
      * @param url the url for web page/app.
      * @param content the content for the web page/app. Could be empty.
+     * @deprecated This method is deprecated, please use
+     *             {@link XWalkViewInternal#loadUrl},
+     *             {@link XWalkViewInternal#loadData} or
+     *             {@link XWalkViewInternal#loadDataWithBaseURL} instead.
      * @since 1.0
      */
+    @Deprecated
     @XWalkAPI
     public void load(String url, String content) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.loadUrl(url, content, null);
+        load(url, content, null);
     }
 
     /**
@@ -442,13 +446,151 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * @param url the url for web page/app.
      * @param content the content for the web page/app. Could be empty.
      * @param headers the additional HTTP headers
+     * @deprecated This method is deprecated, please use
+     *             {@link XWalkViewInternal#loadUrl},
+     *             {@link XWalkViewInternal#loadData} or
+     *             {@link XWalkViewInternal#loadDataWithBaseURL} instead.
      * @since 6.0
      */
+    @Deprecated
     @XWalkAPI
     public void load(String url, String content, Map<String, String> headers) {
         if (mContent == null) return;
         checkThreadSafety();
-        mContent.loadUrl(url, content, headers);
+        // If both |data| and |content| are null/empty, do nothing.
+        if ((url == null || url.isEmpty()) &&
+                (content == null || content.isEmpty())) {
+            return;
+        }
+        if (url != null && !url.isEmpty() &&
+                TextUtils.equals(url, getUrl())) {
+            // Backwards compatibility with earlier Crosswalk versions: if
+            // we're trying to load the same URL, even if |content| is
+            // different, just reload.
+            reload(XWalkViewInternal.RELOAD_NORMAL);
+        } else {
+            // If we're only passing |url|, load it like a regular loadUrl()
+            // call, otherwise call loadDataWithBaseURL() and use |url| as the
+            // base URL.
+            if (content == null || content.isEmpty()) {
+                mContent.loadUrl(url, headers);
+            } else {
+                mContent.loadDataWithBaseURL(url, content, "text/html", null, null);
+            }
+        }
+    }
+
+    /**
+     * Loads the given data into this WebView using a 'data' scheme URL.
+     *
+     * Note that JavaScript's same origin policy means that script running in a
+     * page loaded using this method will be unable to access content loaded
+     * using any scheme other than 'data', including 'http(s)'. To avoid this
+     * restriction, use {@link XWalkViewInternal#loadDataWithBaseURL} with an
+     * appropriate base URL.
+     *
+     * The encoding parameter specifies whether the data is base64 or URL
+     * encoded. If the data is base64 encoded, the value of the encoding
+     * parameter must be 'base64'. For all other values of the parameter,
+     * including null, it is assumed that the data uses ASCII encoding for
+     * octets inside the range of safe URL characters and use the standard %xx
+     * hex encoding of URLs for octets outside that range. For example, '#',
+     * '%', '\', '?' should be replaced by %23, %25, %27, %3f respectively.
+     *
+     * The 'data' scheme URL formed by this method uses the default US-ASCII
+     * charset. If you need need to set a different charset, you should form a
+     * 'data' scheme URL which explicitly specifies a charset parameter in the
+     * mediatype portion of the URL and call {@link
+     * XWalkViewInternal#loadUrl(String)} instead. Note that the charset
+     * obtained from the mediatype portion of a data URL always overrides that
+     * specified in the HTML or XML document itself.
+     *
+     * @param data a String of data in the given encoding
+     * @param mimeType the MIME type of the data, e.g. 'text/html'
+     * @param encoding the encoding of the data
+     * @since 8.0
+     */
+    @XWalkAPI
+    public void loadData(String data, String mimeType, String encoding) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.loadData(data, mimeType, encoding);
+    }
+
+    /**
+     * Loads the given data into this XWalkView, using baseUrl as the base URL
+     * for the content. The base URL is used both to resolve relative URLs and
+     * when applying JavaScript's same origin policy. The historyUrl is used
+     * for the history entry.
+     *
+     * Note that content specified in this way can access local device files
+     * (via 'file' scheme URLs) only if baseUrl specifies a scheme other than
+     * 'http', 'https', 'ftp', 'ftps', 'about' or 'javascript'.
+     *
+     * If the base URL uses the data scheme, this method is equivalent to
+     * calling {@link XWalkViewInternal#loadData} and the historyUrl is
+     * ignored, and the data will be treated as part of a data: URL. If the
+     * base URL uses any other scheme, then the data will be loaded into the
+     * WebView as a plain string (i.e. not part of a data URL) and any
+     * URL-encoded entities in the string will not be decoded.
+     *
+     * Note that the baseUrl is sent in the 'Referer' HTTP header when
+     * requesting subresources (images, etc.) of the page loaded using this method.
+     *
+     * @param baseUrl the URL to use as the page's base URL. If null defaults to
+     *                'about:blank'.
+     * @param data a String of data in the given encoding
+     * @param mimeType the MIMEType of the data, e.g. 'text/html'. If null,
+     *                 defaults to 'text/html'.
+     * @param encoding the encoding of the data
+     * @param historyUrl the URL to use as the history entry. If null defaults
+     *                   to 'about:blank'. If non-null, this must be a valid URL.
+     * @since 8.0
+     */
+    @XWalkAPI
+    public void loadDataWithBaseURL(final String baseUrl, final String data, final String mimeType,
+            final String encoding, final String historyUrl) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
+    }
+
+    /**
+     * Loads the given URL.
+     *
+     * It supports URL schemes like 'http:', 'https:' and 'file:'.
+     * It can also load files from Android assets, e.g. 'file:///android_asset/'.
+     *
+     * @param url the url for web page/app.
+     * @since 8.0
+     */
+    @XWalkAPI
+    public void loadUrl(String url) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.loadUrl(url);
+    }
+
+    /**
+     * Loads the given URL.
+     *
+     * It supports URL schemes like 'http:', 'https:' and 'file:'.
+     * It can also load files from Android assets, e.g. 'file:///android_asset/'.
+     *
+     * @param url the url for web page/app.
+     * @param additionalHttpHeaders the additional headers to be used in the
+     *            HTTP request for this URL, specified as a map from name to
+     *            value. Note that if this map contains any of the headers
+     *            that are set by default by this XWalkView, such as those
+     *            controlling caching, accept types or the User-Agent, their
+     *            values may be overriden by this XWalkView's defaults.
+     * @since 8.0
+     */
+    @XWalkAPI
+    public void loadUrl(String url, Map<String, String> additionalHttpHeaders) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.loadUrl(url, additionalHttpHeaders);
     }
 
     /**

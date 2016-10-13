@@ -62,7 +62,7 @@ public class XWalkNavigationActivity extends XWalkBaseActivity {
             }
         });
 
-        mXWalkView.load("http://www.baidu.com/", null);
+        mXWalkView.loadUrl("http://www.baidu.com/");
     }
 
     private void showNavigationItemInfo(XWalkNavigationItem navigationItem){

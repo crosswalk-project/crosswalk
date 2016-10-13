@@ -73,8 +73,7 @@ public class OnPageLoadStoppedTest extends XWalkViewTestBase {
         final String name = "index.html";
         String fileContent = getFileContent(name);
         int currentCallCount = mOnPageFinishedHelper.getCallCount();
-        loadDataAsync(null, fileContent, "text/html", false);
-
+        loadDataWithBaseUrlAsync(fileContent, "text/html", false, null, null);
         mOnPageFinishedHelper.waitForCallback(currentCallCount);
         assertEquals("about:blank", mOnPageFinishedHelper.getUrl());
         assertEquals(LoadStatus.FINISHED, mTestHelperBridge.getLoadStatus());

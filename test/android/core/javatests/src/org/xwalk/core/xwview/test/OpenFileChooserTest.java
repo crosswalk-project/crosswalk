@@ -27,7 +27,7 @@ public class OpenFileChooserTest extends XWalkViewTestBase {
         String fileContent = getFileContent(name);
         int count = mOpenFileChooserHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         clickOnElementId("upload_input", null);
         mOpenFileChooserHelper.waitForCallback(count);
         assertNotNull(mOpenFileChooserHelper.getCallback());
