@@ -8,6 +8,44 @@ import("//xwalk/build/xwalk.gni")
 import("//xwalk/runtime/android/core_internal/chromium_java_deps.gni")
 
 reflection_gen_dir = "$root_gen_dir/xwalk_core_reflection_layer/"
+
+# These files are used by both xwalk_core_internal_java and
+# xwalk_core_reflection_layer_gen, so they are maintained in this variable so
+# changes to the lists are automatically reflected in both targets.
+internal_java_files = [
+  "src/org/xwalk/core/internal/ClientCertRequestHandlerInternal.java",
+  "src/org/xwalk/core/internal/ClientCertRequestInternal.java",
+  "src/org/xwalk/core/internal/CustomViewCallbackHandlerInternal.java",
+  "src/org/xwalk/core/internal/CustomViewCallbackInternal.java",
+  "src/org/xwalk/core/internal/XWalkCookieManagerInternal.java",
+  "src/org/xwalk/core/internal/XWalkDownloadListenerInternal.java",
+  "src/org/xwalk/core/internal/XWalkExtensionInternal.java",
+  "src/org/xwalk/core/internal/XWalkExternalExtensionManagerInternal.java",
+  "src/org/xwalk/core/internal/XWalkFindListenerInternal.java",
+  "src/org/xwalk/core/internal/XWalkGetBitmapCallbackInternal.java",
+  "src/org/xwalk/core/internal/XWalkHitTestResultInternal.java",
+  "src/org/xwalk/core/internal/XWalkHttpAuthHandlerInternal.java",
+  "src/org/xwalk/core/internal/XWalkHttpAuthInternal.java",
+  "src/org/xwalk/core/internal/XWalkJavascriptResultHandlerInternal.java",
+  "src/org/xwalk/core/internal/XWalkJavascriptResultInternal.java",
+  "src/org/xwalk/core/internal/XWalkNativeExtensionLoaderInternal.java",
+  "src/org/xwalk/core/internal/XWalkNavigationHistoryInternal.java",
+  "src/org/xwalk/core/internal/XWalkNavigationItemInternal.java",
+  "src/org/xwalk/core/internal/XWalkPreferencesInternal.java",
+  "src/org/xwalk/core/internal/XWalkResourceClientInternal.java",
+  "src/org/xwalk/core/internal/XWalkSettingsInternal.java",
+  "src/org/xwalk/core/internal/XWalkUIClientInternal.java",
+  "src/org/xwalk/core/internal/XWalkViewInternal.java",
+  "src/org/xwalk/core/internal/XWalkWebResourceRequestHandlerInternal.java",
+  "src/org/xwalk/core/internal/XWalkWebResourceRequestInternal.java",
+  "src/org/xwalk/core/internal/XWalkWebResourceResponseInternal.java",
+]
+reflection_java_files = [
+  "src/org/xwalk/core/internal/ReflectConstructor.java",
+  "src/org/xwalk/core/internal/ReflectField.java",
+  "src/org/xwalk/core/internal/ReflectMethod.java",
+]
+
 android_library("xwalk_core_internal_java") {
   # ATTENTION: do NOT add dependencies on non-//xwalk targets below; they must
   # be added to |core_internal_java_chromium_deps| instead. This variable is
@@ -22,17 +60,10 @@ android_library("xwalk_core_internal_java") {
   java_files = [
     "src/org/xwalk/core/internal/AndroidProtocolHandler.java",
     "src/org/xwalk/core/internal/ClientCertLookupTable.java",
-    "src/org/xwalk/core/internal/ClientCertRequestHandlerInternal.java",
-    "src/org/xwalk/core/internal/ClientCertRequestInternal.java",
-    "src/org/xwalk/core/internal/CustomViewCallbackHandlerInternal.java",
-    "src/org/xwalk/core/internal/CustomViewCallbackInternal.java",
     "src/org/xwalk/core/internal/ErrorCodeConversionHelper.java",
     "src/org/xwalk/core/internal/InMemorySharedPreferences.java",
     "src/org/xwalk/core/internal/MixedContext.java",
     "src/org/xwalk/core/internal/PageLoadListener.java",
-    "src/org/xwalk/core/internal/ReflectConstructor.java",
-    "src/org/xwalk/core/internal/ReflectField.java",
-    "src/org/xwalk/core/internal/ReflectMethod.java",
     "src/org/xwalk/core/internal/SslUtil.java",
     "src/org/xwalk/core/internal/UrlUtilities.java",
     "src/org/xwalk/core/internal/XWalkAPI.java",
@@ -46,46 +77,24 @@ android_library("xwalk_core_internal_java") {
     "src/org/xwalk/core/internal/XWalkContentsClientBridge.java",
     "src/org/xwalk/core/internal/XWalkContentsClientCallbackHelper.java",
     "src/org/xwalk/core/internal/XWalkContentsIoThreadClient.java",
-    "src/org/xwalk/core/internal/XWalkCookieManagerInternal.java",
     "src/org/xwalk/core/internal/XWalkCoreBridge.java",
     "src/org/xwalk/core/internal/XWalkDevToolsServer.java",
     "src/org/xwalk/core/internal/XWalkDownloadListenerImpl.java",
-    "src/org/xwalk/core/internal/XWalkDownloadListenerInternal.java",
-    "src/org/xwalk/core/internal/XWalkExtensionInternal.java",
-    "src/org/xwalk/core/internal/XWalkExternalExtensionManagerInternal.java",
-    "src/org/xwalk/core/internal/XWalkFindListenerInternal.java",
     "src/org/xwalk/core/internal/XWalkGeolocationPermissions.java",
-    "src/org/xwalk/core/internal/XWalkGetBitmapCallbackInternal.java",
-    "src/org/xwalk/core/internal/XWalkHitTestResultInternal.java",
-    "src/org/xwalk/core/internal/XWalkHttpAuthHandlerInternal.java",
-    "src/org/xwalk/core/internal/XWalkHttpAuthInternal.java",
     "src/org/xwalk/core/internal/XWalkInternalResources.java",
-    "src/org/xwalk/core/internal/XWalkJavascriptResultHandlerInternal.java",
-    "src/org/xwalk/core/internal/XWalkJavascriptResultInternal.java",
     "src/org/xwalk/core/internal/XWalkLaunchScreenManager.java",
     "src/org/xwalk/core/internal/XWalkMediaPlayerResourceLoadingFilter.java",
-    "src/org/xwalk/core/internal/XWalkNativeExtensionLoaderInternal.java",
     "src/org/xwalk/core/internal/XWalkNavigationHandler.java",
     "src/org/xwalk/core/internal/XWalkNavigationHandlerImpl.java",
-    "src/org/xwalk/core/internal/XWalkNavigationHistoryInternal.java",
-    "src/org/xwalk/core/internal/XWalkNavigationItemInternal.java",
     "src/org/xwalk/core/internal/XWalkNotificationService.java",
     "src/org/xwalk/core/internal/XWalkNotificationServiceImpl.java",
     "src/org/xwalk/core/internal/XWalkPathHelper.java",
-    "src/org/xwalk/core/internal/XWalkPreferencesInternal.java",
     "src/org/xwalk/core/internal/XWalkPresentationHost.java",
-    "src/org/xwalk/core/internal/XWalkResourceClientInternal.java",
-    "src/org/xwalk/core/internal/XWalkSettingsInternal.java",
     "src/org/xwalk/core/internal/XWalkSwitches.java",
-    "src/org/xwalk/core/internal/XWalkUIClientInternal.java",
     "src/org/xwalk/core/internal/XWalkViewDelegate.java",
-    "src/org/xwalk/core/internal/XWalkViewInternal.java",
     "src/org/xwalk/core/internal/XWalkWebChromeClient.java",
     "src/org/xwalk/core/internal/XWalkWebContentsDelegate.java",
     "src/org/xwalk/core/internal/XWalkWebContentsDelegateAdapter.java",
-    "src/org/xwalk/core/internal/XWalkWebResourceRequestHandlerInternal.java",
-    "src/org/xwalk/core/internal/XWalkWebResourceRequestInternal.java",
-    "src/org/xwalk/core/internal/XWalkWebResourceResponseInternal.java",
     "src/org/xwalk/core/internal/extension/BuiltinXWalkExtensions.java",
     "src/org/xwalk/core/internal/extension/XWalkExtensionWithActivityStateListener.java",
     "src/org/xwalk/core/internal/extension/api/launchscreen/LaunchScreenExtension.java",
@@ -99,6 +108,8 @@ android_library("xwalk_core_internal_java") {
     "src/org/xwalk/core/internal/extension/api/DisplayManagerNull.java",
     "src/org/xwalk/core/internal/extension/api/XWalkDisplayManager.java",
   ]
+  java_files += internal_java_files
+  java_files += reflection_java_files
 }
 
 java_strings_grd("xwalk_core_strings_grd") {
@@ -117,12 +128,32 @@ android_resources("xwalk_core_internal_java_resources") {
 }
 
 action("xwalk_core_reflection_layer_gen") {
+  _xwalk_app_version_tmpl =
+      "//xwalk/runtime/android/templates/XWalkAppVersion.template"
+  _xwalk_core_version_tmpl =
+      "//xwalk/runtime/android/templates/XWalkCoreVersion.template"
+
   script = "//xwalk/tools/reflection_generator/reflection_generator.py"
+  inputs = [
+    "//xwalk/tools/reflection_generator/bridge_generator.py",
+    "//xwalk/tools/reflection_generator/code_generator.py",
+    "//xwalk/tools/reflection_generator/interface_generator.py",
+    "//xwalk/tools/reflection_generator/java_class.py",
+    "//xwalk/tools/reflection_generator/java_class_component.py",
+    "//xwalk/tools/reflection_generator/java_method.py",
+    "//xwalk/tools/reflection_generator/wrapper_generator.py",
+  ]
+  sources = [
+              _xwalk_app_version_tmpl,
+              _xwalk_core_version_tmpl,
+            ] + internal_java_files + reflection_java_files
   args = [
     "--input-dir",
     rebase_path("src/org/xwalk/core/internal/"),
-    "--template-dir",
-    rebase_path("//xwalk/runtime/android/templates/"),
+    "--xwalk-app-version-template-path",
+    rebase_path(_xwalk_app_version_tmpl),
+    "--xwalk-core-version-template-path",
+    rebase_path(_xwalk_core_version_tmpl),
     "--bridge-output",
     rebase_path("$reflection_gen_dir/bridge/"),
     "--wrapper-output",
