@@ -42,6 +42,6 @@ public class PauseTimersActivity extends XWalkBaseActivity {
                 }
             }
         });
-        mXWalkView.load("file:///android_asset/pause_timers.html", null);
+        mXWalkView.loadUrl("file:///android_asset/pause_timers.html");
     }
 }

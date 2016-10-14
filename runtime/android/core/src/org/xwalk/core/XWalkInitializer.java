@@ -99,7 +99,7 @@ import org.xwalk.core.XWalkLibraryLoader.DecompressListener;
  *     public void onXWalkInitCompleted() {
  *         // Do anyting with the embedding API
  *
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *         mXWalkView.loadUrl("https://crosswalk-project.org/");
  *     }
  *
  *     &#64;Override

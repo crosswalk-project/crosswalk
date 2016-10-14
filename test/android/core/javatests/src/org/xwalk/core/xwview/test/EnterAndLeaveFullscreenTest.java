@@ -28,7 +28,7 @@ public class EnterAndLeaveFullscreenTest extends XWalkViewTestBase {
         String fileContent = getFileContent(name);
         int count = mOnFullscreenToggledHelper.getCallCount();
 
-        loadDataSync(name, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         assertFalse(hasEnteredFullscreen());
 
         clickOnElementId("enter_fullscreen", null);
@@ -48,7 +48,7 @@ public class EnterAndLeaveFullscreenTest extends XWalkViewTestBase {
         String fileContent = getFileContent(name);
         int count = mOnFullscreenToggledHelper.getCallCount();
 
-        loadDataSync(name, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         assertFalse(hasEnteredFullscreen());
 
         clickOnElementId("enter_fullscreen", null);

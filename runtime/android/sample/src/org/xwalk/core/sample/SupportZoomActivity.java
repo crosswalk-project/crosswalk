@@ -77,13 +77,13 @@ public class SupportZoomActivity extends XWalkBaseActivity {
 
     void setAndLoadForBuiltInZoom(boolean flag) {
         mXWalkSettings.setBuiltInZoomControls(flag);
-        mXWalkView.load("file:///android_asset/builtinzoom.html", null);
+        mXWalkView.loadUrl("file:///android_asset/builtinzoom.html");
     }
 
     void setAndLoadForDoubleTapZoom(boolean flag) {
         // setUseWideViewPort() should be called at first.
         mXWalkSettings.setUseWideViewPort(flag);
         mXWalkSettings.setBuiltInZoomControls(flag);
-        mXWalkView.load("file:///android_asset/doubletapzoom.html", null);
+        mXWalkView.loadUrl("file:///android_asset/doubletapzoom.html");
     }
 }

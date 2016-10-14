@@ -173,7 +173,7 @@ public class SettingsTest extends XWalkViewTestBase {
                 + "</head><body onload=\"document.title='" + jsEnabledString
                 + "';\"></body></html>";
 
-        loadDataSync(null, testPageHtml, "text/html", false);
+        loadDataSync(testPageHtml, "text/html", false);
         assertEquals(jsEnabledString, getTitleOnUiThread());
     }
 
@@ -390,7 +390,7 @@ public class SettingsTest extends XWalkViewTestBase {
     public void testLoadsImagesAutomaticallyNoPageReload() throws Throwable {
         ImagePageGenerator generator = new ImagePageGenerator(0, false);
         setLoadsImagesAutomatically(false);
-        loadDataSync(null, generator.getPageSource(), "text/html", false);
+        loadDataSync(generator.getPageSource(), "text/html", false);
         assertEquals(ImagePageGenerator.IMAGE_NOT_LOADED_STRING,
                 getTitleOnUiThread());
         setLoadsImagesAutomatically(true);

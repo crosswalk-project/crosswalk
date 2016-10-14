@@ -31,7 +31,7 @@ public class MultiXWalkViewActivity extends XWalkBaseActivity {
         mXWalkView2 = new XWalkView(this, this);
         parent.addView(mXWalkView2, params);
 
-        mXWalkView.load("http://www.intel.com", null);
-        mXWalkView2.load("http://www.baidu.com", null);
+        mXWalkView.loadUrl("http://www.intel.com");
+        mXWalkView2.loadUrl("http://www.baidu.com");
     }
 }

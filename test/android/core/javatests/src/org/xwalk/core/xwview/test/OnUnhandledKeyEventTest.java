@@ -46,7 +46,7 @@ public class OnUnhandledKeyEventTest extends XWalkViewTestBase {
         final String name = "index.html";
         String fileContent = getFileContent(name);
         int count = mOverrideOrUnhandledKeyEventHelper.getCallCount();
-        loadDataAsync(null, fileContent, "text/html", false);
+        loadDataAsync(fileContent, "text/html", false);
         simulateKeyAction(KeyEvent.ACTION_UP);
         mOverrideOrUnhandledKeyEventHelper.waitForCallback(count);
 

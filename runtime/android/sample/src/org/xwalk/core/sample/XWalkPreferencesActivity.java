@@ -21,6 +21,6 @@ public class XWalkPreferencesActivity extends XWalkBaseActivity {
         // You can debug the web content via PC chrome.
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
 
-        mXWalkView.load("http://www.baidu.com/", null);
+        mXWalkView.loadUrl("http://www.baidu.com/");
     }
 }

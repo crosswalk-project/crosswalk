@@ -95,7 +95,7 @@ public class XWalkJavascriptResultTest extends XWalkViewInternalTestBase {
     @SmallTest
     @Feature({"onJsAlert"})
     public void testOverrideAlertHandling() throws Throwable {
-        loadDataSync(null, EMPTY_PAGE, "text/html", false);
+        loadDataSync(EMPTY_PAGE, "text/html", false);
         executeJavaScriptAndWaitForResult("alert('" + ALERT_TEXT + "')");
         assertTrue(callbackCalled.get());
     }
@@ -103,7 +103,7 @@ public class XWalkJavascriptResultTest extends XWalkViewInternalTestBase {
     @SmallTest
     @Feature({"onJsPrompt"})
     public void testOverridePromptHandling() throws Throwable {
-        loadDataSync(null, EMPTY_PAGE, "text/html", false);
+        loadDataSync(EMPTY_PAGE, "text/html", false);
         String result = executeJavaScriptAndWaitForResult(
                 "prompt('" + PROMPT_TEXT + "','" + PROMPT_DEFAULT + "')");
         assertTrue(callbackCalled.get());
@@ -113,7 +113,7 @@ public class XWalkJavascriptResultTest extends XWalkViewInternalTestBase {
     @SmallTest
     @Feature({"onJsConfirm"})
     public void testOverrideConfirmHandlingConfirmed() throws Throwable {
-        loadDataSync(null, EMPTY_PAGE, "text/html", false);
+        loadDataSync(EMPTY_PAGE, "text/html", false);
         String result = executeJavaScriptAndWaitForResult(
                 "confirm('" + CONFIRM_TEXT + "')");
         assertTrue(callbackCalled.get());
@@ -124,7 +124,7 @@ public class XWalkJavascriptResultTest extends XWalkViewInternalTestBase {
     @Feature({"onJsConfirm"})
     public void testOverrideConfirmHandlingCancelled() throws Throwable {
         flagForConfirmCancelled = true;
-        loadDataSync(null, EMPTY_PAGE, "text/html", false);
+        loadDataSync(EMPTY_PAGE, "text/html", false);
         String result = executeJavaScriptAndWaitForResult(
                 "confirm('" + CONFIRM_TEXT + "')");
         assertTrue(callbackCalled.get());
@@ -134,10 +134,10 @@ public class XWalkJavascriptResultTest extends XWalkViewInternalTestBase {
     @SmallTest
     @Feature({"onJsConfirm(JAVASCRIPT_BEFOREUNLOAD)"})
     public void testOverrideBeforeUnloadHandling() throws Throwable {
-        loadDataSync(null, BEFORE_UNLOAD_URL, "text/html", false);
+        loadDataSync(BEFORE_UNLOAD_URL, "text/html", false);
 
         int callCount = jsBeforeUnloadHelper.getCallCount();
-        loadDataAsync(null, EMPTY_PAGE, "text/html", false);
+        loadDataAsync(EMPTY_PAGE, "text/html", false);
         jsBeforeUnloadHelper.waitForCallback(callCount);
     }
 }

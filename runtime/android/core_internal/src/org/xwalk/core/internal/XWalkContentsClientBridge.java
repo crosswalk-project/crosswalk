@@ -101,7 +101,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                 final String fallbackUrl = mNavigationHandler.getFallbackUrl();
                 if (fallbackUrl != null) {
                     mNavigationHandler.resetFallbackUrl();
-                    mXWalkView.load(fallbackUrl, null);
+                    mXWalkView.loadUrl(fallbackUrl);
                 } else {
                     // Post a message to UI thread to notify the page is starting to load.
                     mContentsClient.getCallbackHelper().postOnPageStarted(url);

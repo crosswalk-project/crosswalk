@@ -27,7 +27,7 @@ public class OnScaleChangedTest extends XWalkViewTestBase {
         String fileContent = getFileContent(name);
         int count = mOnScaleChangedHelper.getCallCount();
 
-        loadDataAsync(null, fileContent, "text/html", false);
+        loadDataAsync(fileContent, "text/html", false);
         mOnScaleChangedHelper.waitForCallback(count);
         assertTrue(Float.compare(mOnScaleChangedHelper.getNewScale(), 0.0f) > 0);
     }

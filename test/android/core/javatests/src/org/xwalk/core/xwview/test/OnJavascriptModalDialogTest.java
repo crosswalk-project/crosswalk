@@ -34,7 +34,7 @@ public class OnJavascriptModalDialogTest extends XWalkViewTestBase {
         String fileContent = getFileContent(url);
         int count = mOnJavascriptModalDialogHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         clickOnElementId("js_modal_dialog", null);
         mOnJavascriptModalDialogHelper.waitForCallback(count);
         assertEquals("hello", mOnJavascriptModalDialogHelper.getMessage());
@@ -46,7 +46,7 @@ public class OnJavascriptModalDialogTest extends XWalkViewTestBase {
         String fileContent = getFileContent("js_modal_dialog.html");
         int count = mOnJsAlertHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         clickOnElementId("js_alert", null);
         mOnJsAlertHelper.waitForCallback(count);
         assertEquals(1, mOnJsAlertHelper.getCallCount());
@@ -59,7 +59,7 @@ public class OnJavascriptModalDialogTest extends XWalkViewTestBase {
         String fileContent = getFileContent("js_modal_dialog.html");
         int count = mOnJsConfirmHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         clickOnElementId("js_confirm", null);
         mOnJsConfirmHelper.waitForCallback(count);
         assertEquals(1, mOnJsConfirmHelper.getCallCount());
@@ -72,7 +72,7 @@ public class OnJavascriptModalDialogTest extends XWalkViewTestBase {
         String fileContent = getFileContent("js_modal_dialog.html");
         int count = mOnJsPromptHelper.getCallCount();
 
-        loadDataSync(null, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
         clickOnElementId("js_prompt", null);
         mOnJsPromptHelper.waitForCallback(count);
         assertEquals(1, mOnJsPromptHelper.getCallCount());

@@ -34,7 +34,7 @@ public class SetUserAgentStringTest extends XWalkViewTestBase {
 
     @SmallTest
     public void testSetUserAgentString() throws Throwable {
-        loadDataSync(null, EMPTY_PAGE, "text/html", false);
+        loadDataSync(EMPTY_PAGE, "text/html", false);
         String result = executeJavaScriptAndWaitForResult("navigator.userAgent;");
         assertEquals(EXPECTED_USER_AGENT, result);
     }

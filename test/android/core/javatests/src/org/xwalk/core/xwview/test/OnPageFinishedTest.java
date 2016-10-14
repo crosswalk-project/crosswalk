@@ -32,11 +32,9 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
     public void testOnPageFinishedPassesCorrectUrl() throws Throwable {
         TestCallbackHelperContainer.OnPageFinishedHelper onPageFinishedHelper =
                 mTestHelperBridge.getOnPageFinishedHelper();
-
         String html = "<html><body>Simple page.</body></html>";
         int currentCallCount = onPageFinishedHelper.getCallCount();
-        loadDataAsync(null, html, "text/html", false);
-
+        loadDataWithBaseUrlAsync(html, "text/html", false, null, null);
         onPageFinishedHelper.waitForCallback(currentCallCount);
         assertEquals("about:blank", onPageFinishedHelper.getUrl());
     }
@@ -85,7 +83,7 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
 
             assertEquals(0, onPageFinishedHelper.getCallCount());
             final int pageWithSubresourcesCallCount = onPageFinishedHelper.getCallCount();
-            loadDataAsync(null, "<html><iframe src=\"" + testUrl + "\" /></html>",
+            loadDataAsync("<html><iframe src=\"" + testUrl + "\" /></html>",
                           "text/html",
                           false);
 
@@ -116,7 +114,7 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
         int currentCallCount = onPageFinishedHelper.getCallCount();
         assertEquals(0, currentCallCount);
 
-        loadDataAsync(null, html, "text/html", false);
+        loadDataWithBaseUrlAsync(html, "text/html", false, null, null);
         loadJavaScriptUrl("javascript: try { console.log('foo'); } catch(e) {};");
 
         onPageFinishedHelper.waitForCallback(currentCallCount);

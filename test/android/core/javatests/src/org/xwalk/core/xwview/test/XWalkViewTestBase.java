@@ -341,7 +341,6 @@ public class XWalkViewTestBase
         CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
         loadUrlAsync(url);
-
         pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
     }
@@ -363,26 +362,47 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView.load(url, null);
+                mXWalkView.loadUrl(url);
             }
         });
     }
 
-    protected void loadDataSync(final String url, final String data, final String mimeType,
+    protected void loadDataSync(final String data, final String mimeType,
             final boolean isBase64Encoded) throws Exception {
         CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
-        loadDataAsync(url, data, mimeType, isBase64Encoded);
+        loadDataAsync(data, mimeType, isBase64Encoded);
         pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
     }
 
-    protected void loadDataAsync(final String url, final String data, final String mimeType,
+    protected void loadDataAsync(final String data, final String mimeType,
              final boolean isBase64Encoded) throws Exception {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView.load(url, data);
+                mXWalkView.loadData(data, mimeType, isBase64Encoded ? "base64" : null);
+            }
+        });
+    }
+
+    protected void loadDataWithBaseUrlSync(final String data, final String mimeType,
+            final boolean isBase64Encoded, final String baseUrl,
+            final String historyUrl) throws Throwable {
+        CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+        loadDataWithBaseUrlAsync(data, mimeType, isBase64Encoded, baseUrl, historyUrl);
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
+    protected void loadDataWithBaseUrlAsync(final String data, final String mimeType,
+            final boolean isBase64Encoded, final String baseUrl, final String historyUrl) throws Throwable {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.loadDataWithBaseURL(
+                        baseUrl, data, mimeType, isBase64Encoded ? "base64" : null, historyUrl);
             }
         });
     }
@@ -393,7 +413,6 @@ public class XWalkViewTestBase
         CallbackHelper pageFinishedHelper = contentsClient.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
         loadUrlAsyncByContent(xWalkContent, url);
-
         pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
     }
@@ -406,7 +425,6 @@ public class XWalkViewTestBase
         int onErrorCallCount = onReceivedErrorHelper.getCallCount();
         int onFinishedCallCount = onPageFinishedHelper.getCallCount();
         loadUrlAsyncByContent(xWalkContent, url);
-
         onReceivedErrorHelper.waitForCallback(onErrorCallCount, 1, WAIT_TIMEOUT_MS,
                 TimeUnit.MILLISECONDS);
         onPageFinishedHelper.waitForCallback(onFinishedCallCount, 1, WAIT_TIMEOUT_MS,
@@ -418,7 +436,7 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                xWalkContent.load(url, null);
+                xWalkContent.loadUrl(url);
             }
         });
     }
@@ -496,16 +514,14 @@ public class XWalkViewTestBase
 
     protected void loadAssetFile(String fileName) throws Exception {
         String fileContent = getFileContent(fileName);
-        loadDataSync(fileName, fileContent, "text/html", false);
+        loadDataSync(fileContent, "text/html", false);
     }
 
     public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
         CallbackHelper getTitleHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
         int currentCallCount = getTitleHelper.getCallCount();
         String fileContent = getFileContent(fileName);
-
-        loadDataAsync(fileName, fileContent, "text/html", false);
-
+        loadDataAsync(fileContent, "text/html", false);
         getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
     }
@@ -1090,7 +1106,7 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                view.load(null, data);
+                view.loadData(data, "text/html", null);
             }
         });
     }

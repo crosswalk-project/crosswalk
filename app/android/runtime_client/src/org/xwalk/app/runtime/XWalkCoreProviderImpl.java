@@ -112,7 +112,7 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
 
     @Override
     public void loadAppFromUrl(String url) {
-        mXWalkView.load(url, null);
+        mXWalkView.loadUrl(url);
     }
 
     @Override
@@ -146,6 +146,6 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
 
     @Override
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
-        mXWalkView.load("", data);
+        mXWalkView.loadData(data, mimeType, isBase64Encoded ? "base64" : null);
     }
 }

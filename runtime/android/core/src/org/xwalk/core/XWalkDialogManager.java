@@ -54,7 +54,7 @@ import java.util.ArrayList;
  *
  *     &#64;Override
  *     public void onXWalkReady() {
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *         mXWalkView.loadUrl("https://crosswalk-project.org/");
  *     }
  * }
  * </pre>
@@ -128,7 +128,7 @@ import java.util.ArrayList;
  *
  *     &#64;Override
  *     public void onXWalkInitCompleted() {
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *         mXWalkView.loadUrl("https://crosswalk-project.org/");
  *     }
  *
  *     &#64;Override

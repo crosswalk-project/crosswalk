@@ -15,6 +15,6 @@ public class XWalkViewWithLayoutActivity extends XWalkBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.xwview_layout);
         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
-        mXWalkView.load("http://www.baidu.com/", null);
+        mXWalkView.loadUrl("http://www.baidu.com/");
     }
 }

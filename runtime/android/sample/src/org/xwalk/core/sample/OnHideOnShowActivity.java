@@ -18,6 +18,6 @@ public class OnHideOnShowActivity extends XWalkBaseActivity {
 
         // The web page below will display a video.
         // When home button is pressed, the activity will be in background, and the video will be paused.
-        mXWalkView.load("http://www.w3.org/2010/05/video/mediaevents.html", null);
+        mXWalkView.loadUrl("http://www.w3.org/2010/05/video/mediaevents.html");
     }
 }

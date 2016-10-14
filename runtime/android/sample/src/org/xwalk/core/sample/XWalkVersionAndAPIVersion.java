@@ -20,6 +20,6 @@ public class XWalkVersionAndAPIVersion extends XWalkBaseActivity {
         String xwalkVersion = mXWalkView.getXWalkVersion();
         TextView text1 = (TextView) super.findViewById(R.id.text1);
         text1.setText("API Version: " + apiVersion + "; XWalk Version: " + xwalkVersion);
-        mXWalkView.load("", "");
+        mXWalkView.loadUrl("");
     }
 }

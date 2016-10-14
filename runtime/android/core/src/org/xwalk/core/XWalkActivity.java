@@ -51,7 +51,7 @@ import android.os.Bundle;
  *     public void onXWalkReady() {
  *         // Do anyting with the embedding API
  *
- *         mXWalkView.load("https://crosswalk-project.org/", null);
+ *         mXWalkView.loadUrl("https://crosswalk-project.org/");
  *     }
  * }
  * </pre>
