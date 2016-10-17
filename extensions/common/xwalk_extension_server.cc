@@ -160,7 +160,7 @@ bool XWalkExtensionServer::RegisterExtension(
     return false;
   }
 
-  if (ContainsKey(extension_symbols_, extension->name())) {
+  if (base::ContainsKey(extension_symbols_, extension->name())) {
     LOG(WARNING) << "Ignoring extension with name already registered: "
                  << extension->name();
     return false;
@@ -186,7 +186,7 @@ bool XWalkExtensionServer::RegisterExtension(
 
 bool XWalkExtensionServer::ContainsExtension(
     const std::string& extension_name) const {
-  return ContainsKey(extensions_, extension_name);
+  return base::ContainsKey(extensions_, extension_name);
 }
 
 void XWalkExtensionServer::PostMessageToJSCallback(
@@ -278,7 +278,7 @@ bool XWalkExtensionServer::ValidateExtensionEntryPoints(
     if (!ValidateExtensionIdentifier(entry_point))
       return false;
 
-    if (ContainsKey(extension_symbols_, entry_point)) {
+    if (base::ContainsKey(extension_symbols_, entry_point)) {
       LOG(WARNING) << "Entry point '" << entry_point
                    << "' clashes with another extension entry point.";
       return false;
