@@ -19,6 +19,9 @@ class XWalkPermissionClient : public content::RenderFrameObserver,
  private:
   ~XWalkPermissionClient() override;
 
+  // content::RenderFrameObserver implementation.
+  void OnDestruct() override;
+
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionClient);
 };
 

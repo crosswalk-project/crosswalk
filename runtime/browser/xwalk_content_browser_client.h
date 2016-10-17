@@ -48,7 +48,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                                       int child_process_id) override;
   content::QuotaPermissionContext*
       CreateQuotaPermissionContext() override;
-  content::AccessTokenStore* CreateAccessTokenStore() override;
+  content::GeolocationDelegate* CreateGeolocationDelegate() override;
   content::WebContentsViewDelegate* GetWebContentsViewDelegate(
       content::WebContents* web_contents) override;
   void RenderProcessWillLaunch(
@@ -118,8 +118,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 #if defined(OS_ANDROID) || defined(OS_LINUX)
   void ResourceDispatcherHostCreated() override;
 #endif
-
-  content::LocationProvider* OverrideSystemLocationProvider() override;
 
   void GetStoragePartitionConfigForSite(
       content::BrowserContext* browser_context,

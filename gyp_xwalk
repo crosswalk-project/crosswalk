@@ -214,8 +214,8 @@ def main():
     args.append('-Gconfig_path=' + args.pop(0))
     args.append('-Ganalyzer_output_path=' + args.pop(0))
 
-  if int(os.environ.get('GYP_CHROMIUM_NO_ACTION', 0)):
-    print 'Skipping gyp_chromium due to GYP_CHROMIUM_NO_ACTION env var.'
+  if int(os.environ.get('GYP_CHROMIUM_NO_ACTION', 1)):
+    print 'Skipping gyp_xwalk due to GYP_CHROMIUM_NO_ACTION env var.'
     sys.exit(0)
 
   # Use the Psyco JIT if available.

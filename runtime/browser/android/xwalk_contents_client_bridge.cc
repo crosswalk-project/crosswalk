@@ -363,9 +363,9 @@ void XWalkContentsClientBridge::NotificationClosed(
 void XWalkContentsClientBridge::OnFilesSelected(
     JNIEnv* env, jobject, int process_id, int render_id,
     int mode, jstring filepath, jstring display_name) {
-  content::RenderViewHost* rvh =
-      content::RenderViewHost::FromID(process_id, render_id);
-  if (!rvh)
+  content::RenderFrameHost* rfh =
+      content::RenderFrameHost::FromID(process_id, render_id);
+  if (!rfh)
     return;
 
   std::string path = base::android::ConvertJavaStringToUTF8(env, filepath);
@@ -379,20 +379,20 @@ void XWalkContentsClientBridge::OnFilesSelected(
   std::vector<content::FileChooserFileInfo> files;
   files.push_back(file_info);
 
-  rvh->FilesSelectedInChooser(
+  rfh->FilesSelectedInChooser(
       files, static_cast<content::FileChooserParams::Mode>(mode));
 }
 
 void XWalkContentsClientBridge::OnFilesNotSelected(
     JNIEnv* env, jobject, int process_id, int render_id, int mode) {
-  content::RenderViewHost* rvh =
-      content::RenderViewHost::FromID(process_id, render_id);
-  if (!rvh)
+  content::RenderFrameHost* rfh =
+      content::RenderFrameHost::FromID(process_id, render_id);
+  if (!rfh)
     return;
 
   std::vector<content::FileChooserFileInfo> files;
 
-  rvh->FilesSelectedInChooser(
+  rfh->FilesSelectedInChooser(
       files, static_cast<content::FileChooserParams::Mode>(mode));
 }
 

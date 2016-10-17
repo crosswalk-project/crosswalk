@@ -20,3 +20,7 @@ void PepperHelper::DidCreatePepperPlugin(content::RendererPpapiHost* host) {
       std::unique_ptr<ppapi::host::HostFactory>(
           new XWalkRendererPepperHostFactory(host)));
 }
+
+void PepperHelper::OnDestruct() {
+  delete this;
+}

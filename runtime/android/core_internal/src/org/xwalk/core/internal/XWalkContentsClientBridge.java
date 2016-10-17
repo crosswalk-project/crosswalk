@@ -42,16 +42,13 @@ import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.components.navigation_interception.NavigationParams;
 import org.chromium.content.browser.ContentVideoViewEmbedder;
-import org.chromium.content.browser.ContentViewDownloadDelegate;
-import org.chromium.content.browser.DownloadInfo;
 
 import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 
 // Help bridge callback in XWalkContentsClient to XWalkViewClient and
 // XWalkWebChromeClient; Also handle the JNI conmmunication logic.
 @JNINamespace("xwalk")
-class XWalkContentsClientBridge extends XWalkContentsClient
-        implements ContentViewDownloadDelegate {
+class XWalkContentsClientBridge extends XWalkContentsClient {
 
     private static final String TAG = XWalkContentsClientBridge.class.getName();
     private static final int NEW_XWALKVIEW_CREATED = 100;
@@ -824,23 +821,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     void setFindListener(XWalkFindListenerInternal listener) {
         mFindListener = listener;
-    }
-
-    // Implement ContentViewDownloadDelegate methods.
-    public void requestHttpGetDownload(DownloadInfo downloadInfo, boolean mustDownload) {
-        if (mDownloadListener != null) {
-            mDownloadListener.onDownloadStart(downloadInfo.getUrl(), downloadInfo.getUserAgent(),
-            downloadInfo.getContentDisposition(), downloadInfo.getMimeType(), downloadInfo.getContentLength());
-        }
-    }
-
-    public void onDownloadStarted(String filename, String mimeType) {
-    }
-
-    public void onDangerousDownload(String filename, String downloadGuid) {
-    }
-
-    public void requestFileAccess(final long callbackId) {
     }
 
     @CalledByNative

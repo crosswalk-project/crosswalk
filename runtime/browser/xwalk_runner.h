@@ -103,7 +103,7 @@ class XWalkRunner {
   // side to the extension side, such as application IDs and whatnot.
   virtual void InitializeRuntimeVariablesForExtensions(
       const content::RenderProcessHost* host,
-      base::ValueMap* runtime_variables);
+      base::DictionaryValue::Storage* runtime_variables);
   virtual void InitializeEnvironmentVariablesForGoogleAPIs(
       content::RenderProcessHost* host);
 

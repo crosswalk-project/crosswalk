@@ -126,7 +126,7 @@ XWalkDevToolsDelegate::XWalkDevToolsDelegate(
     : browser_context_(browser_context) {
   devtools_discovery::DevToolsDiscoveryManager::GetInstance()->
       SetCreateCallback(base::Bind(&CreateNewShellTarget,
-                                   base::Unretained(browser_context)));
+                                   base::Unretained(browser_context_)));
 }
 
 XWalkDevToolsDelegate::~XWalkDevToolsDelegate() {
@@ -167,11 +167,6 @@ DevToolsHttpHandler* XWalkDevToolsManagerDelegate::CreateHttpHandler(
       base::FilePath(),
       std::string(),
       xwalk::GetUserAgent());
-}
-
-XWalkDevToolsManagerDelegate::XWalkDevToolsManagerDelegate(
-    content::BrowserContext* browser_context)
-    : browser_context_(browser_context) {
 }
 
 XWalkDevToolsManagerDelegate::~XWalkDevToolsManagerDelegate() {
