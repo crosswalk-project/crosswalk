@@ -3,7 +3,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Simplified version based on //chrome/installer/linux
+# Simplified version based on //chrome/installer/linux.
+
+import("//third_party/ffmpeg/ffmpeg_options.gni")
 import("//xwalk/build/version.gni")
 
 # Modified from template("linux_package") in //chrome/installer/linux/BUILD.gn
