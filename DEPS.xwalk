@@ -17,15 +17,15 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = 'ee335c1f5e8887ae568a795962580d6dca069d34'
-v8_crosswalk_rev = 'a48e44faef59edeb1fb254233a1c12b5d5999432'
+chromium_crosswalk_rev = '51a016cbea8ac41e8e9301a20fb6835bfa0b98f9'
+v8_crosswalk_rev = '59ff54ecd645a619c99ad7d9b84afcc6dc24e8bb'
 
 # We need our own copy of src/buildtools in order to have the gn and
 # clang-format binaries in a location that can be found automatically both by
 # our bots as well as locally for our developers. Its hash does not necessarily
 # need to be rolled together with |chromium_crosswalk_rev|, but it is good
 # practice to not have it lag behind too much.
-buildtools_rev = '454e53abae6e4d68ee992b0a93a4174b75519393'
+buildtools_rev = 'adb8bf4e8fc92aa1717bf151b862d58e6f27c4f2'
 
 chromium_git = 'https://chromium.googlesource.com'
 crosswalk_git = 'https://github.com/crosswalk-project'
