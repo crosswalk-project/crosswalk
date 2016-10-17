@@ -17,4 +17,5 @@ import("//xwalk/build/common.gni")
 enable_nacl = false
 
 # Whether to use the RealSense SDK (libpxc) video capture.
-use_rssdk = true
+# Disabled: XWALK-7389
+# use_rssdk = true
