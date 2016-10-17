@@ -112,7 +112,7 @@ void ExtensionServerMessageFilter::RouteMessageToServer(
   base::TaskRunner* task_runner;
   scoped_refptr<base::TaskRunner> task_runner_ref;
 
-  if (ContainsKey(extension_thread_instances_ids_, id)) {
+  if (base::ContainsKey(extension_thread_instances_ids_, id)) {
     server = extension_thread_server_;
     task_runner = task_runner_.get();
   } else {

@@ -155,7 +155,7 @@ void XWalkModuleSystem::RegisterExtensionModule(
 
 void XWalkModuleSystem::RegisterNativeModule(
     const std::string& name, std::unique_ptr<XWalkNativeModule> module) {
-  CHECK(!ContainsKey(native_modules_, name));
+  CHECK(!base::ContainsKey(native_modules_, name));
   native_modules_[name] = module.release();
 }
 
