@@ -121,7 +121,7 @@ class XWalkExtensionServer : public IPC::Listener,
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir,
-    std::unique_ptr<base::ValueMap> runtime_variables);
+    std::unique_ptr<base::DictionaryValue::Storage> runtime_variables);
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name);
 

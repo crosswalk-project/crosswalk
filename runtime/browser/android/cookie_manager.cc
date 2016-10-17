@@ -230,7 +230,9 @@ CookieManager::~CookieManager() {
 // synchronous.
 void CookieManager::ExecCookieTask(const CookieTask& task,
                                    const bool wait_for_completion) {
-  base::WaitableEvent completion(false, false);
+  base::WaitableEvent completion(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
   cookie_store_task_runner_->PostTask(FROM_HERE,
       base::Bind(task, wait_for_completion ? &completion : nullptr));
   if (wait_for_completion) {

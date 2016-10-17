@@ -20,4 +20,8 @@ XWalkPermissionClient::XWalkPermissionClient(content::RenderFrame* render_frame)
 XWalkPermissionClient::~XWalkPermissionClient() {
 }
 
+void XWalkPermissionClient::OnDestruct() {
+  delete this;
+}
+
 }  // namespace xwalk
