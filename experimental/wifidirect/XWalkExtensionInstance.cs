@@ -76,7 +76,7 @@ namespace xwalk
 
         public void HandleMessage(String message) {
             JSONObject jsonInput = new JavaScriptSerializer().Deserialize<Dictionary<String, Object>>(message);
-            String cmd = jsonInput.ContainsKey(TAG_CMD) ? (String)jsonInput[TAG_CMD] : "";
+            String cmd = jsonInput.base::ContainsKey(TAG_CMD) ? (String)jsonInput[TAG_CMD] : "";
             JSONObject jsonOutput = jsonInput;
 
             if (cmd.Equals(CMD_DISCOVER_PEERS)) {

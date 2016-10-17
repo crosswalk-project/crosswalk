@@ -26,7 +26,7 @@ BindingObjectStore::~BindingObjectStore() {}
 
 void BindingObjectStore::AddBindingObject(const std::string& id,
                                           std::unique_ptr<BindingObject> obj) {
-  if (ContainsKey(objects_, id)) {
+  if (base::ContainsKey(objects_, id)) {
     LOG(WARNING) << "The object with the ID " << id << " already exists.";
     return;
   }
@@ -35,7 +35,7 @@ void BindingObjectStore::AddBindingObject(const std::string& id,
 }
 
 bool BindingObjectStore::HasObjectForTesting(const std::string& id) const {
-  return ContainsKey(objects_, id);
+  return base::ContainsKey(objects_, id);
 }
 
 void BindingObjectStore::OnJSObjectCollected(

@@ -158,8 +158,8 @@ XWalkDevToolsFrontend::XWalkDevToolsFrontend(
 }
 
 XWalkDevToolsFrontend::~XWalkDevToolsFrontend() {
-  STLDeleteContainerPairFirstPointers(pending_requests_.begin(),
-                                      pending_requests_.end());
+  base::STLDeleteContainerPairFirstPointers(pending_requests_.begin(),
+                                            pending_requests_.end());
 }
 
 void XWalkDevToolsFrontend::RenderViewCreated(

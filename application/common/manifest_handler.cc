@@ -161,7 +161,7 @@ void ManifestHandlerRegistry::ReorderHandlersGivenDependencies() {
             << "Application manifest handler depends on unrecognized key "
             << prerequisites[i];
         // Prerequisite is in our map.
-        if (ContainsKey(order_map_, prereq_iter->second))
+        if (base::ContainsKey(order_map_, prereq_iter->second))
           unsatisfied--;
       }
       if (unsatisfied == 0) {
