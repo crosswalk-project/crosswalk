@@ -5,6 +5,7 @@
 
 # Simplified version based on //chrome/installer/linux
 import("//xwalk/build/version.gni")
+import("//third_party/ffmpeg/ffmpeg_options.gni")
 
 # Modified from template("linux_package") in //chrome/installer/linux/BUILD.gn
 action("xwalk_installer_linux_debian") {
