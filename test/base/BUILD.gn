@@ -17,7 +17,6 @@ source_set("test_support") {
     "//base",
     "//base/test:test_support",
     "//content/public/browser",
-    "//content/test:browsertest_base",
     "//content/test:test_support",
     "//net",
     "//skia",
