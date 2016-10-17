@@ -17,7 +17,7 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '51a016cbea8ac41e8e9301a20fb6835bfa0b98f9'
+chromium_crosswalk_rev = 'f075fa688735c39f3f81844b9540f212ed5e69f8'
 v8_crosswalk_rev = '59ff54ecd645a619c99ad7d9b84afcc6dc24e8bb'
 
 # We need our own copy of src/buildtools in order to have the gn and
