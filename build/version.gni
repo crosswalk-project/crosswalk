@@ -36,6 +36,7 @@ chrome_version = _result.full
 # The file containing the Crosswalk version number.
 xwalk_version_file = "//xwalk/VERSION"
 
+_result = {}
 _result = exec_script("//build/util/version.py",
                       [
                         "-f",

@@ -15,4 +15,4 @@ enable_webvr = false
 
 # From src/build/config/features.gni
 # Whether to include support for proprietary codecs.
-proprietary_codecs = true
+# proprietary_codecs = true
