@@ -262,9 +262,9 @@ template("generate_android_project") {
   generate_xwalk_core_library(_project_target) {
     build_config = _build_config
     deps = [
-      ":$_build_config_target",
-      ":$_merge_target",
-    ]
+             ":$_build_config_target",
+             ":$_merge_target",
+           ] + _native_libs_deps
     forward_variables_from(invoker,
                            [
                              "binary_files",
