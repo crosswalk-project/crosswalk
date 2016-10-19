@@ -63,12 +63,18 @@ class XWalkSSLHostStateDelegate : public content::SSLHostStateDelegate {
       net::CertStatus error,
       bool* expired_previous_decision) override;
 
-  // Records that a host has run insecure content.
-  void HostRanInsecureContent(const std::string& host, int pid) override;
+  // Records that a host has run insecure content of the given |content_type|.
+  void HostRanInsecureContent(
+      const std::string& host,
+      int pid,
+      InsecureContentType content_type) override;
 
-  // Returns whether the specified host ran insecure content.
-  bool DidHostRunInsecureContent(const std::string& host,
-                                 int pid) const override;
+  // Returns whether the specified host ran insecure content of the given
+  // |content_type|.
+  bool DidHostRunInsecureContent(
+      const std::string& host,
+      int pid,
+      InsecureContentType content_type) const override;
 
   void RevokeUserAllowExceptions(const std::string& host) override;
 
