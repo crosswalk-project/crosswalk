@@ -11,13 +11,10 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "base/message_loop/message_loop.h"
 #include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "net/url_request/url_request_job_factory.h"
-
-namespace base {
-class MessageLoop;
-}
 
 namespace net {
 class HostResolver;
