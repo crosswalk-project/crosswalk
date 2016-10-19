@@ -56,14 +56,17 @@ XWalkSSLHostStateDelegate::XWalkSSLHostStateDelegate() {
 XWalkSSLHostStateDelegate::~XWalkSSLHostStateDelegate() {
 }
 
-void XWalkSSLHostStateDelegate::HostRanInsecureContent(const std::string& host,
-                                                       int pid) {
+void XWalkSSLHostStateDelegate::HostRanInsecureContent(
+    const std::string& host,
+    int pid,
+    InsecureContentType content_type) {
   // Intentional no-op.
 }
 
 bool XWalkSSLHostStateDelegate::DidHostRunInsecureContent(
     const std::string& host,
-    int pid) const {
+    int pid,
+    InsecureContentType content_type) const {
   // Intentional no-op.
   return false;
 }
