@@ -118,7 +118,7 @@ void ExtensionServerMessageFilter::RouteMessageToServer(
   } else {
     server = ui_thread_server_;
     task_runner_ref =
-        BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI);
+        BrowserThread::GetTaskRunnerForThread(BrowserThread::UI);
     task_runner = task_runner_ref.get();
   }
 
@@ -142,7 +142,7 @@ void ExtensionServerMessageFilter::OnCreateInstance(
   } else {
     server = ui_thread_server_;
     task_runner_ref =
-        BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI);
+        BrowserThread::GetTaskRunnerForThread(BrowserThread::UI);
     task_runner = task_runner_ref.get();
   }
 
