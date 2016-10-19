@@ -19,7 +19,7 @@ XWalkExtensionClient::XWalkExtensionClient()
 }
 
 XWalkExtensionClient::~XWalkExtensionClient() {
-  STLDeleteValues(&extension_apis_);
+  base::STLDeleteValues(&extension_apis_);
 }
 
 bool XWalkExtensionClient::Send(IPC::Message* msg) {
