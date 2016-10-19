@@ -84,7 +84,7 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
 
 XWalkModuleSystem::~XWalkModuleSystem() {
   DeleteExtensionModules();
-  STLDeleteValues(&native_modules_);
+  base::STLDeleteValues(&native_modules_);
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);

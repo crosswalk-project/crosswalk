@@ -29,7 +29,7 @@ XWalkExtensionServer::XWalkExtensionServer()
 
 XWalkExtensionServer::~XWalkExtensionServer() {
   DeleteInstanceMap();
-  STLDeleteValues(&extensions_);
+  base::STLDeleteValues(&extensions_);
 }
 
 bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
