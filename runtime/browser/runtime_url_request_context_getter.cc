@@ -190,7 +190,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
             net::CACHE_BACKEND_DEFAULT,
             cache_path,
             GetDiskCacheSize(),
-            BrowserThread::GetMessageLoopProxyForThread(
+            BrowserThread::GetTaskRunnerForThread(
                 BrowserThread::CACHE)));
 
     net::HttpNetworkSession::Params network_session_params;
@@ -318,7 +318,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
 scoped_refptr<base::SingleThreadTaskRunner>
     RuntimeURLRequestContextGetter::GetNetworkTaskRunner() const {
-  return BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
+  return BrowserThread::GetTaskRunnerForThread(BrowserThread::IO);
 }
 
 net::HostResolver* RuntimeURLRequestContextGetter::host_resolver() {
