@@ -137,6 +137,15 @@ bool XWalkAutofillClient::IsContextSecure(const GURL& form_origin) {
       ssl_status.content_status == content::SSLStatus::NORMAL_CONTENT;
 }
 
+bool XWalkAutofillClient::ShouldShowSigninPromo() {
+    NOTIMPLEMENTED();
+    return false;
+}
+
+void XWalkAutofillClient::StartSigninFlow() {
+    NOTIMPLEMENTED();
+}
+
 void XWalkAutofillClient::SuggestionSelected(int position) {
   if (delegate_) {
     delegate_->DidAcceptSuggestion(suggestions_[position].value,
@@ -169,6 +178,12 @@ void XWalkAutofillClient::ConfirmSaveCreditCardLocally(
 void XWalkAutofillClient::ConfirmSaveCreditCardToCloud(
       const autofill::CreditCard& card,
       std::unique_ptr<base::DictionaryValue> legal_message,
+      const base::Closure& callback) {
+  NOTIMPLEMENTED();
+}
+
+void XWalkAutofillClient::ConfirmCreditCardFillAssist(
+      const autofill::CreditCard& card,
       const base::Closure& callback) {
   NOTIMPLEMENTED();
 }
