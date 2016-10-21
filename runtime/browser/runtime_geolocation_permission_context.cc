@@ -126,7 +126,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
 void RuntimeGeolocationPermissionContext::OnPermissionRequestFinished(
     base::Callback<void(bool)> result_callback, bool success) {
   if (success) {
-    content::GeolocationProvider::GetInstance()
+    device::GeolocationProvider::GetInstance()
         ->UserDidOptIntoLocationServices();
     result_callback.Run(true);
   } else {

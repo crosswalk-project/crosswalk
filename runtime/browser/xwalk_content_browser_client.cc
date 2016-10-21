@@ -94,7 +94,7 @@ namespace {
 XWalkContentBrowserClient* g_browser_client = nullptr;
 
 // A provider of services for Geolocation.
-class XWalkGeolocationDelegate : public content::GeolocationDelegate {
+class XWalkGeolocationDelegate : public device::GeolocationDelegate {
  public:
   explicit XWalkGeolocationDelegate(net::URLRequestContextGetter* request_context)
       : request_context_(request_context) {}
@@ -168,7 +168,7 @@ XWalkContentBrowserClient::CreateQuotaPermissionContext() {
   return new RuntimeQuotaPermissionContext();
 }
 
-content::GeolocationDelegate*
+device::GeolocationDelegate*
 XWalkContentBrowserClient::CreateGeolocationDelegate() {
   return new XWalkGeolocationDelegate(
       xwalk_runner_->browser_context()->url_request_getter());
