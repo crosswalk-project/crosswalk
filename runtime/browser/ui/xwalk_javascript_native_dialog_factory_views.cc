@@ -85,11 +85,15 @@ void InstallXWalkJavaScriptNativeDialogFactory() {
 
 namespace web_modal {
 
+#if defined(OS_MACOSX)
+// Note: This method is not defined inside components/web_modal/ as its
+// definition (needed for Cocoa builds) depends on chrome/browser/ui/cocoa/.
 SingleWebContentsDialogManager*
 WebContentsModalDialogManager::CreateNativeWebModalManager(
 gfx::NativeWindow dialog,
 SingleWebContentsDialogManagerDelegate* native_delegate) {
   return nullptr;
 }
+#endif
 
 }  // namespace web_modal
