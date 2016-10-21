@@ -70,6 +70,7 @@ int XWalkPermissionManager::RequestPermission(
       content::PermissionType permission,
       content::RenderFrameHost* render_frame_host,
       const GURL& requesting_origin,
+      bool user_gesture,
       const base::Callback<void(PermissionStatus)>& callback) {
   bool should_delegate_request = true;
   for (PendingRequestsMap::Iterator<PendingRequest> it(&pending_requests_);
@@ -155,6 +156,7 @@ int XWalkPermissionManager::RequestPermissions(
     const std::vector<content::PermissionType>& permissions,
     content::RenderFrameHost* render_frame_host,
     const GURL& requesting_origin,
+    bool user_gesture,
     const base::Callback<void(
         const std::vector<PermissionStatus>&)>& callback) {
   // TODO(mrunalk): Rework this as per,
