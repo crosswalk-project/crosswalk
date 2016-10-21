@@ -4,6 +4,7 @@
 
 import("//build/config/features.gni")
 import("//build/config/ui.gni")
+import("//third_party/ffmpeg/ffmpeg_options.gni")
 import("//xwalk/build/version.gni")
 import("//xwalk/build/xwalk.gni")
 
