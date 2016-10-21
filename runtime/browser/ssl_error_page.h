@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/callback.h"
+#include "content/public/browser/certificate_request_result_type.h"
 #include "content/public/browser/interstitial_page_delegate.h"
 #include "net/ssl/ssl_info.h"
 #include "url/gurl.h"
@@ -25,7 +26,7 @@ class SSLErrorPage : public content::InterstitialPageDelegate {
                int cert_error,
                const net::SSLInfo& ssl_info,
                const GURL& request_url,
-               const base::Callback<void(bool)>& callback);
+               const base::Callback<void(content::CertificateRequestResultType)>& callback);
 
   ~SSLErrorPage() override;
 
@@ -43,7 +44,7 @@ class SSLErrorPage : public content::InterstitialPageDelegate {
   content::WebContents* web_contents_;
   const net::SSLInfo ssl_info_;
   const GURL request_url_;
-  base::Callback<void(bool)> callback_;
+  base::Callback<void(content::CertificateRequestResultType)> callback_;
   content::InterstitialPage* interstitial_page_;
 
   DISALLOW_COPY_AND_ASSIGN(SSLErrorPage);

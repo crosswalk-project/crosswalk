@@ -22,7 +22,7 @@ SSLErrorPage::SSLErrorPage(WebContents* web_contents,
                            int cert_error,
                            const SSLInfo& ssl_info,
                            const GURL& request_url,
-                           const base::Callback<void(bool)>& callback)
+                           const base::Callback<void(content::CertificateRequestResultType)>& callback)
     : web_contents_(web_contents),
       ssl_info_(ssl_info),
       request_url_(request_url),
@@ -42,13 +42,13 @@ void SSLErrorPage::Show() {
 
 void SSLErrorPage::OnProceed() {
   // Allow certificate
-  callback_.Run(true);
+  callback_.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE);
   callback_.Reset();
 }
 
 void SSLErrorPage::OnDontProceed() {
   // Deny certificate
-  callback_.Run(false);
+  callback_.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
   callback_.Reset();
 }
 
