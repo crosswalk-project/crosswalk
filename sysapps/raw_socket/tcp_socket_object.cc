@@ -28,8 +28,7 @@ TCPSocketObject::TCPSocketObject()
       is_half_closed_(false),
       read_buffer_(new net::IOBuffer(kBufferSize)),
       write_buffer_(new net::IOBuffer(kBufferSize)),
-      resolver_(net::HostResolver::CreateDefaultResolver(NULL)),
-      single_resolver_(new net::SingleRequestHostResolver(resolver_.get())) {
+      resolver_(net::HostResolver::CreateDefaultResolver(NULL)) {
   RegisterHandlers();
 }
 
@@ -90,10 +89,11 @@ void TCPSocketObject::OnInit(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   net::HostResolver::RequestInfo request_info(
       net::HostPortPair(params->remote_address, params->remote_port));
 
-  int ret = single_resolver_->Resolve(
+  int ret = resolver_->Resolve(
       request_info, net::DEFAULT_PRIORITY, &addresses_,
       base::Bind(&TCPSocketObject::OnResolved,
                  base::Unretained(this)),
+                 &request_,
                  net::BoundNetLog());
 
   if (ret != net::ERR_IO_PENDING)

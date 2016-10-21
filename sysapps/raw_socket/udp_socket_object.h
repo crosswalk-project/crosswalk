@@ -9,7 +9,7 @@
 
 #include "net/base/address_list.h"
 #include "net/base/io_buffer.h"
-#include "net/dns/single_request_host_resolver.h"
+#include "net/dns/host_resolver.h"
 #include "net/udp/udp_socket.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_object.h"
 
@@ -52,7 +52,8 @@ class UDPSocketObject : public RawSocketObject {
   size_t write_buffer_size_;
 
   std::unique_ptr<net::HostResolver> resolver_;
-  std::unique_ptr<net::SingleRequestHostResolver> single_resolver_;
+  std::unique_ptr<net::HostResolver::Request> request_;
+  std::unique_ptr<net::HostResolver::Request> send_string_resolve_request_;
   net::AddressList addresses_;
   net::IPEndPoint from_;
 };

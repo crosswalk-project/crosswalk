@@ -6,7 +6,7 @@
 #define XWALK_SYSAPPS_RAW_SOCKET_TCP_SOCKET_OBJECT_H_
 
 #include <string>
-#include "net/dns/single_request_host_resolver.h"
+#include "net/dns/host_resolver.h"
 #include "net/base/io_buffer.h"
 #include "net/socket/tcp_client_socket.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_object.h"
@@ -37,7 +37,7 @@ class TCPSocketObject : public RawSocketObject {
   void OnRead(int status);
   void OnWrite(int status);
 
-  // net::SingleRequestHostResolver callbacks.
+  // net::HostResolver callbacks.
   void OnResolved(int status);
 
   bool has_write_pending_;
@@ -49,7 +49,7 @@ class TCPSocketObject : public RawSocketObject {
   std::unique_ptr<net::StreamSocket> socket_;
 
   std::unique_ptr<net::HostResolver> resolver_;
-  std::unique_ptr<net::SingleRequestHostResolver> single_resolver_;
+  std::unique_ptr<net::HostResolver::Request> request_;
   net::AddressList addresses_;
 };
 
