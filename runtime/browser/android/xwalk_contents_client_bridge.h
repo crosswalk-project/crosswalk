@@ -53,7 +53,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
   void AllowCertificateError(int cert_error,
                              net::X509Certificate* cert,
                              const GURL& request_url,
-                             const base::Callback<void(bool)>& callback, // NOLINT
+                             const base::Callback<void(content::CertificateRequestResultType)> &callback, // NOLINT
                              bool* cancel_request) override;
 
   void RunJavaScriptDialog(
@@ -123,7 +123,8 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
  private:
   JavaObjectWeakGlobalRef java_ref_;
 
-  typedef const base::Callback<void(bool)> CertErrorCallback; // NOLINT
+  typedef const base::Callback<void(
+      content::CertificateRequestResultType)> CertErrorCallback; // NOLINT
   IDMap<CertErrorCallback, IDMapOwnPointer> pending_cert_error_callbacks_;
   IDMap<content::JavaScriptDialogManager::DialogClosedCallback, IDMapOwnPointer>
       pending_js_dialog_callbacks_;
