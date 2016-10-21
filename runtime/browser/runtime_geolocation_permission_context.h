@@ -25,7 +25,7 @@ class XWalkBrowserContext;
 class RuntimeGeolocationPermissionContext
     : public base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext> {
  public:
-  // content::GeolocationPermissionContext implementation.
+  // device::GeolocationPermissionContext implementation.
   virtual void RequestGeolocationPermission(
       content::WebContents* web_contents,
       const GURL& requesting_frame,
