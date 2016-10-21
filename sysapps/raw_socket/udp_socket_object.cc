@@ -31,8 +31,7 @@ UDPSocketObject::UDPSocketObject()
       read_buffer_(new net::IOBuffer(kBufferSize)),
       write_buffer_(new net::IOBuffer(kBufferSize)),
       write_buffer_size_(0),
-      resolver_(net::HostResolver::CreateDefaultResolver(NULL)),
-      single_resolver_(new net::SingleRequestHostResolver(resolver_.get())) {
+      resolver_(net::HostResolver::CreateDefaultResolver(NULL)) {
   handler_.Register("init",
       base::Bind(&UDPSocketObject::OnInit, base::Unretained(this)));
   handler_.Register("_close",
@@ -129,12 +128,13 @@ void UDPSocketObject::OnInit(std::unique_ptr<XWalkExtensionFunctionInfo> info) {
   net::HostResolver::RequestInfo request_info(net::HostPortPair(
       params->options->remote_address, params->options->remote_port));
 
-  int ret = single_resolver_->Resolve(
+  int ret = resolver_->Resolve(
       request_info,
       net::DEFAULT_PRIORITY,
       &addresses_,
       base::Bind(&UDPSocketObject::OnConnectionOpen,
                  base::Unretained(this)),
+      &request_,
       net::BoundNetLog());
 
   if (ret != net::ERR_IO_PENDING)
@@ -189,12 +189,13 @@ void UDPSocketObject::OnSendString(
   net::HostResolver::RequestInfo request_info(net::HostPortPair(
       *params->remote_address, *params->remote_port));
 
-  int ret = single_resolver_->Resolve(
+  int ret = resolver_->Resolve(
       request_info,
       net::DEFAULT_PRIORITY,
       &addresses_,
       base::Bind(&UDPSocketObject::OnSend,
                  base::Unretained(this)),
+      &send_string_resolve_request_,
       net::BoundNetLog());
 
   if (ret != net::ERR_IO_PENDING)
