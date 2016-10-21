@@ -78,8 +78,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       bool overridable,
       bool strict_enforcement,
       bool expired_previous_decision,
-      const base::Callback<void(bool)>& callback, // NOLINT
-      content::CertificateRequestResultType* result) override;
+      const base::Callback<void(content::CertificateRequestResultType)>& callback) override;
 
   void SelectClientCertificate(
       content::WebContents* web_contents,
