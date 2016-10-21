@@ -88,6 +88,8 @@ class XWalkDevToolsFrontend : public content::WebContentsObserver,
   NativeAppWindowDesktop* runtime_window_;
   content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
+  int inspect_element_at_x_;
+  int inspect_element_at_y_;
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;

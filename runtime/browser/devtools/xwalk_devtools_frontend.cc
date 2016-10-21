@@ -128,8 +128,12 @@ void XWalkDevToolsFrontend::Focus() {
 }
 
 void XWalkDevToolsFrontend::InspectElementAt(int x, int y) {
-  if (agent_host_)
-    agent_host_->InspectElement(x, y);
+  if (agent_host_) {
+    agent_host_->InspectElement(this, x, y);
+  } else {
+    inspect_element_at_x_ = x;
+    inspect_element_at_y_ = y;
+  }
 }
 
 void XWalkDevToolsFrontend::Close() {
@@ -154,6 +158,8 @@ XWalkDevToolsFrontend::XWalkDevToolsFrontend(
     : content::WebContentsObserver(inspector_contents),
       runtime_window_(runtime_window),
       inspected_contents_(inspected_contents),
+      inspect_element_at_x_(-1),
+      inspect_element_at_y_(-1),
       weak_factory_(this) {
 }
 
@@ -175,6 +181,12 @@ void XWalkDevToolsFrontend::RenderViewCreated(
 void XWalkDevToolsFrontend::DocumentAvailableInMainFrame() {
   agent_host_ = content::DevToolsAgentHost::GetOrCreateFor(inspected_contents_);
   agent_host_->AttachClient(this);
+  if (inspect_element_at_x_ != -1) {
+    agent_host_->InspectElement(
+       this, inspect_element_at_x_, inspect_element_at_y_);
+    inspect_element_at_x_ = -1;
+    inspect_element_at_y_ = -1;
+  }
 }
 
 void XWalkDevToolsFrontend::WebContentsDestroyed() {
