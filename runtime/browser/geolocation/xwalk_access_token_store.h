@@ -5,9 +5,9 @@
 #ifndef XWALK_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
 #define XWALK_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
 
-#include "content/public/browser/access_token_store.h"
+#include "device/geolocation/access_token_store.h"
 
-class XWalkAccessTokenStore : public content::AccessTokenStore {
+class XWalkAccessTokenStore : public device::AccessTokenStore {
  public:
   explicit XWalkAccessTokenStore(net::URLRequestContextGetter* request_context);
 

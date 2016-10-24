@@ -15,7 +15,6 @@
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/child_process_data.h"
 #include "content/public/browser/client_certificate_delegate.h"
-#include "content/public/browser/geolocation_delegate.h"
 #include "content/public/browser/presentation_service_delegate.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -32,7 +31,6 @@
 #include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
@@ -93,22 +91,6 @@ namespace {
 // The application-wide singleton of ContentBrowserClient impl.
 XWalkContentBrowserClient* g_browser_client = nullptr;
 
-// A provider of services for Geolocation.
-class XWalkGeolocationDelegate : public device::GeolocationDelegate {
- public:
-  explicit XWalkGeolocationDelegate(net::URLRequestContextGetter* request_context)
-      : request_context_(request_context) {}
-
-  content::AccessTokenStore* CreateAccessTokenStore() final {
-    return new XWalkAccessTokenStore(request_context_);
-  }
-
- private:
-  net::URLRequestContextGetter* request_context_;
-
-  DISALLOW_COPY_AND_ASSIGN(XWalkGeolocationDelegate);
-};
-
 }  // namespace
 
 // static
@@ -166,12 +148,6 @@ void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
 content::QuotaPermissionContext*
 XWalkContentBrowserClient::CreateQuotaPermissionContext() {
   return new RuntimeQuotaPermissionContext();
-}
-
-device::GeolocationDelegate*
-XWalkContentBrowserClient::CreateGeolocationDelegate() {
-  return new XWalkGeolocationDelegate(
-      xwalk_runner_->browser_context()->url_request_getter());
 }
 
 content::WebContentsViewDelegate*
