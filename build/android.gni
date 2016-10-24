@@ -21,5 +21,5 @@ import("//xwalk/build/common.gni")
 exclude_unwind_tables = true
 
 # Temporarily disable use of external snapshot files (XWALK-3516).
-# From //build_overrides/v8.gni
+# From //v8/gni/v8.gni
 v8_use_external_startup_data = false
