@@ -36,6 +36,7 @@ chrome_version = _result.full
 # The file containing the Crosswalk version number.
 xwalk_version_file = "//xwalk/VERSION"
 
+_result = {}
 _result = exec_script("//build/util/version.py",
                       [
                         "-f",
@@ -53,6 +54,7 @@ if (is_android) {
   # Get xwalk API version
   _xwalk_api_version_template = "api = \"@API@\" min_api = \"@MIN_API@\""
   xwalk_api_version_file = "//xwalk/API_VERSION"
+  _result = {}
   _result = exec_script("//build/util/version.py",
                         [
                           "-f",
@@ -66,6 +68,7 @@ if (is_android) {
   min_api_version = _result.min_api
 
   # Get xwalk_version_code
+  _result = {}
   _result = exec_script("//xwalk/build/android/generate_version_code.py",
                         [
                           "--abi-name=$android_app_abi",
