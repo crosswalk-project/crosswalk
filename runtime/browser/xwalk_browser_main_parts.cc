@@ -19,6 +19,9 @@
 #include "cc/base/switches.h"
 #include "components/devtools_http_handler/devtools_http_handler.h"
 #include "content/public/browser/browser_thread.h"
+#include "device/geolocation/access_token_store.h"
+#include "device/geolocation/geolocation_delegate.h"
+#include "device/geolocation/geolocation_provider.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
@@ -33,6 +36,7 @@
 #include "xwalk/runtime/browser/ui/gtk2_ui.h"
 #endif
 #include "xwalk/runtime/browser/devtools/xwalk_devtools_manager_delegate.h"
+#include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/ui/xwalk_javascript_native_dialog_factory.h"
 #include "xwalk/runtime/browser/xwalk_browser_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -76,6 +80,22 @@ GURL GetURLFromCommandLine(const base::CommandLine& command_line) {
 
   return net::FilePathToFileURL(path);
 }
+
+// A provider of services for Geolocation.
+class XWalkGeolocationDelegate : public device::GeolocationDelegate {
+ public:
+  explicit XWalkGeolocationDelegate(net::URLRequestContextGetter* request_context)
+      : request_context_(request_context) {}
+
+  scoped_refptr<device::AccessTokenStore> CreateAccessTokenStore() final {
+    return new XWalkAccessTokenStore(request_context_);
+  }
+
+ private:
+  net::URLRequestContextGetter* request_context_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkGeolocationDelegate);
+};
 
 }  // namespace
 
@@ -188,6 +208,10 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   devtools_http_handler_.reset(
       XWalkDevToolsManagerDelegate::CreateHttpHandler(
           xwalk_runner_->browser_context()));
+
+  device::GeolocationProvider::SetGeolocationDelegate(
+      new XWalkGeolocationDelegate(
+          xwalk_runner_->browser_context()->url_request_getter()));
 
   extension_service_ = xwalk_runner_->extension_service();
 

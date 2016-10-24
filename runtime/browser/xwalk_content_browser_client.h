@@ -48,7 +48,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                                       int child_process_id) override;
   content::QuotaPermissionContext*
       CreateQuotaPermissionContext() override;
-  device::GeolocationDelegate* CreateGeolocationDelegate() override;
   content::WebContentsViewDelegate* GetWebContentsViewDelegate(
       content::WebContents* web_contents) override;
   void RenderProcessWillLaunch(
