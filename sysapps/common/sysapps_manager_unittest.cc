@@ -52,7 +52,7 @@ class DummyExtension : public XWalkExtension {
 
 size_t CountExtensions(SysAppsManager* manager) {
   XWalkExtensionVector extensions;
-  STLElementDeleter<XWalkExtensionVector> deleter(&extensions);
+  base::STLElementDeleter<XWalkExtensionVector> deleter(&extensions);
   manager->CreateExtensionsForExtensionThread(&extensions);
   manager->CreateExtensionsForUIThread(&extensions);
   return extensions.size();
@@ -83,5 +83,5 @@ TEST_F(XWalkSysAppsManagerTest, DoesNotReplaceExtensions) {
 
   EXPECT_EQ(extensions[0], extension_ptr);
 
-  STLDeleteElements(&extensions);
+  base::STLDeleteElements(&extensions);
 }
