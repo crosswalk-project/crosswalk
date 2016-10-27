@@ -4,6 +4,8 @@
 
 package org.xwalk.core.internal;
 
+import android.util.Log;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ import java.util.Map;
  */
 @XWalkAPI(noInstance = true)
 public class XWalkPreferencesInternal {
+    private static final String TAG = "XWalkPreferences";
+
     static class PreferenceValue {
         static final int PREFERENCE_TYPE_BOOLEAN = 1;
         static final int PREFERENCE_TYPE_INTEGER = 2;
@@ -196,8 +200,7 @@ public class XWalkPreferencesInternal {
         // If the listener list is not empty, we consider the preference is
         // loaded by Crosswalk and taken effect already.
         if (key == ANIMATABLE_XWALK_VIEW && !sListeners.isEmpty()) {
-            throw new RuntimeException("Warning: the preference key " + key +
-                    " can not be set if the preference is already loaded by Crosswalk");
+            Log.d(TAG, "ANIMATABLE_XWALK_VIEW is not effective to existing XWalkView objects");
         }
         if (sPrefMap.get(key).getBooleanValue() != enabled) {
             PreferenceValue v = new PreferenceValue(enabled);
@@ -219,8 +222,7 @@ public class XWalkPreferencesInternal {
         // If the listener list is not empty, we consider the preference is
         // loaded by Crosswalk and taken effect already.
         if (key == ANIMATABLE_XWALK_VIEW && !sListeners.isEmpty()) {
-            throw new RuntimeException("Warning: the preference key " + key +
-                    " can not be set if the preference is already loaded by Crosswalk");
+            Log.d(TAG, "ANIMATABLE_XWALK_VIEW is not effective to existing XWalkView objects");
         }
         if (sPrefMap.get(key).getIntegerValue() != value) {
             PreferenceValue v = new PreferenceValue(value);
@@ -242,8 +244,7 @@ public class XWalkPreferencesInternal {
         // If the listener list is not empty, we consider the preference is
         // loaded by Crosswalk and taken effect already.
         if (key == ANIMATABLE_XWALK_VIEW && !sListeners.isEmpty()) {
-            throw new RuntimeException("Warning: the preference key " + key +
-                    " can not be set if the preference is already loaded by Crosswalk");
+            Log.d(TAG, "ANIMATABLE_XWALK_VIEW is not effective to existing XWalkView objects");
         }
         if (value != null && !value.equals(sPrefMap.get(key).getStringValue())) {
             PreferenceValue v = new PreferenceValue(value);
