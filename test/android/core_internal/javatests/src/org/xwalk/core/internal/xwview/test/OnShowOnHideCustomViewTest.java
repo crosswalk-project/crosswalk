@@ -6,6 +6,8 @@ package org.xwalk.core.internal.xwview.test;
 
 import android.test.suitebuilder.annotation.MediumTest;
 
+import java.lang.Thread;
+
 import junit.framework.Assert;
 
 import org.chromium.base.test.util.Feature;
@@ -18,6 +20,8 @@ import org.xwalk.core.internal.xwview.test.util.VideoTestWebServer;
  * Tests XWalkUIClient::onShow/onHideCustomView.
  */
 public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
+    private static final int MAX_CLICKS = 5;
+
     private VideoTestWebServer mWebServer;
     private TestXWalkUIClientInternal mUIClient;
     private ContentViewCore mContentViewCore;
@@ -59,7 +63,10 @@ public class OnShowOnHideCustomViewTest extends XWalkViewInternalTestBase {
         // of the custom view. Note that we're not able to get the precise location of the
         // control since it is a shadow element, so this test might break if the location
         // ever moves.
-        TouchCommon.singleClickView(mUIClient.getCustomView());
+        for (int i = 0; i < MAX_CLICKS; ++i) {
+            Thread.sleep(1000);
+            TouchCommon.singleClickView(mUIClient.getCustomView());
+        }
 
         DOMUtils.waitForMediaPlay(
                 mContentViewCore.getWebContents(), VideoTestWebServer.VIDEO_ID);
