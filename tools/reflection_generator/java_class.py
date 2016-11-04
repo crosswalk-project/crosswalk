@@ -263,8 +263,10 @@ class InternalJavaFileData(object):
   def ExtractMethods(self, java_content):
     constructor_re = re.compile(
         '(?P<method_doc>(\n\s*/\*\*.*\n(\s+\*(.)*\n)+\s+\*/\s*)?)\n'
+        '(?P<method_deprecated1>\s*@Deprecated\s*\n)?'
         '\s*@XWalkAPI\(?'
         '(?P<method_annotation>[a-zA-Z0-9\$\!%,\s\(\)\{\}\\\\;._"=]*)\)?'
+        '(?P<method_deprecated2>\s*@Deprecated\s*\n)?'
         '\s*public\s(?P<method_name>[a-zA-Z0-9]+)\('
         '(?P<method_params>[a-zA-Z0-9\s,\[\]\>\<]*)\)')
     for match in re.finditer(constructor_re, java_content):
@@ -272,12 +274,15 @@ class InternalJavaFileData(object):
       method_name = match.group('method_name')
       method_params = match.group('method_params')
       method_doc = match.group('method_doc')
+      method_deprecated1 = match.group('method_deprecated1')
+      method_deprecated2 = match.group('method_deprecated2')
       method = Method(
           self._class_name,
           self._class_loader,
           True, # is_constructor
           False, # is_static
           False, # is_abstract
+          method_deprecated1 != None or method_deprecated2 != None,
           method_name, None,
           method_params, method_annotation, method_doc)
       self._methods.append(method)
@@ -285,8 +290,10 @@ class InternalJavaFileData(object):
 
     method_re = re.compile(
         '(?P<method_doc>(\n\s*/\*\*.*\n(\s+\*(.)*\n)+\s+\*/\s*)?)\n'
+        '(?P<method_deprecated1>\s*@Deprecated\s*\n)?'
         '\s*@XWalkAPI\(?'
         '(?P<method_annotation>[a-zA-Z0-9%,\s\(\)\{\};._"=]*)\)?'
+        '(?P<method_deprecated2>\s*@Deprecated\s*\n)?'
         '\s*public\s+(?P<method_return>[a-zA-Z0-9]+(\<[a-zA-Z0-9]+,\s[a-zA-Z0-9]+\>)*(\[\s*\])*)\s+'
         '(?P<method_name>[a-zA-Z0-9]+)\('
         '(?P<method_params>[a-zA-Z0-9\s,\]\[\<\>]*)\)')
@@ -296,12 +303,15 @@ class InternalJavaFileData(object):
       method_params = match.group('method_params')
       method_return = match.group('method_return')
       method_doc = match.group('method_doc')
+      method_deprecated1 = match.group('method_deprecated1')
+      method_deprecated2 = match.group('method_deprecated2')
       method = Method(
           self._class_name,
           self._class_loader,
           False, # is_constructor
           False, # is_static
           False, # is_abstract
+          method_deprecated1 != None or method_deprecated2 != None,
           method_name, method_return, method_params,
           method_annotation, method_doc)
       self._methods.append(method)
@@ -326,6 +336,7 @@ class InternalJavaFileData(object):
           False, # is_constructor
           True, # is_static
           False, # is_abstract
+          False,
           method_name, method_return, method_params,
           method_annotation, method_doc)
       self._methods.append(method)
@@ -350,6 +361,7 @@ class InternalJavaFileData(object):
           False, # is_constructor
           False, # is_static
           True, # is_abstract
+          False,
           method_name, method_return, method_params,
           method_annotation, method_doc)
       self._methods.append(method)
