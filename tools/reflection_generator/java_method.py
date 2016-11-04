@@ -128,13 +128,14 @@ class Method(object):
   ANNOTATION_POST_BRIDGELINE = 'postBridgeLines'
 
   def __init__(self, class_name, class_loader,
-      is_constructor, is_static, is_abstract,
+      is_constructor, is_static, is_abstract, is_deprecated,
       method_name, method_return, params, annotation, doc=''):
     self._class_name = class_name
     self._class_loader = class_loader
     self._is_constructor = is_constructor
     self._is_static = is_static
     self._is_abstract = is_abstract
+    self._is_deprecated = is_deprecated
     self._is_delegate = False
     self._disable_reflect_method = False
     self._method_name = method_name
@@ -182,6 +183,10 @@ class Method(object):
   @property
   def is_abstract(self):
     return self._is_abstract
+
+  @property
+  def is_deprecated(self):
+    return self._is_deprecated
 
   @property
   def is_reservable(self):
@@ -747,7 +752,11 @@ ${PRE_WRAP_LINES}
         postWrapperMethod = new ReflectMethod(this,
                 \"post%s\");\n""" % self._method_declare_name)
 
-    value = {'DOC': self.GenerateDoc(self.method_doc),
+    doc_string = self.GenerateDoc(self.method_doc)
+    if self._is_deprecated :
+      doc_string += "\n    @Deprecated"
+
+    value = {'DOC': doc_string,
              'CLASS_NAME': self._class_java_data.wrapper_name,
              'PARAMS': self._wrapper_params_declare,
              'PRE_WRAP_LINES': pre_wrap_string}
@@ -811,10 +820,14 @@ ${DOC}
       return_state = 'return (%s) ' % ConvertPrimitiveTypeToObject(return_type)
       return_null = 'return %s;' % GetPrimitiveTypeDefaultValue(return_type)
 
+    doc_string = self.GenerateDoc(self.method_doc)
+    if self._is_deprecated :
+      doc_string += "\n    @Deprecated"
+
     value = {'RETURN_TYPE': self.method_return,
              'RETURN': return_state,
              'RETURN_NULL': return_null,
-             'DOC': self.GenerateDoc(self.method_doc),
+             'DOC': doc_string,
              'NAME': self.method_name,
              'PARAMS': self._wrapper_params_declare,
              'METHOD_DECLARE_NAME': self._method_declare_name,
@@ -927,10 +940,14 @@ ${PARAMS_PASSING}).toString());""" % self._method_return
     pre_wrap_string = self._method_annotations.get(
         self.ANNOTATION_PRE_WRAPLINE, '')
 
+    doc_string = self.GenerateDoc(self.method_doc)
+    if self._is_deprecated :
+      doc_string += "\n    @Deprecated"
+
     value = {'RETURN_TYPE': return_type,
              'RETURN': return_state,
              'RETURN_NULL': return_null,
-             'DOC': self.GenerateDoc(self.method_doc),
+             'DOC': doc_string,
              'NAME': self.method_name,
              'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>',
                   r'ValueCallback<\1>',self._wrapper_params_declare),
