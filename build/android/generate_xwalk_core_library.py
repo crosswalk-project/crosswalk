@@ -165,15 +165,16 @@ def MakeResourceTuple(resource_zip, resource_src):
 
 def main(argv):
   parser = argparse.ArgumentParser()
+  build_utils.AddDepfileOption(parser)
   parser.add_argument('--abi',
                       help='Android ABI being used in the build.')
-  parser.add_argument('--binary-files',
+  parser.add_argument('--binary-files', default='',
                       help='Binary files to store in res/raw.')
   parser.add_argument('--js-bindings', required=True,
                       help='.js files to copy to res/raw.')
   parser.add_argument('--main-jar', required=True,
                       help='Path to the main JAR to copy to libs/.')
-  parser.add_argument('--native-libraries',
+  parser.add_argument('--native-libraries', default='',
                       help='List of libraries to copy to libs/<abi>.')
   parser.add_argument('--output-dir', required=True,
                       help='Directory where the project will be created.')
@@ -217,6 +218,10 @@ def main(argv):
     else:
       resources.append(MakeResourceTuple(resource_zip, resource_src))
 
+  options.binary_files = build_utils.ParseGypList(options.binary_files)
+  options.js_bindings = build_utils.ParseGypList(options.js_bindings)
+  options.native_libraries = build_utils.ParseGypList(options.native_libraries)
+
   # Copy Eclipse project files of library project.
   build_utils.DeleteDirectory(options.output_dir)
   shutil.copytree(options.template_dir, options.output_dir)
@@ -226,22 +231,24 @@ def main(argv):
   CopyMainJar(options.output_dir, options.main_jar)
 
   if options.binary_files:
-    CopyBinaryData(options.output_dir,
-                   build_utils.ParseGypList(options.binary_files))
+    CopyBinaryData(options.output_dir, options.binary_files)
 
   if options.native_libraries:
     CopyNativeLibraries(options.output_dir, options.abi,
-                        build_utils.ParseGypList(options.native_libraries))
+                        options.native_libraries)
 
   # Copy JS API binding files.
-  CopyJSBindingFiles(build_utils.ParseGypList(options.js_bindings),
-                     options.output_dir)
+  CopyJSBindingFiles(options.js_bindings, options.output_dir)
 
   # Create an empty src/.
   build_utils.MakeDirectory(os.path.join(options.output_dir, 'src'))
   build_utils.Touch(os.path.join(options.output_dir, 'src', '.empty'))
 
-  build_utils.Touch(options.stamp)
+  # Write a depfile so that these files, which are not tracked directly by GN,
+  # also trigger a re-run of this script when modified.
+  build_utils.WriteDepfile(
+    options.depfile,
+    options.binary_files + options.native_libraries + options.js_bindings)
 
 
 if __name__ == '__main__':
