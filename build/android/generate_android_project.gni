@@ -39,10 +39,7 @@ template("generate_xwalk_core_library") {
     forward_variables_from(invoker, [ "deps" ])
 
     script = "//xwalk/build/android/generate_xwalk_core_library.py"
-    inputs = [
-      "//build/android/gyp/package_resources.py",
-      "//build/android/gyp/util/build_utils.py",
-    ]
+    depfile = "$target_gen_dir/${target_name}.d"
     outputs = [
       "$target_gen_dir/${target_name}__generate.stamp",
     ]
@@ -51,12 +48,14 @@ template("generate_xwalk_core_library") {
                          root_build_dir)
 
     _rebased_build_config = rebase_path(_build_config, root_build_dir)
+    _rebased_depfile = rebase_path(depfile, root_build_dir)
     _rebased_js_bindings = rebase_path(_js_bindings, root_build_dir)
     _rebased_output_dir = rebase_path(_output_dir, root_build_dir)
     _rebased_template_dir = rebase_path(_template_dir, root_build_dir)
 
     args = [
       "--abi=$android_app_abi",
+      "--depfile=$_rebased_depfile",
       "--js-bindings=$_rebased_js_bindings",
       "--main-jar=@FileArg(${_rebased_build_config}:deps_info:jar_path)",
       "--output-dir=$_rebased_output_dir",
@@ -293,6 +292,7 @@ template("generate_android_project") {
       ":$_project_target",
     ]
     script = "//xwalk/build/android/generate_xwalk_core_library_aar.py"
+    depfile = "$target_gen_dir/${target_name}.d"
     outputs = [
       _aar_path,
     ]
@@ -303,6 +303,8 @@ template("generate_android_project") {
       rebase_path(_android_manifest, root_build_dir),
       "--classes-jar",
       rebase_path(_merged_jar_path, root_build_dir),
+      "--depfile",
+      rebase_path(depfile, root_build_dir),
       "--res-dir",
       rebase_path("$root_out_dir/$_target_name/res", root_build_dir),
       "--r-txt",
@@ -313,9 +315,8 @@ template("generate_android_project") {
       args += [
         "--jni-abi",
         android_app_abi,
-        "--jni-dir",
-        rebase_path("$root_out_dir/$_target_name/libs/$android_app_abi",
-                    root_build_dir),
+        "--native-libraries",
+        "@FileArg(${_rebased_build_config}:native:libraries)",
       ]
     }
   }
