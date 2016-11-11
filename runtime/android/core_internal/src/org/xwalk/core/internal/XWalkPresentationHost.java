@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.WindowManager;
 
 import org.chromium.base.annotations.CalledByNative;
 import org.chromium.base.annotations.JNINamespace;
@@ -120,6 +121,9 @@ class XWalkPresentationHost implements XWalkDisplayManager.DisplayListener {
                 if (display != null && Build.VERSION.SDK_INT >=
                         Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     session.presentationScreen = new PresentationScreen(session, display);
+                    // Make the presentation screen work with the application context
+                    session.presentationScreen.getWindow().setType(
+                            WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
                     session.presentationScreen.show();
                     session.presentationScreen.loadUrl(url);
                     return true;
