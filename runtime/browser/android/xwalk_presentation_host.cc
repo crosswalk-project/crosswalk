@@ -16,6 +16,11 @@ using base::android::AttachCurrentThread;
 
 namespace xwalk {
 
+namespace {
+using base::android::ScopedJavaLocalRef;
+using base::android::JavaParamRef;
+}
+
 XWalkPresentationHost* XWalkPresentationHost::gInstance = nullptr;
 
 XWalkPresentationHost* XWalkPresentationHost::GetInstance() {

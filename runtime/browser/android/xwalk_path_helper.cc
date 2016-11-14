@@ -14,6 +14,10 @@
 
 namespace xwalk {
 
+namespace {
+using base::android::JavaParamRef;
+}
+
 typedef std::map<std::string, base::FilePath> VirtualRootMap;
 VirtualRootMap XWalkPathHelper::virtual_root_map_;
 
