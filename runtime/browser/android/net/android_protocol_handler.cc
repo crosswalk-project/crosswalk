@@ -134,12 +134,7 @@ class ContentSchemeRequestInterceptor : public AndroidRequestInterceptorBase {
 static ScopedJavaLocalRef<jobject> GetResourceContext(JNIEnv* env) {
   if (g_resource_context)
     return g_resource_context->get(env);
-  ScopedJavaLocalRef<jobject> context;
-  // We have to reset as GetApplicationContext() returns a jobject with a
-  // global ref. The constructor that takes a jobject would expect a local ref
-  // and would assert.
-  context.Reset(env, base::android::GetApplicationContext());
-  return context;
+  return ScopedJavaLocalRef<jobject>(base::android::GetApplicationContext());
 }
 
 // AndroidStreamReaderURLRequestJobDelegateImpl -------------------------------
