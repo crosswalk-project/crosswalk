@@ -294,11 +294,9 @@ bool RuntimeResourceDispatcherHostDelegateAndroid::HandleExternalProtocol(
   return false;
 }
 
-void RuntimeResourceDispatcherHostDelegateAndroid::OnResponseStarted(
-    net::URLRequest* request,
+void RuntimeResourceDispatcherHostDelegateAndroid::OnResponseStarted(net::URLRequest* request,
     content::ResourceContext* resource_context,
-    content::ResourceResponse* response,
-    IPC::Sender* sender) {
+    content::ResourceResponse* response) {
   const content::ResourceRequestInfo* request_info =
       content::ResourceRequestInfo::ForRequest(request);
   if (!request_info) {

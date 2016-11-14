@@ -59,8 +59,7 @@ class RuntimeResourceDispatcherHostDelegateAndroid
   void OnResponseStarted(
       net::URLRequest* request,
       content::ResourceContext* resource_context,
-      content::ResourceResponse* response,
-      IPC::Sender* sender) override;
+      content::ResourceResponse* response) override;
 
   void RemovePendingThrottleOnIoThread(IoThreadClientThrottle* throttle);
 
