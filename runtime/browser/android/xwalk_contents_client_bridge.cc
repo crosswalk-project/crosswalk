@@ -585,7 +585,7 @@ void XWalkContentsClientBridge::SelectClientCertificate(
 
 void XWalkContentsClientBridge::ClearClientCertPreferences(
     JNIEnv* env, jobject obj,
-    const JavaParamRef<jobject>& callback) {
+    const base::android::JavaParamRef<jobject>& callback) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   ScopedJavaGlobalRef<jobject>* j_callback = new ScopedJavaGlobalRef<jobject>();
   j_callback->Reset(env, callback);

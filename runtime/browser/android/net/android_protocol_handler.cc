@@ -349,8 +349,8 @@ std::unique_ptr<net::URLRequestInterceptor> CreateAppSchemeRequestInterceptor() 
 // |context| should be a android.content.Context instance or NULL to enable
 // the use of the standard application context.
 static void SetResourceContextForTesting(JNIEnv* env,
-                                         const JavaParamRef<jclass>& /*clazz*/,
-                                         const JavaParamRef<jobject>& context) {
+                                         const base::android::JavaParamRef<jclass>& /*clazz*/,
+                                         const base::android::JavaParamRef<jobject>& context) {
   if (context) {
     ResetResourceContext(new JavaObjectWeakGlobalRef(env, context));
   } else {
@@ -359,13 +359,13 @@ static void SetResourceContextForTesting(JNIEnv* env,
 }
 
 static ScopedJavaLocalRef<jstring> GetAndroidAssetPath(JNIEnv* env,
-                                   const JavaParamRef<jclass>& /*clazz*/) {
+                                   const base::android::JavaParamRef<jclass>& /*clazz*/) {
   // OK to release, JNI binding.
   return ConvertUTF8ToJavaString(env, xwalk::kAndroidAssetPath);
 }
 
 static ScopedJavaLocalRef<jstring> GetAndroidResourcePath(
-    JNIEnv* env, const JavaParamRef<jclass>& /*clazz*/) {
+    JNIEnv* env, const base::android::JavaParamRef<jclass>& /*clazz*/) {
   // OK to release, JNI binding.
   return ConvertUTF8ToJavaString(env, xwalk::kAndroidResourcePath);
 }

@@ -14,8 +14,8 @@ namespace xwalk {
 namespace extensions {
 
 void RegisterExtensionInPath(JNIEnv* env,
-                             const JavaParamRef<jclass>& jcaller,
-                             const JavaParamRef<jstring>& path) {
+                             const base::android::JavaParamRef<jclass>& jcaller,
+                             const base::android::JavaParamRef<jstring>& path) {
   const char *str = env->GetStringUTFChars(path, 0);
   xwalk::XWalkBrowserMainPartsAndroid* main_parts =
       ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());

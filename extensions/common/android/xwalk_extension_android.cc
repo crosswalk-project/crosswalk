@@ -111,7 +111,7 @@ void XWalkExtensionAndroid::DestroyExtension(JNIEnv* env, jobject obj) {
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
   JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  base::android::ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     return NULL;
   }
@@ -133,7 +133,7 @@ XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
 
 void XWalkExtensionAndroid::RemoveInstance(int instance) {
   JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  base::android::ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     return;
   }
@@ -166,7 +166,7 @@ XWalkExtensionAndroidInstance::~XWalkExtensionAndroidInstance() {
 
   // Try to notice Java side on instance removed.
   JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  base::android::ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object to notice instance destroyed.";
     return;
@@ -181,18 +181,18 @@ void XWalkExtensionAndroidInstance::HandleMessage(
   const base::BinaryValue* binary_value = nullptr;
 
   JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  base::android::ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object is referenced for message routing";
     return;
   }
 
   if (msg->GetAsString(&value)) {
-    ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
+    base::android::ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
     Java_XWalkExtensionAndroid_onMessage(
         env, obj.obj(), getID(), buffer.obj());
   } else if (msg->GetAsBinary(&binary_value)) {
-    ScopedJavaLocalRef<jbyteArray> buffer(
+    base::android::ScopedJavaLocalRef<jbyteArray> buffer(
         env, env->NewByteArray(binary_value->GetSize()));
     env->SetByteArrayRegion(
         buffer.obj(), 0, binary_value->GetSize(),
@@ -215,15 +215,15 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   }
 
   JNIEnv* env = base::android::AttachCurrentThread();
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  base::android::ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object is referenced for sync message routing";
     SendSyncReplyToJS(std::move(ret_val));
     return;
   }
 
-  ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
-  ScopedJavaLocalRef<jstring> ret =
+  base::android::ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
+  base::android::ScopedJavaLocalRef<jstring> ret =
       Java_XWalkExtensionAndroid_onSyncMessage(
               env, obj.obj(), getID(), buffer.obj());
 
@@ -236,10 +236,10 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
 
 static jlong GetOrCreateExtension(
     JNIEnv* env,
-    const JavaParamRef<jobject>& obj,
-    const JavaParamRef<jstring>& name,
-    const JavaParamRef<jstring>& js_api,
-    const JavaParamRef<jobjectArray>& js_entry_points) {
+    const base::android::JavaParamRef<jobject>& obj,
+    const base::android::JavaParamRef<jstring>& name,
+    const base::android::JavaParamRef<jstring>& js_api,
+    const base::android::JavaParamRef<jobjectArray>& js_entry_points) {
   xwalk::XWalkBrowserMainPartsAndroid* main_parts =
       ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());
 
