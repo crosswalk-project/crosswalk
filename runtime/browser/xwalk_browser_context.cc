@@ -36,6 +36,7 @@
 #include "xwalk/runtime/browser/xwalk_permission_manager.h"
 #include "xwalk/runtime/browser/xwalk_pref_store.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/browser/xwalk_special_storage_policy.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -212,6 +213,12 @@ XWalkBrowserContext::GetGuestManager() {
 }
 
 storage::SpecialStoragePolicy* XWalkBrowserContext::GetSpecialStoragePolicy() {
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kUnlimitedStorage)) {
+    if (!special_storage_policy_.get())
+      special_storage_policy_ = new XWalkSpecialStoragePolicy();
+    return special_storage_policy_.get();
+  }
   return NULL;
 }
 
