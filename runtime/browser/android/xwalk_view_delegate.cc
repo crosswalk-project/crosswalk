@@ -10,7 +10,7 @@
 
 namespace xwalk {
 
-jboolean IsLibraryBuiltForIA(JNIEnv* env, const JavaParamRef<jclass>& jcaller) {
+jboolean IsLibraryBuiltForIA(JNIEnv* env, const base::android::JavaParamRef<jclass>& jcaller) {
 #if defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64)
   return JNI_TRUE;
 #else

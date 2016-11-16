@@ -134,12 +134,7 @@ class ContentSchemeRequestInterceptor : public AndroidRequestInterceptorBase {
 static ScopedJavaLocalRef<jobject> GetResourceContext(JNIEnv* env) {
   if (g_resource_context)
     return g_resource_context->get(env);
-  ScopedJavaLocalRef<jobject> context;
-  // We have to reset as GetApplicationContext() returns a jobject with a
-  // global ref. The constructor that takes a jobject would expect a local ref
-  // and would assert.
-  context.Reset(env, base::android::GetApplicationContext());
-  return context;
+  return ScopedJavaLocalRef<jobject>(base::android::GetApplicationContext());
 }
 
 // AndroidStreamReaderURLRequestJobDelegateImpl -------------------------------
@@ -354,8 +349,8 @@ std::unique_ptr<net::URLRequestInterceptor> CreateAppSchemeRequestInterceptor() 
 // |context| should be a android.content.Context instance or NULL to enable
 // the use of the standard application context.
 static void SetResourceContextForTesting(JNIEnv* env,
-                                         const JavaParamRef<jclass>& /*clazz*/,
-                                         const JavaParamRef<jobject>& context) {
+                                         const base::android::JavaParamRef<jclass>& /*clazz*/,
+                                         const base::android::JavaParamRef<jobject>& context) {
   if (context) {
     ResetResourceContext(new JavaObjectWeakGlobalRef(env, context));
   } else {
@@ -364,13 +359,13 @@ static void SetResourceContextForTesting(JNIEnv* env,
 }
 
 static ScopedJavaLocalRef<jstring> GetAndroidAssetPath(JNIEnv* env,
-                                   const JavaParamRef<jclass>& /*clazz*/) {
+                                   const base::android::JavaParamRef<jclass>& /*clazz*/) {
   // OK to release, JNI binding.
   return ConvertUTF8ToJavaString(env, xwalk::kAndroidAssetPath);
 }
 
 static ScopedJavaLocalRef<jstring> GetAndroidResourcePath(
-    JNIEnv* env, const JavaParamRef<jclass>& /*clazz*/) {
+    JNIEnv* env, const base::android::JavaParamRef<jclass>& /*clazz*/) {
   // OK to release, JNI binding.
   return ConvertUTF8ToJavaString(env, xwalk::kAndroidResourcePath);
 }

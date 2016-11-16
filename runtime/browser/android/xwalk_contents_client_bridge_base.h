@@ -7,6 +7,7 @@
 
 #include "base/callback_forward.h"
 #include "base/supports_user_data.h"
+#include "content/public/browser/certificate_request_result_type.h"
 #include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 #include "net/ssl/ssl_cert_request_info.h"
@@ -57,7 +58,7 @@ class XWalkContentsClientBridgeBase {
   virtual void AllowCertificateError(int cert_error,
                                      net::X509Certificate* cert,
                                      const GURL& request_url,
-                                     const base::Callback<void(bool)>& callback,
+                                     const base::Callback<void(content::CertificateRequestResultType)>& callback,
                                      bool* cancel_request) = 0;
 
   virtual void RunJavaScriptDialog(

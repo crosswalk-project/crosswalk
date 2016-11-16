@@ -106,7 +106,7 @@ void XWalkContentsClientBridge::AllowCertificateError(
     int cert_error,
     net::X509Certificate* cert,
     const GURL& request_url,
-    const base::Callback<void(bool)>& callback, // NOLINT
+    const base::Callback<void(content::CertificateRequestResultType)>& callback, // NOLINT
     bool* cancel_request) {
 
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -146,7 +146,8 @@ void XWalkContentsClientBridge::ProceedSslError(JNIEnv* env, jobject obj,
     LOG(WARNING) << "Ignoring unexpected ssl error proceed callback";
     return;
   }
-  callback->Run(proceed);
+  callback->Run(proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE
+                        : content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
   pending_cert_error_callbacks_.Remove(id);
 }
 
@@ -584,7 +585,7 @@ void XWalkContentsClientBridge::SelectClientCertificate(
 
 void XWalkContentsClientBridge::ClearClientCertPreferences(
     JNIEnv* env, jobject obj,
-    const JavaParamRef<jobject>& callback) {
+    const base::android::JavaParamRef<jobject>& callback) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   ScopedJavaGlobalRef<jobject>* j_callback = new ScopedJavaGlobalRef<jobject>();
   j_callback->Reset(env, callback);

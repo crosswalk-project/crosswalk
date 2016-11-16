@@ -40,6 +40,8 @@ using content::WebContents;
 
 namespace {
 
+using base::android::JavaParamRef;
+
 // FIXME(girish): The frontend URL needs to be served from the domain below
 // for remote debugging to work in chrome (see chrome's devtools_ui.cc).
 // Currently, the chrome version is hardcoded because of this dependancy.

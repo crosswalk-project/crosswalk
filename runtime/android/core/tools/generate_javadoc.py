@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Intel Corporation. All rights reserved.
+# Copyright (c 2016 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -36,7 +36,7 @@ def main():
                       help='File to touch on success.')
 
   options = parser.parse_args(build_utils.ExpandFileArgs(sys.argv[1:]))
-  options.java_files = build_utils.ParseGypList(options.java_files)
+  options.java_files = build_utils.ParseGnList(options.java_files)
 
   if options.srcjar_files and options.input_srcjar is None:
     print '--srcjar-files specified without --input-srcjar. Ignoring files.'
@@ -47,7 +47,7 @@ def main():
       if options.srcjar_files:
         pattern = lambda f: f in options.srcjar_files
         java_files += [os.path.join(temp_dir, f) for f in
-                       build_utils.ParseGypList(options.srcjar_files)]
+                       build_utils.ParseGnList(options.srcjar_files)]
       else:
         pattern = None
         java_files += [os.path.join(temp_dir, '*.java')]
