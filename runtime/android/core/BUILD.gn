@@ -211,6 +211,7 @@ action("xwalk_core_library_documentation") {
     "org/xwalk/core/XWalkSettings.java",
     "org/xwalk/core/XWalkUIClient.java",
     "org/xwalk/core/XWalkView.java",
+    "org/xwalk/core/XWalkViewDatabase.java",
     "org/xwalk/core/XWalkWebResourceRequest.java",
     "org/xwalk/core/XWalkWebResourceResponse.java",
   ]
