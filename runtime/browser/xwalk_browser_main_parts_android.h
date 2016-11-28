@@ -12,6 +12,8 @@
 
 namespace xwalk {
 
+void GetUserDataDir(base::FilePath* user_data_dir);
+
 class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
  public:
   explicit XWalkBrowserMainPartsAndroid(

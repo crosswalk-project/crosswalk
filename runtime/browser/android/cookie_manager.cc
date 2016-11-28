@@ -37,6 +37,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/runtime/browser/android/scoped_allow_wait_for_legacy_web_view_api.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 using base::FilePath;
@@ -56,70 +57,6 @@ namespace {
 
 // Are cookies allowed for file:// URLs by default?
 const bool kDefaultFileSchemeAllowed = false;
-const char kPreKitkatDataDirectory[] = "app_database";
-const char kKitkatDataDirectory[] = "app_webview";
-
-void ImportKitkatDataIfNecessary(const base::FilePath& old_data_dir,
-                                 const base::FilePath& profile) {
-  if (!base::DirectoryExists(old_data_dir))
-    return;
-
-  const char* possible_data_dir_names[] = {
-      "Cache",
-      "Cookies",
-      "Cookies-journal",
-      "IndexedDB",
-      "Local Storage",
-  };
-  for (size_t i = 0; i < arraysize(possible_data_dir_names); i++) {
-    base::FilePath dir = old_data_dir.Append(possible_data_dir_names[i]);
-    if (base::PathExists(dir)) {
-      if (!base::Move(dir, profile.Append(possible_data_dir_names[i]))) {
-        NOTREACHED() << "Failed to import previous user data: "
-                     << possible_data_dir_names[i];
-      }
-    }
-  }
-}
-
-void ImportPreKitkatDataIfNecessary(const base::FilePath& old_data_dir,
-                                    const base::FilePath& profile) {
-  if (!base::DirectoryExists(old_data_dir))
-    return;
-
-  // Local Storage.
-  base::FilePath local_storage_path = old_data_dir.Append("localstorage");
-  if (base::PathExists(local_storage_path)) {
-    if (!base::Move(local_storage_path, profile.Append("Local Storage"))) {
-      NOTREACHED() << "Failed to import previous user data: localstorage";
-    }
-  }
-}
-
-void MoveUserDataDirIfNecessary(const base::FilePath& user_data_dir,
-                                const base::FilePath& profile) {
-  if (base::DirectoryExists(profile))
-    return;
-
-  if (!base::CreateDirectory(profile))
-    return;
-
-  // Import pre-crosswalk-8 data.
-  ImportKitkatDataIfNecessary(user_data_dir, profile);
-  // Import Android Kitkat System webview data.
-  base::FilePath old_data_dir = user_data_dir.DirName().Append(
-      kKitkatDataDirectory);
-  ImportKitkatDataIfNecessary(old_data_dir, profile);
-  // Import pre-Kitkat System webview data.
-  old_data_dir = user_data_dir.DirName().Append(kPreKitkatDataDirectory);
-  ImportPreKitkatDataIfNecessary(old_data_dir, profile);
-}
-
-void GetUserDataDir(FilePath* user_data_dir) {
-  if (!PathService::Get(base::DIR_ANDROID_APP_DATA, user_data_dir)) {
-    NOTREACHED() << "Failed to get app data directory for Android WebView";
-  }
-}
 
 // CookieManager creates and owns XWalkView's CookieStore, in addition to
 // handling calls into the CookieStore from Java.
@@ -250,17 +187,11 @@ net::CookieStore* CookieManager::GetCookieStore() {
 
   if (!cookie_store_) {
     FilePath user_data_dir;
-    GetUserDataDir(&user_data_dir);
+    xwalk::GetUserDataDir(&user_data_dir);
     base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-    if (command_line->HasSwitch(switches::kXWalkProfileName)) {
-      base::FilePath profile = user_data_dir.Append(
-          command_line->GetSwitchValuePath(switches::kXWalkProfileName));
-      MoveUserDataDirIfNecessary(user_data_dir, profile);
-      user_data_dir = profile;
-    }
-
-    FilePath cookie_store_path =
-        user_data_dir.Append(FILE_PATH_LITERAL("Cookies"));
+    base::FilePath profile = user_data_dir.Append(
+        command_line->GetSwitchValuePath(switches::kXWalkProfileName));
+    FilePath cookie_store_path = profile.Append(FILE_PATH_LITERAL("Cookies"));
 
     content::CookieStoreConfig cookie_config(
         cookie_store_path, content::CookieStoreConfig::RESTORED_SESSION_COOKIES,
