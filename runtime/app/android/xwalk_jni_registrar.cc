@@ -24,6 +24,7 @@
 #include "xwalk/runtime/browser/android/xwalk_path_helper.h"
 #include "xwalk/runtime/browser/android/xwalk_presentation_host.h"
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
+#include "xwalk/runtime/browser/android/xwalk_form_database.h"
 #include "xwalk/runtime/browser/android/xwalk_view_delegate.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/android/xwalk_web_resource_response_impl.h"
@@ -54,6 +55,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
       extensions::RegisterXWalkNativeExtensionLoaderAndroid },
   { "XWalkPathHelper", RegisterXWalkPathHelper },
   { "XWalkSettings", RegisterXWalkSettings },
+  { "XWalkFormDatabase", RegisterXWalkFormDatabase },
   { "XWalkViewDelegate", RegisterXWalkViewDelegate },
   { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
   { "XWalkWebResourceResponseImpl", RegisterXWalkWebResourceResponse },
