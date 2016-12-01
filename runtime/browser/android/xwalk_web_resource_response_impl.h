@@ -46,8 +46,6 @@ class XWalkWebResourceResponseImpl : public XWalkWebResourceResponse {
   DISALLOW_COPY_AND_ASSIGN(XWalkWebResourceResponseImpl);
 };
 
-bool RegisterXWalkWebResourceResponse(JNIEnv* env);
-
 }  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_WEB_RESOURCE_RESPONSE_IMPL_H_

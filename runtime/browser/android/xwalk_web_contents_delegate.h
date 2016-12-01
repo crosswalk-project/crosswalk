@@ -81,8 +81,6 @@ class XWalkWebContentsDelegate
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);
 };
 
-bool RegisterXWalkWebContentsDelegate(JNIEnv* env);
-
 }  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_WEB_CONTENTS_DELEGATE_H_

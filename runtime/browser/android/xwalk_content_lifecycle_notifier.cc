@@ -11,10 +11,6 @@ using base::android::AttachCurrentThread;
 
 namespace xwalk {
 
-bool RegisterXWalkContentLifecycleNotifier(JNIEnv* env) {
-  return RegisterNativesImpl(env);
-}
-
 // static
 void XWalkContentLifecycleNotifier::OnXWalkViewCreated() {
   Java_XWalkContentLifecycleNotifier_onXWalkViewCreated(AttachCurrentThread());

@@ -110,8 +110,4 @@ bool XWalkWebResourceResponseImpl::GetResponseHeaders(
   return true;
 }
 
-bool RegisterXWalkWebResourceResponse(JNIEnv* env) {
-  return RegisterNativesImpl(env);
-}
-
 }  // namespace xwalk

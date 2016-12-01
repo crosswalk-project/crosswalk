@@ -20,8 +20,6 @@ class XWalkContentLifecycleNotifier {
   DISALLOW_IMPLICIT_CONSTRUCTORS(XWalkContentLifecycleNotifier);
 };
 
-bool RegisterXWalkContentLifecycleNotifier(JNIEnv* env);
-
 }  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_LIFECYCLE_NOTIFIER_H_

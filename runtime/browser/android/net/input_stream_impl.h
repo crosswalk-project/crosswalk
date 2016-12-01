@@ -47,8 +47,6 @@ class InputStreamImpl : public InputStream {
   DISALLOW_COPY_AND_ASSIGN(InputStreamImpl);
 };
 
-bool RegisterInputStream(JNIEnv* env);
-
 }  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_BROWSER_ANDROID_NET_INPUT_STREAM_IMPL_H_

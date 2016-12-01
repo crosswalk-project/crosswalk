@@ -26,10 +26,6 @@ using JNI_InputStream::Java_InputStream_readI_AB_I_I;
 
 namespace xwalk {
 
-bool RegisterInputStream(JNIEnv* env) {
-  return JNI_InputStream::RegisterNativesImpl(env);
-}
-
 // Maximum number of bytes to be read in a single read.
 const int InputStreamImpl::kBufferSize = 4096;
 

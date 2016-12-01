@@ -74,9 +74,6 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
   DISALLOW_COPY_AND_ASSIGN(XWalkContentsIoThreadClientImpl);
 };
 
-// JNI registration method.
-bool RegisterXWalkContentsIoThreadClientImpl(JNIEnv* env);
-
 }  // namespace xwalk
 
 #endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_IO_THREAD_CLIENT_IMPL_H_

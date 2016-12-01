@@ -287,8 +287,4 @@ void XWalkWebContentsDelegate::FindReply(WebContents* web_contents,
                                                   final_update);
 }
 
-bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
-  return RegisterNativesImpl(env);
-}
-
 }  // namespace xwalk
