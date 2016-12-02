@@ -22,6 +22,7 @@
 #include "content/public/browser/content_browser_client.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/browser/xwalk_form_database_service.h"
+#include "xwalk/runtime/browser/xwalk_special_storage_policy.h"
 #include "xwalk/runtime/browser/xwalk_ssl_host_state_delegate.h"
 
 #if defined(OS_ANDROID)
@@ -146,6 +147,7 @@ class XWalkBrowserContext
   PartitionPathContextGetterMap context_getters_;
   std::unique_ptr<XWalkSSLHostStateDelegate> ssl_host_state_delegate_;
   std::unique_ptr<content::PermissionManager> permission_manager_;
+  scoped_refptr<XWalkSpecialStoragePolicy> special_storage_policy_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserContext);
 };
