@@ -51,6 +51,11 @@ solutions = [
       'src/third_party/libpxc':
         crosswalk_git + '/libpxc.git@568e4ecc969b4663e82034e71d08efdd5fa77e1a',
 
+      # Include WebCL conformance test suite.
+      'src/third_party/webcl/src':
+        'https://github.com/KhronosGroup/WebCL-conformance.git@'
+           'bb9d6426ae0b89f800627abafa0d3a6a614286d0',
+
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
       # are not used and also saves some bandwidth.
