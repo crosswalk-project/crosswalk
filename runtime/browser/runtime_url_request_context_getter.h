@@ -49,6 +49,7 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   void UpdateAcceptLanguages(const std::string& accept_languages);
 
  private:
+  class XWalkCTDelegate;
   ~RuntimeURLRequestContextGetter() override;
 
   bool ignore_certificate_errors_;

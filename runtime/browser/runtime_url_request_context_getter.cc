@@ -33,6 +33,7 @@
 #include "net/http/http_cache.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_server_properties_impl.h"
+#include "net/http/transport_security_state.h"
 #include "net/proxy/proxy_service.h"
 #include "net/ssl/channel_id_service.h"
 #include "net/ssl/default_channel_id_store.h"
@@ -61,8 +62,17 @@
 #endif
 
 using content::BrowserThread;
+using net::TransportSecurityState;
 
 namespace xwalk {
+
+class RuntimeURLRequestContextGetter::XWalkCTDelegate
+    : public TransportSecurityState::RequireCTDelegate {
+  public:
+    CTRequirementLevel IsCTRequiredForHost(const std::string& hostname) override {
+      return CTRequirementLevel::NOT_REQUIRED;
+    }
+};
 
 int GetDiskCacheSize() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
@@ -182,6 +192,10 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         net::HttpAuthHandlerFactory::CreateDefault(host_resolver.get()));
     storage_->set_http_server_properties(std::unique_ptr<net::HttpServerProperties>(
         new net::HttpServerPropertiesImpl));
+
+    // Disable certificate transparency
+    url_request_context_->transport_security_state()->SetRequireCTDelegate(
+        new XWalkCTDelegate());
 
     base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
     std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
