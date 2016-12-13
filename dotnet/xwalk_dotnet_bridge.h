@@ -8,6 +8,7 @@
 
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_EntryPoints.h"
+#include "xwalk/extensions/public/XW_Extension_Message_2.h"
 #include "xwalk/extensions/public/XW_Extension_Permissions.h"
 #include "xwalk/extensions/public/XW_Extension_Runtime.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
@@ -32,6 +33,7 @@ class XWalkDotNetBridge {
 
   bool Initialize();
   XWalkExtensionDotNetInstance CreateInstance(XW_Instance native_instance);
+  void PostBinaryMessageToInstance(XW_Instance instance, const char* message, const size_t size);
   void PostMessageToInstance(XW_Instance instance, const std::string& message);
   void SetSyncReply(XW_Instance instance, const std::string& message);
 
