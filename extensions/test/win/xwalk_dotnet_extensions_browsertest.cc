@@ -34,6 +34,15 @@ class DotNetMultipleExtensionTest : public XWalkExtensionsTestBase {
   }
 };
 
+class DotNetBinaryTest : public XWalkExtensionsTestBase {
+ public:
+  void SetUp() override {
+    XWalkExtensionService::SetExternalExtensionsPathForTesting(
+      GetDotNetExtensionTestPath(FILE_PATH_LITERAL("binary_extension")));
+    XWalkExtensionsTestBase::SetUp();
+  }
+};
+
 IN_PROC_BROWSER_TEST_F(DotNetEchoTest, DotNetExtension) {
   Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
@@ -60,6 +69,16 @@ IN_PROC_BROWSER_TEST_F(DotNetMultipleExtensionTest, DotnetExtensionMultiple) {
   GURL url = GetExtensionsTestURL(
     base::FilePath(),
     base::FilePath().AppendASCII("echo_multiple.html"));
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime, url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(DotNetBinaryTest, DotNetExtension) {
+  Runtime* runtime = CreateRuntime();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+    base::FilePath().AppendASCII("binaryTest.html"));
   content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime, url);

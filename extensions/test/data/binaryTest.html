@@ -1,0 +1,18 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+    binaryTest.binaryEcho("Pass", function(buf) {
+            var msg = String.fromCharCode.apply(null, new Uint16Array(buf));
+            document.title = msg;
+        });
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>

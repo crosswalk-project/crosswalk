@@ -22,6 +22,7 @@ xwalk::extensions::XWalkDotNetBridge* g_bridge = nullptr;
 XW_Extension g_xw_extension = 0;
 const XW_CoreInterface* g_core = nullptr;
 const XW_MessagingInterface* g_messaging = nullptr;
+const XW_MessagingInterface2* g_messaging2 = nullptr;
 const XW_Internal_SyncMessagingInterface* g_sync_messaging = nullptr;
 const XW_Internal_EntryPointsInterface* g_entry_points = nullptr;
 const XW_Internal_RuntimeInterface* g_runtime = nullptr;
@@ -50,6 +51,14 @@ bool InitializeInterfaces(XW_GetInterface get_interface) {
   if (!g_messaging) {
     std::cerr <<
         "Can't initialize extension: error getting Messaging interface.\n";
+    return false;
+  }
+
+  g_messaging2 = reinterpret_cast<const XW_MessagingInterface2*>(
+    get_interface(XW_MESSAGING_INTERFACE_2));
+  if (!g_messaging2) {
+    std::cerr <<
+        "Can't initialize extension: error getting binary Messaging interface.\n";
     return false;
   }
 
@@ -135,6 +144,13 @@ public:
   }
   void setNativeInstance(XW_Instance instance) {
     instance_ = instance;
+  }
+  void PostBinaryMessageToJS(array<unsigned char>^ message, size_t size) {
+    pin_ptr<unsigned char> message_pin = &message[0];
+    const unsigned char* message_ptr = message_pin;
+    const char* message_to_js = (const char*)(message_ptr);
+
+    bridge_->PostBinaryMessageToInstance(instance_, message_to_js, size);
   }
   void PostMessageToJS(String^ message) {
     std::string message_to_js;
@@ -409,6 +425,12 @@ void XWalkDotNetBridge::HandleSyncMessage(XW_Instance instance,
 }
 
 #undef PostMessage
+void XWalkDotNetBridge::PostBinaryMessageToInstance(XW_Instance instance,
+  const char* message,
+  const size_t size) {
+  g_messaging2->PostBinaryMessage(instance, message, size);
+}
+
 void XWalkDotNetBridge::PostMessageToInstance(XW_Instance instance,
   const std::string& message) {
   g_messaging->PostMessage(instance, message.c_str());

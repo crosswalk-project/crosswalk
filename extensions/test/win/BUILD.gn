@@ -174,10 +174,23 @@ msbuild("dotnet_echo_extension2") {
   ]
 }
 
+msbuild("dotnet_binary_extension") {
+  testonly = true
+  visibility = [ ":*" ]
+  output_dir = "$_out_dir_prefix/binary_extension"
+  output_name = "binary_extension"
+  project_path = "binary_extension/binary_extension.csproj"
+  sources = [
+    "binary_extension/XWalkExtension.cs",
+    "binary_extension/XWalkExtensionInstance.cs",
+  ]
+}
+
 group("dotnet_extensions") {
   visibility = [ ":*" ]
   testonly = true
   public_deps = [
+    ":dotnet_binary_extension",
     ":dotnet_echo_extension",
     ":dotnet_echo_extension1",
     ":dotnet_echo_extension2",
