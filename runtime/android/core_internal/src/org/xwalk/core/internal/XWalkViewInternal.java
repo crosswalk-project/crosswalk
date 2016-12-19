@@ -262,6 +262,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private XWalkContent mContent;
     private Activity mActivity;
     private Context mContext;
+    private final XWalkHitTestResultInternal mXWalkHitTestResult;
     private boolean mIsHidden;
     private XWalkActivityStateListener mActivityStateListener;
     private ValueCallback<Uri> mFilePathCallback;
@@ -326,6 +327,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContext = getContext();
 
         init(getContext(), getActivity());
+        mXWalkHitTestResult = new XWalkHitTestResultInternal();
         initXWalkContent(mContext, null);
     }
 
@@ -367,6 +369,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContext = getContext();
 
         init(getContext(), getActivity());
+        mXWalkHitTestResult = new XWalkHitTestResultInternal();
     }
 
     /**
@@ -396,6 +399,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContext = getContext();
 
         init(getContext(), getActivity());
+        mXWalkHitTestResult = new XWalkHitTestResultInternal();
         initXWalkContent(mContext, null);
     }
 
@@ -585,6 +589,21 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return null;
         checkThreadSafety();
         return mContent.getUrl();
+    }
+
+    /**
+    * Get the resource type of hit place in the current page.
+    * @return the result of the hit place in the current page.
+    * @since 7.0
+    */
+    @XWalkAPI
+    public XWalkHitTestResultInternal getHitTestResult() {
+        if (mContent == null)  return null;
+        checkThreadSafety();
+        XWalkContent.HitTestData data = mContent.getLastHitTestResult();
+        mXWalkHitTestResult.setType(data.hitTestResultType);
+        mXWalkHitTestResult.setExtra(data.hitTestResultExtraData);
+        return mXWalkHitTestResult;
     }
 
     /**
