@@ -53,6 +53,7 @@ void ImportKitkatDataIfNecessary(const base::FilePath& old_data_dir,
       "Cookies-journal",
       "IndexedDB",
       "Local Storage",
+      "databases",
   };
   for (size_t i = 0; i < arraysize(possible_data_dir_names); i++) {
     base::FilePath dir = old_data_dir.Append(possible_data_dir_names[i]);
