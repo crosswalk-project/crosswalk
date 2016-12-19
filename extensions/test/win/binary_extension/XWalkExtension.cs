@@ -26,7 +26,7 @@ public class XWalkExtension
         exports.binaryEcho = function(msg, callback) {
           binaryTestListener = callback;
           extension.postMessage(msg);
-        };
+        };";
   }
 }
 }
