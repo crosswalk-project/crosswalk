@@ -25,7 +25,8 @@
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
 #include "net/cert/ct_policy_enforcer.h"
-#include "net/cert/multi_log_ct_verifier.h"
+#include "net/cert/ct_policy_status.h"
+#include "net/cert/ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/dns/host_resolver.h"
 #include "net/dns/mapped_host_resolver.h"
@@ -63,6 +64,54 @@
 using content::BrowserThread;
 
 namespace xwalk {
+
+namespace {
+
+// TODO(rakuco): should Crosswalk's release cycle ever align with Chromium's,
+// we should use Chromium's Certificate Transparency policy and stop ignoring
+// CT information with the classes below.
+// See the discussion in http://crbug.com/669978 for more information.
+
+// A CTVerifier which ignores Certificate Transparency information.
+class IgnoresCTVerifier : public net::CTVerifier {
+ public:
+  IgnoresCTVerifier() = default;
+  ~IgnoresCTVerifier() override = default;
+
+  int Verify(net::X509Certificate* cert,
+             const std::string& stapled_ocsp_response,
+             const std::string& sct_list_from_tls_extension,
+             net::ct::CTVerifyResult* result,
+             const net::BoundNetLog& net_log) override {
+    return net::OK;
+  }
+
+  void SetObserver(Observer* observer) override {}
+};
+
+// A CTPolicyEnforcer that accepts all certificates.
+class IgnoresCTPolicyEnforcer : public net::CTPolicyEnforcer {
+ public:
+  IgnoresCTPolicyEnforcer() = default;
+  ~IgnoresCTPolicyEnforcer() override = default;
+
+  net::ct::CertPolicyCompliance DoesConformToCertPolicy(
+      net::X509Certificate* cert,
+      const net::SCTList& verified_scts,
+      const net::BoundNetLog& net_log) override {
+    return net::ct::CertPolicyCompliance::CERT_POLICY_COMPLIES_VIA_SCTS;
+  }
+
+  net::ct::EVPolicyCompliance DoesConformToCTEVPolicy(
+      net::X509Certificate* cert,
+      const net::ct::EVCertsWhitelist* ev_whitelist,
+      const net::SCTList& verified_scts,
+      const net::BoundNetLog& net_log) override {
+    return net::ct::EVPolicyCompliance::EV_POLICY_DOES_NOT_APPLY;
+  }
+};
+
+}  // namespace
 
 int GetDiskCacheSize() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
@@ -158,10 +207,19 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
         base::WrapUnique(new net::TransportSecurityState));
+
+    // We consciously ignore certificate transparency checks at the moment
+    // because we risk ignoring valid logs or accepting unqualified logs since
+    // Crosswalk's release schedule does not match Chromium's. Additionally,
+    // all the CT verification mechanisms stop working 70 days after a build is
+    // made, so we would also need to release more quickly and users would need
+    // to update their apps as well.
+    // See the discussion in http://crbug.com/669978 for more information.
     storage_->set_cert_transparency_verifier(
-        base::WrapUnique(new net::MultiLogCTVerifier));
+        base::WrapUnique(new IgnoresCTVerifier));
     storage_->set_ct_policy_enforcer(
-        base::WrapUnique(new net::CTPolicyEnforcer));
+        base::WrapUnique(new IgnoresCTPolicyEnforcer));
+
 #if defined(OS_ANDROID)
     // Android provides a local HTTP proxy that handles all the proxying.
     // Create the proxy without a resolver since we rely
