@@ -54,6 +54,12 @@ void XWalkRuntimeFeatures::Initialize(const base::CommandLine* cmd) {
     experimental_features_enabled_ = false;
 
 #if !defined(DISABLE_BUNDLED_EXTENSIONS)
+  const Feature::Status default_status = Feature::Stable;
+#else
+  // mark all features as experimental so they are disabled by default
+  const Feature::Status default_status = Feature::Experimental;
+#endif
+
 #if defined(OS_ANDROID)
   // FIXME(cmarcelo): The application extensions are currently not fully working
   // for Android, so disable them. See
@@ -61,27 +67,26 @@ void XWalkRuntimeFeatures::Initialize(const base::CommandLine* cmd) {
   // Android uses a Java extension for device capabilities, so disable the one
   // from sysapps/.
   AddFeature("SysApps", "sysapps",
-      "Master switch for the SysApps category of APIs", Feature::Stable);
+      "Master switch for the SysApps category of APIs", default_status);
   AddFeature("RawSocketsAPI", "raw-sockets",
-      "JavaScript support for using TCP and UDP sockets", Feature::Stable);
+      "JavaScript support for using TCP and UDP sockets", default_status);
   AddFeature("StorageAPI", "storage",
-      "JavaScript support to file system beyond W3C spec", Feature::Stable);
+      "JavaScript support to file system beyond W3C spec", default_status);
   AddFeature("DialogAPI", "dialog-api",
       "JavaScript support for dialog APIs", Feature::Experimental);
 #else
   AddFeature("SysApps", "sysapps",
-      "Master switch for the SysApps category of APIs", Feature::Stable);
+      "Master switch for the SysApps category of APIs", default_status);
   AddFeature("RawSocketsAPI", "raw-sockets",
-      "JavaScript support for using TCP and UDP sockets", Feature::Stable);
+      "JavaScript support for using TCP and UDP sockets", default_status);
   AddFeature("StorageAPI", "storage",
-      "JavaScript support to file system beyond W3C spec", Feature::Stable);
+      "JavaScript support to file system beyond W3C spec", default_status);
   AddFeature("ApplicationAPI", "application-api",
-      "JavaScript support for Widget and Manifest APIs", Feature::Stable);
+      "JavaScript support for Widget and Manifest APIs", default_status);
   AddFeature("DialogAPI", "dialog-api",
       "JavaScript support for dialog APIs", Feature::Experimental);
   AddFeature("WiFiDirectAPI", "wifidirect-api",
       "JavaScript support for WiFiDirect", Feature::Experimental);
-#endif
 #endif
 }
 
