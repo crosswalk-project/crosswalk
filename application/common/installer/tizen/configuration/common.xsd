@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xmlns:widgets="http://www.w3.org/ns/widgets">
+  <xs:include schemaLocation="local.xsd"/>
+
+  <xs:group name="extension">
+    <xs:sequence>
+      <xs:group ref="anyElement"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:attributeGroup name="extension">
+    <xs:attributeGroup ref="anyAttribute"/>
+  </xs:attributeGroup>
+
+  <xs:group name="foreignElement">
+    <xs:sequence>
+      <xs:choice minOccurs="0">
+        <xs:group ref="local"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:attributeGroup name="foreignAttribute">
+    <xs:anyAttribute namespace="##other" processContents="skip"/>
+  </xs:attributeGroup>
+
+  <xs:group name="anyElement">
+    <xs:sequence>
+      <xs:any processContents="skip"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:attributeGroup name="anyAttribute">
+    <xs:anyAttribute processContents="skip"/>
+  </xs:attributeGroup>
+
+  <xs:simpleType name="data.positiveNumber">
+    <xs:restriction base="xs:string">
+      <!-- W3C testcase <xs:pattern value="[1-9]\d*"/> -->
+      <xs:pattern value="\s*([1-9]\d*)?.*"/> <!-- accept everything anyway -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="data.boolean">
+    <xs:restriction base="xs:string">
+      <!-- w3c testcases - ignore invalid
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+      -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attributeGroup name="global.attrs">
+    <xs:attribute name="dir">
+      <xs:simpleType>
+        <xs:list>
+          <xs:simpleType>
+            <xs:restriction base="xs:token">
+              <xs:enumeration value="ltr"/>
+              <xs:enumeration value="rtl"/>
+              <xs:enumeration value="lro"/>
+              <xs:enumeration value="rlo"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:list>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="global.xml">
+    <xs:anyAttribute namespace="##other" processContents="skip"/>
+  </xs:attributeGroup>
+
+  <xs:simpleType name="data.versionNumber">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,2}.[0-9]{1,2}(.[0-9]{1,4})?"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
