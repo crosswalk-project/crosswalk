@@ -186,8 +186,8 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
-#if !defined(DISABLE_NACL)
   int id = host->GetID();
+#if !defined(DISABLE_NACL)
   net::URLRequestContextGetter* context =
       host->GetStoragePartition()->GetURLRequestContext();
 
@@ -202,7 +202,7 @@ void XWalkContentBrowserClient::RenderProcessWillLaunch(
   host->AddFilter(new XWalkRenderMessageFilter);
 #if defined(OS_ANDROID)
   host->AddFilter(new cdm::CdmMessageFilterAndroid());
-  host->AddFilter(new XWalkRenderMessageFilter(host->GetID()));
+  host->AddFilter(new XWalkRenderMessageFilter(id));
 #endif
 }
 
