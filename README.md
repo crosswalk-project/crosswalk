@@ -5,6 +5,8 @@ Crosswalk is an app runtime based on Chromium/Blink.
 It is an open source project started by the Intel Open Source Technology Center
 (http://www.01.org)
 
+As of February 2017, Crosswalk is not being developed anymore. The last Crosswalk relase is 23.
+
 ## Documents
 
 Check out our [wiki](http://crosswalk-project.org/#wiki).
