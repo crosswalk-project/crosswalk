@@ -46,8 +46,9 @@ public class ProfileTest extends XWalkViewTestBase {
         super.setUp();
     }
 
-    @SmallTest
-    @Feature({"Profile"})
+    // @SmallTest
+    // @Feature({"Profile"})
+    @DisabledTest
     public void testCustomizeProfile() throws Throwable {
         TestWebServer webServer = TestWebServer.start();
         try {
