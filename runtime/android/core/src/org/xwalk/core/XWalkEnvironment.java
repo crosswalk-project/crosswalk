@@ -218,6 +218,7 @@ class XWalkEnvironment {
                         break;
                     case "aarch64":
                     case "armv8":
+                    case "armv8l":
                     case "arm64":
                         if (is64bitDevice()) {
                             sRuntimeAbi = "arm64-v8a";
