@@ -1,0 +1,455 @@
+From 64e93755feb8e28e171fd295f68e84d66f86cdf6 Mon Sep 17 00:00:00 2001
+From: "qing.zhang" <qing.zhang@intel.com>
+Date: Mon, 4 Nov 2013 20:19:32 -0500
+Subject: [PATCH] [Tizen] Enabling Hardware Acceleration with Libva and EGL in
+  VDA for Tizen Mobile within chromium v31.
+
+---
+ .../gpu/media/gpu_video_decode_accelerator.cc      |    8 +
+ .../gpu/media/vaapi_video_decode_accelerator.cc    |  205 +++++++++++++++++---
+ .../gpu/media/vaapi_video_decode_accelerator.h     |    6 +
+ content/content_common.gypi                        |   29 +++
+ content/gpu/gpu_main.cc                            |    4 +
+ 5 files changed, 222 insertions(+), 30 deletions(-)
+
+diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.cc b/content/common/gpu/media/gpu_video_decode_accelerator.cc
+index c5de2df..64b7ce3 100644
+--- a/content/common/gpu/media/gpu_video_decode_accelerator.cc
++++ b/content/common/gpu/media/gpu_video_decode_accelerator.cc
+@@ -29,6 +29,8 @@
+ #elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
+ #include "ui/gl/gl_context_glx.h"
+ #include "content/common/gpu/media/vaapi_video_decode_accelerator.h"
++#elif defined(ARCH_CPU_X86_FAMILY) && defined(VAVDA_TEXTEGL) && defined(USE_X11)
++#include "content/common/gpu/media/vaapi_video_decode_accelerator.h"
+ #elif defined(OS_ANDROID)
+ #include "content/common/gpu/media/android_video_decode_accelerator.h"
+ #endif
+@@ -242,6 +244,12 @@ void GpuVideoDecodeAccelerator::Initialize(
+   video_decode_accelerator_.reset(new VaapiVideoDecodeAccelerator(
+       glx_context->display(), glx_context_handle, this,
+       make_context_current_));
++#elif defined(ARCH_CPU_X86_FAMILY) && defined(VAVDA_TEXTEGL) && defined(USE_X11)
++  video_decode_accelerator_.reset(new VaapiVideoDecodeAccelerator(
++      gfx::GLSurfaceEGL::GetHardwareDisplay(),
++      stub_->decoder()->GetGLContext()->GetHandle(),
++      this,
++      make_context_current_));
+ #elif defined(OS_ANDROID)
+   video_decode_accelerator_.reset(new AndroidVideoDecodeAccelerator(
+       this,
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.cc b/content/common/gpu/media/vaapi_video_decode_accelerator.cc
+index cd18574..5b145f2 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.cc
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.cc
+@@ -80,6 +80,13 @@ class VaapiVideoDecodeAccelerator::TFPPicture {
+       uint32 texture_id,
+       gfx::Size size);
+ 
++  static linked_ptr<TFPPicture> Create(
++      const base::Callback<bool(void)>& make_context_current,
++      const EGLDisplay egl_display,
++      Display* x_display,
++      int32 picture_buffer_id,
++      uint32 texture_id,
++      gfx::Size size);
+   int32 picture_buffer_id() {
+     return picture_buffer_id_;
+   }
+@@ -101,12 +108,20 @@ class VaapiVideoDecodeAccelerator::TFPPicture {
+ 
+  private:
+   TFPPicture(const base::Callback<bool(void)>& make_context_current,
++             GLXFBConfig& fb_config,
++             Display* x_display,
++             int32 picture_buffer_id,
++             uint32 texture_id,
++             gfx::Size size);
++  TFPPicture(const base::Callback<bool(void)>& make_context_current,
++             EGLDisplay egl_display,
+              Display* x_display,
+              int32 picture_buffer_id,
+              uint32 texture_id,
+              gfx::Size size);
+ 
+   bool Initialize(const GLXFBConfig& fb_config);
++  bool Initialize(const EGLDisplay egl_display);
+ 
+   base::Callback<bool(void)> make_context_current_;
+ 
+@@ -120,13 +135,33 @@ class VaapiVideoDecodeAccelerator::TFPPicture {
+ 
+   // Pixmaps bound to this texture.
+   Pixmap x_pixmap_;
++  EGLDisplay egl_display_;
++  EGLImageKHR egl_image_;
+   GLXPixmap glx_pixmap_;
+ 
+   DISALLOW_COPY_AND_ASSIGN(TFPPicture);
+ };
++VaapiVideoDecodeAccelerator::TFPPicture::TFPPicture(
++    const base::Callback<bool(void)>& make_context_current,
++    GLXFBConfig& fb_config,
++    Display* x_display,
++    int32 picture_buffer_id,
++    uint32 texture_id,
++    gfx::Size size)
++    : make_context_current_(make_context_current),
++      x_display_(x_display),
++      picture_buffer_id_(picture_buffer_id),
++      texture_id_(texture_id),
++      size_(size),
++      x_pixmap_(0),
++      egl_image_(0),
++      glx_pixmap_(0) {
++  DCHECK(!make_context_current_.is_null());
++};
+ 
+ VaapiVideoDecodeAccelerator::TFPPicture::TFPPicture(
+     const base::Callback<bool(void)>& make_context_current,
++    EGLDisplay egl_display,
+     Display* x_display,
+     int32 picture_buffer_id,
+     uint32 texture_id,
+@@ -137,6 +172,8 @@ VaapiVideoDecodeAccelerator::TFPPicture::TFPPicture(
+       texture_id_(texture_id),
+       size_(size),
+       x_pixmap_(0),
++      egl_display_(egl_display),
++      egl_image_(0),
+       glx_pixmap_(0) {
+   DCHECK(!make_context_current_.is_null());
+ };
+@@ -151,8 +188,8 @@ VaapiVideoDecodeAccelerator::TFPPicture::Create(
+     gfx::Size size) {
+ 
+   linked_ptr<TFPPicture> tfp_picture(
+-      new TFPPicture(make_context_current, x_display, picture_buffer_id,
+-                     texture_id, size));
++      new TFPPicture(make_context_current, fb_config, x_display,
++                     picture_buffer_id, texture_id, size));
+ 
+   if (!tfp_picture->Initialize(fb_config))
+     tfp_picture.reset();
+@@ -160,6 +197,24 @@ VaapiVideoDecodeAccelerator::TFPPicture::Create(
+   return tfp_picture;
+ }
+ 
++linked_ptr<VaapiVideoDecodeAccelerator::TFPPicture>
++VaapiVideoDecodeAccelerator::TFPPicture::Create(
++    const base::Callback<bool(void)>& make_context_current,
++    const EGLDisplay egl_display,
++    Display* x_display,
++    int32 picture_buffer_id,
++    uint32 texture_id,
++    gfx::Size size) {
++
++  linked_ptr<TFPPicture> tfp_picture(
++      new TFPPicture(make_context_current, egl_display, x_display,
++                     picture_buffer_id, texture_id, size));
++
++  if (!tfp_picture->Initialize(egl_display))
++    tfp_picture.reset();
++
++  return tfp_picture;
++}
+ bool VaapiVideoDecodeAccelerator::TFPPicture::Initialize(
+     const GLXFBConfig& fb_config) {
+   // Check for NULL prevents unittests from crashing on nonexistent ChildThread.
+@@ -196,6 +251,41 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Initialize(
+   return true;
+ }
+ 
++bool VaapiVideoDecodeAccelerator::TFPPicture::Initialize(
++    EGLDisplay egl_display) {
++  // Check for NULL prevents unittests from crashing on nonexistent ChildThread.
++  DCHECK(ChildThread::current() == NULL ||
++      ChildThread::current()->message_loop() == base::MessageLoop::current());
++
++  if (!make_context_current_.Run())
++    return false;
++
++  XWindowAttributes win_attr;
++  int screen = DefaultScreen(x_display_);
++  XGetWindowAttributes(x_display_, RootWindow(x_display_, screen), &win_attr);
++  //TODO(posciak): pass the depth required by libva, not the RootWindow's depth
++  x_pixmap_ = XCreatePixmap(x_display_, RootWindow(x_display_, screen),
++                            size_.width(), size_.height(), win_attr.depth);
++  if (!x_pixmap_) {
++    DVLOG(1) << "Failed creating an X Pixmap for TFP";
++    return false;
++  }
++
++  egl_display_ = egl_display;
++  EGLint image_attrs[] = { EGL_IMAGE_PRESERVED_KHR, 1 , EGL_NONE };
++
++  egl_image_ = eglCreateImageKHR(egl_display_,
++                                EGL_NO_CONTEXT,
++                                EGL_NATIVE_PIXMAP_KHR,
++                                (EGLClientBuffer)x_pixmap_,
++                                image_attrs);
++  if (!egl_image_) {
++    DVLOG(1) << "Failed creating a EGLImage from Pixmap for KHR";
++    return false;
++  }
++
++  return true;
++}
+ VaapiVideoDecodeAccelerator::TFPPicture::~TFPPicture() {
+   // Check for NULL prevents unittests from crashing on nonexistent ChildThread.
+   DCHECK(ChildThread::current() == NULL ||
+@@ -207,6 +297,10 @@ VaapiVideoDecodeAccelerator::TFPPicture::~TFPPicture() {
+     glXDestroyPixmap(x_display_, glx_pixmap_);
+   }
+ 
++  if (egl_image_ && make_context_current_.Run()) {
++      eglDestroyImageKHR(egl_display_, egl_image_);
++  }
++
+   if (x_pixmap_)
+     XFreePixmap(x_display_, x_pixmap_);
+   XSync(x_display_, False);  // Needed to work around buggy vdpau-driver.
+@@ -214,7 +308,7 @@ VaapiVideoDecodeAccelerator::TFPPicture::~TFPPicture() {
+ 
+ bool VaapiVideoDecodeAccelerator::TFPPicture::Bind() {
+   DCHECK(x_pixmap_);
+-  DCHECK(glx_pixmap_);
++
+   // Check for NULL prevents unittests from crashing on nonexistent ChildThread.
+   DCHECK(ChildThread::current() == NULL ||
+       ChildThread::current()->message_loop() == base::MessageLoop::current());
+@@ -223,8 +317,13 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Bind() {
+     return false;
+ 
+   gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id_);
+-  glXBindTexImageEXT(x_display_, glx_pixmap_, GLX_FRONT_LEFT_EXT, NULL);
+-
++  if(glx_pixmap_) {
++    glXBindTexImageEXT(x_display_, glx_pixmap_, GLX_FRONT_LEFT_EXT, NULL);
++  } else if(egl_image_) {
++    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, egl_image_);
++  } else {
++    return false;
++  }
+   return true;
+ }
+ 
+@@ -244,6 +343,7 @@ VaapiVideoDecodeAccelerator::VaapiVideoDecodeAccelerator(
+     Client* client,
+     const base::Callback<bool(void)>& make_context_current)
+     : x_display_(x_display),
++      egl_context_(0),
+       glx_context_(glx_context),
+       make_context_current_(make_context_current),
+       state_(kUninitialized),
+@@ -262,6 +362,30 @@ VaapiVideoDecodeAccelerator::VaapiVideoDecodeAccelerator(
+   DCHECK(client);
+ }
+ 
++VaapiVideoDecodeAccelerator::VaapiVideoDecodeAccelerator(
++    EGLDisplay egl_display, EGLContext egl_context,
++    Client* client,
++    const base::Callback<bool(void)>& make_context_current)
++    : x_display_(0),
++      egl_display_(egl_display),
++      egl_context_(egl_context),
++      glx_context_(0),
++      make_context_current_(make_context_current),
++      state_(kUninitialized),
++      input_ready_(&lock_),
++      surfaces_available_(&lock_),
++      message_loop_(base::MessageLoop::current()),
++      weak_this_(base::AsWeakPtr(this)),
++      client_ptr_factory_(client),
++      client_(client_ptr_factory_.GetWeakPtr()),
++      decoder_thread_("VaapiDecoderThread"),
++      num_frames_at_client_(0),
++      num_stream_bufs_at_decoder_(0),
++      finish_flush_pending_(false),
++      awaiting_va_surfaces_recycle_(false),
++      requested_num_pics_(0) {
++  DCHECK(client);
++}
+ VaapiVideoDecodeAccelerator::~VaapiVideoDecodeAccelerator() {
+   DCHECK_EQ(message_loop_, base::MessageLoop::current());
+ }
+@@ -274,24 +398,31 @@ class ScopedPtrXFree {
+ };
+ 
+ bool VaapiVideoDecodeAccelerator::InitializeFBConfig() {
+-  const int fbconfig_attr[] = {
+-    GLX_DRAWABLE_TYPE, GLX_PIXMAP_BIT,
+-    GLX_BIND_TO_TEXTURE_TARGETS_EXT, GLX_TEXTURE_2D_BIT_EXT,
+-    GLX_BIND_TO_TEXTURE_RGB_EXT, GL_TRUE,
+-    GLX_Y_INVERTED_EXT, GL_TRUE,
+-    GL_NONE,
+-  };
+-
+-  int num_fbconfigs;
+-  scoped_ptr_malloc<GLXFBConfig, ScopedPtrXFree> glx_fb_configs(
++  if(glx_context_) {
++    const int fbconfig_attr[] = {
++      GLX_DRAWABLE_TYPE, GLX_PIXMAP_BIT,
++      GLX_BIND_TO_TEXTURE_TARGETS_EXT, GLX_TEXTURE_2D_BIT_EXT,
++      GLX_BIND_TO_TEXTURE_RGB_EXT, GL_TRUE,
++      GLX_Y_INVERTED_EXT, GL_TRUE,
++      GL_NONE,
++    };
++
++    int num_fbconfigs;
++    scoped_ptr_malloc<GLXFBConfig, ScopedPtrXFree> glx_fb_configs(
+       glXChooseFBConfig(x_display_, DefaultScreen(x_display_), fbconfig_attr,
+                         &num_fbconfigs));
+-  if (!glx_fb_configs)
+-    return false;
+-  if (!num_fbconfigs)
++    if (!glx_fb_configs)
++      return false;
++    if (!num_fbconfigs)
++      return false;
++
++    fb_config_ = glx_fb_configs.get()[0];
++  } else if(egl_context_) {
++    x_display_ = base::MessagePumpForUI::GetDefaultXDisplay();
++  } else {
+     return false;
++  }
+ 
+-  fb_config_ = glx_fb_configs.get()[0];
+   return true;
+ }
+ 
+@@ -716,19 +847,33 @@ void VaapiVideoDecodeAccelerator::AssignPictureBuffers(
+     DVLOG(2) << "Assigning picture id: " << buffers[i].id()
+              << " to texture id: " << buffers[i].texture_id()
+              << " VASurfaceID: " << va_surface_ids[i];
++    if(glx_context_) {
++      linked_ptr<TFPPicture> tfp_picture(
++          TFPPicture::Create(make_context_current_, fb_config_, x_display_,
++                             buffers[i].id(), buffers[i].texture_id(),
++                             requested_pic_size_));
++
++      RETURN_AND_NOTIFY_ON_FAILURE(
++          tfp_picture.get(), "Failed assigning picture buffer to a texture.",
++          PLATFORM_FAILURE, );
+ 
+-    linked_ptr<TFPPicture> tfp_picture(
+-        TFPPicture::Create(make_context_current_, fb_config_, x_display_,
+-                           buffers[i].id(), buffers[i].texture_id(),
+-                           requested_pic_size_));
+-
+-    RETURN_AND_NOTIFY_ON_FAILURE(
+-        tfp_picture.get(), "Failed assigning picture buffer to a texture.",
+-        PLATFORM_FAILURE, );
++      bool inserted = tfp_pictures_.insert(std::make_pair(
++          buffers[i].id(), tfp_picture)).second;
++      DCHECK(inserted);
++    } else if(egl_context_) {
++      linked_ptr<TFPPicture> tfp_picture(
++          TFPPicture::Create(make_context_current_, egl_display_, x_display_,
++                             buffers[i].id(), buffers[i].texture_id(),
++                             requested_pic_size_));
++
++      RETURN_AND_NOTIFY_ON_FAILURE(
++          tfp_picture.get(), "Failed assigning picture buffer to a texture.",
++          PLATFORM_FAILURE, );
+ 
+-    bool inserted = tfp_pictures_.insert(std::make_pair(
+-        buffers[i].id(), tfp_picture)).second;
+-    DCHECK(inserted);
++      bool inserted = tfp_pictures_.insert(std::make_pair(
++          buffers[i].id(), tfp_picture)).second;
++      DCHECK(inserted);
++    }
+ 
+     output_buffers_.push(buffers[i].id());
+     available_va_surfaces_.push_back(va_surface_ids[i]);
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.h b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+index 1755b98..a5b7969 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.h
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+@@ -48,6 +48,10 @@ class CONTENT_EXPORT VaapiVideoDecodeAccelerator
+       Display* x_display, GLXContext glx_context,
+       Client* client,
+       const base::Callback<bool(void)>& make_context_current);
++  VaapiVideoDecodeAccelerator(
++      EGLDisplay egl_display, EGLContext egl_context,
++      Client* client,
++      const base::Callback<bool(void)>& make_context_current);
+   virtual ~VaapiVideoDecodeAccelerator();
+ 
+   // media::VideoDecodeAccelerator implementation.
+@@ -153,6 +157,8 @@ private:
+ 
+   // Client-provided X/GLX state.
+   Display* x_display_;
++  EGLDisplay egl_display_;
++  EGLContext egl_context_;
+   GLXContext glx_context_;
+   base::Callback<bool(void)> make_context_current_;
+   GLXFBConfig fb_config_;
+diff --git a/content/content_common.gypi b/content/content_common.gypi
+index 8c45574..c1f1caa 100644
+--- a/content/content_common.gypi
++++ b/content/content_common.gypi
+@@ -537,6 +537,35 @@
+         '<(DEPTH)/third_party/libva',
+       ],
+     }],
++    ['target_arch != "arm" and tizen_mobile == 1 and use_x11 == 1', {
++      'dependencies': [
++        '../media/media.gyp:media',
++      ],
++      'defines': [
++        'VAVDA_TEXTEGL',
++      ],
++      'sources': [
++        'common/gpu/media/h264_dpb.cc',
++        'common/gpu/media/h264_dpb.h',
++        'common/gpu/media/va_surface.h',
++        'common/gpu/media/vaapi_h264_decoder.cc',
++        'common/gpu/media/vaapi_h264_decoder.h',
++        'common/gpu/media/vaapi_video_decode_accelerator.cc',
++        'common/gpu/media/vaapi_video_decode_accelerator.h',
++        'common/gpu/media/vaapi_wrapper.cc',
++        'common/gpu/media/vaapi_wrapper.h',
++      ],
++      'include_dirs': [
++        '<(DEPTH)/third_party/libva',
++        '<(DEPTH)/third_party/khronos',
++      ],
++      'link_settings': {
++        'libraries': [
++          '-lEGL',
++          '-lGLESv2',
++        ],
++      },
++    }],
+     ['OS=="win"', {
+       'dependencies': [
+         '../media/media.gyp:media',
+diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
+index 9e29e03..16eebcc 100644
+--- a/content/gpu/gpu_main.cc
++++ b/content/gpu/gpu_main.cc
+@@ -44,6 +44,8 @@
+ #include "content/common/gpu/media/exynos_video_decode_accelerator.h"
+ #elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
+ #include "content/common/gpu/media/vaapi_wrapper.h"
++#elif defined(ARCH_CPU_X86_FAMILY) && defined(VAVDA_TEXTEGL) && defined(USE_X11)
++#include "content/common/gpu/media/vaapi_wrapper.h"
+ #endif
+ 
+ #if defined(USE_X11)
+@@ -362,6 +364,8 @@ bool WarmUpSandbox(const CommandLine& command_line) {
+   ExynosVideoDecodeAccelerator::PreSandboxInitialization();
+ #elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
+   VaapiWrapper::PreSandboxInitialization();
++#elif defined(ARCH_CPU_X86_FAMILY) && defined(VAVDA_TEXTEGL) && defined(USE_X11)
++  VaapiWrapper::PreSandboxInitialization();
+ #endif
+ 
+ #if defined(OS_WIN)
+-- 
+1.7.9.5
+
