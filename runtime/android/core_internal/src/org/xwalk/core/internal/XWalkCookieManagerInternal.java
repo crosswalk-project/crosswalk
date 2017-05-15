@@ -45,6 +45,8 @@ public class XWalkCookieManagerInternal {
      * Set cookie for a given url. The old cookie with same host/path/name will
      * be removed. The new cookie will be added if it is not expired or it does
      * not have expiration which implies it is session cookie.
+     *
+     * Scheme[https|http] must be added as the prefix of url domain.
      * @param url The url which cookie is set for
      * @param value The value for set-cookie: in http response header
      * @since 5.0
@@ -61,6 +63,8 @@ public class XWalkCookieManagerInternal {
     /**
      * Get cookie(s) for a given url so that it can be set to "cookie:" in http
      * request header.
+     *
+     * Scheme[https|http] must be added as the prefix of url domain.
      * @param url The url needs cookie
      * @return The cookies in the format of NAME=VALUE [; NAME=VALUE]
      * @since 5.0
