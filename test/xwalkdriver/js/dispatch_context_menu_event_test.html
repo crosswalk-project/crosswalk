@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+<script src='test.js'></script>
+<script src='dispatch_context_menu_event.js'></script>
+<script>
+
+function testContextMenuEvent() {
+  var elem = document.querySelector('div');
+  var capturedEvent = null;
+  elem.addEventListener('contextmenu', function(e) { capturedEvent = e});
+  var x = elem.offsetLeft + 1;
+  var y = elem.offsetTop + 1;
+  dispatchContextMenuEvent(x, y, ModifierMask.CTRL | ModifierMask.SHIFT);
+  assert(capturedEvent != null);
+  assertEquals(x, capturedEvent.x);
+  assertEquals(y, capturedEvent.y);
+  assertEquals('contextmenu', capturedEvent.type);
+  assertEquals(2, capturedEvent.button);
+  assertEquals(true, capturedEvent.ctrlKey);
+  assertEquals(true, capturedEvent.shiftKey);
+  assertEquals(false, capturedEvent.altKey);
+  assertEquals(false, capturedEvent.metaKey);
+}
+
+function testCannotDispatchEventAtBadLocation() {
+  try {
+    dispatchContextMenuEvent(-1, -1, 0);
+    assert(false);
+  } catch (e) {
+  }
+}
+
+</script>
+<body>
+<div>DIV</div>
+</body>
+</html>
