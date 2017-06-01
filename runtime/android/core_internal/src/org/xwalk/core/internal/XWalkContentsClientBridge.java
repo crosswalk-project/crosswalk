@@ -6,10 +6,12 @@
 package org.xwalk.core.internal;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Picture;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
@@ -203,6 +205,16 @@ class XWalkContentsClientBridge extends XWalkContentsClient {
     public boolean shouldOverrideUrlLoading(String url) {
         if (mXWalkResourceClient != null && mXWalkView != null) {
             return mXWalkResourceClient.shouldOverrideUrlLoading(mXWalkView, url);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean shouldOverrideMediaPlaying(MediaPlayer mediaPlayer,
+            Context context, Uri uri, Map<String, String> headers) {
+        if (mXWalkResourceClient != null && mXWalkView != null) {
+            return mXWalkResourceClient.shouldOverrideMediaPlaying(mXWalkView,
+                    mediaPlayer, context, uri, headers);
         }
         return false;
     }

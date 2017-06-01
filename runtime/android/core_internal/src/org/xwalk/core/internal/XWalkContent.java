@@ -146,7 +146,7 @@ class XWalkContent implements XWalkPreferencesInternal.KeyValueChangeListener {
         mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
 
         MediaPlayerBridge.setResourceLoadingFilter(
-                new XWalkMediaPlayerResourceLoadingFilter());
+                new XWalkMediaPlayerResourceLoadingFilter(mContentsClientBridge));
 
         setNativeContent(nativeInit(), animatable);
 

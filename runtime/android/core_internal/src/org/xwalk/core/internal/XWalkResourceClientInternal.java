@@ -7,7 +7,9 @@ package org.xwalk.core.internal;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.MediaPlayer;
 import android.net.http.SslError;
+import android.net.Uri;
 import android.os.Build;
 import android.text.InputType;
 import android.util.Log;
@@ -256,6 +258,26 @@ public class XWalkResourceClientInternal {
      */
     @XWalkAPI
     public boolean shouldOverrideUrlLoading(XWalkViewInternal view, String url) {
+        return false;
+    }
+
+    /**
+     * Give the host application a chance to take over the control when a new
+     * media is about to be played in the current XWalkViewInternal.
+     *
+     * @param view The XWalkViewInternal that is initiating the callback.
+     * @param mediaPalyer The android system services.
+     * @param context The context to use when resolving the Uri.
+     * @param uri Tthe Content URI of data you want to play
+     * @param header The headers to be sent together with the request for the data Note
+     *        that the cross domain redirection is allowed by default.
+     * @return True if the host application wants to play itself, otherwise return false.
+     *
+     * @since 6.0
+     */
+    @XWalkAPI
+    public boolean shouldOverrideMediaPlaying(XWalkViewInternal view,
+            MediaPlayer mediaPlayer, Context context, Uri uri, Map<String, String> headers) {
         return false;
     }
 
