@@ -9,6 +9,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "components/autofill/content/renderer/autofill_agent.h"
 #include "components/autofill/content/renderer/password_autofill_agent.h"
+#include "components/printing/renderer/print_web_view_helper.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_frame_observer.h"
@@ -31,6 +32,7 @@
 #include "xwalk/runtime/common/xwalk_localized_error.h"
 #include "xwalk/runtime/renderer/isolated_file_system.h"
 #include "xwalk/runtime/renderer/pepper/pepper_helper.h"
+#include "xwalk/runtime/renderer/printing/xwalk_print_web_view_helper_delegate.h"
 
 #if defined(OS_ANDROID)
 #include "components/cdm/renderer/android_key_systems.h"
@@ -226,6 +228,9 @@ void XWalkContentRendererClient::RenderViewCreated(
 #if defined(OS_ANDROID)
   XWalkRenderViewExt::RenderViewCreated(render_view);
 #endif
+  new printing::PrintWebViewHelper(
+      render_view, std::unique_ptr<printing::PrintWebViewHelper::Delegate>(
+                       new XWalkPrintWebViewHelperDelegate()));
 }
 
 void XWalkContentRendererClient::DidCreateModuleSystem(

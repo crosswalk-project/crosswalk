@@ -17,6 +17,7 @@
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
+#include "xwalk/runtime/browser/printing/print_job_manager.h"
 #include "xwalk/runtime/browser/storage_component.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
@@ -81,12 +82,17 @@ void XWalkRunner::PreMainMessageLoopRun() {
   app_extension_bridge_->SetApplicationSystem(app_component_->app_system());
   browser_context_->set_application_service(
       app_system()->application_service());
+#if defined(ENABLE_PRINTING)
+  // Must be created after the NotificationService.
+  print_job_manager_.reset(new PrintJobManager);
+#endif
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {
   DestroyComponents();
   extension_service_.reset();
   browser_context_.reset();
+  print_job_manager_.reset();
   DisableRemoteDebugging();
 }
 
@@ -205,6 +211,10 @@ std::unique_ptr<XWalkRunner> XWalkRunner::Create() {
 #else
   return std::unique_ptr<XWalkRunner>(new XWalkRunner);
 #endif
+}
+
+PrintJobManager* XWalkRunner::print_job_manager() {
+  return print_job_manager_.get();
 }
 
 content::ContentBrowserClient* XWalkRunner::GetContentBrowserClient() {

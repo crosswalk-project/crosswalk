@@ -23,6 +23,7 @@ class XWalkTestSuiteInitializer;
 namespace xwalk {
 
 class ApplicationComponent;
+class PrintJobManager;
 class RemoteDebuggingServer;
 class SysAppsComponent;
 class XWalkBrowserContext;
@@ -80,6 +81,8 @@ class XWalkRunner {
 
   void EnableRemoteDebugging(int port);
   void DisableRemoteDebugging();
+
+  PrintJobManager* print_job_manager();
 
  protected:
   XWalkRunner();
@@ -147,6 +150,9 @@ class XWalkRunner {
 
   // Remote debugger server.
   std::unique_ptr<RemoteDebuggingServer> remote_debugging_server_;
+
+  // Ensures that all the print jobs are finished before closing
+  std::unique_ptr<PrintJobManager> print_job_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };
