@@ -67,6 +67,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient {
     private XWalkNavigationHandler mNavigationHandler;
     private XWalkNotificationService mNotificationService;
     private Handler mUiThreadHandler;
+    private XWalkMediaPlayerInternal mXWalkMediaPlayerInternal;
 
     /** State recording variables */
     // For fullscreen state.
@@ -161,6 +162,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient {
         mXWalkResourceClient = new XWalkResourceClientInternal(mXWalkView);
     }
 
+    public void setXWalkMediaPlayer(XWalkMediaPlayerInternal mediaPlayer) {
+        mXWalkMediaPlayerInternal = mediaPlayer;
+    }
+
+    public XWalkMediaPlayerInternal getExternalMediaPlayer() {
+        return mXWalkMediaPlayerInternal;
+    }
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
         // If it's null, use Crosswalk implementation.

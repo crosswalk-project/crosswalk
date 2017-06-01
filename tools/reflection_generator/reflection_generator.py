@@ -43,6 +43,7 @@ CLASSES_TO_PROCESS = [
     'XWalkHttpAuthInternal',
     'XWalkJavascriptResultHandlerInternal',
     'XWalkJavascriptResultInternal',
+    'XWalkMediaPlayerInternal',
     'XWalkNativeExtensionLoaderInternal',
     'XWalkNavigationHistoryInternal',
     'XWalkNavigationItemInternal',

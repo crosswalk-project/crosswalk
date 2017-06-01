@@ -22,6 +22,12 @@ import java.util.List;
 
 class XWalkMediaPlayerResourceLoadingFilter extends
         MediaPlayerBridge.ResourceLoadingFilter {
+    private XWalkContentsClientBridge mContentsClientBridge;
+
+    XWalkMediaPlayerResourceLoadingFilter(XWalkContentsClientBridge clientBridge) {
+        mContentsClientBridge = clientBridge;
+    }
+
     @Override
     public boolean shouldOverrideResourceLoading(MediaPlayer mediaPlayer,
             Context context, Uri uri) {
@@ -39,10 +45,14 @@ class XWalkMediaPlayerResourceLoadingFilter extends
                     context.getAssets().openFd(AndroidProtocolHandler.getAssetPath(uri));
             mediaPlayer.setDataSource(
                     afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-
             return true;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public MediaPlayer getExternalMediaPlayer() {
+        return mContentsClientBridge.getExternalMediaPlayer();
     }
 }
