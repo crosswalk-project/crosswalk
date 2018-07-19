@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-class XWalkEnvironment {
+public class XWalkEnvironment {
     private static final String TAG = "XWalkLib";
 
     private static final String META_XWALK_ENABLE_DOWNLOAD_MODE = "xwalk_enable_download_mode";

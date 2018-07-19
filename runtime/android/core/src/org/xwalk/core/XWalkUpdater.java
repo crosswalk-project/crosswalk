@@ -11,9 +11,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import java.io.File;
 import java.util.List;
@@ -291,6 +294,7 @@ public class XWalkUpdater {
     private XWalkDialogManager mDialogManager;
     private Runnable mDownloadCommand;
     private Runnable mCancelCommand;
+    private String hashSHA256HEX;
 
     /**
      * Create XWalkUpdater
@@ -587,7 +591,18 @@ public class XWalkUpdater {
         }
     }
 
+    public void pinXWalkApkCertificateHashSHA256HEX(String hashSHA256HEX) {
+
+        this.hashSHA256HEX = hashSHA256HEX;
+    }
+
     private boolean verifyDownloadedXWalkRuntime(String libFile) {
+
+        if(this.hashSHA256HEX == null || this.hashSHA256HEX.isEmpty()) {
+            Log.e(TAG, "No certificate hash was pinned. Call pinXWalkApkCertificateHashSHA256HEX method first ");
+            return false;
+        }
+
         // getPackageArchiveInfo also check the integrity of the downloaded runtime APK
         // besides returning the PackageInfo with signatures.
         PackageInfo runtimePkgInfo = mContext.getPackageManager().getPackageArchiveInfo(
@@ -597,33 +612,48 @@ public class XWalkUpdater {
             return false;
         }
 
-        PackageInfo appPkgInfo = null;
-        try {
-            appPkgInfo = mContext.getPackageManager().getPackageInfo(
-                    mContext.getPackageName(), PackageManager.GET_SIGNATURES);
-        } catch (NameNotFoundException e) {
-            return false;
-        }
-
-        if (runtimePkgInfo.signatures == null || appPkgInfo.signatures == null) {
+        if (runtimePkgInfo.signatures == null) {
             Log.e(TAG, "No signature in package info");
             return false;
         }
 
-        if (runtimePkgInfo.signatures.length != appPkgInfo.signatures.length) {
-            Log.e(TAG, "signatures length not equal");
+        if (runtimePkgInfo.signatures.length != 1) {
+            Log.e(TAG, "No signature found. Or more than one was found. Please sign the apk only once");
             return false;
         }
 
-        for (int i = 0; i < runtimePkgInfo.signatures.length; ++i) {
-            Log.d(TAG, "Checking signature " + i);
-            if (!appPkgInfo.signatures[i].equals(runtimePkgInfo.signatures[i])) {
-                Log.e(TAG, "signatures do not match");
-                return false;
-            }
+        String computedSignatureHashHex = computeSignatureHash(runtimePkgInfo.signatures[0]);
+
+        if(!hashSHA256HEX.equalsIgnoreCase(computedSignatureHashHex)) {
+            Log.d(TAG, "Signature does not matches the one that was pinned");
+            return false;
         }
+
         Log.d(TAG, "Signature check passed");
         return true;
+    }
+
+    private String computeSignatureHash(Signature signature) {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            //This should never happen on android 4.4 and above
+            e.printStackTrace();
+            return null;
+        }
+        md.update(signature.toByteArray());
+        return bytesToHex(md.digest());
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     private String getStoreName(String storePackage) {
