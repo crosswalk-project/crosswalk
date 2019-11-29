@@ -9,7 +9,7 @@ As of February 2017, Crosswalk is not being developed anymore. The last Crosswal
 
 ## Documents
 
-Check out our [wiki](http://crosswalk-project.org/#wiki).
+Check out our [wiki](https://github.com/crosswalk-project/crosswalk-website/wiki).
 
 ## Community
 
